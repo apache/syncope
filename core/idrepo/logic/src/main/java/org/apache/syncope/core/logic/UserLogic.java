@@ -584,8 +584,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 build();
 
         if (changepwd) {
-            req.setPassword(new PasswordPatch.Builder().
-                    value(password).onSyncope(false).resources(resources).build());
+            req.setPassword(new PasswordPatch.Builder().value(password).onSyncope(false).resources(resources).build());
         }
 
         return update(req, nullPriorityAsync);

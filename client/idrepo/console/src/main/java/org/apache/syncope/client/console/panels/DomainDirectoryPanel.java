@@ -65,15 +65,16 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         modal.size(Modal.Size.Large);
 
         modal.setWindowClosedCallback(target -> {
+            if (actionTogglePanel.isVisibleInHierarchy()) {
+                actionTogglePanel.toggle(target, false);
+            }
+
             updateResultTable(target);
             modal.show(false);
         });
 
         addOuterObject(utilityModal);
-        utilityModal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(utilityModal, true);
         utilityModal.size(Modal.Size.Small);
         utilityModal.addSubmitButton();
 

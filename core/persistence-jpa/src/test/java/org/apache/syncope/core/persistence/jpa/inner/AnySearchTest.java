@@ -59,7 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -105,12 +105,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
-    
+
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-    
-    @Autowired
-    private EntityFactory entityFactory;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -989,58 +986,48 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1906() {
-        User bellini = userDAO.findByUsername("bellini");
-        assertNotNull(bellini);
-
+    void issueSYNCOPE1906() {
         PlainSchema ctypeSchema = plainSchemaDAO.find("ctype");
-        assertNotNull(ctypeSchema);
 
-        userDAO.save(addPlainAttr(bellini, ctypeSchema, "aa1"));
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
 
-        User puccini = userDAO.findByUsername("puccini");
-        assertNotNull(bellini);
+        anyUtils.addAttr(validator, userDAO.findKey("bellini"), ctypeSchema, "aa1");
+        assertEquals("aa1", userDAO.findByUsername("bellini").
+                getPlainAttr("ctype").orElseThrow().getValues().get(0).getValueAsString());
 
-        userDAO.save(addPlainAttr(puccini, ctypeSchema, "aa2"));
+        anyUtils.addAttr(validator, userDAO.findKey("puccini"), ctypeSchema, "aa2");
+        assertEquals("aa2", userDAO.findByUsername("puccini").
+                getPlainAttr("ctype").orElseThrow().getValues().get(0).getValueAsString());
 
-        User verdi = userDAO.findByUsername("verdi");
-        assertNotNull(verdi);
+        anyUtils.addAttr(validator, userDAO.findKey("verdi"), ctypeSchema, "aa3");
+        assertEquals("aa3", userDAO.findByUsername("verdi").
+                getPlainAttr("ctype").orElseThrow().getValues().get(0).getValueAsString());
 
-        userDAO.save(addPlainAttr(verdi, ctypeSchema, "aa3"));
+        anyUtils.removeAttr(userDAO.findKey("vivaldi"), ctypeSchema);
+        anyUtils.addAttr(validator, userDAO.findKey("vivaldi"), ctypeSchema, "aa4");
+        assertEquals("aa4", userDAO.findByUsername("vivaldi").
+                getPlainAttr("ctype").orElseThrow().getValues().get(0).getValueAsString());
 
-        User vivaldi = userDAO.findByUsername("vivaldi");
-        assertNotNull(vivaldi);
-
-        userDAO.save(addPlainAttr(vivaldi, ctypeSchema, "aa4"));
-
-        User rossini = userDAO.findByUsername("rossini");
-        assertNotNull(rossini);
-
-        userDAO.save(addPlainAttr(rossini, ctypeSchema, "aa5"));
+        anyUtils.removeAttr(userDAO.findKey("rossini"), ctypeSchema);
+        anyUtils.addAttr(validator, userDAO.findKey("rossini"), ctypeSchema, "aa5");
+        assertEquals("aa5", userDAO.findByUsername("rossini").
+                getPlainAttr("ctype").orElseThrow().getValues().get(0).getValueAsString());
 
         entityManager().flush();
+
+        AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        keyCond.setSchema("key");
 
         OrderByClause orderByCtype = new OrderByClause();
         orderByCtype.setField("ctype");
         orderByCtype.setDirection(OrderByClause.Direction.DESC);
 
-        OrderByClause orderByFirstname = new OrderByClause();
-        orderByFirstname.setField("username");
-        orderByFirstname.setDirection(OrderByClause.Direction.DESC);
+        List<User> users = searchDAO.search(
+                SearchCond.getLeaf(keyCond), List.of(orderByCtype), AnyTypeKind.USER);
+        assertEquals(
+                List.of("rossini", "vivaldi", "verdi", "puccini", "bellini"),
+                users.stream().map(User::getUsername).collect(Collectors.toList()));
 
-        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
-
-        List<User> users =
-                searchDAO.search(SearchCond.getLeaf(idCond), List.of(orderByCtype, orderByFirstname), AnyTypeKind.USER);
-
-        assertEquals("bellini", users.get(4).getUsername());
-        assertEquals("puccini", users.get(3).getUsername());
-        assertEquals("verdi", users.get(2).getUsername());
-        assertEquals("vivaldi", users.get(1).getUsername());
-        assertEquals("rossini", users.get(0).getUsername());
-
-        // order by ctype even not searching by it
         AttrCond surnameCond = new AttrCond(AttrCond.Type.ILIKE);
         surnameCond.setSchema("surname");
         surnameCond.setExpression("%ini");
@@ -1048,10 +1035,10 @@ public class AnySearchTest extends AbstractTest {
         AttrCond coolCond = new AttrCond(AttrCond.Type.ISNULL);
         coolCond.setSchema("cool");
 
-        users = searchDAO.search(SearchCond.getAnd(SearchCond.getLeaf(surnameCond), SearchCond.getLeaf(coolCond)),
+        // order by ctype even not searching by it
+        users = searchDAO.search(
+                SearchCond.getAnd(SearchCond.getLeaf(surnameCond), SearchCond.getLeaf(coolCond)),
                 List.of(orderByCtype), AnyTypeKind.USER);
-
-        assertFalse(users.isEmpty());
         assertEquals(2, users.size());
 
         // order by unique attribute
@@ -1059,45 +1046,29 @@ public class AnySearchTest extends AbstractTest {
         orderByFullname.setField("fullname");
         orderByFullname.setDirection(OrderByClause.Direction.DESC);
 
-        users = searchDAO.search(SearchCond.getLeaf(idCond), List.of(orderByFullname), AnyTypeKind.USER);
-
-        assertEquals("vivaldi", users.get(4).getUsername());
-        assertEquals("puccini", users.get(3).getUsername());
-        assertEquals("rossini", users.get(2).getUsername());
-        assertEquals("verdi", users.get(1).getUsername());
-        assertEquals("bellini", users.get(0).getUsername());
+        users = searchDAO.search(
+                SearchCond.getLeaf(keyCond), List.of(orderByFullname), AnyTypeKind.USER);
+        assertEquals(
+                List.of("bellini", "verdi", "rossini", "puccini", "vivaldi"),
+                users.stream().map(User::getUsername).collect(Collectors.toList()));
     }
 
     @Test
-    public void issueSYNCOPE1922() {
-        User bellini = userDAO.findByUsername("bellini");
-        assertNotNull(bellini);
-
-        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
-        assertNotNull(obscureSchema);
-
-        userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
+    void issueSYNCOPE1922() {
+        anyUtilsFactory.getInstance(AnyTypeKind.USER).addAttr(
+                validator,
+                userDAO.findKey("bellini"),
+                plainSchemaDAO.find("obscure"),
+                "myobscurevalue");
 
         entityManager().flush();
 
-        AttrCond obscureCond = new AttrCond(AttrCond.Type.EQ);
-        obscureCond.setSchema("obscure");
-        obscureCond.setExpression("myobscurevalue");
+        AttrCond cond = new AttrCond(AttrCond.Type.EQ);
+        cond.setSchema("obscure");
+        cond.setExpression("myobscurevalue");
 
-        assertThrows(IllegalArgumentException.class,
-                () -> searchDAO.search(SearchCond.getLeaf(obscureCond), AnyTypeKind.USER));
-    }
-
-    private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
-        user.getPlainAttr(plainSchema.getKey())
-                .ifPresentOrElse(ctype -> ctype.getValues().get(0).setStringValue(value), () -> {
-                    UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-                    attr.setOwner(user);
-                    attr.setSchema(plainSchema);
-                    attr.add(validator, value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
-
-                    user.add(attr);
-                });
-        return user;
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> searchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
     }
 }

@@ -111,12 +111,12 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         super(id, builder, wizardInModal);
 
         typeExtensionsModal.size(Modal.Size.Large);
-        addOuterObject(typeExtensionsModal);
-        setWindowClosedReloadCallback(typeExtensionsModal);
         typeExtensionsModal.addSubmitButton();
+        setWindowClosedReloadCallback(typeExtensionsModal);
+        addOuterObject(typeExtensionsModal);
 
-        addOuterObject(membersModal);
         membersModal.size(Modal.Size.Large);
+        addOuterObject(membersModal);
 
         membersTogglePanel = new MembersTogglePanel(page.getPageReference()) {
 

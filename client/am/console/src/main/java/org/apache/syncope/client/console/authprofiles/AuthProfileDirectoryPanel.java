@@ -81,10 +81,7 @@ public class AuthProfileDirectoryPanel
             }
         };
         authProfileModal.size(Modal.Size.Large);
-        authProfileModal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            authProfileModal.show(false);
-        });
+        setWindowClosedReloadCallback(authProfileModal, true);
         addOuterObject(authProfileModal);
 
         disableCheckBoxes();

@@ -47,11 +47,11 @@ public final class DateOps {
         }
 
         public String format(final OffsetDateTime date) {
-            return Optional.ofNullable(date).map(v -> fdf.format(convert(date))).orElse(StringUtils.EMPTY);
+            return Optional.ofNullable(date).map(v -> fdf.format(convert(v))).orElse(StringUtils.EMPTY);
         }
 
         public String format(final ZonedDateTime date) {
-            return Optional.ofNullable(date).map(v -> fdf.format(convert(date))).orElse(StringUtils.EMPTY);
+            return Optional.ofNullable(date).map(v -> fdf.format(convert(v))).orElse(StringUtils.EMPTY);
         }
 
         public String format(final LocalDateTime date) {

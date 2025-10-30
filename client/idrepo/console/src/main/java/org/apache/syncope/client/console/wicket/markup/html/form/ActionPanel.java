@@ -169,7 +169,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
         Optional.ofNullable(action.getIcon()).ifPresent(i -> actionIcon.add(new AttributeModifier("class", i)));
 
-        this.disableIndicator = !action.hasIndicator();
+        disableIndicator = !action.hasIndicator();
         // ---------------------------
     }
 

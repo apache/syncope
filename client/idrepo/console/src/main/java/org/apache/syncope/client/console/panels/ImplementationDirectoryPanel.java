@@ -74,6 +74,10 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
         modal.setWindowClosedCallback(target -> {
+            if (actionTogglePanel.isVisibleInHierarchy()) {
+                actionTogglePanel.toggle(target, false);
+            }
+
             implementation.setEngine(null);
             updateResultTable(target);
             modal.show(false);

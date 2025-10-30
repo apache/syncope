@@ -35,7 +35,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
@@ -178,16 +177,13 @@ public abstract class DirectoryPanel<
 
         rows = PreferenceManager.getPaginatorRows(paginatorRowsKey());
 
-        modal.setWindowClosedCallback(target -> {
-            if (actionTogglePanel.isVisibleInHierarchy() && modal.getContent() instanceof WizardModalPanel) {
-                actionTogglePanel.updateHeader(target, WizardModalPanel.class.cast(modal.getContent()).getItem());
-            }
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal);
 
-        setWindowClosedReloadCallback(altDefaultModal);
         altDefaultModal.size(Modal.Size.Default);
+        setWindowClosedReloadCallback(altDefaultModal);
 
+        displayAttributeModal.size(Modal.Size.Default);
+        displayAttributeModal.addSubmitButton();
         displayAttributeModal.setWindowClosedCallback(target -> {
             EventDataWrapper data = new EventDataWrapper();
             data.setTarget(target);
@@ -195,11 +191,27 @@ public abstract class DirectoryPanel<
 
             send(DirectoryPanel.this, Broadcast.EXACT, data);
 
-            displayAttributeModal.size(Modal.Size.Default);
             modal.show(false);
         });
-        displayAttributeModal.size(Modal.Size.Default);
-        displayAttributeModal.addSubmitButton();
+    }
+
+    @Override
+    protected void setWindowClosedReloadCallback(final BaseModal<?> baseModal) {
+        setWindowClosedReloadCallback(baseModal, false);
+    }
+
+    protected void setWindowClosedReloadCallback(final BaseModal<?> baseModal, final boolean updateResultTable) {
+        baseModal.setWindowClosedCallback(target -> {
+            if (actionTogglePanel.isVisibleInHierarchy()) {
+                actionTogglePanel.toggle(target, false);
+            }
+
+            if (updateResultTable) {
+                updateResultTable(target);
+            }
+
+            baseModal.show(false);
+        });
     }
 
     protected abstract DP dataProvider();

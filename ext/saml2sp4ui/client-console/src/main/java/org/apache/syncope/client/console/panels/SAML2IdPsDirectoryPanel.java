@@ -107,10 +107,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
 
         addOuterObject(metadataModal);
         setWindowClosedReloadCallback(metadataModal);
@@ -126,7 +123,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 setFooterVisible(false);
             }
         };
-        templateModal.setWindowClosedCallback(target -> templateModal.show(false));
+        setWindowClosedReloadCallback(templateModal);
         templateModal.size(Modal.Size.Large);
         addOuterObject(templateModal);
 

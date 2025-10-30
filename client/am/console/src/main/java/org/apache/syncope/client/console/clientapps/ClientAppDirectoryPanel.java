@@ -97,10 +97,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         propertiesModal = new BaseModal<>(Constants.OUTER) {
@@ -114,7 +111,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             }
         };
         propertiesModal.size(Modal.Size.Large);
-        propertiesModal.setWindowClosedCallback(target -> propertiesModal.show(false));
+        setWindowClosedReloadCallback(propertiesModal);
         addOuterObject(propertiesModal);
 
         disableCheckBoxes();

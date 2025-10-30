@@ -33,6 +33,7 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
@@ -71,7 +72,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         container.add(getEmptyFragment());
     }
 
-    public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
+    protected void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
         if (modelObject instanceof UserTO) {
             header = ((UserTO) modelObject).getUsername();
@@ -112,6 +113,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((Domain) modelObject).getKey();
         } else if (modelObject instanceof CommandTO) {
             header = ((CommandTO) modelObject).getKey();
+        } else if (modelObject instanceof NetworkService) {
+            header = ((NetworkService) modelObject).getAddress();
         } else if (modelObject instanceof NamedEntityTO) {
             header = ((NamedEntityTO) modelObject).getName();
         } else if (modelObject instanceof EntityTO) {
@@ -133,7 +136,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
         updateHeader(target, modelObject);
 
-        modal.setWindowClosedCallback(t -> modal.show(false));
+        setWindowClosedReloadCallback(modal);
 
         Fragment frag = new Fragment("actions", "actionsFragment", this);
         frag.setOutputMarkupId(true);

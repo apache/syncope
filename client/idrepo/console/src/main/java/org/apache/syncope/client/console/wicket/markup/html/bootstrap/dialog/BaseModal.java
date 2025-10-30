@@ -24,6 +24,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorModalCloseBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
@@ -184,9 +185,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     @Override
     protected void onClose(final IPartialPageRequestHandler target) {
-        if (windowClosedCallback != null) {
-            windowClosedCallback.onClose((AjaxRequestTarget) target);
-        }
+        Optional.ofNullable(windowClosedCallback).ifPresent(callback -> callback.onClose((AjaxRequestTarget) target));
     }
 
     public AjaxSubmitLink addSubmitButton() {

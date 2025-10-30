@@ -70,11 +70,7 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
 
         addNewItemPanelBuilder(new SAML2IdPEntityWizardBuilder(new SAML2IdPEntityTO(), restClient, pageRef), false);
 

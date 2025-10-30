@@ -124,12 +124,14 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:6:action:action");
         // Search for user
-        TESTER.executeAjaxEvent(USER_SEARCH_FORM + "content:panelPlus:add", Constants.ON_CLICK);
-        FormTester formTester = TESTER.newFormTester(USER_SEARCH_FORM);
+        TESTER.executeAjaxEvent(USER_SEARCH_FORM.replace(":2:", ":0:") + "content:panelPlus:add", Constants.ON_CLICK);
+        FormTester formTester = TESTER.newFormTester(USER_SEARCH_FORM.replace(":2:", ":0:"));
 
-        DropDownChoice<?> type = (DropDownChoice<?>) TESTER.getComponentFromLastRenderedPage(USER_SEARCH_FORM
+        DropDownChoice<?> type = (DropDownChoice<?>) TESTER.getComponentFromLastRenderedPage(
+                USER_SEARCH_FORM.replace(":2:", ":0:")
                 + "content:view:0:panel:container:type:dropDownChoiceField");
-        TESTER.executeAjaxEvent(USER_SEARCH_FORM + "content:view:0:panel:container:type:dropDownChoiceField",
+        TESTER.executeAjaxEvent(USER_SEARCH_FORM.replace(":2:", ":0:")
+                + "content:view:0:panel:container:type:dropDownChoiceField",
                 Constants.ON_CHANGE);
         type.setModelValue(new String[] { "ATTRIBUTE" });
         type.setDefaultModelObject(SearchClause.Type.ATTRIBUTE);
@@ -149,32 +151,33 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         TESTER.assertNoErrorMessage();
 
         // Locate result in data table
-        Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL + RESULT_DATA_TABLE, USER.
-                getUsername());
+        Component comp = findComponentByProp("username", TAB_PANEL + SEARCH_PANEL.replace(":2:", ":0:")
+                + RESULT_DATA_TABLE, USER.getUsername());
         TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
 
         // Select user
-        TESTER.clickLink(TAB_PANEL + SEARCH_PANEL + SELECT_USER_ACTION);
+        TESTER.clickLink(TAB_PANEL + SEARCH_PANEL.replace(":2:", ":0:") + SELECT_USER_ACTION);
 
         // move onto the next panel
-        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
-        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM.replace(":2:", ":0:") + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM.replace(":2:", ":0:"));
         formTester.submit("buttons:next");
 
         // Select a resource
-        comp = findComponentByProp("key", TAB_PANEL + FORM + RESOURCES_DATA_TABLE + "body:rows", "resource-ldap");
+        comp = findComponentByProp("key", TAB_PANEL + FORM.replace(":2:", ":0:") + RESOURCES_DATA_TABLE + "body:rows",
+                "resource-ldap");
         assertNotNull(comp);
         TESTER.executeAjaxEvent(comp.getPageRelativePath(), Constants.ON_CLICK);
-        TESTER.clickLink(TAB_PANEL + FORM + SELECT_RESOURCE_ACTION);
+        TESTER.clickLink(TAB_PANEL + FORM.replace(":2:", ":0:") + SELECT_RESOURCE_ACTION);
 
         // move onto the next panel
-        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
-        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM.replace(":2:", ":0:") + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM.replace(":2:", ":0:"));
         formTester.submit("buttons:next");
 
         // Finish merge
-        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM + "view").setEnabled(false);
-        formTester = TESTER.newFormTester(TAB_PANEL + FORM);
+        TESTER.getComponentFromLastRenderedPage(TAB_PANEL + FORM.replace(":2:", ":0:") + "view").setEnabled(false);
+        formTester = TESTER.newFormTester(TAB_PANEL + FORM.replace(":2:", ":0:"));
         formTester.submit("buttons:finish");
 
         UserService userService = SyncopeConsoleSession.get().getService(UserService.class);

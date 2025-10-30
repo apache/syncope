@@ -72,10 +72,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
-        modal.setWindowClosedCallback(target -> {
-            modal.show(false);
-            target.add(container);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         this.addNewItemPanelBuilder(

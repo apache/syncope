@@ -65,10 +65,7 @@ public class DynRealmDirectoryPanel extends
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         AjaxLink<Void> newDynRealmlLink = new AjaxLink<>("add") {
