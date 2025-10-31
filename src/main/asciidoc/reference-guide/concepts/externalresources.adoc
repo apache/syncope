@@ -136,7 +136,7 @@ owned by the any object of type `relationshipAnyType`, if a relationship of type
 ** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
 `groupName` of the mapped entity (user, any object), if such a membership exists
 * external attribute - the name of the attribute on the Identity Store
-* transformers - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression or Java class implementing
+* transformers - <<jexl,JEXL>> expression or Java class implementing
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/data/ItemTransformer.java[ItemTransformer^]
 endif::[]
@@ -144,9 +144,9 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/data/ItemTransformer.java[ItemTransformer^]
 endif::[]
 ; the purpose is to transform values before they are sent to or received from the underlying connector
-* mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
-this mapping item must be necessarily available or not; compared to a simple boolean value, such condition allows
-complex statements to be expressed such as 'be mandatory only if this other attribute value is above 14', and so on
+* mandatory condition - <<jexl,JEXL>> expression indicating whether values for this mapping item must be necessarily
+available or not; compared to a simple boolean value, such condition allows complex statements to be expressed such as
+'be mandatory only if this other attribute value is above 14', and so on
 * remote key flag - should this item be considered as the key value on the Identity Store, if no
 <<inbound-correlation-rules,inbound>> or <<push-correlation-rules,push>> correlation rules are applicable?
 * password flag (Users only) - should this item be treated as the password value?

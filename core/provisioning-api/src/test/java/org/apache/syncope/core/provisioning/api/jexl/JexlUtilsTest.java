@@ -29,10 +29,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.jexl3.JexlContext;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -61,7 +63,7 @@ public class JexlUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void evaluate() {
+    public void evaluateExpr() {
         String expression = null;
         assertEquals(StringUtils.EMPTY, JexlUtils.evaluateExpr(expression, context));
 
@@ -160,5 +162,17 @@ public class JexlUtilsTest extends AbstractTest {
 
         assertTrue(JexlUtils.evaluateMandatoryCondition("true", any, derAttrHandler));
         assertFalse(JexlUtils.evaluateMandatoryCondition("false", any, derAttrHandler));
+    }
+
+    @Test
+    public void evaluateTemplate() {
+        byte[] byteArray = "a value".getBytes();
+        String result = JexlUtils.evaluateTemplate(
+                "${syncope:base64Encode(value)}", new MapContext(Map.of("value", byteArray)));
+        assertEquals(Base64.getEncoder().encodeToString(byteArray), result);
+
+        result = JexlUtils.evaluateTemplate(
+                "${syncope:fullPath2Dn(value, 'ou')}", new MapContext(Map.of("value", "/a/b/c")));
+        assertEquals("ou=c,ou=b,ou=a", result);
     }
 }

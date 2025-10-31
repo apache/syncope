@@ -710,7 +710,3 @@ available at runtime.
 ==== Extensions
 
 <<extensions>> can be part of a local project, to encapsulate special features which are specific to a given deployment.
-
-For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
-https://gitlab.ow2.org/chorevolution/syncope/tree/master/ext/choreography[an extension^]
-for managing via the <<core>> and visualizing via the <<admin-console-component>> the running choreography instances.

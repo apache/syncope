@@ -60,9 +60,9 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/persistence-common/src/main/java/org/apache/syncope/core/persistence/common/attrvalue/EmailAddressValidator.java[EmailAddressValidator^]
 endif::[]
 for reference
-* Mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
-this schema must be necessarily provided or not; compared to simple boolean value, such condition allows to express
-complex statements like 'be mandatory only if this other attribute value is above 14', and so on
+* Mandatory condition - <<jexl,JEXL>> expression indicating whether values for  this schema must be necessarily provided
+or not; compared to simple boolean value, such condition allows to express complex statements like 'be mandatory only if
+this other attribute value is above 14', and so on
 * Unique constraint - make sure that no duplicate value(s) for this schema are found
 * Multivalue flag - whether single or multiple values are supported
 * Read-only flag - whether value(s) for this schema are modifiable only via internal code (say workflow tasks) or 
@@ -74,8 +74,8 @@ Sometimes it is useful to obtain values as arbitrary combinations of other attri
 `firstname` and `surname` plain schemas, it is natural to think that `fullname` could be somehow defined as the 
 concatenation of `firstname` 's and `surname` 's values, separated by a blank space.
 
-Derived schemas are always read-only and require a http://commons.apache.org/proper/commons-jexl/[JEXL^]
-expression to be specified that references plain schema types. +
+Derived schemas are always read-only and require a <<jexl,JEXL>> expression to be specified that references plain schema
+types. +
 For the sample above, it would be
 
  firstname + ' ' + surname
