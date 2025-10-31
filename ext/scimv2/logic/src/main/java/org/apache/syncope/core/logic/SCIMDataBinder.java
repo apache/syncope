@@ -583,15 +583,6 @@ public class SCIMDataBinder {
             final SCIMPatchOperation op) {
         SCIMConf conf = confManager.get();
 
-        Set<String> expectedSchemas = new HashSet<>();
-        expectedSchemas.add(Resource.User.schema());
-        if (conf.getEnterpriseUserConf() != null) {
-            expectedSchemas.add(Resource.EnterpriseUser.schema());
-        }
-        if (conf.getExtensionUserConf() != null) {
-            expectedSchemas.add(Resource.ExtensionUser.schema());
-        }
-
         if (!SyncopeConstants.ROOT_REALM.equals(before.getRealm())) {
             userUR.setRealm(new StringReplacePatchItem.Builder()
                     .value(SyncopeConstants.ROOT_REALM).operation(PatchOperation.ADD_REPLACE).build());
