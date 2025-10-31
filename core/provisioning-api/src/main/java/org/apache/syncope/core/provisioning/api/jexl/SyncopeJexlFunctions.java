@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,8 +63,7 @@ public class SyncopeJexlFunctions {
         }
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
-        Collections.reverse(headless);
-        return prefix + attr + "=" + headless.stream().collect(Collectors.joining("," + attr + "="));
+        return prefix + attr + "=" + headless.reversed().stream().collect(Collectors.joining("," + attr + "="));
     }
 
     /**
@@ -78,6 +77,26 @@ public class SyncopeJexlFunctions {
         return Optional.ofNullable(connObj).
                 flatMap(obj -> Optional.ofNullable(obj.getAttributeByName(name)).
                 map(Attribute::getValue)).
-            orElseGet(List::of);
+                orElseGet(List::of);
+    }
+
+    /**
+     * Encodes the given byte array as Base64-encoded string.
+     *
+     * @param value byte array value
+     * @return
+     */
+    public String base64Encode(final byte[] value) {
+        return Base64.getEncoder().encodeToString(value);
+    }
+
+    /**
+     * Decodes the given string as byte array using Base64 encoding.
+     *
+     * @param value base64 string
+     * @return
+     */
+    public byte[] base64Decode(final String value) {
+        return Base64.getDecoder().decode(value);
     }
 }

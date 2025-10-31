@@ -543,3 +543,21 @@ username DESC
 email DESC, username ASC
 ----
 ====
+
+[[jexl]]
+==== JEXL support
+
+https://commons.apache.org/proper/commons-jexl/[Apache Commons JEXL^] is supported as a mean to implement templating
+and dynamic value calculation.
+
+Besides https://commons.apache.org/proper/commons-jexl/reference/syntax.html[standard syntax^], the following additional
+functions are defined:
+
+* `syncope:fullPath2Dn(fullPath, attr)` - converts full path into the equivalent DN; for example, `/a/b/c` becomes
+`ou=c,ou=b,ou=a`
+* `syncope:fullPath2Dn(fullPath, attr, prefix)` - converts full path into the equivalent DN, with prefix;
+for example, `/a/b/c` with prefix `o=isp,` becomes `o=isp,ou=c,ou=b,ou=a`
+* `syncope:connObjAttrValues(connObj, name)` - extracts the values of the attribute with given name from the given
+connector object, or empty list if not found
+* `syncope:base64Encode(value)` - encodes the given byte array as Base64-encoded string
+* `syncope:base64Decode(value)` - decodes the given string as byte array using Base64 encoding

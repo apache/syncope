@@ -101,16 +101,15 @@ other custom code.
 
 ==== Notification Templates
 
-A notification template is defined as a pair of http://commons.apache.org/proper/commons-jexl/[JEXL^] expressions,
-to be used respectively for plaintext and HTML e-mails, and is available for selection in the notification specification.
+A notification template is defined as a pair of <<jexl,JEXL>> expressions, to be used respectively for plaintext and
+HTML e-mails, and is available for selection in the notification specification.
 
 [NOTE]
 ====
 Notification templates can be easily managed via the <<console-configuration-notifications,admin console>>.
 ====
 
-The full power of JEXL expressions - see http://commons.apache.org/proper/commons-jexl/reference/syntax.html[reference^]
-and http://commons.apache.org/proper/commons-jexl/reference/examples.html[some examples^] - is available. +
+The full power of JEXL expressions is available. +
 For example, the `user` variable, an instance of 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/to/UserTO.java[UserTO^]

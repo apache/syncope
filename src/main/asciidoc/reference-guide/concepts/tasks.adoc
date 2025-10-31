@@ -249,11 +249,11 @@ and are permanently saved - for later re-execution or for examining the executio
 ==== Macros
 
 Macro tasks are meant to group one or more <<commands>> into a given execution sequence, alongside with
-arguments required to run.
+arguments required to run, with option to define an input form to drive user interaction.
 
 When defining a macro task, the following information must be provided:
 
-* commands to run, with their args
+* commands to run with their args, either statically defined or mapped to form properties by <<jexl,JEXL>> expressions
 * <<realms,Realm>> for <<delegated-administration,delegated administration>> to restrict the set of users entitled to
 list, update or execute the given macro task
 * scheduling information:
@@ -263,7 +263,7 @@ list, update or execute the given macro task
 ===== MacroActions
 
 Macro task execution can be decorated with custom logic to be invoked around task execution, by associating
-macro tasks to one or more <<implementations,implementations>> of the
+macro tasks to a given <<implementations,Implementation>> of the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
@@ -271,6 +271,227 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/4_0_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
 interface.
+
+.Macro task with input form
+====
+Let's assume there are two `Command` instances defined, alongside with their arguments:
+
+. `NewPrinterCommand` which creates a new Realm and an AnyObject instance of type `PRINTER` beloging to it
+. `BinaryCommand` which simply logs about the received argument
+
+[source,java]
+----
+public class NewPrinterCommandArgs extends CommandArgs {
+
+    @NotEmpty
+    @Schema(description = "parent realm", example = "/even/two", defaultValue = "/",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String parentRealm = "/";
+
+    @NotEmpty
+    @Schema(description = "new realm name", example = "realm123", 
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String realmName;
+
+    @NotEmpty
+    @Schema(description = "printer name", example = "printer123", 
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String printerName;
+
+    // getter and setter methods omitted
+}
+----
+
+[source,java]
+----
+public class NewPrinterCommand implements Command<NewPrinterCommandArgs> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NewPrinterCommand.class);
+
+    @Autowired
+    private RealmLogic realmLogic;
+
+    @Autowired
+    private AnyObjectLogic anyObjectLogic;
+
+    private Optional<RealmTO> getRealm(final String fullPath) {
+        return realmLogic.search(null, Set.of(fullPath), Pageable.unpaged()).get().
+                filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
+    }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Override
+    public Result run(final TestCommandArgs args) {
+        // 1. create new Realm
+        RealmTO realm = new RealmTO();
+        realm.setName(args.getRealmName());
+        realm.setParent(getRealm(args.getParentRealm()).map(RealmTO::getKey).orElse(null));
+        realm = realmLogic.create(args.getParentRealm(), realm).getEntity();
+        LOG.info("Realm created: {}", realm.getFullPath());
+
+        // 2. create new PRINTER
+        AnyObjectTO anyObject = anyObjectLogic.create(new AnyObjectCR.Builder(
+                        realm.getFullPath(), "PRINTER", args.getPrinterName()).
+                        plainAttr(new Attr.Builder("location").value("location").build()).
+                        build(),
+                false).getEntity();
+        LOG.info("PRINTER created: {}", anyObject.getName());
+
+        return new Result(
+                "Realm created: " + realm.getFullPath() 
+                + "; PRINTER created: " + anyObject.getName(),
+                Map.of("realm", realm.getKey(), "PRINTER", anyObject.getKey()));
+    }
+}
+----
+
+[source,java]
+----
+public class BinaryCommandArgs extends CommandArgs {
+
+    private static final long serialVersionUID = -8257974017887359696L;
+
+    private String binaryParam;
+
+    // getter and setter method omitted
+}
+----
+
+[source,java]
+----
+public class BinaryCommand implements Command<BinaryCommandArgs> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BinaryCommand.class);
+
+    private static final Tika TIKA = new Tika();
+
+    static {
+        TIKA.setMaxStringLength(-1);
+    }
+
+    @Override
+    public Result run(final BinaryCommandArgs args) {
+        String base64 = args.getBinaryParam();
+        LOG.info("Input value received: {}", base64);
+
+        byte[] binaryValue = Base64.getDecoder().decode(base64);
+        LOG.info("Byte array with length {} and mime type {}", 
+                 binaryValue.length, TIKA.detect(binaryValue));
+
+        return new Result("SUCCESS", Map.of());
+    }
+}
+----
+
+Let's also assume that the following `MacroActions` instance is available, showing how to populate dropdown values,
+how to perform some example validation and also allowing to alter the arguments value before the related command is
+executed:
+
+[source,java]
+----
+public class SampleMacroActions implements MacroActions {
+
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
+
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, String> getDropdownValues(final String formProperty) {
+        return realmSearchDAO.findChildren(realmDAO.getRoot()).stream().
+                collect(Collectors.toMap(Realm::getFullPath, Realm::getName));
+    }
+
+    @Override
+    public void validate(final SyncopeForm form, final Map<String, Object> vars) 
+        throws ValidationException {
+
+        Object binaryValue = vars.get("binaryField");
+        if (!(binaryValue instanceof byte[])) {
+            throw new ValidationException(
+              "Expected byte[], found " + binaryValue.getClass().getName());
+        }
+    }
+
+    @Override
+    public void beforeCommand(final Command<CommandArgs> command, final CommandArgs args) {
+        if (args instanceof BinaryCommandArgs binaryCommandArgs) {
+            // option to alter binaryCommandArgs before the related command is executed
+        }
+    }
+}
+----
+
+It is now possible to define the following Macro task (details are simplified to increase readability):
+
+[source,json]
+----
+    {
+      "key": "019a35af-1a5a-75d1-920c-7f388696be0d",
+      "cronExpression": null,
+      "jobDelegate": "MacroJobDelegate",
+      "name": "BinaryMacro",
+      "realm": "/",
+      "formPropertyDefs": [
+        {
+          "name": "parent",  // <1>
+          "type": "Dropdown",
+          "readable": true,
+          "writable": true,
+          "required": true
+        },
+        {
+          "name": "realm", // <2>
+          "type": "String",
+          "readable": true,
+          "writable": true,
+          "required": true
+        },
+        {
+          "name": "binaryField", // <3>
+          "type": "Binary",
+          "readable": true,
+          "writable": true,
+          "required": true,
+          "mimeType": "application/pdf"
+        }
+      ],
+      "commands": [
+        {
+          "key": "NewPrinterCommand",
+          "args": {
+            "_class": "org.apache.syncope.common.lib.command.NewPrinterCommandArgs",
+            "parentRealm": "${parent}",  // <4>
+            "realmName": "${realm}"  // <5>
+          }
+        },
+        {
+          "key": "BinaryCommand",
+          "args": {
+            "_class": "org.apache.syncope.common.lib.command.BinaryCommandArgs",
+            "binaryParam": "${syncope:base64Encode(binaryField)}"  // <6>
+          }
+        }
+      ],
+      "continueOnError": false,
+      "saveExecs": true,
+      "macroActions": "SampleMacroActions"
+    }
+----
+<1> dropdown form property whose values are generated by `SampleMacroActions#getDropdownValues`
+<2> string form property
+<3> binary form property expecting a PDF input file
+<4> binds the `parentRealm` property of `NewPrinterCommandArgs` to the value provided for the form property `parent`
+<5> binds the `realmName` property of `NewPrinterCommandArgs` to the value provided for the form property `realm`
+<6> binds the `binaryParam` property of `BinaryCommandArgs` to the Base64-decoded value provided for the
+form property `binaryField`
+
+[TIP]
+Please take into account that both defining and running a Macro task form are a much pleasant experience when
+performed in the <<Admin Console>>.
+====
 
 [[tasks-scheduled]]
 ==== Scheduled
