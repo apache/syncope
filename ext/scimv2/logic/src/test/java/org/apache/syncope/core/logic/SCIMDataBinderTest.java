@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchPath;
 import org.junit.jupiter.api.BeforeAll;
@@ -63,6 +64,8 @@ class SCIMDataBinderTest {
         scimPatchPath.setAttribute("active");
         operation.setPath(scimPatchPath);
         operation.setValue(List.of(value));
-        assertDoesNotThrow(() -> dataBinder.toUserUpdate(new UserTO(), List.of(), operation));
+        SCIMPatchOp scimPatchOp = new SCIMPatchOp();
+        scimPatchOp.setOperations(List.of(operation));
+        assertDoesNotThrow(() -> dataBinder.toUserUpdate(new UserTO(), List.of(), scimPatchOp));
     }
 }
