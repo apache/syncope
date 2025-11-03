@@ -98,7 +98,6 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
 
         Pair<UserUR, StatusR> update = binder.toUserUpdate(
                 userLogic.read(id),
-                userDAO.findAllResourceKeys(id),
                 patch);
         userLogic.update(update.getLeft(), false);
         Optional.ofNullable(update.getRight()).ifPresent(statusR -> userLogic.status(statusR, false));
