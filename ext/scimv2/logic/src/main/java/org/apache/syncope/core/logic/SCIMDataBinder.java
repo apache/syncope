@@ -26,12 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -1170,19 +1170,19 @@ public class SCIMDataBinder {
     public Pair<List<UserUR>, StatusR> toUserUpdate(
             final UserTO before,
             final SCIMPatchOp patch) {
-        final AtomicReference<StatusR> statusR = new AtomicReference<>();
+        Mutable<StatusR> statusR = new MutableObject<>();
         List<UserUR> userURs = new ArrayList<>();
         UserUR userUR = new UserUR.Builder(before.getKey()).build();
         userURs.add(userUR);
         List<String> resources = new ArrayList<>(before.getResources());
-        AtomicInteger numberUR = new AtomicInteger();
+        MutableInt numberUR = new MutableInt(0);
 
         patch.getOperations().forEach(op -> {
             if (op.getPath() == null && op.getOp() != PatchOp.remove && !CollectionUtils.isEmpty(op.getValue())
                     && op.getValue().getFirst() instanceof final SCIMUser after) {
 
                 if (after.getActive() != null && before.isSuspended() == after.isActive()) {
-                    statusR.set(new StatusR.Builder(before.getKey(),
+                    statusR.setValue(new StatusR.Builder(before.getKey(),
                             after.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).resources(resources)
                             .build());
                 }
@@ -1192,19 +1192,19 @@ public class SCIMDataBinder {
                     org.apache.syncope.core.persistence.api.entity.group.Group group =
                             groupDAO.findById(groupKey).orElse(null);
                     if (group != null && before.getMembership(groupKey).isEmpty()) {
-                        List<ExternalResource> filteredResources = group.getResources().stream()
+                        List<? extends ExternalResource> filteredResources = group.getResources().stream()
                                 .filter(resource -> resource.getProvisions().stream()
                                         .anyMatch(provision -> AnyTypeKind.USER.name().equals(provision.getAnyType())))
-                                .collect(Collectors.toList());
+                                .toList();
                         filteredResources.forEach(resource -> resources.add(resource.getKey()));
                         if (!filteredResources.isEmpty()) {
                             UserUR newUserUR = new UserUR.Builder(before.getKey()).build();
                             userURs.add(newUserUR);
-                            numberUR.getAndIncrement();
+                            numberUR.increment();
                         }
                     }
                 }
-                populateUserUR(userURs.get(numberUR.get()), before, after, resources, op);
+                populateUserUR(userURs.get(numberUR.get().intValue()), before, after, resources, op);
                 return;
             }
 
@@ -1215,12 +1215,13 @@ public class SCIMDataBinder {
 
             switch (op.getPath().getAttribute()) {
                 case "externalId" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getExternalId(),
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getExternalId(),
                                 op);
 
                 case "userName" -> {
                     if (op.getOp() != PatchOp.remove && !CollectionUtils.isEmpty(op.getValue())) {
-                        userURs.get(numberUR.get()).setUsername(
+                        userURs.get(numberUR.get().intValue()).setUsername(
                                 new StringReplacePatchItem.Builder().value(op.getValue().getFirst().toString())
                                         .build());
                     }
@@ -1228,7 +1229,7 @@ public class SCIMDataBinder {
 
                 case "password" -> {
                     if (op.getOp() != PatchOp.remove && !CollectionUtils.isEmpty(op.getValue())) {
-                        userURs.get(numberUR.get()).setPassword(
+                        userURs.get(numberUR.get().intValue()).setPassword(
                                 new PasswordPatch.Builder().value(op.getValue().getFirst().toString())
                                         .resources(resources).build());
                     }
@@ -1242,7 +1243,7 @@ public class SCIMDataBinder {
                             op.setValue(List.of(BooleanUtils.toBoolean(a)));
                         }
 
-                        statusR.set(new StatusR.Builder(before.getKey(), (boolean) op.getValue().getFirst()
+                        statusR.setValue(new StatusR.Builder(before.getKey(), (boolean) op.getValue().getFirst()
                                 ? StatusRType.REACTIVATE
                                 : StatusRType.SUSPEND).resources(resources).build());
                     }
@@ -1251,92 +1252,111 @@ public class SCIMDataBinder {
                 case "name" -> {
                     if (conf.getUserConf().getName() != null) {
                         if (op.getPath().getSub() == null || "familyName".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getFamilyName(), op);
                         }
                         if (op.getPath().getSub() == null || "formatted".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getFormatted(), op);
                         }
                         if (op.getPath().getSub() == null || "givenName".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getGivenName(), op);
                         }
                         if (op.getPath().getSub() == null || "honorificPrefix".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getHonorificPrefix(), op);
                         }
                         if (op.getPath().getSub() == null || "honorificSuffix".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getHonorificSuffix(), op);
                         }
                         if (op.getPath().getSub() == null || "middleName".equals(op.getPath().getSub())) {
-                            setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                            setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                     conf.getUserConf().getName().getMiddleName(), op);
                         }
                     }
                 }
 
                 case "displayName" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getDisplayName(),
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getDisplayName(),
                                 op);
 
                 case "nickName" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getNickName(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getNickName(), op);
 
                 case "profileUrl" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getProfileUrl(),
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getProfileUrl(),
                                 op);
 
                 case "title" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getTitle(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getTitle(), op);
 
                 case "userType" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getUserType(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getUserType(), op);
 
-                case "preferredLanguage" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "preferredLanguage" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         conf.getUserConf().getPreferredLanguage(), op);
 
                 case "locale" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getLocale(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getLocale(), op);
 
                 case "timezone" ->
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getTimezone(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getTimezone(), op);
 
                 case "emails" -> {
-                    if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof SCIMUser) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getEmails(),
-                                ((SCIMUser) op.getValue().getFirst()).getEmails(), op.getOp());
+                    if (!CollectionUtils.isEmpty(op.getValue())
+                            && op.getValue().getFirst() instanceof SCIMUser scimUser) {
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getEmails(),
+                                scimUser.getEmails(), op.getOp());
                     } else if (op.getPath().getFilter() != null) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getEmails(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getEmails(), op);
                     }
                 }
 
                 case "phoneNumbers" -> {
-                    if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof SCIMUser) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getPhoneNumbers(),
-                                ((SCIMUser) op.getValue().getFirst()).getPhoneNumbers(), op.getOp());
+                    if (!CollectionUtils.isEmpty(op.getValue())
+                            && op.getValue().getFirst() instanceof SCIMUser scimUser) {
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getPhoneNumbers(),
+                                scimUser.getPhoneNumbers(), op.getOp());
                     } else if (op.getPath().getFilter() != null) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getPhoneNumbers(),
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getPhoneNumbers(),
                                 op);
                     }
                 }
 
                 case "ims" -> {
-                    if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof SCIMUser) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getIms(),
-                                ((SCIMUser) op.getValue().getFirst()).getIms(), op.getOp());
+                    if (!CollectionUtils.isEmpty(op.getValue())
+                            && op.getValue().getFirst() instanceof SCIMUser scimUser) {
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getIms(),
+                                scimUser.getIms(), op.getOp());
                     } else if (op.getPath().getFilter() != null) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getIms(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getIms(), op);
                     }
                 }
 
                 case "photos" -> {
-                    if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof SCIMUser) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getPhotos(),
-                                ((SCIMUser) op.getValue().getFirst()).getPhotos(), op.getOp());
+                    if (!CollectionUtils.isEmpty(op.getValue())
+                            && op.getValue().getFirst() instanceof SCIMUser scimUser) {
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getPhotos(),
+                                scimUser.getPhotos(), op.getOp());
                     } else if (op.getPath().getFilter() != null) {
-                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), conf.getUserConf().getPhotos(), op);
+                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                conf.getUserConf().getPhotos(), op);
                     }
                 }
 
@@ -1346,8 +1366,8 @@ public class SCIMDataBinder {
                         after.getAddresses().stream().filter(address -> address.getType() != null).forEach(
                                 address -> conf.getUserConf().getAddresses().stream()
                                         .filter(object -> address.getType().equals(object.getType().name())).findFirst()
-                                        .ifPresent(
-                                                addressConf -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                                        .ifPresent(addressConf ->
+                                                setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                                                         addressConf, op)));
                     } else if (op.getPath().getFilter() != null) {
                         conf.getUserConf().getAddresses().stream().filter(addressConf -> BooleanUtils.toBoolean(
@@ -1355,38 +1375,40 @@ public class SCIMDataBinder {
                                                 new MapContext(Map.of("type", addressConf.getType().name()))).
                                                 toString()))
                                 .findFirst().ifPresent(addressConf ->
-                                        setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), addressConf, op));
+                                        setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                                addressConf, op));
                     }
                 }
 
-                case "employeeNumber" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "employeeNumber" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getEmployeeNumber)
                                 .orElse(null), op);
 
-                case "costCenter" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "costCenter" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getCostCenter)
                                 .orElse(null), op);
 
-                case "organization" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "organization" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getOrganization)
                                 .orElse(null), op);
 
-                case "division" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "division" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getDivision)
                                 .orElse(null), op);
 
-                case "department" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "department" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getDepartment)
                                 .orElse(null), op);
 
-                case "manager" -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(),
+                case "manager" -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
                         Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getManager)
                                 .map(SCIMManagerConf::getKey).orElse(null), op);
 
                 default -> {
                     Optional.ofNullable(conf.getExtensionUserConf())
                             .flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute())))
-                            .ifPresent(schema -> setAttribute(userURs.get(numberUR.get()).getPlainAttrs(), schema, op));
+                            .ifPresent(schema -> setAttribute(userURs.get(numberUR.get().intValue()).getPlainAttrs(),
+                                    schema, op));
                 }
             }
         });
