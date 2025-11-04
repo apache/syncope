@@ -508,7 +508,7 @@ under the License.
     <docker.mariadb.version>11</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.7.8</jdbc.postgresql.version>
-    <jdbc.mysql.version>9.4.0</jdbc.mysql.version>
+    <jdbc.mysql.version>9.5.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.6</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
