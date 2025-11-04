@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
@@ -95,7 +96,7 @@ class SCIMDataBinderTest {
         Pair<List<UserUR>, StatusR> result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
         assertEquals(1, result.getLeft().size());
-        assertTrue(result.getLeft().get(0).isEmpty());
+        assertTrue(result.getLeft().getFirst().isEmpty());
         assertNotNull(result.getRight());
         assertTrue(result.getRight().isOnSyncope());
         assertEquals(
@@ -114,8 +115,8 @@ class SCIMDataBinderTest {
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(1, result.getLeft().size());
-        assertEquals(1, result.getLeft().get(0).getPlainAttrs().size());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("surname")
                         && attrPatch.getAttr().getValues().contains("Rossini")));
@@ -128,12 +129,12 @@ class SCIMDataBinderTest {
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(1, result.getLeft().size());
-        assertEquals(2, result.getLeft().get(0).getPlainAttrs().size());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertEquals(2, result.getLeft().getFirst().getPlainAttrs().size());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("firstname")
                         && attrPatch.getAttr().getValues().contains("Gioacchino")));
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.DELETE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("surname")
                         &&  attrPatch.getAttr().getValues().isEmpty()));
@@ -147,14 +148,14 @@ class SCIMDataBinderTest {
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(1, result.getLeft().size());
-        assertEquals(2, result.getLeft().get(0).getPlainAttrs().size());
-        assertEquals(PatchOperation.ADD_REPLACE, result.getLeft().get(0).getUsername().getOperation());
-        assertEquals("gverdi", result.getLeft().get(0).getUsername().getValue());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertEquals(2, result.getLeft().getFirst().getPlainAttrs().size());
+        assertEquals(PatchOperation.ADD_REPLACE, result.getLeft().getFirst().getUsername().getOperation());
+        assertEquals("gverdi", result.getLeft().getFirst().getUsername().getValue());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("surname")
                         && attrPatch.getAttr().getValues().contains("Verdi")));
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("firstname")
                         && attrPatch.getAttr().getValues().contains("Giuseppe")));
@@ -170,12 +171,12 @@ class SCIMDataBinderTest {
         assertTrue(result.getRight().isOnSyncope());
         assertEquals(StatusRType.REACTIVATE, result.getRight().getType());
         assertEquals(1, result.getLeft().size());
-        assertEquals(2, result.getLeft().get(0).getPlainAttrs().size());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertEquals(2, result.getLeft().getFirst().getPlainAttrs().size());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("surname")
                         && attrPatch.getAttr().getValues().contains("Puccini")));
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.DELETE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("firstname")
                         &&  attrPatch.getAttr().getValues().isEmpty()));
@@ -198,7 +199,7 @@ class SCIMDataBinderTest {
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(1, result.getLeft().size());
-        assertTrue(result.getLeft().get(0).isEmpty());
+        assertTrue(result.getLeft().getFirst().isEmpty());
 
         userTO.setUsername("rossini");
         userTO.getPlainAttrs().clear();
@@ -207,10 +208,10 @@ class SCIMDataBinderTest {
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(1, result.getLeft().size());
-        assertEquals(PatchOperation.ADD_REPLACE, result.getLeft().get(0).getUsername().getOperation());
-        assertEquals("bellini", result.getLeft().get(0).getUsername().getValue());
-        assertEquals(1, result.getLeft().get(0).getPlainAttrs().size());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertEquals(PatchOperation.ADD_REPLACE, result.getLeft().getFirst().getUsername().getOperation());
+        assertEquals("bellini", result.getLeft().getFirst().getUsername().getValue());
+        assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("surname")
                         && attrPatch.getAttr().getValues().contains("Bellini")));
@@ -227,14 +228,14 @@ class SCIMDataBinderTest {
         assertTrue(result.getRight().isOnSyncope());
         assertEquals(StatusRType.REACTIVATE, result.getRight().getType());
         assertEquals(1, result.getLeft().size());
-        assertNull(result.getLeft().get(0).getUsername());
-        assertEquals(1, result.getLeft().get(0).getPlainAttrs().size());
-        assertTrue(result.getLeft().get(0).getPlainAttrs().stream().anyMatch(attrPatch ->
+        assertNull(result.getLeft().getFirst().getUsername());
+        assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch ->
                 PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                         && attrPatch.getAttr().getSchema().equals("firstname")
                         && attrPatch.getAttr().getValues().contains("Gioacchino")));
-        assertEquals(1, result.getLeft().get(0).getRoles().size());
-        assertTrue(result.getLeft().get(0).getRoles().stream().anyMatch(role ->
+        assertEquals(1, result.getLeft().getFirst().getRoles().size());
+        assertTrue(result.getLeft().getFirst().getRoles().stream().anyMatch(role ->
                 PatchOperation.ADD_REPLACE.equals(role.getOperation())
                         && role.getValue().equals("User reviewer")));
 
@@ -258,7 +259,7 @@ class SCIMDataBinderTest {
         operation2.setValue(List.of(scimUser2));
         operations.add(operation2);
         scimPatchOp.setOperations(operations);
-        when(groupDAO.find("37d15e4c-cdc1-460b-a591-8505c8133806")).thenAnswer(ic -> {
+        when(groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806")).thenAnswer(ic -> {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup =
                     mock(org.apache.syncope.core.persistence.api.entity.group.Group.class);
             ExternalResource resource = mock(ExternalResource.class);
@@ -267,9 +268,9 @@ class SCIMDataBinderTest {
             when(resource.getKey()).thenReturn("resource-ldap");
             when(resource.getProvisions()).thenAnswer(invocation -> List.of(provision));
             when(syncopeGroup.getResources()).thenAnswer(invocation -> List.of(resource));
-            return syncopeGroup;
+            return Optional.of(syncopeGroup);
         });
-        when(groupDAO.find("29f96485-729e-4d31-88a1-6fc60e4677f3")).thenAnswer(ic -> {
+        when(groupDAO.findById("29f96485-729e-4d31-88a1-6fc60e4677f3")).thenAnswer(ic -> {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup =
                     mock(org.apache.syncope.core.persistence.api.entity.group.Group.class);
             ExternalResource resource = mock(ExternalResource.class);
@@ -278,9 +279,9 @@ class SCIMDataBinderTest {
             when(resource.getKey()).thenReturn("resource-testdb");
             when(resource.getProvisions()).thenAnswer(invocation -> List.of(provision));
             when(syncopeGroup.getResources()).thenAnswer(invocation -> List.of(resource));
-            return syncopeGroup;
+            return Optional.of(syncopeGroup);
         });
-        when(groupDAO.find("f779c0d4-633b-4be5-8f57-32eb478a3ca5")).thenAnswer(ic -> {
+        when(groupDAO.findById("f779c0d4-633b-4be5-8f57-32eb478a3ca5")).thenAnswer(ic -> {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup =
                     mock(org.apache.syncope.core.persistence.api.entity.group.Group.class);
             ExternalResource resource = mock(ExternalResource.class);
@@ -293,7 +294,7 @@ class SCIMDataBinderTest {
             when(resource2.getKey()).thenReturn("ws-target-resource-list-mappings-2");
             when(resource2.getProvisions()).thenAnswer(invocation -> List.of(provision));
             when(syncopeGroup.getResources()).thenAnswer(invocation -> List.of(resource, resource2));
-            return syncopeGroup;
+            return Optional.of(syncopeGroup);
         });
         result = dataBinder.toUserUpdate(userTO, scimPatchOp);
         assertNotNull(result);
