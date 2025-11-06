@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>4.1.3</cxf.version>
     <bouncycastle.version>1.82</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.5</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.5.7</spring-boot.version>
     <spring-cloud-gateway.version>4.3.2</spring-cloud-gateway.version>
