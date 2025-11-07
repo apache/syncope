@@ -346,6 +346,16 @@ under the License.
       </roles>
       <email>sgarofalo@apache.org</email>
     </developer>
+    <developer>
+      <id>matato</id>
+      <name>Matteo Tatoni</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>matato@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
