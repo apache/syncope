@@ -107,7 +107,7 @@ public class LogsPanel extends Panel {
             protected Component getValueComponent(final String key, final LoggerConf loggerConf) {
                 if ("level".equalsIgnoreCase(key)) {
                     AjaxDropDownChoicePanel<LogLevel> loggerLevel = new AjaxDropDownChoicePanel<>(
-                        "field", getString("level"), Model.of(loggerConf.getLevel()), false);
+                            "field", getString("level"), Model.of(loggerConf.getLevel()), false);
                     MetaDataRoleAuthorizationStrategy.authorize(loggerLevel, ENABLE, IdRepoEntitlement.LOGGER_UPDATE);
 
                     loggerLevel.hideLabel();
@@ -152,8 +152,7 @@ public class LogsPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof LoggerConfSearchEvent) {
-            LoggerConfSearchEvent payload = LoggerConfSearchEvent.class.cast(event.getPayload());
+        if (event.getPayload() instanceof LoggerConfSearchEvent payload) {
             AjaxRequestTarget target = payload.getTarget();
 
             String keyword = payload.getKeyword();

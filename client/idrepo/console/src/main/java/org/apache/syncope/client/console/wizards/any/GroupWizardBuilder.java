@@ -90,8 +90,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     @Override
     protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
-        GroupTO updated = modelObject instanceof GroupWrapper
-                ? GroupWrapper.class.cast(modelObject).fillDynamicConditions()
+        GroupTO updated = modelObject instanceof GroupWrapper gw
+                ? gw.fillDynamicConditions()
                 : modelObject.getInnerObject();
 
         ProvisioningResult<GroupTO> result;

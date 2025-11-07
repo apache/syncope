@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.client.console;
 
+import java.time.OffsetDateTime;
 import java.util.List;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -66,6 +72,7 @@ import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.PreviewUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -152,6 +159,36 @@ public class IdRepoConsoleContext {
     @Bean
     public AccessPolicyConfProvider accessPolicyConfProvider() {
         return new IdRepoAccessPolicyConfProvider();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ServletListenerRegistrationBean<SessionTimeoutListener> sessionTimeoutListener() {
+        ServletListenerRegistrationBean<SessionTimeoutListener> bean = new ServletListenerRegistrationBean<>();
+        bean.setListener(new SessionTimeoutListener());
+        return bean;
+    }
+
+    @ConditionalOnMissingBean(name = SyncopeWebApplication.LOGGEDOUT_SESSIONID_CACHE)
+    @Bean(name = SyncopeWebApplication.LOGGEDOUT_SESSIONID_CACHE)
+    public Cache<String, OffsetDateTime> loggedoutSessionIdCache(final CacheManager cacheManager) {
+        return cacheManager.createCache(SyncopeWebApplication.LOGGEDOUT_SESSIONID_CACHE,
+                new MutableConfiguration<String, OffsetDateTime>().
+                        setTypes(String.class, OffsetDateTime.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.TEN_MINUTES)));
+    }
+
+    @ConditionalOnMissingBean(name = SyncopeWebApplication.DESTROYED_SESSIONID_CACHE)
+    @Bean(name = SyncopeWebApplication.DESTROYED_SESSIONID_CACHE)
+    public Cache<String, OffsetDateTime> destroyedSessionIdCache(final CacheManager cacheManager) {
+        return cacheManager.createCache(SyncopeWebApplication.DESTROYED_SESSIONID_CACHE,
+                new MutableConfiguration<String, OffsetDateTime>().
+                        setTypes(String.class, OffsetDateTime.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.TEN_MINUTES)));
     }
 
     @ConditionalOnMissingBean

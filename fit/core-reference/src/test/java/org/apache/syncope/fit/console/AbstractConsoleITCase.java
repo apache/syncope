@@ -19,6 +19,10 @@
 package org.apache.syncope.fit.console;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.giffing.wicket.spring.boot.context.extensions.WicketApplicationInitConfiguration;
 import com.giffing.wicket.spring.boot.context.extensions.boot.actuator.WicketEndpointRepository;
@@ -30,6 +34,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import org.apache.syncope.client.console.AMConsoleContext;
 import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.FlowableConsoleContext;
@@ -121,6 +127,13 @@ public abstract class AbstractConsoleITCase extends AbstractUIITCase {
         public LoggingSystem loggingSystem() {
             System.setProperty(LoggingSystem.SYSTEM_PROPERTY, LoggingSystem.NONE);
             return LoggingSystem.get(getClass().getClassLoader());
+        }
+
+        @Bean
+        public CacheManager cacheManager() {
+            CacheManager cacheManager = mock(CacheManager.class);
+            when(cacheManager.createCache(anyString(), any())).thenAnswer(ic -> mock(Cache.class));
+            return cacheManager;
         }
     }
 

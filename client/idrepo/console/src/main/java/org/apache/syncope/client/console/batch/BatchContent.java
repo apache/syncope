@@ -166,45 +166,38 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                 String etag = anyRestClient.read(key).getETagValue();
 
                                 switch (action) {
-                                    case DEPROVISION:
+                                    case DEPROVISION ->
                                         results.putAll(anyRestClient.deassociate(
                                                 ResourceDeassociationAction.DEPROVISION, etag, key, value));
-                                        break;
 
-                                    case UNASSIGN:
+                                    case UNASSIGN ->
                                         results.putAll(anyRestClient.deassociate(
                                                 ResourceDeassociationAction.UNASSIGN, etag, key, value));
-                                        break;
 
-                                    case UNLINK:
+                                    case UNLINK ->
                                         results.putAll(anyRestClient.deassociate(
                                                 ResourceDeassociationAction.UNLINK, etag, key, value));
-                                        break;
 
-                                    case ASSIGN:
+                                    case ASSIGN ->
                                         results.putAll(anyRestClient.associate(
                                                 ResourceAssociationAction.ASSIGN, etag, key, value));
-                                        break;
 
-                                    case LINK:
+                                    case LINK ->
                                         results.putAll(anyRestClient.associate(
                                                 ResourceAssociationAction.LINK, etag, key, value));
-                                        break;
 
-                                    case PROVISION:
+                                    case PROVISION ->
                                         results.putAll(anyRestClient.associate(
                                                 ResourceAssociationAction.PROVISION, etag, key, value));
-                                        break;
 
-                                    case SUSPEND:
+                                    case SUSPEND ->
                                         results.putAll(((UserRestClient) anyRestClient).suspend(etag, key, value));
-                                        break;
 
-                                    case REACTIVATE:
+                                    case REACTIVATE ->
                                         results.putAll(((UserRestClient) anyRestClient).reactivate(etag, key, value));
-                                        break;
 
-                                    default:
+                                    default -> {
+                                    }
                                 }
                             });
                         } else {
@@ -224,7 +217,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                             Set<String> deletedAnys = new HashSet<>();
 
                             switch (action) {
-                                case MUSTCHANGEPASSWORD:
+                                case MUSTCHANGEPASSWORD ->
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
@@ -235,9 +228,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                                         batchUserService.update(req);
                                     });
-                                    break;
 
-                                case SUSPEND:
+                                case SUSPEND ->
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
@@ -248,9 +240,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                                         batchUserService.status(req);
                                     });
-                                    break;
 
-                                case REACTIVATE:
+                                case REACTIVATE ->
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
@@ -261,9 +252,8 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                                         batchUserService.status(req);
                                     });
-                                    break;
 
-                                case DELETE:
+                                case DELETE ->
                                     items.forEach(item -> {
                                         if (singleItem instanceof AnyTO) {
                                             AnyTO any = (AnyTO) item;
@@ -285,18 +275,15 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         }
                                     });
 
-                                    break;
-
-                                case DRYRUN:
+                                case DRYRUN ->
                                     items.forEach(item -> {
                                         TaskTO task = (TaskTO) item;
 
                                         batchTaskService.execute(
                                                 new ExecSpecs.Builder().dryRun(true).key(task.getKey()).build());
                                     });
-                                    break;
 
-                                case EXECUTE:
+                                case EXECUTE ->
                                     items.forEach(item -> {
                                         if (singleItem instanceof TaskTO) {
                                             TaskTO task = (TaskTO) item;
@@ -310,9 +297,9 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                                     new ExecSpecs.Builder().key(report.getKey()).build());
                                         }
                                     });
-                                    break;
 
-                                default:
+                                default -> {
+                                }
                             }
 
                             results = CastUtils.cast(Map.class.cast(

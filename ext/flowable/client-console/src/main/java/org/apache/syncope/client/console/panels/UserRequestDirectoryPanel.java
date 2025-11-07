@@ -167,8 +167,7 @@ public class UserRequestDirectoryPanel
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof UserRequestSearchEvent) {
-            UserRequestSearchEvent payload = UserRequestSearchEvent.class.cast(event.getPayload());
+        if (event.getPayload() instanceof final UserRequestSearchEvent payload) {
             keyword = payload.getKeyword();
 
             updateResultTable(payload.getTarget());

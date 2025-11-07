@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import java.io.Serializable;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 
-public abstract class ExtAlertWidget<T extends Serializable> extends AlertWidget<T> {
+public abstract class ExtAlertWidget extends AlertWidget {
 
     private static final long serialVersionUID = -5622060468533516192L;
 
@@ -30,5 +31,22 @@ public abstract class ExtAlertWidget<T extends Serializable> extends AlertWidget
     public ExtAlertWidget(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
+
+        add(new RefreshWebSocketBehavior() {
+
+            private static final long serialVersionUID = -7095269057058900157L;
+
+            @Override
+            protected void onTimer(final WebSocketRequestHandler handler) {
+                long latestAlterts = getLatestAlertsSize();
+                if (!String.valueOf(latestAlterts).equals(linkAlertsNumber.getDefaultModelObjectAsString())) {
+                    linkAlertsNumber.setDefaultModelObject(latestAlterts);
+                    handler.add(linkAlertsNumber);
+
+                    headerAlertsNumber.setDefaultModelObject(latestAlterts);
+                    handler.add(headerAlertsNumber);
+                }
+            }
+        }.schedule(30));
     }
 }

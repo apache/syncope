@@ -239,7 +239,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.delete(String.class.cast(node.getKey()));
+                    connectorRestClient.delete(node.getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
@@ -260,7 +260,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 final ResourceTO modelObject = new ResourceTO();
-                modelObject.setConnector(String.class.cast(node.getKey()));
+                modelObject.setConnector(node.getKey());
                 modelObject.setConnectorDisplayName(node.getDisplayName());
 
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
@@ -289,7 +289,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ConnInstanceTO connInstance = connectorRestClient.read(String.class.cast(node.getKey()));
+                ConnInstanceTO connInstance = connectorRestClient.read(node.getKey());
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(connInstance);
                 modal.setFormModel(model);

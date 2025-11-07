@@ -39,6 +39,7 @@ import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
@@ -58,11 +59,9 @@ import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.request.component.IRequestableComponent;
-import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
@@ -120,8 +119,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             }
 
             @Override
-            protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
-                return new Login(errorParameters);
+            protected Class<? extends BaseLogin> getErrorPageClass() {
+                return Login.class;
             }
         };
     }

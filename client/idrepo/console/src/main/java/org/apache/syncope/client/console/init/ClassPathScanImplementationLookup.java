@@ -266,9 +266,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Class<? extends ExtAlertWidget<?>>> getExtAlertWidgetClasses() {
+    public List<Class<? extends ExtAlertWidget>> getExtAlertWidgetClasses() {
         return classes.getOrDefault(ExtAlertWidget.class.getName(), List.of()).stream().
-                map(clazz -> (Class<? extends ExtAlertWidget<?>>) clazz).
+                map(clazz -> (Class<? extends ExtAlertWidget>) clazz).
                 collect(Collectors.toList());
     }
 

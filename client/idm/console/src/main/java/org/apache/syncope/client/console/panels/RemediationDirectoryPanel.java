@@ -345,8 +345,7 @@ public class RemediationDirectoryPanel
         @Override
         public Iterator<RemediationTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.getRemediations((page < 0 ? 0 : page) + 1,
-                    paginatorRows, getSort()).iterator();
+            return restClient.getRemediations((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override

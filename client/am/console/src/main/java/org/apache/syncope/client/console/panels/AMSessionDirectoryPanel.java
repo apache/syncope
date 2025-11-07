@@ -123,7 +123,7 @@ public class AMSessionDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AMSession ignore) {
                 viewModal.header(new ResourceModel("details"));
                 target.add(viewModal.setContent(
-                    new JsonEditorPanel(viewModal, Model.of(model.getObject().getJson()), true, pageRef)));
+                        new JsonEditorPanel(viewModal, Model.of(model.getObject().getJson()), true, pageRef)));
                 viewModal.show(true);
             }
         }, ActionLink.ActionType.VIEW, listEntitlement);
@@ -167,8 +167,7 @@ public class AMSessionDirectoryPanel
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof AMSessionSearchEvent) {
-            AMSessionSearchEvent payload = AMSessionSearchEvent.class.cast(event.getPayload());
+        if (event.getPayload() instanceof AMSessionSearchEvent payload) {
             keyword = payload.getKeyword();
 
             updateResultTable(payload.getTarget());

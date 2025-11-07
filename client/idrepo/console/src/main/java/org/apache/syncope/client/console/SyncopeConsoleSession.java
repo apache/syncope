@@ -65,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import org.springframework.util.CollectionUtils;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession implements BaseSession {
@@ -133,7 +134,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
 
-        executor = new SimpleAsyncTaskExecutor();
+        executor = new SimpleAsyncTaskScheduler();
         executor.setVirtualThreads(true);
     }
 
@@ -270,12 +271,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public void invalidate() {
+        SyncopeWebApplication.get().storeLoggedOutSessionId(getId());
+
         if (getJWT() != null) {
             if (client != null) {
                 client.logout();
             }
             cleanup();
         }
+
         super.invalidate();
     }
 
@@ -324,16 +328,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                         map(RealmsUtils::getFullPath).collect(Collectors.toSet());
                 if (requested.isEmpty()) {
                     return !owned.isEmpty();
-                } else {
-                    for (String realm : requested) {
-                        if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
-                            owns |= owned.stream().anyMatch(realm::startsWith);
-                        } else {
-                            owns |= owned.contains(realm);
-                        }
-                    }
                 }
 
+                for (String realm : requested) {
+                    if (realm.startsWith(SyncopeConstants.ROOT_REALM)) {
+                        owns |= owned.stream().anyMatch(realm::startsWith);
+                    } else {
+                        owns |= owned.contains(realm);
+                    }
+                }
                 return owns;
             }
         }

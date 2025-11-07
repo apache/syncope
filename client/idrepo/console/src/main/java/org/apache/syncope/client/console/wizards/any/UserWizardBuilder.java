@@ -74,8 +74,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
         if (inner.getKey() == null) {
             UserCR req = new UserCR();
             EntityTOUtils.toAnyCR(inner, req);
-            req.setStorePassword(modelObject instanceof UserWrapper
-                    ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
+            req.setStorePassword(modelObject instanceof final UserWrapper uw
+                    ? uw.isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
 
             result = userRestClient.create(req);

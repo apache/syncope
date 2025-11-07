@@ -21,8 +21,6 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,7 +41,6 @@ import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.SchedTaskWizardBuilder;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -51,6 +48,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
@@ -85,6 +83,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class JobWidget extends BaseWidget {
@@ -174,19 +173,19 @@ public class JobWidget extends BaseWidget {
         recent = getUpdatedRecent();
 
         container = new WebMarkupContainer("jobContainer");
-        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
+        container.add(new RefreshWebSocketBehavior() {
 
             private static final long serialVersionUID = 7298597675929755960L;
 
             @Override
-            protected void onTimer(final AjaxRequestTarget target) {
+            protected void onTimer(final WebSocketRequestHandler handler) {
                 List<JobTO> updatedAvailable = getUpdatedAvailable();
                 if (!updatedAvailable.equals(available)) {
                     available.clear();
                     available.addAll(updatedAvailable);
                     if (availableJobsPanel != null) {
                         availableJobsPanel.modelChanged();
-                        target.add(availableJobsPanel);
+                        handler.add(availableJobsPanel);
                     }
                 }
 
@@ -196,11 +195,11 @@ public class JobWidget extends BaseWidget {
                     recent.addAll(updatedRecent);
                     if (recentExecPanel != null) {
                         recentExecPanel.modelChanged();
-                        target.add(recentExecPanel);
+                        handler.add(recentExecPanel);
                     }
                 }
             }
-        });
+        }.schedule(10));
         add(container);
 
         container.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));

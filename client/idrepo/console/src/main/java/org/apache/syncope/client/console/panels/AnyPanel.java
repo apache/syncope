@@ -311,8 +311,8 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+        if (event.getPayload() instanceof SearchClausePanel.SearchEvent payload) {
+            AjaxRequestTarget target = payload.getTarget();
 
             send(AnyPanel.this.directoryPanel, Broadcast.BREADTH,
                     new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
@@ -322,7 +322,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                     : String.format("$dynRealms=~%s;", realmTO.getKey());
 
             switch (anyTypeTO.getKind()) {
-                case USER:
+                case USER ->
                     UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
@@ -330,9 +330,8 @@ public class AnyPanel extends Panel implements ModalPanel {
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
                                     SearchUtils.NO_CUSTOM_CONDITION),
                             target);
-                    break;
 
-                case GROUP:
+                case GROUP ->
                     GroupDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
@@ -340,9 +339,8 @@ public class AnyPanel extends Panel implements ModalPanel {
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
                                     SearchUtils.NO_CUSTOM_CONDITION),
                             target);
-                    break;
 
-                case ANY_OBJECT:
+                case ANY_OBJECT ->
                     AnyObjectDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
@@ -350,9 +348,9 @@ public class AnyPanel extends Panel implements ModalPanel {
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
                                     SearchUtils.NO_CUSTOM_CONDITION),
                             target);
-                    break;
 
-                default:
+                default -> {
+                }
             }
         } else {
             super.onEvent(event);

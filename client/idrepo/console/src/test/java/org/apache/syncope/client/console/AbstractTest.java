@@ -30,9 +30,12 @@ import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.Wicket
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
@@ -136,6 +139,13 @@ public abstract class AbstractTest {
             lookup.load();
             return lookup;
         }
+
+        @Bean
+        public CacheManager cacheManager() {
+            CacheManager cacheManager = mock(CacheManager.class);
+            when(cacheManager.createCache(anyString(), any())).thenAnswer(ic -> mock(Cache.class));
+            return cacheManager;
+        }
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
@@ -153,12 +163,14 @@ public abstract class AbstractTest {
                 final AccessPolicyConfProvider accessPolicyConfProvider,
                 final List<PolicyTabProvider> policyTabProviders,
                 final List<UserFormFinalizer> userFormFinalizers,
-                final List<IResource> resources) {
+                final List<IResource> resources,
+                final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
+                final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
                     implementationInfoProvider, accessPolicyConfProvider, policyTabProviders, userFormFinalizers,
-                    resources);
+                    resources, loggedoutSessionIdCache, destroyedSessionIdCache);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

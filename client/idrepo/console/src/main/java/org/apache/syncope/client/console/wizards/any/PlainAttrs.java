@@ -61,19 +61,15 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         super(modelObject, mode, anyTypeClasses, whichPlainAttrs);
 
-        if (modelObject.getInnerObject() instanceof UserTO) {
-            fileKey = UserTO.class.cast(modelObject.getInnerObject()).getUsername();
-        } else if (modelObject.getInnerObject() instanceof GroupTO) {
-            fileKey = GroupTO.class.cast(modelObject.getInnerObject()).getName();
-        } else if (modelObject.getInnerObject() instanceof AnyObjectTO) {
-            fileKey = AnyObjectTO.class.cast(modelObject.getInnerObject()).getName();
-        }
+        fileKey = modelObject.getInnerObject() instanceof UserTO userTO
+                ? userTO.getUsername()
+                : modelObject.getInnerObject() instanceof GroupTO groupTO
+                ? groupTO.getName()
+                : modelObject.getInnerObject() instanceof AnyObjectTO anyObjectTO
+                ? anyObjectTO.getName()
+                : null;
 
-        if (modelObject instanceof UserWrapper) {
-            previousObject = UserWrapper.class.cast(modelObject).getPreviousUserTO();
-        } else {
-            previousObject = null;
-        }
+        previousObject = modelObject instanceof UserWrapper uw ? uw.getPreviousUserTO() : null;
 
         setTitleModel(new ResourceModel("attributes.plain"));
 
