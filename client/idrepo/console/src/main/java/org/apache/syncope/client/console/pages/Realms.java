@@ -156,8 +156,7 @@ public class Realms extends BasePage {
             ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
             updateRealmContent(choosenRealm.getObj(), 0);
             choosenRealm.getTarget().add(content);
-        } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+        } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent<?> newItemEvent) {
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
@@ -202,10 +201,8 @@ public class Realms extends BasePage {
         @Override
         protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
             modal.setWindowClosedCallback(target -> {
-                if (modal.getContent() instanceof ResultPanel) {
-                    Object result = ResultPanel.class.cast(modal.getContent()).getResult();
-
-                    RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
+                if (modal.getContent() instanceof ResultPanel<?, ?> rp) {
+                    RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(rp.getResult()).getEntity());
                     // reload realmChoicePanel label too - SYNCOPE-1151
                     target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
                     realmChoicePanel.setCurrentRealm(newRealmTO);

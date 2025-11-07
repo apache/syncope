@@ -32,12 +32,12 @@ import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public abstract class SyncopeUIRequestCycleListener implements IRequestCycleListener {
 
@@ -66,61 +66,53 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
         LOG.error("Exception found", e);
 
-        PageParameters errorParameters = new PageParameters();
+        PageParameters parameters = new PageParameters();
+        parameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
 
-        IRequestablePage errorPage;
         if (instanceOf(e, UnauthorizedInstantiationException.class).isPresent()) {
-            errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.message());
-            errorPage = getErrorPage(errorParameters);
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.AUTHORIZATION.message());
         } else if (instanceOf(e, NotAuthorizedException.class).isPresent()) {
             NotAuthorizedException nae = instanceOf(e, NotAuthorizedException.class).get();
             if (Strings.CI.contains(nae.getMessage(), "expired")) {
-                errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.message());
+                parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.SESSION_EXPIRED.message());
             } else {
-                errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.message());
+                parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.AUTHORIZATION.message());
             }
-            errorPage = getErrorPage(errorParameters);
         } else if (instanceOf(e, SyncopeClientException.class).isPresent()) {
             SyncopeClientException sce = instanceOf(e, SyncopeClientException.class).get();
             String errorMessage = sce.getType() == ClientExceptionType.Unknown
                     ? String.join("", sce.getElements())
                     : sce.getMessage();
-            errorParameters.add("errorMessage", errorMessage);
-            errorPage = getErrorPage(errorParameters);
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, errorMessage);
         } else if (instanceOf(e, BadRequestException.class).isPresent()
                 || instanceOf(e, WebServiceException.class).isPresent()) {
 
-            errorParameters.add("errorMessage", BaseSession.Error.REST.message());
-            errorPage = getErrorPage(errorParameters);
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.REST.message());
         } else if (instanceOf(e, PageExpiredException.class).isPresent() || !isSignedIn()) {
-            errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.message());
-            errorPage = getErrorPage(errorParameters);
+            parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.SESSION_EXPIRED.message());
         } else {
             Optional<ForbiddenException> cause = instanceOf(e, ForbiddenException.class);
             if (cause.isPresent()) {
-                errorParameters.add("errorMessage", cause.get().getMessage());
-                errorPage = getErrorPage(errorParameters);
+                parameters.add(Constants.NOTIFICATION_MSG_PARAM, cause.get().getMessage());
             } else {
                 // redirect to default Wicket error page
-                errorPage = new ExceptionErrorPage(e, null);
+                return new RenderPageRequestHandler(new PageProvider(new ExceptionErrorPage(e, null)));
             }
         }
 
-        if (errorPage instanceof BaseLogin) {
-            try {
-                invalidateSession();
-            } catch (Throwable t) {
-                // ignore
-                LOG.debug("Unexpected error while forcing logout after error", t);
-            }
+        try {
+            invalidateSession();
+        } catch (Throwable t) {
+            // ignore
+            LOG.debug("Unexpected error while forcing logout after error", t);
         }
 
-        return new RenderPageRequestHandler(new PageProvider(errorPage));
+        return new RenderPageRequestHandler(getErrorPageClass(), parameters);
     }
 
     protected abstract boolean isSignedIn();
 
     protected abstract void invalidateSession();
 
-    protected abstract IRequestablePage getErrorPage(PageParameters errorParameters);
+    protected abstract Class<? extends BaseLogin> getErrorPageClass();
 }

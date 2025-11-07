@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
+import javax.cache.Cache;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -37,16 +39,19 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.wicket.request.resource.IResource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(proxyBeanMethods = false)
 @EnableConfigurationProperties(ConsoleProperties.class)
+@EnableCaching
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
@@ -78,7 +83,11 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final AccessPolicyConfProvider accessPolicyConfProvider,
             final List<PolicyTabProvider> policyTabProviders,
             final List<UserFormFinalizer> userFormFinalizers,
-            final List<IResource> resources) {
+            final List<IResource> resources,
+            @Qualifier(SyncopeWebApplication.LOGGEDOUT_SESSIONID_CACHE)
+            final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
+            @Qualifier(SyncopeWebApplication.DESTROYED_SESSIONID_CACHE)
+            final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
 
         return new SyncopeWebApplication(
                 props,
@@ -92,7 +101,9 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 accessPolicyConfProvider,
                 policyTabProviders,
                 userFormFinalizers,
-                resources);
+                resources,
+                loggedoutSessionIdCache,
+                destroyedSessionIdCache);
     }
 
     @ConditionalOnMissingBean

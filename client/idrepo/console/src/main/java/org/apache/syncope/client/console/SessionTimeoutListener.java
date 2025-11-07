@@ -16,26 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.ajax;
+package org.apache.syncope.client.console;
 
-import java.time.Duration;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
-import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import com.giffing.wicket.spring.boot.starter.web.WicketWebInitializer;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
+import org.apache.wicket.Application;
 
-/**
- * An {@link AbstractAjaxTimerBehavior} not showing veil.
- */
-public abstract class IndicatorAjaxTimerBehavior extends AbstractAjaxTimerBehavior implements IAjaxIndicatorAware {
-
-    private static final long serialVersionUID = 8863750325559215077L;
-
-    public IndicatorAjaxTimerBehavior(final Duration updateInterval) {
-        super(updateInterval);
-    }
+public class SessionTimeoutListener implements HttpSessionListener {
 
     @Override
-    public String getAjaxIndicatorMarkupId() {
-        return StringUtils.EMPTY;
+    public void sessionDestroyed(final HttpSessionEvent event) {
+        ((SyncopeWebApplication) Application.get(WicketWebInitializer.WICKET_FILTERNAME)).
+                storeDestroyedSessionId(event.getSession().getId());
     }
 }

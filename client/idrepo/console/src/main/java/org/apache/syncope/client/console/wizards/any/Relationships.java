@@ -87,11 +87,11 @@ public class Relationships extends WizardStep implements ICondition {
         super();
         add(new Label("title", new ResourceModel("any.relationships")));
 
-        if (modelObject instanceof UserWrapper
-                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+        if (modelObject instanceof final UserWrapper uw
+                && uw.getPreviousUserTO() != null
                 && !ListUtils.isEqualList(
-                        UserWrapper.class.cast(modelObject).getInnerObject().getRelationships(),
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getRelationships())) {
+                        uw.getInnerObject().getRelationships(),
+                        uw.getPreviousUserTO().getRelationships())) {
             add(new LabelInfo("changed", StringUtils.EMPTY));
         } else {
             add(new Label("changed", StringUtils.EMPTY));
@@ -242,24 +242,19 @@ public class Relationships extends WizardStep implements ICondition {
 
         @Override
         public void onEvent(final IEvent<?> event) {
-            if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-                AjaxRequestTarget target =
-                        SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+            if (event.getPayload() instanceof final SearchClausePanel.SearchEvent payload) {
                 String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getAnyType()));
-                AnyDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
-            } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-                AjaxRequestTarget target =
-                        AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getTarget();
-
-                AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
+                AnyDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, payload.getTarget());
+            } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection<?> payload) {
+                AnyTO right = payload.getSelection();
                 rel.setOtherEndKey(right.getKey());
                 rel.setOtherEndName(AnyObjectTO.class.cast(right).getName());
 
                 anyTO.getRelationships().add(rel);
 
                 Relationships.this.addOrReplace(getViewFragment().setRenderBodyOnly(true));
-                target.add(Relationships.this);
+                payload.getTarget().add(Relationships.this);
             } else {
                 super.onEvent(event);
             }

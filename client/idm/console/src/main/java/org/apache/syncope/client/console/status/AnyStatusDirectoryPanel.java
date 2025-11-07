@@ -257,9 +257,7 @@ public class AnyStatusDirectoryPanel
             }, ActionLink.ActionType.RECONCILIATION_PULL, IdRepoEntitlement.TASK_EXECUTE);
         }
 
-        if (anyTO instanceof UserTO && !UserTO.class.cast(anyTO).getLinkedAccounts().isEmpty()) {
-            UserTO userTO = UserTO.class.cast(anyTO);
-
+        if (anyTO instanceof UserTO userTO && userTO.getLinkedAccounts().isEmpty()) {
             if (!userTO.getLinkedAccounts().isEmpty()
                     && userTO.getLinkedAccounts().stream().anyMatch(linkedAccountTO -> {
                         return linkedAccountTO.getResource().equals(model.getObject().getResource());
@@ -272,7 +270,7 @@ public class AnyStatusDirectoryPanel
                     @Override
                     public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                         multiLevelPanelRef.next("ACCOUNTS",
-                                new LinkedAccountsStatusModalPanel(Model.of(UserTO.class.cast(anyTO)), pageRef),
+                                new LinkedAccountsStatusModalPanel(Model.of(userTO), pageRef),
                                 target);
                         target.add(multiLevelPanelRef);
                         AnyStatusDirectoryPanel.this.getTogglePanel().close(target);

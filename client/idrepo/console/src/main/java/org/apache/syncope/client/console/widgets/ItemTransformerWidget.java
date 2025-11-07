@@ -20,16 +20,13 @@ package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
-import java.util.List;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.ListModel;
 
-public class ItemTransformerWidget extends AlertWidget<String> {
+public class ItemTransformerWidget extends AlertWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
@@ -45,20 +42,11 @@ public class ItemTransformerWidget extends AlertWidget<String> {
         super(id);
         this.item = item;
         this.transformers = transformers;
-        setOutputMarkupId(true);
     }
 
     @Override
-    protected IModel<List<String>> getLatestAlerts() {
-        return new ListModel<>() {
-
-            private static final long serialVersionUID = 1232998477036705088L;
-
-            @Override
-            public List<String> getObject() {
-                return item.getTransformers();
-            }
-        };
+    protected long getLatestAlertsSize() {
+        return item.getTransformers().size();
     }
 
     @Override

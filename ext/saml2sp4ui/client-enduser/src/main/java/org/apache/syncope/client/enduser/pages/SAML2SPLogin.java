@@ -27,6 +27,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class SAML2SPLogin extends WebPage {
 
@@ -43,9 +44,10 @@ public class SAML2SPLogin extends WebPage {
         if (StringUtils.isBlank(token)) {
             LOG.error("No JWT found, redirecting to default greeter");
 
-            PageParameters params = new PageParameters();
-            params.add("errorMessage", SAML_ACCESS_ERROR);
-            setResponsePage(Login.class, params);
+            PageParameters loginParameters = new PageParameters();
+            loginParameters.add(Constants.NOTIFICATION_MSG_PARAM, SAML_ACCESS_ERROR);
+            loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
+            setResponsePage(Login.class, loginParameters);
         }
 
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
@@ -62,10 +64,12 @@ public class SAML2SPLogin extends WebPage {
             continueToOriginalDestination();
             setResponsePage(getApplication().getHomePage());
         } else {
-            PageParameters params = new PageParameters();
-            params.add("errorMessage", SAML_ACCESS_ERROR);
-            setResponsePage(Login.class, params);
+            PageParameters loginParameters = new PageParameters();
+            loginParameters.add(Constants.NOTIFICATION_MSG_PARAM, SAML_ACCESS_ERROR);
+            loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
+            setResponsePage(Login.class, loginParameters);
         }
+
         strategy.remove();
     }
 }

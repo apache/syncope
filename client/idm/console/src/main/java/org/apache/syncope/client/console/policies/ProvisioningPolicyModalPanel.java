@@ -216,20 +216,23 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 @Override
                 public Boolean getObject() {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultInboundCorrelationRuleConf
-                            ? DefaultInboundCorrelationRuleConf.class.cast(conf).isOrSchemas()
-                            : conf instanceof DefaultPushCorrelationRuleConf
-                                    ? DefaultPushCorrelationRuleConf.class.cast(conf).isOrSchemas()
+                    return conf instanceof DefaultInboundCorrelationRuleConf dicrc
+                            ? dicrc.isOrSchemas()
+                            : conf instanceof DefaultPushCorrelationRuleConf dpcrc
+                                    ? dpcrc.isOrSchemas()
                                     : false;
                 }
 
                 @Override
                 public void setObject(final Boolean object) {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    if (conf instanceof DefaultInboundCorrelationRuleConf) {
-                        DefaultInboundCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
-                    } else if (conf instanceof DefaultPushCorrelationRuleConf) {
-                        DefaultPushCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
+                    switch (conf) {
+                        case DefaultInboundCorrelationRuleConf dicrc ->
+                            dicrc.setOrSchemas(object);
+                        case DefaultPushCorrelationRuleConf dpcrc ->
+                            dpcrc.setOrSchemas(object);
+                        default -> {
+                        }
                     }
                 }
             };
@@ -244,10 +247,10 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
                 private List<String> schemas() {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultInboundCorrelationRuleConf
-                            ? DefaultInboundCorrelationRuleConf.class.cast(conf).getSchemas()
-                            : conf instanceof DefaultPushCorrelationRuleConf
-                                    ? DefaultPushCorrelationRuleConf.class.cast(conf).getSchemas()
+                    return conf instanceof DefaultInboundCorrelationRuleConf dicrc
+                            ? dicrc.getSchemas()
+                            : conf instanceof DefaultPushCorrelationRuleConf dpcrc
+                                    ? dpcrc.getSchemas()
                                     : List.of();
                 }
 

@@ -37,6 +37,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class SelfConfirmPasswordReset extends BasePage {
 
@@ -54,7 +55,8 @@ public class SelfConfirmPasswordReset extends BasePage {
             LOG.error("No token parameter found in the request url");
 
             PageParameters homeParameters = new PageParameters();
-            homeParameters.add("errorMessage", getString("self.confirm.pwd.reset.error.empty"));
+            homeParameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.confirm.pwd.reset.error.empty"));
+            homeParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
             setResponsePage(getApplication().getHomePage(), homeParameters);
         }
 

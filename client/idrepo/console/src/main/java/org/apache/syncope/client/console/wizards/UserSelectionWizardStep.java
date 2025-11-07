@@ -29,11 +29,9 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
@@ -82,25 +80,27 @@ public class UserSelectionWizardStep extends WizardStep {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            String fiql = SearchUtils.buildFIQL(
-                    userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
-            userDirectoryPanel.search(fiql, target);
-        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            @SuppressWarnings("unchecked")
-            AnySelectionDirectoryPanel.ItemSelection<UserTO> payload =
-                    (AnySelectionDirectoryPanel.ItemSelection<UserTO>) event.getPayload();
+        switch (event.getPayload()) {
+            case SearchClausePanel.SearchEvent payload -> {
+                String fiql = SearchUtils.buildFIQL(
+                        userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
+                userDirectoryPanel.search(fiql, payload.getTarget());
+            }
 
-            UserTO selected = payload.getSelection();
-            this.model.setObject(selected.getKey());
+            case AnySelectionDirectoryPanel.ItemSelection<?> payload -> {
+                this.model.setObject(payload.getSelection().getKey());
 
-            String tableId = ((Component) event.getSource()).
-                    get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
-                    getMarkupId();
-            String js = "$('#" + tableId + " tr').removeClass('active');";
-            js += "$('#" + tableId + " td[title=" + selected.getKey() + "]').parent().addClass('active');";
-            payload.getTarget().prependJavaScript(js);
+                String tableId = ((Component) event.getSource()).
+                        get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").
+                        getMarkupId();
+                String js = "$('#" + tableId + " tr').removeClass('active');";
+                js += "$('#" + tableId + " td[title=" + payload.getSelection().getKey()
+                        + "]').parent().addClass('active');";
+                payload.getTarget().prependJavaScript(js);
+            }
+
+            default -> {
+            }
         }
     }
 }

@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -97,16 +96,12 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+        if (event.getPayload() instanceof SearchClausePanel.SearchEvent payload) {
             String fiql = "username!~" + wizardModel.getBaseUser().getUsername() + ';'
                     + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
                             SyncopeClient.getUserSearchConditionBuilder());
-            userDirectoryPanel.search(fiql, target);
-        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection itemSelection) {
-            AnySelectionDirectoryPanel.ItemSelection<?> payload =
-                itemSelection;
-
+            userDirectoryPanel.search(fiql, payload.getTarget());
+        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection payload) {
             AnyTO sel = payload.getSelection();
             wizardModel.setMergingUser(userRestClient.read(sel.getKey()));
 

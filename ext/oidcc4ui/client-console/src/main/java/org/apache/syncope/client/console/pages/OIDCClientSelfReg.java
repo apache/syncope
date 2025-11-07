@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class OIDCClientSelfReg extends WebPage {
 
@@ -31,8 +33,9 @@ public class OIDCClientSelfReg extends WebPage {
     public OIDCClientSelfReg(final PageParameters parameters) {
         super(parameters);
 
-        PageParameters params = new PageParameters();
-        params.add("errorMessage", OIDC_ACCESS_ERROR);
-        setResponsePage(Login.class, params);
+        PageParameters loginParameters = new PageParameters();
+        loginParameters.add(Constants.NOTIFICATION_MSG_PARAM, OIDC_ACCESS_ERROR);
+        loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
+        setResponsePage(Login.class, loginParameters);
     }
 }

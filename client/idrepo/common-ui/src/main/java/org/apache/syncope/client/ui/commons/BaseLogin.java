@@ -37,7 +37,6 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -107,15 +106,6 @@ public abstract class BaseLogin extends WebPage {
                     ? Notification.SUCCESS
                     : parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).toString();
         }
-
-        Label exceptionMessage = new Label("exceptionMessage");
-        exceptionMessage.setOutputMarkupPlaceholderTag(true);
-        exceptionMessage.setVisible(false);
-        if (!parameters.get("errorMessage").isNull()) {
-            exceptionMessage.setVisible(true);
-            exceptionMessage.setDefaultModel(Model.of(parameters.get("errorMessage")));
-        }
-        add(exceptionMessage);
 
         form = new StatelessForm<>("login");
 

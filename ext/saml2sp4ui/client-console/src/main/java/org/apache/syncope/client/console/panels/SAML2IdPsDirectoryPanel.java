@@ -281,8 +281,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
-            AjaxWizard.NewItemEvent<?> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
+        if (event.getPayload() instanceof final AjaxWizard.NewItemEvent<?> newItemEvent) {
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (newItemEvent instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {

@@ -42,10 +42,9 @@ public class Resources extends Panel {
         super(id);
         final T entityTO = modelObject.getInnerObject();
 
-        if (modelObject instanceof UserWrapper
-                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
-                && !modelObject.getInnerObject().getResources().equals(
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getResources())) {
+        if (modelObject instanceof final UserWrapper uw
+                && uw.getPreviousUserTO() != null
+                && !modelObject.getInnerObject().getResources().equals(uw.getPreviousUserTO().getResources())) {
 
             add(new LabelInfo("changed", StringUtils.EMPTY));
         } else {
@@ -55,22 +54,21 @@ public class Resources extends Panel {
         this.setOutputMarkupId(true);
         this.available = new ListModel<>(List.of());
 
-        add(new AjaxPalettePanel.Builder<String>().build("resources",
-            new PropertyModel<>(entityTO, "resources") {
+        add(new AjaxPalettePanel.Builder<String>().build("resources", new PropertyModel<>(entityTO, "resources") {
 
-                private static final long serialVersionUID = 3799387950428254072L;
+            private static final long serialVersionUID = 3799387950428254072L;
 
-                @Override
-                public List<String> getObject() {
-                    return new ArrayList<>(entityTO.getResources());
-                }
+            @Override
+            public List<String> getObject() {
+                return new ArrayList<>(entityTO.getResources());
+            }
 
-                @Override
-                public void setObject(final List<String> object) {
-                    entityTO.getResources().clear();
-                    entityTO.getResources().addAll(object);
-                }
-            }, available).hideLabel().setOutputMarkupId(true));
+            @Override
+            public void setObject(final List<String> object) {
+                entityTO.getResources().clear();
+                entityTO.getResources().addAll(object);
+            }
+        }, available).hideLabel().setOutputMarkupId(true));
     }
 
     @Override

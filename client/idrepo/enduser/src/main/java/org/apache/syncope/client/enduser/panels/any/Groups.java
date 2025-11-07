@@ -78,11 +78,12 @@ public class Groups extends Panel {
         // ------------------
         // insert changed label if needed
         // ------------------
-        if (modelObject instanceof UserWrapper
-                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+        if (modelObject instanceof final UserWrapper uw
+                && uw.getPreviousUserTO() != null
                 && !ListUtils.isEqualList(
-                        UserWrapper.class.cast(modelObject).getInnerObject().getMemberships(),
-                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getMemberships())) {
+                        uw.getInnerObject().getMemberships(),
+                        uw.getPreviousUserTO().getMemberships())) {
+
             groupsContainer.add(new LabelInfo("changed", StringUtils.EMPTY));
         } else {
             groupsContainer.add(new Label("changed", StringUtils.EMPTY));

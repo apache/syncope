@@ -23,9 +23,12 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
+import jakarta.servlet.http.Cookie;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.syncope.client.console.annotations.UserFormFinalize;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
@@ -45,6 +48,8 @@ import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.BaseLogin;
+import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
@@ -55,6 +60,7 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.wicket.Page;
+import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -63,20 +69,27 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.protocol.ws.WebSocketAwareResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
-import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication implements BaseWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
+
+    public static final String LOGGEDOUT_SESSIONID_CACHE = "loggedoutSessionIdCache";
+
+    public static final String DESTROYED_SESSIONID_CACHE = "destroyedSessionIdCache";
+
+    protected static final CookieUtils COOKIE_UTILS = new CookieUtils();
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();
@@ -108,6 +121,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected final List<IResource> resources;
 
+    protected final Cache<String, OffsetDateTime> loggedoutSessionIdCache;
+
+    protected final Cache<String, OffsetDateTime> destroyedSessionIdCache;
+
     public SyncopeWebApplication(
             final ConsoleProperties props,
             final ClassPathScanImplementationLookup lookup,
@@ -121,7 +138,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             final AccessPolicyConfProvider accessPolicyConfProvider,
             final List<PolicyTabProvider> policyTabProviders,
             final List<UserFormFinalizer> userFormFinalizers,
-            final List<IResource> resources) {
+            final List<IResource> resources,
+            final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
+            final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
 
         this.props = props;
         this.lookup = lookup;
@@ -136,6 +155,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         this.policyTabProviders = policyTabProviders;
         this.userFormFinalizers = userFormFinalizers;
         this.resources = resources;
+        this.loggedoutSessionIdCache = loggedoutSessionIdCache;
+        this.destroyedSessionIdCache = destroyedSessionIdCache;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -152,8 +173,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             }
 
             @Override
-            protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
-                return new Login(errorParameters);
+            protected Class<? extends BaseLogin> getErrorPageClass() {
+                return Login.class;
             }
         };
     }
@@ -312,6 +333,30 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         return props.getMaxUploadFileSizeMB();
     }
 
+    public void storeLoggedOutSessionId(final String sessionId) {
+        loggedoutSessionIdCache.put(sessionId, OffsetDateTime.now());
+    }
+
+    public void storeDestroyedSessionId(final String sessionId) {
+        destroyedSessionIdCache.put(sessionId, OffsetDateTime.now());
+    }
+
+    @Override
+    public void restartResponseAtSignInPage() {
+        PageParameters parameters = new PageParameters();
+
+        Optional.ofNullable(COOKIE_UTILS.getCookie(COOKIE_UTILS.getSessionIdCookieName(this))).
+                map(Cookie::getValue).
+                filter(sessionId -> destroyedSessionIdCache.containsKey(sessionId)
+                && !loggedoutSessionIdCache.containsKey(sessionId)).
+                ifPresent(sessionId -> {
+                    parameters.add(Constants.NOTIFICATION_MSG_PARAM, BaseSession.Error.SESSION_EXPIRED.message());
+                    parameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.WARNING);
+                });
+
+        throw new RestartResponseAtInterceptPageException(getSignInPageClass(), parameters);
+    }
+
     public boolean fullRealmsTree(final RealmRestClient restClient) {
         if (props.getRealmsFullTreeThreshold() <= 0) {
             return false;
@@ -361,7 +406,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             }
 
             return annotation.mode() == mode;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     public AccessPolicyConfProvider getAccessPolicyConfProvider() {

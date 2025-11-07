@@ -240,7 +240,7 @@ public class Topology extends BasePage {
                 topologynode.setX(x);
                 topologynode.setY(y);
 
-                servers.put(String.class.cast(topologynode.getKey()), topologynode);
+                servers.put(topologynode.getKey(), topologynode);
 
                 item.add(topologyNodePanel("cs", topologynode, false));
 
@@ -279,7 +279,7 @@ public class Topology extends BasePage {
                 topologynode.setX(x);
                 topologynode.setY(y);
 
-                servers.put(String.class.cast(topologynode.getKey()), topologynode);
+                servers.put(topologynode.getKey(), topologynode);
 
                 item.add(topologyNodePanel("fp", topologynode, false));
 
@@ -336,7 +336,7 @@ public class Topology extends BasePage {
                         topologynode.setX(x);
                         topologynode.setY(y);
 
-                        connectors.put(String.class.cast(topologynode.getKey()), topologynode);
+                        connectors.put(topologynode.getKey(), topologynode);
                         item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
 
                         // Update connections
@@ -560,29 +560,26 @@ public class Topology extends BasePage {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof CreateEvent) {
-            CreateEvent resourceCreateEvent = CreateEvent.class.cast(event.getPayload());
-
+        if (event.getPayload() instanceof CreateEvent payload) {
             TopologyNode node = new TopologyNode(
-                    resourceCreateEvent.getKey(),
-                    resourceCreateEvent.getDisplayName(),
-                    resourceCreateEvent.getKind());
+                    payload.getKey(),
+                    payload.getDisplayName(),
+                    payload.getKind());
 
             newlyCreated.getModelObject().add(node);
-            resourceCreateEvent.getTarget().add(newlyCreatedContainer);
+            payload.getTarget().add(newlyCreatedContainer);
 
-            resourceCreateEvent.getTarget().appendJavaScript(String.format(
+            payload.getTarget().appendJavaScript(String.format(
                     "window.Wicket.WebSocket.send('"
                     + "{\"kind\":\"%s\",\"target\":\"%s\",\"source\":\"%s\",\"scope\":\"%s\"}"
                     + "');",
                     SupportedOperation.ADD_ENDPOINT,
-                    resourceCreateEvent.getKey(),
-                    resourceCreateEvent.getParent(),
-                    resourceCreateEvent.getKind()));
+                    payload.getKey(),
+                    payload.getParent(),
+                    payload.getKind()));
         }
     }
 }
