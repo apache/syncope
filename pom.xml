@@ -356,6 +356,16 @@ under the License.
       </roles>
       <email>matato@apache.org</email>
     </developer>
+    <developer>
+      <id>abogi</id>
+      <name>Alberto Bogi</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>abogi@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
