@@ -167,10 +167,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ExitEvent) {
-            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+        if (event.getPayload() instanceof final ExitEvent payload) {
             // default behaviour: change it catching the event if needed
-            modal.close(target);
+            modal.close(payload.getTarget());
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
             Optional<AjaxRequestTarget> target = newItemEvent.getTarget();

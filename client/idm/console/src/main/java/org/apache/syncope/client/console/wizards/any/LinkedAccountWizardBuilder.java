@@ -118,9 +118,8 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
     @Override
     protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
-        LinkedAccountTO linkedAccountTO = LinkedAccountTO.class.cast(afterObject);
         return new CreateEvent(
-                linkedAccountTO.getConnObjectKeyValue(),
+                LinkedAccountTO.class.cast(afterObject).getConnObjectKeyValue(),
                 model.getObject(),
                 target);
     }

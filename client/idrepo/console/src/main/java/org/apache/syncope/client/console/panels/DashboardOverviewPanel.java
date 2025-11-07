@@ -18,21 +18,19 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
 import org.apache.syncope.client.console.widgets.CompletenessWidget;
 import org.apache.syncope.client.console.widgets.LoadWidget;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 
 public class DashboardOverviewPanel extends Panel {
 
@@ -100,36 +98,36 @@ public class DashboardOverviewPanel extends Panel {
         load = new LoadWidget("load", SyncopeConsoleSession.get().getAnonymousClient().system());
         container.add(load);
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.of(60, ChronoUnit.SECONDS)) {
+        container.add(new RefreshWebSocketBehavior() {
 
-            private static final long serialVersionUID = -4426283634345968585L;
+            private static final long serialVersionUID = -7095269057058900157L;
 
             @Override
-            protected void onTimer(final AjaxRequestTarget target) {
+            protected void onTimer(final WebSocketRequestHandler handler) {
                 NumbersInfo numbers = SyncopeConsoleSession.get().getAnonymousClient().numbers();
 
                 if (totalUsers.refresh(numbers.getTotalUsers())) {
-                    target.add(totalUsers);
+                    handler.add(totalUsers);
                 }
                 if (totalGroups.refresh(numbers.getTotalGroups())) {
-                    target.add(totalGroups);
+                    handler.add(totalGroups);
                 }
 
                 Triple<Long, String, String> updatedBuild = buildTotalAny1OrRoles(numbers);
                 if (totalAny1OrRoles.refresh(updatedBuild.getLeft())) {
-                    target.add(totalAny1OrRoles);
+                    handler.add(totalAny1OrRoles);
                 }
                 updatedBuild = buildTotalAny2OrResources(numbers);
                 if (totalAny2OrResources.refresh(updatedBuild.getLeft())) {
-                    target.add(totalAny2OrResources);
+                    handler.add(totalAny2OrResources);
                 }
 
                 if (usersByStatus.refresh(numbers.getUsersByStatus())) {
-                    target.add(usersByStatus);
+                    handler.add(usersByStatus);
                 }
 
                 if (completeness.refresh(numbers.getConfCompleteness())) {
-                    target.add(completeness);
+                    handler.add(completeness);
                 }
 
                 if (anyByRealm.refresh(
@@ -140,13 +138,13 @@ public class DashboardOverviewPanel extends Panel {
                         numbers.getAnyType2(),
                         numbers.getAny2ByRealm())) {
 
-                    target.add(anyByRealm);
+                    handler.add(anyByRealm);
                 }
 
                 load.refresh(SyncopeConsoleSession.get().getAnonymousClient().system());
-                target.add(load);
+                handler.add(load);
             }
-        });
+        }.schedule(60));
     }
 
     private static Triple<Long, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {

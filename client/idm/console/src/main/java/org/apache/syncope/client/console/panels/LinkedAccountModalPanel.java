@@ -114,8 +114,8 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                 roleRestClient,
                 anyTypeRestClient.listAnyTypes().stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
         LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo =
-                anyLayout.getUser() instanceof IdMUserFormLayoutInfo
-                ? IdMUserFormLayoutInfo.class.cast(anyLayout.getUser()).getLinkedAccountFormLayoutInfo()
+                anyLayout.getUser() instanceof IdMUserFormLayoutInfo idMUFLI
+                ? idMUFLI.getLinkedAccountFormLayoutInfo()
                 : new LinkedAccountFormLayoutInfo();
 
         try {

@@ -187,9 +187,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof KeywordSearchEvent) {
-            KeywordSearchEvent payload = KeywordSearchEvent.class.cast(event.getPayload());
-
+        if (event.getPayload() instanceof KeywordSearchEvent payload) {
             keyword = payload.getKeyword();
             if (StringUtils.isNotBlank(keyword)) {
                 if (!Strings.CS.startsWith(keyword, "*")) {

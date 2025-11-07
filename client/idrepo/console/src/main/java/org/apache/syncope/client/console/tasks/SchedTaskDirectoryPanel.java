@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.tasks;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,7 +33,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -43,6 +40,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
@@ -70,6 +68,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -121,16 +120,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         initResultTable();
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
+        container.add(new RefreshWebSocketBehavior() {
 
             private static final long serialVersionUID = -4661303265651934868L;
 
             @Override
-            protected void onTimer(final AjaxRequestTarget target) {
+            protected void onTimer(final WebSocketRequestHandler handler) {
                 container.modelChanged();
-                target.add(container);
+                handler.add(container);
             }
-        });
+        }.schedule(10));
 
         startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);

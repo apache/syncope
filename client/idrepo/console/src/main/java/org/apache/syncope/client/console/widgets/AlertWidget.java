@@ -19,41 +19,29 @@
 package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
-import java.io.Serializable;
-import java.util.List;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AlertWidget<T extends Serializable> extends Panel {
+public abstract class AlertWidget extends Panel {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AlertWidget.class);
 
-    protected static final int MAX_SIZE = 5;
-
     protected final Label linkAlertsNumber;
 
     protected final Label headerAlertsNumber;
 
-    protected final WebMarkupContainer latestAlertsList;
-
-    protected IModel<List<T>> latestAlerts;
-
     public AlertWidget(final String id) {
         super(id);
-        this.latestAlerts = getLatestAlerts();
-
         setOutputMarkupId(true);
 
-        final LoadableDetachableModel<Long> size = new LoadableDetachableModel<>() {
+        LoadableDetachableModel<Long> size = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 7474274077691068779L;
 
@@ -90,21 +78,12 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
         add(linkAlertsNumber.setOutputMarkupId(true));
 
         headerAlertsNumber = new Label("number", size);
-        headerAlertsNumber.setOutputMarkupId(true);
-        add(headerAlertsNumber);
+        add(headerAlertsNumber.setOutputMarkupId(true));
 
         add(getEventsLink("alertsLink"));
-
-        latestAlertsList = new WebMarkupContainer("latestAlertsList");
-        latestAlertsList.setOutputMarkupId(true);
-        add(latestAlertsList);
     }
 
-    protected long getLatestAlertsSize() {
-        return latestAlerts.getObject().size();
-    }
-
-    protected abstract IModel<List<T>> getLatestAlerts();
+    protected abstract long getLatestAlertsSize();
 
     protected abstract AbstractLink getEventsLink(String linkid);
 

@@ -103,16 +103,15 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         // optional details panel step
         addOptionalDetailsPanel(modelObject).ifPresent(wizardModel::add);
 
-        if ((this instanceof GroupWizardBuilder)
-                && (modelObject.getInnerObject() instanceof GroupTO)
-                && (formLayoutInfo instanceof GroupFormLayoutInfo)) {
+        if (this instanceof GroupWizardBuilder
+                && modelObject instanceof final GroupWrapper gw
+                && formLayoutInfo instanceof final GroupFormLayoutInfo groupFormLayoutInfo) {
 
-            GroupFormLayoutInfo groupFormLayoutInfo = GroupFormLayoutInfo.class.cast(formLayoutInfo);
             if (groupFormLayoutInfo.isOwnership()) {
-                wizardModel.add(new Ownership(GroupWrapper.class.cast(modelObject), pageRef));
+                wizardModel.add(new Ownership(gw, pageRef));
             }
             if (groupFormLayoutInfo.isDynamicMemberships()) {
-                wizardModel.add(new DynamicMemberships(GroupWrapper.class.cast(modelObject), pageRef));
+                wizardModel.add(new DynamicMemberships(gw, pageRef));
             }
         }
 
@@ -141,10 +140,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
 
         // role panel step (just available for users)
-        if ((this instanceof UserWizardBuilder)
+        if (this instanceof UserWizardBuilder
                 && modelObject instanceof final UserWrapper userWrapper
-                && formLayoutInfo instanceof UserFormLayoutInfo
-                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
+                && formLayoutInfo instanceof final UserFormLayoutInfo ufli
+                && ufli.isRoles()) {
 
             wizardModel.add(new Roles(userWrapper));
         }

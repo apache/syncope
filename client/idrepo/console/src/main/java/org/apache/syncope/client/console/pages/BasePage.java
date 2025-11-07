@@ -433,19 +433,19 @@ public class BasePage extends BaseWebPage {
         }
 
         // Extensions
-        List<Class<? extends ExtAlertWidget<?>>> extAlertWidgetClasses =
+        List<Class<? extends ExtAlertWidget>> extAlertWidgetClasses =
                 SyncopeWebApplication.get().getLookup().getExtAlertWidgetClasses();
-        ListView<Class<? extends ExtAlertWidget<?>>> extAlertWidgets = new ListView<>(
+        ListView<Class<? extends ExtAlertWidget>> extAlertWidgets = new ListView<>(
                 "extAlertWidgets", extAlertWidgetClasses) {
 
             private static final long serialVersionUID = -9112553137618363167L;
 
             @Override
-            protected void populateItem(final ListItem<Class<? extends ExtAlertWidget<?>>> item) {
+            protected void populateItem(final ListItem<Class<? extends ExtAlertWidget>> item) {
                 try {
-                    Constructor<? extends ExtAlertWidget<?>> constructor =
+                    Constructor<? extends ExtAlertWidget> constructor =
                             item.getModelObject().getDeclaredConstructor(String.class, PageReference.class);
-                    ExtAlertWidget<?> widget = constructor.newInstance("extAlertWidget", getPageReference());
+                    ExtAlertWidget widget = constructor.newInstance("extAlertWidget", getPageReference());
 
                     SyncopeConsoleSession.get().setAttribute(widget.getClass().getName(), widget);
 

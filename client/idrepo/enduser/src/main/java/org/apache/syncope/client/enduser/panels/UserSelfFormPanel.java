@@ -84,8 +84,8 @@ public class UserSelfFormPanel extends UserFormPanel {
                 // create and set page parameters according to provisioning result
                 UserCR req = new UserCR();
                 EntityTOUtils.toAnyCR(userTO, req);
-                req.setStorePassword(form.getModelObject() instanceof UserWrapper
-                        ? UserWrapper.class.cast(form.getModelObject()).isStorePasswordInSyncope()
+                req.setStorePassword(form.getModelObject() instanceof final UserWrapper uw
+                        ? uw.isStorePasswordInSyncope()
                         : StringUtils.isNotBlank(userTO.getPassword()));
                 // perform request and pass propagation statuses to SelfResult page
                 ProvisioningResult<UserTO> provisioningResult = userSelfRestClient.create(req);

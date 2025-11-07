@@ -72,8 +72,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         this.credentialChecker = credentialChecker;
     }
 
-    @Override
-    public Pair<String, OffsetDateTime> generateJWT(
+    protected Pair<String, OffsetDateTime> generateJWT(
             final String tokenId,
             final String subject,
             final long duration,
@@ -106,7 +105,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         return Pair.of(jwt.serialize(), expiration);
     }
 
-    private AccessToken replace(
+    protected AccessToken replace(
             final String subject,
             final Map<String, Object> claims,
             final byte[] authorities,

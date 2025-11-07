@@ -149,7 +149,11 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertTrue(taskTO.isExecuted());
         assertFalse(taskTO.getExecutions().isEmpty());
 
-        TASK_SERVICE.delete(TaskType.NOTIFICATION, taskTO.getKey());
+        try {
+            TASK_SERVICE.delete(TaskType.NOTIFICATION, taskTO.getKey());
+        } catch (Exception e) {
+            // ignore
+        }
     }
 
     @Test

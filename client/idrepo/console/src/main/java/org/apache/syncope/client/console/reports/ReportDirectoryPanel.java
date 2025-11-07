@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.reports;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -35,13 +33,13 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
@@ -68,6 +66,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -99,16 +98,16 @@ public abstract class ReportDirectoryPanel
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
+        container.add(new RefreshWebSocketBehavior() {
 
             private static final long serialVersionUID = -4661303265651934868L;
 
             @Override
-            protected void onTimer(final AjaxRequestTarget target) {
+            protected void onTimer(final WebSocketRequestHandler handler) {
                 container.modelChanged();
-                target.add(container);
+                handler.add(container);
             }
-        });
+        }.schedule(10));
 
         startAt = new ReportStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
@@ -180,9 +179,9 @@ public abstract class ReportDirectoryPanel
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload payload) {
             container.modelChanged();
-            JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(container);
+            payload.getTarget().add(container);
         } else {
             super.onEvent(event);
         }

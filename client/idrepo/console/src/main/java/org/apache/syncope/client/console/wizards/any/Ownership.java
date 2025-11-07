@@ -314,8 +314,8 @@ public class Ownership extends WizardStep implements ICondition {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
-            AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
+        if (event.getPayload() instanceof SearchClausePanel.SearchEvent payload) {
+            AjaxRequestTarget target = payload.getTarget();
             if (Ownership.this.isGroupOwnership.getObject()) {
                 String fiql = SearchUtils.buildFIQL(
                         groupSearchPanel.getModel().getObject(), SyncopeClient.getGroupSearchConditionBuilder());
@@ -325,7 +325,7 @@ public class Ownership extends WizardStep implements ICondition {
                         userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
                 userDirectoryPanel.search(fiql, target);
             }
-        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection itemSelection) {
+        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection<?> itemSelection) {
             AnyTO sel = itemSelection.getSelection();
             if (sel == null) {
                 wrapper.getInnerObject().setUserOwner(null);

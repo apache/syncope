@@ -20,18 +20,14 @@ package org.apache.syncope.client.console.widgets;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.ListModel;
 
-public class JEXLTransformerWidget extends AlertWidget<String> {
+public class JEXLTransformerWidget extends AlertWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
@@ -45,32 +41,21 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
             final JEXLTransformersTogglePanel transformers) {
 
         super(id);
-        setOutputMarkupId(true);
 
         this.item = item;
         this.transformers = transformers;
-
-        this.latestAlertsList.setVisible(false);
     }
 
     @Override
-    protected IModel<List<String>> getLatestAlerts() {
-        return new ListModel<>() {
-
-            private static final long serialVersionUID = -2583290457773357445L;
-
-            @Override
-            public List<String> getObject() {
-                List<String> result = new ArrayList<>();
-                if (StringUtils.isNotBlank(item.getPropagationJEXLTransformer())) {
-                    result.add(item.getPropagationJEXLTransformer());
-                }
-                if (StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
-                    result.add(item.getPullJEXLTransformer());
-                }
-                return result;
-            }
-        };
+    protected long getLatestAlertsSize() {
+        long size = 0;
+        if (StringUtils.isNotBlank(item.getPropagationJEXLTransformer())) {
+            size++;
+        }
+        if (StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
+            size++;
+        }
+        return size;
     }
 
     @Override

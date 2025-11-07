@@ -109,8 +109,8 @@ public class UserRequestFormDirectoryPanel
             updateResultTable(target);
 
             Serializable widget = SyncopeConsoleSession.get().getAttribute(UserRequestFormsWidget.class.getName());
-            if (widget instanceof final UserRequestFormsWidget components) {
-                components.refreshLatestAlerts(target);
+            if (widget instanceof final UserRequestFormsWidget urfw) {
+                urfw.refresh(target);
             }
 
             if (actionTogglePanel.isVisibleInHierarchy()) {
@@ -316,8 +316,7 @@ public class UserRequestFormDirectoryPanel
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof UserRequestSearchEvent) {
-            UserRequestSearchEvent payload = UserRequestSearchEvent.class.cast(event.getPayload());
+        if (event.getPayload() instanceof final UserRequestSearchEvent payload) {
             keyword = payload.getKeyword();
 
             updateResultTable(payload.getTarget());
