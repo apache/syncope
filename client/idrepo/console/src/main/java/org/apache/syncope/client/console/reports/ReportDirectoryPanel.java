@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -107,7 +108,7 @@ public abstract class ReportDirectoryPanel
                 container.modelChanged();
                 handler.add(container);
             }
-        }.schedule(10));
+        }.schedule(10, TimeUnit.SECONDS));
 
         startAt = new ReportStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);

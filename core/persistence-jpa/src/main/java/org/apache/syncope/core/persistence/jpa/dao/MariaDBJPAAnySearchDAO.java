@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.domain.Sort;
@@ -97,12 +96,12 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
         item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
-    
+
     @Override
     protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
-            final Pair<PlainSchema, PlainAttrValue> checked,
+            final CheckResult checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 
@@ -120,7 +119,7 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 return Pair.of(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
                         + ") IS NOT NULL"));
             }
 
@@ -128,18 +127,18 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 return Pair.of(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
                         + ") IS NULL"));
             }
 
             default -> {
                 if (!not && cond.getType() == AttrCond.Type.EQ) {
                     PlainAttr container = new PlainAttr();
-                    container.setPlainSchema(checked.getLeft());
-                    if (checked.getLeft().isUniqueConstraint()) {
-                        container.setUniqueValue(checked.getRight());
+                    container.setPlainSchema(checked.schema());
+                    if (checked.schema().isUniqueConstraint()) {
+                        container.setUniqueValue(checked.value());
                     } else {
-                        container.add(checked.getRight());
+                        container.add(checked.value());
                     }
 
                     return Pair.of(true, new AnySearchNode.Leaf(
@@ -148,11 +147,11 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                             + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
                             + "')"));
                 } else {
-                    Optional.ofNullable(checked.getRight().getDateValue()).
+                    Optional.ofNullable(checked.value().getDateValue()).
                             map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                             ifPresent(formatted -> {
-                                checked.getRight().setDateValue(null);
-                                checked.getRight().setStringValue(formatted);
+                                checked.value().setDateValue(null);
+                                checked.value().setStringValue(formatted);
                             });
 
                     return super.getQuery(cond, not, checked, parameters, svs);

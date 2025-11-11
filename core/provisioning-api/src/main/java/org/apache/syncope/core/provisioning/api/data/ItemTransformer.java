@@ -19,13 +19,13 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 
 /**
  * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
@@ -42,13 +42,13 @@ public interface ItemTransformer {
      * @param values original values
      * @return transformed values
      */
-    default Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+    default MappingManager.IntValues beforePropagation(
             Item item,
             Realm realm,
             AttrSchemaType schemaType,
             List<PlainAttrValue> values) {
 
-        return Pair.of(schemaType, values);
+        return new MappingManager.IntValues(schemaType, values);
     }
 
     /**
@@ -60,13 +60,13 @@ public interface ItemTransformer {
      * @param values original values
      * @return transformed values
      */
-    default Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+    default MappingManager.IntValues beforePropagation(
             Item item,
             Any any,
             AttrSchemaType schemaType,
             List<PlainAttrValue> values) {
 
-        return Pair.of(schemaType, values);
+        return new MappingManager.IntValues(schemaType, values);
     }
 
     /**

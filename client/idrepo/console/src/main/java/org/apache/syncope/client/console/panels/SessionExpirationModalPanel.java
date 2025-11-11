@@ -16,23 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons.panels;
+package org.apache.syncope.client.console.panels;
 
-public final class OIDCC4UIConstants {
+import java.io.Serializable;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.ResourceModel;
 
-    public static final String URL_CONTEXT = "oidcc4ui";
+public class SessionExpirationModalPanel extends AbstractModalPanel<Serializable> {
 
-    public static final String PARAM_OP = "op";
+    private static final long serialVersionUID = -1934452638889755401L;
 
-    public static final String PARAM_REAUTH = "reauth";
+    public SessionExpirationModalPanel(
+            final BaseModal<Serializable> modal,
+            final ResourceModel body,
+            final PageReference pageRef) {
 
-    public static final String OIDCC4UI_JWT = "oidcc4ui.jwt";
+        super(modal, pageRef);
 
-    public static final String OIDCC4UI_JWT_EXPIRATION = "oidcc4ui.jwt.expiration";
-
-    public static final String OIDCC4UI_SLO_SUPPORTED = "oidcc4ui.sloSupported";
-
-    private OIDCC4UIConstants() {
-        // private constructor for static utility class
+        add(new Label("body", body));
     }
 }

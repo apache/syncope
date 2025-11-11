@@ -163,7 +163,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         // 1. check if AuthContextUtils.getUsername() is owner of the group, or
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
+                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized && key != null) {
@@ -270,7 +270,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         return toList(
                 neo4jClient.query(
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
-                                + "RETURN n.id" + paged)
+                        + "RETURN n.id" + paged)
                         .bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
                 Neo4jUMembership.class,

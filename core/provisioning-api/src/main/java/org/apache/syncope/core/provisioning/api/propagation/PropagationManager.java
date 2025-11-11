@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -158,7 +159,7 @@ public interface PropagationManager {
             ResourceOperation operation,
             Provision provision,
             Stream<Item> mappingItems,
-            Pair<String, Set<Attribute>> preparedAttrs);
+            MappingManager.PreparedAttrs preparedAttrs);
 
     /**
      * Create the needed tasks for the realm for each resource associated, unless in {@code excludedResources}.

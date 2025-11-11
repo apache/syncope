@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -38,9 +37,9 @@ import java.util.Optional;
 import java.util.Set;
 import javax.cache.CacheManager;
 import javax.cache.integration.CacheLoader;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.spring.security.JWTSSOProvider.ResolvedClaims;
 import org.apache.syncope.core.spring.security.jws.MSEntraAccessTokenJWSVerifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -106,9 +105,9 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        Pair<User, Set<SyncopeGrantedAuthority>> resolved = provider.resolve(payload);
-        assertEquals(AUTH_USERNAME, resolved.getKey().getUsername());
-        assertEquals(1, resolved.getValue().size());
+        ResolvedClaims resolved = provider.resolve(payload).orElseThrow();
+        assertEquals(AUTH_USERNAME, resolved.user().getUsername());
+        assertEquals(1, resolved.authorities().size());
     }
 
     @Test
@@ -123,7 +122,7 @@ public class MSEntraJWTSSOProviderTest {
                 .audience(APP_ID)
                 .build();
 
-        assertThrows(Exception.class, () -> provider.resolve(payload));
+        assertThrows(Exception.class, () -> provider.resolve(payload).orElseThrow());
     }
 
     @Test
@@ -146,9 +145,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        Pair<User, Set<SyncopeGrantedAuthority>> resolved = provider.resolve(payload);
-        assertNull(resolved.getKey());
-        assertTrue(resolved.getValue().isEmpty());
+        assertTrue(provider.resolve(payload).isEmpty());
     }
 
     @Test
@@ -171,7 +168,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertTrue(provider.resolve(payload).getValue().isEmpty());
+        assertTrue(provider.resolve(payload).orElseThrow().authorities().isEmpty());
     }
 
     @Test
@@ -194,7 +191,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertTrue(provider.resolve(payload).getValue().isEmpty());
+        assertTrue(provider.resolve(payload).orElseThrow().authorities().isEmpty());
     }
 
     @Test
@@ -220,7 +217,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertEquals(1, provider.resolve(payload).getValue().size());
+        assertEquals(1, provider.resolve(payload).orElseThrow().authorities().size());
     }
 
     @Test
@@ -243,7 +240,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertTrue(provider.resolve(payload).getValue().isEmpty());
+        assertTrue(provider.resolve(payload).orElseThrow().authorities().isEmpty());
     }
 
     @Test
@@ -269,7 +266,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertEquals(1, provider.resolve(payload).getValue().size());
+        assertEquals(1, provider.resolve(payload).orElseThrow().authorities().size());
     }
 
     @Test
@@ -292,7 +289,7 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertTrue(provider.resolve(payload).getValue().isEmpty());
+        assertTrue(provider.resolve(payload).orElseThrow().authorities().isEmpty());
     }
 
     @Test
@@ -318,6 +315,6 @@ public class MSEntraJWTSSOProviderTest {
                 .expirationTime(Date.from(expiration))
                 .build();
 
-        assertEquals(1, provider.resolve(payload).getValue().size());
+        assertEquals(1, provider.resolve(payload).orElseThrow().authorities().size());
     }
 }

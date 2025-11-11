@@ -82,12 +82,9 @@ public class SRA extends BasePage {
         body.add(push);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(instances));
-        content.add(tabbedPanel);
+        body.add(content.setOutputMarkupId(true));
 
-        body.add(content);
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(instances)));
     }
 
     private List<ITab> buildTabList(final List<NetworkService> instances) {

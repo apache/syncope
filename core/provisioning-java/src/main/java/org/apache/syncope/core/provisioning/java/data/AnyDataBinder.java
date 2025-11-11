@@ -70,7 +70,6 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -88,7 +87,6 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
@@ -224,17 +222,17 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
                 ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
-            Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
+            MappingManager.PreparedAttrs prepared = mappingManager.prepareAttrsFromAny(
                     any, password, changePwdRes.contains(resource.getKey()), true, resource, provision);
 
             ConnObject connObjectTO;
-            if (StringUtils.isBlank(prepared.getLeft())) {
-                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
+            if (StringUtils.isBlank(prepared.connObjectLink())) {
+                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.attributes());
             } else {
                 ConnectorObject connectorObject = new ConnectorObjectBuilder().
-                        addAttributes(prepared.getRight()).
-                        addAttribute(new Uid(prepared.getLeft())).
-                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.getLeft())).
+                        addAttributes(prepared.attributes()).
+                        addAttribute(new Uid(prepared.connObjectLink())).
+                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.connObjectLink())).
                         build();
 
                 connObjectTO = ConnObjectUtils.getConnObjectTO(
@@ -265,7 +263,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                         ? intAttrName.getSchema().getType()
                         : AttrSchemaType.String;
 
-                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
+                MappingManager.IntValues intValues = mappingManager.getIntValues(
                         resource,
                         provision,
                         item,
@@ -274,7 +272,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                         any,
                         AccountGetter.DEFAULT,
                         PlainAttrGetter.DEFAULT);
-                if (intValues.getRight().isEmpty()
+                if (intValues.values().isEmpty()
                         && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)) {
 
                     missingAttrNames.add(item.getIntAttrName());

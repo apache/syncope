@@ -25,12 +25,15 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.io.Serializable;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Triple;
+import java.util.function.Predicate;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
@@ -64,140 +67,14 @@ import org.slf4j.LoggerFactory;
  */
 public class SyncopeClient {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeClient.class);
+    public record Self(UserTO user, Map<String, Set<String>> entitlements, List<String> delegations)
+            implements Serializable {
 
-    protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
-
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
-
-    protected final MediaType mediaType;
-
-    protected final JAXRSClientFactoryBean restClientFactory;
-
-    protected final RestClientExceptionMapper exceptionMapper;
-
-    protected final boolean useCompression;
-
-    protected final HTTPClientPolicy httpClientPolicy;
-
-    protected final TLSClientParameters tlsClientParameters;
-
-    public SyncopeClient(
-            final MediaType mediaType,
-            final JAXRSClientFactoryBean restClientFactory,
-            final RestClientExceptionMapper exceptionMapper,
-            final AuthenticationHandler authHandler,
-            final boolean useCompression,
-            final HTTPClientPolicy httpClientPolicy,
-            final TLSClientParameters tlsClientParameters) {
-
-        this.mediaType = mediaType;
-        this.restClientFactory = restClientFactory;
-        if (this.restClientFactory.getHeaders() == null) {
-            this.restClientFactory.setHeaders(new HashMap<>());
-        }
-        this.exceptionMapper = exceptionMapper;
-        this.useCompression = useCompression;
-        this.httpClientPolicy = httpClientPolicy;
-        this.tlsClientParameters = tlsClientParameters;
-
-        init(authHandler);
     }
 
-    /**
-     * Initializes the provided {@code restClientFactory} with the authentication capabilities of the provided
-     * {@code handler}.
-     *
-     * Currently supports:
-     * <ul>
-     * <li>{@link JWTAuthenticationHandler}</li>
-     * <li>{@link AnonymousAuthenticationHandler}</li>
-     * <li>{@link BasicAuthenticationHandler}</li>
-     * </ul>
-     * More can be supported by subclasses.
-     *
-     * @param authHandler authentication handler
-     */
-    protected void init(final AuthenticationHandler authHandler) {
-        cleanup();
+    public record JwtInfo(String value, OffsetDateTime expiration)
+            implements Serializable {
 
-        if (authHandler instanceof final AnonymousAuthenticationHandler anonymousAuthenticationHandler) {
-            restClientFactory.setUsername(anonymousAuthenticationHandler.getUsername());
-            restClientFactory.setPassword(anonymousAuthenticationHandler.getPassword());
-        } else if (authHandler instanceof final BasicAuthenticationHandler basicAuthenticationHandler) {
-            restClientFactory.setUsername(basicAuthenticationHandler.getUsername());
-            restClientFactory.setPassword(basicAuthenticationHandler.getPassword());
-
-            String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
-
-            restClientFactory.setUsername(null);
-            restClientFactory.setPassword(null);
-        } else if (authHandler instanceof final JWTAuthenticationHandler jwtAuthenticationHandler) {
-            restClientFactory.getHeaders().put(
-                    HttpHeaders.AUTHORIZATION,
-                    List.of("Bearer " + jwtAuthenticationHandler.getJwt()));
-        }
-    }
-
-    protected void cleanup() {
-        restClientFactory.getHeaders().remove(HttpHeaders.AUTHORIZATION);
-        restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
-        restClientFactory.setUsername(null);
-        restClientFactory.setPassword(null);
-    }
-
-    /**
-     * Gives the base address for REST calls.
-     *
-     * @return the base address for REST calls
-     */
-    public String getAddress() {
-        return restClientFactory.getAddress();
-    }
-
-    /**
-     * Requests to invoke services as delegating user.
-     *
-     * @param delegating delegating username
-     * @return this instance, for fluent usage
-     */
-    public SyncopeClient delegatedBy(final String delegating) {
-        if (delegating == null) {
-            restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
-        } else {
-            restClientFactory.getHeaders().put(RESTHeaders.DELEGATED_BY, List.of(delegating));
-        }
-        return this;
-    }
-
-    /**
-     * Attempts to extend the lifespan of the JWT currently in use.
-     */
-    public void refresh() {
-        String jwt = getService(AccessTokenService.class).refresh().getHeaderString(RESTHeaders.TOKEN);
-        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
-    }
-
-    /**
-     * Invalidates the JWT currently in use.
-     */
-    public void logout() {
-        try {
-            getService(AccessTokenService.class).logout();
-        } catch (Exception e) {
-            LOG.error("While logging out, cleaning up anyway", e);
-        }
-        cleanup();
-    }
-
-    /**
-     * (Re)initializes the current instance with the authentication capabilities of the provided {@code handler}.
-     *
-     * @param handler authentication handler
-     */
-    public void login(final AuthenticationHandler handler) {
-        init(handler);
     }
 
     /**
@@ -244,98 +121,6 @@ public class SyncopeClient {
      */
     public static OrderByClauseBuilder getOrderByClauseBuilder() {
         return new OrderByClauseBuilder();
-    }
-
-    /**
-     * Returns the JWT in used by this instance, passed with the {@link HttpHeaders#AUTHORIZATION} header
-     * in all requests. It can be null (in case {@link AnonymousAuthenticationHandler} was used).
-     *
-     * @return the JWT in used by this instance
-     */
-    public String getJWT() {
-        List<String> headerValues = restClientFactory.getHeaders().get(HttpHeaders.AUTHORIZATION);
-        String header = headerValues == null || headerValues.isEmpty()
-                ? null
-                : headerValues.getFirst();
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring("Bearer ".length());
-
-        }
-        return null;
-    }
-
-    /**
-     * Returns the domain configured for this instance, or {@link SyncopeConstants#MASTER_DOMAIN} if not set.
-     *
-     * @return the domain configured for this instance
-     */
-    public String getDomain() {
-        List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.DOMAIN);
-        return headerValues == null || headerValues.isEmpty()
-                ? SyncopeConstants.MASTER_DOMAIN
-                : headerValues.getFirst();
-    }
-
-    /**
-     * Creates an instance of the given service class, with configured content type and authentication.
-     *
-     * @param <T> any service class
-     * @param serviceClass service class reference
-     * @return service instance of the given reference class
-     */
-    public <T> T getService(final Class<T> serviceClass) {
-        T serviceInstance;
-        synchronized (restClientFactory) {
-            restClientFactory.setServiceClass(serviceClass);
-            serviceInstance = restClientFactory.create(serviceClass);
-        }
-
-        Client client = WebClient.client(serviceInstance);
-        client.type(mediaType).accept(mediaType);
-        if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
-            client.accept(RESTHeaders.MULTIPART_MIXED);
-        }
-
-        ClientConfiguration config = WebClient.getConfig(client);
-        config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
-        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
-        if (useCompression) {
-            config.getInInterceptors().add(new GZIPInInterceptor());
-            config.getOutInterceptors().add(new GZIPOutInterceptor());
-        }
-
-        HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
-        Optional.ofNullable(httpClientPolicy).ifPresent(httpConduit::setClient);
-        Optional.ofNullable(tlsClientParameters).ifPresent(httpConduit::setTlsClientParameters);
-
-        return serviceInstance;
-    }
-
-    public Triple<Map<String, Set<String>>, List<String>, UserTO> self() {
-        // Explicitly disable header value split because it interferes with JSON deserialization below
-        UserSelfService service = getService(UserSelfService.class);
-        WebClient.getConfig(WebClient.client(service)).getRequestContext().put(HEADER_SPLIT_PROPERTY, false);
-
-        Response response = service.read();
-        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
-            Exception ex = exceptionMapper.fromResponse(response);
-            if (ex != null) {
-                throw (RuntimeException) ex;
-            }
-        }
-
-        try {
-            return Triple.of(
-                    MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS), new TypeReference<>() {
-                    }),
-                    MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
-                    }),
-                    response.readEntity(UserTO.class));
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     /**
@@ -426,6 +211,247 @@ public class SyncopeClient {
         return WebClient.client(service).getResponse().getEntityTag();
     }
 
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeClient.class);
+
+    protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
+
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+
+    protected final MediaType mediaType;
+
+    protected final JAXRSClientFactoryBean restClientFactory;
+
+    protected final RestClientExceptionMapper exceptionMapper;
+
+    protected final boolean useCompression;
+
+    protected final HTTPClientPolicy httpClientPolicy;
+
+    protected final TLSClientParameters tlsClientParameters;
+
+    public SyncopeClient(
+            final MediaType mediaType,
+            final JAXRSClientFactoryBean restClientFactory,
+            final RestClientExceptionMapper exceptionMapper,
+            final AuthenticationHandler authHandler,
+            final boolean useCompression,
+            final HTTPClientPolicy httpClientPolicy,
+            final TLSClientParameters tlsClientParameters) {
+
+        this.mediaType = mediaType;
+        this.restClientFactory = restClientFactory;
+        if (this.restClientFactory.getHeaders() == null) {
+            this.restClientFactory.setHeaders(new HashMap<>());
+        }
+        this.exceptionMapper = exceptionMapper;
+        this.useCompression = useCompression;
+        this.httpClientPolicy = httpClientPolicy;
+        this.tlsClientParameters = tlsClientParameters;
+
+        init(authHandler);
+    }
+
+    /**
+     * Initializes the provided {@code restClientFactory} with the authentication capabilities of the provided
+     * {@code handler}.
+     *
+     * Currently supports:
+     * <ul>
+     * <li>{@link JWTAuthenticationHandler}</li>
+     * <li>{@link AnonymousAuthenticationHandler}</li>
+     * <li>{@link BasicAuthenticationHandler}</li>
+     * </ul>
+     * More can be supported by subclasses.
+     *
+     * @param authHandler authentication handler
+     */
+    protected void init(final AuthenticationHandler authHandler) {
+        cleanup();
+
+        if (authHandler instanceof final AnonymousAuthenticationHandler anonymous) {
+            restClientFactory.setUsername(anonymous.getUsername());
+            restClientFactory.setPassword(anonymous.getPassword());
+        } else if (authHandler instanceof final BasicAuthenticationHandler basic) {
+            restClientFactory.setUsername(basic.getUsername());
+            restClientFactory.setPassword(basic.getPassword());
+
+            Response response = getService(AccessTokenService.class).login();
+            String jwt = response.getHeaderString(RESTHeaders.TOKEN);
+            String jwtExpiration = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
+            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
+            restClientFactory.getHeaders().put(HttpHeaders.EXPIRES, List.of(jwtExpiration));
+
+            restClientFactory.setUsername(null);
+            restClientFactory.setPassword(null);
+        } else if (authHandler instanceof final JWTAuthenticationHandler jwt) {
+            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt.getJwt()));
+        }
+    }
+
+    protected void cleanup() {
+        restClientFactory.getHeaders().remove(HttpHeaders.AUTHORIZATION);
+        restClientFactory.getHeaders().remove(HttpHeaders.EXPIRES);
+        restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
+        restClientFactory.setUsername(null);
+        restClientFactory.setPassword(null);
+    }
+
+    /**
+     * Gives the base address for REST calls.
+     *
+     * @return the base address for REST calls
+     */
+    public String getAddress() {
+        return restClientFactory.getAddress();
+    }
+
+    /**
+     * Requests to invoke services as delegating user.
+     *
+     * @param delegating delegating username
+     * @return this instance, for fluent usage
+     */
+    public SyncopeClient delegatedBy(final String delegating) {
+        if (delegating == null) {
+            restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
+        } else {
+            restClientFactory.getHeaders().put(RESTHeaders.DELEGATED_BY, List.of(delegating));
+        }
+        return this;
+    }
+
+    /**
+     * Attempts to extend the lifespan of the JWT currently in use.
+     */
+    public void refresh() {
+        Response response = getService(AccessTokenService.class).refresh();
+        String jwt = response.getHeaderString(RESTHeaders.TOKEN);
+        String jwtExpiration = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
+        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
+        restClientFactory.getHeaders().put(HttpHeaders.EXPIRES, List.of(jwtExpiration));
+    }
+
+    /**
+     * Invalidates the JWT currently in use.
+     */
+    public void logout() {
+        try {
+            getService(AccessTokenService.class).logout();
+        } catch (Exception e) {
+            LOG.error("While logging out, cleaning up anyway", e);
+        }
+        cleanup();
+    }
+
+    /**
+     * (Re)initializes the current instance with the authentication capabilities of the provided {@code handler}.
+     *
+     * @param handler authentication handler
+     */
+    public void login(final AuthenticationHandler handler) {
+        init(handler);
+    }
+
+    /**
+     * Returns the JWT in use by this instance and its expiration timestamp.
+     *
+     * @return the JWT in use by this instance and its expiration timestamp, or empty if
+     * {@link AnonymousAuthenticationHandler} was used.
+     */
+    public Optional<JwtInfo> jwtInfo() {
+        String value = Optional.ofNullable(restClientFactory.getHeaders().get(HttpHeaders.AUTHORIZATION)).
+                filter(Predicate.not(List::isEmpty)).
+                map(List::getFirst).
+                filter(header -> header.startsWith("Bearer ")).
+                map(header -> header.substring("Bearer ".length())).
+                orElse(null);
+        if (value == null) {
+            return Optional.empty();
+        }
+
+        OffsetDateTime expiration = Optional.ofNullable(restClientFactory.getHeaders().get(HttpHeaders.EXPIRES)).
+                filter(Predicate.not(List::isEmpty)).
+                map(List::getFirst).
+                map(v -> OffsetDateTime.parse(v, DateTimeFormatter.ISO_OFFSET_DATE_TIME)).
+                orElse(null);
+
+        return Optional.of(new JwtInfo(value, expiration));
+    }
+
+    /**
+     * Returns the domain configured for this instance, or {@link SyncopeConstants#MASTER_DOMAIN} if not set.
+     *
+     * @return the domain configured for this instance
+     */
+    public String getDomain() {
+        List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.DOMAIN);
+        return headerValues == null || headerValues.isEmpty()
+                ? SyncopeConstants.MASTER_DOMAIN
+                : headerValues.getFirst();
+    }
+
+    /**
+     * Creates an instance of the given service class, with configured content type and authentication.
+     *
+     * @param <T> any service class
+     * @param serviceClass service class reference
+     * @return service instance of the given reference class
+     */
+    public <T> T getService(final Class<T> serviceClass) {
+        T serviceInstance;
+        synchronized (restClientFactory) {
+            restClientFactory.setServiceClass(serviceClass);
+            serviceInstance = restClientFactory.create(serviceClass);
+        }
+
+        Client client = WebClient.client(serviceInstance);
+        client.type(mediaType).accept(mediaType);
+        if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
+            client.accept(RESTHeaders.MULTIPART_MIXED);
+        }
+
+        ClientConfiguration config = WebClient.getConfig(client);
+        config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
+        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
+        if (useCompression) {
+            config.getInInterceptors().add(new GZIPInInterceptor());
+            config.getOutInterceptors().add(new GZIPOutInterceptor());
+        }
+
+        HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+        Optional.ofNullable(httpClientPolicy).ifPresent(httpConduit::setClient);
+        Optional.ofNullable(tlsClientParameters).ifPresent(httpConduit::setTlsClientParameters);
+
+        return serviceInstance;
+    }
+
+    public Self self() {
+        // Explicitly disable header value split because it interferes with JSON deserialization below
+        UserSelfService service = getService(UserSelfService.class);
+        WebClient.getConfig(WebClient.client(service)).getRequestContext().put(HEADER_SPLIT_PROPERTY, false);
+
+        Response response = service.read();
+        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+            Exception ex = exceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+
+        try {
+            return new Self(
+                    response.readEntity(UserTO.class),
+                    MAPPER.readValue(
+                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS), new TypeReference<>() {
+                    }),
+                    MAPPER.readValue(
+                            response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
+                    }));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Initiates a new Batch request.
      *
@@ -448,7 +474,7 @@ public class SyncopeClient {
                 mediaType,
                 restClientFactory.getAddress(),
                 restClientFactory.getProviders(),
-                getJWT(),
+                jwtInfo().map(JwtInfo::value).orElse(null),
                 tlsClientParameters);
     }
 }

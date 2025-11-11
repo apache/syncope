@@ -214,7 +214,7 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
-            final Pair<PlainSchema, PlainAttrValue> checked,
+            final CheckResult checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 
@@ -231,37 +231,37 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             case ISNOTNULL -> {
                 return Pair.of(false, new AnySearchNode.Leaf(
                         svs.table(),
-                        "JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')"));
+                        "JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.schema().getKey() + "\")')"));
             }
 
             case ISNULL -> {
                 return Pair.of(false, new AnySearchNode.Leaf(
                         svs.table(),
-                        "NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')"));
+                        "NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.schema().getKey() + "\")')"));
             }
 
             default -> {
                 AnySearchNode.Leaf node;
-                if (not && checked.getLeft().isMultivalue()) {
+                if (not && checked.schema().isMultivalue()) {
                     AnySearchNode.Leaf notNode = filJSONAttrQuery(
                             svs.table(),
-                            checked.getRight(),
-                            checked.getLeft(),
+                            checked.value(),
+                            checked.schema(),
                             cond,
                             false,
                             parameters);
                     node = new AnySearchNode.Leaf(
                             notNode.getFrom(),
                             "id NOT IN ("
-                            + "SELECT id FROM " + notNode.getFrom().name() + "," + from(checked.getLeft())
+                            + "SELECT id FROM " + notNode.getFrom().name() + "," + from(checked.schema())
                             + " WHERE " + notNode.getClause().replace(notNode.getFrom().alias() + ".", "")
                             + ")");
                     return Pair.of(false, node);
                 } else {
                     node = filJSONAttrQuery(
                             svs.table(),
-                            checked.getRight(),
-                            checked.getLeft(),
+                            checked.value(),
+                            checked.schema(),
                             cond,
                             not,
                             parameters);

@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -66,6 +64,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO implements AnySearchDAO {
+
+    protected record CheckResult(PlainSchema schema, PlainAttrValue value, AttrCond cond) {
+
+    }
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
@@ -237,16 +239,16 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             Pageable pageable,
             AnyTypeKind kind);
 
-    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond) {
+    protected CheckResult check(final AttrCond cond) {
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
         PlainAttrValue attrValue = new PlainAttrValue();
-        
+
         if (AttrSchemaType.Encrypted == schema.getType()) {
             throw new IllegalArgumentException("Cannot search by encrypted schema " + cond.getSchema());
         }
-        
+
         try {
             if (cond.getType() != AttrCond.Type.LIKE
                     && cond.getType() != AttrCond.Type.ILIKE
@@ -259,10 +261,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             throw new IllegalArgumentException("Could not validate expression " + cond.getExpression());
         }
 
-        return Pair.of(schema, attrValue);
+        return new CheckResult(schema, attrValue, cond);
     }
 
-    protected Triple<PlainSchema, PlainAttrValue, AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
+    protected CheckResult check(final AnyCond cond, final AnyTypeKind kind) {
         AnyCond computed = new AnyCond(cond.getType());
         computed.setSchema(cond.getSchema());
         computed.setExpression(cond.getExpression());
@@ -324,7 +326,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             }
         }
 
-        return Triple.of(schema, attrValue, computed);
+        return new CheckResult(schema, attrValue, computed);
     }
 
     protected boolean isPatternMatch(final String clause) {

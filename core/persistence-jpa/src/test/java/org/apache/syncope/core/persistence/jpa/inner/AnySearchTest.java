@@ -697,8 +697,8 @@ public class AnySearchTest extends AbstractTest {
                 return r;
             });
 
-            realms.add(RealmUtils.getGroupOwnerRealm(
-                    SyncopeConstants.ROOT_REALM, "37d15e4c-cdc1-460b-a591-8505c8133806"));
+            realms.add(new RealmUtils.GroupOwnerRealm(
+                    SyncopeConstants.ROOT_REALM, "37d15e4c-cdc1-460b-a591-8505c8133806").output());
         });
 
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();

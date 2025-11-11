@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
@@ -91,6 +90,10 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
+    public record Self(UserTO user, String entitlements, String delegations) {
+
+    }
+
     protected final UserDAO userDAO;
 
     protected final GroupDAO groupDAO;
@@ -150,14 +153,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
-    public Triple<String, String, UserTO> selfRead() {
+    public Self selfRead() {
         UserTO authenticatedUser = binder.getAuthenticatedUserTO();
 
-        return Triple.of(
+        return new Self(
+                authenticatedUser,
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
                 POJOHelper.serialize(delegationDAO.findValidDelegating(
-                        authenticatedUser.getKey(), OffsetDateTime.now())),
-                authenticatedUser);
+                        authenticatedUser.getKey(), OffsetDateTime.now())));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")

@@ -43,9 +43,9 @@ public class TabularTopology extends BasePage {
         body.add(websocket);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
+        body.add(content.setOutputMarkupId(true));
+
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
-        body.add(content);
     }
 
     protected List<ITab> buildTabList() {

@@ -33,8 +33,7 @@ public class Parameters extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        body.add(content);
+        body.add(content.setOutputMarkupId(true));
 
         ParametersDirectoryPanel parametersPanel =
                 new ParametersDirectoryPanel("parametersPanel", syncopeRestClient, getPageReference());

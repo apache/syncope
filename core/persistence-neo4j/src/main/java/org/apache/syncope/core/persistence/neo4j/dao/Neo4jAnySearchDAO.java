@@ -32,7 +32,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -189,8 +188,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> groupOwners = new HashSet<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.parseGroupOwnerRealm(realmPath).ifPresentOrElse(
-                    goRealm -> groupOwners.add(goRealm.getRight()),
+            adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
+                    goRealm -> groupOwners.add(goRealm.groupKey()),
                     () -> {
                         if (realmPath.startsWith("/")) {
                             Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
@@ -641,13 +640,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     null);
         }
 
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, kind);
+        CheckResult checked = check(cond, kind);
 
         if (ArrayUtils.contains(
                 RELATIONSHIP_FIELDS,
-                StringUtils.substringBefore(checked.getRight().getSchema(), "_id"))) {
+                StringUtils.substringBefore(checked.cond().getSchema(), "_id"))) {
 
-            String field = StringUtils.substringBefore(checked.getRight().getSchema(), "_id");
+            String field = StringUtils.substringBefore(checked.cond().getSchema(), "_id");
             switch (field) {
                 case "userOwner" -> {
                     return Pair.of(
@@ -672,9 +671,9 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) WHERE ");
 
-        fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters);
+        fillAttrQuery(query, checked.value(), checked.schema(), checked.cond(), not, parameters);
 
-        return Pair.of(query.toString(), checked.getRight().getSchema());
+        return Pair.of(query.toString(), checked.cond().getSchema());
     }
 
     protected Pair<String, PlainSchema> getQuery(
@@ -682,21 +681,21 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final Map<String, Object> parameters) {
 
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond);
+        CheckResult checked = check(cond);
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) ");
         switch (cond.getType()) {
             case ISNOTNULL ->
-                query.append("WHERE n.`plainAttrs.").append(checked.getLeft().getKey()).append("` IS NOT NULL");
+                query.append("WHERE n.`plainAttrs.").append(checked.schema().getKey()).append("` IS NOT NULL");
 
             case ISNULL ->
-                query.append("WHERE n.`plainAttrs.").append(checked.getLeft().getKey()).append("` IS NULL");
+                query.append("WHERE n.`plainAttrs.").append(checked.schema().getKey()).append("` IS NULL");
 
             default ->
-                fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters);
+                fillAttrQuery(query, checked.value(), checked.schema(), cond, not, parameters);
         }
 
-        return Pair.of(query.toString(), checked.getLeft());
+        return Pair.of(query.toString(), checked.schema());
     }
 
     protected void getQueryForCustomConds(

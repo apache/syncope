@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.tuple.Triple;
+import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
@@ -33,6 +33,42 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 
 public class DashboardOverviewPanel extends Panel {
+
+    private record TotalInfo(Long number, String label, String icon) {
+
+    }
+
+    private static TotalInfo buildTotalAny1OrRoles(final NumbersInfo numbers) {
+        long number;
+        String label;
+        String icon;
+        if (numbers.getAnyType1() == null) {
+            number = numbers.getTotalRoles();
+            label = new ResourceModel("roles").getObject();
+            icon = "fas fa-users";
+        } else {
+            number = numbers.getTotalAny1();
+            label = numbers.getAnyType1();
+            icon = "ion ion-gear-a";
+        }
+        return new TotalInfo(number, label, icon);
+    }
+
+    private static TotalInfo buildTotalAny2OrResources(final NumbersInfo numbers) {
+        long number;
+        String label;
+        String icon;
+        if (numbers.getAnyType2() == null) {
+            number = numbers.getTotalResources();
+            label = new ResourceModel("resources").getObject();
+            icon = "fa fa-database";
+        } else {
+            number = numbers.getTotalAny2();
+            label = numbers.getAnyType2();
+            icon = "ion ion-gear-a";
+        }
+        return new TotalInfo(number, label, icon);
+    }
 
     private static final long serialVersionUID = 5989039374050260225L;
 
@@ -69,14 +105,14 @@ public class DashboardOverviewPanel extends Panel {
                 new ResourceModel("groups").getObject(), "ion ion-person-stalker");
         container.add(totalGroups);
 
-        Triple<Long, String, String> built = buildTotalAny1OrRoles(numbers);
+        TotalInfo built = buildTotalAny1OrRoles(numbers);
         totalAny1OrRoles = new NumberWidget(
-                "totalAny1OrRoles", "text-bg-success", built.getLeft(), built.getMiddle(), built.getRight());
+                "totalAny1OrRoles", "text-bg-success", built.number(), built.label(), built.icon());
         container.add(totalAny1OrRoles);
 
         built = buildTotalAny2OrResources(numbers);
         totalAny2OrResources = new NumberWidget(
-                "totalAny2OrResources", "bg-info", built.getLeft(), built.getMiddle(), built.getRight());
+                "totalAny2OrResources", "bg-info", built.number(), built.label(), built.icon());
         container.add(totalAny2OrResources);
 
         usersByStatus = new UsersByStatusWidget("usersByStatus", numbers.getUsersByStatus());
@@ -113,12 +149,12 @@ public class DashboardOverviewPanel extends Panel {
                     handler.add(totalGroups);
                 }
 
-                Triple<Long, String, String> updatedBuild = buildTotalAny1OrRoles(numbers);
-                if (totalAny1OrRoles.refresh(updatedBuild.getLeft())) {
+                TotalInfo updatedBuild = buildTotalAny1OrRoles(numbers);
+                if (totalAny1OrRoles.refresh(updatedBuild.number())) {
                     handler.add(totalAny1OrRoles);
                 }
                 updatedBuild = buildTotalAny2OrResources(numbers);
-                if (totalAny2OrResources.refresh(updatedBuild.getLeft())) {
+                if (totalAny2OrResources.refresh(updatedBuild.number())) {
                     handler.add(totalAny2OrResources);
                 }
 
@@ -144,38 +180,6 @@ public class DashboardOverviewPanel extends Panel {
                 load.refresh(SyncopeConsoleSession.get().getAnonymousClient().system());
                 handler.add(load);
             }
-        }.schedule(60));
-    }
-
-    private static Triple<Long, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
-        long number;
-        String label;
-        String icon;
-        if (numbers.getAnyType1() == null) {
-            number = numbers.getTotalRoles();
-            label = new ResourceModel("roles").getObject();
-            icon = "fas fa-users";
-        } else {
-            number = numbers.getTotalAny1();
-            label = numbers.getAnyType1();
-            icon = "ion ion-gear-a";
-        }
-        return Triple.of(number, label, icon);
-    }
-
-    private static Triple<Long, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
-        long number;
-        String label;
-        String icon;
-        if (numbers.getAnyType2() == null) {
-            number = numbers.getTotalResources();
-            label = new ResourceModel("resources").getObject();
-            icon = "fa fa-database";
-        } else {
-            number = numbers.getTotalAny2();
-            label = numbers.getAnyType2();
-            icon = "ion ion-gear-a";
-        }
-        return Triple.of(number, label, icon);
+        }.schedule(60, TimeUnit.SECONDS));
     }
 }

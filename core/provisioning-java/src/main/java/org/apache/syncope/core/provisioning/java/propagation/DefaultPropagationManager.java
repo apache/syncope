@@ -382,7 +382,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final ResourceOperation operation,
             final Provision provision,
             final Stream<Item> mappingItems,
-            final Pair<String, Set<Attribute>> preparedAttrs) {
+            final MappingManager.PreparedAttrs preparedAttrs) {
 
         // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
         // if so, add special attributes that will be evaluated by PropagationTaskExecutor
@@ -392,7 +392,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)).
                 forEach(item -> {
 
-                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
+                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.attributes());
                     if (attr == null) {
                         mandatoryMissing.add(item.getExtAttrName());
                     } else if (CollectionUtils.isEmpty(attr.getValue())) {
@@ -400,11 +400,11 @@ public class DefaultPropagationManager implements PropagationManager {
                     }
                 });
         if (!mandatoryMissing.isEmpty()) {
-            preparedAttrs.getRight().add(AttributeBuilder.build(
+            preparedAttrs.attributes().add(AttributeBuilder.build(
                     MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
         }
         if (!mandatoryNullOrEmpty.isEmpty()) {
-            preparedAttrs.getRight().add(AttributeBuilder.build(
+            preparedAttrs.attributes().add(AttributeBuilder.build(
                     MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
         }
 
@@ -415,8 +415,8 @@ public class DefaultPropagationManager implements PropagationManager {
                 any.getType().getKind(),
                 any.getType().getKey(),
                 any.getKey(),
-                preparedAttrs.getLeft(),
-                new PropagationData(preparedAttrs.getRight()));
+                preparedAttrs.connObjectLink(),
+                new PropagationData(preparedAttrs.attributes()));
     }
 
     /**
@@ -463,7 +463,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                         any.getType(), resource);
             } else {
-                Pair<String, Set<Attribute>> preparedAttrs =
+                MappingManager.PreparedAttrs preparedAttrs =
                         mappingManager.prepareAttrsFromAny(any, password, changePwdRes.contains(resourceKey),
                                 enable, resource, provision);
 
@@ -519,7 +519,7 @@ public class DefaultPropagationManager implements PropagationManager {
                             operation,
                             provision,
                             mappingItems,
-                            Pair.of(account.getConnObjectKeyValue(),
+                            new MappingManager.PreparedAttrs(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrsFromLinkedAccount(
                                             user, account, password,
                                             changePwdRes.contains(account.getResource().getKey()),
@@ -566,7 +566,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
                         realm.getFullPath(), resource);
             } else {
-                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
+                MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
 
                 PropagationTaskInfo task = new PropagationTaskInfo(
                         resource,
@@ -575,8 +575,8 @@ public class DefaultPropagationManager implements PropagationManager {
                         null,
                         null,
                         realm.getKey(),
-                        preparedAttrs.getLeft(),
-                        new PropagationData(preparedAttrs.getRight()));
+                        preparedAttrs.connObjectLink(),
+                        new PropagationData(preparedAttrs.attributes()));
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 tasks.add(task);
@@ -610,7 +610,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 map(PropagationPolicy::isUpdateDelta).orElse(false)).
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
                 ifPresent(provision -> {
-                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
+                    MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromAny(
                             any,
                             password,
                             changePwdRes.contains(resource.getKey()),
@@ -618,8 +618,8 @@ public class DefaultPropagationManager implements PropagationManager {
                             resource,
                             provision);
                     attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
-                            preparedAttrs.getRight());
+                            Pair.of(resource.getKey(), preparedAttrs.connObjectLink()),
+                            preparedAttrs.attributes());
                 }));
 
         if (any instanceof User user) {
@@ -656,12 +656,12 @@ public class DefaultPropagationManager implements PropagationManager {
                 && Optional.ofNullable(resource.getPropagationPolicy()).
                         map(PropagationPolicy::isUpdateDelta).orElse(false)).
                 forEach(resource -> {
-                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(
+                    MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(
                             realm,
                             resource);
                     attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
-                            preparedAttrs.getRight());
+                            Pair.of(resource.getKey(), preparedAttrs.connObjectLink()),
+                            preparedAttrs.attributes());
                 });
 
         LOG.debug("Prepared attrs for Realm {}: {}", realm.getKey(), attrs);

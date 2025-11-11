@@ -26,8 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -87,6 +85,10 @@ import org.springframework.util.CollectionUtils;
  */
 public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
+    protected record AdminRealmsFilter(Optional<Query> query, Set<String> dynRealmKeys, Set<String> groupOwners) {
+
+    }
+
     protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 
     protected final OpenSearchClient client;
@@ -121,7 +123,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
 
-    protected Triple<Optional<Query>, Set<String>, Set<String>> getAdminRealmsFilter(
+    protected AdminRealmsFilter getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -133,9 +135,9 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
         if (recursive) {
             adminRealms.forEach(realmPath -> {
-                Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
+                Optional<RealmUtils.GroupOwnerRealm> goRealm = RealmUtils.GroupOwnerRealm.of(realmPath);
                 if (goRealm.isPresent()) {
-                    groupOwners.add(goRealm.get().getRight());
+                    groupOwners.add(goRealm.get().groupKey());
                 } else if (realmPath.startsWith("/")) {
                     Realm realm = realmSearchDAO.findByFullPath(realmPath).
                             orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
@@ -164,7 +166,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        return Triple.of(
+        return new AdminRealmsFilter(
                 dynRealmKeys.isEmpty() && groupOwners.isEmpty()
                 ? Optional.of(new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build())
                 : Optional.empty(),
@@ -193,14 +195,13 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                         build();
             }
         } else {
-            Triple<Optional<Query>, Set<String>, Set<String>> filter =
-                    getAdminRealmsFilter(base, recursive, adminRealms, kind);
-            query = getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), kind);
+            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, kind);
+            query = getQuery(buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), kind);
 
-            if (filter.getLeft().isPresent()) {
+            if (filter.query().isPresent()) {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
-                                filter(filter.getLeft().get()).
+                                filter(filter.query().get()).
                                 filter(query).build()).
                         build();
             }
@@ -582,21 +583,21 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(final AttrCond cond) {
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond);
+        CheckResult checked = check(cond);
 
-        return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
+        return fillAttrQuery(checked.schema(), checked.value(), cond);
     }
 
     @Override
-    protected Triple<PlainSchema, PlainAttrValue, AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = super.check(cond, kind);
+    protected CheckResult check(final AnyCond cond, final AnyTypeKind kind) {
+        CheckResult checked = super.check(cond, kind);
 
         // Manage difference between external id attribute and internal _id
-        if ("id".equals(checked.getRight().getSchema())) {
-            checked.getRight().setSchema("_id");
+        if ("id".equals(checked.cond().getSchema())) {
+            checked.cond().setSchema("_id");
         }
-        if ("id".equals(checked.getLeft().getKey())) {
-            checked.getLeft().setKey("_id");
+        if ("id".equals(checked.schema().getKey())) {
+            checked.schema().setKey("_id");
         }
 
         return checked;
@@ -609,9 +610,9 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             cond.setExpression(realm.getKey());
         }
 
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, kind);
+        CheckResult checked = check(cond, kind);
 
-        return fillAttrQuery(checked.getLeft(), checked.getMiddle(), checked.getRight());
+        return fillAttrQuery(checked.schema(), checked.value(), checked.cond());
     }
 
     protected Query getQueryForCustomConds(final SearchCond cond, final AnyTypeKind kind) {

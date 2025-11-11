@@ -38,7 +38,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -86,6 +85,10 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 public class BeanPanel<T extends Serializable> extends Panel {
+
+    private record SinglePanel(FieldPanel<Serializable> panel, Boolean required, Optional<String> description) {
+
+    }
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -247,18 +250,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new PropertyModel<>(bean.getObject(), field.getName()),
                                 new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
-                        Triple<FieldPanel, Boolean, Optional<String>> single =
-                                buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
-                                        field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "panel");
+                        SinglePanel single = buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
+                                field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "panel");
 
-                        setRequired(item, single.getMiddle());
-                        single.getRight().ifPresent(description -> setDescription(item, description));
+                        setRequired(item, single.required);
+                        single.description().ifPresent(description -> setDescription(item, description));
 
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(bean.getObject(), field.getName())).build(
                                 "value",
                                 field.getName(),
-                                single.getLeft()).hideLabel();
+                                single.panel()).hideLabel();
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
@@ -266,14 +268,13 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     Optional.ofNullable(field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class)).
                             ifPresent(annot -> setDescription(item, annot.description()));
                 } else {
-                    Triple<FieldPanel, Boolean, Optional<String>> single =
-                            buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
-                                    field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "value");
+                    SinglePanel single = buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
+                            field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "value");
 
-                    setRequired(item, single.getMiddle());
-                    single.getRight().ifPresent(description -> setDescription(item, description));
+                    setRequired(item, single.required());
+                    single.description().ifPresent(description -> setDescription(item, description));
 
-                    panel = single.getLeft().hideLabel();
+                    panel = single.panel().hideLabel();
                 }
 
                 item.add(panel.setRenderBodyOnly(true));
@@ -282,7 +283,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
+    private SinglePanel buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName,
             final io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
 
@@ -374,6 +375,6 @@ public class BeanPanel<T extends Serializable> extends Panel {
             }
         }
 
-        return Triple.of(panel, required, description);
+        return new SinglePanel(panel, required, description);
     }
 }

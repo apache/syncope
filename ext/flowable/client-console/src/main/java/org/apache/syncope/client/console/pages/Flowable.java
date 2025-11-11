@@ -45,8 +45,7 @@ public class Flowable extends BaseExtPage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        body.add(content);
+        body.add(content.setOutputMarkupId(true));
 
         WizardMgtPanel<BpmnProcess> bpmnProcessesPanel =
                 new BpmnProcessDirectoryPanel.Builder(bpmnProcessRestClient, getPageReference()) {

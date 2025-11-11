@@ -47,10 +47,10 @@ public class UserRequests extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
         content.setMarkupId("userRequests");
+        body.add(content.setOutputMarkupId(true));
+
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
-        body.add(content);
     }
 
     protected List<ITab> buildTabList() {

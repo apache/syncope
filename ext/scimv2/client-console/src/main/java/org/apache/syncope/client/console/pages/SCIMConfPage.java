@@ -44,8 +44,7 @@ public class SCIMConfPage extends BaseExtPage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        body.add(content);
+        body.add(content.setOutputMarkupId(true));
 
         content.add(new SCIMConfPanel("scimConf", scimConfRestClient.get(), SCIMConfPage.this.getPageReference()));
     }

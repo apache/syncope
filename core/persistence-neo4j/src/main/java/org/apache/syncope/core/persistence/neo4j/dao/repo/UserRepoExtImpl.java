@@ -169,9 +169,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
         // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.parseGroupOwnerRealm(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.getRight()));
+                anyMatch(pair -> groups.contains(pair.groupKey()));
 
         // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized && key != null) {

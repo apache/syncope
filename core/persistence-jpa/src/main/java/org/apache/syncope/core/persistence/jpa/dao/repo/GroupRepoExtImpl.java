@@ -123,7 +123,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         // 1. check if AuthContextUtils.getUsername() is owner of the group, or
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
+                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized && key != null) {
@@ -178,7 +178,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
-            orElseGet(List::of).
+                orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }
 
@@ -218,7 +218,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
         TypedQuery<UMembership> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAUMembership.class.getSimpleName()
-                        + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
                 UMembership.class);
         query.setParameter("group", group);
         if (pageable.isPaged()) {

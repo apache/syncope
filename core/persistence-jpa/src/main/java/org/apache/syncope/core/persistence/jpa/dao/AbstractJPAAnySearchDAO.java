@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.sql.OracleDictionary;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
@@ -80,6 +79,10 @@ import org.springframework.data.domain.Sort;
  * Search engine implementation for users, groups and any objects, based on self-updating SQL views.
  */
 abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
+
+    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<String> dynRealmKeys, Set<String> groupOwners) {
+
+    }
 
     protected static final String SELECT_COLS_FROM_VIEW =
             "any_id,creationContext,creationDate,creator,lastChangeContext,"
@@ -238,10 +241,10 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                             map(anyCond -> getQuery(anyCond, not, parameters, svs)).
                             or(() -> cond.asLeaf(AttrCond.class).
                             map(attrCond -> {
-                                Pair<PlainSchema, PlainAttrValue> checked = check(attrCond);
+                                CheckResult checked = check(attrCond);
                                 Pair<Boolean, AnySearchNode> query = getQuery(attrCond, not, checked, parameters, svs);
                                 if (query.getLeft()) {
-                                    plainSchemas.add(checked.getLeft().getKey());
+                                    plainSchemas.add(checked.schema().getKey());
                                 }
                                 return query.getRight();
                             }));
@@ -648,7 +651,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
     protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
-            final Pair<PlainSchema, PlainAttrValue> checked,
+            final CheckResult checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 
@@ -661,7 +664,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        SearchSupport.SearchView sv = checked.getLeft().isUniqueConstraint()
+        SearchSupport.SearchView sv = checked.schema().isUniqueConstraint()
                 ? svs.asSearchViewSupport().uniqueAttr()
                 : svs.asSearchViewSupport().attr();
 
@@ -669,7 +672,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             case ISNOTNULL -> {
                 return Pair.of(true, new AnySearchNode.Leaf(
                         sv,
-                        sv.alias() + ".schema_id='" + checked.getLeft().getKey() + "'"));
+                        sv.alias() + ".schema_id='" + checked.schema().getKey() + "'"));
             }
 
             case ISNULL -> {
@@ -677,19 +680,19 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                         append('(').
                         append("SELECT DISTINCT any_id FROM ").
                         append(sv.name()).
-                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
+                        append(" WHERE schema_id=").append("'").append(checked.schema().getKey()).append("'").
                         append(')').toString();
                 return Pair.of(true, new AnySearchNode.Leaf(defaultSV(svs), clause));
             }
 
             default -> {
                 AnySearchNode.Leaf node;
-                if (not && checked.getLeft().isMultivalue()) {
+                if (not && checked.schema().isMultivalue()) {
                     AnySearchNode.Leaf notNode = fillAttrQuery(
-                            sv.alias() + "." + key(checked.getLeft().getType()),
+                            sv.alias() + "." + key(checked.schema().getType()),
                             sv,
-                            checked.getRight(),
-                            checked.getLeft(),
+                            checked.value(),
+                            checked.schema(),
                             cond,
                             false,
                             parameters);
@@ -701,10 +704,10 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                             + ")");
                 } else {
                     node = fillAttrQuery(
-                            sv.alias() + "." + key(checked.getLeft().getType()),
+                            sv.alias() + "." + key(checked.schema().getType()),
                             sv,
-                            checked.getRight(),
-                            checked.getLeft(),
+                            checked.value(),
+                            checked.schema(),
                             cond,
                             not,
                             parameters);
@@ -728,26 +731,26 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             cond.setExpression(realm.getKey());
         }
 
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, svs.anyTypeKind);
+        CheckResult checked = check(cond, svs.anyTypeKind);
 
-        return switch (checked.getRight().getType()) {
+        return switch (checked.cond().getType()) {
             case ISNULL ->
                 new AnySearchNode.Leaf(
                 defaultSV(svs),
-                checked.getRight().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
+                checked.cond().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
 
             case ISNOTNULL ->
                 new AnySearchNode.Leaf(
                 defaultSV(svs),
-                checked.getRight().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
+                checked.cond().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
 
             default ->
                 fillAttrQuery(
-                checked.getRight().getSchema(),
+                checked.cond().getSchema(),
                 defaultSV(svs),
-                checked.getMiddle(),
-                checked.getLeft(),
-                checked.getRight(),
+                checked.value(),
+                checked.schema(),
+                checked.cond(),
                 not,
                 parameters);
         };
@@ -768,7 +771,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         return new AnySearchNode.Leaf(defaultSV(svs), "realm_id IN (" + realmKeysArg + ")");
     }
 
-    protected Triple<AnySearchNode.Leaf, Set<String>, Set<String>> getAdminRealmsFilter(
+    protected AdminRealmsFilter getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -780,8 +783,8 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> groupOwners = new HashSet<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.parseGroupOwnerRealm(realmPath).ifPresentOrElse(
-                    goRealm -> groupOwners.add(goRealm.getRight()),
+            adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
+                    goRealm -> groupOwners.add(goRealm.groupKey()),
                     () -> {
                         if (realmPath.startsWith("/")) {
                             Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
@@ -807,7 +810,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        return Triple.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
+        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
     }
 
     protected void visitNode(
@@ -914,12 +917,11 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         SearchSupport svs = new SearchViewSupport(kind);
 
         // 1. get admin realms filter
-        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
-                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
+        AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
         Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
-                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+                buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters, svs);
         if (optionalQueryInfo.isEmpty()) {
             LOG.error("Invalid search condition: {}", cond);
             return 0;
@@ -927,7 +929,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
         // 3. generate the query string
-        String queryString = buildCountQuery(queryInfo, filter.getLeft(), parameters, svs);
+        String queryString = buildCountQuery(queryInfo, filter.filter(), parameters, svs);
 
         // 4. populate the search query with parameter values
         Query countQuery = entityManager.createNativeQuery(queryString);
@@ -1107,12 +1109,11 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         SearchSupport svs = new SearchViewSupport(kind);
 
         // 1. get admin realms filter
-        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
-                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
+        AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
         Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
-                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+                buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters, svs);
         if (optionalQueryInfo.isEmpty()) {
             LOG.error("Invalid search condition: {}", cond);
             return List.of();
@@ -1120,8 +1121,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
         // 3. generate the query string
-        String queryString = buildSearchQuery(
-                queryInfo, filter.getLeft(), parameters, svs, pageable.getSort().toList());
+        String queryString = buildSearchQuery(queryInfo, filter.filter(), parameters, svs, pageable.getSort().toList());
 
         // 4. prepare the search query
         Query query = entityManager.createNativeQuery(queryString);

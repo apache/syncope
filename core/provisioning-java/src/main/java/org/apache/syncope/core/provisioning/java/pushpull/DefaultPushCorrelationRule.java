@@ -23,7 +23,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
@@ -76,7 +75,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
         provision.getMapping().getItems().stream().filter(
                 item -> conf.getSchemas().contains(item.getIntAttrName()) && item.getPurpose() != MappingPurpose.NONE).
                 forEach(item -> {
-                    Pair<String, Attribute> attr = mappingManager.prepareAttr(
+                    MappingManager.PreparedAttr attr = mappingManager.prepareAttr(
                             resource,
                             provision,
                             item,
@@ -87,10 +86,10 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
                             PlainAttrGetter.DEFAULT);
                     if (attr != null) {
                         Attribute toFilter = null;
-                        if (attr.getLeft() != null) {
-                            toFilter = AttributeBuilder.build(item.getExtAttrName(), attr.getLeft());
-                        } else if (attr.getRight() != null) {
-                            toFilter = attr.getRight();
+                        if (attr.connObjectLink() != null) {
+                            toFilter = AttributeBuilder.build(item.getExtAttrName(), attr.connObjectLink());
+                        } else if (attr.attribute() != null) {
+                            toFilter = attr.attribute();
                         }
                         if (toFilter != null) {
                             filters.add(provision.isIgnoreCaseMatch()
