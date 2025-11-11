@@ -37,6 +37,7 @@ services:
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,majson,saml2
+       LOADER_PATH: "/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/jpa-json"
        DB_URL: jdbc:mariadb://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
        DB_USER: root
        DB_PASSWORD: password

@@ -36,6 +36,7 @@ services:
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,ojson,saml2
+       LOADER_PATH: "/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/jpa-json"
        DB_URL: jdbc:oracle:thin:@db:1521/XEPDB1
        DB_SCHEMA: SYNCOPE
        DB_USER: syncope
