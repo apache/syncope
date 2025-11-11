@@ -449,7 +449,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.2.0</elasticsearch.version>
+    <elasticsearch.version>9.2.1</elasticsearch.version>
     <opensearch.version>3.3.2</opensearch.version>
     <opensearch-java.version>3.3.0</opensearch-java.version>
 
