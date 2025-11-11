@@ -113,6 +113,10 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         setBackdrop(Modal.Backdrop.STATIC);
     }
 
+    public boolean isShown() {
+        return showImmediately();
+    }
+
     public Form<T> getForm() {
         return form;
     }
@@ -296,17 +300,11 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ChangeFooterVisibilityEvent) {
-            if (BaseModal.this.footer != null) {
-                final AjaxRequestTarget target = ChangeFooterVisibilityEvent.class.cast(event.getPayload()).getTarget();
-                target.add(BaseModal.this.footer.setEnabled(!BaseModal.this.footer.isEnabled()));
-            }
+        if (BaseModal.this.footer != null && event.getPayload() instanceof ChangeFooterVisibilityEvent payload) {
+            payload.getTarget().add(BaseModal.this.footer.setEnabled(!BaseModal.this.footer.isEnabled()));
         }
     }
 
-    //--------------------------------------------------------
-    // Required for SYNCOPE-846
-    //--------------------------------------------------------
     /**
      * Sets whether the close handler is used or not. Default is false.
      *

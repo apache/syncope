@@ -120,8 +120,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         return new UserWorkflowResult<>(
                 Pair.of(user.getKey(), propagateEnable),
-                propByRes,
-                propByLinkedAccount,
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
                 "create");
     }
 
@@ -141,15 +140,14 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, "activate");
+        return new UserWorkflowResult<>(updated.getKey(), null, "activate");
     }
 
     @Override
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
             final User user, final UserUR userUR, final String updater, final String context) {
 
-        Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
-                dataBinder.update(user, userUR);
+        UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 
         metadata(user, updater, context);
         User updated = userDAO.save(user);
@@ -159,8 +157,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         return new UserWorkflowResult<>(
                 Pair.of(userUR, !user.isSuspended()),
-                propInfo.getLeft(),
-                propInfo.getRight(),
+                new UserWorkflowResult.PropagationInfo(propInfo.user(), propInfo.linkedAccount()),
                 "update");
     }
 
@@ -173,7 +170,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, "suspend");
+        return new UserWorkflowResult<>(updated.getKey(), null, "suspend");
     }
 
     @Override
@@ -185,7 +182,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, "reactivate");
+        return new UserWorkflowResult<>(updated.getKey(), null, "reactivate");
     }
 
     @Override

@@ -27,8 +27,8 @@ import com.nimbusds.jose.jca.JCAContext;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -95,7 +95,7 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
+    public Optional<ResolvedClaims> resolve(final JWTClaimsSet jwtClaims) {
         AttrCond userIdCond = new AttrCond();
         userIdCond.setSchema("userId");
         userIdCond.setType(AttrCond.Type.EQ);
@@ -106,9 +106,9 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
             User user = matching.getFirst();
             Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername(), null);
 
-            return Pair.of(user, authorities);
+            return Optional.of(new ResolvedClaims(user, authorities));
         }
 
-        return null;
+        return Optional.empty();
     }
 }

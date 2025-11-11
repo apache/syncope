@@ -20,8 +20,8 @@ package org.apache.syncope.core.spring.security;
 
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 /**
@@ -29,6 +29,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
  * recognizing JWT produced by third parties.
  */
 public interface JWTSSOProvider extends JWSVerifier {
+
+    record ResolvedClaims(User user, Set<SyncopeGrantedAuthority> authorities) {
+
+    }
 
     /**
      * Gives the identifier for the JWT issuer verified by this instance.
@@ -42,7 +46,7 @@ public interface JWTSSOProvider extends JWSVerifier {
      * <strong>IMPORTANT</strong>: this is not invoked for the {@code admin} super-user.
      *
      * @param jwtClaims JWT claims
-     * @return internal User, with authorities, matching the provided JWT claims, if found; otherwise null
+     * @return internal User, with authorities, matching the provided JWT claims, if found; otherwise empty
      */
-    Pair<User, Set<SyncopeGrantedAuthority>> resolve(JWTClaimsSet jwtClaims);
+    Optional<ResolvedClaims> resolve(JWTClaimsSet jwtClaims);
 }

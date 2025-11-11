@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -53,7 +53,7 @@ public class ConnObjectPanel extends Panel {
     public ConnObjectPanel(
             final String id,
             final Pair<IModel<?>, IModel<?>> titles,
-            final Pair<ConnObject, ConnObject> connObjectTOs,
+            final StatusProvider.Info statusProviderInfo,
             final boolean hideLeft) {
 
         super(id);
@@ -64,15 +64,15 @@ public class ConnObjectPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                List<Attr> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
-                    ? List.of()
-                    : connObjectTOs.getRight().getAttrs());
-                List<Attr> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
-                    ? List.of()
-                    : connObjectTOs.getLeft().getAttrs());
+                List<Attr> right = new ArrayList<>(statusProviderInfo == null || statusProviderInfo.onResource() == null
+                        ? List.of()
+                        : statusProviderInfo.onResource().getAttrs());
+                List<Attr> left = new ArrayList<>(statusProviderInfo == null || statusProviderInfo.onSyncope() == null
+                        ? List.of()
+                        : statusProviderInfo.onSyncope().getAttrs());
 
                 List<String> schemas = ListUtils.sum(right.stream().map(Attr::getSchema).collect(Collectors.toList()),
-                    left.stream().map(Attr::getSchema).collect(Collectors.toList()));
+                        left.stream().map(Attr::getSchema).collect(Collectors.toList()));
                 Collections.sort(schemas);
                 return schemas;
             }
@@ -81,12 +81,12 @@ public class ConnObjectPanel extends Panel {
         add(new Label("leftTitle", titles.getLeft()).setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
         add(new Label("rightTitle", titles.getRight()));
 
-        final Map<String, Attr> leftProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
+        final Map<String, Attr> leftProfile = statusProviderInfo == null || statusProviderInfo.onSyncope() == null
                 ? null
-                : EntityTOUtils.buildAttrMap(connObjectTOs.getLeft().getAttrs());
-        final Map<String, Attr> rightProfile = connObjectTOs == null || connObjectTOs.getRight() == null
+                : EntityTOUtils.buildAttrMap(statusProviderInfo.onSyncope().getAttrs());
+        final Map<String, Attr> rightProfile = statusProviderInfo == null || statusProviderInfo.onResource() == null
                 ? null
-                : EntityTOUtils.buildAttrMap(connObjectTOs.getRight().getAttrs());
+                : EntityTOUtils.buildAttrMap(statusProviderInfo.onResource().getAttrs());
         ListView<String> propView = new ListView<>("propView", formProps) {
 
             private static final long serialVersionUID = 3109256773218160485L;
@@ -97,26 +97,26 @@ public class ConnObjectPanel extends Panel {
 
                 final Fragment valueFragment;
                 final Attr left = Optional.ofNullable(leftProfile)
-                    .map(stringAttrMap -> stringAttrMap.get(prop)).orElse(null);
+                        .map(stringAttrMap -> stringAttrMap.get(prop)).orElse(null);
                 final Attr right = Optional.ofNullable(rightProfile)
-                    .map(profile -> profile.get(prop)).orElse(null);
+                        .map(profile -> profile.get(prop)).orElse(null);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
                 valueFragment.add(getValuePanel("leftAttribute", prop, left).
-                    setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
+                        setOutputMarkupPlaceholderTag(true).setVisible(!hideLeft));
                 valueFragment.add(getValuePanel("rightAttribute", prop, right));
 
                 if (left == null || right == null
-                    || (CollectionUtils.isNotEmpty(right.getValues())
-                    && CollectionUtils.isEmpty(left.getValues()))
-                    || (CollectionUtils.isEmpty(right.getValues())
-                    && CollectionUtils.isNotEmpty(left.getValues()))
-                    || (CollectionUtils.isNotEmpty(right.getValues())
-                    && CollectionUtils.isNotEmpty(left.getValues())
-                    && right.getValues().size() != left.getValues().size())
-                    || (CollectionUtils.isNotEmpty(right.getValues())
-                    && CollectionUtils.isNotEmpty(left.getValues())
-                    && !right.getValues().equals(left.getValues()))) {
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isEmpty(left.getValues()))
+                        || (CollectionUtils.isEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues()))
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues())
+                        && right.getValues().size() != left.getValues().size())
+                        || (CollectionUtils.isNotEmpty(right.getValues())
+                        && CollectionUtils.isNotEmpty(left.getValues())
+                        && !right.getValues().equals(left.getValues()))) {
 
                     valueFragment.add(new Behavior() {
 

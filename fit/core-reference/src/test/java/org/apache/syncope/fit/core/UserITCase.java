@@ -44,7 +44,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -345,8 +344,7 @@ public class UserITCase extends AbstractITCase {
 
         // 3. verify password
         try {
-            Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                    CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
+            SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             assertNotNull(self);
         } catch (NotAuthorizedException e) {
             fail("Credentials should be valid and not cause NotAuthorizedException");

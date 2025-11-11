@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
-import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -122,9 +120,9 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
                     new JWTAuthentication(claims, authenticationDetailsSource.buildDetails(request));
             jwtAuthentication.setAuthenticated(true);
             AuthContextUtils.runAsAdmin(jwtAuthentication.getDetails().getDomain(), () -> {
-                Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
-                jwtAuthentication.setUsername(authenticated.getLeft());
-                jwtAuthentication.getAuthorities().addAll(authenticated.getRight());
+                AuthDataAccessor.JWTAuthResult authResult = dataAccessor.authenticate(jwtAuthentication);
+                jwtAuthentication.setUsername(authResult.username());
+                jwtAuthentication.getAuthorities().addAll(authResult.authorities());
             });
             SecurityContextHolder.getContext().setAuthentication(jwtAuthentication);
 

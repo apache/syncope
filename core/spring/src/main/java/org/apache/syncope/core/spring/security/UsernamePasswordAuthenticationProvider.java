@@ -22,7 +22,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -30,7 +29,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,19 +115,19 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 authenticated = false;
             }
         } else {
-            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(
+            AuthDataAccessor.UsernamePasswordAuthResult authResult = AuthContextUtils.callAsAdmin(
                     domainKey,
                     () -> dataAccessor.authenticate(domainKey, authentication));
-            authenticated = authResult.getMiddle();
-            if (authResult.getLeft() != null && authResult.getMiddle() != null) {
-                username.setValue(authResult.getLeft().getUsername());
+            authenticated = authResult.authenticated();
+            if (authResult.user() != null && authResult.authenticated() != null) {
+                username.setValue(authResult.user().getUsername());
 
                 if (!authenticated) {
                     AuthContextUtils.runAsAdmin(domainKey, () -> provisioningManager.internalSuspend(
-                            authResult.getLeft().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
+                            authResult.user().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
                 }
             }
-            delegationKey.setValue(authResult.getRight());
+            delegationKey.setValue(authResult.delegationKey());
         }
         if (username.get() == null) {
             username.setValue(authentication.getPrincipal().toString());

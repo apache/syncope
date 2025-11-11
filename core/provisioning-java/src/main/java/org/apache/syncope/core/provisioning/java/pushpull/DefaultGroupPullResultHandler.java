@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -30,7 +28,6 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -90,7 +87,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
         GroupCR groupCR = GroupCR.class.cast(anyCR);
 
-        Map.Entry<String, List<PropagationStatus>> created = groupProvisioningManager.create(
+        ProvisioningManager.ProvisioningResult<String> created = groupProvisioningManager.create(
                 groupCR,
                 groupOwnerMap,
                 Set.of(profile.getTask().getResource().getKey()),
@@ -98,7 +95,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
                 profile.getExecutor(),
                 profile.getContext());
 
-        return groupDataBinder.getGroupTO(created.getKey());
+        return groupDataBinder.getGroupTO(created.key());
     }
 
     @Override
@@ -110,7 +107,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
         GroupUR groupUR = GroupUR.class.cast(req);
 
-        Pair<GroupUR, List<PropagationStatus>> updated = groupProvisioningManager.update(
+        ProvisioningManager.ProvisioningResult<GroupUR> updated = groupProvisioningManager.update(
                 groupUR,
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
@@ -128,7 +125,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
             }
         }
         if (groupOwner != null) {
-            groupOwnerMap.put(updated.getLeft().getKey(), groupOwner);
+            groupOwnerMap.put(updated.key().getKey(), groupOwner);
         }
 
         return req;

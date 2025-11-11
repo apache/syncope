@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -36,6 +35,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "squid:S4784", "squid:S3776" })
 public class IntAttrNameParser {
+
+    protected record SchemaInfo(Schema schema, SchemaType schemaType) {
+
+    }
 
     protected static final String END_PATTERN = "\\]\\.(.+)";
 
@@ -55,8 +58,8 @@ public class IntAttrNameParser {
             "^relationships\\[(" + Entity.ID_REGEX + ")\\]"
             + "\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
 
-    protected static final CharSequence[] RESERVED_WORDS =
-            { "groups", "users", "anyObjects", "memberships", "relationships" };
+    protected static final CharSequence[] RESERVED_WORDS = {
+        "groups", "users", "anyObjects", "memberships", "relationships" };
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -78,16 +81,16 @@ public class IntAttrNameParser {
         this.realmUtils = realmUtils;
     }
 
-    protected Pair<Schema, SchemaType> find(final String key) {
+    protected SchemaInfo find(final String key) {
         Schema schema = plainSchemaDAO.findById(key).orElse(null);
         if (schema == null) {
             schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null) {
                 return null;
             }
-            return Pair.of(schema, SchemaType.DERIVED);
+            return new SchemaInfo(schema, SchemaType.DERIVED);
         }
-        return Pair.of(schema, SchemaType.PLAIN);
+        return new SchemaInfo(schema, SchemaType.PLAIN);
     }
 
     protected void setFieldOrSchemaName(
@@ -98,8 +101,8 @@ public class IntAttrNameParser {
         anyUtilsFactory.getInstance(anyTypeKind).getField(fieldOrSchemaName).ifPresentOrElse(
                 field -> result.setField(fieldOrSchemaName),
                 () -> Optional.ofNullable(find(fieldOrSchemaName)).ifPresent(schemaInfo -> {
-                    result.setSchemaType(schemaInfo.getRight());
-                    result.setSchema(schemaInfo.getLeft());
+                    result.setSchemaType(schemaInfo.schemaType());
+                    result.setSchema(schemaInfo.schema());
                 }));
     }
 
@@ -158,8 +161,8 @@ public class IntAttrNameParser {
         realmUtils.getField(fieldOrSchemaName).ifPresentOrElse(
                 field -> result.setField(fieldOrSchemaName),
                 () -> Optional.ofNullable(find(fieldOrSchemaName)).ifPresent(schemaInfo -> {
-                    result.setSchemaType(schemaInfo.getRight());
-                    result.setSchema(schemaInfo.getLeft());
+                    result.setSchemaType(schemaInfo.schemaType());
+                    result.setSchema(schemaInfo.schema());
                 }));
     }
 

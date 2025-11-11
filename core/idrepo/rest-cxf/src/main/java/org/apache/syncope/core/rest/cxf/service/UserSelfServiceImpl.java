@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -60,12 +59,12 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
     @Override
     public Response read() {
-        Triple<String, String, UserTO> self = logic.selfRead();
+        UserLogic.Self self = logic.selfRead();
         return Response.ok().
-                header(RESTHeaders.RESOURCE_KEY, self.getRight().getKey()).
-                header(RESTHeaders.OWNED_ENTITLEMENTS, self.getLeft()).
-                header(RESTHeaders.DELEGATIONS, self.getMiddle()).
-                entity(self.getRight()).
+                header(RESTHeaders.RESOURCE_KEY, self.user().getKey()).
+                header(RESTHeaders.OWNED_ENTITLEMENTS, self.entitlements()).
+                header(RESTHeaders.DELEGATIONS, self.delegations()).
+                entity(self.user()).
                 build();
     }
 
@@ -77,8 +76,8 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
     @Override
     public Response update(final UserTO user) {
-        Triple<String, String, UserTO> self = logic.selfRead();
-        return update(AnyOperations.diff(user, self.getRight(), false));
+        UserLogic.Self self = logic.selfRead();
+        return update(AnyOperations.diff(user, self.user(), false));
     }
 
     @Override

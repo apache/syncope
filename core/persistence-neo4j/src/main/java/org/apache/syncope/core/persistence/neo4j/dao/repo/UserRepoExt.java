@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -67,7 +67,7 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     @Override
     <S extends User> S save(S user);
 
-    Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
+    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(User user);
 
     @Override
     void delete(User user);

@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -67,11 +67,11 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     void clearUDynMembers(Group group);
 
-    Pair<Set<String>, Set<String>> refreshDynMemberships(AnyObject anyObject);
+    GroupDAO.DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
 
     Set<String> removeDynMemberships(AnyObject anyObject);
 
-    Pair<Set<String>, Set<String>> refreshDynMemberships(User user);
+    GroupDAO.DynMembershipInfo refreshDynMemberships(User user);
 
     Set<String> removeDynMemberships(User user);
 

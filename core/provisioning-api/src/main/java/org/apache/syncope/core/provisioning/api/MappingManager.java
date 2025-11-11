@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
@@ -36,6 +35,18 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 public interface MappingManager {
+
+    record IntValues(AttrSchemaType attrSchemaType, List<PlainAttrValue> values) {
+
+    }
+
+    record PreparedAttr(String connObjectLink, Attribute attribute) {
+
+    }
+
+    record PreparedAttrs(String connObjectLink, Set<Attribute> attributes) {
+
+    }
 
     /**
      * Get connObjectKey internal value.
@@ -69,7 +80,7 @@ public interface MappingManager {
      * @param plainAttrGetter function to get PlainAttr instances
      * @return attribute values and their type
      */
-    Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+    IntValues getIntValues(
             ExternalResource resource,
             Provision provision,
             Item item,
@@ -89,7 +100,7 @@ public interface MappingManager {
      * @param realm realm
      * @return attribute values and their type
      */
-    Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+    IntValues getIntValues(
             ExternalResource resource,
             Item item,
             IntAttrName intAttrName,
@@ -109,7 +120,7 @@ public interface MappingManager {
      * @param plainAttrGetter function to get PlainAttr instances
      * @return connObjectLink (if it is the case) + prepared attribute
      */
-    Pair<String, Attribute> prepareAttr(
+    PreparedAttr prepareAttr(
             ExternalResource resource,
             Provision provision,
             Item item,
@@ -127,7 +138,7 @@ public interface MappingManager {
      * @param realm given realm
      * @return connObjectLink (if it is the case) + prepared attribute
      */
-    Pair<String, Attribute> prepareAttr(ExternalResource resource, Item item, Realm realm);
+    PreparedAttr prepareAttr(ExternalResource resource, Item item, Realm realm);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -140,7 +151,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrsFromAny(
+    PreparedAttrs prepareAttrsFromAny(
             Any any,
             String password,
             boolean changePwd,
@@ -168,7 +179,7 @@ public interface MappingManager {
      * @param resource resource information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, ExternalResource resource);
+    PreparedAttrs prepareAttrsFromRealm(Realm realm, ExternalResource resource);
 
     /**
      * Set attribute values, according to the given {@link Item}, to any object from attribute received from

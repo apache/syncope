@@ -132,12 +132,9 @@ public class WA extends BasePage {
         body.add(push);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(instances));
-        content.add(tabbedPanel);
+        body.add(content.setOutputMarkupId(true));
 
-        body.add(content);
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(instances)));
 
         if (!instances.isEmpty()) {
             String actuatorEndpoint = Strings.CS.appendIfMissing(

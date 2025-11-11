@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -40,7 +39,6 @@ import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -53,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -136,30 +135,30 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     }
 
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq, final boolean nullPriorityAsync) {
-        Pair<AnyObjectCR, List<LogicActions>> before = beforeCreate(createReq);
+        BeforeResult<AnyObjectCR> before = beforeCreate(createReq);
 
-        if (before.getLeft().getRealm() == null) {
+        if (before.key().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
-        if (before.getLeft().getType() == null) {
+        if (before.key().getType() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
         }
 
         Set<String> authRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(AnyEntitlement.CREATE.getFor(before.getLeft().getType())),
-                before.getLeft().getRealm());
+                AuthContextUtils.getAuthorizations().get(AnyEntitlement.CREATE.getFor(before.key().getType())),
+                before.key().getRealm());
         anyObjectDAO.securityChecks(
                 authRealms,
                 null,
-                before.getLeft().getRealm(),
-                before.getLeft().getMemberships().stream().filter(Objects::nonNull).
+                before.key().getRealm(),
+                before.key().getMemberships().stream().filter(Objects::nonNull).
                         map(MembershipTO::getGroupKey).filter(Objects::nonNull).
                         collect(Collectors.toSet()));
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
-                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        ProvisioningManager.ProvisioningResult<String> created = provisioningManager.create(
+                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        return afterCreate(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
+        return afterCreate(binder.getAnyObjectTO(created.key()), created.statuses(), before.actions());
     }
 
     protected Set<String> groups(final AnyObjectTO anyObjectTO) {
@@ -171,7 +170,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     @Override
     public ProvisioningResult<AnyObjectTO> update(final AnyObjectUR req, final boolean nullPriorityAsync) {
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(req.getKey());
-        Pair<AnyObjectUR, List<LogicActions>> before = beforeUpdate(req, anyObjectTO.getRealm());
+        BeforeResult<AnyObjectUR> before = beforeUpdate(req, anyObjectTO.getRealm());
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.UPDATE.getFor(anyObjectTO.getType())),
@@ -185,46 +184,46 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
         anyObjectDAO.securityChecks(
                 authRealms,
-                before.getLeft().getKey(),
+                before.key().getKey(),
                 anyObjectTO.getRealm(),
                 groups);
 
-        Pair<AnyObjectUR, List<PropagationStatus>> after = provisioningManager.update(
+        ProvisioningManager.ProvisioningResult<AnyObjectUR> after = provisioningManager.update(
                 req, Set.of(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<AnyObjectTO> result = afterUpdate(
-                binder.getAnyObjectTO(after.getLeft().getKey()),
-                after.getRight(),
-                before.getRight());
+                binder.getAnyObjectTO(after.key().getKey()),
+                after.statuses(),
+                before.actions());
 
         return result;
     }
 
     @Override
     public ProvisioningResult<AnyObjectTO> delete(final String key, final boolean nullPriorityAsync) {
-        Pair<AnyObjectTO, List<LogicActions>> before = beforeDelete(binder.getAnyObjectTO(key));
+        BeforeResult<AnyObjectTO> before = beforeDelete(binder.getAnyObjectTO(key));
 
         Set<String> authRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(AnyEntitlement.DELETE.getFor(before.getLeft().getType())),
-                before.getLeft().getRealm());
+                AuthContextUtils.getAuthorizations().get(AnyEntitlement.DELETE.getFor(before.key().getType())),
+                before.key().getRealm());
         anyObjectDAO.securityChecks(
                 authRealms,
-                before.getLeft().getKey(),
-                before.getLeft().getRealm(),
-                groups(before.getLeft()));
+                before.key().getKey(),
+                before.key().getRealm(),
+                groups(before.key()));
 
         List<PropagationStatus> statuses = provisioningManager.delete(
-                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+                before.key().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         AnyObjectTO deletedTO;
-        if (anyObjectDAO.existsById(before.getLeft().getKey())) {
-            deletedTO = binder.getAnyObjectTO(before.getLeft().getKey());
+        if (anyObjectDAO.existsById(before.key().getKey())) {
+            deletedTO = binder.getAnyObjectTO(before.key().getKey());
         } else {
             deletedTO = new AnyObjectTO();
-            deletedTO.setKey(before.getLeft().getKey());
+            deletedTO.setKey(before.key().getKey());
         }
 
-        return afterDelete(deletedTO, statuses, before.getRight());
+        return afterDelete(deletedTO, statuses, before.actions());
     }
 
     protected void updateChecks(final String key) {

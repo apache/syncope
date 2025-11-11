@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
@@ -199,15 +198,15 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             responseBody = EntityUtils.toString(response.getEntity());
         }
-        Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
+        SAMLForm parsed = parseSAMLRequestForm(responseBody);
 
         // 2a. post SAML request
-        HttpPost post = new HttpPost(parsed.getLeft());
+        HttpPost post = new HttpPost(parsed.action());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
-                        new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                        new BasicNameValuePair("SAMLRequest", parsed.payload())), Consts.UTF_8));
         String location;
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
@@ -278,12 +277,12 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         // 2d. post SAML response
         parsed = parseSAMLResponseForm(responseBody);
 
-        post = new HttpPost(parsed.getLeft());
+        post = new HttpPost(parsed.action());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
-                        new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                        new BasicNameValuePair("SAMLResponse", parsed.payload())), Consts.UTF_8));
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
             location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
@@ -323,15 +322,15 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             responseBody = EntityUtils.toString(response.getEntity());
         }
-        Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
+        SAMLForm parsed = parseSAMLRequestForm(responseBody);
 
         // 2a. post SAML request
-        HttpPost post = new HttpPost(parsed.getLeft());
+        HttpPost post = new HttpPost(parsed.action());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
-                        new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                        new BasicNameValuePair("SAMLRequest", parsed.payload())), Consts.UTF_8));
         String location;
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
@@ -473,12 +472,12 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         // 2d. post SAML response
         parsed = parseSAMLResponseForm(responseBody);
 
-        post = new HttpPost(parsed.getLeft());
+        post = new HttpPost(parsed.action());
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(
-                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
-                        new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
+                List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                        new BasicNameValuePair("SAMLResponse", parsed.payload())), Consts.UTF_8));
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
             assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
             location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();

@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,12 +33,17 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 @SuppressWarnings("squid:S00107")
 public interface PropagationManager {
+
+    record PropagationAttrs(String resource, String connObjectLink, Set<Attribute> attributes) {
+
+    }
 
     /**
      * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
@@ -158,7 +162,7 @@ public interface PropagationManager {
             ResourceOperation operation,
             Provision provision,
             Stream<Item> mappingItems,
-            Pair<String, Set<Attribute>> preparedAttrs);
+            MappingManager.PreparedAttrs preparedAttrs);
 
     /**
      * Create the needed tasks for the realm for each resource associated, unless in {@code excludedResources}.
@@ -185,7 +189,7 @@ public interface PropagationManager {
      * @param excludedResources external resource keys not to be considered for propagation
      * @return map with prepared attributes per External Resource
      */
-    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
+    List<PropagationAttrs> prepareAttrs(
             AnyTypeKind kind,
             String key,
             String password,
@@ -199,7 +203,7 @@ public interface PropagationManager {
      * @param realm realm
      * @return map with prepared attributes per External Resource
      */
-    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(Realm realm);
+    List<PropagationAttrs> prepareAttrs(Realm realm);
 
     /**
      * Enrich the provided tasks with attribute deltas.
@@ -208,7 +212,5 @@ public interface PropagationManager {
      * @param beforeAttrs attribute values before update
      * @return enriched propagation tasks
      */
-    List<PropagationTaskInfo> setAttributeDeltas(
-            List<PropagationTaskInfo> tasks,
-            Map<Pair<String, String>, Set<Attribute>> beforeAttrs);
+    List<PropagationTaskInfo> setAttributeDeltas(List<PropagationTaskInfo> tasks, List<PropagationAttrs> beforeAttrs);
 }

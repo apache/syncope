@@ -18,17 +18,22 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.DelegationSelectionPanel;
+import org.apache.syncope.client.console.panels.SessionExpirationModalPanel;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
@@ -36,6 +41,7 @@ import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
@@ -46,6 +52,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
@@ -62,6 +69,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -82,12 +90,50 @@ public class BasePage extends BaseWebPage {
     @SpringBean
     protected SyncopeRestClient syncopeRestClient;
 
+    protected final BaseModal<Serializable> sessionExpiration = new BaseModal<>("sessionExpirationModal");
+
     public BasePage() {
         this(null);
     }
 
     public BasePage(final PageParameters parameters) {
         super(parameters);
+
+        sessionExpiration.addButton(new AjaxButton(
+                Modal.BUTTON_MARKUP_ID, new ResourceModel("sessionExpiration.extend"), sessionExpiration.getForm()) {
+
+            private static final long serialVersionUID = -817438685948164787L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target) {
+                try {
+                    SyncopeConsoleSession.get().refresh();
+                    sessionExpiration.close(target);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While refreshing JWT", e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                BasePage.this.getNotificationPanel().refresh(target);
+            }
+        }.add(new AttributeModifier("class", "btn btn-success")));
+        sessionExpiration.setWindowClosedCallback(target -> sessionExpiration.show(false));
+        body.add(sessionExpiration);
+
+        add(new RefreshWebSocketBehavior() {
+
+            private static final long serialVersionUID = 8165980028271428241L;
+
+            @Override
+            protected void onTimer(final WebSocketRequestHandler handler) {
+                if (!sessionExpiration.isShown() && SyncopeConsoleSession.get().isJWTExpiring()) {
+                    sessionExpiration.header(new ResourceModel("sessionExpiration.header"));
+                    sessionExpiration.setContent(new SessionExpirationModalPanel(
+                            sessionExpiration, new ResourceModel("sessionExpiration.body"), getPageReference()));
+                    sessionExpiration.show(true);
+                    handler.add(sessionExpiration);
+                }
+            }
+        }.schedule(SyncopeWebApplication.get().getJwtExpirationMinutesThreshold() - 1, TimeUnit.MINUTES));
 
         Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof final Boolean b) && b) {
@@ -446,9 +492,6 @@ public class BasePage extends BaseWebPage {
                     Constructor<? extends ExtAlertWidget> constructor =
                             item.getModelObject().getDeclaredConstructor(String.class, PageReference.class);
                     ExtAlertWidget widget = constructor.newInstance("extAlertWidget", getPageReference());
-
-                    SyncopeConsoleSession.get().setAttribute(widget.getClass().getName(), widget);
-
                     item.add(widget.setRenderBodyOnly(true));
                 } catch (Exception e) {
                     LOG.error("Could not instantiate {}", item.getModelObject().getName(), e);

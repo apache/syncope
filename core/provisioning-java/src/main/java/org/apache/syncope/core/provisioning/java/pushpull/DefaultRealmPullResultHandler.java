@@ -19,11 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -50,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
@@ -57,7 +56,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -320,14 +318,14 @@ public class DefaultRealmPullResultHandler
                         }
                     }
 
-                    Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
+                    List<PropagationManager.PropagationAttrs> beforeAttrs = propagationManager.prepareAttrs(realm);
 
                     PropagationByResource<String> propByRes = binder.update(realm, before);
-                    realm = realmDAO.save(realm);
-                    RealmTO updated = binder.getRealmTO(realm, true);
+                    Realm merged = realmDAO.save(realm);
+                    RealmTO updated = binder.getRealmTO(merged, true);
 
                     List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
-                            propagationManager.createTasks(realm, propByRes, null),
+                            propagationManager.createTasks(merged, propByRes, null),
                             beforeAttrs);
                     taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 

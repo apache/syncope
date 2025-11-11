@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -199,7 +200,7 @@ public class JobWidget extends BaseWidget {
                     }
                 }
             }
-        }.schedule(10));
+        }.schedule(10, TimeUnit.SECONDS));
         add(container);
 
         container.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));

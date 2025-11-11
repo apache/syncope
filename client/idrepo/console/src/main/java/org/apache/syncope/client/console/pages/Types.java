@@ -64,9 +64,9 @@ public class Types extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
+        body.add(content.setOutputMarkupId(true));
+
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
-        body.add(content);
     }
 
     private List<ITab> buildTabList() {

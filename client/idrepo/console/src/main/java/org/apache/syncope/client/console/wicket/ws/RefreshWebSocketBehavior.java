@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.wicket.ws;
 
 import com.giffing.wicket.spring.boot.starter.web.WicketWebInitializer;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.Mutable;
@@ -35,9 +37,19 @@ import org.apache.wicket.protocol.ws.api.registry.IKey;
 
 public abstract class RefreshWebSocketBehavior extends WebSocketBehavior {
 
+    private record RefreshMessage(String nonce) implements IWebSocketPushMessage {
+
+    }
+
     private static final long serialVersionUID = 5636572627689425575L;
 
     protected final Mutable<Pair<String, IKey>> websocketInfo = new MutableObject<>();
+
+    protected final String nonce;
+
+    public RefreshWebSocketBehavior() {
+        nonce = UUID.randomUUID().toString();
+    }
 
     @Override
     protected void onConnect(final ConnectedMessage message) {
@@ -48,10 +60,12 @@ public abstract class RefreshWebSocketBehavior extends WebSocketBehavior {
 
     @Override
     protected void onPush(final WebSocketRequestHandler handler, final IWebSocketPushMessage message) {
-        onTimer(handler);
+        if (message instanceof RefreshMessage refreshMessage && nonce.equals(refreshMessage.nonce())) {
+            onTimer(handler);
+        }
     }
 
-    public RefreshWebSocketBehavior schedule(final long periodSeconds) {
+    public RefreshWebSocketBehavior schedule(final long period, final TimeUnit unit) {
         ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1, Thread.ofVirtual().factory());
         executor.scheduleAtFixedRate(() -> {
             if (websocketInfo.get() == null) {
@@ -61,16 +75,10 @@ public abstract class RefreshWebSocketBehavior extends WebSocketBehavior {
             Application application = Application.get(WicketWebInitializer.WICKET_FILTERNAME);
             IWebSocketConnection wsConnection = WebSocketSettings.Holder.get(application).getConnectionRegistry().
                     getConnection(application, websocketInfo.get().getLeft(), websocketInfo.get().getRight());
-            if (wsConnection != null && wsConnection.isOpen()) {
-                wsConnection.sendMessage(new IWebSocketPushMessage() {
-
-                    private static final long serialVersionUID = -4425174034118785972L;
-
-                });
-            } else {
-                executor.shutdownNow();
-            }
-        }, 0, periodSeconds, TimeUnit.SECONDS);
+            Optional.ofNullable(wsConnection).filter(IWebSocketConnection::isOpen).ifPresentOrElse(
+                    wsc -> wsc.sendMessage(new RefreshMessage(nonce)),
+                    () -> executor.shutdownNow());
+        }, 0, period, unit);
 
         return this;
     }

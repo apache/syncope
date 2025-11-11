@@ -28,6 +28,8 @@ public final class SAML2SP4UIConstants {
 
     public static final String SAML2SP4UI_JWT = "saml2sp4ui.jwt";
 
+    public static final String SAML2SP4UI_JWT_EXPIRATION = "saml2sp4ui.jwt.expiration";
+
     public static final String SAML2SP4UI_SLO_SUPPORTED = "saml2sp4ui.sloSupported";
 
     public static final String SAML2SP4UI_IDP_ENTITY_ID = "saml2sp4ui.idpEntityID";

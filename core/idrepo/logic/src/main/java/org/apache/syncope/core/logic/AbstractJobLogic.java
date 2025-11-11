@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -37,6 +36,10 @@ import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactionalLogic<T> {
+
+    protected record JobReference(JobType type, String key, String desc) {
+
+    }
 
     protected final JobManager jobManager;
 
@@ -54,17 +57,17 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
         this.jobStatusDAO = jobStatusDAO;
     }
 
-    protected abstract Triple<JobType, String, String> getReference(String jobName);
+    protected abstract JobReference getReference(String jobName);
 
     protected Optional<JobTO> getJobTO(final String jobName, final boolean includeCustom) {
         JobTO jobTO = null;
 
-        Triple<JobType, String, String> reference = getReference(jobName);
+        JobReference reference = getReference(jobName);
         if (reference != null) {
             jobTO = new JobTO();
-            jobTO.setType(reference.getLeft());
-            jobTO.setRefKey(reference.getMiddle());
-            jobTO.setRefDesc(reference.getRight());
+            jobTO.setType(reference.type());
+            jobTO.setRefKey(reference.key());
+            jobTO.setRefDesc(reference.desc());
         } else if (includeCustom) {
             Optional<Class<?>> jobClass = scheduler.getJobClass(AuthContextUtils.getDomain(), jobName).
                     filter(jc -> !TaskJob.class.isAssignableFrom(jc)

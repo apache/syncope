@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -104,7 +103,7 @@ public class DefaultMappingManager implements MappingManager {
     protected static final Logger LOG = LoggerFactory.getLogger(MappingManager.class);
 
     protected static Optional<String> processPreparedAttr(
-            final Pair<String, Attribute> preparedAttr,
+            final PreparedAttr preparedAttr,
             final Set<Attribute> attributes) {
 
         if (preparedAttr == null) {
@@ -113,12 +112,12 @@ public class DefaultMappingManager implements MappingManager {
 
         String connObjectKey = null;
 
-        if (preparedAttr.getLeft() != null) {
-            connObjectKey = preparedAttr.getLeft();
+        if (preparedAttr.connObjectLink() != null) {
+            connObjectKey = preparedAttr.connObjectLink();
         }
 
-        if (preparedAttr.getRight() != null) {
-            Optional.ofNullable(AttributeUtil.find(preparedAttr.getRight().getName(), attributes)).ifPresentOrElse(
+        if (preparedAttr.attribute() != null) {
+            Optional.ofNullable(AttributeUtil.find(preparedAttr.attribute().getName(), attributes)).ifPresentOrElse(
                     alreadyAdded -> {
                         attributes.remove(alreadyAdded);
 
@@ -126,13 +125,13 @@ public class DefaultMappingManager implements MappingManager {
                         if (!CollectionUtils.isEmpty(alreadyAdded.getValue())) {
                             values.addAll(alreadyAdded.getValue());
                         }
-                        if (preparedAttr.getRight().getValue() != null) {
-                            values.addAll(preparedAttr.getRight().getValue());
+                        if (preparedAttr.attribute().getValue() != null) {
+                            values.addAll(preparedAttr.attribute().getValue());
                         }
 
-                        attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
+                        attributes.add(AttributeBuilder.build(preparedAttr.attribute().getName(), values));
                     },
-                    () -> attributes.add(preparedAttr.getRight()));
+                    () -> attributes.add(preparedAttr.attribute()));
         }
 
         return Optional.ofNullable(connObjectKey);
@@ -283,7 +282,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<String, Set<Attribute>> prepareAttrsFromAny(
+    public PreparedAttrs prepareAttrsFromAny(
             final Any any,
             final String password,
             final boolean changePwd,
@@ -339,7 +338,7 @@ public class DefaultMappingManager implements MappingManager {
                     ifPresent(attributes::remove);
         }
 
-        return Pair.of(connObjectKeyValue.get(), attributes);
+        return new PreparedAttrs(connObjectKeyValue.get(), attributes);
     }
 
     @Transactional(readOnly = true)
@@ -414,10 +413,10 @@ public class DefaultMappingManager implements MappingManager {
     }
 
     @Override
-    public Pair<String, Set<Attribute>> prepareAttrsFromRealm(final Realm realm, final ExternalResource resource) {
+    public PreparedAttrs prepareAttrsFromRealm(final Realm realm, final ExternalResource resource) {
         if (resource.getOrgUnit() == null) {
             LOG.error("No mapping configured for Realms");
-            return Pair.of(null, Set.of());
+            return new PreparedAttrs(null, Set.of());
         }
 
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, resource.getOrgUnit());
@@ -455,7 +454,7 @@ public class DefaultMappingManager implements MappingManager {
                     ifPresent(cokv -> attributes.add(AttributeBuilder.build(item.getExtAttrName(), cokv)));
         });
 
-        return Pair.of(connObjectKeyValue.get(), attributes);
+        return new PreparedAttrs(connObjectKeyValue.get(), attributes);
     }
 
     protected Optional<String> decodePassword(final Account account) {
@@ -488,7 +487,7 @@ public class DefaultMappingManager implements MappingManager {
     }
 
     @Override
-    public Pair<String, Attribute> prepareAttr(
+    public PreparedAttr prepareAttr(
             final ExternalResource resource,
             final Provision provision,
             final Item item,
@@ -510,10 +509,10 @@ public class DefaultMappingManager implements MappingManager {
                 ? intAttrName.getSchema().getType()
                 : AttrSchemaType.String;
 
-        Pair<AttrSchemaType, List<PlainAttrValue>> intValues = getIntValues(
+        IntValues intValues = getIntValues(
                 resource, provision, item, intAttrName, schemaType, any, usernameAccountGetter, plainAttrGetter);
-        schemaType = intValues.getLeft();
-        List<PlainAttrValue> values = intValues.getRight();
+        schemaType = intValues.attrSchemaType();
+        List<PlainAttrValue> values = intValues.values();
 
         LOG.debug(
                 """
@@ -552,24 +551,24 @@ public class DefaultMappingManager implements MappingManager {
             }
         }
 
-        Pair<String, Attribute> result;
+        PreparedAttr result;
         if (item.isConnObjectKey()) {
-            result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+            result = new PreparedAttr(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
         } else if (item.isPassword() && any instanceof User user) {
             result = getPasswordAttrValue(passwordAccountGetter.apply(user), password).
-                    map(passwordAttrValue -> Pair.of(
-                    (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
+                    map(passwordAttrValue -> new PreparedAttr(
+                    null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
                     orElse(null);
         } else if (objValues.isEmpty()) {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.build(item.getExtAttrName()));
         } else if (OperationalAttributes.PASSWORD_NAME.equals(item.getExtAttrName())) {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.buildPassword(objValues.getFirst().toString().toCharArray()));
         } else {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
@@ -578,7 +577,7 @@ public class DefaultMappingManager implements MappingManager {
     }
 
     @Override
-    public Pair<String, Attribute> prepareAttr(
+    public PreparedAttr prepareAttr(
             final ExternalResource resource,
             final Item item,
             final Realm realm) {
@@ -595,10 +594,9 @@ public class DefaultMappingManager implements MappingManager {
                 ? intAttrName.getSchema().getType()
                 : AttrSchemaType.String;
 
-        Pair<AttrSchemaType, List<PlainAttrValue>> intValues = getIntValues(
-                resource, item, intAttrName, schemaType, realm);
-        schemaType = intValues.getLeft();
-        List<PlainAttrValue> values = intValues.getRight();
+        IntValues intValues = getIntValues(resource, item, intAttrName, schemaType, realm);
+        schemaType = intValues.attrSchemaType();
+        List<PlainAttrValue> values = intValues.values();
 
         LOG.debug(
                 """
@@ -637,19 +635,19 @@ public class DefaultMappingManager implements MappingManager {
             }
         }
 
-        Pair<String, Attribute> result;
+        PreparedAttr result;
         if (item.isConnObjectKey()) {
-            result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+            result = new PreparedAttr(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
         } else if (objValues.isEmpty()) {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.build(item.getExtAttrName()));
         } else if (OperationalAttributes.PASSWORD_NAME.equals(item.getExtAttrName())) {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
-            result = Pair.of(
+            result = new PreparedAttr(
                     null,
                     AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
@@ -659,7 +657,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+    public IntValues getIntValues(
             final ExternalResource resource,
             final Provision provision,
             final Item item,
@@ -734,7 +732,7 @@ public class DefaultMappingManager implements MappingManager {
         }
         if (references.isEmpty()) {
             LOG.warn("Could not determine the reference instance for {}", item.getIntAttrName());
-            return Pair.of(schemaType, List.of());
+            return new IntValues(schemaType, List.of());
         }
 
         List<PlainAttrValue> values = new ArrayList<>();
@@ -860,11 +858,11 @@ public class DefaultMappingManager implements MappingManager {
 
         LOG.debug("Internal values: {}", values);
 
-        Pair<AttrSchemaType, List<PlainAttrValue>> transformed = Pair.of(schemaType, values);
+        IntValues transformed = new IntValues(schemaType, values);
         if (transform) {
             for (ItemTransformer transformer : MappingUtils.getItemTransformers(item, getTransformers(item))) {
                 transformed = transformer.beforePropagation(
-                        item, any, transformed.getLeft(), transformed.getRight());
+                        item, any, transformed.attrSchemaType(), transformed.values());
             }
             LOG.debug("Transformed values: {}", values);
         } else {
@@ -876,7 +874,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+    public IntValues getIntValues(
             final ExternalResource resource,
             final Item item,
             final IntAttrName intAttrName,
@@ -938,11 +936,11 @@ public class DefaultMappingManager implements MappingManager {
 
         LOG.debug("Internal values: {}", values);
 
-        Pair<AttrSchemaType, List<PlainAttrValue>> transformed = Pair.of(schemaType, values);
+        IntValues transformed = new IntValues(schemaType, values);
         if (transform) {
             for (ItemTransformer transformer : MappingUtils.getItemTransformers(item, getTransformers(item))) {
                 transformed = transformer.beforePropagation(
-                        item, realm, transformed.getLeft(), transformed.getRight());
+                        item, realm, transformed.attrSchemaType(), transformed.values());
             }
             LOG.debug("Transformed values: {}", values);
         } else {
@@ -959,7 +957,7 @@ public class DefaultMappingManager implements MappingManager {
 
         Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
-        Pair<String, Attribute> preparedAttr = null;
+        PreparedAttr preparedAttr = null;
         if (connObjectKeyItem.isPresent()) {
             preparedAttr = prepareAttr(
                     resource,
@@ -973,7 +971,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         return Optional.ofNullable(preparedAttr).
-                map(attr -> evaluateNAME(any, provision, attr.getKey()).getNameValue()).orElse(null);
+                map(attr -> evaluateNAME(any, provision, attr.connObjectLink()).getNameValue()).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -990,7 +988,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         Item item = connObjectKeyItem.get();
-        Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
+        IntValues intValues;
         try {
             intValues = getIntValues(
                     resource,
@@ -1003,11 +1001,11 @@ public class DefaultMappingManager implements MappingManager {
                     PlainAttrGetter.DEFAULT);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", item.getIntAttrName(), e);
-            intValues = Pair.of(AttrSchemaType.String, List.of());
+            intValues = new IntValues(AttrSchemaType.String, List.of());
         }
-        return intValues.getRight().isEmpty()
+        return intValues.values().isEmpty()
                 ? Optional.empty()
-                : Optional.of(intValues.getRight().getFirst().getValueAsString());
+                : Optional.of(intValues.values().getFirst().getValueAsString());
     }
 
     @Transactional(readOnly = true)
@@ -1025,7 +1023,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         Item item = connObjectKeyItem.get();
-        Pair<AttrSchemaType, List<PlainAttrValue>> intValues;
+        IntValues intValues;
         try {
             intValues = getIntValues(
                     resource,
@@ -1035,11 +1033,11 @@ public class DefaultMappingManager implements MappingManager {
                     realm);
         } catch (ParseException e) {
             LOG.error("Invalid intAttrName '{}' specified, ignoring", item.getIntAttrName(), e);
-            intValues = Pair.of(AttrSchemaType.String, List.of());
+            intValues = new IntValues(AttrSchemaType.String, List.of());
         }
-        return intValues.getRight().isEmpty()
+        return intValues.values().isEmpty()
                 ? Optional.empty()
-                : Optional.of(intValues.getRight().getFirst().getValueAsString());
+                : Optional.of(intValues.values().getFirst().getValueAsString());
     }
 
     @Transactional(readOnly = true)

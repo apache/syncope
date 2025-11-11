@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObject;
@@ -265,9 +264,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceDAO.findAll().stream().map(binder::getResourceTO).toList();
     }
 
-    protected Triple<AnyType, ExternalResource, Provision> getProvision(
-            final String anyTypeKey, final String resourceKey) {
-
+    protected ProvisioningInfo getProvisioningInfo(final String anyTypeKey, final String resourceKey) {
         AnyType anyType = anyTypeDAO.findById(anyTypeKey).
                 orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
 
@@ -280,7 +277,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
         }
 
-        return Triple.of(anyType, resource, provision);
+        return new ProvisioningInfo(anyType, resource, provision);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -290,15 +287,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final String anyKey) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
+        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
 
         // 1. find any
-        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(info.anyType().getKind()).
                 dao().authFind(anyKey)).
-                orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
+                orElseThrow(() -> new NotFoundException(info.anyType() + " " + anyKey));
 
         // 2.get ConnObjectKey value
-        return mappingManager.getConnObjectKeyValue(any, triple.getMiddle(), triple.getRight()).
+        return mappingManager.getConnObjectKeyValue(any, info.resource(), info.provision()).
                 orElseThrow(() -> new NotFoundException(
                 "No ConnObjectKey value found for " + anyTypeKey + " " + anyKey + " on resource '" + key + "'"));
     }
@@ -310,24 +307,24 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final String anyKey) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
+        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
 
         // 1. find any
-        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(info.anyType().getKind()).
                 dao().authFind(anyKey)).
-                orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
+                orElseThrow(() -> new NotFoundException(info.anyType() + " " + anyKey));
 
         // 2. find on resource
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                connectorManager.getConnector(triple.getMiddle()),
+                connectorManager.getConnector(info.resource()),
                 any,
-                triple.getMiddle(),
-                triple.getRight(),
+                info.resource(),
+                info.provision(),
                 Optional.empty());
         if (connObjs.isEmpty()) {
             throw new NotFoundException(
-                    "Object " + any + " with class " + triple.getRight().getObjectClass()
-                    + " not found on resource " + triple.getMiddle().getKey());
+                    "Object " + any + " with class " + info.provision().getObjectClass()
+                    + " not found on resource " + info.resource().getKey());
         }
 
         if (connObjs.size() > 1) {
@@ -335,7 +332,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         return ConnObjectUtils.getConnObjectTO(
-                outboundMatcher.getFIQL(connObjs.getFirst(), triple.getMiddle(), triple.getRight()),
+                outboundMatcher.getFIQL(connObjs.getFirst(), info.resource(), info.provision()),
                 connObjs.getFirst().getAttributes());
     }
 
@@ -346,25 +343,25 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final String connObjectKeyValue) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
+        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
 
-        Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
+        Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(info.provision()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey mapping for " + triple.getLeft().getKey()
-                + " on resource '" + triple.getMiddle().getKey() + "'"));
+                "ConnObjectKey mapping for " + info.anyType().getKey()
+                + " on resource '" + info.resource().getKey() + "'"));
 
         return outboundMatcher.matchByConnObjectKeyValue(
-                connectorManager.getConnector(triple.getMiddle()),
+                connectorManager.getConnector(info.resource()),
                 connObjectKeyItem,
                 connObjectKeyValue,
-                triple.getRight(),
+                info.provision(),
                 Optional.empty()).
                 map(connectorObject -> ConnObjectUtils.getConnObjectTO(
-                outboundMatcher.getFIQL(connectorObject, triple.getMiddle(), triple.getRight()),
+                outboundMatcher.getFIQL(connectorObject, info.resource(), info.provision()),
                 connectorObject.getAttributes())).
                 orElseThrow(() -> new NotFoundException(
-                "Object " + connObjectKeyValue + " with class " + triple.getRight().getObjectClass()
-                + " not found on resource " + triple.getMiddle().getKey()));
+                "Object " + connObjectKeyValue + " with class " + info.provision().getObjectClass()
+                + " not found on resource " + info.resource().getKey()));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
@@ -394,10 +391,10 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             options = MappingUtils.buildOperationOptions(
                     resource.getOrgUnit().getItems().stream(), moreAttrsToGet.toArray(String[]::new));
         } else {
-            Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
+            ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
 
-            provision = triple.getRight();
-            resource = triple.getMiddle();
+            provision = info.provision();
+            resource = info.resource();
             objectClass = new ObjectClass(provision.getObjectClass());
 
             options = MappingUtils.buildOperationOptions(

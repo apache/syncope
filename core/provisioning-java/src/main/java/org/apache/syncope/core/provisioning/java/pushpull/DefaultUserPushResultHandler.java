@@ -392,8 +392,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 new UserWorkflowResult<>(
                         Pair.of(req, enable),
-                        new PropagationByResource<>(),
-                        propByLinkedAccount,
+                        new UserWorkflowResult.PropagationInfo(new PropagationByResource<>(), propByLinkedAccount),
                         ""));
         if (!taskInfos.isEmpty()) {
             taskInfos.getFirst().setBeforeObj(Optional.empty());

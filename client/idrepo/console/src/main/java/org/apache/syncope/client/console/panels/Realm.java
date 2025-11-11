@@ -30,6 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ITabComponent;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -42,7 +43,6 @@ import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -247,13 +247,13 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             add(new ConnObjectPanel(
                     REMOTE_OBJECT_PANEL_ID,
                     Pair.of(new ResourceModel("before"), new ResourceModel("after")),
-                    getConnObjectTOs(),
+                    getStatusProviderInfo(),
                     false));
         }
 
         @Override
-        protected final Pair<ConnObject, ConnObject> getConnObjectTOs() {
-            return Pair.of(bean.getBeforeObj(), bean.getAfterObj());
+        protected StatusProvider.Info getStatusProviderInfo() {
+            return new StatusProvider.Info(bean.getBeforeObj(), bean.getAfterObj());
         }
     }
 

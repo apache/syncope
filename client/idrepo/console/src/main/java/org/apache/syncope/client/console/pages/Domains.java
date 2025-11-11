@@ -33,9 +33,9 @@ public class Domains extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
         content.setMarkupId("domains");
+        body.add(content.setOutputMarkupId(true));
+
         content.add(new DomainDirectoryPanel("domainPanel", getPageReference()));
-        body.add(content);
     }
 }

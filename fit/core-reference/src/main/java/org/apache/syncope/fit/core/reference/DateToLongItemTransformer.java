@@ -19,11 +19,11 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.spring.implementation.InstanceScope;
 import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
@@ -32,7 +32,7 @@ import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 public class DateToLongItemTransformer implements ItemTransformer {
 
     @Override
-    public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+    public MappingManager.IntValues beforePropagation(
             final Item item,
             final Any any,
             final AttrSchemaType schemaType,
@@ -49,6 +49,6 @@ public class DateToLongItemTransformer implements ItemTransformer {
         values.getFirst().setDoubleValue(null);
         values.getFirst().setStringValue(null);
 
-        return Pair.of(AttrSchemaType.Long, values);
+        return new MappingManager.IntValues(AttrSchemaType.Long, values);
     }
 }

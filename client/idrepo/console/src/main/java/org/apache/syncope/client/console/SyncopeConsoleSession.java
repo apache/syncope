@@ -25,6 +25,8 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.xml.ws.WebServiceException;
 import java.text.DateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +43,6 @@ import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
@@ -111,6 +112,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected SyncopeClient client;
 
+    protected Instant jwtExpiration;
+
     protected SyncopeAnonymousClient anonymousClient;
 
     protected Pair<String, String> gitAndBuildInfo;
@@ -119,11 +122,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected SystemInfo systemInfo;
 
-    protected UserTO selfTO;
-
-    protected Map<String, Set<String>> auth;
-
-    protected List<String> delegations;
+    protected SyncopeClient.Self self;
 
     protected String delegatedBy;
 
@@ -214,7 +213,16 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public String getJWT() {
-        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
+        return Optional.ofNullable(client).
+                flatMap(SyncopeClient::jwtInfo).map(SyncopeClient.JwtInfo::value).
+                orElse(null);
+    }
+
+    public boolean isJWTExpiring() {
+        return Optional.ofNullable(jwtExpiration).
+                map(je -> je.isBefore(Instant.now().
+                plus(SyncopeWebApplication.get().getJwtExpirationMinutesThreshold(), ChronoUnit.MINUTES))).
+                orElse(false);
     }
 
     @Override
@@ -223,8 +231,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
+            jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
 
-            refreshAuth(username);
+            reloadSettings(username);
 
             authenticated = true;
         } catch (Exception e) {
@@ -234,13 +243,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return authenticated;
     }
 
-    public boolean authenticate(final String jwt) {
+    @Override
+    public boolean authenticate(final String jwt, final Instant jwtExpiration) {
         boolean authenticated = false;
 
         try {
             client = clientFactory.setDomain(getDomain()).create(jwt);
+            this.jwtExpiration = jwtExpiration;
 
-            refreshAuth(null);
+            reloadSettings(null);
 
             authenticated = true;
         } catch (Exception e) {
@@ -255,6 +266,28 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return authenticated;
     }
 
+    public boolean refresh() {
+        boolean refreshed = false;
+
+        try {
+            client.refresh();
+            jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
+
+            reloadSettings(null);
+
+            refreshed = true;
+        } catch (Exception e) {
+            LOG.error("Refresh failed", e);
+        }
+
+        if (refreshed) {
+            changeSessionId();
+            bind();
+        }
+
+        return refreshed;
+    }
+
     public void cleanup() {
         anonymousClient = null;
         gitAndBuildInfo = null;
@@ -262,10 +295,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         systemInfo = null;
 
         client = null;
-        auth = null;
-        delegations = null;
+        jwtExpiration = null;
+        self = null;
         delegatedBy = null;
-        selfTO = null;
         services.clear();
     }
 
@@ -284,18 +316,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public UserTO getSelfTO() {
-        return selfTO;
+        return self.user();
     }
 
     public List<String> getAuthRealms() {
-        return auth.values().stream().flatMap(Set::stream).distinct().sorted().collect(Collectors.toList());
+        return self.entitlements().values().stream().flatMap(Set::stream).distinct().sorted().toList();
     }
 
     public List<String> getSearchableRealms() {
-        Set<String> roots = auth.get(IdRepoEntitlement.REALM_SEARCH);
+        Set<String> roots = self.entitlements().get(IdRepoEntitlement.REALM_SEARCH);
         return CollectionUtils.isEmpty(roots)
                 ? List.of()
-                : roots.stream().sorted().collect(Collectors.toList());
+                : roots.stream().sorted().toList();
     }
 
     public Optional<String> getRootRealm(final String initial) {
@@ -312,7 +344,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
             return true;
         }
 
-        if (auth == null) {
+        if (self.entitlements() == null) {
             return false;
         }
 
@@ -321,10 +353,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 : Set.of(realms);
 
         for (String entitlement : entitlements.split(",")) {
-            if (auth.containsKey(entitlement)) {
+            if (self.entitlements().containsKey(entitlement)) {
                 boolean owns = false;
 
-                Set<String> owned = auth.get(entitlement).stream().
+                Set<String> owned = self.entitlements().get(entitlement).stream().
                         map(RealmsUtils::getFullPath).collect(Collectors.toSet());
                 if (requested.isEmpty()) {
                     return !owned.isEmpty();
@@ -346,8 +378,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public Roles getRoles() {
-        if (isSignedIn() && roles == null && auth != null) {
-            roles = new Roles(auth.keySet().toArray(String[]::new));
+        if (isSignedIn() && roles == null && self.entitlements() != null) {
+            roles = new Roles(self.entitlements().keySet().toArray(String[]::new));
             roles.add(Constants.ROLE_AUTHENTICATED);
         }
 
@@ -355,7 +387,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public List<String> getDelegations() {
-        return delegations;
+        return self.delegations();
     }
 
     public String getDelegatedBy() {
@@ -367,34 +399,34 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         this.client.delegatedBy(delegatedBy);
 
-        refreshAuth(null);
+        reloadSettings(null);
     }
 
-    public void refreshAuth(final String username) {
+    public void reloadSettings(final String username) {
         try {
             anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
             gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
             platformInfo = anonymousClient.platform();
             systemInfo = anonymousClient.system();
 
-            Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
-            auth = self.getLeft();
-            delegations = self.getMiddle();
-            selfTO = self.getRight();
+            self = client.self();
             roles = null;
         } catch (ForbiddenException e) {
             LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
 
-            selfTO = new UserTO();
-            selfTO.setUsername(username);
-            selfTO.setMustChangePassword(true);
+            UserTO user = new UserTO();
+            user.setUsername(username);
+            user.setMustChangePassword(true);
+            self = new SyncopeClient.Self(user, Map.of(), List.of());
         }
     }
 
     @Override
     public SyncopeAnonymousClient getAnonymousClient() {
-        return Optional.ofNullable(anonymousClient).
-                orElseGet(() -> SyncopeWebApplication.get().newAnonymousClient(getDomain()));
+        if (anonymousClient == null) {
+            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
+        }
+        return anonymousClient;
     }
 
     @Override

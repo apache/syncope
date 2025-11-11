@@ -30,10 +30,8 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -83,25 +81,25 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void readEntitlements() {
         // 1. as anonymous
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = ANONYMOUS_CLIENT.self();
-        assertEquals(1, self.getLeft().size());
-        assertTrue(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
-        assertEquals(List.of(), self.getMiddle());
-        assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
+        SyncopeClient.Self self = ANONYMOUS_CLIENT.self();
+        assertEquals(1, self.entitlements().size());
+        assertTrue(self.entitlements().containsKey(IdRepoEntitlement.ANONYMOUS));
+        assertEquals(List.of(), self.delegations());
+        assertEquals(ANONYMOUS_UNAME, self.user().getUsername());
 
         // 3. as admin
         self = ADMIN_CLIENT.self();
-        assertEquals(ANONYMOUS_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
-        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
-        assertEquals(List.of(), self.getMiddle());
-        assertEquals(ADMIN_UNAME, self.getRight().getUsername());
+        assertEquals(ANONYMOUS_CLIENT.platform().getEntitlements().size(), self.entitlements().size());
+        assertFalse(self.entitlements().containsKey(IdRepoEntitlement.ANONYMOUS));
+        assertEquals(List.of(), self.delegations());
+        assertEquals(ADMIN_UNAME, self.user().getUsername());
 
         // 4. as user
         self = CLIENT_FACTORY.create("bellini", ADMIN_PWD).self();
-        assertFalse(self.getLeft().isEmpty());
-        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
-        assertEquals(List.of(), self.getMiddle());
-        assertEquals("bellini", self.getRight().getUsername());
+        assertFalse(self.entitlements().isEmpty());
+        assertFalse(self.entitlements().containsKey(IdRepoEntitlement.ANONYMOUS));
+        assertEquals(List.of(), self.delegations());
+        assertEquals("bellini", self.user().getUsername());
     }
 
     @Test
@@ -395,7 +393,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         SyncopeClient goodPwdClient = CLIENT_FACTORY.create(userTO.getUsername(), "password123");
-        assertEquals(0, goodPwdClient.self().getRight().getFailedLogins().intValue());
+        assertEquals(0, goodPwdClient.self().user().getFailedLogins().intValue());
     }
 
     @Test
@@ -598,12 +596,11 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
         assertNotNull(self);
-        assertNotNull(self.getLeft());
-        assertEquals(List.of(), self.getMiddle());
-        assertNotNull(self.getRight());
+        assertNotNull(self.entitlements());
+        assertEquals(List.of(), self.delegations());
+        assertNotNull(self.user());
     }
 
     @Test
@@ -635,8 +632,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(encryptorManager.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create(user.getUsername(), "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), "password123").self();
         assertNotNull(self);
         self = CLIENT_FACTORY.create(user.getUsername(), "password234").self();
         assertNotNull(self);

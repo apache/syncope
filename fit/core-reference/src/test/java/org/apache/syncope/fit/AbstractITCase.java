@@ -624,7 +624,7 @@ public abstract class AbstractITCase {
 
         return webClient.
                 header(RESTHeaders.DOMAIN, ADMIN_CLIENT.getDomain()).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value()).
                 get(resultClass);
     }
 

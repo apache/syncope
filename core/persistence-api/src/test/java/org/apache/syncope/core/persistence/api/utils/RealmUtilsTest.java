@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 public class RealmUtilsTest extends AbstractTest {
@@ -34,15 +33,15 @@ public class RealmUtilsTest extends AbstractTest {
     public void getGroupOwnerRealm() {
         String realmPath = "realmPath";
         String groupKey = "groupKey";
-        assertEquals(realmPath + "@" + groupKey, RealmUtils.getGroupOwnerRealm(realmPath, groupKey));
+        assertEquals(realmPath + "@" + groupKey, new RealmUtils.GroupOwnerRealm(realmPath, groupKey).output());
     }
 
     @Test
     public void parseGroupOwnerRealm() {
         assertEquals(
-                Optional.of(Pair.of("realmPath", "groupKey")),
-                RealmUtils.parseGroupOwnerRealm("realmPath@groupKey"));
-        assertFalse(RealmUtils.parseGroupOwnerRealm("realmPath").isPresent());
+                Optional.of(new RealmUtils.GroupOwnerRealm("realmPath", "groupKey")),
+                RealmUtils.GroupOwnerRealm.of("realmPath@groupKey"));
+        assertFalse(RealmUtils.GroupOwnerRealm.of("realmPath").isPresent());
     }
 
     @Test

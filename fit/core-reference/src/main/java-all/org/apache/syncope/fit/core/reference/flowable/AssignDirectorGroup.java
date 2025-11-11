@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.flowable.engine.delegate.DelegateExecution;
 
 public class AssignDirectorGroup extends FlowableServiceTask {
+
     private final UserDataBinder dataBinder;
+
     private final UserDAO userDAO;
 
     public AssignDirectorGroup(final UserDataBinder dataBinder, final UserDAO userDAO) {
@@ -51,13 +52,12 @@ public class AssignDirectorGroup extends FlowableServiceTask {
             userUR.setKey(user.getKey());
             userUR.getMemberships().add(new MembershipUR.Builder("ebf97068-aa4b-4a85-9f01-680e8c4cf227").build());
 
-            Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
-                    dataBinder.update(user, userUR);
+            UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.user());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.linkedAccount());
         } else {
             LOG.info("Second level was not approved, not assigning the director group to {}", user.getUsername());
         }

@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.flowable.task;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.flowable.engine.delegate.DelegateExecution;
 
@@ -48,13 +47,12 @@ public class Update extends FlowableServiceTask {
 
             user = userDAO.save(user);
 
-            Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
-                    dataBinder.update(user, req);
+            UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, req);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.user());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.linkedAccount());
         }
     }
 }

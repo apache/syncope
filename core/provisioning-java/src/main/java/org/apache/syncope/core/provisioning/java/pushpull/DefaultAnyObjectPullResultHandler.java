@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -80,14 +76,14 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
         AnyObjectCR anyObjectCR = AnyObjectCR.class.cast(anyCR);
 
-        Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
+        ProvisioningManager.ProvisioningResult<String> created = anyObjectProvisioningManager.create(
                 anyObjectCR,
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
                 profile.getContext());
 
-        return anyObjectDataBinder.getAnyObjectTO(created.getKey());
+        return anyObjectDataBinder.getAnyObjectTO(created.key());
     }
 
     @Override
@@ -99,7 +95,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
 
         AnyObjectUR anyObjectUR = AnyObjectUR.class.cast(req);
 
-        Pair<AnyObjectUR, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
+        ProvisioningManager.ProvisioningResult<AnyObjectUR> updated = anyObjectProvisioningManager.update(
                 anyObjectUR,
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
@@ -108,6 +104,6 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
 
         createRemediationIfNeeded(req, delta, result);
 
-        return updated.getLeft();
+        return updated.key();
     }
 }

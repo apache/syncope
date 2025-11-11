@@ -22,14 +22,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface GroupProvisioningManager extends ProvisioningManager<GroupCR, GroupUR> {
 
-    Pair<String, List<PropagationStatus>> create(
+    ProvisioningResult<String> create(
             GroupCR groupCR,
             Map<String, String> groupOwnerMap,
             Set<String> excludedResources,

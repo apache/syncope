@@ -36,6 +36,8 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private int realmsFullTreeThreshold = 20;
 
+    private int jwtExpirationMinutesThreshold = 3;
+
     public Map<String, Class<? extends BasePage>> getPage() {
         return page;
     }
@@ -54,5 +56,13 @@ public class ConsoleProperties extends CommonUIProperties {
 
     public void setRealmsFullTreeThreshold(final int realmsFullTreeThreshold) {
         this.realmsFullTreeThreshold = realmsFullTreeThreshold;
+    }
+
+    public int getJwtExpirationMinutesThreshold() {
+        return jwtExpirationMinutesThreshold;
+    }
+
+    public void setJwtExpirationMinutesThreshold(final int jwtExpirationMinutesThreshold) {
+        this.jwtExpirationMinutesThreshold = jwtExpirationMinutesThreshold;
     }
 }

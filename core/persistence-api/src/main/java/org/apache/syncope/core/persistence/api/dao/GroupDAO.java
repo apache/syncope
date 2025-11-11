@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -34,6 +33,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.data.domain.Pageable;
 
 public interface GroupDAO extends AnyDAO<Group> {
+
+    record DynMembershipInfo(Set<String> before, Set<String> after) {
+
+    }
 
     Optional<String> findKey(String name);
 
@@ -87,7 +90,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @param anyObject anyObject being saved
      * @return pair of groups dynamically assigned before and after refresh
      */
-    Pair<Set<String>, Set<String>> refreshDynMemberships(AnyObject anyObject);
+    DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
 
     /**
      * Removes the dynamic group memberships of the given anyObject (invoked during delete).
@@ -107,7 +110,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @param user user being saved
      * @return pair of groups dynamically assigned before and after refresh
      */
-    Pair<Set<String>, Set<String>> refreshDynMemberships(User user);
+    DynMembershipInfo refreshDynMemberships(User user);
 
     /**
      * Removes the dynamic group memberships of the given anyObject (invoked during delete).

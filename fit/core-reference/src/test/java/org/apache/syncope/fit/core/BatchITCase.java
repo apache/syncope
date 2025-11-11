@@ -193,7 +193,7 @@ public class BatchITCase extends AbstractITCase {
         String boundary = "--batch_" + UUID.randomUUID();
 
         Response response = WebClient.create(ADDRESS).path("batch").
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).
                 post(requestBody(boundary));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -215,7 +215,7 @@ public class BatchITCase extends AbstractITCase {
 
         // request async processing
         Response response = WebClient.create(ADDRESS).path("batch").
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value()).
                 header(RESTHeaders.PREFER, Preference.RESPOND_ASYNC).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).
                 post(requestBody(boundary));
@@ -227,7 +227,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(monitor);
 
         WebClient client = WebClient.create(monitor).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
 
         Mutable<Response> holder = new MutableObject<>();
@@ -254,7 +254,7 @@ public class BatchITCase extends AbstractITCase {
 
         // check results again: removed since they were returned above
         response = WebClient.create(monitor).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }

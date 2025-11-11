@@ -190,7 +190,7 @@ public class SCIMITCase extends AbstractITCase {
                         findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()))).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT());
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value());
     }
 
     @Test
@@ -563,7 +563,7 @@ public class SCIMITCase extends AbstractITCase {
             response = webClient().path("AnyObjects").query(
                     "filter",
                     "urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER:model eq \"Canon MFC8030\" "
-                            + "and type eq \"PRINTER\"").
+                    + "and type eq \"PRINTER\"").
                     get();
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
             assertEquals(
@@ -794,13 +794,13 @@ public class SCIMITCase extends AbstractITCase {
         // 7. update with path, update password
         body =
                 "{"
-                        + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
-                        + "\"Operations\":[{"
-                        + "\"op\":\"replace\","
-                        + "\"path\":\"password\","
-                        + "\"value\":\"Password123!\""
-                        + "}]"
-                        + "}";
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":[{"
+                + "\"op\":\"replace\","
+                + "\"path\":\"password\","
+                + "\"value\":\"Password123!\""
+                + "}]"
+                + "}";
         response = webClient().path("Users").path(user.getId())
                 .header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT)
                 .invoke(HttpMethod.PATCH, body);
@@ -1149,13 +1149,13 @@ public class SCIMITCase extends AbstractITCase {
         // update with path, add value
         String body =
                 "{"
-                        + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
-                        + "\"Operations\":[{"
-                        + "\"op\":\"Add\","
-                        + "\"path\":\"displayName\","
-                        + "\"value\":\"" + printer.getId() + "\""
-                        + "}]"
-                        + "}";
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":[{"
+                + "\"op\":\"Add\","
+                + "\"path\":\"displayName\","
+                + "\"value\":\"" + printer.getId() + "\""
+                + "}]"
+                + "}";
         response = webClient().path("AnyObjects").path(printer.getId()).invoke(HttpMethod.PATCH, body);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 

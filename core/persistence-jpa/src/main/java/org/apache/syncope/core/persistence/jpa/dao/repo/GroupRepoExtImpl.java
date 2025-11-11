@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -123,7 +123,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         // 1. check if AuthContextUtils.getUsername() is owner of the group, or
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
+                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized && key != null) {
@@ -178,7 +178,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
-            orElseGet(List::of).
+                orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }
 
@@ -218,7 +218,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
         TypedQuery<UMembership> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAUMembership.class.getSimpleName()
-                        + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
                 UMembership.class);
         query.setParameter("group", group);
         if (pageable.isPaged()) {
@@ -426,7 +426,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
@@ -464,7 +464,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override
@@ -496,7 +496,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
@@ -533,7 +533,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override

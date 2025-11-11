@@ -23,7 +23,6 @@ import jakarta.persistence.EntityManagerFactory;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -111,7 +110,7 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-            orElseGet(cond::getExpression);
+                orElseGet(cond::getExpression);
 
         boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
@@ -182,10 +181,10 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
-    protected Pair<Boolean, AnySearchNode> getQuery(
+    protected AttrCondQuery getQuery(
             final AttrCond cond,
             final boolean not,
-            final Pair<PlainSchema, PlainAttrValue> checked,
+            final CheckResult checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 
@@ -200,43 +199,43 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL -> {
-                return Pair.of(true, new AnySearchNode.Leaf(
+                return new AttrCondQuery(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
                         + ") IS NOT NULL"));
             }
 
             case ISNULL -> {
-                return Pair.of(true, new AnySearchNode.Leaf(
+                return new AttrCondQuery(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
                         + ") IS NULL"));
             }
 
             default -> {
                 if (!not && cond.getType() == AttrCond.Type.EQ) {
                     PlainAttr container = new PlainAttr();
-                    container.setPlainSchema(checked.getLeft());
-                    if (checked.getLeft().isUniqueConstraint()) {
-                        container.setUniqueValue(checked.getRight());
+                    container.setPlainSchema(checked.schema());
+                    if (checked.schema().isUniqueConstraint()) {
+                        container.setUniqueValue(checked.value());
                     } else {
-                        container.add(checked.getRight());
+                        container.add(checked.value());
                     }
 
-                    return Pair.of(true, new AnySearchNode.Leaf(
+                    return new AttrCondQuery(true, new AnySearchNode.Leaf(
                             svs.field(),
                             "JSON_CONTAINS("
                             + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
                             + "')"));
                 } else {
                     AnySearchNode.Leaf node;
-                    if (not && checked.getLeft().isMultivalue()) {
+                    if (not && checked.schema().isMultivalue()) {
                         AnySearchNode.Leaf notNode = filJSONAttrQuery(
                                 svs.field(),
-                                checked.getRight(),
-                                checked.getLeft(),
+                                checked.value(),
+                                checked.schema(),
                                 cond,
                                 false,
                                 parameters);
@@ -249,13 +248,13 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                     } else {
                         node = filJSONAttrQuery(
                                 svs.field(),
-                                checked.getRight(),
-                                checked.getLeft(),
+                                checked.value(),
+                                checked.schema(),
                                 cond,
                                 not,
                                 parameters);
                     }
-                    return Pair.of(true, node);
+                    return new AttrCondQuery(true, node);
                 }
             }
         }

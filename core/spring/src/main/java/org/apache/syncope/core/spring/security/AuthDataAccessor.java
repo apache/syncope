@@ -31,8 +31,6 @@ import javax.security.auth.login.AccountNotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
@@ -78,6 +76,14 @@ import org.springframework.transaction.annotation.Transactional;
  * @see SyncopeAuthenticationDetails
  */
 public class AuthDataAccessor {
+
+    public record UsernamePasswordAuthResult(User user, Boolean authenticated, String delegationKey) {
+
+    }
+
+    public record JWTAuthResult(String username, Set<SyncopeGrantedAuthority> authorities) {
+
+    }
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
@@ -190,7 +196,7 @@ public class AuthDataAccessor {
      * @return {@code null} if no matching user was found, authentication result otherwise
      */
     @Transactional(noRollbackFor = DisabledException.class)
-    public Triple<User, Boolean, String> authenticate(final String domain, final Authentication authentication) {
+    public UsernamePasswordAuthResult authenticate(final String domain, final Authentication authentication) {
         User user = null;
 
         String[] authAttrValues = confParamOps.get(
@@ -231,7 +237,7 @@ public class AuthDataAccessor {
             }
 
             boolean userModified = false;
-            authenticated = authenticate(user, authentication.getCredentials().toString());
+            authenticated = usernamePasswordAuthentication(user, authentication.getCredentials().toString());
             if (authenticated) {
                 delegationKey = getDelegationKey(
                         SyncopeAuthenticationDetails.class.cast(authentication.getDetails()), user.getKey());
@@ -255,10 +261,10 @@ public class AuthDataAccessor {
             }
         }
 
-        return Triple.of(user, authenticated, delegationKey);
+        return new UsernamePasswordAuthResult(user, authenticated, delegationKey);
     }
 
-    protected boolean authenticate(final User user, final String password) {
+    protected boolean usernamePasswordAuthentication(final User user, final String password) {
         boolean authenticated = encryptorManager.getInstance().
                 verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
@@ -327,11 +333,11 @@ public class AuthDataAccessor {
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
 
         entForRealms.forEach((entitlement, realms) -> {
-            Pair<Set<String>, Set<String>> normalized = RealmUtils.normalize(realms);
+            RealmUtils.NormalizedRealms normalized = RealmUtils.NormalizedRealms.of(realms);
 
             SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
-            authority.addRealms(normalized.getLeft());
-            authority.addRealms(normalized.getRight());
+            authority.addRealms(normalized.realms());
+            authority.addRealms(normalized.groupOwnerRealms());
             authorities.add(authority);
         });
 
@@ -364,7 +370,7 @@ public class AuthDataAccessor {
 
         // Give group entitlements for owned groups
         groupDAO.findOwnedByUser(user.getKey()).
-                forEach(group -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
+                forEach(g -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
                 groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                         HashSet<String> r = new HashSet<>();
@@ -372,7 +378,7 @@ public class AuthDataAccessor {
                         return r;
                     });
 
-                    realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+                    realms.add(new RealmUtils.GroupOwnerRealm(g.getRealm().getFullPath(), g.getKey()).output());
                 }),
                 () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
 
@@ -427,7 +433,7 @@ public class AuthDataAccessor {
     }
 
     @Transactional
-    public Pair<String, Set<SyncopeGrantedAuthority>> authenticate(final JWTAuthentication authentication) {
+    public JWTAuthResult authenticate(final JWTAuthentication authentication) {
         String username;
         Set<SyncopeGrantedAuthority> authorities;
 
@@ -440,20 +446,18 @@ public class AuthDataAccessor {
             authorities = getAdminAuthorities();
         } else {
             JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());
-            Pair<User, Set<SyncopeGrantedAuthority>> resolved = jwtSSOProvider.resolve(authentication.getClaims());
-            if (resolved == null || resolved.getLeft() == null) {
-                throw new AuthenticationCredentialsNotFoundException(
-                        "Could not find User " + authentication.getClaims().getSubject()
-                        + " for JWT " + authentication.getClaims().getJWTID());
-            }
+            JWTSSOProvider.ResolvedClaims resolved = jwtSSOProvider.resolve(authentication.getClaims()).
+                    orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+                    "Could not find User " + authentication.getClaims().getSubject()
+                    + " for JWT " + authentication.getClaims().getJWTID()));
 
-            User user = resolved.getLeft();
+            User user = resolved.user();
             String delegationKey = getDelegationKey(authentication.getDetails(), user.getKey());
             username = user.getUsername();
-            authorities = resolved.getRight() == null
+            authorities = resolved.authorities() == null
                     ? Set.of()
                     : delegationKey == null
-                            ? resolved.getRight()
+                            ? resolved.authorities()
                             : getAuthorities(username, delegationKey);
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getJWTID(),
@@ -478,7 +482,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return Pair.of(username, authorities);
+        return new JWTAuthResult(username, authorities);
     }
 
     @Transactional

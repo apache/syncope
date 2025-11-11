@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -220,13 +218,13 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
                         ? intAttrName.getSchema().getType()
                         : AttrSchemaType.String;
 
-                Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
+                MappingManager.IntValues intValues = mappingManager.getIntValues(
                         resource,
                         item,
                         intAttrName,
                         schemaType,
                         realm);
-                if (intValues.getRight().isEmpty()
+                if (intValues.values().isEmpty()
                         && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), realm, derAttrHandler)) {
 
                     missingAttrNames.add(item.getIntAttrName());

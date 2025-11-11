@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -129,7 +130,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 container.modelChanged();
                 handler.add(container);
             }
-        }.schedule(10));
+        }.schedule(10, TimeUnit.SECONDS));
 
         startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);

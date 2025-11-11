@@ -19,15 +19,14 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
-import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.core.logic.AccessTokenLogic;
+import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 
@@ -41,19 +40,19 @@ public class AccessTokenServiceImpl extends AbstractService implements AccessTok
 
     @Override
     public Response login() {
-        Pair<String, OffsetDateTime> login = logic.login();
+        AccessTokenDataBinder.AccessTokenInfo login = logic.login();
         return Response.noContent().
-                header(RESTHeaders.TOKEN, login.getLeft()).
-                header(RESTHeaders.TOKEN_EXPIRE, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(login.getRight())).
+                header(RESTHeaders.TOKEN, login.jwt()).
+                header(RESTHeaders.TOKEN_EXPIRE, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(login.expiration())).
                 build();
     }
 
     @Override
     public Response refresh() {
-        Pair<String, OffsetDateTime> refresh = logic.refresh();
+        AccessTokenDataBinder.AccessTokenInfo refresh = logic.refresh();
         return Response.noContent().
-                header(RESTHeaders.TOKEN, refresh.getLeft()).
-                header(RESTHeaders.TOKEN_EXPIRE, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(refresh.getRight())).
+                header(RESTHeaders.TOKEN, refresh.jwt()).
+                header(RESTHeaders.TOKEN_EXPIRE, DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(refresh.expiration())).
                 build();
     }
 

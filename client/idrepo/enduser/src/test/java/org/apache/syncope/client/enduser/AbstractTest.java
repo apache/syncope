@@ -30,9 +30,10 @@ import com.giffing.wicket.spring.boot.starter.app.classscanner.candidates.Wicket
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.settings.general.GeneralSettingsProperties;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
-import java.util.HashMap;
+import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Triple;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.lib.AuthenticationHandler;
@@ -191,15 +192,14 @@ public abstract class AbstractTest {
             return userTO;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
             SyncopeAnonymousClient anonymousClient = mock(SyncopeAnonymousClient.class);
 
-            when(client.getJWT()).thenReturn("<anyJWT>");
+            when(client.jwtInfo()).thenReturn(Optional.of(new SyncopeClient.JwtInfo("<anyJWT>", OffsetDateTime.now())));
 
-            when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
+            when(client.self()).thenReturn(new SyncopeClient.Self(getUserTO(), Map.of(), List.of()));
 
             when(anonymousClient.platform()).thenReturn(new PlatformInfo());
             when(anonymousClient.numbers()).thenAnswer(ic -> {

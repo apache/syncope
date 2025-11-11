@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -333,8 +333,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                             ((ProvisioningResult<A>) result).getEntity(),
                             status.getResource(),
                             status.getAfterObj());
-                    return Triple.of(before, afterObjWrapper, status.getFailureReason());
-                }).collect(Collectors.toList()),
+                    return new StatusProvider.InfoWithFailure(before, afterObjWrapper, status.getFailureReason());
+                }).toList(),
                 pageRef);
     }
 }

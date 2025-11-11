@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
@@ -47,6 +48,6 @@ public abstract class ExtAlertWidget extends AlertWidget {
                     handler.add(headerAlertsNumber);
                 }
             }
-        }.schedule(30));
+        }.schedule(30, TimeUnit.SECONDS));
     }
 }

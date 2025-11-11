@@ -22,15 +22,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.status.ReconStatusUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 
 public class IdMStatusProvider implements StatusProvider {
@@ -44,24 +40,19 @@ public class IdMStatusProvider implements StatusProvider {
     }
 
     @Override
-    public Optional<Pair<ConnObject, ConnObject>> get(
-            final String anyTypeKey, final String connObjectKeyValue, final String resource) {
-
+    public Optional<Info> get(final String anyTypeKey, final String connObjectKeyValue, final String resource) {
         return reconStatusUtils.getReconStatus(anyTypeKey, connObjectKeyValue, resource).
-                map(status -> Pair.of(status.getOnSyncope(), status.getOnResource()));
+                map(status -> new Info(status.getOnSyncope(), status.getOnResource()));
     }
 
     @Override
-    public List<Triple<ConnObject, ConnObjectWrapper, String>> get(
-            final AnyTO any, final Collection<String> resources) {
-
+    public List<InfoWithFailure> get(final AnyTO any, final Collection<String> resources) {
         return reconStatusUtils.getReconStatuses(
                 any.getType(), any.getKey(), any.getResources()).stream().
-                map(status -> Triple.<ConnObject, ConnObjectWrapper, String>of(
+                map(status -> new InfoWithFailure(
                 status.getRight().getOnSyncope(),
                 new ConnObjectWrapper(any, status.getLeft(), status.getRight().getOnResource()),
-                null)).
-                collect(Collectors.toList());
+                null)).toList();
     }
 
     @Override

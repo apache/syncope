@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
@@ -51,6 +52,8 @@ public interface BaseSession {
     String getDomain();
 
     String getJWT();
+
+    boolean authenticate(String jwt, Instant jwtExpiration);
 
     SyncopeAnonymousClient getAnonymousClient();
 

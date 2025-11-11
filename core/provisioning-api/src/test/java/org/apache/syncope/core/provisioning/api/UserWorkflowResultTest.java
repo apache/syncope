@@ -44,8 +44,10 @@ public class UserWorkflowResultTest extends AbstractTest {
         performedTasks.add("testTask3");
         Object nullObj = null;
 
-        userWorkflowResult = new UserWorkflowResult<>(result, propByRes, propByLinkedAccount, performedTask);
-        userWorkflowResult2 = new UserWorkflowResult<>(result, propByRes, propByLinkedAccount, performedTasks);
+        userWorkflowResult = new UserWorkflowResult<>(
+                result, new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount), performedTask);
+        userWorkflowResult2 = new UserWorkflowResult<>(
+                result, new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount), performedTasks);
 
         assertNotEquals(userWorkflowResult.hashCode(), userWorkflowResult2.hashCode());
         assertFalse(userWorkflowResult.equals(Object.class));

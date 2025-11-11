@@ -60,15 +60,15 @@ public abstract class CodeConsumerResource extends AbstractResource {
         HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
         OIDCC4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(OIDCC4UIService.class);
-        OIDCLoginResponse oidcResponse = service.login(
+        OIDCLoginResponse response = service.login(
                 request.getRequestURL().toString(),
                 authorizationCode,
                 Session.get().getAttribute(OIDCConstants.OP).toString());
 
-        if (oidcResponse.isSelfReg()) {
+        if (response.isSelfReg()) {
             UserTO newUser = new UserTO();
-            newUser.setUsername(oidcResponse.getUsername());
-            newUser.getPlainAttrs().addAll(oidcResponse.getAttrs());
+            newUser.setUsername(response.getUsername());
+            newUser.getPlainAttrs().addAll(response.getAttrs());
 
             try {
                 Pair<Class<? extends WebPage>, PageParameters> selfRegInfo = getSelfRegInfo(newUser);
@@ -81,8 +81,12 @@ public abstract class CodeConsumerResource extends AbstractResource {
             throw new RestartResponseException(
                     getLoginPageClass(),
                     new PageParameters().
-                            set(OIDCC4UIConstants.OIDCC4UI_JWT, oidcResponse.getAccessToken()).
-                            set(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED, oidcResponse.isLogoutSupported()));
+                            set(OIDCC4UIConstants.OIDCC4UI_JWT,
+                                    response.getAccessToken()).
+                            set(OIDCC4UIConstants.OIDCC4UI_JWT_EXPIRATION,
+                                    response.getAccessTokenExpiryTime().toInstant()).
+                            set(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED,
+                                    response.isLogoutSupported()));
         }
     }
 }

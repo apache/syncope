@@ -333,6 +333,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         return props.getMaxUploadFileSizeMB();
     }
 
+    public int getJwtExpirationMinutesThreshold() {
+        return props.getJwtExpirationMinutesThreshold();
+    }
+
     public void storeLoggedOutSessionId(final String sessionId) {
         loggedoutSessionIdCache.put(sessionId, OffsetDateTime.now());
     }

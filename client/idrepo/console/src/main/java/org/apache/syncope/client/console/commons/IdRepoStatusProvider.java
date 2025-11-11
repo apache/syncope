@@ -22,29 +22,21 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObject;
 
 public class IdRepoStatusProvider implements StatusProvider {
 
     private static final long serialVersionUID = -7948190795547208134L;
 
     @Override
-    public Optional<Pair<ConnObject, ConnObject>> get(
-            final String anyTypeKey, final String connObjectKeyValue, final String resource) {
-
+    public Optional<Info> get(final String anyTypeKey, final String connObjectKeyValue, final String resource) {
         return Optional.empty();
     }
 
     @Override
-    public List<Triple<ConnObject, ConnObjectWrapper, String>> get(
-            final AnyTO any, final Collection<String> resources) {
-
+    public List<InfoWithFailure> get(final AnyTO any, final Collection<String> resources) {
         return List.of();
     }
 

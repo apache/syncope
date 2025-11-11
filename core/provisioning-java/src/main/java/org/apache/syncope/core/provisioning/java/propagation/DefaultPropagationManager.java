@@ -20,10 +20,8 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -262,8 +260,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!urNoPwdPropByRes.isEmpty() || !laNoPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
                         wfResult.getResult(),
-                        urNoPwdPropByRes,
-                        laNoPwdPropByRes,
+                        new UserWorkflowResult.PropagationInfo(urNoPwdPropByRes, laNoPwdPropByRes),
                         wfResult.getPerformedTasks());
 
                 tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), null));
@@ -282,8 +279,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!urPwdPropByRes.isEmpty() || !laPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
                         wfResult.getResult(),
-                        urPwdPropByRes,
-                        laPwdPropByRes,
+                        new UserWorkflowResult.PropagationInfo(urPwdPropByRes, laPwdPropByRes),
                         wfResult.getPerformedTasks());
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, pwdResources, null));
@@ -382,7 +378,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final ResourceOperation operation,
             final Provision provision,
             final Stream<Item> mappingItems,
-            final Pair<String, Set<Attribute>> preparedAttrs) {
+            final MappingManager.PreparedAttrs preparedAttrs) {
 
         // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
         // if so, add special attributes that will be evaluated by PropagationTaskExecutor
@@ -392,7 +388,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)).
                 forEach(item -> {
 
-                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
+                    Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.attributes());
                     if (attr == null) {
                         mandatoryMissing.add(item.getExtAttrName());
                     } else if (CollectionUtils.isEmpty(attr.getValue())) {
@@ -400,11 +396,11 @@ public class DefaultPropagationManager implements PropagationManager {
                     }
                 });
         if (!mandatoryMissing.isEmpty()) {
-            preparedAttrs.getRight().add(AttributeBuilder.build(
+            preparedAttrs.attributes().add(AttributeBuilder.build(
                     MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
         }
         if (!mandatoryNullOrEmpty.isEmpty()) {
-            preparedAttrs.getRight().add(AttributeBuilder.build(
+            preparedAttrs.attributes().add(AttributeBuilder.build(
                     MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
         }
 
@@ -415,8 +411,8 @@ public class DefaultPropagationManager implements PropagationManager {
                 any.getType().getKind(),
                 any.getType().getKey(),
                 any.getKey(),
-                preparedAttrs.getLeft(),
-                new PropagationData(preparedAttrs.getRight()));
+                preparedAttrs.connObjectLink(),
+                new PropagationData(preparedAttrs.attributes()));
     }
 
     /**
@@ -463,7 +459,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                         any.getType(), resource);
             } else {
-                Pair<String, Set<Attribute>> preparedAttrs =
+                MappingManager.PreparedAttrs preparedAttrs =
                         mappingManager.prepareAttrsFromAny(any, password, changePwdRes.contains(resourceKey),
                                 enable, resource, provision);
 
@@ -519,7 +515,7 @@ public class DefaultPropagationManager implements PropagationManager {
                             operation,
                             provision,
                             mappingItems,
-                            Pair.of(account.getConnObjectKeyValue(),
+                            new MappingManager.PreparedAttrs(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrsFromLinkedAccount(
                                             user, account, password,
                                             changePwdRes.contains(account.getResource().getKey()),
@@ -566,7 +562,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
                         realm.getFullPath(), resource);
             } else {
-                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
+                MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
 
                 PropagationTaskInfo task = new PropagationTaskInfo(
                         resource,
@@ -575,8 +571,8 @@ public class DefaultPropagationManager implements PropagationManager {
                         null,
                         null,
                         realm.getKey(),
-                        preparedAttrs.getLeft(),
-                        new PropagationData(preparedAttrs.getRight()));
+                        preparedAttrs.connObjectLink(),
+                        new PropagationData(preparedAttrs.attributes()));
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 tasks.add(task);
@@ -590,7 +586,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
+    public List<PropagationAttrs> prepareAttrs(
             final AnyTypeKind kind,
             final String key,
             final String password,
@@ -598,7 +594,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final Collection<String> excludedResources) {
 
-        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
+        List<PropagationAttrs> attrs = new ArrayList<>();
 
         Any any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
@@ -610,16 +606,15 @@ public class DefaultPropagationManager implements PropagationManager {
                 map(PropagationPolicy::isUpdateDelta).orElse(false)).
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
                 ifPresent(provision -> {
-                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
+                    MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromAny(
                             any,
                             password,
                             changePwdRes.contains(resource.getKey()),
                             enable,
                             resource,
                             provision);
-                    attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
-                            preparedAttrs.getRight());
+                    attrs.add(new PropagationAttrs(resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.
+                            attributes()));
                 }));
 
         if (any instanceof User user) {
@@ -636,9 +631,8 @@ public class DefaultPropagationManager implements PropagationManager {
                                 password,
                                 true,
                                 provision);
-                        attrs.put(
-                                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()),
-                                preparedAttrs);
+                        attrs.add(new PropagationAttrs(
+                                account.getResource().getKey(), account.getConnObjectKeyValue(), preparedAttrs));
                     }));
         }
 
@@ -648,20 +642,19 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(final Realm realm) {
-        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
+    public List<PropagationAttrs> prepareAttrs(final Realm realm) {
+        List<PropagationAttrs> attrs = new ArrayList<>();
 
         realm.getResources().stream().
                 filter(resource -> resource.getOrgUnit() != null
                 && Optional.ofNullable(resource.getPropagationPolicy()).
                         map(PropagationPolicy::isUpdateDelta).orElse(false)).
                 forEach(resource -> {
-                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(
+                    MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(
                             realm,
                             resource);
-                    attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
-                            preparedAttrs.getRight());
+                    attrs.add(new PropagationAttrs(
+                            resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.attributes()));
                 });
 
         LOG.debug("Prepared attrs for Realm {}: {}", realm.getKey(), attrs);
@@ -682,7 +675,7 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
-            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs) {
+            final List<PropagationAttrs> beforeAttrs) {
 
         if (beforeAttrs.isEmpty()) {
             return tasks;
@@ -694,12 +687,16 @@ public class DefaultPropagationManager implements PropagationManager {
                 continue;
             }
 
-            Pair<String, String> key = Pair.of(task.getResource().getKey(), task.getConnObjectKey());
-            if (!beforeAttrs.containsKey(key)) {
+            PropagationAttrs propagationAttrs = beforeAttrs.stream().
+                    filter(attr -> attr.resource().equals(task.getResource().getKey())
+                    && attr.connObjectLink().equals(task.getConnObjectKey())).
+                    findFirst().
+                    orElse(null);
+            if (propagationAttrs == null) {
                 continue;
             }
 
-            Set<Attribute> attrs = new HashSet<>(beforeAttrs.get(key));
+            Set<Attribute> attrs = propagationAttrs.attributes();
 
             // purge unwanted attributes, even though prepared
             attrs.removeIf(

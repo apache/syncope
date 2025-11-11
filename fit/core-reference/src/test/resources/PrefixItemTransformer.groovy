@@ -16,36 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair
+import java.util.ArrayList
+import java.util.List
+import org.apache.commons.lang3.StringUtils
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.common.lib.to.Item
 import org.apache.syncope.common.lib.types.AttrSchemaType
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.MappingManager
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer
 
 class PrefixItemTransformer implements ItemTransformer {
 	
   public static String PREFIX = "PREFIX_";
 
   @Override
-  Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+  MappingManager.IntValues beforePropagation(
     Item item,
     Any any,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 
     if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-      return Pair.of(schemaType, values);
+      return new MappingManager.IntValues(schemaType, values);
     }
 
     String value = values.get(0).getStringValue();
     values.get(0).setStringValue(PREFIX + value);
 
-    return Pair.of(schemaType, values);
+    return new MappingManager.IntValues(schemaType, values);
   }
 
   @Override

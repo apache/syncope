@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -125,16 +124,16 @@ public class OpenSearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
-        Triple<Optional<Query>, Set<String>, Set<String>> filter =
+        OpenSearchAnySearchDAO.AdminRealmsFilter filter =
                 searchDAO.getAdminRealmsFilter(root, true, adminRealms, AnyTypeKind.USER);
 
         assertThat(new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().caseInsensitive(false).
                         field("realm").value(FieldValue.of("rootKey")).caseInsensitive(false).build()).
                         build()).build()).build()).
-                usingRecursiveComparison().isEqualTo(filter.getLeft().get());
-        assertEquals(Set.of(), filter.getMiddle());
-        assertEquals(Set.of(), filter.getRight());
+                usingRecursiveComparison().isEqualTo(filter.query().get());
+        assertEquals(Set.of(), filter.dynRealmKeys());
+        assertEquals(Set.of(), filter.groupOwners());
     }
 
     @Test
@@ -147,21 +146,21 @@ public class OpenSearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
-        Triple<Optional<Query>, Set<String>, Set<String>> filter =
+        OpenSearchAnySearchDAO.AdminRealmsFilter filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
-        assertFalse(filter.getLeft().isPresent());
-        assertEquals(Set.of("dyn"), filter.getMiddle());
-        assertEquals(Set.of(), filter.getRight());
+        assertFalse(filter.query().isPresent());
+        assertEquals(Set.of("dyn"), filter.dynRealmKeys());
+        assertEquals(Set.of(), filter.groupOwners());
     }
 
     @Test
     public void getAdminRealmsFilter4groupOwner() {
-        Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
-        Triple<Optional<Query>, Set<String>, Set<String>> filter =
+        Set<String> adminRealms = Set.of(new RealmUtils.GroupOwnerRealm("/any", "groupKey").output());
+        OpenSearchAnySearchDAO.AdminRealmsFilter filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
-        assertFalse(filter.getLeft().isPresent());
-        assertEquals(Set.of(), filter.getMiddle());
-        assertEquals(Set.of("groupKey"), filter.getRight());
+        assertFalse(filter.query().isPresent());
+        assertEquals(Set.of(), filter.dynRealmKeys());
+        assertEquals(Set.of("groupKey"), filter.groupOwners());
     }
 
     @Test
@@ -181,7 +180,7 @@ public class OpenSearchAnySearchDAOTest {
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
             // 2. test
-            Set<String> adminRealms = Set.of(RealmUtils.getGroupOwnerRealm("/any", "groupKey"));
+            Set<String> adminRealms = Set.of(new RealmUtils.GroupOwnerRealm("/any", "groupKey").output());
 
             AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
             anyCond.setSchema("key");
