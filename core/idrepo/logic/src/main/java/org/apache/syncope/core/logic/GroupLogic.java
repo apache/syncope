@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -42,7 +41,6 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -61,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
@@ -188,47 +187,47 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_CREATE + "')")
     public ProvisioningResult<GroupTO> create(final GroupCR createReq, final boolean nullPriorityAsync) {
-        Pair<GroupCR, List<LogicActions>> before = beforeCreate(createReq);
+        BeforeResult<GroupCR> before = beforeCreate(createReq);
 
-        if (before.getLeft().getRealm() == null) {
+        if (before.key().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_CREATE),
-                before.getLeft().getRealm());
+                before.key().getRealm());
         groupDAO.securityChecks(
                 authRealms,
                 null,
-                before.getLeft().getRealm());
+                before.key().getRealm());
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
-                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        ProvisioningManager.ProvisioningResult<String> created = provisioningManager.create(
+                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        return afterCreate(binder.getGroupTO(created.getKey()), created.getRight(), before.getRight());
+        return afterCreate(binder.getGroupTO(created.key()), created.statuses(), before.actions());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
     @Override
     public ProvisioningResult<GroupTO> update(final GroupUR req, final boolean nullPriorityAsync) {
         GroupTO groupTO = binder.getGroupTO(req.getKey());
-        Pair<GroupUR, List<LogicActions>> before = beforeUpdate(req, groupTO.getRealm());
+        BeforeResult<GroupUR> before = beforeUpdate(req, groupTO.getRealm());
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_UPDATE),
                 groupTO.getRealm());
         groupDAO.securityChecks(
                 authRealms,
-                before.getLeft().getKey(),
+                before.key().getKey(),
                 groupTO.getRealm());
 
-        Pair<GroupUR, List<PropagationStatus>> after = provisioningManager.update(
+        ProvisioningManager.ProvisioningResult<GroupUR> after = provisioningManager.update(
                 req, Set.of(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<GroupTO> result = afterUpdate(
-                binder.getGroupTO(after.getLeft().getKey()),
-                after.getRight(),
-                before.getRight());
+                binder.getGroupTO(after.key().getKey()),
+                after.statuses(),
+                before.actions());
 
         // check if group can still be managed by the caller
         authRealms = RealmUtils.getEffective(
@@ -236,7 +235,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 result.getEntity().getRealm());
         groupDAO.securityChecks(
                 authRealms,
-                after.getLeft().getKey(),
+                after.key().getKey(),
                 result.getEntity().getRealm());
 
         return result;
@@ -245,17 +244,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_DELETE + "')")
     @Override
     public ProvisioningResult<GroupTO> delete(final String key, final boolean nullPriorityAsync) {
-        Pair<GroupTO, List<LogicActions>> before = beforeDelete(binder.getGroupTO(key));
+        BeforeResult<GroupTO> before = beforeDelete(binder.getGroupTO(key));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_DELETE),
-                before.getLeft().getRealm());
+                before.key().getRealm());
         groupDAO.securityChecks(
                 authRealms,
-                before.getLeft().getKey(),
-                before.getLeft().getRealm());
+                before.key().getKey(),
+                before.key().getRealm());
 
-        List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.getLeft().getKey());
+        List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.key().getKey());
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
@@ -264,17 +263,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         }
 
         List<PropagationStatus> statuses = provisioningManager.delete(
-                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+                before.key().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         GroupTO deletedTO;
-        if (groupDAO.existsById(before.getLeft().getKey())) {
-            deletedTO = binder.getGroupTO(before.getLeft().getKey());
+        if (groupDAO.existsById(before.key().getKey())) {
+            deletedTO = binder.getGroupTO(before.key().getKey());
         } else {
             deletedTO = new GroupTO();
-            deletedTO.setKey(before.getLeft().getKey());
+            deletedTO.setKey(before.key().getKey());
         }
 
-        return afterDelete(deletedTO, statuses, before.getRight());
+        return afterDelete(deletedTO, statuses, before.actions());
     }
 
     protected GroupTO updateChecks(final String key) {

@@ -31,7 +31,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -98,11 +97,19 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     }
 
+    protected record AnyCondQuery(String query, String field) {
+
+    }
+
+    protected record AttrCondQuery(String query, PlainSchema schema) {
+
+    }
+
     protected record QueryInfo(
             TextStringBuilder query,
             Set<String> fields,
             Set<PlainSchema> plainSchemas,
-            List<Pair<String, PlainSchema>> membershipAttrConds) {
+            List<AttrCondQuery> membershipAttrConds) {
 
     }
 
@@ -620,7 +627,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
-    protected Pair<String, String> getQuery(
+    protected AnyCondQuery getQuery(
             final AnyTypeKind kind,
             final AnyCond cond,
             final boolean not,
@@ -634,13 +641,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 cond.setExpression(realm.getKey());
             }
 
-            return Pair.of(
+            return new AnyCondQuery(
                     "MATCH (n)-[]-"
                     + "(:" + Neo4jRealm.NODE + " {id: $" + setParameter(parameters, cond.getExpression()) + "}) ",
                     null);
         }
 
-        CheckResult checked = check(cond, kind);
+        CheckResult<AnyCond> checked = check(cond, kind);
 
         if (ArrayUtils.contains(
                 RELATIONSHIP_FIELDS,
@@ -649,7 +656,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             String field = StringUtils.substringBefore(checked.cond().getSchema(), "_id");
             switch (field) {
                 case "userOwner" -> {
-                    return Pair.of(
+                    return new AnyCondQuery(
                             "MATCH (n)-[:" + Neo4jGroup.USER_OWNER_REL + "]-"
                             + "(:" + Neo4jUser.NODE + " "
                             + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
@@ -657,7 +664,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 case "groupOwner" -> {
-                    return Pair.of(
+                    return new AnyCondQuery(
                             "MATCH (n)-[:" + Neo4jGroup.GROUP_OWNER_REL + "]-"
                             + "(:" + Neo4jGroup.NODE + " "
                             + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
@@ -673,15 +680,15 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         fillAttrQuery(query, checked.value(), checked.schema(), checked.cond(), not, parameters);
 
-        return Pair.of(query.toString(), checked.cond().getSchema());
+        return new AnyCondQuery(query.toString(), checked.cond().getSchema());
     }
 
-    protected Pair<String, PlainSchema> getQuery(
+    protected AttrCondQuery getQuery(
             final AttrCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
 
-        CheckResult checked = check(cond);
+        CheckResult<AttrCond> checked = check(cond);
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) ");
         switch (cond.getType()) {
@@ -695,7 +702,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 fillAttrQuery(query, checked.value(), checked.schema(), cond, not, parameters);
         }
 
-        return Pair.of(query.toString(), checked.schema());
+        return new AttrCondQuery(query.toString(), checked.schema());
     }
 
     protected void getQueryForCustomConds(
@@ -728,7 +735,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         TextStringBuilder query = new TextStringBuilder();
         Set<String> involvedFields = new HashSet<>();
         Set<PlainSchema> involvedPlainSchemas = new HashSet<>();
-        List<Pair<String, PlainSchema>> membershipAttrConds = new ArrayList<>();
+        List<AttrCondQuery> membershipAttrConds = new ArrayList<>();
 
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
@@ -767,20 +774,20 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
                 cond.asLeaf(AnyCond.class).ifPresentOrElse(
                         anyCond -> {
-                            Pair<String, String> anyCondResult = getQuery(kind, anyCond, not, parameters);
-                            query.append(anyCondResult.getLeft());
-                            Optional.ofNullable(anyCondResult.getRight()).ifPresent(involvedFields::add);
+                            AnyCondQuery anyCondQuery = getQuery(kind, anyCond, not, parameters);
+                            query.append(anyCondQuery.query());
+                            Optional.ofNullable(anyCondQuery.field()).ifPresent(involvedFields::add);
                         },
                         () -> cond.asLeaf(AttrCond.class).ifPresent(leaf -> {
-                            Pair<String, PlainSchema> attrCondResult = getQuery(leaf, not, parameters);
-                            query.append(attrCondResult.getLeft());
-                            involvedPlainSchemas.add(attrCondResult.getRight());
+                            AttrCondQuery attrCondQuery = getQuery(leaf, not, parameters);
+                            query.append(attrCondQuery.query());
+                            involvedPlainSchemas.add(attrCondQuery.schema());
                             if (kind != AnyTypeKind.GROUP
                                     && !not
                                     && leaf.getType() != AttrCond.Type.ISNULL
                                     && leaf.getType() != AttrCond.Type.ISNOTNULL) {
 
-                                membershipAttrConds.add(attrCondResult);
+                                membershipAttrConds.add(attrCondQuery);
                             }
                         }));
 
@@ -892,7 +899,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 collect(Collectors.toSet());
 
         Set<PlainSchema> plainSchemas = Stream.concat(
-                queryInfo.membershipAttrConds().stream().map(Pair::getRight),
+                queryInfo.membershipAttrConds().stream().map(AttrCondQuery::schema),
                 orderByItems.stream().map(plainSchemaDAO::findById).flatMap(Optional::stream)).
                 collect(Collectors.toSet());
 
@@ -929,7 +936,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         query.append(" WHERE ");
 
         query.append(queryInfo.membershipAttrConds().stream().
-                map(mac -> "(EXISTS { " + mac.getLeft() + "} )").
+                map(mac -> "(EXISTS { " + mac.query() + "} )").
                 collect(Collectors.joining(" AND ")));
 
         query.append(" AND EXISTS { (m)-[]-(r:Realm) WHERE r.id IN $param0 } ").

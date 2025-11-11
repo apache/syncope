@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
@@ -49,7 +48,6 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
-import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -71,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
@@ -214,29 +213,29 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final boolean self,
             final boolean nullPriorityAsync) {
 
-        Pair<UserCR, List<LogicActions>> before = beforeCreate(userCR);
+        BeforeResult<UserCR> before = beforeCreate(userCR);
 
-        if (before.getLeft().getRealm() == null) {
+        if (before.key().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
 
         if (!self) {
             Set<String> authRealms = RealmUtils.getEffective(
                     AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_CREATE),
-                    before.getLeft().getRealm());
+                    before.key().getRealm());
             userDAO.securityChecks(
                     authRealms,
                     null,
-                    before.getLeft().getRealm(),
-                    before.getLeft().getMemberships().stream().filter(Objects::nonNull).
+                    before.key().getRealm(),
+                    before.key().getMemberships().stream().filter(Objects::nonNull).
                             map(MembershipTO::getGroupKey).filter(Objects::nonNull).
                             collect(Collectors.toSet()));
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(
-                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        ProvisioningManager.ProvisioningResult<String> created = provisioningManager.create(
+                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        return afterCreate(binder.getUserTO(created.getKey()), created.getRight(), before.getRight());
+        return afterCreate(binder.getUserTO(created.key()), created.statuses(), before.actions());
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -274,7 +273,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserUR userUR, final boolean self, final boolean nullPriorityAsync) {
 
         UserTO userTO = binder.getUserTO(userUR.getKey());
-        Pair<UserUR, List<LogicActions>> before = beforeUpdate(userUR, userTO.getRealm());
+        BeforeResult<UserUR> before = beforeUpdate(userUR, userTO.getRealm());
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
@@ -288,26 +287,26 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
             userDAO.securityChecks(
                     authRealms,
-                    before.getLeft().getKey(),
+                    before.key().getKey(),
                     userTO.getRealm(),
                     groups);
         }
 
-        Pair<UserUR, List<PropagationStatus>> after = provisioningManager.update(
-                before.getLeft(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        ProvisioningManager.ProvisioningResult<UserUR> after = provisioningManager.update(
+                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<UserTO> result = afterUpdate(
-                binder.getUserTO(after.getLeft().getKey()),
-                after.getRight(),
-                before.getRight());
+                binder.getUserTO(after.key().getKey()),
+                after.statuses(),
+                before.actions());
 
         return result;
     }
 
-    protected Pair<String, List<PropagationStatus>> setStatusOnWfAdapter(
+    protected ProvisioningManager.ProvisioningResult<String> setStatusOnWfAdapter(
             final StatusR statusR, final boolean nullPriorityAsync) {
 
-        Pair<String, List<PropagationStatus>> updated;
+        ProvisioningManager.ProvisioningResult<String> updated;
 
         switch (statusR.getType()) {
             case SUSPEND:
@@ -348,11 +347,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // ensures the actual user key is effectively on the request - as the binder.getUserTO(statusR.getKey())
         // call above works with username as well
         statusR.setKey(toUpdate.getKey());
-        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
+        ProvisioningManager.ProvisioningResult<String> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
-                binder.getUserTO(updated.getKey()),
-                updated.getRight(),
+                binder.getUserTO(updated.key()),
+                updated.statuses(),
                 List.of());
     }
 
@@ -360,11 +359,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
         statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()).
                 orElseThrow(() -> new NotFoundException("Could not find authenticated user")));
-        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
+        ProvisioningManager.ProvisioningResult<String> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
-                binder.getUserTO(updated.getKey()),
-                updated.getRight(),
+                binder.getUserTO(updated.key()),
+                updated.statuses(),
                 List.of());
     }
 
@@ -482,20 +481,20 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     protected ProvisioningResult<UserTO> doDelete(
             final UserTO userTO, final boolean self, final boolean nullPriorityAsync) {
 
-        Pair<UserTO, List<LogicActions>> before = beforeDelete(userTO);
+        BeforeResult<UserTO> before = beforeDelete(userTO);
 
         if (!self) {
             Set<String> authRealms = RealmUtils.getEffective(
                     AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_DELETE),
-                    before.getLeft().getRealm());
+                    before.key().getRealm());
             userDAO.securityChecks(
                     authRealms,
-                    before.getLeft().getKey(),
-                    before.getLeft().getRealm(),
-                    groups(before.getLeft()));
+                    before.key().getKey(),
+                    before.key().getRealm(),
+                    groups(before.key()));
         }
 
-        List<Group> ownedGroups = groupDAO.findOwnedByUser(before.getLeft().getKey());
+        List<Group> ownedGroups = groupDAO.findOwnedByUser(before.key().getKey());
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
@@ -504,17 +503,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         }
 
         List<PropagationStatus> statuses = provisioningManager.delete(
-                before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+                before.key().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         UserTO deletedTO;
-        if (userDAO.existsById(before.getLeft().getKey())) {
-            deletedTO = binder.getUserTO(before.getLeft().getKey());
+        if (userDAO.existsById(before.key().getKey())) {
+            deletedTO = binder.getUserTO(before.key().getKey());
         } else {
             deletedTO = new UserTO();
-            deletedTO.setKey(before.getLeft().getKey());
+            deletedTO.setKey(before.key().getKey());
         }
 
-        return afterDelete(deletedTO, statuses, before.getRight());
+        return afterDelete(deletedTO, statuses, before.actions());
     }
 
     protected void updateChecks(final String key) {

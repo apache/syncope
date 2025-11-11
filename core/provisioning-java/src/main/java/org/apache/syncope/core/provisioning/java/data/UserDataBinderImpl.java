@@ -82,6 +82,8 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult.PropagationInfo;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -364,9 +366,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
     }
 
     @Override
-    public Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> update(
-            final User toBeUpdated, final UserUR userUR) {
-
+    public UserWorkflowResult.PropagationInfo update(final User toBeUpdated, final UserUR userUR) {
         // Re-merge any pending change from workflow tasks
         User user = userDAO.save(toBeUpdated);
 
@@ -595,7 +595,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                             toList());
         }
 
-        return Pair.of(propByRes, propByLinkedAccount);
+        return new PropagationInfo(propByRes, propByLinkedAccount);
     }
 
     protected LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {

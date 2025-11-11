@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -34,7 +33,6 @@ import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -46,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.OIDCC4UIProviderActions;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -218,9 +217,9 @@ public class OIDCUserManager {
             userCR = action.beforeCreate(userCR, responseTO);
         }
 
-        Pair<String, List<PropagationStatus>> created =
+        ProvisioningManager.ProvisioningResult<String> created =
                 provisioningManager.create(userCR, false, userCR.getUsername(), OIDC_CLIENT_CONTEXT);
-        userTO = binder.getUserTO(created.getKey());
+        userTO = binder.getUserTO(created.key());
 
         for (OIDCC4UIProviderActions action : actions) {
             userTO = action.afterCreate(userTO, responseTO);
@@ -244,9 +243,9 @@ public class OIDCUserManager {
             userUR = action.beforeUpdate(userUR, responseTO);
         }
 
-        Pair<UserUR, List<PropagationStatus>> updated =
+        ProvisioningManager.ProvisioningResult<UserUR> updated =
                 provisioningManager.update(userUR, false, userTO.getUsername(), OIDC_CLIENT_CONTEXT);
-        userTO = binder.getUserTO(updated.getLeft().getKey());
+        userTO = binder.getUserTO(updated.key().getKey());
 
         for (OIDCC4UIProviderActions action : actions) {
             userTO = action.afterUpdate(userTO, responseTO);

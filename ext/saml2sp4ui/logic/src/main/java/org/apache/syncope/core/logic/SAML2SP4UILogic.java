@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
@@ -446,10 +444,10 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             LOG.error("Could not fetch authorities", e);
         }
 
-        Pair<String, OffsetDateTime> accessTokenInfo = accessTokenDataBinder.create(
+        AccessTokenDataBinder.AccessTokenInfo accessTokenInfo = accessTokenDataBinder.create(
                 Optional.of(loginResp.getSessionIndex()), loginResp.getUsername(), claims, authorities, true);
-        loginResp.setAccessToken(accessTokenInfo.getLeft());
-        loginResp.setAccessTokenExpiryTime(accessTokenInfo.getRight());
+        loginResp.setAccessToken(accessTokenInfo.jwt());
+        loginResp.setAccessTokenExpiryTime(accessTokenInfo.expiration());
 
         return loginResp;
     }

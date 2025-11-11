@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
@@ -34,7 +33,6 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -105,7 +103,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
     @Override
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
-        Map.Entry<String, List<PropagationStatus>> created = userProvisioningManager.create(
+        ProvisioningManager.ProvisioningResult<String> created = userProvisioningManager.create(
                 UserCR.class.cast(anyCR),
                 true,
                 enabled(delta),
@@ -114,7 +112,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 profile.getExecutor(),
                 profile.getContext());
 
-        return userDataBinder.getUserTO(created.getKey());
+        return userDataBinder.getUserTO(created.key());
     }
 
     @Override
@@ -124,7 +122,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        Pair<UserUR, List<PropagationStatus>> updated = userProvisioningManager.update(
+        ProvisioningManager.ProvisioningResult<UserUR> updated = userProvisioningManager.update(
                 UserUR.class.cast(req),
                 result,
                 enabled(delta),
@@ -135,7 +133,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         createRemediationIfNeeded(req, delta, result);
 
-        return updated.getLeft();
+        return updated.key();
     }
 
     @Override

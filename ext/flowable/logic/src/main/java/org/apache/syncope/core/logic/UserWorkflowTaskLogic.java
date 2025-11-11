@@ -81,8 +81,9 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 new UserWorkflowResult<>(
                         Pair.of(userUR, null),
-                        updated.getPropByRes(),
-                        updated.getPropByLinkedAccount(),
+                        new UserWorkflowResult.PropagationInfo(
+                                updated.getPropByRes(),
+                                updated.getPropByLinkedAccount()),
                         updated.getPerformedTasks()));
         taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 

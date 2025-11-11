@@ -237,7 +237,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
     }
 
-    protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
+    protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
         checkBeforeSave(user);
 
         // unlink any role, resource, aux class or security question that was unlinked from user
@@ -294,7 +294,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         userCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jUser) merged);
 
         roleDAO.refreshDynMemberships(merged);
-        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
         return Pair.of(merged, dynGroupMembs);
@@ -307,7 +307,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     }
 
     @Override
-    public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
+    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final User user) {
         return doSave(user).getRight();
     }
 

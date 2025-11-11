@@ -21,17 +21,19 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface ProvisioningManager<C extends AnyCR, U extends AnyUR> {
 
-    Pair<String, List<PropagationStatus>> create(
-            C anyCR, boolean nullPriorityAsync, String creator, String context);
+    record ProvisioningResult<U>(U key, List<PropagationStatus> statuses) {
 
-    Pair<U, List<PropagationStatus>> update(
+    }
+
+    ProvisioningResult<String> create(C anyCR, boolean nullPriorityAsync, String creator, String context);
+
+    ProvisioningResult<U> update(
             U anyUR, Set<String> excludedResources, boolean nullPriorityAsync, String updater, String context);
 
     String unlink(U anyUR, String updater, String context);

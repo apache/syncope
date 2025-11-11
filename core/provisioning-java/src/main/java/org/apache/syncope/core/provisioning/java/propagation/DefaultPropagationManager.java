@@ -20,10 +20,8 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -262,8 +260,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!urNoPwdPropByRes.isEmpty() || !laNoPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
                         wfResult.getResult(),
-                        urNoPwdPropByRes,
-                        laNoPwdPropByRes,
+                        new UserWorkflowResult.PropagationInfo(urNoPwdPropByRes, laNoPwdPropByRes),
                         wfResult.getPerformedTasks());
 
                 tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), null));
@@ -282,8 +279,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!urPwdPropByRes.isEmpty() || !laPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
                         wfResult.getResult(),
-                        urPwdPropByRes,
-                        laPwdPropByRes,
+                        new UserWorkflowResult.PropagationInfo(urPwdPropByRes, laPwdPropByRes),
                         wfResult.getPerformedTasks());
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, pwdResources, null));
@@ -590,7 +586,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
+    public List<PropagationAttrs> prepareAttrs(
             final AnyTypeKind kind,
             final String key,
             final String password,
@@ -598,7 +594,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final Collection<String> excludedResources) {
 
-        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
+        List<PropagationAttrs> attrs = new ArrayList<>();
 
         Any any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
@@ -617,9 +613,8 @@ public class DefaultPropagationManager implements PropagationManager {
                             enable,
                             resource,
                             provision);
-                    attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.connObjectLink()),
-                            preparedAttrs.attributes());
+                    attrs.add(new PropagationAttrs(resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.
+                            attributes()));
                 }));
 
         if (any instanceof User user) {
@@ -636,9 +631,8 @@ public class DefaultPropagationManager implements PropagationManager {
                                 password,
                                 true,
                                 provision);
-                        attrs.put(
-                                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()),
-                                preparedAttrs);
+                        attrs.add(new PropagationAttrs(
+                                account.getResource().getKey(), account.getConnObjectKeyValue(), preparedAttrs));
                     }));
         }
 
@@ -648,8 +642,8 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(final Realm realm) {
-        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
+    public List<PropagationAttrs> prepareAttrs(final Realm realm) {
+        List<PropagationAttrs> attrs = new ArrayList<>();
 
         realm.getResources().stream().
                 filter(resource -> resource.getOrgUnit() != null
@@ -659,9 +653,8 @@ public class DefaultPropagationManager implements PropagationManager {
                     MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(
                             realm,
                             resource);
-                    attrs.put(
-                            Pair.of(resource.getKey(), preparedAttrs.connObjectLink()),
-                            preparedAttrs.attributes());
+                    attrs.add(new PropagationAttrs(
+                            resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.attributes()));
                 });
 
         LOG.debug("Prepared attrs for Realm {}: {}", realm.getKey(), attrs);
@@ -682,7 +675,7 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
-            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs) {
+            final List<PropagationAttrs> beforeAttrs) {
 
         if (beforeAttrs.isEmpty()) {
             return tasks;
@@ -694,12 +687,16 @@ public class DefaultPropagationManager implements PropagationManager {
                 continue;
             }
 
-            Pair<String, String> key = Pair.of(task.getResource().getKey(), task.getConnObjectKey());
-            if (!beforeAttrs.containsKey(key)) {
+            PropagationAttrs propagationAttrs = beforeAttrs.stream().
+                    filter(attr -> attr.resource().equals(task.getResource().getKey())
+                    && attr.connObjectLink().equals(task.getConnObjectKey())).
+                    findFirst().
+                    orElse(null);
+            if (propagationAttrs == null) {
                 continue;
             }
 
-            Set<Attribute> attrs = new HashSet<>(beforeAttrs.get(key));
+            Set<Attribute> attrs = propagationAttrs.attributes();
 
             // purge unwanted attributes, even though prepared
             attrs.removeIf(

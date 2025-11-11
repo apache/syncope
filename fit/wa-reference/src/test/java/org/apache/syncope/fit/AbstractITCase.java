@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
@@ -166,7 +165,11 @@ public abstract class AbstractITCase {
         });
     }
 
-    protected static Triple<String, String, String> parseSAMLRequestForm(final String body) {
+    protected record SAMLForm(String action, String relayState, String payload) {
+
+    }
+
+    protected static SAMLForm parseSAMLRequestForm(final String body) {
         FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
         assertNotNull(form);
         LOG.debug("SAML Request Form: {}", form.outerHtml());
@@ -189,10 +192,10 @@ public abstract class AbstractITCase {
                 orElseThrow(() -> new IllegalArgumentException("No SAMLRequest found"));
         LOG.debug("SAML Request Form SAMLRequest: {}", samlRequest);
 
-        return Triple.of(action, relayState, samlRequest);
+        return new SAMLForm(action, relayState, samlRequest);
     }
 
-    protected static Triple<String, String, String> parseSAMLResponseForm(final String body) {
+    protected static SAMLForm parseSAMLResponseForm(final String body) {
         FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
         assertNotNull(form);
         LOG.debug("SAML Response Form: {}", form.outerHtml());
@@ -215,7 +218,7 @@ public abstract class AbstractITCase {
                 orElseThrow(() -> new IllegalArgumentException("No SAMLResponse found"));
         LOG.debug("SAML Response Form SAMLResponse: {}", samlResponse);
 
-        return Triple.of(action, relayState, samlResponse);
+        return new SAMLForm(action, relayState, samlResponse);
     }
 
     protected static String extractWAExecution(final String body) {

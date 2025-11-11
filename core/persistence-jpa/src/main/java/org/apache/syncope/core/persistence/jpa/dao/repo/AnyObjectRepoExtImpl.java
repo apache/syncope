@@ -183,13 +183,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return result;
     }
 
-    protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
+    protected Pair<AnyObject, GroupDAO.DynMembershipInfo> doSave(final AnyObject anyObject) {
         AnyObject merged = entityManager.merge(anyObject);
 
         // ensure that entity listeners are invoked at this point
         entityManager.flush();
 
-        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
         return Pair.of(merged, dynGroupMembs);
@@ -203,7 +203,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final AnyObject anyObject) {
+    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
         checkBeforeSave((JPAAnyObject) anyObject);
         return doSave(anyObject).getRight();
     }

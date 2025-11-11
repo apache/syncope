@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -426,7 +426,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
@@ -464,7 +464,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override
@@ -496,7 +496,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
@@ -533,7 +533,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override

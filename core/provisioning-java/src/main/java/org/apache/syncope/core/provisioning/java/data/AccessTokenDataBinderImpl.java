@@ -27,7 +27,6 @@ import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -72,7 +71,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         this.credentialChecker = credentialChecker;
     }
 
-    protected Pair<String, OffsetDateTime> generateJWT(
+    protected AccessTokenInfo generateJWT(
             final String tokenId,
             final String subject,
             final long duration,
@@ -102,7 +101,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
-        return Pair.of(jwt.serialize(), expiration);
+        return new AccessTokenInfo(jwt.serialize(), expiration);
     }
 
     protected AccessToken replace(
@@ -111,14 +110,14 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final byte[] authorities,
             final AccessToken accessToken) {
 
-        Pair<String, OffsetDateTime> generated = generateJWT(
+        AccessTokenInfo generated = generateJWT(
                 accessToken.getKey(),
                 subject,
                 confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class),
                 claims);
 
-        accessToken.setBody(generated.getLeft());
-        accessToken.setExpirationTime(generated.getRight());
+        accessToken.setBody(generated.jwt());
+        accessToken.setExpirationTime(generated.expiration());
         accessToken.setOwner(subject);
 
         if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
@@ -129,7 +128,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public Pair<String, OffsetDateTime> create(
+    public AccessTokenInfo create(
             final Optional<String> key,
             final String subject,
             final Map<String, Object> claims,
@@ -155,11 +154,11 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                     return replace(subject, claims, authorities, at);
                 });
 
-        return Pair.of(accessToken.getBody(), accessToken.getExpirationTime());
+        return new AccessTokenInfo(accessToken.getBody(), accessToken.getExpirationTime());
     }
 
     @Override
-    public Pair<String, OffsetDateTime> update(final AccessToken accessToken, final byte[] authorities) {
+    public AccessTokenInfo update(final AccessToken accessToken, final byte[] authorities) {
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
         long duration = confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class);
@@ -192,7 +191,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessTokenDAO.save(accessToken);
 
-        return Pair.of(body, expiration);
+        return new AccessTokenInfo(body, expiration);
     }
 
     @Override

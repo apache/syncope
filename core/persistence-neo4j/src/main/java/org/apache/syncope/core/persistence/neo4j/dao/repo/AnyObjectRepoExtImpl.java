@@ -233,7 +233,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         return result;
     }
 
-    protected <S extends AnyObject> Pair<S, Pair<Set<String>, Set<String>>> doSave(final S anyObject) {
+    protected <S extends AnyObject> Pair<S, GroupDAO.DynMembershipInfo> doSave(final S anyObject) {
         checkBeforeSave(anyObject);
 
         // unlink any resource or aux class that was unlinked from anyObject
@@ -269,7 +269,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
         anyObjectCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jAnyObject) merged);
 
-        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
+        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
         return Pair.of(merged, dynGroupMembs);
@@ -281,7 +281,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final AnyObject anyObject) {
+    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
         return doSave(anyObject).getRight();
     }
 

@@ -22,12 +22,10 @@ import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -60,7 +58,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -201,7 +198,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_UPDATE), realm.getFullPath());
 
-        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
+        List<PropagationManager.PropagationAttrs> beforeAttrs = propagationManager.prepareAttrs(realm);
 
         PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);

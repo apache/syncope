@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -239,7 +238,7 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
-    protected Pair<Boolean, AnySearchNode> getQuery(
+    protected AttrCondQuery getQuery(
             final AttrCond cond,
             final boolean not,
             final CheckResult checked,
@@ -257,17 +256,17 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         return switch (cond.getType()) {
             case ISNOTNULL ->
-                Pair.of(true, new AnySearchNode.Leaf(
+                new AttrCondQuery(true, new AnySearchNode.Leaf(
                 svs.table(),
                 "jsonb_path_exists(" + checked.schema().getKey() + ",'$[*]')"));
 
             case ISNULL ->
-                Pair.of(true, new AnySearchNode.Leaf(
+                new AttrCondQuery(true, new AnySearchNode.Leaf(
                 svs.table(),
                 "NOT jsonb_path_exists(" + checked.schema().getKey() + ",'$[*]')"));
 
             default ->
-                Pair.of(true, filJSONAttrQuery(
+                new AttrCondQuery(true, filJSONAttrQuery(
                 svs.table(),
                 checked.value(),
                 checked.schema(),

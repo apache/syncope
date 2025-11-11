@@ -294,7 +294,9 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                     Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
             result = new UserWorkflowResult<>(
-                    Pair.of(userUR, !user.isSuspended()), propByRes, propByLinkedAccount, "update");
+                    Pair.of(userUR, !user.isSuspended()),
+                    new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                    "update");
         } else {
             result = doUpdate(user, userUR, updater, context);
 

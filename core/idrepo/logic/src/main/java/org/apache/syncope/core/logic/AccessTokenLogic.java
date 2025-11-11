@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -76,7 +74,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Pair<String, OffsetDateTime> login() {
+    public AccessTokenDataBinder.AccessTokenInfo login() {
         if (securityProperties.getAnonymousUser().equals(AuthContextUtils.getUsername())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(securityProperties.getAnonymousUser() + " cannot be granted an access token");
@@ -92,7 +90,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Pair<String, OffsetDateTime> refresh() {
+    public AccessTokenDataBinder.AccessTokenInfo refresh() {
         AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
                 orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
 

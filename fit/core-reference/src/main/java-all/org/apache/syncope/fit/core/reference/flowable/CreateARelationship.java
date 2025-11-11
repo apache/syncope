@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference.flowable;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -26,7 +25,7 @@ import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.flowable.engine.delegate.DelegateExecution;
 
@@ -56,13 +55,12 @@ public class CreateARelationship extends FlowableServiceTask {
             userUR.getRelationships().add(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
                     otherEnd("PRINTER", printer).build()).build());
 
-            Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
-                    dataBinder.update(user, userUR);
+            UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 
             // report updated user and propagation by resource as result
             execution.setVariable(FlowableRuntimeUtils.USER, user);
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
-            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.user());
+            execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.linkedAccount());
         } else {
             LOG.info("Printer assignment to {} was not approved", user.getUsername());
         }

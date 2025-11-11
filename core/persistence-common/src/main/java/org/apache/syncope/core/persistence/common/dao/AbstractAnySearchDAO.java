@@ -65,7 +65,7 @@ import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
-    protected record CheckResult(PlainSchema schema, PlainAttrValue value, AttrCond cond) {
+    protected record CheckResult<C extends AttrCond>(PlainSchema schema, PlainAttrValue value, C cond) {
 
     }
 
@@ -239,7 +239,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             Pageable pageable,
             AnyTypeKind kind);
 
-    protected CheckResult check(final AttrCond cond) {
+    protected CheckResult<AttrCond> check(final AttrCond cond) {
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
@@ -261,10 +261,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             throw new IllegalArgumentException("Could not validate expression " + cond.getExpression());
         }
 
-        return new CheckResult(schema, attrValue, cond);
+        return new CheckResult<>(schema, attrValue, cond);
     }
 
-    protected CheckResult check(final AnyCond cond, final AnyTypeKind kind) {
+    protected CheckResult<AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
         AnyCond computed = new AnyCond(cond.getType());
         computed.setSchema(cond.getSchema());
         computed.setExpression(cond.getExpression());
@@ -326,7 +326,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             }
         }
 
-        return new CheckResult(schema, attrValue, computed);
+        return new CheckResult<>(schema, attrValue, computed);
     }
 
     protected boolean isPatternMatch(final String clause) {
