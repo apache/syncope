@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -26,26 +27,32 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class UserWorkflowResult<T> extends WorkflowResult<T> {
 
+    public record PropagationInfo(
+            PropagationByResource<String> user,
+            PropagationByResource<Pair<String, String>> linkedAccount) {
+
+    }
+
     private final PropagationByResource<Pair<String, String>> propByLinkedAccount;
 
     public UserWorkflowResult(
             final T result,
-            final PropagationByResource<String> propByRes,
-            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
+            final PropagationInfo propagationInfo,
             final String performedTask) {
 
-        super(result, propByRes, performedTask);
-        this.propByLinkedAccount = propByLinkedAccount;
+        super(result, Optional.ofNullable(propagationInfo).map(PropagationInfo::user).orElse(null), performedTask);
+        this.propByLinkedAccount = Optional.ofNullable(propagationInfo).
+                map(PropagationInfo::linkedAccount).orElse(null);
     }
 
     public UserWorkflowResult(
             final T result,
-            final PropagationByResource<String> propByRes,
-            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
+            final PropagationInfo propagationInfo,
             final Set<String> performedTasks) {
 
-        super(result, propByRes, performedTasks);
-        this.propByLinkedAccount = propByLinkedAccount;
+        super(result, Optional.ofNullable(propagationInfo).map(PropagationInfo::user).orElse(null), performedTasks);
+        this.propByLinkedAccount = Optional.ofNullable(propagationInfo).
+                map(PropagationInfo::linkedAccount).orElse(null);
     }
 
     public PropagationByResource<Pair<String, String>> getPropByLinkedAccount() {

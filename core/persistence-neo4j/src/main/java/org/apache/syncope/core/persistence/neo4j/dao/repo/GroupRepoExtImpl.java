@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -40,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -163,7 +163,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         // 1. check if AuthContextUtils.getUsername() is owner of the group, or
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
+                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized && key != null) {
@@ -270,7 +270,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         return toList(
                 neo4jClient.query(
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
-                                + "RETURN n.id" + paged)
+                        + "RETURN n.id" + paged)
                         .bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
                 Neo4jUMembership.class,
@@ -517,7 +517,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
@@ -555,7 +555,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override
@@ -584,7 +584,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Transactional
     @Override
-    public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
+    public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
@@ -622,7 +622,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                     this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
-        return Pair.of(before, after);
+        return new GroupDAO.DynMembershipInfo(before, after);
     }
 
     @Override

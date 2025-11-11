@@ -44,12 +44,8 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -377,9 +373,9 @@ public class JWTITCase extends AbstractITCase {
 
         SyncopeClient jwtClient = CLIENT_FACTORY.create(signed);
 
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = jwtClient.self();
-        assertFalse(self.getLeft().isEmpty());
-        assertEquals("puccini", self.getRight().getUsername());
+        SyncopeClient.Self self = jwtClient.self();
+        assertFalse(self.entitlements().isEmpty());
+        assertEquals("puccini", self.user().getUsername());
     }
 
     @Test
@@ -496,11 +492,15 @@ public class JWTITCase extends AbstractITCase {
             UserTO user = createUser(userCR).getEntity();
             assertNotNull(user);
 
-            // login, get JWT with  expiryTime
-            String jwt = CLIENT_FACTORY.create(user.getUsername(), "password123").getJWT();
+            // login, get JWT with expiration
+            SyncopeClient.JwtInfo jwtInfo =
+                    CLIENT_FACTORY.create(user.getUsername(), "password123").jwtInfo().orElseThrow();
 
-            Date expirationTime = SignedJWT.parse(jwt).getJWTClaimsSet().getExpirationTime();
-            assertNotNull(expirationTime);
+            Date expiration = SignedJWT.parse(jwtInfo.value()).getJWTClaimsSet().getExpirationTime();
+            assertNotNull(expiration);
+            assertEquals(
+                    expiration.getTime(),
+                    jwtInfo.expiration().toInstant().truncatedTo(ChronoUnit.SECONDS).toEpochMilli());
 
             // wait for 1 sec, check that JWT is effectively expired
             try {
@@ -508,12 +508,12 @@ public class JWTITCase extends AbstractITCase {
             } catch (InterruptedException e) {
                 // ignore
             }
-            assertTrue(expirationTime.before(new Date()));
+            assertTrue(expiration.before(new Date()));
 
             // login again, get new JWT
             // (even if ExpiredAccessTokenCleanup did not run yet, as it is scheduled every 5 minutes)
-            String newJWT = CLIENT_FACTORY.create(user.getUsername(), "password123").getJWT();
-            assertNotEquals(jwt, newJWT);
+            String newJWT = CLIENT_FACTORY.create(user.getUsername(), "password123").jwtInfo().orElseThrow().value();
+            assertNotEquals(jwtInfo.value(), newJWT);
         } finally {
             confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", orig);
         }

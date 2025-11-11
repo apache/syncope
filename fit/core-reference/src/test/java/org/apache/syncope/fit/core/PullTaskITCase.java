@@ -55,7 +55,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.Attr;
@@ -1271,8 +1270,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the pulled user
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();
         assertNotNull(self);
 
         // 6. Delete PullTask + user
@@ -1307,8 +1305,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             user = updateUser(userUR).getEntity();
 
             // 3. Check that the Syncope user now has the changed password
-            Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                    CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();
+            SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();
             assertNotNull(self);
 
             // 4. Check that the LDAP resource has the old password

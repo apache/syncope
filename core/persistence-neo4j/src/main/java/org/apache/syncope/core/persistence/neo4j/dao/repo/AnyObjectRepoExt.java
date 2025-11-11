@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -60,7 +60,7 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
-    Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(AnyObject anyObject);
+    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(AnyObject anyObject);
 
     @Override
     <S extends AnyObject> S save(S anyObject);

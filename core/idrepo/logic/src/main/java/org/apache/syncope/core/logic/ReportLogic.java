@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -312,10 +311,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final String jobName) {
+    protected JobReference getReference(final String jobName) {
         return JobNamer.getReportKeyFromJobName(jobName).
                 flatMap(reportDAO::findById).
-                map(r -> Triple.of(JobType.REPORT, r.getKey(), binder.buildRefDesc(r))).
+                map(r -> new JobReference(JobType.REPORT, r.getKey(), binder.buildRefDesc(r))).
                 orElse(null);
     }
 

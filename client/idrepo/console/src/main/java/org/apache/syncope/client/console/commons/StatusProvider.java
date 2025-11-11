@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
@@ -32,10 +30,17 @@ import org.apache.syncope.common.lib.to.ConnObject;
 
 public interface StatusProvider extends Serializable {
 
-    Optional<Pair<ConnObject, ConnObject>> get(
-            String anyTypeKey, String connObjectKeyValue, String resource);
+    record Info(ConnObject onSyncope, ConnObject onResource) implements Serializable {
 
-    List<Triple<ConnObject, ConnObjectWrapper, String>> get(AnyTO any, Collection<String> resources);
+    }
+
+    record InfoWithFailure(ConnObject onSyncope, ConnObjectWrapper onResource, String failure) implements Serializable {
+
+    }
+
+    Optional<Info> get(String anyTypeKey, String connObjectKeyValue, String resource);
+
+    List<InfoWithFailure> get(AnyTO any, Collection<String> resources);
 
     <T extends Serializable> void addConnObjectLink(
             ListViewPanel.Builder<T> builder, ActionLink<T> connObjectLink);

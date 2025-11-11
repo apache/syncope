@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -40,7 +39,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,7 +69,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(
+    public ProvisioningResult<String> create(
             final GroupCR groupCR, final boolean nullPriorityAsync, final String creator, final String context) {
 
         WorkflowResult<String> created = gwfAdapter.create(groupCR, creator, context);
@@ -84,12 +82,12 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 Set.of());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
-        return Pair.of(created.getResult(), propagationReporter.getStatuses());
+        return new ProvisioningResult<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> create(
+    public ProvisioningResult<String> create(
             final GroupCR groupCR,
             final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
@@ -111,19 +109,19 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
-        return Pair.of(created.getResult(), propagationReporter.getStatuses());
+        return new ProvisioningResult<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<GroupUR, List<PropagationStatus>> update(
+    public ProvisioningResult<GroupUR> update(
             final GroupUR groupUR,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync,
             final String updater,
             final String context) {
 
-        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+        List<PropagationManager.PropagationAttrs> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.GROUP,
                 groupUR.getKey(),
                 null,
@@ -146,7 +144,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 
-        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
+        return new ProvisioningResult<>(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override

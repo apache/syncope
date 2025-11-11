@@ -31,13 +31,12 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
@@ -237,13 +236,12 @@ public abstract class AbstractTest {
             return userTO;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
             SyncopeAnonymousClient anonymousClient = mock(SyncopeAnonymousClient.class);
 
-            when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
+            when(client.self()).thenReturn(new SyncopeClient.Self(getUserTO(), Map.of(), List.of()));
 
             when(anonymousClient.gitAndBuildInfo()).thenReturn(Pair.of("", ""));
             when(anonymousClient.platform()).thenReturn(new PlatformInfo());

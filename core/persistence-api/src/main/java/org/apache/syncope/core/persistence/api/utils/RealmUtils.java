@@ -30,21 +30,23 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
 public class RealmUtils {
 
-    public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
-        return realmPath + '@' + groupKey;
-    }
+    public record GroupOwnerRealm(String realmPath, String groupKey) {
 
-    public static Optional<Pair<String, String>> parseGroupOwnerRealm(final String input) {
-        String[] split = input.split("@");
-        return split == null || split.length < 2
-                ? Optional.empty()
-                : Optional.of(Pair.of(split[0], split[1]));
+        public static Optional<GroupOwnerRealm> of(final String input) {
+            String[] split = input.split("@");
+            return split == null || split.length < 2
+                    ? Optional.empty()
+                    : Optional.of(new GroupOwnerRealm(split[0], split[1]));
+        }
+
+        public String output() {
+            return realmPath + '@' + groupKey;
+        }
     }
 
     public static boolean normalizingAddTo(final Set<String> realms, final String newRealm) {
@@ -65,20 +67,23 @@ public class RealmUtils {
         return !dontAdd;
     }
 
-    public static Pair<Set<String>, Set<String>> normalize(final Collection<String> realms) {
-        Set<String> normalized = new HashSet<>();
-        Set<String> groupOwnership = new HashSet<>();
-        if (realms != null) {
-            realms.forEach(realm -> {
-                if (realm.indexOf('@') == -1) {
-                    normalizingAddTo(normalized, realm);
-                } else {
-                    groupOwnership.add(realm);
-                }
-            });
-        }
+    public record NormalizedRealms(Set<String> realms, Set<String> groupOwnerRealms) {
 
-        return Pair.of(normalized, groupOwnership);
+        public static NormalizedRealms of(final Collection<String> input) {
+            Set<String> realms = new HashSet<>();
+            Set<String> groupOwnerRealms = new HashSet<>();
+            if (input != null) {
+                input.forEach(realm -> {
+                    if (realm.indexOf('@') == -1) {
+                        normalizingAddTo(realms, realm);
+                    } else {
+                        groupOwnerRealms.add(realm);
+                    }
+                });
+            }
+
+            return new NormalizedRealms(realms, groupOwnerRealms);
+        }
     }
 
     private static class StartsWithPredicate implements Predicate<String> {
@@ -98,19 +103,19 @@ public class RealmUtils {
     private static final Predicate<String> DYN_REALMS_PREDICATE = r -> !r.startsWith(SyncopeConstants.ROOT_REALM);
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
-        Pair<Set<String>, Set<String>> normalized = normalize(allowedRealms);
+        NormalizedRealms normalized = NormalizedRealms.of(allowedRealms);
 
         Set<String> requested = Set.of(requestedRealm);
 
-        StartsWithPredicate normalizedFilter = new StartsWithPredicate(normalized.getLeft());
+        StartsWithPredicate normalizedFilter = new StartsWithPredicate(normalized.realms());
         StartsWithPredicate requestedFilter = new StartsWithPredicate(requested);
 
         Set<String> effective = new HashSet<>();
         effective.addAll(requested.stream().filter(normalizedFilter).collect(Collectors.toSet()));
-        effective.addAll(normalized.getLeft().stream().filter(requestedFilter).collect(Collectors.toSet()));
+        effective.addAll(normalized.realms().stream().filter(requestedFilter).collect(Collectors.toSet()));
 
         // includes group ownership
-        effective.addAll(normalized.getRight());
+        effective.addAll(normalized.groupOwnerRealms());
 
         // includes dynamic realms
         if (allowedRealms != null) {

@@ -131,7 +131,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     protected static void securityChecks(final String username, final String entitlement, final String errorMessage) {
         if (!AuthContextUtils.getUsername().equals(username)
                 && AuthContextUtils.getAuthorities().stream().
-            noneMatch(auth -> entitlement.equals(auth.getAuthority()))) {
+                        noneMatch(auth -> entitlement.equals(auth.getAuthority()))) {
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add(errorMessage);
@@ -222,8 +222,9 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                     new UserWorkflowResult<>(
                             Pair.of(wfResult.getResult(), Boolean.TRUE),
-                            wfResult.getPropByRes(),
-                            wfResult.getPropByLinkedAccount(),
+                            new UserWorkflowResult.PropagationInfo(
+                                    wfResult.getPropByRes(),
+                                    wfResult.getPropByLinkedAccount()),
                             wfResult.getPerformedTasks()));
 
             PropagationReporter propagationReporter = taskExecutor.execute(

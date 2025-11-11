@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.wicket.model.Model;
@@ -34,9 +35,8 @@ public class ConnObjectDetails extends MultilevelPanel.SecondLevel {
         mlp.setFirstLevel(new ConnObjectPanel(
                 MultilevelPanel.FIRST_LEVEL_ID,
                 Pair.of(Model.of(), Model.of()),
-                Pair.of((ConnObject) null, connObjectTO),
+                new StatusProvider.Info(null, connObjectTO),
                 true));
         add(mlp);
     }
-
 }

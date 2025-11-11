@@ -38,8 +38,8 @@ public class Policies extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
         content.setMarkupId("policies");
+        body.add(content.setOutputMarkupId(true));
 
         List<ITab> tabs = SyncopeWebApplication.get().getPolicyTabProviders().stream().
                 map(p -> p.buildTabList(getPageReference())).
@@ -47,7 +47,5 @@ public class Policies extends BasePage {
                 sorted(Comparator.comparing(tab -> tab.getTitle().getObject())).
                 collect(Collectors.toList());
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
-
-        body.add(content);
     }
 }

@@ -44,9 +44,8 @@ public class Reports extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
         content.setMarkupId("reports");
-        body.add(content);
+        body.add(content.setOutputMarkupId(true));
 
         MultilevelPanel reportsPanel = new MultilevelPanel("reportsPanel");
         reportsPanel.setFirstLevel(new ReportDirectoryPanel(reportRestClient, getPageReference()) {

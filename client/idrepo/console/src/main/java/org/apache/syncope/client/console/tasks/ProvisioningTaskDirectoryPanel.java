@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.tasks;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -84,7 +85,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
                 container.modelChanged();
                 handler.add(container);
             }
-        }.schedule(10));
+        }.schedule(10, TimeUnit.SECONDS));
     }
 
     @Override

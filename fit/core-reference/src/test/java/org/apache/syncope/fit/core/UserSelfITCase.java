@@ -33,12 +33,10 @@ import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -215,9 +213,8 @@ public class UserSelfITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create(user.getUsername(), "password123").self();
-        assertEquals(user.getUsername(), self.getRight().getUsername());
+        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), "password123").self();
+        assertEquals(user.getUsername(), self.user().getUsername());
     }
 
     @Test
@@ -227,8 +224,8 @@ public class UserSelfITCase extends AbstractITCase {
         String userId = rossini.getPlainAttr("userId").get().getValues().getFirst();
         assertNotNull(userId);
 
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = CLIENT_FACTORY.create(userId, ADMIN_PWD).self();
-        assertEquals(rossini.getUsername(), self.getRight().getUsername());
+        SyncopeClient.Self self = CLIENT_FACTORY.create(userId, ADMIN_PWD).self();
+        assertEquals(rossini.getUsername(), self.user().getUsername());
     }
 
     @Test
@@ -343,7 +340,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
-        UserTO read = authClient.self().getRight();
+        UserTO read = authClient.self().user();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
@@ -389,7 +386,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");
-        assertNull(authClient.self().getRight().getToken());
+        assertNull(authClient.self().user().getToken());
 
         // 7. verify that password was changed on external resource
         String newPwdOnResource = queryForObject(jdbcTemplate,
@@ -409,7 +406,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
-        UserTO read = authClient.self().getRight();
+        UserTO read = authClient.self().user();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) with no security answer
@@ -431,7 +428,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");
-        read = authClient.self().getRight();
+        read = authClient.self().user();
         assertNotNull(read);
         assertNull(read.getToken());
 
@@ -475,9 +472,8 @@ public class UserSelfITCase extends AbstractITCase {
                 mustChangePassword(new PasswordPatch.Builder().value("password123").build());
 
         // 4. verify it worked
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create("vivaldi", "password123").self();
-        assertFalse(self.getRight().isMustChangePassword());
+        SyncopeClient.Self self = CLIENT_FACTORY.create("vivaldi", "password123").self();
+        assertFalse(self.user().isMustChangePassword());
     }
 
     @Test
@@ -776,7 +772,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE373() {
-        UserTO userTO = ADMIN_CLIENT.self().getRight();
+        UserTO userTO = ADMIN_CLIENT.self().user();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 }

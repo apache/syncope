@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -46,6 +45,10 @@ import org.springframework.data.domain.Pageable;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
         extends AbstractResourceAssociator<TO> {
+
+    protected record BeforeResult<T>(T key, List<LogicActions> actions) {
+
+    }
 
     protected static final String REST_CONTEXT = "REST";
 
@@ -85,7 +88,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     }
 
     @SuppressWarnings("unchecked")
-    protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
+    protected BeforeResult<C> beforeCreate(final C input) {
         Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
@@ -118,11 +121,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         LOG.debug("Input: {}\nOutput: {}\n", input, actionedCR);
 
-        return Pair.of(actionedCR, actions);
+        return new BeforeResult<>(actionedCR, actions);
     }
 
     @SuppressWarnings("unchecked")
-    protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
+    protected BeforeResult<U> beforeUpdate(final U input, final String realmPath) {
         Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(realmPath);
@@ -138,11 +141,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         LOG.debug("Input: {}\nOutput: {}\n", input, update);
 
-        return Pair.of(update, actions);
+        return new BeforeResult<>(update, actions);
     }
 
     @SuppressWarnings("unchecked")
-    protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
+    protected BeforeResult<TO> beforeDelete(final TO input) {
         Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
@@ -158,7 +161,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         LOG.debug("Input: {}\nOutput: {}\n", input, any);
 
-        return Pair.of(any, actions);
+        return new BeforeResult<>(any, actions);
     }
 
     @SuppressWarnings("unchecked")

@@ -96,13 +96,12 @@ public class Realms extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         content = new WebMarkupContainer("content");
+        body.add(content.setOutputMarkupId(true));
 
         realmChoicePanel = buildRealmChoicePanel(parameters.get(INITIAL_REALM).toOptionalString(), getPageReference());
         content.add(realmChoicePanel);
 
         content.add(new Label("body", "Root realm"));
-        content.setOutputMarkupId(true);
-        body.add(content);
 
         modal = new BaseModal<>("modal");
         modal.size(Modal.Size.Large);

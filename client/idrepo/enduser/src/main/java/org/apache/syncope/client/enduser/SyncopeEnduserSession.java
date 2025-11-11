@@ -25,6 +25,7 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.xml.ws.WebServiceException;
 import java.text.DateFormat;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -100,6 +101,8 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     protected String domain;
 
     protected SyncopeClient client;
+
+    protected Instant jwtExpiration;
 
     protected SyncopeAnonymousClient anonymousClient;
 
@@ -200,7 +203,9 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public String getJWT() {
-        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
+        return Optional.ofNullable(client).
+                flatMap(SyncopeClient::jwtInfo).map(SyncopeClient.JwtInfo::value).
+                orElse(null);
     }
 
     @Override
@@ -221,6 +226,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
+            jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
 
             refreshAuth(username);
 
@@ -232,11 +238,13 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return authenticated;
     }
 
-    public boolean authenticate(final String jwt) {
+    @Override
+    public boolean authenticate(final String jwt, final Instant jwtExpiration) {
         boolean authenticated = false;
 
         try {
             client = clientFactory.setDomain(getDomain()).create(jwt);
+            this.jwtExpiration = jwtExpiration;
 
             refreshAuth(null);
 
@@ -252,7 +260,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         try {
             anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
 
-            selfTO = client.self().getRight();
+            selfTO = client.self().user();
         } catch (ForbiddenException e) {
             LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
 
@@ -278,22 +286,20 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         anonymousClient = null;
 
         client = null;
+        jwtExpiration = null;
         selfTO = null;
         services.clear();
     }
 
     @Override
     public void invalidate() {
-        if (isAuthenticated()) {
-            try {
+        if (getJWT() != null) {
+            if (client != null) {
                 client.logout();
-            } catch (Exception e) {
-                LOG.debug("Unexpected exception while logging out", e);
-            } finally {
-                client = null;
-                selfTO = null;
             }
+            cleanup();
         }
+
         super.invalidate();
     }
 
@@ -310,8 +316,10 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public SyncopeAnonymousClient getAnonymousClient() {
-        return Optional.ofNullable(anonymousClient).
-                orElseGet(() -> SyncopeWebApplication.get().newAnonymousClient(getDomain()));
+        if (anonymousClient == null) {
+            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
+        }
+        return anonymousClient;
     }
 
     @Override

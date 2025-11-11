@@ -74,7 +74,7 @@ public class Audit extends BasePage {
                 collect(Collectors.toList());
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
+        body.add(content.setOutputMarkupId(true));
 
         Form<?> form = new Form<>("auditForm");
         content.add(form);
@@ -104,7 +104,5 @@ public class Audit extends BasePage {
                 }
             }
         });
-
-        body.add(content);
     }
 }

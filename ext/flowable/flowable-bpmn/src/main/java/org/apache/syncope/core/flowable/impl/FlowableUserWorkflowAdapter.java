@@ -196,8 +196,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
         return new UserWorkflowResult<>(
                 Pair.of(created.getKey(), propagateEnable),
-                propByRes,
-                propByLinkedAccount,
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
                 tasks);
     }
 
@@ -267,7 +266,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.WF_EXECUTOR);
 
-        return new UserWorkflowResult<>(updated.getKey(), null, null, tasks);
+        return new UserWorkflowResult<>(updated.getKey(), null, tasks);
     }
 
     @Override
@@ -351,7 +350,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE);
 
-        return new UserWorkflowResult<>(Pair.of(userUR, propagateEnable), propByRes, propByLinkedAccount, tasks);
+        return new UserWorkflowResult<>(
+                Pair.of(userUR, propagateEnable),
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                tasks);
     }
 
     @Override
@@ -384,7 +386,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
-        return new UserWorkflowResult<>(updated.getKey(), propByRes, propByLinkedAccount, performedTasks);
+        return new UserWorkflowResult<>(
+                updated.getKey(),
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                performedTasks);
     }
 
     @Override
@@ -417,7 +422,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
-        return new UserWorkflowResult<>(updated.getKey(), propByRes, propByLinkedAccount, performedTasks);
+        return new UserWorkflowResult<>(
+                updated.getKey(),
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                performedTasks);
     }
 
     @Override
@@ -482,7 +490,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);
         engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE);
 
-        return new UserWorkflowResult<>(Pair.of(updatedReq, propagateEnable), propByRes, propByLinkedAccount, tasks);
+        return new UserWorkflowResult<>(
+                Pair.of(updatedReq, propagateEnable),
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                tasks);
     }
 
     @Override
@@ -586,7 +597,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                     propByLinkedAccount);
         }
 
-        return new UserWorkflowResult<>(user.getKey(), null, null, performedTasks);
+        return new UserWorkflowResult<>(user.getKey(), null, performedTasks);
     }
 
     protected static void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {

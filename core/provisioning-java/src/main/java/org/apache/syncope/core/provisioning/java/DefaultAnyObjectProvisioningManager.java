@@ -20,9 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -37,7 +35,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +61,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(
+    public ProvisioningResult<String> create(
             final AnyObjectCR anyObjectCR,
             final boolean nullPriorityAsync,
             final String creator,
@@ -75,7 +72,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> create(
+    public ProvisioningResult<String> create(
             final AnyObjectCR anyObjectCR,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync,
@@ -92,19 +89,19 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, creator);
 
-        return Pair.of(created.getResult(), propagationReporter.getStatuses());
+        return new ProvisioningResult<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<AnyObjectUR, List<PropagationStatus>> update(
+    public ProvisioningResult<AnyObjectUR> update(
             final AnyObjectUR anyObjectUR,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync,
             final String updater,
             final String context) {
 
-        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+        List<PropagationManager.PropagationAttrs> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.ANY_OBJECT,
                 anyObjectUR.getKey(),
                 null,
@@ -127,7 +124,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
-        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
+        return new ProvisioningResult<>(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override

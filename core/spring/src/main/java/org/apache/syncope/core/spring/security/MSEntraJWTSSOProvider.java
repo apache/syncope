@@ -28,8 +28,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.jws.MSEntraAccessTokenJWSVerifier;
@@ -111,7 +111,7 @@ public class MSEntraJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
+    public Optional<ResolvedClaims> resolve(final JWTClaimsSet jwtClaims) {
         User authUser = userDAO.findByUsername(authUsername).orElse(null);
         Set<SyncopeGrantedAuthority> authorities = Set.of();
 
@@ -129,6 +129,6 @@ public class MSEntraJWTSSOProvider implements JWTSSOProvider {
             authorities = authDataAccessor.getAuthorities(authUser.getUsername(), null);
         }
 
-        return Pair.of(authUser, authorities);
+        return authUser == null ? Optional.empty() : Optional.of(new ResolvedClaims(authUser, authorities));
     }
 }

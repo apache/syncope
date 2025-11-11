@@ -26,7 +26,6 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
@@ -34,6 +33,7 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,7 +141,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
     }
 
     @Override
-    public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+    public MappingManager.IntValues beforePropagation(
             final Item item,
             final Any any,
             final AttrSchemaType schemaType,
@@ -160,7 +160,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
             values.forEach(value -> tType.setValue(beforePropagation(any, schemaType, value)));
         }
 
-        return Pair.of(tType.get(), values);
+        return new MappingManager.IntValues(tType.get(), values);
     }
 
     @Override

@@ -748,6 +748,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             userUR.getPassword().getResources().addAll(pwdResources);
         }
 
-        return new UserWorkflowResult<>(userUR, propByRes, propByLinkedAccount, postTasks);
+        return new UserWorkflowResult<>(
+                userUR,
+                new UserWorkflowResult.PropagationInfo(propByRes, propByLinkedAccount),
+                postTasks);
     }
 }

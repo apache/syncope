@@ -21,16 +21,19 @@ package org.apache.syncope.core.provisioning.api.data;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 public interface AccessTokenDataBinder {
 
-    Pair<String, OffsetDateTime> create(
+    record AccessTokenInfo(String jwt, OffsetDateTime expiration) {
+
+    }
+
+    AccessTokenInfo create(
             Optional<String> key, String subject, Map<String, Object> claims, byte[] authorities, boolean replace);
 
-    Pair<String, OffsetDateTime> update(AccessToken accessToken, byte[] authorities);
+    AccessTokenInfo update(AccessToken accessToken, byte[] authorities);
 
     AccessTokenTO getAccessTokenTO(AccessToken accessToken);
 }

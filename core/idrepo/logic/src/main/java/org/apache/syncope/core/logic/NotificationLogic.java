@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -99,9 +98,9 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final String jobName) {
+    protected JobReference getReference(final String jobName) {
         return JobManager.NOTIFICATION_JOB.equals(jobName)
-                ? Triple.of(JobType.NOTIFICATION, null, NotificationJob.class.getSimpleName())
+                ? new JobReference(JobType.NOTIFICATION, null, NotificationJob.class.getSimpleName())
                 : null;
     }
 

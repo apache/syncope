@@ -43,9 +43,9 @@ public class Dashboard extends BasePage {
         super(parameters);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        content.setOutputMarkupId(true);
+        body.add(content.setOutputMarkupId(true));
+
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
-        body.add(content);
     }
 
     private List<ITab> buildTabList() {

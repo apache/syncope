@@ -37,11 +37,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -1149,8 +1147,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(
                 "passwordTESTNULL1",
                 connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().getFirst());
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self =
-                CLIENT_FACTORY.create(userTO.getUsername(), "passwordTESTNULL1").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), "passwordTESTNULL1").self();
         assertNotNull(self);
 
         // 4. add password policy to resource with passwordNotStore to false --> must store password
@@ -1859,7 +1856,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userWithDotSchema.setKey("user.testWithDot");
         userWithDotSchema.setAnyTypeClass("minimal user");
         SCHEMA_SERVICE.create(SchemaType.PLAIN, userWithDotSchema);
-        
+
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithDot");
 
@@ -1950,14 +1947,14 @@ public class UserIssuesITCase extends AbstractITCase {
         createUser(userCR);
         try {
             await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query())
+                    SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                            .query())
                     .size(0)
                     .page(1)
                     .build()).getTotalCount() == 5);
             List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
+                    SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                            .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
 
             assertEquals(5, users.size());
 
@@ -1968,8 +1965,8 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(aa5.getUsername(), users.get(0).getUsername());
 
             users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query()).size(10).page(1).orderBy("ctype ASC").build()).getResult();
+                    SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                            .query()).size(10).page(1).orderBy("ctype ASC").build()).getResult();
 
             assertEquals(aa5.getUsername(), users.get(4).getUsername());
             assertEquals(aa4.getUsername(), users.get(3).getUsername());
@@ -1979,8 +1976,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
             // order by unique attribute
             users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query()).size(10).page(1).orderBy("fullname ASC").build()).getResult();
+                    SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                            .query()).size(10).page(1).orderBy("fullname ASC").build()).getResult();
 
             assertEquals(aa5.getUsername(), users.get(4).getUsername());
             assertEquals(aa4.getUsername(), users.get(3).getUsername());
@@ -1990,7 +1987,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         } finally {
             USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
                     .size(10)
                     .page(1)
                     .orderBy("ctype DESC")

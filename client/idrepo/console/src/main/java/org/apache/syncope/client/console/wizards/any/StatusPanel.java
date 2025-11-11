@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.PropagationErrorPanel;
@@ -38,7 +38,6 @@ import org.apache.syncope.client.ui.commons.status.Status;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
@@ -75,7 +74,7 @@ public class StatusPanel extends Panel {
             final String id,
             final T any,
             final IModel<List<StatusBean>> model,
-            final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects,
+            final List<StatusProvider.InfoWithFailure> connObjects,
             final PageReference pageRef) {
 
         super(id);
@@ -85,7 +84,7 @@ public class StatusPanel extends Panel {
     protected void init(
             final AnyTO any,
             final IModel<List<StatusBean>> model,
-            final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects,
+            final List<StatusProvider.InfoWithFailure> connObjects,
             final PageReference pageRef,
             final boolean enableConnObjectLink) {
 
@@ -116,7 +115,7 @@ public class StatusPanel extends Panel {
 
         Map<String, String> failureReasons = new HashMap<>();
         connObjects.forEach(triple -> {
-            ConnObjectWrapper connObjectWrapper = triple.getMiddle();
+            ConnObjectWrapper connObjectWrapper = triple.onResource();
             StatusBean statusBean = StatusUtils.getStatusBean(connObjectWrapper.getAny(),
                     connObjectWrapper.getResource(),
                     connObjectWrapper.getConnObjectTO(),
@@ -125,8 +124,8 @@ public class StatusPanel extends Panel {
             initialStatusBeanMap.put(connObjectWrapper.getResource(), statusBean);
             statusBeans.add(statusBean);
 
-            if (StringUtils.isNotBlank(triple.getRight())) {
-                failureReasons.put(connObjectWrapper.getResource(), triple.getRight());
+            if (StringUtils.isNotBlank(triple.failure())) {
+                failureReasons.put(connObjectWrapper.getResource(), triple.failure());
             }
         });
 
@@ -158,9 +157,8 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                Pair<ConnObject, ConnObject> pair =
-                        getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
-                return pair != null && pair.getRight() != null;
+                StatusProvider.Info info = getStatusProviderInfo(bean.getKey(), bean.getResource(), connObjects);
+                return info != null && info.onResource() != null;
             }
 
             @Override
@@ -200,16 +198,16 @@ public class StatusPanel extends Panel {
         return initialStatusBeanMap;
     }
 
-    protected static Pair<ConnObject, ConnObject> getConnObjectTOs(
+    protected static StatusProvider.Info getStatusProviderInfo(
             final String anyKey,
             final String resource,
-            final List<Triple<ConnObject, ConnObjectWrapper, String>> objects) {
+            final List<StatusProvider.InfoWithFailure> objects) {
 
-        for (Triple<ConnObject, ConnObjectWrapper, String> object : objects) {
-            if (anyKey.equals(object.getMiddle().getAny().getKey())
-                    && resource.equalsIgnoreCase(object.getMiddle().getResource())) {
+        for (StatusProvider.InfoWithFailure object : objects) {
+            if (anyKey.equals(object.onResource().getAny().getKey())
+                    && resource.equalsIgnoreCase(object.onResource().getResource())) {
 
-                return Pair.of(object.getLeft(), object.getMiddle().getConnObjectTO());
+                return new StatusProvider.Info(object.onSyncope(), object.onResource().getConnObjectTO());
             }
         }
 
@@ -222,22 +220,22 @@ public class StatusPanel extends Panel {
 
         protected final StatusBean bean;
 
-        protected final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects;
+        protected final List<StatusProvider.InfoWithFailure> connObjects;
 
-        RemoteAnyPanel(final StatusBean bean, final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects) {
+        RemoteAnyPanel(final StatusBean bean, final List<StatusProvider.InfoWithFailure> connObjects) {
             this.bean = bean;
             this.connObjects = connObjects;
 
             add(new ConnObjectPanel(
                     REMOTE_OBJECT_PANEL_ID,
                     Pair.of(new ResourceModel("before"), new ResourceModel("after")),
-                    getConnObjectTOs(),
+                    getStatusProviderInfo(),
                     false));
         }
 
         @Override
-        protected final Pair<ConnObject, ConnObject> getConnObjectTOs() {
-            return StatusPanel.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
+        protected final StatusProvider.Info getStatusProviderInfo() {
+            return StatusPanel.getStatusProviderInfo(bean.getKey(), bean.getResource(), connObjects);
         }
     }
 }

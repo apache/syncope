@@ -20,10 +20,10 @@ package org.apache.syncope.client.console.status;
 
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -54,18 +54,19 @@ public class ReconStatusPanel extends RemoteObjectPanel {
         add(new ConnObjectPanel(
                 REMOTE_OBJECT_PANEL_ID,
                 Pair.of(Model.of(Constants.SYNCOPE), new ResourceModel("resource")),
-                getConnObjectTOs(),
+                getStatusProviderInfo(),
                 false));
     }
 
     @Override
-    protected Pair<ConnObject, ConnObject> getConnObjectTOs() {
+    protected StatusProvider.Info getStatusProviderInfo() {
         List<Pair<String, ReconStatus>> statuses =
                 reconStatusUtils.getReconStatuses(anyTypeKey, anyKey, List.of(resource));
 
         return statuses.isEmpty()
                 ? null
-                : Pair.of(statuses.getFirst().getRight().getOnSyncope(),
-                          statuses.getFirst().getRight().getOnResource());
+                : new StatusProvider.Info(
+                        statuses.getFirst().getRight().getOnSyncope(),
+                        statuses.getFirst().getRight().getOnResource());
     }
 }

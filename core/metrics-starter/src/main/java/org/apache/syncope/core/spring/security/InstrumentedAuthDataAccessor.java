@@ -22,10 +22,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -36,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -102,14 +98,15 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
     }
 
     @Override
-    public Triple<User, Boolean, String> authenticate(final String domain, final Authentication authentication) {
+    public UsernamePasswordAuthResult authenticate(final String domain, final Authentication authentication) {
         try {
-            Triple<User, Boolean, String> auth = super.authenticate(domain, authentication);
+            UsernamePasswordAuthResult result = super.authenticate(domain, authentication);
 
-            Optional.ofNullable(auth.getLeft()).ifPresentOrElse(
+            Optional.ofNullable(result.user()).ifPresentOrElse(
                     user -> {
-                        Counter.builder(auth.getMiddle() ? USERNAME.apply(SUCCESS_TYPE) : USERNAME.apply(FAILURE_TYPE)).
-                                description(auth.getMiddle()
+                        Counter.builder(result.authenticated()
+                                ? USERNAME.apply(SUCCESS_TYPE) : USERNAME.apply(FAILURE_TYPE)).
+                                description(result.authenticated()
                                         ? SUCCESS_DESC.apply("username") : FAILURE_DESC.apply("username")).
                                 tag("realm", user.getRealm().getFullPath()).
                                 register(meterRegistry).
@@ -126,7 +123,7 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
                             register(meterRegistry).
                             increment());
 
-            return auth;
+            return result;
         } catch (DisabledException e) {
             Counter.builder(USERNAME.apply(DISABLED_TYPE)).
                     description(DISABLED_DESC.apply("JWT")).
@@ -137,11 +134,11 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
     }
 
     @Override
-    public Pair<String, Set<SyncopeGrantedAuthority>> authenticate(final JWTAuthentication authentication) {
+    public JWTAuthResult authenticate(final JWTAuthentication authentication) {
         try {
-            Pair<String, Set<SyncopeGrantedAuthority>> auth = super.authenticate(authentication);
+            JWTAuthResult result = super.authenticate(authentication);
 
-            if (MUST_CHANGE_PASSWORD_AUTHORITIES.equals(auth.getRight())) {
+            if (MUST_CHANGE_PASSWORD_AUTHORITIES.equals(result.authorities())) {
                 Counter.builder(JWT.apply(MUST_CHANGE_PASSWORD_TYPE)).
                         description(MUST_CHANGE_PASSWORD_DESC.apply("JWT")).
                         register(meterRegistry).
@@ -153,7 +150,7 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
                         increment();
             }
 
-            return auth;
+            return result;
         } catch (AuthenticationCredentialsNotFoundException e) {
             Counter.builder(JWT.apply(NOT_FOUND_TYPE)).
                     description(NOT_FOUND_DESC.apply("JWT")).

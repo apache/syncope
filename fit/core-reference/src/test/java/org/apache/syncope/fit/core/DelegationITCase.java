@@ -29,9 +29,6 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -224,8 +221,8 @@ public class DelegationITCase extends AbstractITCase {
         SyncopeClient rossini = CLIENT_FACTORY.create("rossini", "password");
 
         // 3. search users as rossini
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = rossini.self();
-        assertEquals(List.of("bellini"), self.getMiddle());
+        SyncopeClient.Self self = rossini.self();
+        assertEquals(List.of("bellini"), self.delegations());
 
         // 3a. search users as rossini without delegation -> FAIL
         try {

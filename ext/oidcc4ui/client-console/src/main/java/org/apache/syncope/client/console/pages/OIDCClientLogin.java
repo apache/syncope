@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.time.Instant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -40,8 +41,9 @@ public class OIDCClientLogin extends WebPage {
     public OIDCClientLogin(final PageParameters parameters) {
         super(parameters);
 
-        String token = parameters.get(OIDCC4UIConstants.OIDCC4UI_JWT).toOptionalString();
-        if (StringUtils.isBlank(token)) {
+        String jwt = parameters.get(OIDCC4UIConstants.OIDCC4UI_JWT).toOptionalString();
+        Instant jwtExpiration = parameters.get(OIDCC4UIConstants.OIDCC4UI_JWT_EXPIRATION).toOptional(Instant.class);
+        if (StringUtils.isBlank(jwt)) {
             LOG.error("No JWT found, redirecting to default greeter");
 
             PageParameters loginParameters = new PageParameters();
@@ -52,7 +54,7 @@ public class OIDCClientLogin extends WebPage {
 
         IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
-        if (SyncopeConsoleSession.get().authenticate(token)) {
+        if (SyncopeConsoleSession.get().authenticate(jwt, jwtExpiration)) {
             if (parameters.get(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED).toBoolean(false)) {
                 SyncopeConsoleSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, OIDCClientBeforeLogout.class);
             }

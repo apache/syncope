@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -30,7 +29,7 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserCR, UserUR> {
 
-    Pair<String, List<PropagationStatus>> create(
+    ProvisioningResult<String> create(
             UserCR userCR,
             boolean disablePwdPolicyCheck,
             Boolean enabled,
@@ -39,13 +38,13 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
             String creator,
             String context);
 
-    Pair<UserUR, List<PropagationStatus>> update(
+    ProvisioningResult<UserUR> update(
             UserUR userUR,
             boolean nullPriorityAsync,
             String updater,
             String context);
 
-    Pair<UserUR, List<PropagationStatus>> update(
+    ProvisioningResult<UserUR> update(
             UserUR userUR,
             ProvisioningReport result,
             Boolean enabled,
@@ -54,14 +53,11 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
             String updater,
             String context);
 
-    Pair<String, List<PropagationStatus>> activate(
-            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
+    ProvisioningResult<String> activate(StatusR statusR, boolean nullPriorityAsync, String updater, String context);
 
-    Pair<String, List<PropagationStatus>> reactivate(
-            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
+    ProvisioningResult<String> reactivate(StatusR statusR, boolean nullPriorityAsync, String updater, String context);
 
-    Pair<String, List<PropagationStatus>> suspend(
-            StatusR statusR, boolean nullPriorityAsync, String updater, String context);
+    ProvisioningResult<String> suspend(StatusR statusR, boolean nullPriorityAsync, String updater, String context);
 
     void internalSuspend(String key, String updater, String context);
 

@@ -29,7 +29,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -520,10 +519,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final String jobName) {
+    protected JobReference getReference(final String jobName) {
         return JobNamer.getTaskKeyFromJobName(jobName).
                 flatMap(taskDAO::findById).filter(SchedTask.class::isInstance).
-                map(t -> Triple.of(JobType.TASK, t.getKey(), binder.buildRefDesc(t))).
+                map(t -> new JobReference(JobType.TASK, t.getKey(), binder.buildRefDesc(t))).
                 orElse(null);
     }
 

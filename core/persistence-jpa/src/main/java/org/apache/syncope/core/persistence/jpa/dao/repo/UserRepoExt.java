@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -55,7 +55,7 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
-    Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
+    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(User user);
 
     boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 

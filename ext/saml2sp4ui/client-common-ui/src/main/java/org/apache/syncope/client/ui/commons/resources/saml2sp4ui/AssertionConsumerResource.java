@@ -48,12 +48,12 @@ public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResour
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         SAML2SP4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(SAML2SP4UIService.class);
-        SAML2LoginResponse saml2Response = service.validateLoginResponse(extract(attributes));
+        SAML2LoginResponse response = service.validateLoginResponse(extract(attributes));
 
-        if (saml2Response.isSelfReg()) {
+        if (response.isSelfReg()) {
             UserTO newUser = new UserTO();
-            newUser.setUsername(saml2Response.getUsername());
-            newUser.getPlainAttrs().addAll(saml2Response.getAttrs());
+            newUser.setUsername(response.getUsername());
+            newUser.getPlainAttrs().addAll(response.getAttrs());
 
             try {
                 Pair<Class<? extends WebPage>, PageParameters> selfRegInfo = getSelfRegInfo(newUser);
@@ -66,8 +66,12 @@ public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResour
             throw new RestartResponseException(
                     getLoginPageClass(),
                     new PageParameters().
-                            set(SAML2SP4UIConstants.SAML2SP4UI_JWT, saml2Response.getAccessToken()).
-                            set(SAML2SP4UIConstants.SAML2SP4UI_SLO_SUPPORTED, saml2Response.isSloSupported()));
+                            set(SAML2SP4UIConstants.SAML2SP4UI_JWT,
+                                    response.getAccessToken()).
+                            set(SAML2SP4UIConstants.SAML2SP4UI_JWT_EXPIRATION,
+                                    response.getAccessTokenExpiryTime().toInstant()).
+                            set(SAML2SP4UIConstants.SAML2SP4UI_SLO_SUPPORTED,
+                                    response.isSloSupported()));
         }
     }
 }

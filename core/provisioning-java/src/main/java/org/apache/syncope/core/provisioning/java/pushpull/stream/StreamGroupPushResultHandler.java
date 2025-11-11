@@ -18,21 +18,19 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
-import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultGroupPushResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler {
@@ -46,7 +44,7 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
 
         Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
-        Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
+        MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromAny(
                 any, null, false, enabled, profile.getTask().getResource(), provision);
 
         PropagationTaskInfo propagationTask = propagationManager.newTask(
