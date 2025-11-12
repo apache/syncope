@@ -52,8 +52,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected final String realm;
 
-    protected final String type;
-
     protected final PageReference pageRef;
 
     protected int currentPage;
@@ -88,7 +86,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         this.comparator = new SortableAnyProviderComparator<>(this);
 
         this.realm = realm;
-        this.type = type;
         this.pageRef = pageRef;
     }
 
