@@ -588,14 +588,14 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(final AttrCond cond) {
-        CheckResult checked = check(cond);
+        CheckResult<AttrCond> checked = check(cond);
 
         return fillAttrQuery(checked.schema(), checked.value(), cond);
     }
 
     @Override
-    protected CheckResult check(final AnyCond cond, final AnyTypeKind kind) {
-        CheckResult checked = super.check(cond, kind);
+    protected CheckResult<AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
+        CheckResult<AnyCond> checked = super.check(cond, kind);
 
         // Manage difference between external id attribute and internal _id
         if ("id".equals(checked.cond().getSchema())) {
@@ -615,7 +615,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             cond.setExpression(realm.getKey());
         }
 
-        CheckResult checked = check(cond, kind);
+        CheckResult<AnyCond> checked = check(cond, kind);
 
         return fillAttrQuery(checked.schema(), checked.value(), checked.cond());
     }

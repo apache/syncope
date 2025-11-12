@@ -658,7 +658,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
     protected AttrCondQuery getQuery(
             final AttrCond cond,
             final boolean not,
-            final CheckResult checked,
+            final CheckResult<AttrCond> checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 

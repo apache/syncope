@@ -100,7 +100,7 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     protected AttrCondQuery getQuery(
             final AttrCond cond,
             final boolean not,
-            final CheckResult checked,
+            final CheckResult<AttrCond> checked,
             final List<Object> parameters,
             final SearchSupport svs) {
 
