@@ -167,7 +167,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
                     @Override
                     protected Long load() {
-                        return groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null);
+                        return groupRestClient.count(SyncopeConstants.ROOT_REALM, null);
                     }
                 })
                 : Pair.of(groupNames, Model.of(0L));
