@@ -58,7 +58,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     @Override
-    public long count(final String realm, final String fiql, final String type) {
+    public long count(final String realm, final String fiql) {
         return getService(GroupService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(0).details(false).build()).
                 getTotalCount();
@@ -70,8 +70,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
             final String fiql,
             final int page,
             final int size,
-            final SortParam<String> sort,
-            final String type) {
+            final SortParam<String> sort) {
 
         return getService(GroupService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).details(false).

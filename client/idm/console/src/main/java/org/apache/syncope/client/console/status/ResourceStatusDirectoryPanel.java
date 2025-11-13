@@ -277,7 +277,7 @@ public class ResourceStatusDirectoryPanel
             if (fiql != null && restClient != null) {
                 int page = (int) first / paginatorRows;
                 List<? extends AnyTO> result = restClient.search(
-                        SyncopeConstants.ROOT_REALM, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+                        SyncopeConstants.ROOT_REALM, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
                 statusBeans.addAll(result.stream().map(any -> StatusUtils.getStatusBean(any,
                         resource.getKey(),
@@ -291,7 +291,7 @@ public class ResourceStatusDirectoryPanel
         @Override
         public long size() {
             return Optional.ofNullable(fiql).
-                    map(s -> restClient.count(SyncopeConstants.ROOT_REALM, s, type)).
+                    map(s -> restClient.count(SyncopeConstants.ROOT_REALM, s)).
                     orElse(0L);
         }
     }

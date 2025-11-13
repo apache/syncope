@@ -52,8 +52,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     protected final String realm;
 
-    protected final String type;
-
     protected final PageReference pageRef;
 
     protected int currentPage;
@@ -88,7 +86,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         this.comparator = new SortableAnyProviderComparator<>(this);
 
         this.realm = realm;
-        this.type = type;
         this.pageRef = pageRef;
     }
 
@@ -104,10 +101,10 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
             if (filtered) {
                 result = Optional.ofNullable(fiql).
-                        map(s -> restClient.search(realm, s, currentPage + 1, paginatorRows, getSort(), type)).
+                        map(s -> restClient.search(realm, s, currentPage + 1, paginatorRows, getSort())).
                         orElseGet(List::of);
             } else {
-                result = restClient.search(realm, null, currentPage + 1, paginatorRows, getSort(), type);
+                result = restClient.search(realm, null, currentPage + 1, paginatorRows, getSort());
             }
         } catch (Exception e) {
             LOG.error("While searching with FIQL {}", fiql, e);
@@ -126,9 +123,9 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         try {
             if (filtered) {
-                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s, type)).orElse(0L);
+                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s)).orElse(0L);
             } else {
-                result = restClient.count(realm, null, type);
+                result = restClient.count(realm, null);
             }
         } catch (Exception e) {
             LOG.error("While requesting for size() with FIQL {}", fiql, e);

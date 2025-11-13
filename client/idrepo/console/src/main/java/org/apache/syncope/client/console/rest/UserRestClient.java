@@ -67,7 +67,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     @Override
-    public long count(final String realm, final String fiql, final String type) {
+    public long count(final String realm, final String fiql) {
         return getService(UserService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(0).details(false).build()).
                 getTotalCount();
@@ -75,8 +75,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
 
     @Override
     public List<UserTO> search(
-            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort,
-            final String type) {
+            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort) {
 
         return getService(UserService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).details(false).

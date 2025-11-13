@@ -721,8 +721,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                         query(),
                                 1,
                                 Constants.MAX_GROUP_LIST_SIZE,
-                                new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                                null).stream().map(GroupTO::getName).toList());
+                                new SortParam<>(Constants.NAME_FIELD_NAME, true)).
+                                stream().map(GroupTO::getName).toList());
                     }
                 }
             }

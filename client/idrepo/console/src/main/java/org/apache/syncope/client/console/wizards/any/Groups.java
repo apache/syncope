@@ -237,8 +237,7 @@ public class Groups extends AbstractGroups {
                             builder.or(conditions).query(),
                             1,
                             Constants.MAX_GROUP_LIST_SIZE,
-                            sort,
-                            null).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
+                            sort).stream().collect(Collectors.toMap(GroupTO::getKey, GroupTO::getName)));
                 }
             }
 
@@ -268,8 +267,8 @@ public class Groups extends AbstractGroups {
                         builder.or(conditions).query(),
                         -1,
                         -1,
-                        new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                        null).stream().map(GroupTO::getName).toList());
+                        new SortParam<>(Constants.NAME_FIELD_NAME, true)).
+                        stream().map(GroupTO::getName).toList());
             }
         }
 
