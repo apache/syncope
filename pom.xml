@@ -458,7 +458,7 @@ under the License.
     <debezium.version>3.0</debezium.version>
 
     <commons-lang3.version>3.19.0</commons-lang3.version>
-    <commons-jexl.version>3.5.0</commons-jexl.version>
+    <commons-jexl.version>3.6.0</commons-jexl.version>
     <commons-text.version>1.14.0</commons-text.version>
 
     <pac4j.version>6.1.1</pac4j.version>
