@@ -49,40 +49,19 @@ under the License.
   <!-- user -->
   <entry key="user_search">
     CREATE VIEW user_search AS
- 
-    SELECT u.id as any_id, u.* FROM SyncopeUser u
-  </entry>
-  <entry key="user_search_unique_attr">
-    CREATE VIEW user_search_unique_attr AS
 
-    SELECT u.id as any_id, attrs.*
-    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.uniqueValue' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
-    ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
-  </entry>
-  <entry key="user_search_attr">
-    CREATE VIEW user_search_attr AS
-    
-    SELECT u.id as any_id, attrs.*
-    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
+    SELECT u.id as any_id, u.*, attrs.*
+    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
+    binaryValue LONGBLOB PATH '$.binaryValue',
+    booleanValue INT PATH '$.booleanValue',
+    dateValue VARCHAR(32) PATH '$.dateValue',
+    doubleValue DOUBLE PATH '$.doubleValue',
+    longValue BIGINT(20) PATH '$.longValue',
+    stringValue VARCHAR(255) PATH '$.stringValue'),
+    attrUniqueValue JSON PATH '$.uniqueValue')
     ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
   </entry>
   <entry key="user_search_urelationship">
     CREATE VIEW user_search_urelationship AS
@@ -127,39 +106,18 @@ under the License.
   <entry key="anyObject_search">
     CREATE VIEW anyObject_search AS
  
-    SELECT a.id as any_id, a.* FROM AnyObject a
-  </entry>
-  <entry key="anyObject_search_unique_attr">
-    CREATE VIEW anyObject_search_unique_attr AS
-
-    SELECT u.id as any_id, attrs.*
-    FROM AnyObject u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.uniqueValue' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
-    ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
-  </entry>
-  <entry key="anyObject_search_attr">
-    CREATE VIEW anyObject_search_attr AS
-
-    SELECT u.id as any_id, attrs.*
-    FROM AnyObject u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
+    SELECT a.id as any_id, a.*, attrs.*
+    FROM AnyObject a LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
+    binaryValue LONGBLOB PATH '$.binaryValue',
+    booleanValue INT PATH '$.booleanValue',
+    dateValue VARCHAR(32) PATH '$.dateValue',
+    doubleValue DOUBLE PATH '$.doubleValue',
+    longValue BIGINT(20) PATH '$.longValue',
+    stringValue VARCHAR(255) PATH '$.stringValue'),
+    attrUniqueValue JSON PATH '$.uniqueValue')
     ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
   </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
@@ -198,39 +156,18 @@ under the License.
   <entry key="group_search">
     CREATE VIEW group_search AS
  
-    SELECT r.id as any_id, r.* FROM SyncopeGroup r
-  </entry>
-  <entry key="group_search_unique_attr">
-    CREATE VIEW group_search_unique_attr AS
-
-    SELECT u.id as any_id, attrs.*
-    FROM SyncopeGroup u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.uniqueValue' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
-    ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
-  </entry>
-  <entry key="group_search_attr">
-    CREATE VIEW group_search_attr AS
-
-    SELECT u.id as any_id, attrs.*
-    FROM SyncopeGroup u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[]'), '$[*]' COLUMNS (
-    schema_id VARCHAR(255) PATH '$.schema',
+    SELECT g.id as any_id, g.*, attrs.*
+    FROM SyncopeGroup g LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
-    booleanvalue INT PATH '$.booleanValue',
-    datevalue VARCHAR(32) PATH '$.dateValue',
-    doublevalue DOUBLE PATH '$.doubleValue',
-    longvalue BIGINT(20) PATH '$.longValue',
-    stringvalue VARCHAR(255) PATH '$.stringValue'))
+    binaryValue LONGBLOB PATH '$.binaryValue',
+    booleanValue INT PATH '$.booleanValue',
+    dateValue VARCHAR(32) PATH '$.dateValue',
+    doubleValue DOUBLE PATH '$.doubleValue',
+    longValue BIGINT(20) PATH '$.longValue',
+    stringValue VARCHAR(255) PATH '$.stringValue'),
+    attrUniqueValue JSON PATH '$.uniqueValue')
     ) AS attrs ON 1=1
-    WHERE schema_id IS NOT NULL 
-    AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
   </entry>
   <entry key="group_search_grelationship">
     CREATE VIEW group_search_grelationship AS
