@@ -20,9 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -30,15 +27,10 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.domain.Sort;
 
-public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
+public class MariaDBJPAAnySearchDAO extends MySQLJPAAnySearchDAO {
 
     public MariaDBJPAAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
@@ -65,97 +57,5 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 validator,
                 entityManagerFactory,
                 entityManager);
-    }
-
-    @Override
-    protected void parseOrderByForPlainSchema(
-            final SearchSupport svs,
-            final OrderBySupport obs,
-            final OrderBySupport.Item item,
-            final Sort.Order clause,
-            final PlainSchema schema,
-            final String fieldName) {
-
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
-        obs.views.add(svs.field());
-
-        item.select = new StringBuilder().
-                append("( SELECT usa").append('.').append(key(schema.getType())).
-                append(" FROM ").append(schema.isUniqueConstraint()
-                ? svs.asSearchViewSupport().uniqueAttr().name()
-                : svs.asSearchViewSupport().attr().name()).
-                append(" usa WHERE usa.any_id = ").
-                append(defaultSV(svs).alias()).
-                append(".any_id").
-                append(" AND usa.schema_id ='").append(fieldName).append("'").
-                append(" LIMIT 1").
-                append(") AS ").append(fieldName).toString();
-        item.where = "plainSchema = '" + fieldName + '\'';
-        item.orderBy = fieldName + ' ' + clause.getDirection().name();
-    }
-
-    @Override
-    protected AttrCondQuery getQuery(
-            final AttrCond cond,
-            final boolean not,
-            final CheckResult<AttrCond> checked,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        // normalize NULL / NOT NULL checks
-        if (not) {
-            if (cond.getType() == AttrCond.Type.ISNULL) {
-                cond.setType(AttrCond.Type.ISNOTNULL);
-            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
-                cond.setType(AttrCond.Type.ISNULL);
-            }
-        }
-
-        switch (cond.getType()) {
-            case ISNOTNULL -> {
-                return new AttrCondQuery(true, new AnySearchNode.Leaf(
-                        svs.field(),
-                        "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
-                        + ") IS NOT NULL"));
-            }
-
-            case ISNULL -> {
-                return new AttrCondQuery(true, new AnySearchNode.Leaf(
-                        svs.field(),
-                        "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
-                        + ") IS NULL"));
-            }
-
-            default -> {
-                if (!not && cond.getType() == AttrCond.Type.EQ) {
-                    PlainAttr container = new PlainAttr();
-                    container.setPlainSchema(checked.schema());
-                    if (checked.schema().isUniqueConstraint()) {
-                        container.setUniqueValue(checked.value());
-                    } else {
-                        container.add(checked.value());
-                    }
-
-                    return new AttrCondQuery(true, new AnySearchNode.Leaf(
-                            svs.field(),
-                            "JSON_CONTAINS("
-                            + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
-                            + "')"));
-                } else {
-                    Optional.ofNullable(checked.value().getDateValue()).
-                            map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                            ifPresent(formatted -> {
-                                checked.value().setDateValue(null);
-                                checked.value().setStringValue(formatted);
-                            });
-
-                    return super.getQuery(cond, not, checked, parameters, svs);
-                }
-            }
-        }
     }
 }
