@@ -19,7 +19,7 @@
 
 services:
    db:
-     image: mariadb:12
+     image: mariadb:11
      restart: always
      command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_bin']
      environment:

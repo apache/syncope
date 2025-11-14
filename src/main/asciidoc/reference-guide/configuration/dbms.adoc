@@ -98,9 +98,8 @@ persistence.viewsXML=classpath:META-INF/mariadb/views.xml
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=org.mariadb.jdbc.Driver
 persistence.domain[0].jdbcURL=jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8
-# keep the next two lines until https://jira.mariadb.org/browse/MDEV-27898 is fixed
-persistence.domain[0].dbUsername=root
-persistence.domain[0].dbPassword=password
+persistence.domain[0].dbUsername=syncope
+persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
 persistence.domain[0].orm=META-INF/mariadb/spring-orm.xml
 persistence.domain[0].poolMaxActive=20
@@ -129,8 +128,7 @@ https://mariadb.com/kb/en/configuring-mariadb-with-option-files/[option file^].
 
 [WARNING]
 This assumes that you have a MariaDB instance running on localhost, listening on its default port 3306 with a database
-`syncope` and super-admin user `root` with password `password`. +
-Super-admin user is required until https://jira.mariadb.org/browse/MDEV-27898[this bug^] is fixed.
+`syncope` fully accessible by user `syncope` with password `syncope`.
 
 ==== Oracle Database
 

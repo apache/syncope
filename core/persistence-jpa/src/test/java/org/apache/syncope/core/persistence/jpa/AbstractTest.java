@@ -164,12 +164,6 @@ public abstract class AbstractTest {
                     withReuse(true);
             twoDomain.start();
             JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
-
-            // https://jira.mariadb.org/browse/MDEV-27898
-            DB_USER_SUPPLIER = () -> "root";
-            DB_PWD_SUPPLIER = () -> "syncope";
-            DB2_USER_SUPPLIER = () -> "root";
-            DB2_PWD_SUPPLIER = () -> "syncope";
         } else if (classExists("oracle.jdbc.OracleDriver")) {
             JDBC_DRIVER = "oracle.jdbc.OracleDriver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.OracleDictionary";
