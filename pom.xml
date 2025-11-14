@@ -494,7 +494,7 @@ under the License.
     <byte-buddy.jdk25.version>1.17.8</byte-buddy.jdk25.version>
     <mockito.jdk25.version>5.20.0</mockito.jdk25.version>
 
-    <testcontainers.version>1.21.3</testcontainers.version>
+    <testcontainers.version>2.0.2</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.1.1</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.6.0</zonky.embedded-postgres-binaries.version>
@@ -1367,37 +1367,37 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>jdbc</artifactId>
+        <artifactId>testcontainers-jdbc</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>database-commons</artifactId>
+        <artifactId>testcontainers-database-commons</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>mysql</artifactId>
+        <artifactId>testcontainers-mysql</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>mariadb</artifactId>
+        <artifactId>testcontainers-mariadb</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>oracle-free</artifactId>
+        <artifactId>testcontainers-oracle-free</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
-        <artifactId>openfga</artifactId>
+        <artifactId>testcontainers-openfga</artifactId>
         <version>${testcontainers.version}</version>
         <scope>test</scope>
       </dependency>

@@ -107,17 +107,17 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>mysql</artifactId>
+      <artifactId>testcontainers-mysql</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>mariadb</artifactId>
+      <artifactId>testcontainers-mariadb</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
-      <artifactId>oracle-free</artifactId>
+      <artifactId>testcontainers-oracle-free</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

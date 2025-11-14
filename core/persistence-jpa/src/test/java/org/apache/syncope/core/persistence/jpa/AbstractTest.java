@@ -36,8 +36,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mariadb.MariaDBContainer;
+import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.oracle.OracleContainer;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
@@ -126,7 +126,7 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/mysql/indexes.xml";
             VIEWS = "classpath:META-INF/mysql/views.xml";
 
-            MySQLContainer<?> masterDomain = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
+            MySQLContainer masterDomain = new MySQLContainer("mysql:" + dockerMySQLVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
@@ -134,7 +134,7 @@ public abstract class AbstractTest {
             masterDomain.start();
             JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
-            MySQLContainer<?> twoDomain = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
+            MySQLContainer twoDomain = new MySQLContainer("mysql:" + dockerMySQLVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
@@ -149,7 +149,7 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/mariadb/indexes.xml";
             VIEWS = "classpath:META-INF/mariadb/views.xml";
 
-            MariaDBContainer<?> masterDomain = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
+            MariaDBContainer masterDomain = new MariaDBContainer("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
@@ -157,7 +157,7 @@ public abstract class AbstractTest {
             masterDomain.start();
             JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
-            MariaDBContainer<?> twoDomain = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
+            MariaDBContainer twoDomain = new MariaDBContainer("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
