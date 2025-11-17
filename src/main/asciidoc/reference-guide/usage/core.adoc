@@ -71,7 +71,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/4_0_X/core/spring/src/main/java/org/apache/syncope/core/spring/security/WebSecurityContext.java[WebSecurityContext^];
 endif::[]
-while normally not needed, this configuration can be anyway <extending-configuration,customized>>.
+while normally not needed, this configuration can be anyway <<extending-configuration,customized>>.
 
 https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is set for use by default.
 ====
