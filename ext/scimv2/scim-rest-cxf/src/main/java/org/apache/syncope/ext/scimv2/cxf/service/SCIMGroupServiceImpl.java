@@ -50,7 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.Member;
@@ -68,6 +68,8 @@ import org.springframework.util.CollectionUtils;
 
 public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements SCIMGroupService {
 
+    protected final JexlTools jexlTools;
+
     public SCIMGroupServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -76,9 +78,11 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
             final GroupLogic groupLogic,
             final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
-            final SCIMConfManager confManager) {
+            final SCIMConfManager confManager,
+            final JexlTools jexlTools) {
 
         super(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder, confManager);
+        this.jexlTools = jexlTools;
     }
 
     private void changeMembership(final String user, final String group, final PatchOp patchOp) {
@@ -157,7 +161,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
                 if (CollectionUtils.isEmpty(op.getValue())) {
                     members(id).stream().filter(member -> op.getPath().getFilter() == null
                             ? true
-                            : BooleanUtils.toBoolean(JexlUtils.evaluateExpr(
+                            : BooleanUtils.toBoolean(jexlTools.evaluateExpression(
                                     SCIMDataBinder.filter2JexlExpression(op.getPath().getFilter()),
                                     new MapContext(Map.of("value", member))).toString())).
                             forEach(member -> changeMembership(member, id, op.getOp()));

@@ -18,18 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.jexl;
 
-/**
- * A class loader that will throw {@link ClassNotFoundException} for every class name.
- */
-public class EmptyClassLoader extends ClassLoader {
+public interface JexlFunctions {
 
-    @Override
-    public Class<?> loadClass(final String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException("This classloader won't attempt to load " + name);
-    }
-
-    @Override
-    protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
-        throw new ClassNotFoundException("This classloader won't attempt to load " + name);
-    }
+    String getNamespace();
 }

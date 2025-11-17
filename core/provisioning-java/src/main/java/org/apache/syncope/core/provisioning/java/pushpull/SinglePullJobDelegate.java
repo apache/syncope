@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -46,7 +47,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,6 +57,9 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
     @Autowired
     protected RealmSearchDAO realmSearchDAO;
+
+    @Autowired
+    protected TemplateUtils templateUtils;
 
     @Override
     public List<ProvisioningReport> pull(
@@ -89,7 +92,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             task.setRemediation(pullTaskTO.isRemediation());
 
             // validate JEXL expressions from templates and proceed if fine
-            TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+            templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
                     anyType -> {
                         AnyTemplatePullTask anyTemplate = task.getTemplate(anyType.getKey()).orElse(null);

@@ -39,7 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,18 +57,22 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
     protected final IntAttrNameParser intAttrNameParser;
 
+    protected final JexlTools jexlTools;
+
     public SAML2SP4UIIdPDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
             final SAML2SP4UIIdPDAO idapDAO,
             final ImplementationDAO implementationDAO,
             final SAML2SP4UIEntityFactory entityFactory,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.idapDAO = idapDAO;
         this.implementationDAO = implementationDAO;
         this.entityFactory = entityFactory;
         this.intAttrNameParser = intAttrNameParser;
+        this.jexlTools = jexlTools;
     }
 
     @Override
@@ -102,9 +106,8 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
-                    // no mandatory condition implies mandatory condition false
-                    if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                            ? "false" : itemTO.getMandatoryCondition())) {
+                    if (itemTO.getMandatoryCondition() != null
+                            && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
 
                         SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                                 ClientExceptionType.InvalidValues);

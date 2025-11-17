@@ -62,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,7 +85,8 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final JexlTools jexlTools) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -101,7 +103,8 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                validator);
+                validator,
+                jexlTools);
     }
 
     @Transactional(readOnly = true)

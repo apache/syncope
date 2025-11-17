@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
@@ -32,7 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,27 +42,31 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    protected static Map<DerSchema, String> getValues(
+    protected final AnyUtilsFactory anyUtilsFactory;
+
+    protected final JexlTools jexlTools;
+
+    public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
+        this.anyUtilsFactory = anyUtilsFactory;
+        this.jexlTools = jexlTools;
+    }
+
+    protected Map<DerSchema, String> getValues(
             final Attributable attributable,
             final Collection<? extends DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addPlainAttrsToContext(attributable.getPlainAttrs(), jexlContext);
-            JexlUtils.addFieldsToContext(attributable, jexlContext);
+            JexlContext jexlContext = new JexlContextBuilder().
+                    plainAttrs(attributable.getPlainAttrs()).
+                    fields(attributable).
+                    build();
 
-            result.put(schema, JexlUtils.evaluateExpr(schema.getExpression(), jexlContext).toString());
+            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
-    }
-
-    protected final AnyUtilsFactory anyUtilsFactory;
-
-    public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
-        this.anyUtilsFactory = anyUtilsFactory;
     }
 
     @Override
@@ -115,17 +119,18 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
-    protected static Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+    protected Map<DerSchema, String> getValues(
+            final Groupable<?, ?, ?> groupable, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(membership), jexlContext);
-            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlContext jexlContext = new JexlContextBuilder().
+                    plainAttrs(groupable.getPlainAttrs(membership)).
+                    fields(groupable).
+                    build();
 
-            result.put(schema, JexlUtils.evaluateExpr(schema.getExpression(), jexlContext).toString());
+            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;

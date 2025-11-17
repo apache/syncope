@@ -68,7 +68,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
@@ -114,6 +114,8 @@ public class DefaultNotificationManager implements NotificationManager {
 
     protected final SearchCondVisitor searchCondVisitor;
 
+    protected final JexlTools jexlTools;
+
     protected Optional<RecipientsProvider> perContextRecipientsProvider = Optional.empty();
 
     public DefaultNotificationManager(
@@ -132,7 +134,8 @@ public class DefaultNotificationManager implements NotificationManager {
             final ConfParamOps confParamOps,
             final EntityFactory entityFactory,
             final IntAttrNameParser intAttrNameParser,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final JexlTools jexlTools) {
 
         this.derSchemaDAO = derSchemaDAO;
         this.notificationDAO = notificationDAO;
@@ -150,6 +153,7 @@ public class DefaultNotificationManager implements NotificationManager {
         this.entityFactory = entityFactory;
         this.intAttrNameParser = intAttrNameParser;
         this.searchCondVisitor = searchCondVisitor;
+        this.jexlTools = jexlTools;
     }
 
     @Transactional(readOnly = true)
@@ -222,13 +226,13 @@ public class DefaultNotificationManager implements NotificationManager {
         task.setTraceLevel(notification.getTraceLevel());
         task.getRecipients().addAll(recipientEmails);
         task.setSender(notification.getSender());
-        task.setSubject(JexlUtils.evaluateTemplate(notification.getSubject(), ctx));
+        task.setSubject(jexlTools.evaluateTemplate(notification.getSubject(), ctx));
 
         if (StringUtils.isNotBlank(notification.getTemplate().getTextTemplate())) {
-            task.setTextBody(JexlUtils.evaluateTemplate(notification.getTemplate().getTextTemplate(), ctx));
+            task.setTextBody(jexlTools.evaluateTemplate(notification.getTemplate().getTextTemplate(), ctx));
         }
         if (StringUtils.isNotBlank(notification.getTemplate().getHTMLTemplate())) {
-            task.setHtmlBody(JexlUtils.evaluateTemplate(notification.getTemplate().getHTMLTemplate(), ctx));
+            task.setHtmlBody(jexlTools.evaluateTemplate(notification.getTemplate().getHTMLTemplate(), ctx));
         }
 
         return task;

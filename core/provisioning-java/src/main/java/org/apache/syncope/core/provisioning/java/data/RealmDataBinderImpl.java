@@ -57,9 +57,9 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 
 public class RealmDataBinderImpl extends AttributableDataBinder implements RealmDataBinder {
 
@@ -77,6 +77,8 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
 
     protected final EntityFactory entityFactory;
 
+    protected final TemplateUtils templateUtils;
+
     public RealmDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -89,9 +91,11 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
             final DerAttrHandler derAttrHandler,
             final PlainAttrValidationManager validator,
             final MappingManager mappingManager,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools,
+            final TemplateUtils templateUtils) {
 
-        super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser);
+        super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser, jexlTools);
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.implementationDAO = implementationDAO;
@@ -99,6 +103,7 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
         this.policyDAO = policyDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
+        this.templateUtils = templateUtils;
     }
 
     protected void fill(
@@ -175,7 +180,7 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
                 removeIf(implementation -> !realmTO.getActions().contains(implementation.getKey()));
 
         // validate JEXL expressions from templates and proceed if fine
-        TemplateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
+        templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidRealm);
         realmTO.getTemplates().forEach((key, template) -> anyTypeDAO.findById(key).ifPresentOrElse(
                 type -> {
                     AnyTemplateRealm anyTemplate = realm.getTemplate(type).orElse(null);
@@ -225,7 +230,7 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
                         schemaType,
                         realm);
                 if (intValues.values().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), realm, derAttrHandler)) {
+                        && jexlTools.evaluateMandatoryCondition(item.getMandatoryCondition(), realm, derAttrHandler)) {
 
                     missingAttrNames.add(item.getIntAttrName());
                 }

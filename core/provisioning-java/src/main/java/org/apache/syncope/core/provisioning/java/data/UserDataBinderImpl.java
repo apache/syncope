@@ -85,6 +85,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult.PropagationInfo;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -127,7 +128,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final JexlTools jexlTools) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -144,7 +146,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                validator);
+                validator,
+                jexlTools);
 
         this.roleDAO = roleDAO;
         this.securityQuestionDAO = securityQuestionDAO;

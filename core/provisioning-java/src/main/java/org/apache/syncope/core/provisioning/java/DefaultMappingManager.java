@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
@@ -83,7 +82,8 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.FrameworkUtil;
@@ -189,6 +189,8 @@ public class DefaultMappingManager implements MappingManager {
 
     protected final EncryptorManager encryptorManager;
 
+    protected final JexlTools jexlTools;
+
     public DefaultMappingManager(
             final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
@@ -199,7 +201,8 @@ public class DefaultMappingManager implements MappingManager {
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final IntAttrNameParser intAttrNameParser,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final JexlTools jexlTools) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.userDAO = userDAO;
@@ -211,6 +214,7 @@ public class DefaultMappingManager implements MappingManager {
         this.derAttrHandler = derAttrHandler;
         this.intAttrNameParser = intAttrNameParser;
         this.encryptorManager = encryptorManager;
+        this.jexlTools = jexlTools;
     }
 
     protected List<Implementation> getTransformers(final Item item) {
@@ -242,11 +246,13 @@ public class DefaultMappingManager implements MappingManager {
                 orElse(null);
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
+            JexlContext jexlContext = new JexlContextBuilder().
+                    fields(any).
+                    plainAttrs(any.getPlainAttrs()).
+                    derAttrs(any, derAttrHandler).
+                    build();
+
+            evalConnObjectLink = jexlTools.evaluateExpression(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -272,9 +278,9 @@ public class DefaultMappingManager implements MappingManager {
         String connObjectLink = orgUnit.getConnObjectLink();
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
+            JexlContext jexlContext = new JexlContextBuilder().fields(realm).build();
+
+            evalConnObjectLink = jexlTools.evaluateExpression(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);

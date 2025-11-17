@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,13 +39,15 @@ public class OIDCC4UIProvisioningContext {
             final OIDCC4UIProviderDAO oidcOPDAO,
             final ImplementationDAO implementationDAO,
             final OIDCC4UIEntityFactory entityFactory,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools) {
 
         return new OIDCC4UIProviderDataBinderImpl(
                 anyTypeDAO,
                 oidcOPDAO,
                 implementationDAO,
                 entityFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                jexlTools);
     }
 }

@@ -66,12 +66,12 @@ header value.
 ====
 The relevant security configuration lies in
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/WebSecurityContext.java[WebSecurityContext^];
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
+https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/WebSecurityContext.java[WebSecurityContext^];
 endif::[]
-while normally not needed, this configuration can be anyway customized via the <<override-behavior,override behavior>>.
+while normally not needed, this configuration can be anyway <<extending-configuration,customized>>.
 
 https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is set for use by default.
 ====
@@ -561,3 +561,15 @@ for example, `/a/b/c` with prefix `o=isp,` becomes `o=isp,ou=c,ou=b,ou=a`
 connector object, or empty list if not found
 * `syncope:base64Encode(value)` - encodes the given byte array as Base64-encoded string
 * `syncope:base64Decode(value)` - decodes the given string as byte array using Base64 encoding
+
+[TIP]
+====
+More custom functions can be added by providing implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/jexl/JexlFunctions.java[JexlFunctions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/jexl/JexlFunctions.java[JexlFunctions^]
+endif::[]
+interface and registering them as beans, taking care of chosing unique namespace identifiers other than `syncope`.
+====

@@ -67,6 +67,7 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,7 +94,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
             final SearchCondVisitor searchCondVisitor,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final JexlTools jexlTools) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -110,7 +112,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                validator);
+                validator,
+                jexlTools);
 
         this.searchCondVisitor = searchCondVisitor;
     }

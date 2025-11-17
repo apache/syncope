@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +65,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final JexlTools jexlTools;
+
     public SchemaDataBinderImpl(
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
@@ -73,7 +75,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
             final EntityFactory entityFactory,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final JexlTools jexlTools) {
 
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.plainSchemaDAO = plainSchemaDAO;
@@ -83,11 +86,12 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         this.implementationDAO = implementationDAO;
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
+        this.jexlTools = jexlTools;
     }
 
     // --------------- PLAIN -----------------
     protected PlainSchema fill(final PlainSchema schema, final PlainSchemaTO schemaTO) {
-        if (!JexlUtils.isExpressionValid(schemaTO.getMandatoryCondition())) {
+        if (!jexlTools.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             sce.getElements().add(schemaTO.getMandatoryCondition());
             throw sce;
@@ -225,7 +229,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             requiredValuesMissing.getElements().add("expression");
 
             scce.addException(requiredValuesMissing);
-        } else if (!JexlUtils.isExpressionValid(schemaTO.getExpression())) {
+        } else if (!jexlTools.isExpressionValid(schemaTO.getExpression())) {
             SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             e.getElements().add(schemaTO.getExpression());
 

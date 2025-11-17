@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.data.SAML2SP4UIIdPDataBinderImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -39,13 +40,15 @@ public class SAML2SP4UIProvisioningContext {
             final SAML2SP4UIIdPDAO idapDAO,
             final ImplementationDAO implementationDAO,
             final SAML2SP4UIEntityFactory entityFactory,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools) {
 
         return new SAML2SP4UIIdPDataBinderImpl(
                 anyTypeDAO,
                 idapDAO,
                 implementationDAO,
                 entityFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                jexlTools);
     }
 }

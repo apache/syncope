@@ -47,6 +47,7 @@ import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class JexlUtilsTest extends AbstractTest {
 
@@ -54,78 +55,87 @@ public class JexlUtilsTest extends AbstractTest {
     private JexlContext context;
 
     @Test
-    public void isExpressionValid() {
+    void isExpressionValid() {
         String expression = "6 * 12 + 5 / 2.6";
-        assertTrue(JexlUtils.isExpressionValid(expression));
+        assertTrue(jexlTools().isExpressionValid(expression));
 
         expression = "@inv4lid expression!";
-        assertFalse(JexlUtils.isExpressionValid(expression));
+        assertFalse(jexlTools().isExpressionValid(expression));
     }
 
     @Test
-    public void evaluateExpr() {
+    void evaluateExpr() {
         String expression = null;
-        assertEquals(StringUtils.EMPTY, JexlUtils.evaluateExpr(expression, context));
+        assertEquals(StringUtils.EMPTY, jexlTools().evaluateExpression(expression, context));
 
         expression = "6 * 12 + 5 / 2.6";
         double result = 73.92307692307692;
-        assertEquals(result, JexlUtils.evaluateExpr(expression, context));
+        assertEquals(result, jexlTools().evaluateExpression(expression, context));
     }
 
     @Test
-    public void addFieldsToContext(
+    void builderFields(
             final @Mock Any any,
             final @Mock AnyTO anyTO,
             final @Mock Realm realm,
             final @Mock RealmTO realmTO) {
 
-        JexlUtils.addFieldsToContext(new Exception(), context);
+        JexlContextBuilder builder = new JexlContextBuilder();
+        ReflectionTestUtils.setField(builder, "jexlContext", context);
+
+        builder.fields(new Exception());
         verify(context, times(2)).set(eq("cause"), any());
 
         String testFullPath = "testFullPath";
         when(any.getRealm()).thenReturn(realm);
         when(realm.getFullPath()).thenReturn(testFullPath);
-        JexlUtils.addFieldsToContext(any, context);
+        builder.fields(any);
         verify(context).set("realm", testFullPath);
 
         String testRealm = "testRealm";
         when(anyTO.getRealm()).thenReturn(testRealm);
-        JexlUtils.addFieldsToContext(anyTO, context);
+        builder.fields(anyTO);
         verify(context, times(3)).set("realm", testRealm);
 
         String fullPath = "test/full/path";
         when(realm.getFullPath()).thenReturn(fullPath);
-        JexlUtils.addFieldsToContext(realm, context);
+        builder.fields(realm);
         verify(context, times(2)).set("fullPath", fullPath);
 
         fullPath = "test/full/path2";
         when(realmTO.getFullPath()).thenReturn(fullPath);
-        JexlUtils.addFieldsToContext(realmTO, context);
+        builder.fields(realmTO);
         verify(context, times(2)).set("fullPath", fullPath);
     }
 
     @Test
-    public void addAttrTOsToContext() {
-        String schemaName = "testSchema";
+    void builderAttrs() {
+        String schema = "testSchema";
         String value = "testValue";
         Collection<Attr> attrs = new ArrayList<>();
-        Attr attr = new Attr.Builder(schemaName).build();
+        Attr attr = new Attr.Builder(schema).build();
         attrs.add(attr);
 
-        JexlUtils.addAttrsToContext(attrs, context);
-        verify(context).set(schemaName, StringUtils.EMPTY);
+        JexlContextBuilder builder = new JexlContextBuilder();
+        ReflectionTestUtils.setField(builder, "jexlContext", context);
 
-        attr = new Attr.Builder(schemaName).value(value).build();
+        builder.attrs(attrs);
+        verify(context).set(schema, StringUtils.EMPTY);
+
+        attr = new Attr.Builder(schema).value(value).build();
         attrs.clear();
         attrs.add(attr);
 
-        JexlUtils.addAttrsToContext(attrs, context);
-        verify(context).set(schemaName, value);
+        builder.attrs(attrs);
+        verify(context).set(schema, value);
     }
 
     @Test
-    public void addPlainAttrsToContext(final @Mock Collection<PlainAttr> attrs) {
-        JexlUtils.addPlainAttrsToContext(attrs, context);
+    void builderPlainAttrs(final @Mock Collection<PlainAttr> attrs) {
+        JexlContextBuilder builder = new JexlContextBuilder();
+        ReflectionTestUtils.setField(builder, "jexlContext", context);
+
+        builder.plainAttrs(attrs);
         verify(context, times(0)).set(anyString(), any());
     }
 
@@ -141,12 +151,16 @@ public class JexlUtilsTest extends AbstractTest {
         derAttrs.put(derSchema, expression);
 
         when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);
-        JexlUtils.addDerAttrsToContext(any, derAttrHandler, context);
+
+        JexlContextBuilder builder = new JexlContextBuilder();
+        ReflectionTestUtils.setField(builder, "jexlContext", context);
+
+        builder.derAttrs(any, derAttrHandler);
         verify(context).set(derAttrs.get(derSchema), expression);
     }
 
     @Test
-    public void evaluateMandatoryCondition(
+    void evaluateMandatoryCondition(
             final @Mock DerAttrHandler derAttrHandler,
             final @Mock Any any,
             final @Mock DerSchema derSchema,
@@ -160,18 +174,18 @@ public class JexlUtilsTest extends AbstractTest {
         when(any.getPlainAttrs()).thenReturn(new ArrayList<>());
         when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);
 
-        assertTrue(JexlUtils.evaluateMandatoryCondition("true", any, derAttrHandler));
-        assertFalse(JexlUtils.evaluateMandatoryCondition("false", any, derAttrHandler));
+        assertTrue(jexlTools().evaluateMandatoryCondition("true", any, derAttrHandler));
+        assertFalse(jexlTools().evaluateMandatoryCondition("false", any, derAttrHandler));
     }
 
     @Test
-    public void evaluateTemplate() {
+    void evaluateTemplate() {
         byte[] byteArray = "a value".getBytes();
-        String result = JexlUtils.evaluateTemplate(
+        String result = jexlTools().evaluateTemplate(
                 "${syncope:base64Encode(value)}", new MapContext(Map.of("value", byteArray)));
         assertEquals(Base64.getEncoder().encodeToString(byteArray), result);
 
-        result = JexlUtils.evaluateTemplate(
+        result = jexlTools().evaluateTemplate(
                 "${syncope:fullPath2Dn(value, 'ou')}", new MapContext(Map.of("value", "/a/b/c")));
         assertEquals("ou=c,ou=b,ou=a", result);
     }

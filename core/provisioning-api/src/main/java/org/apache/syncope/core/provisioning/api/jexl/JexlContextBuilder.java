@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api.jexl;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
@@ -30,16 +29,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.JexlException;
-import org.apache.commons.jexl3.JexlExpression;
-import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,101 +50,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
-/**
- * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
- */
-@SuppressWarnings({ "squid:S3008", "squid:S3776", "squid:S1141" })
-public final class JexlUtils {
+public class JexlContextBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JexlUtils.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JexlContextBuilder.class);
 
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
     private static final Map<Class<?>, Set<Pair<PropertyDescriptor, Field>>> FIELD_CACHE =
             Collections.synchronizedMap(new HashMap<>());
 
-    private static JexlEngine JEXL_ENGINE;
+    protected final JexlContext jexlContext = new MapContext();
 
-    private static JxltEngine JXTL_ENGINE;
-
-    private static JexlEngine getJexlEngine() {
-        synchronized (LOG) {
-            if (JEXL_ENGINE == null) {
-                JEXL_ENGINE = new JexlBuilder().
-                        loader(new EmptyClassLoader()).
-                        permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
-                        namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
-                        cache(512).
-                        silent(false).
-                        strict(false).
-                        create();
-            }
-        }
-
-        return JEXL_ENGINE;
+    public JexlContextBuilder with(final String name, final Object value) {
+        jexlContext.set(name, value);
+        return this;
     }
 
-    private static JxltEngine getJxltEngine() {
-        synchronized (LOG) {
-            if (JXTL_ENGINE == null) {
-                JXTL_ENGINE = getJexlEngine().createJxltEngine(false);
-            }
-        }
-
-        return JXTL_ENGINE;
-    }
-
-    public static boolean isExpressionValid(final String expression) {
-        boolean result;
-        try {
-            getJexlEngine().createExpression(expression);
-            result = true;
-        } catch (JexlException e) {
-            LOG.error("Invalid JEXL expression: {}", expression, e);
-            result = false;
-        }
-
-        return result;
-    }
-
-    public static Object evaluateExpr(final String expression, final JexlContext jexlContext) {
-        Object result = null;
-
-        if (StringUtils.isNotBlank(expression) && jexlContext != null) {
-            try {
-                JexlExpression jexlExpression = getJexlEngine().createExpression(expression);
-                result = jexlExpression.evaluate(jexlContext);
-            } catch (Exception e) {
-                LOG.error("Error while evaluating JEXL expression: {}", expression, e);
-            }
-        } else {
-            LOG.debug("Expression not provided or invalid context");
-        }
-
-        return Optional.ofNullable(result).orElse(StringUtils.EMPTY);
-    }
-
-    public static String evaluateTemplate(final String template, final JexlContext jexlContext) {
-        String result = null;
-
-        if (StringUtils.isNotBlank(template) && jexlContext != null) {
-            try {
-                StringWriter writer = new StringWriter();
-                getJxltEngine().createTemplate(template).evaluate(jexlContext, writer);
-                result = writer.toString();
-            } catch (Exception e) {
-                LOG.error("Error while evaluating JEXL template: {}", template, e);
-            }
-        } else {
-            LOG.debug("Template not provided or invalid context");
-        }
-
-        return Optional.ofNullable(result).orElse(template);
-    }
-
-    public static void addFieldsToContext(final Object object, final JexlContext jexlContext) {
+    public JexlContextBuilder fields(final Object object) {
         if (object == null) {
-            return;
+            return this;
         }
 
         Set<Pair<PropertyDescriptor, Field>> cached = FIELD_CACHE.get(object.getClass());
@@ -227,9 +143,11 @@ public final class JexlUtils {
         } else if (object instanceof RealmTO realmTO) {
             jexlContext.set("fullPath", realmTO.getFullPath());
         }
+
+        return this;
     }
 
-    public static void addAttrsToContext(final Collection<Attr> attrs, final JexlContext jexlContext) {
+    public JexlContextBuilder attrs(final Collection<Attr> attrs) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             Object value;
             if (attr.getValues().isEmpty()) {
@@ -244,9 +162,11 @@ public final class JexlUtils {
 
             jexlContext.set(attr.getSchema(), value);
         });
+
+        return this;
     }
 
-    public static void addPlainAttrsToContext(final Collection<PlainAttr> attrs, final JexlContext jexlContext) {
+    public JexlContextBuilder plainAttrs(final Collection<PlainAttr> attrs) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             List<String> attrValues = attr.getValuesAsStrings();
             Object value;
@@ -262,13 +182,11 @@ public final class JexlUtils {
 
             jexlContext.set(attr.getSchema(), value);
         });
+
+        return this;
     }
 
-    public static void addDerAttrsToContext(
-            final Attributable attributable,
-            final DerAttrHandler derAttrHandler,
-            final JexlContext jexlContext) {
-
+    public JexlContextBuilder derAttrs(final Attributable attributable, final DerAttrHandler derAttrHandler) {
         Map<DerSchema, String> derAttrs = attributable instanceof Realm realm
                 ? derAttrHandler.getValues(realm)
                 : attributable instanceof Any any
@@ -276,23 +194,11 @@ public final class JexlUtils {
                         : Map.of();
 
         derAttrs.forEach((schema, value) -> jexlContext.set(schema.getKey(), value));
+
+        return this;
     }
 
-    public static boolean evaluateMandatoryCondition(
-            final String mandatoryCondition,
-            final Attributable attributable,
-            final DerAttrHandler derAttrHandler) {
-
-        JexlContext jexlContext = new MapContext();
-        addPlainAttrsToContext(attributable.getPlainAttrs(), jexlContext);
-        addDerAttrsToContext(attributable, derAttrHandler, jexlContext);
-
-        return Boolean.parseBoolean(evaluateExpr(mandatoryCondition, jexlContext).toString());
-    }
-
-    /**
-     * Private default constructor, for static-only classes.
-     */
-    private JexlUtils() {
+    public JexlContext build() {
+        return jexlContext;
     }
 }

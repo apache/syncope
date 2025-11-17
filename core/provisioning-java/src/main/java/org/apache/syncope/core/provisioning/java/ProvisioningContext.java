@@ -20,6 +20,11 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -104,6 +109,11 @@ import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.EmptyClassLoader;
+import org.apache.syncope.core.provisioning.api.jexl.JexlFunctions;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
+import org.apache.syncope.core.provisioning.api.jexl.SyncopeJexlFunctions;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -155,7 +165,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskSaver;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -182,6 +191,27 @@ import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 @EnableConfigurationProperties(ProvisioningProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class ProvisioningContext {
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeJexlFunctions syncopeJexlFunctions() {
+        return new SyncopeJexlFunctions();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public JexlTools jexlTools(final List<JexlFunctions> jexlFunctions) {
+        JexlEngine jexlEngine = new JexlBuilder().
+                loader(new EmptyClassLoader()).
+                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
+                namespaces(jexlFunctions.stream().
+                        collect(Collectors.toMap(JexlFunctions::getNamespace, Function.identity()))).
+                cache(512).
+                silent(false).
+                strict(false).
+                create();
+        return new JexlTools(jexlEngine);
+    }
 
     @ConditionalOnMissingBean
     @Bean
@@ -361,8 +391,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
-        return new DefaultDerAttrHandler(anyUtilsFactory);
+    public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
+        return new DefaultDerAttrHandler(anyUtilsFactory, jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -377,7 +407,8 @@ public class ProvisioningContext {
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final IntAttrNameParser intAttrNameParser,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final JexlTools jexlTools) {
 
         return new DefaultMappingManager(
                 anyTypeDAO,
@@ -389,13 +420,14 @@ public class ProvisioningContext {
                 implementationDAO,
                 derAttrHandler,
                 intAttrNameParser,
-                encryptorManager);
+                encryptorManager,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public TemplateUtils templateUtils(final UserDAO userDAO, final GroupDAO groupDAO) {
-        return new TemplateUtils(userDAO, groupDAO);
+    public TemplateUtils templateUtils(final UserDAO userDAO, final GroupDAO groupDAO, final JexlTools jexlTools) {
+        return new TemplateUtils(userDAO, groupDAO, jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -429,7 +461,8 @@ public class ProvisioningContext {
             final ExternalResourceDAO resourceDAO,
             final ConnObjectUtils connObjectUtils,
             final MappingManager mappingManager,
-            final DerAttrHandler derAttrHandler) {
+            final DerAttrHandler derAttrHandler,
+            final JexlTools jexlTools) {
 
         return new DefaultPropagationManager(
                 resourceDAO,
@@ -437,7 +470,8 @@ public class ProvisioningContext {
                 connObjectUtils,
                 mappingManager,
                 derAttrHandler,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -558,7 +592,8 @@ public class ProvisioningContext {
             final AnyObjectDataBinder anyObjectDataBinder,
             final ConfParamOps confParamOps,
             final DerAttrHandler derAttrHandler,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools) {
 
         return new DefaultNotificationManager(
                 derSchemaDAO,
@@ -576,7 +611,8 @@ public class ProvisioningContext {
                 confParamOps,
                 entityFactory,
                 intAttrNameParser,
-                searchCondVisitor);
+                searchCondVisitor,
+                jexlTools);
     }
 
     /**
@@ -696,7 +732,8 @@ public class ProvisioningContext {
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final JexlTools jexlTools) {
 
         return new AnyObjectDataBinderImpl(
                 anyTypeDAO,
@@ -714,7 +751,8 @@ public class ProvisioningContext {
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                validator);
+                validator,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -755,14 +793,14 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory) {
-        return new AuthModuleDataBinderImpl(entityFactory);
+    public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory, final JexlTools jexlTools) {
+        return new AuthModuleDataBinderImpl(entityFactory, jexlTools);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
-        return new AttrRepoDataBinderImpl(entityFactory);
+    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory, final JexlTools jexlTools) {
+        return new AttrRepoDataBinderImpl(entityFactory, jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -848,7 +886,8 @@ public class ProvisioningContext {
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final JexlTools jexlTools) {
 
         return new GroupDataBinderImpl(
                 anyTypeDAO,
@@ -867,7 +906,8 @@ public class ProvisioningContext {
                 intAttrNameParser,
                 outboundMatcher,
                 searchCondVisitor,
-                validator);
+                validator,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -926,7 +966,9 @@ public class ProvisioningContext {
             final DerAttrHandler derAttrHandler,
             final PlainAttrValidationManager validator,
             final MappingManager mappingManager,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools,
+            final TemplateUtils templateUtils) {
 
         return new RealmDataBinderImpl(
                 anyTypeDAO,
@@ -940,7 +982,9 @@ public class ProvisioningContext {
                 derAttrHandler,
                 validator,
                 mappingManager,
-                intAttrNameParser);
+                intAttrNameParser,
+                jexlTools,
+                templateUtils);
     }
 
     @ConditionalOnMissingBean
@@ -979,7 +1023,8 @@ public class ProvisioningContext {
             final ImplementationDAO implementationDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final IntAttrNameParser intAttrNameParser,
-            final PropagationTaskExecutor propagationTaskExecutor) {
+            final PropagationTaskExecutor propagationTaskExecutor,
+            final JexlTools jexlTools) {
 
         return new ResourceDataBinderImpl(
                 anyTypeDAO,
@@ -990,7 +1035,8 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 entityFactory,
                 intAttrNameParser,
-                propagationTaskExecutor);
+                propagationTaskExecutor,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -1032,7 +1078,8 @@ public class ProvisioningContext {
             final DerSchemaDAO derSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final AnyTypeDAO anyTypeDAO,
-            final ImplementationDAO implementationDAO) {
+            final ImplementationDAO implementationDAO,
+            final JexlTools jexlTools) {
 
         return new SchemaDataBinderImpl(
                 anyTypeClassDAO,
@@ -1042,7 +1089,8 @@ public class ProvisioningContext {
                 anyTypeDAO,
                 implementationDAO,
                 entityFactory,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -1061,7 +1109,8 @@ public class ProvisioningContext {
             final TaskExecDAO taskExecDAO,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
-            final SyncopeTaskScheduler scheduler) {
+            final SyncopeTaskScheduler scheduler,
+            final TemplateUtils templateUtils) {
 
         return new TaskDataBinderImpl(
                 realmSearchDAO,
@@ -1071,7 +1120,8 @@ public class ProvisioningContext {
                 implementationDAO,
                 entityFactory,
                 scheduler,
-                taskUtilsFactory);
+                taskUtilsFactory,
+                templateUtils);
     }
 
     @ConditionalOnMissingBean
@@ -1098,7 +1148,8 @@ public class ProvisioningContext {
             final SecurityQuestionDAO securityQuestionDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
-            final ConfParamOps confParamOps) {
+            final ConfParamOps confParamOps,
+            final JexlTools jexlTools) {
 
         return new UserDataBinderImpl(
                 anyTypeDAO,
@@ -1122,7 +1173,8 @@ public class ProvisioningContext {
                 accessTokenDAO,
                 delegationDAO,
                 confParamOps,
-                securityProperties);
+                securityProperties,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean

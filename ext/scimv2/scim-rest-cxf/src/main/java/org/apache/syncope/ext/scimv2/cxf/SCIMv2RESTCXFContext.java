@@ -38,6 +38,7 @@ import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.ext.scimv2.api.service.SCIMAnyObjectService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
@@ -122,8 +123,16 @@ public class SCIMv2RESTCXFContext {
             final SCIMConfManager confManager,
             final SCIMLogic scimLogic) {
 
-        return new SCIMServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
-                confManager, scimLogic);
+        return new SCIMServiceImpl(
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                userLogic,
+                groupLogic,
+                anyObjectLogic,
+                binder,
+                confManager,
+                scimLogic);
     }
 
     @ConditionalOnMissingBean
@@ -136,10 +145,19 @@ public class SCIMv2RESTCXFContext {
             final GroupLogic groupLogic,
             final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
-            final SCIMConfManager confManager) {
+            final SCIMConfManager confManager,
+            final JexlTools jexlTools) {
 
-        return new SCIMGroupServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
-                confManager);
+        return new SCIMGroupServiceImpl(
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                userLogic,
+                groupLogic,
+                anyObjectLogic,
+                binder,
+                confManager,
+                jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -154,7 +172,14 @@ public class SCIMv2RESTCXFContext {
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new SCIMUserServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
+        return new SCIMUserServiceImpl(
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                userLogic,
+                groupLogic,
+                anyObjectLogic,
+                binder,
                 confManager);
     }
 
@@ -170,7 +195,14 @@ public class SCIMv2RESTCXFContext {
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new SCIMAnyObjectServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic,
-                binder, confManager);
+        return new SCIMAnyObjectServiceImpl(
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                userLogic,
+                groupLogic,
+                anyObjectLogic,
+                binder,
+                confManager);
     }
 }

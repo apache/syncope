@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +54,8 @@ abstract class AttributableDataBinder {
 
     protected final IntAttrNameParser intAttrNameParser;
 
+    protected final JexlTools jexlTools;
+
     private final Map<String, DropdownValueProvider> dropdownValueProviders = new ConcurrentHashMap<>();
 
     protected AttributableDataBinder(
@@ -61,13 +63,15 @@ abstract class AttributableDataBinder {
             final PlainAttrValidationManager validator,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final JexlTools jexlTools) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.validator = validator;
         this.derAttrHandler = derAttrHandler;
         this.mappingManager = mappingManager;
         this.intAttrNameParser = intAttrNameParser;
+        this.jexlTools = jexlTools;
     }
 
     protected Optional<PlainSchema> getPlainSchema(final String schemaName) {
@@ -95,7 +99,7 @@ abstract class AttributableDataBinder {
 
         if (attr == null
                 && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable, derAttrHandler)) {
+                && jexlTools.evaluateMandatoryCondition(schema.getMandatoryCondition(), attributable, derAttrHandler)) {
 
             LOG.error("Mandatory schema {} not provided with values", schema.getKey());
 

@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -41,7 +40,8 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.implementation.InstanceScope;
@@ -67,6 +67,9 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
 
     @Autowired
+    protected JexlTools jexlTools;
+
+    @Autowired
     protected DerAttrHandler derAttrHandler;
 
     @Autowired
@@ -87,12 +90,13 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     protected String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
         LOG.debug("Evaluating connObjectLink for {}", group);
 
-        JexlContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(group, jexlContext);
-        JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
-        JexlUtils.addDerAttrsToContext(group, derAttrHandler, jexlContext);
+        JexlContext jexlContext = new JexlContextBuilder().
+                fields(group).
+                plainAttrs(group.getPlainAttrs()).
+                derAttrs(group, derAttrHandler).
+                build();
 
-        return JexlUtils.evaluateExpr(connObjectLinkTemplate, jexlContext).toString();
+        return jexlTools.evaluateExpression(connObjectLinkTemplate, jexlContext).toString();
     }
 
     protected void buildManagedGroupConnObjectLinks(
