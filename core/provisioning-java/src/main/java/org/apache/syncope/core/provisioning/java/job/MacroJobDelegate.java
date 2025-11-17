@@ -52,7 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.macro.Command;
@@ -77,6 +77,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     @Resource(name = "batchExecutor")
     protected AsyncTaskExecutor taskExecutor;
+
+    @Autowired
+    protected JexlTools jexlTools;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
@@ -299,14 +302,13 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             } else {
                 args = command.getArgs();
 
-                jexlContext.ifPresent(jc -> ReflectionUtils.doWithFields(
-                        args.getClass(),
+                jexlContext.ifPresent(jc -> ReflectionUtils.doWithFields(args.getClass(),
                         field -> {
                             if (String.class.equals(field.getType())) {
                                 field.setAccessible(true);
                                 Object value = field.get(args);
                                 if (value instanceof final String s) {
-                                    field.set(args, JexlUtils.evaluateTemplate(s, jc));
+                                    field.set(args, jexlTools.evaluateTemplate(s, jc));
                                 }
                             }
                         },

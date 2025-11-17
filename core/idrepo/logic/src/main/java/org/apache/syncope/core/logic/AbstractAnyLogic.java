@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

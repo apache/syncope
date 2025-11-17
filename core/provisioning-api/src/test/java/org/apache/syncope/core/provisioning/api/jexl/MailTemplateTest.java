@@ -66,7 +66,7 @@ public class MailTemplateTest extends AbstractTest {
 
     @Test
     public void confirmPasswordReset() throws IOException {
-        String htmlBody = JexlUtils.evaluateTemplate(CONFIRM_PASSWORD_RESET_TEMPLATE, new MapContext());
+        String htmlBody = jexlTools().evaluateTemplate(CONFIRM_PASSWORD_RESET_TEMPLATE, new MapContext());
         assertNotNull(htmlBody);
     }
 
@@ -84,7 +84,7 @@ public class MailTemplateTest extends AbstractTest {
         input.add(token);
         ctx.put("input", input);
 
-        String textBody = JexlUtils.evaluateTemplate(REQUEST_PASSWORD_RESET_TEMPLATE, new MapContext(ctx));
+        String textBody = jexlTools().evaluateTemplate(REQUEST_PASSWORD_RESET_TEMPLATE, new MapContext(ctx));
 
         assertNotNull(textBody);
         assertTrue(textBody.contains("a password reset was requested for " + username + "."));
@@ -120,7 +120,7 @@ public class MailTemplateTest extends AbstractTest {
 
         ctx.put("events", List.of("event1"));
 
-        String htmlBody = JexlUtils.evaluateTemplate(OPTIN_TEMPLATE, new MapContext(ctx));
+        String htmlBody = jexlTools().evaluateTemplate(OPTIN_TEMPLATE, new MapContext(ctx));
 
         assertNotNull(htmlBody);
 

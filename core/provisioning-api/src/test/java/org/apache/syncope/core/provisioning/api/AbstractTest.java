@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.Map;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
+import org.apache.syncope.core.provisioning.api.jexl.EmptyClassLoader;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
+import org.apache.syncope.core.provisioning.api.jexl.SyncopeJexlFunctions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
@@ -29,6 +36,18 @@ import org.mockito.quality.Strictness;
 @MockitoSettings(strictness = Strictness.WARN)
 @SuppressWarnings("squid:S2187")
 public class AbstractTest {
+
+    protected JexlTools jexlTools() {
+        JexlEngine jexlEngine = new JexlBuilder().
+                loader(new EmptyClassLoader()).
+                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
+                namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
+                cache(512).
+                silent(false).
+                strict(false).
+                create();
+        return new JexlTools(jexlEngine);
+    }
 
     @BeforeEach
     public void init() {

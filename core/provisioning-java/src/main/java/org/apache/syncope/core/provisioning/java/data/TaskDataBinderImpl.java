@@ -76,6 +76,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
@@ -83,7 +84,6 @@ import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -109,6 +109,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     protected final TaskUtilsFactory taskUtilsFactory;
 
+    protected final TemplateUtils templateUtils;
+
     protected final Map<String, MacroActions> perContextMacroActions = new ConcurrentHashMap<>();
 
     public TaskDataBinderImpl(
@@ -119,7 +121,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             final ImplementationDAO implementationDAO,
             final EntityFactory entityFactory,
             final SyncopeTaskScheduler scheduler,
-            final TaskUtilsFactory taskUtilsFactory) {
+            final TaskUtilsFactory taskUtilsFactory,
+            final TemplateUtils templateUtils) {
 
         this.realmSearchDAO = realmSearchDAO;
         this.resourceDAO = resourceDAO;
@@ -129,6 +132,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         this.entityFactory = entityFactory;
         this.scheduler = scheduler;
         this.taskUtilsFactory = taskUtilsFactory;
+        this.templateUtils = templateUtils;
     }
 
     protected void fill(final ProvisioningTask<?> provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
@@ -207,7 +211,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 }
 
                 // validate JEXL expressions from templates and proceed if fine
-                TemplateUtils.check(liveSyncTaskTO.getTemplates(), ClientExceptionType.InvalidLiveSyncTask);
+                templateUtils.check(liveSyncTaskTO.getTemplates(), ClientExceptionType.InvalidLiveSyncTask);
                 liveSyncTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
                         anyType -> {
                             AnyTemplateLiveSyncTask anyTemplate = liveSyncTask.getTemplate(anyType.getKey()).
@@ -255,7 +259,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 }
 
                 // validate JEXL expressions from templates and proceed if fine
-                TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+                templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
                 pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
                         anyType -> {
                             AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);

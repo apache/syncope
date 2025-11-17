@@ -55,7 +55,7 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -94,13 +94,16 @@ public class DefaultPropagationManager implements PropagationManager {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final JexlTools jexlTools;
+
     public DefaultPropagationManager(
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final ConnObjectUtils connObjectUtils,
             final MappingManager mappingManager,
             final DerAttrHandler derAttrHandler,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final JexlTools jexlTools) {
 
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
@@ -108,6 +111,7 @@ public class DefaultPropagationManager implements PropagationManager {
         this.mappingManager = mappingManager;
         this.derAttrHandler = derAttrHandler;
         this.anyUtilsFactory = anyUtilsFactory;
+        this.jexlTools = jexlTools;
     }
 
     @Override
@@ -385,7 +389,7 @@ public class DefaultPropagationManager implements PropagationManager {
         List<String> mandatoryMissing = new ArrayList<>();
         List<String> mandatoryNullOrEmpty = new ArrayList<>();
         mappingItems.filter(item -> !item.isConnObjectKey()
-                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)).
+                && jexlTools.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)).
                 forEach(item -> {
 
                     Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.attributes());

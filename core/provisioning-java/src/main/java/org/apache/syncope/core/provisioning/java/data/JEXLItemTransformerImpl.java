@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -35,10 +34,14 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class JEXLItemTransformerImpl implements JEXLItemTransformer {
+
+    @Autowired
+    private JexlTools jexlTools;
 
     @Autowired
     private DerAttrHandler derAttrHandler;
@@ -62,12 +65,13 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
             final AttrSchemaType schemaType,
             final PlainAttrValue value) {
 
-        JexlContext jexlContext = new MapContext();
+        JexlContextBuilder builder = new JexlContextBuilder();
         if (any != null) {
-            JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
+            builder.fields(any).
+                    plainAttrs(any.getPlainAttrs()).
+                    derAttrs(any, derAttrHandler);
         }
+        JexlContext jexlContext = builder.build();
 
         Object oValue;
         switch (schemaType) {
@@ -100,7 +104,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         }
         jexlContext.set("value", oValue);
 
-        Object tValue = JexlUtils.evaluateExpr(propagationJEXL, jexlContext);
+        Object tValue = jexlTools.evaluateExpression(propagationJEXL, jexlContext);
 
         value.setBinaryValue(null);
         value.setBooleanValue(null);
@@ -172,15 +176,14 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         if (StringUtils.isNotBlank(pullJEXL) && values != null) {
             List<Object> newValues = new ArrayList<>(values.size());
             values.forEach(value -> {
-                JexlContext jexlContext = new MapContext();
-                jexlContext.set("value", value);
-                JexlUtils.addFieldsToContext(entityTO, jexlContext);
+                JexlContextBuilder builder = new JexlContextBuilder().with("value", value).fields(entityTO);
                 if (entityTO instanceof AnyTO anyTO) {
-                    JexlUtils.addAttrsToContext(anyTO.getPlainAttrs(), jexlContext);
-                    JexlUtils.addAttrsToContext(anyTO.getDerAttrs(), jexlContext);
+                    builder.attrs(anyTO.getPlainAttrs());
+                    builder.attrs(anyTO.getDerAttrs());
                 }
+                JexlContext jexlContext = builder.build();
 
-                newValues.add(JexlUtils.evaluateExpr(pullJEXL, jexlContext));
+                newValues.add(jexlTools.evaluateExpression(pullJEXL, jexlContext));
             });
 
             return newValues;

@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +37,11 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
 
     protected final EntityFactory entityFactory;
 
-    public AttrRepoDataBinderImpl(final EntityFactory entityFactory) {
+    protected final JexlTools jexlTools;
+
+    public AttrRepoDataBinderImpl(final EntityFactory entityFactory, final JexlTools jexlTools) {
         this.entityFactory = entityFactory;
+        this.jexlTools = jexlTools;
     }
 
     protected void populateItems(final AttrRepoTO attrRepoTO, final AttrRepo attrRepo) {
@@ -56,9 +59,8 @@ public class AttrRepoDataBinderImpl implements AttrRepoDataBinder {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
             } else {
-                // no mandatory condition implies mandatory condition false
-                if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                        ? "false" : itemTO.getMandatoryCondition())) {
+                if (itemTO.getMandatoryCondition() != null
+                        && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
 
                     SyncopeClientException invalidMandatoryCondition =
                             SyncopeClientException.build(ClientExceptionType.InvalidValues);

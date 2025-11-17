@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
-import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

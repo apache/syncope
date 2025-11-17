@@ -43,14 +43,13 @@ public class MappingTest extends AbstractTest {
         when(user.getRealm()).thenReturn(realm);
         assertNotNull(user);
 
-        JexlContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(user, jexlContext);
+        JexlContext jexlContext = new JexlContextBuilder().fields(user).build();
 
         String connObjectLink = "'uid=' + username + ',ou=people,o=isp'";
-        assertEquals("uid=rossini,ou=people,o=isp", JexlUtils.evaluateExpr(connObjectLink, jexlContext));
+        assertEquals("uid=rossini,ou=people,o=isp", jexlTools().evaluateExpression(connObjectLink, jexlContext));
 
         connObjectLink = "'uid=' + username + realm.replaceAll('/', ',o=') + ',ou=people,o=isp'";
-        assertEquals("uid=rossini,o=even,ou=people,o=isp", JexlUtils.evaluateExpr(connObjectLink, jexlContext));
+        assertEquals("uid=rossini,o=even,ou=people,o=isp", jexlTools().evaluateExpression(connObjectLink, jexlContext));
     }
 
     @Test
@@ -59,19 +58,17 @@ public class MappingTest extends AbstractTest {
         when(realm.getFullPath()).thenReturn("/even/two");
         assertNotNull(realm);
 
-        JexlContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(realm, jexlContext);
+        JexlContext jexlContext = new JexlContextBuilder().fields(realm).build();
 
         String connObjectLink = "syncope:fullPath2Dn(fullPath, 'ou') + ',o=isp'";
-        assertEquals("ou=two,ou=even,o=isp", JexlUtils.evaluateExpr(connObjectLink, jexlContext));
+        assertEquals("ou=two,ou=even,o=isp", jexlTools().evaluateExpression(connObjectLink, jexlContext));
 
         when(realm.getFullPath()).thenReturn("/even");
         assertNotNull(realm);
 
-        jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(realm, jexlContext);
+        jexlContext = new JexlContextBuilder().fields(realm).build();
 
-        assertEquals("ou=even,o=isp", JexlUtils.evaluateExpr(connObjectLink, jexlContext));
+        assertEquals("ou=even,o=isp", jexlTools().evaluateExpression(connObjectLink, jexlContext));
     }
 
     @Test
@@ -82,6 +79,6 @@ public class MappingTest extends AbstractTest {
         jexlContext.set("value", now);
 
         String expression = "value.toInstant().toEpochMilli()";
-        assertEquals(now.toInstant().toEpochMilli(), JexlUtils.evaluateExpr(expression, jexlContext));
+        assertEquals(now.toInstant().toEpochMilli(), jexlTools().evaluateExpression(expression, jexlContext));
     }
 }

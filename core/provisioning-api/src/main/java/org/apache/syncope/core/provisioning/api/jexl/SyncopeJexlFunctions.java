@@ -30,7 +30,12 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 /**
  * Utility functions for usage with JEXL engine.
  */
-public class SyncopeJexlFunctions {
+public class SyncopeJexlFunctions implements JexlFunctions {
+
+    @Override
+    public String getNamespace() {
+        return "syncope";
+    }
 
     /**
      * Converts realm's full path into the equivalent DN.

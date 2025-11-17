@@ -16,12 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.utils;
+package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -37,37 +37,56 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class TemplateUtils {
 
-    public static void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
+    protected static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+        template.getRelationships().stream().
+                filter(relationship -> any.getRelationship(
+                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
+                forEachOrdered(relationship -> any.getRelationships().add(relationship));
+    }
+
+    protected static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+        template.getMemberships().stream().
+                filter(membership -> any.getMembership(membership.getGroupKey()).isEmpty()).
+                forEachOrdered(membership -> any.getMemberships().add(membership));
+    }
+
+    protected final UserDAO userDAO;
+
+    protected final GroupDAO groupDAO;
+
+    protected final JexlTools jexlTools;
+
+    public TemplateUtils(final UserDAO userDAO, final GroupDAO groupDAO, final JexlTools jexlTools) {
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
+        this.jexlTools = jexlTools;
+    }
+
+    public void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
         SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
 
         templates.values().forEach(value -> {
             value.getPlainAttrs().stream().
-                    filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().getFirst())).
-                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().getFirst()));
+                    filter(attr -> !attr.getValues().isEmpty()
+                    && !jexlTools.isExpressionValid(attr.getValues().getFirst())).
+                    forEach(attr -> sce.getElements().add("Invalid JEXL: " + attr.getValues().getFirst()));
 
             switch (value) {
                 case UserTO template -> {
-                    if (StringUtils.isNotBlank(template.getUsername())
-                            && !JexlUtils.isExpressionValid(template.getUsername())) {
-
+                    if (template.getUsername() != null && !jexlTools.isExpressionValid(template.getUsername())) {
                         sce.getElements().add("Invalid JEXL: " + template.getUsername());
                     }
-                    if (StringUtils.isNotBlank(template.getPassword())
-                            && !JexlUtils.isExpressionValid(template.getPassword())) {
-
+                    if (template.getPassword() != null && !jexlTools.isExpressionValid(template.getPassword())) {
                         sce.getElements().add("Invalid JEXL: " + template.getPassword());
                     }
                 }
                 case GroupTO template -> {
-                    if (StringUtils.isNotBlank(template.getName())
-                            && !JexlUtils.isExpressionValid(template.getName())) {
-
+                    if (template.getName() != null && !jexlTools.isExpressionValid(template.getName())) {
                         sce.getElements().add("Invalid JEXL: " + template.getName());
                     }
                 }
@@ -81,13 +100,13 @@ public class TemplateUtils {
         }
     }
 
-    protected static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
+    protected Attr evaluateAttr(final Attr template, final JexlContext jexlContext) {
         Attr result = new Attr();
         result.setSchema(template.getSchema());
 
-        if (template.getValues() != null && !template.getValues().isEmpty()) {
+        if (!CollectionUtils.isEmpty(template.getValues())) {
             template.getValues().forEach(value -> {
-                String evaluated = JexlUtils.evaluateExpr(value, jexlContext).toString();
+                String evaluated = jexlTools.evaluateExpression(value, jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -97,14 +116,15 @@ public class TemplateUtils {
         return result;
     }
 
-    protected static void fill(final RealmMember realmMember, final RealmMember template) {
-        MapContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(realmMember, jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
+    protected void fill(final RealmMember realmMember, final RealmMember template) {
+        JexlContext jexlContext = new JexlContextBuilder().
+                fields(realmMember).
+                attrs(realmMember.getPlainAttrs()).
+                attrs(realmMember.getDerAttrs()).
+                build();
 
         if (template.getRealm() != null) {
-            String evaluated = JexlUtils.evaluateExpr(template.getRealm(), jexlContext).toString();
+            String evaluated = jexlTools.evaluateExpression(template.getRealm(), jexlContext).toString();
             if (StringUtils.isNotBlank(evaluated)) {
                 realmMember.setRealm(evaluated);
             }
@@ -136,36 +156,15 @@ public class TemplateUtils {
         realmMember.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    protected static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
-        template.getRelationships().stream().
-                filter(relationship -> any.getRelationship(
-                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
-                forEachOrdered(relationship -> any.getRelationships().add(relationship));
-    }
-
-    protected static void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
-        template.getMemberships().stream().
-                filter(membership -> any.getMembership(membership.getGroupKey()).isEmpty()).
-                forEachOrdered(membership -> any.getMemberships().add(membership));
-    }
-
-    protected final UserDAO userDAO;
-
-    protected final GroupDAO groupDAO;
-
-    public TemplateUtils(final UserDAO userDAO, final GroupDAO groupDAO) {
-        this.userDAO = userDAO;
-        this.groupDAO = groupDAO;
-    }
-
     @Transactional(readOnly = true)
     public void apply(final RealmMember realmMember, final AnyTO template) {
         fill(realmMember, template);
 
-        MapContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(realmMember, jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
+        JexlContext jexlContext = new JexlContextBuilder().
+                fields(realmMember).
+                attrs(realmMember.getPlainAttrs()).
+                attrs(realmMember.getDerAttrs()).
+                build();
 
         switch (template) {
             case AnyObjectTO anyObjectTO -> {
@@ -175,7 +174,7 @@ public class TemplateUtils {
 
             case UserTO userTO -> {
                 if (StringUtils.isNotBlank(userTO.getUsername())) {
-                    String evaluated = JexlUtils.evaluateExpr(userTO.getUsername(), jexlContext).toString();
+                    String evaluated = jexlTools.evaluateExpression(userTO.getUsername(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case UserTO urm ->
@@ -189,7 +188,7 @@ public class TemplateUtils {
                 }
 
                 if (StringUtils.isNotBlank(userTO.getPassword())) {
-                    String evaluated = JexlUtils.evaluateExpr(userTO.getPassword(), jexlContext).toString();
+                    String evaluated = jexlTools.evaluateExpression(userTO.getPassword(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case UserTO urm ->
@@ -242,7 +241,7 @@ public class TemplateUtils {
 
             case GroupTO groupTO -> {
                 if (StringUtils.isNotBlank(groupTO.getName())) {
-                    String evaluated = JexlUtils.evaluateExpr(groupTO.getName(), jexlContext).toString();
+                    String evaluated = jexlTools.evaluateExpression(groupTO.getName(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case GroupTO grm ->

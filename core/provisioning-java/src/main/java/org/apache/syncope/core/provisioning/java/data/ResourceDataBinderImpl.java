@@ -60,7 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
@@ -88,6 +88,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     protected final PropagationTaskExecutor propagationTaskExecutor;
 
+    protected final JexlTools jexlTools;
+
     public ResourceDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
@@ -97,7 +99,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
             final IntAttrNameParser intAttrNameParser,
-            final PropagationTaskExecutor propagationTaskExecutor) {
+            final PropagationTaskExecutor propagationTaskExecutor,
+            final JexlTools jexlTools) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.connInstanceDAO = connInstanceDAO;
@@ -108,6 +111,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         this.entityFactory = entityFactory;
         this.intAttrNameParser = intAttrNameParser;
         this.propagationTaskExecutor = propagationTaskExecutor;
+        this.jexlTools = jexlTools;
     }
 
     @Override
@@ -265,9 +269,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         LOG.error("Only 'name' and 'fullpath' are supported for Realms");
                         invalidMapping.getElements().add("Only 'name' and 'fullpath' are supported for Realms");
                     } else {
-                        // no mandatory condition implies mandatory condition false
-                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                                ? "false" : itemTO.getMandatoryCondition())) {
+                        if (itemTO.getMandatoryCondition() != null
+                                && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
 
                             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                                     ClientExceptionType.InvalidValues);
@@ -415,9 +418,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     }
 
                     if (allowed) {
-                        // no mandatory condition implies mandatory condition false
-                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                                ? "false" : itemTO.getMandatoryCondition())) {
+                        if (itemTO.getMandatoryCondition() != null
+                                && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
 
                             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                                     ClientExceptionType.InvalidValues);

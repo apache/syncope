@@ -83,7 +83,7 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -186,9 +186,10 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final JexlTools jexlTools) {
 
-        super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser);
+        super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser, jexlTools);
         this.anyTypeDAO = anyTypeDAO;
         this.realmSearchDAO = realmSearchDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
@@ -273,7 +274,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                         AccountGetter.DEFAULT,
                         PlainAttrGetter.DEFAULT);
                 if (intValues.values().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)) {
+                        && jexlTools.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)) {
 
                     missingAttrNames.add(item.getIntAttrName());
                 }
