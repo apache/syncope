@@ -1154,6 +1154,6 @@ public abstract class AbstractITCase {
     @Autowired
     protected DataSource testDataSource;
 
-    protected final EncryptorManager encryptorManager = new DefaultEncryptorManager();
+    protected final EncryptorManager encryptorManager = new DefaultEncryptorManager(StringUtils.EMPTY);
 
 }

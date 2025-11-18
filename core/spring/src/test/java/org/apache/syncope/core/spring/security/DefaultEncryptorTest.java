@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.Encryptor;
+import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +38,11 @@ public class DefaultEncryptorTest {
 
     @BeforeAll
     public static void setUp() {
-        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", new SecurityProperties());
-        ENCRYPTOR = new DefaultEncryptorManager().getInstance();
+        SecurityProperties props = new SecurityProperties();
+        props.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
+        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", props);
+
+        ENCRYPTOR = new DefaultEncryptorManager(SpringTestConfiguration.AES_SECRET_KEY).getInstance();
     }
 
     @Test

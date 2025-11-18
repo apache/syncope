@@ -137,8 +137,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                         matching = pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
                                 ? 0
                                 : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size()).stream().
-                                map(old -> encryptorManager.getInstance().verify(
-                                clearPassword, user.getCipherAlgorithm(), old)).
+                                map(old -> encryptorManager.getInstance().
+                                verify(clearPassword, user.getCipherAlgorithm(), old)).
                                 reduce(matching, (accumulator, item) -> accumulator | item);
                     }
                     if (matching) {

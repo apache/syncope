@@ -37,6 +37,8 @@ import org.springframework.context.annotation.Primary;
 @Configuration(proxyBeanMethods = false)
 public class SpringTestConfiguration {
 
+    public static final String AES_SECRET_KEY = "1abcdefghilmnopq";
+
     @Bean
     public ApplicationContextProvider applicationContextProvider() {
         return new ApplicationContextProvider();
@@ -44,7 +46,7 @@ public class SpringTestConfiguration {
 
     @Bean
     public EncryptorManager encryptorManager() {
-        return new DefaultEncryptorManager();
+        return new DefaultEncryptorManager(AES_SECRET_KEY);
     }
 
     @Primary

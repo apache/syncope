@@ -63,9 +63,8 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     protected byte[] getAuthorities() {
         byte[] authorities = null;
         try {
-            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
-                    AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
-                    getBytes();
+            authorities = encryptorManager.getInstance().
+                    encode(POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

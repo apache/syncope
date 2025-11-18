@@ -26,7 +26,13 @@ import org.apache.syncope.core.persistence.api.EncryptorManager;
 
 public class DefaultEncryptorManager implements EncryptorManager {
 
+    protected final String aesSecretKey;
+
     protected final Map<String, DefaultEncryptor> instances = new ConcurrentHashMap<>();
+
+    public DefaultEncryptorManager(final String aesSecretKey) {
+        this.aesSecretKey = aesSecretKey;
+    }
 
     @Override
     public Encryptor getInstance() {
@@ -34,8 +40,8 @@ public class DefaultEncryptorManager implements EncryptorManager {
     }
 
     @Override
-    public Encryptor getInstance(final String secretKey) {
-        String actualKey = StringUtils.isBlank(secretKey) ? DefaultEncryptor.DEFAULT_SECRET_KEY : secretKey;
+    public Encryptor getInstance(final String aesSecretKey) {
+        String actualKey = StringUtils.isBlank(aesSecretKey) ? this.aesSecretKey : aesSecretKey;
         return instances.computeIfAbsent(actualKey, DefaultEncryptor::new);
     }
 }

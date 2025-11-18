@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.neo4j;
 
 import javax.cache.CacheManager;
 import javax.cache.Caching;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
@@ -107,7 +108,7 @@ public class PersistenceTestContext {
 
     @Bean
     public EncryptorManager encryptorManager() {
-        return new DefaultEncryptorManager();
+        return new DefaultEncryptorManager(StringUtils.EMPTY);
     }
 
     @Bean

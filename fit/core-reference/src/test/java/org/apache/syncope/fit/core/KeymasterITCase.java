@@ -337,8 +337,8 @@ public class KeymasterITCase extends AbstractITCase {
         try {
             // 1. change admin pwd for domain Two
             domainOps.changeAdminPassword(two.getKey(),
-                    encryptorManager.getInstance().encode("password3", CipherAlgorithm.AES),
-                    CipherAlgorithm.AES);
+                    encryptorManager.getInstance().encode("password3", CipherAlgorithm.BCRYPT),
+                    CipherAlgorithm.BCRYPT);
 
             // 2. attempt to access with old pwd -> fail
             try {

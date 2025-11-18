@@ -23,13 +23,14 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.Encryptor;
@@ -43,33 +44,51 @@ public class DefaultEncryptor implements Encryptor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultEncryptor.class);
 
-    protected static final String DEFAULT_SECRET_KEY = "1abcdefghilmnopqrstuvz2!";
-
     protected final Map<CipherAlgorithm, StandardStringDigester> digesters = new ConcurrentHashMap<>();
 
-    protected SecretKeySpec keySpec;
+    protected final Optional<SecretKeySpec> aesKeySpec;
 
-    protected DefaultEncryptor(final String secretKey) {
-        String actualKey = secretKey;
-        if (actualKey.length() < 16) {
-            StringBuilder actualKeyPadding = new StringBuilder(actualKey);
-            int length = 16 - actualKey.length();
-            String randomChars = SecureRandomUtils.generateRandomPassword(length);
+    protected DefaultEncryptor(final String aesSecretKey) {
+        SecretKeySpec sks = null;
 
-            actualKeyPadding.append(randomChars);
-            actualKey = actualKeyPadding.toString();
-            LOG.warn("The secret key is too short (< 16), adding some random characters. "
-                    + "Passwords encrypted with AES and this key will not be recoverable "
-                    + "as a result if the container is restarted.");
+        if (StringUtils.isNotBlank(aesSecretKey)) {
+            String actualKey = aesSecretKey;
+
+            Integer pad = null;
+            boolean truncate = false;
+            if (actualKey.length() < 16) {
+                pad = 16 - actualKey.length();
+            } else if (actualKey.length() > 16 && actualKey.length() < 24) {
+                pad = 24 - actualKey.length();
+            } else if (actualKey.length() > 24 && actualKey.length() < 32) {
+                pad = 32 - actualKey.length();
+            } else if (actualKey.length() > 32) {
+                truncate = true;
+            }
+
+            if (pad != null) {
+                StringBuilder actualKeyPadding = new StringBuilder(actualKey);
+                String randomChars = SecureRandomUtils.generateRandomPassword(pad);
+
+                actualKeyPadding.append(randomChars);
+                actualKey = actualKeyPadding.toString();
+                LOG.warn("The configured AES secret key is too short (< {}), padding with random chars: {}",
+                        actualKey.length(), actualKey);
+            }
+            if (truncate) {
+                actualKey = actualKey.substring(0, 32);
+                LOG.warn("The configured AES secret key is too long (> 32), truncating: {}", actualKey);
+            }
+
+            try {
+                sks = new SecretKeySpec(actualKey.getBytes(StandardCharsets.UTF_8), CipherAlgorithm.AES.getAlgorithm());
+                LOG.debug("AES-{} successfully configured", actualKey.length() * 8);
+            } catch (Exception e) {
+                LOG.error("Error during key specification", e);
+            }
         }
 
-        try {
-            keySpec = new SecretKeySpec(ArrayUtils.subarray(
-                    actualKey.getBytes(StandardCharsets.UTF_8), 0, 16),
-                    CipherAlgorithm.AES.getAlgorithm());
-        } catch (Exception e) {
-            LOG.error("Error during key specification", e);
-        }
+        aesKeySpec = Optional.ofNullable(sks);
     }
 
     @Override
@@ -82,7 +101,8 @@ public class DefaultEncryptor implements Encryptor {
         if (value != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
                 Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
-                cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+                cipher.init(Cipher.ENCRYPT_MODE, aesKeySpec.
+                        orElseThrow(() -> new IllegalArgumentException("AES not configured")));
 
                 encoded = Base64.getEncoder().encodeToString(cipher.doFinal(value.getBytes(StandardCharsets.UTF_8)));
             } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
@@ -125,7 +145,8 @@ public class DefaultEncryptor implements Encryptor {
 
         if (encoded != null && cipherAlgorithm == CipherAlgorithm.AES) {
             Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
-            cipher.init(Cipher.DECRYPT_MODE, keySpec);
+            cipher.init(Cipher.DECRYPT_MODE, aesKeySpec.
+                    orElseThrow(() -> new IllegalArgumentException("AES not configured")));
 
             decoded = new String(cipher.doFinal(Base64.getDecoder().decode(encoded)), StandardCharsets.UTF_8);
         }
@@ -133,25 +154,24 @@ public class DefaultEncryptor implements Encryptor {
         return decoded;
     }
 
-    private StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
-        StandardStringDigester digester = digesters.get(cipherAlgorithm);
-        if (digester == null) {
-            digester = new StandardStringDigester();
+    protected StandardStringDigester getDigester(final CipherAlgorithm cipherAlgorithm) {
+        return digesters.computeIfAbsent(cipherAlgorithm, k -> {
+            StandardStringDigester digester = new StandardStringDigester();
 
             if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-                SecurityProperties securityProperties =
-                        ApplicationContextProvider.getApplicationContext().getBean(SecurityProperties.class);
+                SecurityProperties.DigesterProperties digesterProps =
+                        ApplicationContextProvider.getApplicationContext().
+                                getBean(SecurityProperties.class).getDigester();
 
                 // Salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-                digester.setIterations(securityProperties.getDigester().getSaltIterations());
-                digester.setSaltSizeBytes(securityProperties.getDigester().getSaltSizeBytes());
+                digester.setIterations(digesterProps.getSaltIterations());
+                digester.setSaltSizeBytes(digesterProps.getSaltSizeBytes());
                 digester.setInvertPositionOfPlainSaltInEncryptionResults(
-                        securityProperties.getDigester().isInvertPositionOfPlainSaltInEncryptionResults());
+                        digesterProps.isInvertPositionOfPlainSaltInEncryptionResults());
                 digester.setInvertPositionOfSaltInMessageBeforeDigesting(
-                        securityProperties.getDigester().isInvertPositionOfSaltInMessageBeforeDigesting());
-                digester.setUseLenientSaltSizeCheck(
-                        securityProperties.getDigester().isUseLenientSaltSizeCheck());
+                        digesterProps.isInvertPositionOfSaltInMessageBeforeDigesting());
+                digester.setUseLenientSaltSizeCheck(digesterProps.isUseLenientSaltSizeCheck());
             } else {
                 // Not salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm());
@@ -160,10 +180,7 @@ public class DefaultEncryptor implements Encryptor {
             }
 
             digester.setStringOutputType(CommonUtils.STRING_OUTPUT_TYPE_HEXADECIMAL);
-
-            digesters.put(cipherAlgorithm, digester);
-        }
-
-        return digester;
+            return digester;
+        });
     }
 }
