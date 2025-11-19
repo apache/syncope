@@ -108,7 +108,9 @@ public class PersistenceTestContext {
 
     @Bean
     public EncryptorManager encryptorManager() {
-        return new DefaultEncryptorManager(StringUtils.EMPTY);
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setAesSecretKey(StringUtils.EMPTY);
+        return new DefaultEncryptorManager(securityProperties);
     }
 
     @Bean

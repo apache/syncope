@@ -32,7 +32,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.Encryptor;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
@@ -44,11 +43,18 @@ public class DefaultEncryptor implements Encryptor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultEncryptor.class);
 
+    protected final SecurityProperties.DigesterProperties digesterProperties;
+
     protected final Map<CipherAlgorithm, StandardStringDigester> digesters = new ConcurrentHashMap<>();
 
     protected final Optional<SecretKeySpec> aesKeySpec;
 
-    protected DefaultEncryptor(final String aesSecretKey) {
+    protected DefaultEncryptor(
+            final String aesSecretKey,
+            final SecurityProperties.DigesterProperties digesterProperties) {
+
+        this.digesterProperties = digesterProperties;
+
         SecretKeySpec sks = null;
 
         if (StringUtils.isNotBlank(aesSecretKey)) {
@@ -159,19 +165,15 @@ public class DefaultEncryptor implements Encryptor {
             StandardStringDigester digester = new StandardStringDigester();
 
             if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
-                SecurityProperties.DigesterProperties digesterProps =
-                        ApplicationContextProvider.getApplicationContext().
-                                getBean(SecurityProperties.class).getDigester();
-
                 // Salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-                digester.setIterations(digesterProps.getSaltIterations());
-                digester.setSaltSizeBytes(digesterProps.getSaltSizeBytes());
+                digester.setIterations(digesterProperties.getSaltIterations());
+                digester.setSaltSizeBytes(digesterProperties.getSaltSizeBytes());
                 digester.setInvertPositionOfPlainSaltInEncryptionResults(
-                        digesterProps.isInvertPositionOfPlainSaltInEncryptionResults());
+                        digesterProperties.isInvertPositionOfPlainSaltInEncryptionResults());
                 digester.setInvertPositionOfSaltInMessageBeforeDigesting(
-                        digesterProps.isInvertPositionOfSaltInMessageBeforeDigesting());
-                digester.setUseLenientSaltSizeCheck(digesterProps.isUseLenientSaltSizeCheck());
+                        digesterProperties.isInvertPositionOfSaltInMessageBeforeDigesting());
+                digester.setUseLenientSaltSizeCheck(digesterProperties.isUseLenientSaltSizeCheck());
             } else {
                 // Not salted ...
                 digester.setAlgorithm(cipherAlgorithm.getAlgorithm());

@@ -158,7 +158,7 @@ public class SecurityContext {
 
     @Bean
     public EncryptorManager encryptorManager(final SecurityProperties securityProperties) {
-        return new DefaultEncryptorManager(securityProperties.getAesSecretKey());
+        return new DefaultEncryptorManager(securityProperties);
     }
 
     @ConditionalOnMissingBean

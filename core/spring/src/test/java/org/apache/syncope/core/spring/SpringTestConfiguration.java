@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,9 @@ public class SpringTestConfiguration {
 
     @Bean
     public EncryptorManager encryptorManager() {
-        return new DefaultEncryptorManager(AES_SECRET_KEY);
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setAesSecretKey(AES_SECRET_KEY);
+        return new DefaultEncryptorManager(securityProperties);
     }
 
     @Primary

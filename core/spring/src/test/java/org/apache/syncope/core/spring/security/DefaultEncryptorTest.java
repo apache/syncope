@@ -42,7 +42,9 @@ public class DefaultEncryptorTest {
         props.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
         ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", props);
 
-        ENCRYPTOR = new DefaultEncryptorManager(SpringTestConfiguration.AES_SECRET_KEY).getInstance();
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
+        ENCRYPTOR = new DefaultEncryptorManager(securityProperties).getInstance();
     }
 
     @Test
@@ -72,7 +74,7 @@ public class DefaultEncryptorTest {
 
     @Test
     public void smallKey() throws Exception {
-        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123");
+        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123", new SecurityProperties().getDigester());
         String encPassword = smallKeyEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES);
         String decPassword = smallKeyEncryptor.decode(encPassword, CipherAlgorithm.AES);
         assertEquals(PASSWORD_VALUE, decPassword);
