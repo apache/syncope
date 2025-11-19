@@ -83,8 +83,6 @@ public class AuthDataAccessor {
 
     public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
 
@@ -255,7 +253,7 @@ public class AuthDataAccessor {
     }
 
     protected boolean authenticate(final User user, final String password) {
-        boolean authenticated = ENCRYPTOR.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        boolean authenticated = Encryptor.getInstance().verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();

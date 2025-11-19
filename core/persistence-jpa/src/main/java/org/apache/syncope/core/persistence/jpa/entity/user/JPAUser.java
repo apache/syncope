@@ -77,8 +77,6 @@ public class JPAUser
 
     public static final String TABLE = "SyncopeUser";
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
     };
 
@@ -223,14 +221,22 @@ public class JPAUser
         setMustChangePassword(false);
     }
 
+    protected String encode(final String value) throws Exception {
+        return Encryptor.getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.password = encode(password);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -414,11 +420,7 @@ public class JPAUser
     @Override
     public void setSecurityAnswer(final String securityAnswer) {
         try {
-            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.securityAnswer = encode(securityAnswer);
         } catch (Exception e) {
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;

@@ -42,8 +42,6 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected static final Logger LOG = LoggerFactory.getLogger(UsernamePasswordAuthenticationProvider.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final DomainOps domainOps;
 
     protected final AuthDataAccessor dataAccessor;
@@ -97,12 +95,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             username.set(securityProperties.getAdminUser());
             if (SyncopeConstants.MASTER_DOMAIN.equals(domain.getKey())) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
-                authenticated = ENCRYPTOR.verify(
+                authenticated = Encryptor.getInstance().verify(
                         authentication.getCredentials().toString(),
                         securityProperties.getAdminPasswordAlgorithm(),
                         securityProperties.getAdminPassword());
             } else {
-                authenticated = ENCRYPTOR.verify(
+                authenticated = Encryptor.getInstance().verify(
                         authentication.getCredentials().toString(),
                         domain.getAdminCipherAlgorithm(),
                         domain.getAdminPassword());

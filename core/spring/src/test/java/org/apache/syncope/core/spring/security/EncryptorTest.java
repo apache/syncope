@@ -36,7 +36,9 @@ public class EncryptorTest {
 
     @BeforeAll
     public static void setUp() {
-        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", new SecurityProperties());
+        SecurityProperties props = new SecurityProperties();
+        props.setAesSecretKey("1abcdefghilmnopq");
+        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", props);
         ENCRYPTOR = Encryptor.getInstance();
     }
 

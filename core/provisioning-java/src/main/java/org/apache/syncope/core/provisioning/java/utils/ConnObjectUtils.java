@@ -68,8 +68,6 @@ public class ConnObjectUtils {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     public static SyncToken toSyncToken(final String syncToken) {
         return Optional.ofNullable(syncToken).map(st -> POJOHelper.deserialize(st, SyncToken.class)).orElse(null);
     }
@@ -266,7 +264,7 @@ public class ConnObjectUtils {
                 // update password if and only if password is really changed
                 User user = userDAO.authFind(key);
                 if (StringUtils.isBlank(updatedUser.getPassword())
-                        || ENCRYPTOR.verify(updatedUser.getPassword(),
+                        || Encryptor.getInstance().verify(updatedUser.getPassword(),
                                 user.getCipherAlgorithm(), user.getPassword())) {
 
                     updatedUser.setPassword(null);

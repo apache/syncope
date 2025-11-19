@@ -18,15 +18,10 @@
  */
 package org.apache.syncope.core.spring.policy;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -51,8 +46,6 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     protected static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     private HaveIBeenPwnedPasswordRuleConf conf;
 
     @Override
@@ -72,7 +65,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     protected void enforce(final String clearPassword) {
         try {
-            String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
+            String sha1 = Encryptor.getInstance().encode(clearPassword, CipherAlgorithm.SHA1);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
@@ -88,9 +81,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     throw new PasswordPolicyException("Password pwned");
                 }
             }
-        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException
-                | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
-
+        } catch (GeneralSecurityException e) {
             LOG.error("Could not encode the password value as SHA1", e);
         } catch (HttpStatusCodeException e) {
             LOG.error("Error while contacting the PwnedPasswords service", e);
@@ -115,7 +106,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
             String clearPassword = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clearPassword = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clearPassword = Encryptor.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }
