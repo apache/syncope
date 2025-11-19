@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.Encryptor;
+import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -37,8 +38,13 @@ public class DefaultEncryptorTest {
 
     @BeforeAll
     public static void setUp() {
-        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", new SecurityProperties());
-        ENCRYPTOR = new DefaultEncryptorManager().getInstance();
+        SecurityProperties props = new SecurityProperties();
+        props.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
+        ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", props);
+
+        SecurityProperties securityProperties = new SecurityProperties();
+        securityProperties.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
+        ENCRYPTOR = new DefaultEncryptorManager(securityProperties).getInstance();
     }
 
     @Test
@@ -68,7 +74,7 @@ public class DefaultEncryptorTest {
 
     @Test
     public void smallKey() throws Exception {
-        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123");
+        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123", new SecurityProperties().getDigester());
         String encPassword = smallKeyEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES);
         String decPassword = smallKeyEncryptor.decode(encPassword, CipherAlgorithm.AES);
         assertEquals(PASSWORD_VALUE, decPassword);

@@ -269,8 +269,8 @@ public class ConnObjectUtils {
                 // update password if and only if password is really changed
                 User user = userDAO.authFind(key);
                 if (StringUtils.isBlank(updatedUser.getPassword())
-                        || encryptorManager.getInstance().verify(updatedUser.getPassword(),
-                                user.getCipherAlgorithm(), user.getPassword())) {
+                        || encryptorManager.getInstance().
+                                verify(updatedUser.getPassword(), user.getCipherAlgorithm(), user.getPassword())) {
 
                     updatedUser.setPassword(null);
                 }

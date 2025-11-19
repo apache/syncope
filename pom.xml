@@ -496,7 +496,7 @@ under the License.
 
     <testcontainers.version>2.0.2</testcontainers.version>
 
-    <zonky.embedded-postgres.version>2.1.1</zonky.embedded-postgres.version>
+    <zonky.embedded-postgres.version>2.2.0</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.6.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>

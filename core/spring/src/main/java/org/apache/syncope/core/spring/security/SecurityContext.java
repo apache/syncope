@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -64,10 +65,8 @@ public class SecurityContext {
     }
 
     protected static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
-        String jwsKey = props.getJwsKey();
-        if (jwsKey == null) {
-            throw new IllegalArgumentException("No JWS key provided");
-        }
+        String jwsKey = Optional.ofNullable(props.getJwsKey()).
+                orElseThrow(() -> new IllegalArgumentException("No JWS key provided"));
 
         if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
             int minLength = jwsAlgorithm.equals(JWSAlgorithm.HS256)
@@ -158,8 +157,8 @@ public class SecurityContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
-        return new DefaultEncryptorManager();
+    public EncryptorManager encryptorManager(final SecurityProperties securityProperties) {
+        return new DefaultEncryptorManager(securityProperties);
     }
 
     @ConditionalOnMissingBean
