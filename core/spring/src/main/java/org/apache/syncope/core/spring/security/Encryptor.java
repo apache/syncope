@@ -53,8 +53,14 @@ public final class Encryptor {
     }
 
     public static Encryptor getInstance(final String secretKey) {
-        String actualKey = StringUtils.isBlank(secretKey) ? DEFAULT_SECRET_KEY : secretKey;
+        LOG.info("using custom encryptor");
 
+        // this is the change done by us which changes the secretKey usage in the following way:
+        // old: first secretKey parameter, then default secretKey
+        // new: first secretKey parameter, then secretKey from security.secretKey property, then default secretKey
+        SecurityProperties securityProperties = ApplicationContextProvider.getApplicationContext().getBean(SecurityProperties.class);
+        String secretKeyFromProperties = securityProperties.getSecretKey() == null ? DEFAULT_SECRET_KEY : securityProperties.getSecretKey();
+        String actualKey = StringUtils.isBlank(secretKey) ? secretKeyFromProperties : secretKey;
         Encryptor instance = INSTANCES.get(actualKey);
         if (instance == null) {
             instance = new Encryptor(actualKey);
