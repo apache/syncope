@@ -98,7 +98,7 @@ public class SecurityProperties {
 
     private String jwsAlgorithm = JWSAlgorithm.HS512.getName();
 
-    private String secretKey;
+    private String aesSecretKey;
 
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
@@ -168,12 +168,12 @@ public class SecurityProperties {
         this.jwsAlgorithm = jwsAlgorithm;
     }
 
-    public String getSecretKey() {
-        return secretKey;
+    public String getAesSecretKey() {
+        return aesSecretKey;
     }
 
-    public void setSecretKey(final String secretKey) {
-        this.secretKey = secretKey;
+    public void setAesSecretKey(final String aesSecretKey) {
+        this.aesSecretKey = aesSecretKey;
     }
 
     public String getGroovyBlacklist() {

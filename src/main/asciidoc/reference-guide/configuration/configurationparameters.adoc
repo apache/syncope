@@ -24,13 +24,16 @@ Most run-time configuration options are available as parameters and can be tuned
 * `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
 algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
 salting options are available in the `core.properties` file;
+* `security.aesSecretKey` - used for AES-based encryption / decryption: besides password values, this is also used
+whenever reversible encryption is needed, throughout the whole system;
 [WARNING]
-The value of the `security.secretKey` property in the `core.properties` file is used for AES-based encryption / decryption.
-Besides password values, this is also used whenever reversible encryption is needed, throughout the whole system. +
-When the `secretKey` value has length less than 16, it is right-padded by random characters during startup, to reach
-such mininum value. +
-It is *strongly* recommended to provide a value long at least 16 characters, in order to avoid unexpected behaviors
-at runtime, expecially with high-availability. 
+The actual length of the `security.aesSecretKey` value is used to drive the AES algorithm variant selection:
+16 characters implies `AES-128`, 24 selects `AES-192` and 32 configures `AES-256`. +
+When the `security.aesSecretKey` value has length less than 16, between 17 and 23 or between 25 and 31, it is
+right-padded by random characters during startup, to reach the nearest option. If the specified value is instead longer
+than 32 characters, it is truncated to 32. +
+It is *strongly* recommended to provide a value long exactly 16, 24 or 32 characters, in order to avoid unexpected
+behaviors at runtime, expecially with high-availability.
 * `jwt.lifetime.minutes` - validity of https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] values used for
 <<rest-authentication-and-authorization,authentication>> (in minutes);
 * `notificationjob.cronExpression` -

@@ -61,8 +61,6 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
 
     public static final String TABLE = "LinkedAccount";
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     @NotNull
     private String connObjectKeyValue;
 
@@ -151,7 +149,7 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
             throw new IllegalArgumentException("Cannot override existing cipher algorithm");
         }
     }
-    
+
     @Override
     public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
@@ -168,14 +166,22 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
         this.cipherAlgorithm = cipherAlgoritm;
     }
 
+    protected String encode(final String value) throws Exception {
+        return Encryptor.getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                            String.class))
-                    : cipherAlgorithm);
+            this.password = encode(password);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;

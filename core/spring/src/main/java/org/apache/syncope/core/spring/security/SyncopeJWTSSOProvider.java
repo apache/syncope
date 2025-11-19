@@ -47,8 +47,6 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final SecurityProperties securityProperties;
 
     protected final AccessTokenJWSVerifier delegate;
@@ -104,7 +102,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
         if (accessToken.getAuthorities() != null) {
             try {
                 authorities = POJOHelper.deserialize(
-                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        Encryptor.getInstance().decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
                         new TypeReference<>() {
                 });
             } catch (Throwable t) {

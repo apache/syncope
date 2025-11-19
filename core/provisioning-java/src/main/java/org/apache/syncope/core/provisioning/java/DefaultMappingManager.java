@@ -110,8 +110,6 @@ public class DefaultMappingManager implements MappingManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(MappingManager.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final UserDAO userDAO;
@@ -500,7 +498,7 @@ public class DefaultMappingManager implements MappingManager {
 
     protected String decodePassword(final Account account) {
         try {
-            return ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+            return Encryptor.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
         } catch (Exception e) {
             LOG.error("Could not decode password for {}", account, e);
             return null;

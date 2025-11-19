@@ -59,8 +59,6 @@ public class DefaultPasswordRule implements PasswordRule {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPasswordRule.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     public static List<Rule> conf2Rules(final DefaultPasswordRuleConf conf) {
         List<Rule> rules = new ArrayList<>();
 
@@ -205,7 +203,7 @@ public class DefaultPasswordRule implements PasswordRule {
             String clear = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clear = Encryptor.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }

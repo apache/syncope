@@ -43,12 +43,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected static byte[] getAuthorities() {
         byte[] authorities = null;
         try {
-            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
+            authorities = Encryptor.getInstance().encode(POJOHelper.serialize(
                     AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
                     getBytes();
         } catch (Exception e) {
