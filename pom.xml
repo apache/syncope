@@ -435,7 +435,7 @@ under the License.
     <bouncycastle.version>1.82</bouncycastle.version>
     <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.4.11</spring-boot.version>
+    <spring-boot.version>3.4.12</spring-boot.version>
     <spring-cloud-gateway.version>4.2.6</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
