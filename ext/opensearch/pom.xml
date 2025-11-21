@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-ext</artifactId>
-    <version>3.0.15</version>
+    <version>3.0.16-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: OpenSearch</name>
