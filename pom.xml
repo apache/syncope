@@ -533,7 +533,7 @@ under the License.
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
-    <docker.mariadb.version>11</docker.mariadb.version>
+    <docker.mariadb.version>12</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
