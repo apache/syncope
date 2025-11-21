@@ -44,4 +44,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/ilgrosso/syncope/blob/master/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
 endif::[]
 .
+
+The default Groovy sandbox controls can be tweaked by configuring a local copy of `groovy.blacklist`, which will then
+have to be referenced by adjusting the value of the `security.groovyBlacklist` property in the `core.properties` file.
 ====
