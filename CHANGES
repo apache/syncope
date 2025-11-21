@@ -2,6 +2,18 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.15
+================================================================================
+
+** Bug
+    * [SYNCOPE-1922] - Disallow searches by encrypted attribute
+    * [SYNCOPE-1924] - Bug in retainAll, removeAll, and removeIf methods of PropagationByResource
+    * [SYNCOPE-1925] - Contextual menu stays open after modal window is closed
+
+** Improvement
+    * [SYNCOPE-1926] - Reduce number of update on Syncope after a SCIM PATCH
+    * [SYNCOPE-1932] - Improve AES management
+
 Release Notes - Syncope - Version 3.0.14
 ================================================================================
 
