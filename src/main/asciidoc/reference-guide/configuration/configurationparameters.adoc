@@ -24,9 +24,10 @@ Most run-time configuration options are available as parameters and can be tuned
 * `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
 algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
 salting options are available in the `core.properties` file;
-* `security.aesSecretKey` - used for AES-based encryption / decryption: besides password values, this is also used
-whenever reversible encryption is needed, throughout the whole system;
 [WARNING]
+The value of the `security.aesSecretKey` property in the `core.properties` file is used for AES-based encryption /
+decryption: besides password values, this is also used whenever reversible encryption is needed, throughout the whole
+system. +
 The actual length of the `security.aesSecretKey` value is used to drive the AES algorithm variant selection:
 16 characters implies `AES-128`, 24 selects `AES-192` and 32 configures `AES-256`. +
 When the `security.aesSecretKey` value has length less than 16, between 17 and 23 or between 25 and 31, it is
