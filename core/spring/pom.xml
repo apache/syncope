@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>4.0.3-SNAPSHOT</version>
+    <version>4.0.3</version>
   </parent>
 
   <name>Apache Syncope Core Spring</name>
