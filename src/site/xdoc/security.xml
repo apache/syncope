@@ -36,10 +36,56 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2025-65998: Apache Syncope: Default AES key used for internal password encryption">
+        <p>Apache Syncope can be configured to store the user password values in the internal database with AES encryption, though this is not the default option.</p>
+
+        <p>When AES is configured, the default key value, hard-coded in the source code, is always used.
+          This allows a malicious attacker, once obtained access to the internal database content, to reconstruct the original cleartext password values.<br/>
+          This is not affecting encrypted plain attributes, whose values are also stored using AES encryption.</p>
+
+        <p>Users are recommended to upgrade to version 4.0.3 / 3.0.15, which fix this issue.</p>
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.0 through 4.0.2</li>
+            <li>3.0 through 3.0.14</li>
+            <li>2.1 through 2.1.14</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.0.3 / 3.0.15 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.0.3</li>
+            <li>Release 3.0.15</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2025-65998">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2025-57738: Apache Syncope: Remote Code Execution by delegated administrators">
         <p>Apache Syncope offers the ability to extend / customize the base behavior on every deployment by allowing to provide custom implementations of a few Java interfaces; such implementations can be provided either as Java or Groovy classes, with the latter being particularly attractive as the machinery is set for runtime reload.
-Such a feature has been available for a while, but recently it was discovered that a malicious administrator can inject Groovy code that can be executed remotely by a running Apache Syncope Core instance.
-Users are recommended to upgrade to version 3.0.14 / 4.0.2, which fix this issue by forcing the Groovy code to run in a sandbox.</p>
+          Such a feature has been available for a while, but recently it was discovered that a malicious administrator can inject Groovy code that can be executed remotely by a running Apache Syncope Core instance.
+          Users are recommended to upgrade to version 3.0.14 / 4.0.2, which fix this issue by forcing the Groovy code to run in a sandbox.</p>
 
         <p>
           <b>Severity</b>
@@ -81,7 +127,7 @@ Users are recommended to upgrade to version 3.0.14 / 4.0.2, which fix this issue
 
       <subsection name="CVE-2024-45031: Apache Syncope: Stored XSS in Console and Enduser">
         <p>When editing objects in the Syncope Console, incomplete HTML tags could be used to bypass HTML sanitization. This made it possible to inject stored XSS payloads which would trigger for other users during ordinary usage of the application.<br/>
-XSS payloads could also be injected in Syncope Enduser when editing “Personal Information” or “User Requests”: such payloads would trigger for administrators in Syncope Console, thus enabling session hijacking.</p>
+          XSS payloads could also be injected in Syncope Enduser when editing “Personal Information” or “User Requests”: such payloads would trigger for administrators in Syncope Console, thus enabling session hijacking.</p>
 
         <p>
           <b>Severity</b>
@@ -121,7 +167,7 @@ XSS payloads could also be injected in Syncope Enduser when editing “Personal 
 
       <subsection name="CVE-2024-38503: HTML tags can be injected into Console or Enduser text fields">
         <p>When editing a user, group or any object in the Syncope Console, HTML tags could be added to any text field and could lead to potential exploits.
-The same vulnerability was found in the Syncope Enduser, when editing “Personal Information” or “User Requests”.</p>
+          The same vulnerability was found in the Syncope Enduser, when editing “Personal Information” or “User Requests”.</p>
 
         <p>
           <b>Severity</b>
@@ -161,7 +207,7 @@ The same vulnerability was found in the Syncope Enduser, when editing “Persona
 
       <subsection name="CVE-2020-11977: Remote Code Execution via Flowable workflow definition">
         <p>When the Flowable extension is enabled, an administrator with workflow entitlements can use Shell Service Tasks to perform malicious operations, including but not limited
-           to file read, file write, and code execution.</p>
+          to file read, file write, and code execution.</p>
 
         <p>
           <b>Severity</b>
@@ -200,7 +246,7 @@ The same vulnerability was found in the Syncope Enduser, when editing “Persona
 
       <subsection name="CVE-2020-1961: Server-Side Template Injection on mail templates">
         <p>Vulnerability to Server-Side Template Injection on Mail templates enabling attackers to inject arbitrary JEXL
-           expressions, leading to Remote Code Execution (RCE) was discovered.</p>
+          expressions, leading to Remote Code Execution (RCE) was discovered.</p>
 
         <p>
           <b>Severity</b>
@@ -242,12 +288,12 @@ The same vulnerability was found in the Syncope Enduser, when editing “Persona
 
       <subsection name="CVE-2020-1959: Multiple Remote Code Execution Vulnerabilities">	
         <p>A Server-Side Template Injection was identified in Syncope enabling attackers to inject arbitrary Java EL
-           expressions, leading to an unauthenticated Remote Code Execution (RCE) vulnerability.
-           Apache Syncope uses Java Bean Validation (JSR 380) custom constraint validators. When building custom
-           constraint violation error messages, they support different types of interpolation, including Java EL
-           expressions.
-           Therefore, if an attacker can inject arbitrary data in the error message template being passed, they will be
-           able to run arbitrary Java code.</p>
+          expressions, leading to an unauthenticated Remote Code Execution (RCE) vulnerability.
+          Apache Syncope uses Java Bean Validation (JSR 380) custom constraint validators. When building custom
+          constraint violation error messages, they support different types of interpolation, including Java EL
+          expressions.
+          Therefore, if an attacker can inject arbitrary data in the error message template being passed, they will be
+          able to run arbitrary Java code.</p>
 
         <p>
           <b>Severity</b>
@@ -286,7 +332,7 @@ The same vulnerability was found in the Syncope Enduser, when editing “Persona
 
       <subsection name="CVE-2019-17557: Enduser UI XSS">
         <p>It was found that the EndUser UI login page reflects the successMessage parameters.
-           By this mean, a user accessing the Enduser UI could execute javascript code from URL query string.</p>
+          By this mean, a user accessing the Enduser UI could execute javascript code from URL query string.</p>
 
         <p>
           <b>Severity</b>
