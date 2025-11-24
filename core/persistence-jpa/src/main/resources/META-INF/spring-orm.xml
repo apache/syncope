@@ -69,4 +69,13 @@ under the License.
       </basic>
     </attributes>
   </entity>
+
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPARealm">
+    <attributes>
+      <basic name="plainAttrs">
+        <column column-definition="jsonb"/>
+        <lob/>
+      </basic>
+    </attributes>
+  </entity>
 </entity-mappings>

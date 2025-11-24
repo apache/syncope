@@ -34,6 +34,7 @@ under the License.
 
   <!-- The following indexes require Oracle TEXT to be installed on the given Oracle database:
        http://dbaflavours.blogspot.com/2012/09/ora-29833-indextype-does-not-exist_18.html -->
+  <entry key="Realm_plainAttrs_Index">CREATE SEARCH INDEX Realm_plainAttrs_Index ON Realm(plainAttrs) FOR JSON</entry>  
   <entry key="AnyObject_plainAttrs_Index">CREATE SEARCH INDEX AnyObject_plainAttrs_Index ON AnyObject(plainAttrs) FOR JSON</entry>  
   <entry key="SyncopeGroup_plainAttrs_Index">CREATE SEARCH INDEX SyncopeGroup_plainAttrs_Index ON SyncopeGroup(plainAttrs) FOR JSON</entry>
   <entry key="SyncopeUser_plainAttrs_Index">CREATE SEARCH INDEX SyncopeUser_plainAttrs_Index ON SyncopeUser(plainAttrs) FOR JSON</entry>
