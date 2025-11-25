@@ -42,9 +42,15 @@ public class SyncopeNeo4jRepositoryFactory extends RepositoryFactorySupport {
         this.delegate = new Neo4jRepositoryFactory(neo4jOperations, mappingContext);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public <T, ID> EntityInformation<T, ID> getEntityInformation(final Class<T> domainClass) {
         return delegate.getEntityInformation(domainClass);
+    }
+
+    @Override
+    public EntityInformation<?, ?> getEntityInformation(final RepositoryMetadata metadata) {
+        return delegate.getEntityInformation(metadata);
     }
 
     @Override

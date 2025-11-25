@@ -70,7 +70,7 @@ public final class WAConfUtils {
     static {
         YAML_MAPPER = new YAMLMapper();
         YAML_MAPPER.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-        YAML_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        YAML_MAPPER.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         YAML_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
 
         SimpleModule module = new SimpleModule();

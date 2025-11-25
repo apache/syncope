@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.chartjs;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude.Value;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -34,7 +35,9 @@ public class ChartJSPanel extends Panel {
     private static final Logger LOG = LoggerFactory.getLogger(ChartJSPanel.class);
 
     private static final JsonMapper MAPPER = JsonMapper.builder().
-            findAndAddModules().serializationInclusion(Include.NON_NULL).build();
+            findAndAddModules().
+            defaultPropertyInclusion(Value.construct(Include.NON_NULL, Include.NON_NULL)).
+            build();
 
     private final IModel<? extends Chart<?>> model;
 

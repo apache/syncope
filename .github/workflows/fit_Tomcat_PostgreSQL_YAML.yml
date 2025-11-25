@@ -34,12 +34,12 @@ jobs:
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
-        java-version: 21
+        java-version: 25
     - name: Setup Maven
       uses: stCarolas/setup-maven@v5
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -P 'skipTests,all'
+      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
     - name: 'Tomcat / PostgreSQL / YAML'
       run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/yaml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

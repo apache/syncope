@@ -16,28 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.upgrade;
+package org.springframework.boot.cache.autoconfigure.metrics;
 
-import java.util.Map;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
-public class DummyConfParamOps implements ConfParamOps {
-
-    @Override
-    public Map<String, Object> list(final String domain) {
-        return Map.of();
-    }
-
-    @Override
-    public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
-        return defaultValue;
-    }
-
-    @Override
-    public <T> void set(final String domain, final String key, final T value) {
-    }
-
-    @Override
-    public void remove(final String domain, final String key) {
-    }
+@Import({ CacheMeterBinderProvidersConfiguration.class, CacheMetricsRegistrarConfiguration.class })
+@Configuration(proxyBeanMethods = false)
+public class CacheMetricsContext {
 }

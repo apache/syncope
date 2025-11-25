@@ -26,7 +26,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>4.1.0-SNAPSHOT</version>
+  <version>5.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -412,7 +412,7 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2025-04-05T12:25:38Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-11-25T06:53:52Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.6.1.0</connid.version>
@@ -431,14 +431,14 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.4</cxf.version>
+    <cxf.version>4.2.0-SNAPSHOT</cxf.version>
     <bouncycastle.version>1.82</bouncycastle.version>
     <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.5.8</spring-boot.version>
-    <spring-cloud-gateway.version>4.3.2</spring-cloud-gateway.version>
+    <spring-boot.version>4.0.0</spring-boot.version>
+    <spring-cloud-version>5.0.0</spring-cloud-version>
 
-    <openjpa.version>4.1.1</openjpa.version>
+    <openjpa.version>4.1.2-SNAPSHOT</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -463,7 +463,7 @@ under the License.
 
     <pac4j.version>6.2.2</pac4j.version>
 
-    <cas.version>7.3.1</cas.version>
+    <cas.version>8.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.41</swagger-core.version>
@@ -565,7 +565,7 @@ under the License.
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
-    <targetJdk>21</targetJdk>
+    <targetJdk>25</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <maven.multiModuleProjectDirectory>${rootpom.basedir}</maven.multiModuleProjectDirectory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -703,6 +703,18 @@ under the License.
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-autoconfigure</artifactId>
         <version>${spring-boot.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-to-slf4j</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -853,6 +865,12 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.springframework.retry</groupId>
+        <artifactId>spring-retry</artifactId>
+        <version>2.0.12</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.tomcat.embed</groupId>
         <artifactId>tomcat-embed-core</artifactId>
         <version>${tomcat.version}</version>
@@ -897,25 +915,23 @@ under the License.
 
       <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-gateway</artifactId>
-        <version>${spring-cloud-gateway.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-          </exclusion>
-        </exclusions>
+        <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+        <version>${spring-cloud-version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-bootstrap</artifactId>
-        <version>4.3.0</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>${spring-cloud-version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-commons</artifactId>
+        <version>${spring-cloud-version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-context</artifactId>
+        <version>${spring-cloud-version}</version>
       </dependency>
 
       <dependency>
@@ -1469,9 +1485,9 @@ under the License.
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.3.0</version>
+        <groupId>org.wiremock.integrations</groupId>
+        <artifactId>wiremock-spring-boot</artifactId>
+        <version>4.0.8</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

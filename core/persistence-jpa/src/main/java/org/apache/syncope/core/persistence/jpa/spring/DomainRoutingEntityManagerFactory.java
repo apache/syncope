@@ -22,9 +22,12 @@ import jakarta.persistence.Cache;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import jakarta.persistence.PersistenceUnitUtil;
 import jakarta.persistence.Query;
+import jakarta.persistence.SchemaManager;
 import jakarta.persistence.SynchronizationType;
+import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 import java.io.Closeable;
@@ -32,6 +35,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -215,5 +220,40 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     @Override
     public <T> void addNamedEntityGraph(final String graphName, final EntityGraph<T> entityGraph) {
         delegate().addNamedEntityGraph(graphName, entityGraph);
+    }
+
+    @Override
+    public String getName() {
+        return delegate().getName();
+    }
+
+    @Override
+    public PersistenceUnitTransactionType getTransactionType() {
+        return delegate().getTransactionType();
+    }
+
+    @Override
+    public SchemaManager getSchemaManager() {
+        return delegate().getSchemaManager();
+    }
+
+    @Override
+    public <R> Map<String, TypedQueryReference<R>> getNamedQueries(final Class<R> type) {
+        return delegate().getNamedQueries(type);
+    }
+
+    @Override
+    public <E> Map<String, EntityGraph<? extends E>> getNamedEntityGraphs(final Class<E> type) {
+        return delegate().getNamedEntityGraphs(type);
+    }
+
+    @Override
+    public void runInTransaction(final Consumer<EntityManager> cnsmr) {
+        delegate().runInTransaction(cnsmr);
+    }
+
+    @Override
+    public <R> R callInTransaction(final Function<EntityManager, R> fnctn) {
+        return delegate().callInTransaction(fnctn);
     }
 }

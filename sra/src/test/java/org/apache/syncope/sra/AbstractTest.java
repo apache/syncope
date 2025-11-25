@@ -26,15 +26,15 @@ import java.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.wiremock.spring.EnableWireMock;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = { "classpath:sra.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
-@AutoConfigureWireMock(port = 0)
+@EnableWireMock
 public abstract class AbstractTest {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().addModule(new JavaTimeModule()).build();

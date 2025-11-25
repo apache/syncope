@@ -48,7 +48,7 @@ jobs:
       uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
-        java-version: 21
+        java-version: 25
     - name: Setup Maven
       uses: stCarolas/setup-maven@v5
       with:
@@ -77,7 +77,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       mvn -U -T 1C -PskipTests,all
+       mvn -U -T 1C -Dapache.snapshots=true -PskipTests,all
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4

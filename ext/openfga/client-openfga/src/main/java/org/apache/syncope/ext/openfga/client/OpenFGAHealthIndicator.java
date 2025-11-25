@@ -23,9 +23,9 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.ext.openfga.client.model.ListStoresResponse;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.health.Status;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
+import org.springframework.boot.health.contributor.Status;
 
 public class OpenFGAHealthIndicator implements HealthIndicator {
 

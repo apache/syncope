@@ -26,7 +26,6 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Logging;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -67,8 +66,7 @@ public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
                 AuthTokens.basic(domain.getUsername(), domain.getPassword()),
                 Config.builder().
                         withMaxConnectionPoolSize(domain.getMaxConnectionPoolSize()).
-                        withDriverMetrics().
-                        withLogging(Logging.slf4j()).build());
+                        build());
         registerSingleton(domain.getKey().toLowerCase() + "Driver", driver);
 
         domainHolder().getDomains().put(domain.getKey(), driver);
