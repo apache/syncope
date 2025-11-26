@@ -196,11 +196,6 @@ public class Groups extends Panel {
         }
 
         @Override
-        protected void reloadDynMemberships() {
-            // DO NOTHING
-        }
-
-        @Override
         public List<String> getDynMemberships() {
             return List.of();
         }

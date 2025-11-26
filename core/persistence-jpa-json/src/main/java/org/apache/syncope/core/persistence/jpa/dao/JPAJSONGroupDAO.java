@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -49,6 +50,7 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
+            final RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final PlainAttrDAO plainAttrDAO,
             final UserDAO userDAO,
@@ -62,6 +64,7 @@ public class JPAJSONGroupDAO extends JPAGroupDAO {
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
+                realmDAO,
                 anyMatchDAO,
                 plainAttrDAO,
                 userDAO,

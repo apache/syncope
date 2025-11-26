@@ -30,6 +30,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -41,6 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -81,6 +83,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     protected final ApplicationEventPublisher publisher;
 
+    protected final RealmDAO realmDAO;
+
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final PlainAttrDAO plainAttrDAO;
@@ -99,6 +103,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
+            final RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final PlainAttrDAO plainAttrDAO,
             final UserDAO userDAO,
@@ -108,6 +113,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
         this.publisher = publisher;
+        this.realmDAO = realmDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.plainAttrDAO = plainAttrDAO;
         this.userDAO = userDAO;
@@ -278,7 +284,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public List<UMembership> findUMemberships(final Group group, final int page, final int itemsPerPage) {
         TypedQuery<UMembership> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAUMembership.class.getSimpleName()
-                        + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
                 UMembership.class);
         query.setParameter("group", group);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
@@ -315,12 +321,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         if (merged.getUDynMembership() != null) {
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond());
             int count = anySearchDAO.count(
-                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<User> matching = anySearchDAO.search(
-                        merged.getRealm(),
+                        realmDAO.getRoot(),
                         true,
-                        Set.of(merged.getRealm().getFullPath()),
+                        Set.of(SyncopeConstants.ROOT_REALM),
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
@@ -343,12 +349,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond());
             int count = anySearchDAO.count(
-                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<AnyObject> matching = anySearchDAO.search(
-                        merged.getRealm(),
+                        realmDAO.getRoot(),
                         true,
-                        Set.of(merged.getRealm().getFullPath()),
+                        Set.of(SyncopeConstants.ROOT_REALM),
                         cond,
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
