@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -76,6 +78,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final ApplicationEventPublisher publisher;
 
+    protected final RealmDAO realmDAO;
+
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final UserDAO userDAO;
@@ -91,6 +95,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final ApplicationEventPublisher publisher,
             final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
+            final RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -106,6 +111,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
+        this.realmDAO = realmDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
@@ -244,12 +250,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         if (merged.getUDynMembership() != null) {
             SearchCond cond = SearchCondConverter.convert(searchCondVisitor, merged.getUDynMembership().getFIQLCond());
             long count = anySearchDAO.count(
-                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
+                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.USER);
             for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                 List<User> matching = anySearchDAO.search(
-                        merged.getRealm(),
+                        realmDAO.getRoot(),
                         true,
-                        Set.of(merged.getRealm().getFullPath()),
+                        Set.of(SyncopeConstants.ROOT_REALM),
                         cond,
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         AnyTypeKind.USER);
@@ -270,12 +276,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         merged.getADynMemberships().forEach(memb -> {
             SearchCond cond = SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond());
             long count = anySearchDAO.count(
-                    merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
+                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                 List<AnyObject> matching = anySearchDAO.search(
-                        merged.getRealm(),
+                        realmDAO.getRoot(),
                         true,
-                        Set.of(merged.getRealm().getFullPath()),
+                        Set.of(SyncopeConstants.ROOT_REALM),
                         cond,
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         AnyTypeKind.ANY_OBJECT);

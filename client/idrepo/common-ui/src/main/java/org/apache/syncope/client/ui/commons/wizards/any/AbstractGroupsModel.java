@@ -56,10 +56,5 @@ public abstract class AbstractGroupsModel extends ListModel<GroupTO> {
         return memberships;
     }
 
-    /**
-     * Retrieve dyn group memberships.
-     */
-    protected abstract void reloadDynMemberships();
-
     public abstract List<String> getDynMemberships();
 }
