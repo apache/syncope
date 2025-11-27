@@ -22,8 +22,8 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
 
@@ -43,10 +43,12 @@ public final class SRASessionRestClient extends AMSessionRestClient {
     @Override
     public List<AMSession> list() {
         try {
-            Response response = WebClientBuilder.build(getActuatorEndpoint(),
+            Response response = WebClient.create(
+                    getActuatorEndpoint(),
+                    JAX_RS_PROVIDERS,
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    JAX_RS_PROVIDERS).accept(MediaType.APPLICATION_JSON_TYPE).get();
+                    null).accept(MediaType.APPLICATION_JSON_TYPE).get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 return response.readEntity(new GenericType<>() {
                 });

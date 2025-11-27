@@ -456,10 +456,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public <T> T getService(final String etag, final Class<T> serviceClass) {
-        T serviceInstance = getCachedService(serviceClass);
-        WebClient.client(serviceInstance).match(new EntityTag(etag), false);
+        T service = getCachedService(serviceClass);
+        WebClient.client(service).match(new EntityTag(etag), false);
 
-        return serviceInstance;
+        return service;
     }
 
     public BatchRequest batch() {
@@ -467,9 +467,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public <T> void resetClient(final Class<T> service) {
-        T serviceInstance = getCachedService(service);
-        WebClient.client(serviceInstance).reset();
+    public <T> void resetClient(final Class<T> serviceClass) {
+        T service = getCachedService(serviceClass);
+        WebClient.client(service).reset();
     }
 
     @Override
