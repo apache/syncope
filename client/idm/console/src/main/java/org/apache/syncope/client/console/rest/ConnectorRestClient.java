@@ -31,7 +31,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnIdObjectClass;
@@ -150,7 +149,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public boolean check(final String coreAddress, final String domain, final String jwt, final String key)
             throws IOException {
 
-        WebClient client = WebClientBuilder.build(coreAddress).
+        WebClient client = WebClient.create(coreAddress).
                 path("connectors").
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).

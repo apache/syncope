@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -52,7 +53,6 @@ import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -140,10 +140,12 @@ public class WA extends BasePage {
             String actuatorEndpoint = Strings.CS.appendIfMissing(
                     instances.getFirst().getAddress(), "/") + "actuator/env";
             try {
-                Response response = WebClientBuilder.build(actuatorEndpoint,
+                Response response = WebClient.create(
+                        actuatorEndpoint,
+                        List.of(),
                         SyncopeWebApplication.get().getAnonymousUser(),
                         SyncopeWebApplication.get().getAnonymousKey(),
-                        List.of()).accept(MediaType.APPLICATION_JSON_TYPE).get();
+                        null).accept(MediaType.APPLICATION_JSON_TYPE).get();
                 if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                     JsonNode env = MAPPER.readTree((InputStream) response.getEntity());
                     if (env.has("propertySources")) {

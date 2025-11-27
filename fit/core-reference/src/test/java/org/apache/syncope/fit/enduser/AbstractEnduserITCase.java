@@ -44,8 +44,10 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -173,40 +175,64 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
 
-        // create test user for must change password
-        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
-                password("password123").
-                mustChangePassword(true).
-                plainAttr(attr("fullname", "mustchangepassword@apache.org")).
-                plainAttr(attr("firstname", "mustchangepassword@apache.org")).
-                plainAttr(attr("surname", "surname")).
-                plainAttr(attr("ctype", "a type")).
-                plainAttr(attr("userId", "mustchangepassword@apache.org")).
-                plainAttr(attr("email", "mustchangepassword@apache.org")).
-                plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
-                build());
+        // create test user for must change password, if needed
+        try {
+            USER_SERVICE.read("mustchangepassword");
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
+                        password("password123").
+                        mustChangePassword(true).
+                        plainAttr(attr("fullname", "mustchangepassword@apache.org")).
+                        plainAttr(attr("firstname", "mustchangepassword@apache.org")).
+                        plainAttr(attr("surname", "surname")).
+                        plainAttr(attr("ctype", "a type")).
+                        plainAttr(attr("userId", "mustchangepassword@apache.org")).
+                        plainAttr(attr("email", "mustchangepassword@apache.org")).
+                        plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
+                        build());
+            } else {
+                throw e;
+            }
+        }
 
-        // create test user for self password reset
-        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
-                password("password123").
-                plainAttr(attr("fullname", "selfpwdreset@apache.org")).
-                plainAttr(attr("firstname", "selfpwdreset@apache.org")).
-                plainAttr(attr("surname", "surname")).
-                plainAttr(attr("ctype", "a type")).
-                plainAttr(attr("userId", "selfpwdreset@apache.org")).
-                plainAttr(attr("email", "selfpwdreset@apache.org")).
-                plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
-                build());
+        // create test user for self password reset, if needed
+        try {
+            USER_SERVICE.read("selfpwdreset");
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
+                        password("password123").
+                        plainAttr(attr("fullname", "selfpwdreset@apache.org")).
+                        plainAttr(attr("firstname", "selfpwdreset@apache.org")).
+                        plainAttr(attr("surname", "surname")).
+                        plainAttr(attr("ctype", "a type")).
+                        plainAttr(attr("userId", "selfpwdreset@apache.org")).
+                        plainAttr(attr("email", "selfpwdreset@apache.org")).
+                        plainAttr(attr("loginDate", DateTimeFormatter.ISO_LOCAL_DATE.format(OffsetDateTime.now()))).
+                        build());
+            } else {
+                throw e;
+            }
+        }
 
-        // create test user for self update
-        USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
-                password("password123").
-                plainAttr(attr("fullname", "selfupdate@apache.org")).
-                plainAttr(attr("firstname", "selfupdate@apache.org")).
-                plainAttr(attr("surname", "surname")).
-                plainAttr(attr("ctype", "a type")).
-                plainAttr(attr("userId", "selfupdate@apache.org")).
-                build());
+        // create test user for self update, if neede
+        try {
+            USER_SERVICE.read("selfupdate");
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
+                        password("password123").
+                        plainAttr(attr("fullname", "selfupdate@apache.org")).
+                        plainAttr(attr("firstname", "selfupdate@apache.org")).
+                        plainAttr(attr("surname", "surname")).
+                        plainAttr(attr("ctype", "a type")).
+                        plainAttr(attr("userId", "selfupdate@apache.org")).
+                        build());
+            } else {
+                throw e;
+            }
+        }
 
         SECURITY_QUESTION_SERVICE = ADMIN_CLIENT.getService(SecurityQuestionService.class);
     }

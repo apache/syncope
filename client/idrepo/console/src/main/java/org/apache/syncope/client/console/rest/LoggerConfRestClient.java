@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -71,10 +71,12 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
         List<LoggerConf> loggerConfs = new ArrayList<>();
 
         try {
-            Response response = WebClientBuilder.build(getActuatorEndpoint(instances.getFirst()),
+            Response response = WebClient.create(
+                    getActuatorEndpoint(instances.getFirst()),
+                    List.of(),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    List.of()).accept(MediaType.APPLICATION_JSON_TYPE).get();
+                    null).accept(MediaType.APPLICATION_JSON_TYPE).get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("loggers")) {
@@ -104,10 +106,12 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
     @Override
     public void setLevel(final String key, final LogLevel level) {
-        instances.forEach(i -> WebClientBuilder.build(getActuatorEndpoint(i),
+        instances.forEach(instance -> WebClient.create(
+                getActuatorEndpoint(instance),
+                List.of(),
                 SyncopeWebApplication.get().getAnonymousUser(),
                 SyncopeWebApplication.get().getAnonymousKey(),
-                List.of()).
+                null).
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).
                 path(key).

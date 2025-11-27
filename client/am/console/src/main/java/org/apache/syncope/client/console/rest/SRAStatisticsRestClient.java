@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,10 +43,12 @@ public final class SRAStatisticsRestClient {
 
     public SRAStatistics get(final List<NetworkService> instances, final List<Pair<String, String>> selected) {
         try {
-            WebClient client = WebClientBuilder.build(getActuatorEndpoint(instances),
+            WebClient client = WebClient.create(
+                    getActuatorEndpoint(instances),
+                    JAX_RS_PROVIDERS,
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    JAX_RS_PROVIDERS).accept(MediaType.APPLICATION_JSON_TYPE);
+                    null).accept(MediaType.APPLICATION_JSON_TYPE);
 
             if (!selected.isEmpty()) {
                 client.query("tag", selected.stream().map(s -> s.getLeft() + ":" + s.getRight()).toArray());

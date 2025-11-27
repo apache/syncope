@@ -353,17 +353,17 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public <T> T getService(final String etag, final Class<T> serviceClass) {
-        T serviceInstance = getService(serviceClass);
-        WebClient.client(serviceInstance).match(new EntityTag(etag), false).
+        T service = getService(serviceClass);
+        WebClient.client(service).match(new EntityTag(etag), false).
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
-        return serviceInstance;
+        return service;
     }
 
     @Override
-    public <T> void resetClient(final Class<T> service) {
-        T serviceInstance = getCachedService(service);
-        WebClient.client(serviceInstance).reset();
+    public <T> void resetClient(final Class<T> serviceClass) {
+        T service = getCachedService(serviceClass);
+        WebClient.client(service).reset();
     }
 
     @Override

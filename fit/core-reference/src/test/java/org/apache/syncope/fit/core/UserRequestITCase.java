@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -47,7 +46,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,15 +64,6 @@ public class UserRequestITCase extends AbstractITCase {
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml")));
         BPMN_PROCESS_SERVICE.set("verifyAddedVariables",
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
-
-        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
-                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
-    }
-
-    @AfterAll
-    public static void reset() {
-        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
-                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     @BeforeEach
@@ -210,13 +199,9 @@ public class UserRequestITCase extends AbstractITCase {
 
         // start request as user
         UserRequestService service = client.getService(UserRequestService.class);
-        WebClient.getConfig(WebClient.client(service)).
-                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
 
         UserRequest req = service.startRequest("assignPrinterRequest", null, null);
         assertNotNull(req);
-        WebClient.getConfig(WebClient.client(service)).
-                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
 
         // check (as admin) that a new form is available
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
