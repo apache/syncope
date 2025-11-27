@@ -45,7 +45,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
 
     private String fullPath;
 
-    private String anyTypeClass;
+    private final List<String> anyTypeClasses = new ArrayList<>();
 
     private String accountPolicy;
 
@@ -106,12 +106,10 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         this.fullPath = fullPath;
     }
 
-    public String getAnyTypeClass() {
-        return anyTypeClass;
-    }
-
-    public void setAnyTypeClass(final String anyTypeClass) {
-        this.anyTypeClass = anyTypeClass;
+    @JacksonXmlElementWrapper(localName = "anyTypeClasses")
+    @JacksonXmlProperty(localName = "anyTypeClasses")
+    public List<String> getAnyTypeClasses() {
+        return anyTypeClasses;
     }
 
     public String getAccountPolicy() {
@@ -222,7 +220,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
                 append(name, other.name).
                 append(parent, other.parent).
                 append(fullPath, other.fullPath).
-                append(anyTypeClass, other.anyTypeClass).
+                append(anyTypeClasses, other.anyTypeClasses).
                 append(accountPolicy, other.accountPolicy).
                 append(passwordPolicy, other.passwordPolicy).
                 append(authPolicy, other.authPolicy).
@@ -244,7 +242,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
                 append(name).
                 append(parent).
                 append(fullPath).
-                append(anyTypeClass).
+                append(anyTypeClasses).
                 append(accountPolicy).
                 append(passwordPolicy).
                 append(authPolicy).

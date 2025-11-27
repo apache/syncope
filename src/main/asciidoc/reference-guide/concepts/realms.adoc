@@ -27,7 +27,7 @@ Each realm:
 . is either a leaf or root of a sub-tree of realms;
 . is uniquely identified by the path from the root realm, e.g. `/a/b/c` identifies the sub-realm `c` in the sub-tree
 rooted at `b`, having in turn `a` as parent realm, directly under the root realm;
-. optionally refers to an <<anytypeclass>> which allows to define plain and derived attributes for the realm;
+. refers to <<anytypeclass,any type class(es)>> which allow to define plain and derived attributes;
 . optionally refers to various <<policies,policies>> that are enforced on all Users, Groups and Any Objects in the given
 realm and sub-realms, unless some sub-realms define their own policies.
 . optionally refers to <<logicactions,logic action(s)>>

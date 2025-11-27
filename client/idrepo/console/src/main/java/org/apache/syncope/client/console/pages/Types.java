@@ -33,7 +33,7 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -72,7 +72,7 @@ public class Types extends BasePage {
     private List<ITab> buildTabList() {
         final List<ITab> tabs = new ArrayList<>();
 
-        tabs.add(new AbstractTab(new Model<>("RelationshipTypes")) {
+        tabs.add(new AbstractTab(new ResourceModel("relationshipTypes")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -82,7 +82,7 @@ public class Types extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new Model<>("AnyTypes")) {
+        tabs.add(new AbstractTab(new ResourceModel("anyTypes")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -92,7 +92,7 @@ public class Types extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new Model<>("AnyTypeClasses")) {
+        tabs.add(new AbstractTab(new ResourceModel("anyTypeClasses")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -102,7 +102,7 @@ public class Types extends BasePage {
             }
         });
 
-        tabs.add(new AbstractTab(new Model<>("Schemas")) {
+        tabs.add(new AbstractTab(new ResourceModel("schemas")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 

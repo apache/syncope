@@ -34,8 +34,10 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -84,8 +86,12 @@ public class JPARealm extends AbstractAttributable implements Realm {
     @Transient
     private final List<PlainAttr> plainAttrsList = new ArrayList<>();
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private JPAAnyTypeClass anyTypeClass;
+    @ManyToMany
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "realm_id", referencedColumnName = "id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"))
+    private Set<JPAAnyTypeClass> anyTypeClasses = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -195,14 +201,14 @@ public class JPARealm extends AbstractAttributable implements Realm {
     }
 
     @Override
-    public AnyTypeClass getAnyTypeClass() {
-        return anyTypeClass;
+    public boolean add(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, JPAAnyTypeClass.class);
+        return anyTypeClasses.add((JPAAnyTypeClass) anyTypeClass);
     }
 
     @Override
-    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
-        checkType(anyTypeClass, JPAAnyTypeClass.class);
-        this.anyTypeClass = (JPAAnyTypeClass) anyTypeClass;
+    public Set<? extends AnyTypeClass> getAnyTypeClasses() {
+        return anyTypeClasses;
     }
 
     @Override

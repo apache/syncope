@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
@@ -29,7 +28,6 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -60,7 +58,7 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
-    protected final IModel<List<String>> anyTypeClasses = new LoadableDetachableModel<>() {
+    protected final IModel<List<String>> availableAnyTypeClasses = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
@@ -103,8 +101,6 @@ public class RealmDetails extends Panel {
 
     protected final WebMarkupContainer container;
 
-    protected final AjaxDropDownChoicePanel<String> anyTypeClass;
-
     public RealmDetails(final String id, final RealmTO realmTO) {
         this(id, realmTO, null, true);
     }
@@ -135,10 +131,16 @@ public class RealmDetails extends Panel {
         fullPath.setEnabled(false);
         generics.add(fullPath.setVisible(unwrapped));
 
-        anyTypeClass = new AjaxDropDownChoicePanel<>(
-                "anyTypeClass", "anyTypeClass", new PropertyModel<>(realmTO, "anyTypeClass"), true);
-        anyTypeClass.setChoices(anyTypeClasses.getObject());
-        generics.add(anyTypeClass);
+        if (unwrapped) {
+            generics.add(new AjaxPalettePanel.Builder<String>().
+                    setAllowOrder(true).build(
+                    "anyTypeClasses",
+                    new PropertyModel<>(realmTO, "anyTypeClasses"),
+                    new ListModel<>(availableAnyTypeClasses.getObject())).setOutputMarkupId(true));
+        } else {
+            generics.add(new AjaxTextFieldPanel(
+                    "anyTypeClasses", "anyTypeClasses", Model.of(realmTO.getAnyTypeClasses().toString())));
+        }
 
         Map<String, String> attrs = realmTO.getPlainAttrs().stream().
                 sorted(Comparator.comparing(Attr::getSchema)).
@@ -155,10 +157,10 @@ public class RealmDetails extends Panel {
 
         if (unwrapped) {
             container.add(new AjaxPalettePanel.Builder<String>().
-                    setAllowMoveAll(true).setAllowOrder(true).
-                    build("actions",
-                            new PropertyModel<>(realmTO, "actions"),
-                            new ListModel<>(logicActions.getObject())).
+                    setAllowMoveAll(true).setAllowOrder(true).build(
+                    "actions",
+                    new PropertyModel<>(realmTO, "actions"),
+                    new ListModel<>(logicActions.getObject())).
                     setOutputMarkupId(true));
         } else {
             container.add(new AjaxTextFieldPanel(
@@ -166,7 +168,8 @@ public class RealmDetails extends Panel {
         }
 
         if (unwrapped) {
-            container.add(new AjaxPalettePanel.Builder<String>().build("resources",
+            container.add(new AjaxPalettePanel.Builder<String>().build(
+                    "resources",
                     new PropertyModel<>(realmTO, "resources"),
                     new ListModel<>(resources.getObject())).
                     setOutputMarkupId(true).
@@ -189,9 +192,5 @@ public class RealmDetails extends Panel {
     public RealmDetails setContentEnabled(final boolean enable) {
         container.setEnabled(enable);
         return this;
-    }
-
-    public Optional<String> getAnyTypeClassValue() {
-        return Optional.ofNullable(anyTypeClass.getModelObject());
     }
 }

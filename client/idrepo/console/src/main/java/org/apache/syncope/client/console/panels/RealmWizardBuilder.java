@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -31,7 +30,9 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.model.ResourceModel;
 
 public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
@@ -68,7 +69,7 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
     @Override
     protected WizardModel buildModelSteps(final RealmTO modelObject, final WizardModel wizardModel) {
-        Optional.ofNullable(parent).map(RealmTO::getAnyTypeClass).ifPresent(modelObject::setAnyTypeClass);
+        Optional.ofNullable(parent).ifPresent(p -> modelObject.getAnyTypeClasses().addAll(p.getAnyTypeClasses()));
 
         RealmDetails details = new RealmDetails("details", modelObject);
         details.add(new AttributeAppender("style", "overflow-x:hidden;"));
@@ -77,10 +78,7 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
         RealmWrapper wrapper = new RealmWrapper(modelObject);
 
-        List<String> anyTypeClasses = new ArrayList<>();
-        Optional.ofNullable((modelObject.getAnyTypeClass())).ifPresent(anyTypeClasses::add);
-
-        wizardModel.add(new PlainAttrs(wrapper, mode, anyTypeClasses, List.of()) {
+        wizardModel.add(new PlainAttrs(wrapper, mode, modelObject.getAnyTypeClasses(), List.of()) {
 
             private static final long serialVersionUID = 8167894751609598306L;
 
@@ -88,17 +86,9 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
             public PageReference getPageReference() {
                 return pageRef;
             }
-
-            @Override
-            public boolean evaluate() {
-                anyTypeClasses.clear();
-                details.getAnyTypeClassValue().ifPresent(anyTypeClasses::add);
-                super.evaluate();
-                return true;
-            }
         });
 
-        wizardModel.add(new DerAttrs(wrapper, anyTypeClasses, List.of()) {
+        wizardModel.add(new DerAttrs(wrapper, modelObject.getAnyTypeClasses(), List.of()) {
 
             private static final long serialVersionUID = 4298394879912549771L;
 
@@ -106,14 +96,9 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
             public PageReference getPageReference() {
                 return pageRef;
             }
-
-            @Override
-            public boolean evaluate() {
-                anyTypeClasses.clear();
-                details.getAnyTypeClassValue().ifPresent(anyTypeClasses::add);
-                return super.evaluate();
-            }
         });
+
+        wizardModel.add(new Placeholder(wrapper));
 
         return wizardModel;
     }
@@ -124,6 +109,24 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
         protected Realm(final RealmDetails details) {
             add(details);
+        }
+    }
+
+    protected static class Placeholder extends WizardStep implements ICondition {
+
+        private static final long serialVersionUID = -1633642371208520029L;
+
+        protected final RealmWrapper wrapper;
+
+        protected Placeholder(final RealmWrapper wrapper) {
+            this.wrapper = wrapper;
+            setTitleModel(new ResourceModel("noAttributes"));
+        }
+
+        @Override
+        public boolean evaluate() {
+            // display this step only if no AnyTypeClasses are selected for this Realm
+            return wrapper.getInnerObject().getAnyTypeClasses().isEmpty();
         }
     }
 }

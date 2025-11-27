@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -39,9 +40,9 @@ public interface Realm extends Attributable {
 
     String getFullPath();
 
-    AnyTypeClass getAnyTypeClass();
+    boolean add(AnyTypeClass anyTypeClass);
 
-    void setAnyTypeClass(AnyTypeClass anyTypeClass);
+    Set<? extends AnyTypeClass> getAnyTypeClasses();
 
     AccountPolicy getAccountPolicy();
 

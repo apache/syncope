@@ -22,9 +22,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -64,7 +66,7 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
 
     public static final String PARENT_REL = "PARENT";
 
-    public static final String REALM_ANYTYPECLASS_REL = "REALM_ANYTYPECLASS";
+    public static final String REALM_ANYTYPECLASSES_REL = "REALM_ANYTYPECLASS";
 
     public static final String REALM_PASSWORD_POLICY_REL = "REALM_PASSWORD_POLICY";
 
@@ -94,8 +96,8 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
     @CompositeProperty(converterRef = "plainAttrsConverter")
     protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
-    @Relationship(type = REALM_ANYTYPECLASS_REL, direction = Relationship.Direction.OUTGOING)
-    private Neo4jAnyTypeClass anyTypeClass;
+    @Relationship(type = REALM_ANYTYPECLASSES_REL, direction = Relationship.Direction.OUTGOING)
+    private Set<Neo4jAnyTypeClass> anyTypeClasses = new HashSet<>();
 
     @Relationship(type = REALM_PASSWORD_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPasswordPolicy passwordPolicy;
@@ -164,14 +166,14 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
     }
 
     @Override
-    public AnyTypeClass getAnyTypeClass() {
-        return anyTypeClass;
+    public boolean add(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, Neo4jAnyTypeClass.class);
+        return anyTypeClasses.add((Neo4jAnyTypeClass) anyTypeClass);
     }
 
     @Override
-    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
-        checkType(anyTypeClass, Neo4jAnyTypeClass.class);
-        this.anyTypeClass = (Neo4jAnyTypeClass) anyTypeClass;
+    public Set<? extends AnyTypeClass> getAnyTypeClasses() {
+        return anyTypeClasses;
     }
 
     @Override

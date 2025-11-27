@@ -338,13 +338,13 @@ public class RealmITCase extends AbstractITCase {
         // 1. create realm and add the LDAP resource
         RealmTO realm = new RealmTO();
         realm.setName("test");
-        realm.setAnyTypeClass("other");
+        realm.getAnyTypeClasses().add("other");
         realm.getPlainAttrs().add(new Attr.Builder("ctype").value("number1").build());
         realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
 
         RealmTO childRealm = new RealmTO();
         childRealm.setName("child");
-        childRealm.setAnyTypeClass("other");
+        childRealm.getAnyTypeClasses().add("other");
         childRealm.getPlainAttrs().add(new Attr.Builder("ctype").value("number2").build());
         childRealm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
 
