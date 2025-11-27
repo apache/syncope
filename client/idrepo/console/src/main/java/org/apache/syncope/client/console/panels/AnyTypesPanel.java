@@ -124,8 +124,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                         || Collection.class.isAssignableFrom(field.getType())
                         || Map.class.isAssignableFrom(field.getType())) {
 
-                    columns.add(new PropertyColumn<>(
-                            new ResourceModel(field.getName()), field.getName()));
+                    columns.add(new PropertyColumn<>(new ResourceModel(field.getName()), field.getName()));
                 } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
                     columns.add(new BooleanPropertyColumn<>(
                             new ResourceModel(field.getName()), field.getName(), field.getName()));

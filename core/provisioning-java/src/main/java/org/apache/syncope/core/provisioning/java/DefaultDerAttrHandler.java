@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -71,7 +72,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Realm realm, final DerSchema schema) {
-        if (realm.getAnyTypeClass() == null || !realm.getAnyTypeClass().getDerSchemas().contains(schema)) {
+        if (realm.getAnyTypeClasses().stream().flatMap(atc -> atc.getDerSchemas().stream()).anyMatch(schema::equals)) {
             LOG.debug("{} not allowed for {}", schema, realm);
             return null;
         }
@@ -103,13 +104,10 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public Map<DerSchema, String> getValues(final Realm realm) {
-        if (realm.getAnyTypeClass() == null || !realm.getAnyTypeClass().getDerSchemas().isEmpty()) {
-            return Map.of();
-        }
-
         return getValues(
                 realm,
-                realm.getAnyTypeClass().getDerSchemas());
+                realm.getAnyTypeClasses().stream().
+                        flatMap(atc -> atc.getDerSchemas().stream()).collect(Collectors.toSet()));
     }
 
     @Override

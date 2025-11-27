@@ -106,6 +106,18 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
         this.templateUtils = templateUtils;
     }
 
+    protected SyncopeClientException checkMandatory(final Realm realm) {
+        SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+
+        // Check if there is some mandatory schema defined for which no value has been provided
+        realm.getAnyTypeClasses().stream().
+                flatMap(atc -> atc.getPlainSchemas().stream()).
+                forEach(schema -> checkMandatory(
+                schema, realm.getPlainAttr(schema.getKey()).orElse(null), realm, reqValMissing));
+
+        return reqValMissing;
+    }
+
     protected void fill(
             final RealmTO realmTO,
             final Realm realm,
@@ -135,29 +147,21 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
             scce.addException(invalidValues);
         }
 
-        SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-        // Check if there is some mandatory schema defined for which no value has been provided
-        realm.getAnyTypeClass().getPlainSchemas().forEach(schema -> checkMandatory(
-                schema, realm.getPlainAttr(schema.getKey()).orElse(null), realm, reqValMissing));
-        if (!reqValMissing.isEmpty()) {
-            scce.addException(reqValMissing);
+        SyncopeClientException requiredValuesMissing = checkMandatory(realm);
+        if (!requiredValuesMissing.isEmpty()) {
+            scce.addException(requiredValuesMissing);
         }
     }
 
     protected void bind(final Realm realm, final RealmTO realmTO, final SyncopeClientCompositeException scce) {
         realm.setName(realmTO.getName());
 
-        if (realmTO.getAnyTypeClass() == null) {
-            realm.setAnyTypeClass(null);
-        } else {
-            anyTypeClassDAO.findById(realmTO.getAnyTypeClass()).ifPresentOrElse(
-                    realm::setAnyTypeClass,
-                    () -> LOG.debug("Invalid {} {}, ignoring...",
-                            AnyTypeClass.class.getSimpleName(), realmTO.getAnyTypeClass()));
-        }
-        if (realm.getAnyTypeClass() != null) {
-            fill(realmTO, realm, scce);
-        }
+        realmTO.getAnyTypeClasses().forEach(anyTypeClass -> anyTypeClassDAO.findById(anyTypeClass).ifPresentOrElse(
+                realm::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), anyTypeClass)));
+        realm.getAnyTypeClasses().removeIf(c -> c == null || !realmTO.getAnyTypeClasses().contains(c.getKey()));
+
+        fill(realmTO, realm, scce);
 
         realm.setAccessPolicy(Optional.ofNullable(realmTO.getAccessPolicy()).
                 flatMap(p -> policyDAO.findById(p, AccessPolicy.class)).orElse(null));
@@ -317,7 +321,7 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
         realmTO.setName(realm.getName());
         Optional.ofNullable(realm.getParent()).ifPresent(parent -> realmTO.setParent(parent.getKey()));
         realmTO.setFullPath(realm.getFullPath());
-        Optional.ofNullable(realm.getAnyTypeClass()).map(AnyTypeClass::getKey).ifPresent(realmTO::setAnyTypeClass);
+        realmTO.getAnyTypeClasses().addAll(realm.getAnyTypeClasses().stream().map(AnyTypeClass::getKey).toList());
 
         realm.getPlainAttrs().forEach(plainAttr -> realmTO.getPlainAttrs().
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));

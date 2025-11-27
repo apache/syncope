@@ -243,11 +243,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
             orgUnit.setIgnoreCaseMatch(orgUnitTO.isIgnoreCaseMatch());
 
-            if (orgUnitTO.getConnObjectLink() == null) {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
-                sce.getElements().add("Null connObjectLink");
-                throw sce;
-            }
             orgUnit.setConnObjectLink(orgUnitTO.getConnObjectLink());
 
             SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
@@ -265,42 +260,37 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     requiredValuesMissing.getElements().add("intAttrName");
                     scce.addException(requiredValuesMissing);
                 } else {
-                    if (!"name".equals(itemTO.getIntAttrName()) && !"fullpath".equals(itemTO.getIntAttrName())) {
-                        LOG.error("Only 'name' and 'fullpath' are supported for Realms");
-                        invalidMapping.getElements().add("Only 'name' and 'fullpath' are supported for Realms");
+                    if (itemTO.getMandatoryCondition() != null
+                            && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
+
+                        SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                                ClientExceptionType.InvalidValues);
+                        invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                        scce.addException(invalidMandatoryCondition);
+                    }
+
+                    Item item = new Item();
+                    item.setIntAttrName(itemTO.getIntAttrName());
+                    item.setExtAttrName(itemTO.getExtAttrName());
+                    item.setPurpose(itemTO.getPurpose());
+                    item.setMandatoryCondition(itemTO.getMandatoryCondition());
+                    item.setConnObjectKey(itemTO.isConnObjectKey());
+                    item.setPassword(itemTO.isPassword());
+                    item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
+                    item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
+
+                    itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
+                            transformer -> item.getTransformers().add(transformer.getKey()),
+                            () -> LOG.debug("Invalid {} {}, ignoring...",
+                                    Implementation.class.getSimpleName(), key)));
+                    // remove all implementations not contained in the TO
+                    item.getTransformers().
+                            removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
+
+                    if (item.isConnObjectKey()) {
+                        orgUnit.setConnObjectKeyItem(item);
                     } else {
-                        if (itemTO.getMandatoryCondition() != null
-                                && !jexlTools.isExpressionValid(itemTO.getMandatoryCondition())) {
-
-                            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
-                                    ClientExceptionType.InvalidValues);
-                            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-                            scce.addException(invalidMandatoryCondition);
-                        }
-
-                        Item item = new Item();
-                        item.setIntAttrName(itemTO.getIntAttrName());
-                        item.setExtAttrName(itemTO.getExtAttrName());
-                        item.setPurpose(itemTO.getPurpose());
-                        item.setMandatoryCondition(itemTO.getMandatoryCondition());
-                        item.setConnObjectKey(itemTO.isConnObjectKey());
-                        item.setPassword(itemTO.isPassword());
-                        item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
-                        item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-
-                        itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
-                                transformer -> item.getTransformers().add(transformer.getKey()),
-                                () -> LOG.debug("Invalid {} {}, ignoring...",
-                                        Implementation.class.getSimpleName(), key)));
-                        // remove all implementations not contained in the TO
-                        item.getTransformers().
-                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
-
-                        if (item.isConnObjectKey()) {
-                            orgUnit.setConnObjectKeyItem(item);
-                        } else {
-                            orgUnit.add(item);
-                        }
+                        orgUnit.add(item);
                     }
                 }
             }
