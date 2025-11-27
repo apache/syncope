@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.common.lib.to.Item
 import org.apache.syncope.common.lib.types.AttrSchemaType
-import org.apache.syncope.core.persistence.api.entity.Any
+import org.apache.syncope.core.persistence.api.entity.Attributable
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.provisioning.api.MappingManager
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer
@@ -34,7 +34,7 @@ class PrefixItemTransformer implements ItemTransformer {
   @Override
   MappingManager.IntValues beforePropagation(
     Item item,
-    Any any,
+    Attributable attributable,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 
