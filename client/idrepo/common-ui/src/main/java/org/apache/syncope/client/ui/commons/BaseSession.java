@@ -63,7 +63,7 @@ public interface BaseSession {
 
     <T> T getService(String etag, Class<T> serviceClass);
 
-    <T> void resetClient(Class<T> service);
+    <T> void resetClient(Class<T> serviceClass);
 
     DateOps.Format getDateFormat();
 

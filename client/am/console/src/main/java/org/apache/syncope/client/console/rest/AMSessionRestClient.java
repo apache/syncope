@@ -23,8 +23,8 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
@@ -56,10 +56,12 @@ public abstract class AMSessionRestClient implements RestClient {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
 
         try {
-            Response response = WebClientBuilder.build(getActuatorEndpoint(),
+            Response response = WebClient.create(
+                    getActuatorEndpoint(),
+                    List.of(),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    List.of()).
+                    null).
                     accept(MediaType.APPLICATION_JSON_TYPE).
                     type(MediaType.APPLICATION_JSON_TYPE).
                     path(key).delete();
