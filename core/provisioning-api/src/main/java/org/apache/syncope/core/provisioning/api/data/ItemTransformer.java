@@ -22,9 +22,8 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 
 /**
@@ -37,32 +36,14 @@ public interface ItemTransformer {
      * Invoked while preparing attribute values to be sent out to external resource during propagation.
      *
      * @param item mapping item
-     * @param realm realm
+     * @param attributable any or realm
      * @param schemaType schema type
      * @param values original values
      * @return transformed values
      */
     default MappingManager.IntValues beforePropagation(
             Item item,
-            Realm realm,
-            AttrSchemaType schemaType,
-            List<PlainAttrValue> values) {
-
-        return new MappingManager.IntValues(schemaType, values);
-    }
-
-    /**
-     * Invoked while preparing attribute values to be sent out to external resource during propagation.
-     *
-     * @param item mapping item
-     * @param any any
-     * @param schemaType schema type
-     * @param values original values
-     * @return transformed values
-     */
-    default MappingManager.IntValues beforePropagation(
-            Item item,
-            Any any,
+            Attributable attributable,
             AttrSchemaType schemaType,
             List<PlainAttrValue> values) {
 

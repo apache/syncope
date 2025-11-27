@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.neo4j.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
@@ -69,14 +68,14 @@ public class RealmTest extends AbstractTest {
     @Test
     public void plainAttrs() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
-        assertNull(realm.getAnyTypeClass());
+        assertTrue(realm.getAnyTypeClasses().isEmpty());
         assertTrue(realm.getPlainAttrs().isEmpty());
 
-        realm.setAnyTypeClass(anyTypeClassDAO.findById("other").orElseThrow());
+        realm.add(anyTypeClassDAO.findById("other").orElseThrow());
         realm = realmDAO.save(realm);
 
         realm = realmDAO.findById(realm.getKey()).orElseThrow();
-        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClass());
+        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClasses().iterator().next());
 
         PlainAttr aLong = new PlainAttr();
         aLong.setSchema("aLong");
@@ -86,7 +85,7 @@ public class RealmTest extends AbstractTest {
         realm = realmDAO.save(realm);
 
         realm = realmDAO.findById(realm.getKey()).orElseThrow();
-        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClass());
+        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClasses().iterator().next());
         assertEquals(1, realm.getPlainAttrs().size());
         assertEquals(9, realm.getPlainAttr("aLong").orElseThrow().getValues().get(0).getLongValue());
     }

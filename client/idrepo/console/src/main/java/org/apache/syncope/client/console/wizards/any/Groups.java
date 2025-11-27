@@ -251,24 +251,24 @@ public class Groups extends AbstractGroups {
             memberships.sort(Comparator.comparing(MembershipTO::getGroupName));
         }
 
-        @Override
         protected void reloadDynMemberships() {
             GroupFiqlSearchConditionBuilder builder = SyncopeClient.getGroupSearchConditionBuilder();
 
             List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
                     stream().map(membership -> builder.is(Constants.KEY_FIELD_NAME).
-                    equalTo(membership.getGroupKey()).wrap()).
-                    collect(Collectors.toList());
+                    equalTo(membership.getGroupKey()).wrap()).toList();
 
-            dynMemberships = new ArrayList<>();
             if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
-                dynMemberships.addAll(groupRestClient.search(
+                dynMemberships = groupRestClient.search(
                         SyncopeConstants.ROOT_REALM,
                         builder.or(conditions).query(),
-                        -1,
-                        -1,
+                        1,
+                        Constants.MAX_GROUP_LIST_SIZE,
                         new SortParam<>(Constants.NAME_FIELD_NAME, true)).
-                        stream().map(GroupTO::getName).toList());
+                        stream().map(GroupTO::getName).toList();
+            } else {
+                dynMemberships = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
+                        stream().map(MembershipTO::getGroupName).toList();
             }
         }
 

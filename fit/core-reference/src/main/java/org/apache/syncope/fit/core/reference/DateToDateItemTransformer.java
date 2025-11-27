@@ -21,7 +21,7 @@ package org.apache.syncope.fit.core.reference;
 import java.util.List;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
@@ -34,12 +34,12 @@ public class DateToDateItemTransformer implements ItemTransformer {
     @Override
     public MappingManager.IntValues beforePropagation(
             final Item item,
-            final Any any,
+            final Attributable attributable,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.getFirst().getDateValue() == null) {
-            return ItemTransformer.super.beforePropagation(item, any, schemaType, values);
+            return ItemTransformer.super.beforePropagation(item, attributable, schemaType, values);
         }
 
         values.getFirst().setDateValue(values.getFirst().getDateValue().plusDays(1));

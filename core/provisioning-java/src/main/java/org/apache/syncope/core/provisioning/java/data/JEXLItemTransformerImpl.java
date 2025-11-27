@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -61,15 +61,15 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
     }
 
     protected AttrSchemaType beforePropagation(
-            final Any any,
+            final Attributable attributable,
             final AttrSchemaType schemaType,
             final PlainAttrValue value) {
 
         JexlContextBuilder builder = new JexlContextBuilder();
-        if (any != null) {
-            builder.fields(any).
-                    plainAttrs(any.getPlainAttrs()).
-                    derAttrs(any, derAttrHandler);
+        if (attributable != null) {
+            builder.fields(attributable).
+                    plainAttrs(attributable.getPlainAttrs()).
+                    derAttrs(attributable, derAttrHandler);
         }
         JexlContext jexlContext = builder.build();
 
@@ -147,21 +147,21 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
     @Override
     public MappingManager.IntValues beforePropagation(
             final Item item,
-            final Any any,
+            final Attributable attributable,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
         if (StringUtils.isBlank(propagationJEXL)) {
-            return JEXLItemTransformer.super.beforePropagation(item, any, schemaType, values);
+            return JEXLItemTransformer.super.beforePropagation(item, attributable, schemaType, values);
         }
 
         Mutable<AttrSchemaType> tType = new MutableObject<>();
         if (values.isEmpty()) {
             PlainAttrValue value = new PlainAttrValue();
-            tType.setValue(beforePropagation(any, schemaType, value));
+            tType.setValue(beforePropagation(attributable, schemaType, value));
             values.add(value);
         } else {
-            values.forEach(value -> tType.setValue(beforePropagation(any, schemaType, value)));
+            values.forEach(value -> tType.setValue(beforePropagation(attributable, schemaType, value)));
         }
 
         return new MappingManager.IntValues(tType.get(), values);

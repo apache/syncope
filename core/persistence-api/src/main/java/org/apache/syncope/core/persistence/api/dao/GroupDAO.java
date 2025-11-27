@@ -42,6 +42,9 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     Optional<? extends Group> findByName(String name);
 
+    @Override
+    Collection<String> findAllResourceKeys(String key);
+
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
      * realm.
@@ -74,6 +77,8 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<String> findADynMembers(Group group);
 
+    List<String> findUDynMembers(Group group);
+
     long countAMembers(String groupKey);
 
     long countUMembers(String groupKey);
@@ -84,6 +89,8 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     void clearADynMembers(Group group);
 
+    void clearUDynMembers(Group group);
+
     /**
      * Evaluates all the dynamic group membership conditions against the given anyObject (invoked during save).
      *
@@ -91,18 +98,6 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @return pair of groups dynamically assigned before and after refresh
      */
     DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
-
-    /**
-     * Removes the dynamic group memberships of the given anyObject (invoked during delete).
-     *
-     * @param anyObject anyObject being deleted
-     * @return groups dynamically assigned before refresh
-     */
-    Set<String> removeDynMemberships(AnyObject anyObject);
-
-    List<String> findUDynMembers(Group group);
-
-    void clearUDynMembers(Group group);
 
     /**
      * Evaluates all the dynamic group membership conditions against the given user (invoked during save).
@@ -114,6 +109,14 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     /**
      * Removes the dynamic group memberships of the given anyObject (invoked during delete).
+     *
+     * @param anyObject anyObject being deleted
+     * @return groups dynamically assigned before refresh
+     */
+    Set<String> removeDynMemberships(AnyObject anyObject);
+
+    /**
+     * Removes the dynamic group memberships of the given user (invoked during delete).
      *
      * @param user user being deleted
      * @return groups dynamically assigned before refresh
@@ -129,7 +132,4 @@ public interface GroupDAO extends AnyDAO<Group> {
     Group saveAndRefreshDynMemberships(Group group);
 
     List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
-
-    @Override
-    Collection<String> findAllResourceKeys(String key);
 }

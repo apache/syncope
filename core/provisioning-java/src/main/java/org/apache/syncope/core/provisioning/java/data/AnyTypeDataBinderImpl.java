@@ -166,8 +166,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         AnyTypeTO anyTypeTO = new AnyTypeTO();
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().
-                map(AnyTypeClass::getKey).toList());
+        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().map(AnyTypeClass::getKey).toList());
         return anyTypeTO;
     }
 }

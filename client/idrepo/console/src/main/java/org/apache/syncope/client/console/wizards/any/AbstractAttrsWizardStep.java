@@ -124,9 +124,8 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         if (attributable instanceof AnyTO anyTO) {
             classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
                     map(AnyTypeClassTO::getKey).toList());
-        } else if (attributable instanceof RealmTO realmTO && realmTO.getAnyTypeClass() != null) {
-            classes.add(realmTO.getAnyTypeClass());
         }
+
         setSchemas(classes);
         setAttrs();
         return getAttrsFromTO();

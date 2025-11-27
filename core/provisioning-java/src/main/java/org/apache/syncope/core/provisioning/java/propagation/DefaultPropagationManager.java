@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
@@ -554,17 +553,13 @@ public class DefaultPropagationManager implements PropagationManager {
         List<PropagationTaskInfo> tasks = new ArrayList<>();
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
-            ExternalResource resource = resourceDAO.findById(resourceKey).
-                    orElseThrow(() -> new NotFoundException("Resource " + resourceKey));
+            ExternalResource resource = resourceDAO.findById(resourceKey).orElse(null);
             OrgUnit orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", resourceKey);
             } else if (orgUnit == null) {
                 LOG.error("No orgUnit specified on resource {}, ignoring...", resource);
-            } else if (StringUtils.isBlank(orgUnit.getConnObjectLink())) {
-                LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
-                        realm.getFullPath(), resource);
             } else {
                 MappingManager.PreparedAttrs preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
 

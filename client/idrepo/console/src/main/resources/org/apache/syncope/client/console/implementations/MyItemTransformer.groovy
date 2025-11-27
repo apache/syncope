@@ -20,7 +20,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.common.lib.to.Item
 import org.apache.syncope.common.lib.types.AttrSchemaType
-import org.apache.syncope.core.persistence.api.entity.Any
+import org.apache.syncope.core.persistence.api.entity.Attributable
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.provisioning.api.MappingManager
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer
@@ -30,7 +30,7 @@ class MyItemTransformer implements ItemTransformer {
   @Override
   MappingManager.IntValues beforePropagation(
     Item item,
-    Any any,
+    Attributable attributable,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 
