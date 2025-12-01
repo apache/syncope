@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.rules;
 
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -36,8 +36,8 @@ public interface PushCorrelationRule {
     /**
      * Default FIQL builder using __UID__.
      */
-    BiFunction<ConnectorObject, Provision, String> DEFAULT_FIQL_BUILDER =
-            (connectorObject, provision) -> Uid.NAME + "==" + connectorObject.getUid().getUidValue();
+    Function<ConnectorObject, String> DEFAULT_FIQL_BUILDER =
+            connectorObject -> Uid.NAME + "==" + connectorObject.getUid().getUidValue();
 
     default void setConf(PushCorrelationRuleConf conf) {
     }
@@ -62,6 +62,6 @@ public interface PushCorrelationRule {
      * @return fiql
      */
     default String getFIQL(ConnectorObject connectorObject, Provision provision) {
-        return DEFAULT_FIQL_BUILDER.apply(connectorObject, provision);
+        return DEFAULT_FIQL_BUILDER.apply(connectorObject);
     }
 }
