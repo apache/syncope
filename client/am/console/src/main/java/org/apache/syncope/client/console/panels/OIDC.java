@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -54,6 +55,11 @@ public class OIDC extends Panel {
     @SpringBean
     protected OIDCJWKSRestClient oidcJWKSRestClient;
 
+    @SpringBean
+    protected WAConfigRestClient waConfigRestClient;
+
+    protected final BaseModal<OIDCJWKSTO> generateModal = new BaseModal<>("generateModal");
+
     protected final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 
         private static final long serialVersionUID = 389935548143327858L;
@@ -75,14 +81,14 @@ public class OIDC extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        add(viewModal);
-        viewModal.size(Modal.Size.Extra_large);
-        viewModal.setWindowClosedCallback(target -> viewModal.show(false));
-
         WebMarkupContainer container = new WebMarkupContainer("container");
         add(container.setOutputMarkupId(true));
 
         AtomicReference<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
+
+        add(viewModal);
+        viewModal.size(Modal.Size.Extra_large);
+        viewModal.setWindowClosedCallback(target -> viewModal.show(false));
 
         view = new AjaxLink<>("view") {
 
@@ -123,18 +129,10 @@ public class OIDC extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                try {
-                    oidcjwksto.set(oidcJWKSRestClient.generate());
-                    generate.setEnabled(false);
-                    view.setEnabled(true);
-
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    target.add(container);
-                } catch (Exception e) {
-                    LOG.error("While generating OIDC JWKS", e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                generateModal.header(Model.of("Generate JSON Web Key Sets"));
+                target.add(generateModal.setContent(new OIDCJWKSGenerationPanel(
+                        oidcJWKSRestClient, waConfigRestClient, generateModal, pageRef)));
+                generateModal.show(true);
             }
 
             @Override
@@ -183,6 +181,17 @@ public class OIDC extends Panel {
         delete.setEnabled(oidcjwksto.get() != null);
         container.add(delete.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_JWKS_DELETE);
+
+        generateModal.addSubmitButton();
+        add(generateModal);
+        generateModal.setWindowClosedCallback(target -> {
+            oidcjwksto.set(oidcJWKSRestClient.get().get());
+            view.setEnabled(oidcjwksto.get() != null);
+            delete.setEnabled(oidcjwksto.get() != null);
+
+            target.add(container);
+            generateModal.show(false);
+        });
 
         String wellKnownURI = waPrefix + "/oidc/.well-known/openid-configuration";
         container.add(new ExternalLink("wellKnownURI", wellKnownURI, wellKnownURI));

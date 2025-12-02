@@ -31,8 +31,8 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
     @Override
     public OIDCJWKS get() {
         try {
-            TypedQuery<OIDCJWKS> query = entityManager().
-                    createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
+            TypedQuery<OIDCJWKS> query = entityManager().createQuery(
+                    "SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
             return query.getSingleResult();
         } catch (final NoResultException e) {
             LOG.debug(e.getMessage());
@@ -47,8 +47,6 @@ public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO
 
     @Override
     public void delete() {
-        entityManager().
-                createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
-                executeUpdate();
+        entityManager().createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).executeUpdate();
     }
 }

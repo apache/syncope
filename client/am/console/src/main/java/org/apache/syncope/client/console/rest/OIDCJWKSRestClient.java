@@ -37,8 +37,8 @@ public class OIDCJWKSRestClient extends BaseRestClient {
         return result;
     }
 
-    public OIDCJWKSTO generate() {
-        Response response = getService(OIDCJWKSService.class).generate("syncope", "RSA", 2048);
+    public OIDCJWKSTO generate(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
+        Response response = getService(OIDCJWKSService.class).generate(jwksKeyId, jwksType, jwksKeySize);
         return response.readEntity(OIDCJWKSTO.class);
     }
 
