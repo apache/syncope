@@ -43,8 +43,8 @@ public class JPAOIDCJWKSDAO implements OIDCJWKSDAO {
     @Override
     public Optional<OIDCJWKS> get() {
         try {
-            TypedQuery<OIDCJWKS> query = entityManager.
-                    createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
+            TypedQuery<OIDCJWKS> query = entityManager.createQuery(
+                    "SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
             return Optional.ofNullable(query.getSingleResult());
         } catch (NoResultException e) {
             LOG.debug("No OIDC JWKS found", e);
@@ -59,8 +59,6 @@ public class JPAOIDCJWKSDAO implements OIDCJWKSDAO {
 
     @Override
     public void delete() {
-        entityManager.
-                createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
-                executeUpdate();
+        entityManager.createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).executeUpdate();
     }
 }

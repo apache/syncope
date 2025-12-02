@@ -26,11 +26,15 @@ import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratedEvent;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
+import org.apereo.inspektr.common.web.ClientInfo;
+import org.apereo.inspektr.common.web.ClientInfoHolder;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.JsonWebKeySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
@@ -46,16 +50,20 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     protected final int jwksKeySize;
 
+    protected final ApplicationContext applicationContext;
+
     public WAOIDCJWKSGeneratorService(
             final WARestClient waRestClient,
             final String jwksKeyId,
             final String jwksType,
-            final int jwksKeySize) {
+            final int jwksKeySize,
+            final ApplicationContext applicationContext) {
 
         this.waRestClient = waRestClient;
         this.jwksKeyId = jwksKeyId;
         this.jwksType = jwksType;
         this.jwksKeySize = jwksKeySize;
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -92,6 +100,10 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
         if (jwksTO == null) {
             throw new IllegalStateException("Unable to determine OIDC JWKS resource");
         }
-        return new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+
+        Resource result = new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+        ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
+        applicationContext.publishEvent(new OidcJsonWebKeystoreGeneratedEvent(this, result, clientInfo));
+        return result;
     }
 }
