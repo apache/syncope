@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -82,7 +81,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -503,32 +501,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 }
             }
         }
-    }
-
-    protected PropagationByResource<String> propByRes(
-            final Map<String, ConnObject> before,
-            final Map<String, ConnObject> after) {
-
-        PropagationByResource<String> propByRes = new PropagationByResource<>();
-
-        after.forEach((resource, connObject) -> {
-            if (before.containsKey(resource)) {
-                ConnObject beforeObject = before.get(resource);
-                if (!beforeObject.equals(connObject)) {
-                    propByRes.add(ResourceOperation.UPDATE, resource);
-
-                    beforeObject.getAttr(Uid.NAME).map(attr -> attr.getValues().getFirst()).
-                            ifPresent(value -> propByRes.addOldConnObjectKey(resource, value));
-                }
-            } else {
-                propByRes.add(ResourceOperation.CREATE, resource);
-            }
-        });
-        propByRes.addAll(
-                ResourceOperation.DELETE,
-                before.keySet().stream().filter(resource -> !after.containsKey(resource)).collect(Collectors.toSet()));
-
-        return propByRes;
     }
 
     protected void fill(

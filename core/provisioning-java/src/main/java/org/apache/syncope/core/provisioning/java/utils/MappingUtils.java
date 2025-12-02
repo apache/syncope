@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.ItemContainer;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
@@ -55,8 +55,8 @@ public final class MappingUtils {
     public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
         return Optional.ofNullable(provision).
                 flatMap(p -> Optional.ofNullable(p.getMapping())).
-                map(Mapping::getConnObjectKeyItem).
-            orElseGet(Optional::empty);
+                map(ItemContainer::getConnObjectKeyItem).
+                orElseGet(Optional::empty);
     }
 
     public static Stream<Item> getPropagationItems(final Stream<Item> items) {

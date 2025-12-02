@@ -22,9 +22,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttributableTO;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -35,8 +38,10 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -168,5 +173,31 @@ abstract class AttributableDataBinder {
                 }
             }
         });
+    }
+
+    protected PropagationByResource<String> propByRes(
+            final Map<String, ConnObject> before,
+            final Map<String, ConnObject> after) {
+
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
+
+        after.forEach((resource, connObject) -> {
+            if (before.containsKey(resource)) {
+                ConnObject beforeObject = before.get(resource);
+                if (!beforeObject.equals(connObject)) {
+                    propByRes.add(ResourceOperation.UPDATE, resource);
+
+                    beforeObject.getAttr(Uid.NAME).map(attr -> attr.getValues().getFirst()).
+                            ifPresent(value -> propByRes.addOldConnObjectKey(resource, value));
+                }
+            } else {
+                propByRes.add(ResourceOperation.CREATE, resource);
+            }
+        });
+        propByRes.addAll(
+                ResourceOperation.DELETE,
+                before.keySet().stream().filter(resource -> !after.containsKey(resource)).collect(Collectors.toSet()));
+
+        return propByRes;
     }
 }

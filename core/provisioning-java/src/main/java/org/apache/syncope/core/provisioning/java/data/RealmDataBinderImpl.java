@@ -20,15 +20,18 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -59,7 +62,13 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
+import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
+import org.identityconnectors.framework.common.objects.Uid;
 
 public class RealmDataBinderImpl extends AttributableDataBinder implements RealmDataBinder {
 
@@ -281,36 +290,59 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
         return realm;
     }
 
+    protected Map<String, ConnObject> onResources(final Realm realm) {
+        Map<String, ConnObject> onResources = new HashMap<>();
+
+        realm.getResources().forEach(resource -> Optional.ofNullable(resource.getOrgUnit()).
+                ifPresent(orgUnit -> orgUnit.getConnObjectKeyItem().ifPresent(keyItem -> {
+
+            MappingManager.PreparedAttrs prepared = mappingManager.prepareAttrsFromRealm(realm, resource);
+
+            ConnObject connObjectTO;
+            if (StringUtils.isBlank(prepared.connObjectLink())) {
+                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.attributes());
+            } else {
+                ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                        addAttributes(prepared.attributes()).
+                        addAttribute(new Uid(prepared.connObjectLink())).
+                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.connObjectLink())).
+                        build();
+
+                connObjectTO = ConnObjectUtils.getConnObjectTO(
+                        PushCorrelationRule.DEFAULT_FIQL_BUILDER.apply(connectorObject),
+                        connectorObject.getAttributes());
+            }
+
+            onResources.put(resource.getKey(), connObjectTO);
+        })));
+
+        return onResources;
+    }
+
     @Override
     public PropagationByResource<String> update(final Realm realm, final RealmTO realmTO) {
+        // Save projection on Resources (before update)
+        Map<String, ConnObject> beforeOnResources = onResources(realm);
+
         realm.setParent(Optional.ofNullable(realmTO.getParent()).flatMap(realmDAO::findById).orElse(null));
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         bind(realm, realmTO, scce);
 
-        PropagationByResource<String> propByRes = new PropagationByResource<>();
         realmTO.getResources().forEach(key -> resourceDAO.findById(key).ifPresentOrElse(
-                resource -> {
-                    realm.add(resource);
-                    propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                },
+                realm::add,
                 () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), key)));
         // remove all resources not contained in the TO
-        realm.getResources().removeIf(resource -> {
-            boolean contained = realmTO.getResources().contains(resource.getKey());
-            if (!contained) {
-                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-            }
-            return !contained;
-        });
+        realm.getResources().removeIf(resource -> !realmTO.getResources().contains(resource.getKey()));
 
         SyncopeClientException requiredValuesMissing = checkMandatoryOnResources(realm);
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
 
-        return propByRes;
+        // Build final information for next stage (propagation)
+        return propByRes(beforeOnResources, onResources(realm));
     }
 
     @Override

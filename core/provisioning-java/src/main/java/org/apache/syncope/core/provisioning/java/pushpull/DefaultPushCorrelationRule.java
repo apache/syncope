@@ -60,8 +60,8 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
 
     @Override
     public void setConf(final PushCorrelationRuleConf conf) {
-        if (conf instanceof DefaultPushCorrelationRuleConf) {
-            this.conf = DefaultPushCorrelationRuleConf.class.cast(conf);
+        if (conf instanceof final DefaultPushCorrelationRuleConf defaultPushCorrelationRuleConf) {
+            this.conf = defaultPushCorrelationRuleConf;
         } else {
             throw new IllegalArgumentException(
                     DefaultPushCorrelationRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
