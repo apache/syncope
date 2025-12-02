@@ -23,6 +23,36 @@ import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 
 public interface OIDCJWKSDataBinder {
 
+    String PARAMETER_STATE = "state";
+
+    enum JsonWebKeyLifecycleState {
+        /**
+         * The key state is active and current and is used for crypto operations as necessary.
+         * Per the rotation schedule, the key with this status would be replaced and rotated by the future key.
+         */
+        CURRENT(0),
+        /**
+         * The key state is one for the future and will take the place of the current key per the rotation schedule.
+         */
+        FUTURE(1),
+        /**
+         * Previous key prior to the current key.
+         * This key continues to remain valid and available, and is a candidate to be removed from the keystore
+         * per the revocation schedule.
+         */
+        PREVIOUS(2);
+
+        private final long state;
+
+        JsonWebKeyLifecycleState(final long state) {
+            this.state = state;
+        }
+
+        public long getState() {
+            return state;
+        }
+    }
+
     OIDCJWKSTO getOIDCJWKSTO(OIDCJWKS jwks);
 
     OIDCJWKS create(String jwksKeyId, String jwksType, int jwksKeySize);

@@ -113,10 +113,11 @@ public class AMLogicContext {
     @Bean
     public OIDCJWKSLogic oidcJWKSLogic(
             final OIDCJWKSDataBinder oidcJWKSDataBinder,
-            final OIDCJWKSDAO dao,
+            final OIDCJWKSDAO oidcJWKSDAO,
+            final WAConfigDAO waConfigDAO,
             final EntityFactory entityFactory) {
 
-        return new OIDCJWKSLogic(oidcJWKSDataBinder, dao, entityFactory);
+        return new OIDCJWKSLogic(oidcJWKSDataBinder, oidcJWKSDAO, waConfigDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
