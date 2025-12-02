@@ -67,7 +67,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
 
         PublicJsonWebKey jwk;
         switch (jwksType.trim().toLowerCase(Locale.ENGLISH)) {
-            case "ec" -> {
+            case "ec":
                 switch (jwksKeySize) {
                     case 384:
                         jwk = EcJwkGenerator.generateJwk(EllipticCurves.P384);
@@ -83,9 +83,10 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
                         jwk = EcJwkGenerator.generateJwk(EllipticCurves.P256);
                         jwk.setAlgorithm(AlgorithmIdentifiers.ECDSA_USING_P521_CURVE_AND_SHA512);
                 }
-            }
+                break;
 
-            default ->
+            case "rsa":
+            default:
                 jwk = RsaJwkGenerator.generateJwk(jwksKeySize);
         }
 

@@ -44,7 +44,7 @@ public interface OIDCJWKSDataBinder {
 
         private final long state;
 
-        private JsonWebKeyLifecycleState(final long state) {
+        JsonWebKeyLifecycleState(final long state) {
             this.state = state;
         }
 
