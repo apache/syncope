@@ -373,13 +373,15 @@ public class WAContext {
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
             final CasConfigurationProperties casProperties,
-            final WARestClient waRestClient) {
+            final WARestClient waRestClient,
+            final ApplicationContext applicationContext) {
 
         return new WAOIDCJWKSGeneratorService(
                 waRestClient,
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeyId(),
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksType(),
-                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize());
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize(),
+                applicationContext);
     }
 
     @Bean
