@@ -1211,6 +1211,12 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.bitbucket.b_c</groupId>
+        <artifactId>jose4j</artifactId>
+        <version>0.9.6</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
         <version>3.0.6</version>
@@ -1898,7 +1904,7 @@ under the License.
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>5.3.0.6276</version>
+          <version>5.4.0.6343</version>
         </plugin>
       </plugins>
     </pluginManagement>

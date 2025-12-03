@@ -18,20 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import com.nimbusds.jose.util.JSONObjectUtils;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -39,6 +28,15 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.jose4j.jwk.EcJwkGenerator;
+import org.jose4j.jwk.JsonWebKey;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.jwk.PublicJsonWebKey;
+import org.jose4j.jwk.RsaJwkGenerator;
+import org.jose4j.jwk.Use;
+import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.keys.EllipticCurves;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,61 +52,59 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
 
     @Override
     public OIDCJWKSTO getOIDCJWKSTO(final OIDCJWKS jwks) {
-        return new OIDCJWKSTO.Builder().json(jwks.getJson()).key(jwks.getKey()).build();
+        return new OIDCJWKSTO.Builder().
+                key(jwks.getKey()).
+                json(jwks.getJson()).
+                build();
+    }
+
+    protected PublicJsonWebKey generate(
+            final String jwksKeyId,
+            final String jwksType,
+            final int jwksKeySize,
+            final String use,
+            final JsonWebKeyLifecycleState state) throws JoseException {
+
+        PublicJsonWebKey jwk;
+        switch (jwksType.trim().toLowerCase(Locale.ENGLISH)) {
+            case "ec":
+                switch (jwksKeySize) {
+                    case 384:
+                        jwk = EcJwkGenerator.generateJwk(EllipticCurves.P384);
+                        jwk.setAlgorithm(AlgorithmIdentifiers.ECDSA_USING_P384_CURVE_AND_SHA384);
+                        break;
+
+                    case 512:
+                        jwk = EcJwkGenerator.generateJwk(EllipticCurves.P521);
+                        jwk.setAlgorithm(AlgorithmIdentifiers.ECDSA_USING_P521_CURVE_AND_SHA512);
+                        break;
+
+                    default:
+                        jwk = EcJwkGenerator.generateJwk(EllipticCurves.P256);
+                        jwk.setAlgorithm(AlgorithmIdentifiers.ECDSA_USING_P521_CURVE_AND_SHA512);
+                }
+                break;
+
+            case "rsa":
+            default:
+                jwk = RsaJwkGenerator.generateJwk(jwksKeySize);
+        }
+
+        jwk.setKeyId(jwksKeyId.concat("-").concat(SecureRandomUtils.generateRandomLetters(8)));
+        jwk.setUse(use);
+        jwk.setOtherParameter(PARAMETER_STATE, state.getState());
+        return jwk;
     }
 
     @Override
     public OIDCJWKS create(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
-        JWK jwk;
+        List<PublicJsonWebKey> keys = new ArrayList<>();
         try {
-            switch (jwksType.trim().toLowerCase()) {
-                case "ec":
-                    KeyPairGenerator gen = KeyPairGenerator.getInstance("EC");
-                    KeyPair keyPair;
-                    switch (jwksKeySize) {
-                        case 384:
-                            gen.initialize(Curve.P_384.toECParameterSpec());
-                            keyPair = gen.generateKeyPair();
-                            jwk = new ECKey.Builder(Curve.P_384, (ECPublicKey) keyPair.getPublic()).
-                                    privateKey((ECPrivateKey) keyPair.getPrivate()).
-                                    keyUse(KeyUse.SIGNATURE).
-                                    keyID(jwksKeyId.concat("-").
-                                            concat(SecureRandomUtils.generateRandomUUID().toString().substring(0, 8))).
-                                    build();
-                            break;
-
-                        case 512:
-                            gen.initialize(Curve.P_521.toECParameterSpec());
-                            keyPair = gen.generateKeyPair();
-                            jwk = new ECKey.Builder(Curve.P_521, (ECPublicKey) keyPair.getPublic()).
-                                    privateKey((ECPrivateKey) keyPair.getPrivate()).
-                                    keyUse(KeyUse.SIGNATURE).
-                                    keyID(jwksKeyId.concat("-").
-                                            concat(SecureRandomUtils.generateRandomUUID().toString().substring(0, 8))).
-                                    build();
-                            break;
-
-                        default:
-                            gen.initialize(Curve.P_256.toECParameterSpec());
-                            keyPair = gen.generateKeyPair();
-                            jwk = new ECKey.Builder(Curve.P_256, (ECPublicKey) keyPair.getPublic()).
-                                    privateKey((ECPrivateKey) keyPair.getPrivate()).
-                                    keyUse(KeyUse.SIGNATURE).
-                                    keyID(jwksKeyId.concat("-").
-                                            concat(SecureRandomUtils.generateRandomUUID().toString().substring(0, 8))).
-                                    build();
-                    }
-                    break;
-
-                case "rsa":
-                default:
-                    jwk = new RSAKeyGenerator(jwksKeySize).
-                            keyUse(KeyUse.SIGNATURE).
-                            keyID(jwksKeyId.concat("-").
-                                    concat(SecureRandomUtils.generateRandomUUID().toString().substring(0, 8))).
-                            generate();
-            }
-        } catch (JOSEException | InvalidAlgorithmParameterException | NoSuchAlgorithmException e) {
+            keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.CURRENT));
+            keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.ENCRYPTION, JsonWebKeyLifecycleState.CURRENT));
+            keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.FUTURE));
+            keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.ENCRYPTION, JsonWebKeyLifecycleState.FUTURE));
+        } catch (JoseException e) {
             LOG.error("Could not create OIDC JWKS", e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -116,8 +112,8 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             throw sce;
         }
 
-        OIDCJWKS jwks = entityFactory.newEntity(OIDCJWKS.class);
-        jwks.setJson(JSONObjectUtils.toJSONString(new JWKSet(jwk).toJSONObject(false)));
-        return jwks;
+        OIDCJWKS oidcJWKS = entityFactory.newEntity(OIDCJWKS.class);
+        oidcJWKS.setJson(new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
+        return oidcJWKS;
     }
 }
