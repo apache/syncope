@@ -19,8 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
