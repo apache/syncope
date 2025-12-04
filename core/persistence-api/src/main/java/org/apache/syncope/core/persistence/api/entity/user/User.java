@@ -60,6 +60,8 @@ public interface User extends
 
     void setSecurityAnswer(String securityAnswer);
 
+    void setEncodedSecurityAnswer(String securityAnswer);
+    
     Integer getFailedLogins();
 
     void setFailedLogins(Integer failedLogins);
