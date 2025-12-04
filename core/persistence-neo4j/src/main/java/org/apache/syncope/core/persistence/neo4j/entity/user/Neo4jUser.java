@@ -389,6 +389,11 @@ public class Neo4jUser
     }
 
     @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
+    @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, Neo4jAnyTypeClass.class);
         return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);
