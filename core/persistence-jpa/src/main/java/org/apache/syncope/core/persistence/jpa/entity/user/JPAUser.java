@@ -432,6 +432,11 @@ public class JPAUser
     }
 
     @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
+    @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
         return auxClasses.contains((JPAAnyTypeClass) auxClass) || auxClasses.add((JPAAnyTypeClass) auxClass);
