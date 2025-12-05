@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -25,8 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -252,5 +258,42 @@ public class UserTest extends AbstractTest {
         assertNotNull(actual.getSecurityAnswer());
         assertTrue(encryptorManager.getInstance().
                 verify(securityAnswer, CipherAlgorithm.SSHA256, actual.getSecurityAnswer()));
+    }
+
+    @Test
+    public void issueSYNCOPE1937()
+            throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException,
+            InvalidKeyException {
+        User user = entityFactory.newEntity(User.class);
+        user.setUsername("username");
+        user.setRealm(realmDAO.getRoot());
+        user.setCreator("admin");
+        user.setCreationDate(OffsetDateTime.now());
+
+        user.setCipherAlgorithm(CipherAlgorithm.SHA1);
+        user.setPassword("password123");
+
+        User actual = userDAO.save(user);
+        
+        assertEquals(0, user.getPasswordHistory().size());
+        
+        // add some other password to history
+        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password123!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password124!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password125!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password126!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password127!", CipherAlgorithm.SHA1));
+        
+        assertEquals(5, user.getPasswordHistory().size());
+        
+        // keep only the last three passwords into history
+        user.removeOldestEntriesFromPasswordHistory(2);
+        
+        assertEquals(3, user.getPasswordHistory().size());
+        
+        // try with an exceeding number
+        assertDoesNotThrow(() -> user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() + 5));
+        
+        assertNotNull(actual);
     }
 }
