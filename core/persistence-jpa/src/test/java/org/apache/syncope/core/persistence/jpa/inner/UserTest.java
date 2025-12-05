@@ -274,26 +274,26 @@ public class UserTest extends AbstractTest {
         user.setPassword("password123");
 
         User actual = userDAO.save(user);
-        
+
         assertEquals(0, user.getPasswordHistory().size());
-        
+
         // add some other password to history
         user.addToPasswordHistory(encryptorManager.getInstance().encode("Password123!", CipherAlgorithm.SHA1));
         user.addToPasswordHistory(encryptorManager.getInstance().encode("Password124!", CipherAlgorithm.SHA1));
         user.addToPasswordHistory(encryptorManager.getInstance().encode("Password125!", CipherAlgorithm.SHA1));
         user.addToPasswordHistory(encryptorManager.getInstance().encode("Password126!", CipherAlgorithm.SHA1));
         user.addToPasswordHistory(encryptorManager.getInstance().encode("Password127!", CipherAlgorithm.SHA1));
-        
+
         assertEquals(5, user.getPasswordHistory().size());
-        
+
         // keep only the last three passwords into history
         user.removeOldestEntriesFromPasswordHistory(2);
-        
+
         assertEquals(3, user.getPasswordHistory().size());
-        
+
         // try with an exceeding number
         assertDoesNotThrow(() -> user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() + 5));
-        
+
         assertNotNull(actual);
     }
 }
