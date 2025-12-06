@@ -291,8 +291,7 @@ public class Neo4jUser
     @Override
     public void removeOldestEntriesFromPasswordHistory(final int n) {
         List<String> ph = getPasswordHistory();
-        ph.subList(n, ph.size());
-        passwordHistory = POJOHelper.serialize(ph);
+        passwordHistory = POJOHelper.serialize(ph.subList(Math.min(n, ph.size()), ph.size()));
     }
 
     @Override
@@ -386,6 +385,11 @@ public class Neo4jUser
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;
         }
+    }
+
+    @Override
+    public void setEncodedSecurityAnswer(final String securityAnswer) {
+        this.securityAnswer = securityAnswer;
     }
 
     @Override
