@@ -18,23 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -309,9 +304,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1937()
-            throws NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException,
-            InvalidKeyException {
+    public void issueSYNCOPE1937() throws Exception {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.getRoot());
@@ -321,16 +314,17 @@ public class UserTest extends AbstractTest {
         user.setCipherAlgorithm(CipherAlgorithm.SHA1);
         user.setPassword("password123");
 
-        User actual = userDAO.save(user);
+        user = userDAO.save(user);
+        assertNotNull(user);
 
         assertEquals(0, user.getPasswordHistory().size());
 
         // add some other password to history
-        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password123!", CipherAlgorithm.SHA1));
-        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password124!", CipherAlgorithm.SHA1));
-        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password125!", CipherAlgorithm.SHA1));
-        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password126!", CipherAlgorithm.SHA1));
-        user.addToPasswordHistory(encryptorManager.getInstance().encode("Password127!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(Encryptor.getInstance().encode("Password123!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(Encryptor.getInstance().encode("Password124!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(Encryptor.getInstance().encode("Password125!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(Encryptor.getInstance().encode("Password126!", CipherAlgorithm.SHA1));
+        user.addToPasswordHistory(Encryptor.getInstance().encode("Password127!", CipherAlgorithm.SHA1));
 
         assertEquals(5, user.getPasswordHistory().size());
 
@@ -340,8 +334,10 @@ public class UserTest extends AbstractTest {
         assertEquals(3, user.getPasswordHistory().size());
 
         // try with an exceeding number
-        assertDoesNotThrow(() -> user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() + 5));
-
-        assertNotNull(actual);
+        try {
+            user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() + 5);
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 }
