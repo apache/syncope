@@ -334,8 +334,7 @@ public class JPAUser
     @Override
     public void removeOldestEntriesFromPasswordHistory(final int n) {
         List<String> ph = getPasswordHistory();
-        ph.subList(n, ph.size());
-        passwordHistory = POJOHelper.serialize(ph);
+        passwordHistory = POJOHelper.serialize(ph.subList(Math.min(n, ph.size()), ph.size()));
     }
 
     @Override
