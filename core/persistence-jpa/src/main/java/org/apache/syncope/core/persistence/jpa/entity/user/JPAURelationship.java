@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -49,11 +49,11 @@ public class JPAURelationship extends AbstractGeneratedKeyEntity implements URel
     private JPARelationshipType type;
 
     @ManyToOne
-    @Column(name = "user_id")
+    @JoinColumn(name = "user_id")
     private JPAUser leftEnd;
 
     @ManyToOne
-    @Column(name = "anyObject_id")
+    @JoinColumn(name = "anyObject_id")
     private JPAAnyObject rightEnd;
 
     @Override

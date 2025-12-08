@@ -17,22 +17,24 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm 
-                                     http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
-                 version="2.0">
-  
+                 xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence/orm 
+                                     https://jakarta.ee/xml/ns/persistence/orm/orm_3_2.xsd"
+                 version="3.2">
+
   <persistence-unit-metadata>
     <persistence-unit-defaults>
+      <access>FIELD</access>
       <entity-listeners>
-        <entity-listener class="org.apache.syncope.core.persistence.jpa.openjpa.EntityValidationListener">
+        <entity-listener class="org.apache.syncope.core.persistence.jpa.entity.EntityValidationListener">
           <pre-persist method-name="validate"/>
           <pre-update method-name="validate"/>
         </entity-listener>
       </entity-listeners>
     </persistence-unit-defaults>
   </persistence-unit-metadata>
+
   <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject">
     <attributes>
       <basic name="plainAttrs">

@@ -285,7 +285,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
             @Override
             public Optional<RedirectionAction> getRedirectionAction(final CallContext ctx) {
-                this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
+                saml2Client.getConfiguration().setSamlAuthnRequestBuilder(new SAML2AuthnRequestBuilder() {
 
                     @Override
                     public AuthnRequest build(final SAML2MessageContext context) {
@@ -295,7 +295,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
                                 ifPresent(provider -> authnRequest.setRequestedAuthnContext(provider.get()));
                         return authnRequest;
                     }
-                };
+                });
                 return super.getRedirectionAction(ctx);
             }
         });
@@ -436,10 +436,10 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         claims.put(JWT_CLAIM_NAMEID_VALUE, nameID.getValue());
         claims.put(JWT_CLAIM_SESSIONINDEX, loginResp.getSessionIndex());
 
-        byte[] authorities = null;
+        String authorities = null;
         try {
             authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).getBytes();
+                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES);
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

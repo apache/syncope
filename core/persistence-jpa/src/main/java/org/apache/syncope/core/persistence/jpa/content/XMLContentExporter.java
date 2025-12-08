@@ -26,6 +26,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EntityType;
 import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.persistence.metamodel.Type;
 import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +55,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
@@ -64,8 +66,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
-import org.apache.openjpa.lib.util.collections.BidiMap;
-import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -91,6 +91,13 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of(JPAJobStatus.TABLE, JPAAuditEvent.TABLE);
+
+    protected static BiFunction<Map<String, EntityType<?>>, Type<?>, String> GET_KEY =
+            (entities, type) -> entities.entrySet().stream().
+                    filter(entry -> type.equals(entry.getValue())).
+                    findFirst().
+                    map(Map.Entry::getKey).
+                    orElse(null);
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
@@ -170,7 +177,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         return name;
     }
 
-    protected static Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
+    protected static Map<String, Pair<String, String>> relationTables(final Map<String, EntityType<?>> entities) {
         Map<String, Pair<String, String>> relationTables = new HashMap<>();
 
         entities.values().forEach(e -> e.getAttributes().stream().
@@ -190,8 +197,8 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                     Optional.ofNullable(field.getAnnotation(JoinTable.class)).ifPresent(joinTable -> {
                         String tableName = joinTable.name();
                         if (StringUtils.isBlank(tableName)) {
-                            tableName = entities.getKey(e) + "_"
-                                    + entities.getKey(((PluralAttribute) a).getElementType());
+                            tableName = GET_KEY.apply(entities, e) + "_"
+                                    + GET_KEY.apply(entities, ((PluralAttribute) a).getElementType());
                         }
 
                         relationTables.put(
@@ -282,7 +289,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
             final DataSource dataSource,
             final String tableName,
             final int threshold,
-            final BidiMap<String, EntityType<?>> entities,
+            final Map<String, EntityType<?>> entities,
             final Map<String, Pair<String, String>> relationTables,
             final TransformerHandler handler) throws MetaDataAccessException, SAXException {
 
@@ -316,7 +323,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 findFirst().
                 map(Map.Entry::getValue);
 
-        String outputTableName = entity.map(entities::getKey).
+        String outputTableName = entity.map(e -> GET_KEY.apply(entities, e)).
                 orElseGet(() -> relationTables.keySet().stream().
                 filter(tableName::equalsIgnoreCase).findFirst().
                 orElse(tableName));
@@ -380,7 +387,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
             final OutputStream os,
             final String... elements) throws SAXException, TransformerConfigurationException {
 
-        BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
+        Map<String, EntityType<?>> entities = new HashMap<>();
         entityManagerFactory.getMetamodel().getEntities().forEach(entity -> Optional.ofNullable(
                 entity.getBindableJavaType().getAnnotation(Table.class)).
                 ifPresent(table -> entities.put(table.name(), entity)));

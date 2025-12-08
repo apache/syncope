@@ -89,15 +89,14 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                     orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        encryptorManager.getInstance().
-                                decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
                 added.forEach(e -> authorities.add(new SyncopeGrantedAuthority(e, SyncopeConstants.ROOT_REALM)));
 
                 accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES).getBytes());
+                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
 
                 accessTokenDAO.save(accessToken);
             } catch (Exception e) {
@@ -150,7 +149,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         filter(authority -> removed.contains(authority.getAuthority())).toList());
 
                 accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES).getBytes());
+                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
 
                 accessTokenDAO.save(accessToken);
             } catch (Exception e) {

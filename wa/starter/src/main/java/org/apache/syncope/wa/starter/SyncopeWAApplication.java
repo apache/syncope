@@ -34,6 +34,8 @@ import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.health.DataSourceHealthContributorAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -45,6 +47,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    DataSourceHealthContributorAutoConfiguration.class,
     JmxAutoConfiguration.class,
     CasGoogleAuthenticatorLdapAutoConfiguration.class
 })

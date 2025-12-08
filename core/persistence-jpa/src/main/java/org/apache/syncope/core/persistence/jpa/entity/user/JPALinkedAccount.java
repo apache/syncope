@@ -19,14 +19,13 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -40,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -47,7 +47,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 @Entity
 @Table(name = JPALinkedAccount.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "connObjectKeyValue", "resource_id" }))
-@EntityListeners({ JSONLinkedAccountListener.class })
 public class JPALinkedAccount extends AbstractAttributable implements LinkedAccount {
 
     private static final long serialVersionUID = -5141654998687601522L;
@@ -73,10 +72,8 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
 
     private Boolean suspended = false;
 
-    private String plainAttrs;
-
-    @Transient
-    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
+    @Convert(converter = PlainAttrListConverter.class)
+    private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -183,39 +180,24 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
     }
 
     @Override
-    public List<PlainAttr> getPlainAttrsList() {
-        return plainAttrsList;
-    }
-
-    @Override
-    public String getPlainAttrsJSON() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public void setPlainAttrsJSON(final String plainAttrs) {
-        this.plainAttrs = plainAttrs;
-    }
-
-    @Override
     public boolean add(final PlainAttr attr) {
-        return plainAttrsList.add(attr);
+        return plainAttrs.add(attr);
     }
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchema().equals(attr.getSchema()));
+        return plainAttrs.removeIf(jsonAttr -> jsonAttr.getSchema().equals(attr.getSchema()));
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())).
                 findFirst();
-    }
-
-    @Override
-    public List<PlainAttr> getPlainAttrs() {
-        return plainAttrsList.stream().toList();
     }
 }

@@ -16,32 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.group;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
+import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Converter;
+import java.util.List;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 
-public class JSONGroupListener extends JSONEntityListener<Group> {
+@Converter
+public class XmlSecAlgorithmListConverter extends SerializableListConverter<XmlSecAlgorithm> {
 
-    @PostLoad
-    public void read(final JPAGroup group) {
-        super.json2list(group, false);
-    }
+    protected static final TypeReference<List<XmlSecAlgorithm>> TYPEREF =
+            new TypeReference<List<XmlSecAlgorithm>>() {
+    };
 
-    @PrePersist
-    @PreUpdate
-    public void save(final JPAGroup group) {
-        group.list2json();
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void readAfterSave(final JPAGroup group) {
-        super.json2list(group, true);
+    @Override
+    protected TypeReference<List<XmlSecAlgorithm>> typeRef() {
+        return TYPEREF;
     }
 }

@@ -20,21 +20,19 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.common.validation.ConnInstanceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -50,12 +48,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
     protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
     };
-
-    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
-            new TypeReference<List<ConnConfProperty>>() {
-    };
-
-    private static final int DEFAULT_TIMEOUT = 10;
 
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
@@ -92,7 +84,8 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
      *
      * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
-    private String jsonConf;
+    @CompositeProperty(converterRef = "connConfPropertiesConverter")
+    private List<ConnConfProperty> jsonConf;
 
     private String displayName;
 
@@ -107,12 +100,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jRealm adminRealm;
-
-    /**
-     * External resources associated to the connector.
-     */
-    @Relationship(type = Neo4jExternalResource.RESOURCE_CONNECTOR_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jExternalResource> resources = new ArrayList<>();
 
     @Override
     public Realm getAdminRealm() {
@@ -167,14 +154,7 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Override
     public List<ConnConfProperty> getConf() {
-        return StringUtils.isNotBlank(jsonConf)
-                ? POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF)
-                : new ArrayList<>();
-    }
-
-    @Override
-    public void setConf(final List<ConnConfProperty> conf) {
-        jsonConf = POJOHelper.serialize(conf);
+        return jsonConf;
     }
 
     @Override
@@ -185,17 +165,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
     @Override
     public void setDisplayName(final String displayName) {
         this.displayName = displayName;
-    }
-
-    @Override
-    public List<? extends ExternalResource> getResources() {
-        return resources;
-    }
-
-    @Override
-    public boolean add(final ExternalResource resource) {
-        checkType(resource, Neo4jExternalResource.class);
-        return resources.contains((Neo4jExternalResource) resource) || resources.add((Neo4jExternalResource) resource);
     }
 
     @Override

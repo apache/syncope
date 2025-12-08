@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
-import org.apache.syncope.core.starter.actuate.EntityCacheEndpoint;
 import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -173,12 +171,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final ConnectorManager connectorManager) {
 
         return new ExternalResourcesHealthIndicator(domainOps, resourceDAO, connInstanceDataBinder, connectorManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public EntityCacheEndpoint entityCacheEndpoint(final EntityCacheDAO entityCacheDAO) {
-        return new EntityCacheEndpoint(entityCacheDAO);
     }
 
     @Bean

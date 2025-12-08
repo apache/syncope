@@ -53,11 +53,16 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
 
     @Override
     public AuthProfile update(final AuthProfile authProfile, final AuthProfileTO authProfileTO) {
-        authProfile.setImpersonationAccounts(authProfileTO.getImpersonationAccounts());
-        authProfile.setGoogleMfaAuthTokens(authProfileTO.getGoogleMfaAuthTokens());
-        authProfile.setGoogleMfaAuthAccounts(authProfileTO.getGoogleMfaAuthAccounts());
-        authProfile.setMfaTrustedDevices(authProfileTO.getMfaTrustedDevices());
-        authProfile.setWebAuthnDeviceCredentials(authProfileTO.getWebAuthnDeviceCredentials());
+        authProfile.getImpersonationAccounts().clear();
+        authProfileTO.getImpersonationAccounts().forEach(authProfile::add);
+        authProfile.getGoogleMfaAuthTokens().clear();
+        authProfileTO.getGoogleMfaAuthTokens().forEach(authProfile::add);
+        authProfile.getGoogleMfaAuthAccounts().clear();
+        authProfileTO.getGoogleMfaAuthAccounts().forEach(authProfile::add);
+        authProfile.getMfaTrustedDevices().clear();
+        authProfileTO.getMfaTrustedDevices().forEach(authProfile::add);
+        authProfile.getWebAuthnDeviceCredentials().clear();
+        authProfileTO.getWebAuthnDeviceCredentials().forEach(authProfile::add);
         return authProfile;
     }
 }

@@ -265,11 +265,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         claims.put(JWT_CLAIM_OP_NAME, opName);
         claims.put(JWT_CLAIM_ID_TOKEN, idTokenHint);
 
-        byte[] authorities = null;
+        String authorities = null;
         try {
             authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).
-                    getBytes();
+                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES);
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

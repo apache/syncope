@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import java.util.TimeZone;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -35,6 +36,9 @@ import org.apache.syncope.core.persistence.jpa.dao.MySQLJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MySQLPlainSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.MySQLEntityFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -45,6 +49,23 @@ import org.springframework.context.annotation.Lazy;
 @ConditionalOnProperty(
         prefix = PersistenceProperties.PREFIX, name = PersistenceProperties.DB_TYPE, havingValue = "MYSQL")
 public class MySQLPersistenceContext {
+
+    /**
+     * This is required for correct handling of OffsetDateTime values.
+     */
+    public static class GlobalTimezoneBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+
+        @Override
+        public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        }
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public GlobalTimezoneBeanFactoryPostProcessor globalTimezoneBeanFactoryPostProcessor() {
+        return new GlobalTimezoneBeanFactoryPostProcessor();
+    }
 
     @ConditionalOnMissingBean
     @Bean

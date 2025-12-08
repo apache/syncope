@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -28,13 +28,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,9 +41,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.jpa.converters.String2StringMapConverter;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAPushTask.TABLE)
@@ -59,18 +53,12 @@ public class JPAPushTask extends AbstractProvisioningTask<PushTask> implements P
 
     public static final String TABLE = "PushTask";
 
-    protected static final TypeReference<HashMap<String, String>> FILTER_TYPEREF =
-            new TypeReference<HashMap<String, String>>() {
-    };
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm sourceRealm;
 
+    @Convert(converter = String2StringMapConverter.class)
     @Lob
-    private String filters;
-
-    @Transient
-    private Map<String, String> filterMap = new HashMap<>();
+    private Map<String, String> filters = new HashMap<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "PushTaskAction",
@@ -111,12 +99,12 @@ public class JPAPushTask extends AbstractProvisioningTask<PushTask> implements P
 
     @Override
     public Optional<String> getFilter(final String anyType) {
-        return Optional.ofNullable(filterMap.get(anyType));
+        return Optional.ofNullable(filters.get(anyType));
     }
 
     @Override
     public Map<String, String> getFilters() {
-        return filterMap;
+        return filters;
     }
 
     @Override
@@ -127,31 +115,5 @@ public class JPAPushTask extends AbstractProvisioningTask<PushTask> implements P
     @Override
     protected List<TaskExec<SchedTask>> executions() {
         return executions;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getFilters().clear();
-        }
-        if (filters != null) {
-            getFilters().putAll(POJOHelper.deserialize(filters, FILTER_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2map(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void map2json() {
-        filters = POJOHelper.serialize(getFilters());
     }
 }

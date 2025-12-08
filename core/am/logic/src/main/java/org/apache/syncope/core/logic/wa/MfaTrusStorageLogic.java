@@ -87,7 +87,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).flatMap(List::stream)
                 : authProfileDAO.findByOwner(principal).
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).map(List::stream).
-            orElseGet(Stream::empty)).
+                        orElseGet(Stream::empty)).
                 filter(device -> {
                     EqualsBuilder builder = new EqualsBuilder();
                     builder.appendSuper(device.getExpirationDate().isAfter(ZonedDateTime.now()));
@@ -123,10 +123,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final MfaTrustedDevice device) {
         AuthProfile profile = authProfile(owner);
-
-        List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
-        devices.add(device);
-        profile.setMfaTrustedDevices(devices);
+        profile.add(device);
         authProfileDAO.save(profile);
     }
 
@@ -142,7 +139,8 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                 } else {
                     devices = List.of();
                 }
-                profile.setMfaTrustedDevices(devices);
+                profile.getMfaTrustedDevices().clear();
+                devices.forEach(profile::add);
                 authProfileDAO.save(profile);
             }
         });

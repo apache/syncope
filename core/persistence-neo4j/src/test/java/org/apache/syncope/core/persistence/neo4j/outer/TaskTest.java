@@ -156,7 +156,6 @@ public class TaskTest extends AbstractTest {
     public void addPropagationTaskExecution() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
-        assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
@@ -166,7 +165,6 @@ public class TaskTest extends AbstractTest {
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
 
@@ -181,7 +179,6 @@ public class TaskTest extends AbstractTest {
     public void addPullTaskExecution() {
         PullTask task = (PullTask) taskDAO.findById(
                 TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
-        assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
@@ -192,7 +189,6 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
 
@@ -207,7 +203,6 @@ public class TaskTest extends AbstractTest {
     public void addPushTaskExecution() {
         PushTask task = (PushTask) taskDAO.findById(
                 TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
-        assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
@@ -218,7 +213,6 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
 

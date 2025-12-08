@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.openjpa;
+package org.apache.syncope.core.persistence.jpa;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
-import org.apache.openjpa.event.RemoteCommitEvent;
-import org.apache.openjpa.event.RemoteCommitListener;
-import org.apache.openjpa.util.StringId;
+import javax.cache.event.CacheEntryCreatedListener;
+import javax.cache.event.CacheEntryEvent;
+import javax.cache.event.CacheEntryListenerException;
+import javax.cache.event.CacheEntryRemovedListener;
+import javax.cache.event.CacheEntryUpdatedListener;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -36,9 +37,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Takes care of connectors' Spring beans (un)registration in case HA is set up and the actual change is performed by
- * another node in the OpenJPA cluster.
+ * another node in the Hibernate cluster.
  */
-public class ConnectorManagerRemoteCommitListener implements RemoteCommitListener, Serializable {
+public class ConnectorManagerRemoteCommitListener
+        implements CacheEntryCreatedListener<Object, Object>,
+        CacheEntryUpdatedListener<Object, Object>,
+        CacheEntryRemovedListener<Object, Object>,
+        Serializable {
 
     private static final long serialVersionUID = 5260753255454140460L;
 
@@ -103,47 +108,49 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void afterCommit(final RemoteCommitEvent event) {
-        if (event.getPayloadType() == RemoteCommitEvent.PAYLOAD_OIDS_WITH_ADDS) {
-            ((Collection<Object>) event.getPersistedObjectIds()).stream().
-                    filter(StringId.class::isInstance).
-                    map(StringId.class::cast).
-                    forEach(id -> {
-                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                            registerForExternalResource(id.getId());
-                        } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
-                            registerForConnInstance(id.getId());
-                        }
-                    });
-        }
+    public void onCreated(final Iterable<CacheEntryEvent<? extends Object, ? extends Object>> events)
+            throws CacheEntryListenerException {
 
-        if (event.getPayloadType() != RemoteCommitEvent.PAYLOAD_EXTENTS) {
-            ((Collection<Object>) event.getUpdatedObjectIds()).stream().
-                    filter(StringId.class::isInstance).
-                    map(StringId.class::cast).
-                    forEach(id -> {
-                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                            registerForExternalResource(id.getId());
-                        } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
-                            registerForConnInstance(id.getId());
-                        }
-                    });
-
-            ((Collection<Object>) event.getDeletedObjectIds()).stream().
-                    filter(StringId.class::isInstance).
-                    map(StringId.class::cast).
-                    forEach(id -> {
-                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                            unregister(id.getId());
-                        }
-                    });
+        for (CacheEntryEvent<? extends Object, ? extends Object> event : events) {
+            String[] split = event.getKey().toString().split("#");
+            if (split.length > 1) {
+                if (JPAExternalResource.class.getName().equals(split[0])) {
+                    registerForExternalResource(split[1]);
+                } else if (JPAConnInstance.class.getName().equals(split[0])) {
+                    registerForConnInstance(split[1]);
+                }
+            }
         }
     }
 
     @Override
-    public void close() {
-        // nothing to do
+    public void onUpdated(final Iterable<CacheEntryEvent<? extends Object, ? extends Object>> events)
+            throws CacheEntryListenerException {
+
+        for (CacheEntryEvent<? extends Object, ? extends Object> event : events) {
+            String[] split = event.getKey().toString().split("#");
+            if (split.length > 1) {
+                if (JPAExternalResource.class.getName().equals(split[0])) {
+                    registerForExternalResource(split[1]);
+                } else if (JPAConnInstance.class.getName().equals(split[0])) {
+                    registerForConnInstance(split[1]);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onRemoved(final Iterable<CacheEntryEvent<? extends Object, ? extends Object>> events)
+            throws CacheEntryListenerException {
+
+        for (CacheEntryEvent<? extends Object, ? extends Object> event : events) {
+            String[] split = event.getKey().toString().split("#");
+            if (split.length > 1) {
+                if (JPAExternalResource.class.getName().equals(split[0])) {
+                    unregister(split[1]);
+                }
+            }
+        }
     }
 }

@@ -141,6 +141,11 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-webtestclient</artifactId>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
@@ -188,7 +193,6 @@ under the License.
               <layout>ZIP</layout>
               <classifier>exec</classifier>
               <attach>false</attach>
-              <loaderImplementation>CLASSIC</loaderImplementation>
             </configuration>
             <goals>
               <goal>repackage</goal>

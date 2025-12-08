@@ -18,11 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.entity.Notification;
-
 public interface NotificationRepoExt {
-
-    Notification save(Notification notification);
 
     void deleteById(String key);
 }

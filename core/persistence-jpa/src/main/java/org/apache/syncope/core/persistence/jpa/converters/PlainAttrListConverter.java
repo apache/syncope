@@ -16,33 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.jpa.converters;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public abstract class JSONEntityListener<A extends Attributable> {
+@Converter
+public class PlainAttrListConverter implements AttributeConverter<List<PlainAttr>, String> {
 
     protected static final TypeReference<List<PlainAttr>> TYPEREF = new TypeReference<List<PlainAttr>>() {
     };
 
-    protected List<PlainAttr> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
+    @Override
+    public String convertToDatabaseColumn(final List<PlainAttr> attribute) {
+        return Optional.ofNullable(attribute).map(POJOHelper::serialize).orElse(null);
     }
 
-    protected void json2list(final AbstractAttributable entity, final boolean clearFirst) {
-        if (clearFirst) {
-            entity.getPlainAttrsList().clear();
-        }
-        if (entity.getPlainAttrsJSON() != null) {
-            getAttrs(entity.getPlainAttrsJSON()).stream().filter(PlainAttr::isValid).peek(attr -> {
-                attr.getValues().forEach(value -> value.setAttr(attr));
-                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-            }).forEach(attr -> entity.add(attr));
-        }
+    @Override
+    public List<PlainAttr> convertToEntityAttribute(final String dbData) {
+        List<PlainAttr> plainAttrs = new ArrayList<>();
+
+        Optional.ofNullable(dbData).map(data -> POJOHelper.deserialize(data, TYPEREF)).
+                ifPresent(attrs -> attrs.stream().filter(PlainAttr::isValid).peek(attr -> {
+            attr.getValues().forEach(value -> value.setAttr(attr));
+            Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
+        }).forEach(plainAttrs::add));
+
+        return plainAttrs;
     }
 }

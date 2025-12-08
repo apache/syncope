@@ -27,7 +27,5 @@ public interface ConnInstanceRepoExt {
 
     List<? extends ConnInstance> findAll();
 
-    ConnInstance save(ConnInstance connector);
-
     void deleteById(String key);
 }

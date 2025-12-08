@@ -36,16 +36,11 @@ public abstract class AbstractGroupableRelatable<
 
     private static final long serialVersionUID = -2269285197388729673L;
 
-    @Override
-    public List<PlainAttr> getPlainAttrs() {
-        return getPlainAttrsList().stream().
-                filter(attr -> attr.getMembership() == null).
-                toList();
-    }
+    protected abstract List<PlainAttr> plainAttrs();
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> attr.getMembership() == null
                 && plainSchema.equals(attr.getSchema())).
                 findFirst();
@@ -53,7 +48,7 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())
                 && membership.getKey().equals(attr.getMembership())).
                 findFirst();
@@ -61,14 +56,14 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())).
                 toList();
     }
 
     @Override
     public Collection<PlainAttr> getPlainAttrs(final Membership<?> membership) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> membership.getKey().equals(attr.getMembership())).
                 toList();
     }

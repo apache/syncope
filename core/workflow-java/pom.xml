@@ -60,6 +60,11 @@ under the License.
 
     <!-- TEST -->
     <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
       <scope>test</scope>
@@ -112,6 +117,7 @@ under the License.
             <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
             <TESTCONTAINERS_REUSE_ENABLE>true</TESTCONTAINERS_REUSE_ENABLE>
+            <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
           </systemPropertyVariables>
         </configuration>
       </plugin>

@@ -23,6 +23,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.ValidationMode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -111,8 +112,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExt;
@@ -191,8 +190,6 @@ import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManager
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -218,8 +215,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Configuration(proxyBeanMethods = false)
 public class PersistenceContext {
 
-    private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
-
     @ConditionalOnMissingBean
     @Bean
     public CommonEntityManagerFactoryConf commonEMFConf(
@@ -233,25 +228,14 @@ public class PersistenceContext {
         commonEMFConf.setPersistenceUnitPostProcessors(new MultiJarAwarePersistenceUnitPostProcessor());
         Map<String, Object> jpaPropertyMap = new HashMap<>();
 
-        jpaPropertyMap.put("openjpa.Log", "slf4j");
-        if (OPENJPA_LOG.isDebugEnabled()) {
-            jpaPropertyMap.put("openjpa.Log", "SQL=TRACE");
-            jpaPropertyMap.put("openjpa.ConnectionFactoryProperties",
-                    "PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=120");
-        }
+        jpaPropertyMap.put("jakarta.persistence.schema-generation.database.action", "create");
 
-        jpaPropertyMap.put("openjpa.NontransactionalWrite", false);
-
-        jpaPropertyMap.put("openjpa.jdbc.MappingDefaults",
-                "ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict,"
-                + "FieldStrategies='"
-                + "java.util.Locale=org.apache.syncope.core.persistence.jpa.openjpa.LocaleValueHandler,"
-                + "java.lang.Boolean=org.apache.syncope.core.persistence.jpa.openjpa.BooleanValueHandler'");
-
-        jpaPropertyMap.put("openjpa.DataCache", "true");
-        jpaPropertyMap.put("openjpa.QueryCache", "true");
-
-        jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
+        jpaPropertyMap.put("hibernate.cache.use_second_level_cache", "true");
+        jpaPropertyMap.put("hibernate.cache.use_query_cache", "true");
+        jpaPropertyMap.put("hibernate.cache.region.factory_class", "jcache");
+        jpaPropertyMap.put("hibernate.javax.cache.provider", props.getCacheProvider());
+        Optional.ofNullable(props.getCacheURI()).
+                ifPresent(cacheURI -> jpaPropertyMap.put("hibernate.javax.cache.uri", cacheURI));
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
@@ -491,12 +475,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoRepoExt attrRepoRepoExt(final EntityManager entityManager) {
-        return new AttrRepoRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleRepoExt authModuleRepoExt(final PolicyDAO policyDAO, final EntityManager entityManager) {
         return new AuthModuleRepoExtImpl(policyDAO, entityManager);
     }
@@ -512,11 +490,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDAO attrRepoDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AttrRepoRepoExt attrRepoRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
+    public AttrRepoDAO attrRepoDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class);
     }
 
     @ConditionalOnMissingBean

@@ -89,6 +89,11 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
@@ -144,11 +149,28 @@ under the License.
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemPropertyVariables>
+            <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
             <TESTCONTAINERS_REUSE_ENABLE>true</TESTCONTAINERS_REUSE_ENABLE>
+            <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
           </systemPropertyVariables>
         </configuration>
       </plugin>

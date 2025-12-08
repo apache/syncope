@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.sra.actuate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +38,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.session.MapSession;
+import tools.jackson.databind.json.JsonMapper;
 
 @Endpoint(id = "sraSessions")
 public class SRASessions {
@@ -65,21 +64,21 @@ public class SRASessions {
         session.setKey(mapSession.getId());
         session.setAuthenticationDate(mapSession.getCreationTime().atOffset(OffsetDateTime.now().getOffset()));
 
-        String principal;
-        if (ctx.getAuthentication() instanceof SAML2AuthenticationToken saml2AuthenticationToken) {
-            principal = saml2AuthenticationToken.getPrincipal().getUserProfile().getUsername();
-        } else if (ctx.getAuthentication() instanceof CASAuthenticationToken casAuthenticationToken) {
-            principal = casAuthenticationToken.getPrincipal().getPrincipal().getName();
-        } else if (ctx.getAuthentication() instanceof OAuth2AuthenticationToken oauth2AuthenticationToken) {
-            principal = oauth2AuthenticationToken.getPrincipal().getName();
-        } else {
-            principal = ctx.getAuthentication().getPrincipal().toString();
-        }
+        String principal = switch (ctx.getAuthentication()) {
+            case SAML2AuthenticationToken saml2AuthenticationToken ->
+                saml2AuthenticationToken.getPrincipal().getUserProfile().getUsername();
+            case CASAuthenticationToken casAuthenticationToken ->
+                casAuthenticationToken.getPrincipal().getPrincipal().getName();
+            case OAuth2AuthenticationToken oauth2AuthenticationToken ->
+                oauth2AuthenticationToken.getPrincipal().getName();
+            default ->
+                ctx.getAuthentication().getPrincipal().toString();
+        };
         session.setPrincipal(principal);
 
         try {
             session.setJson(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(ctx.getAuthentication()));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             LOG.error("While serializing session {}", mapSession.getId(), e);
         }
 

@@ -58,13 +58,11 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             "org.h2.Driver");
 
     private static final List<String> DATABASE_PLATFORMS = List.of(
-            "org.apache.openjpa.jdbc.sql.PostgresDictionary",
-            "org.apache.openjpa.jdbc.sql.MySQLDictionary"
-            + "(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)",
-            "org.apache.openjpa.jdbc.sql.MariaDBDictionary"
-            + "(blobTypeName=LONGBLOB,dateFractionDigits=3)",
-            "org.apache.openjpa.jdbc.sql.OracleDictionary",
-            "org.apache.openjpa.jdbc.sql.H2Dictionary");
+            "org.apache.syncope.core.persistence.jpa.hibernate.SyncopePostgreSQLDialect",
+            "org.hibernate.dialect.MySQLDialect",
+            "org.hibernate.dialect.MariaDBDialect",
+            "org.hibernate.dialect.OracleDialect",
+            "org.hibernate.dialect.H2Dialect");
 
     private final DomainOps domainOps;
 

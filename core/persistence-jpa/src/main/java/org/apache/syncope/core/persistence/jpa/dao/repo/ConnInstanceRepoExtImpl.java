@@ -80,19 +80,14 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
     }
 
     @Override
-    public ConnInstance save(final ConnInstance connector) {
-        ((JPAConnInstance) connector).list2json();
-        return entityManager.merge(connector);
-    }
-
-    @Override
     public void deleteById(final String key) {
         ConnInstance connInstance = entityManager.find(JPAConnInstance.class, key);
         if (connInstance == null) {
             return;
         }
 
-        connInstance.getResources().stream().map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
+        resourceDAO.findByConnInstance(connInstance.getKey()).stream().
+                map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
 
         entityManager.remove(connInstance);
     }

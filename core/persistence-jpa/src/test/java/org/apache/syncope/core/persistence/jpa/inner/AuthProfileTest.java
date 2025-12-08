@@ -69,7 +69,7 @@ public class AuthProfileTest extends AbstractTest {
         assertTrue(result.isPresent());
 
         authProfile.setOwner("SyncopeCreate-New");
-        authProfile.setGoogleMfaAuthTokens(List.of());
+        authProfile.getGoogleMfaAuthTokens().clear();
         authProfileDAO.save(authProfile);
 
         assertFalse(authProfileDAO.findByOwner(id).isPresent());
@@ -106,7 +106,7 @@ public class AuthProfileTest extends AbstractTest {
         assertTrue(result.isPresent());
 
         authProfile.setOwner("newowner");
-        authProfile.setWebAuthnDeviceCredentials(List.of());
+        authProfile.getWebAuthnDeviceCredentials().clear();
         authProfileDAO.save(authProfile);
 
         assertFalse(authProfileDAO.findByOwner(id).isPresent());
@@ -118,22 +118,18 @@ public class AuthProfileTest extends AbstractTest {
 
         createAuthProfileWithAccount(id);
 
-        Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
-        assertTrue(result.isPresent());
+        AuthProfile authProfile = authProfileDAO.findByOwner(id).orElseThrow();
 
         assertFalse(authProfileDAO.findAll(Pageable.unpaged()).isEmpty());
 
-        AuthProfile authProfile = result.get();
-        result = authProfileDAO.findById(authProfile.getKey());
-        assertTrue(result.isPresent());
+        authProfile = authProfileDAO.findById(authProfile.getKey()).orElseThrow();
 
         String secret = SecureRandomUtils.generateRandomUUID().toString();
-        List<GoogleMfaAuthAccount> googleMfaAuthAccounts = authProfile.getGoogleMfaAuthAccounts();
-        assertFalse(googleMfaAuthAccounts.isEmpty());
-        GoogleMfaAuthAccount googleMfaAuthAccount = googleMfaAuthAccounts.getFirst();
+        GoogleMfaAuthAccount googleMfaAuthAccount = authProfile.getGoogleMfaAuthAccounts().getFirst();
         googleMfaAuthAccount.setSecretKey(secret);
 
-        authProfile.setGoogleMfaAuthAccounts(googleMfaAuthAccounts);
+        authProfile.getGoogleMfaAuthAccounts().clear();
+        authProfile.add(googleMfaAuthAccount);
         authProfile = authProfileDAO.save(authProfile);
         assertEquals(secret, authProfile.getGoogleMfaAuthAccounts().getFirst().getSecretKey());
     }
@@ -155,7 +151,8 @@ public class AuthProfileTest extends AbstractTest {
                 mapToObj(i -> new ImpersonationAccount.Builder().impersonated("impersonatee" + i).build()).
                 toList();
 
-        authProfile.setImpersonationAccounts(accounts);
+        authProfile.getImpersonationAccounts().clear();
+        accounts.forEach(authProfile::add);
         authProfile = authProfileDAO.save(authProfile);
         assertEquals(accounts.size(), authProfile.getImpersonationAccounts().size());
     }
@@ -164,7 +161,7 @@ public class AuthProfileTest extends AbstractTest {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
         GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(LocalDateTime.now()).token(otp).build();
-        profile.setGoogleMfaAuthTokens(List.of(token));
+        profile.add(token);
         return authProfileDAO.save(profile);
     }
 
@@ -174,7 +171,7 @@ public class AuthProfileTest extends AbstractTest {
 
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        profile.setWebAuthnDeviceCredentials(credentials);
+        credentials.forEach(profile::add);
         return authProfileDAO.save(profile);
     }
 
@@ -189,7 +186,7 @@ public class AuthProfileTest extends AbstractTest {
                 .name(SecureRandomUtils.generateRandomUUID().toString())
                 .username(owner)
                 .build();
-        profile.setGoogleMfaAuthAccounts(List.of(account));
+        profile.getGoogleMfaAuthAccounts().add(account);
         return authProfileDAO.save(profile);
     }
 }

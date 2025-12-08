@@ -16,24 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.user;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
+import jakarta.persistence.Converter;
+import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 
-public class JSONLinkedAccountListener extends JSONEntityListener<User> {
+@Converter
+public class UsernameAttributeProviderConfConverter extends SerializableConverter<UsernameAttributeProviderConf> {
 
-    @PostLoad
-    public void read(final JPALinkedAccount linkedAccount) {
-        super.json2list(linkedAccount, false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void readAfterSave(final JPALinkedAccount linkedAccount) {
-        super.json2list(linkedAccount, true);
+    public UsernameAttributeProviderConfConverter() {
+        super(UsernameAttributeProviderConf.class);
     }
 }

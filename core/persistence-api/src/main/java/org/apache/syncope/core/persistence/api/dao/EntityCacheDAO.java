@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface EntityCacheDAO {
-
-    Map<String, Object> getStatistics();
-
-    void enableStatistics();
-
-    void disableStatistics();
-
-    void resetStatistics();
 
     void evict(Class<? extends Entity> entityClass, String key);
 

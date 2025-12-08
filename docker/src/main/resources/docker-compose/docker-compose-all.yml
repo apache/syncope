@@ -48,7 +48,7 @@ services:
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       OPENJPA_REMOTE_COMMIT: sjvm
+       HIBERNATE_JCACHE_PROVIDER: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}

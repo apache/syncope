@@ -29,6 +29,12 @@ import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -208,6 +214,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFactory;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
+import org.apache.syncope.core.persistence.neo4j.spring.BaseBeanListConverter;
 import org.apache.syncope.core.persistence.neo4j.spring.CacheCleaningTransactionExecutionListener;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
@@ -345,6 +352,36 @@ public class PersistenceContext {
     @Bean
     public Neo4jPersistentPropertyToMapConverter<String, Map<String, PlainAttr>> plainAttrsConverter() {
         return new PlainAttrsConverter();
+    }
+
+    @Bean
+    public BaseBeanListConverter<ImpersonationAccount> impersonationAccountsConverter() {
+        return new BaseBeanListConverter<>();
+    }
+
+    @Bean
+    public BaseBeanListConverter<GoogleMfaAuthAccount> googleMfaAuthAccountsConverter() {
+        return new BaseBeanListConverter<>();
+    }
+
+    @Bean
+    public BaseBeanListConverter<GoogleMfaAuthToken> googleMfaAuthTokensConverter() {
+        return new BaseBeanListConverter<>();
+    }
+
+    @Bean
+    public BaseBeanListConverter<MfaTrustedDevice> mfaTrustedDevicesConverter() {
+        return new BaseBeanListConverter<>();
+    }
+
+    @Bean
+    public BaseBeanListConverter<WebAuthnDeviceCredential> webAuthnDeviceCredentialsConverter() {
+        return new BaseBeanListConverter<>();
+    }
+
+    @Bean
+    public BaseBeanListConverter<ConnConfProperty> connConfPropertiesConverter() {
+        return new BaseBeanListConverter<>();
     }
 
     @ConditionalOnMissingBean

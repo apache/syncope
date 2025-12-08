@@ -94,8 +94,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
     @Override
     public void deleteById(final String key) {
         neo4jTemplate.findById(key, Neo4jConnInstance.class).ifPresent(connInstance -> {
-            connInstance.getResources().stream().
-            map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
+            resourceDAO.findByConnInstance(connInstance.getKey()).stream().
+                    map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
 
             neo4jTemplate.deleteById(key, Neo4jConnInstance.class);
         });

@@ -40,12 +40,14 @@ import java.util.function.Function;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable {
 
@@ -61,25 +63,21 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected void addToJpaPropertyMap(
             final DomainEntityManagerFactoryBean emf,
-            final OpenJpaVendorAdapter vendorAdapter,
+            final JpaVendorAdapter vendorAdapter,
             final String dbSchema,
-            final String orm,
-            final String metadataFactory) {
+            final String orm) {
 
         emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
 
         Optional.ofNullable(dbSchema).
-                ifPresent(s -> emf.getJpaPropertyMap().put("openjpa.jdbc.Schema", s));
-
-        Optional.ofNullable(metadataFactory).
-                ifPresent(m -> emf.getJpaPropertyMap().put("openjpa.MetaDataFactory", m.replace("##orm##", orm)));
+                ifPresent(s -> emf.getJpaPropertyMap().put("hibernate.default_schema", s));
     }
 
     public void master(
             final PersistenceProperties props,
             final JndiObjectFactoryBean dataSource) {
 
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(props.getDomain().getFirst().getDatabasePlatform());
@@ -97,8 +95,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
                 emf,
                 vendorAdapter,
                 props.getDomain().getFirst().getDbSchema(),
-                props.getDomain().getFirst().getOrm(),
-                props.getMetaDataFactory());
+                props.getDomain().getFirst().getOrm());
 
         emf.afterPropertiesSet();
 
@@ -107,10 +104,9 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     public void domain(
             final JPADomain domain,
-            final DataSource dataSource,
-            final String metadataFactory) {
+            final DataSource dataSource) {
 
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
@@ -123,7 +119,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
 
-        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm(), metadataFactory);
+        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm());
 
         emf.afterPropertiesSet();
 

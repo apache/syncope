@@ -70,26 +70,6 @@ public class Neo4jEntityCacheDAO implements EntityCacheDAO {
     }
 
     @Override
-    public Map<String, Object> getStatistics() {
-        return Map.of();
-    }
-
-    @Override
-    public void enableStatistics() {
-        // not supported
-    }
-
-    @Override
-    public void disableStatistics() {
-        // not supported
-    }
-
-    @Override
-    public void resetStatistics() {
-        // not supported
-    }
-
-    @Override
     public void evict(final Class<? extends Entity> entityClass, final String key) {
         Optional.ofNullable(caches.get(entityClass)).ifPresent(c -> c.remove(EntityCacheKey.of(key)));
     }

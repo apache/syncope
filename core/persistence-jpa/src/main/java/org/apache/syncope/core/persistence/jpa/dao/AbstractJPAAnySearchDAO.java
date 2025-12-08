@@ -33,9 +33,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.sql.OracleDictionary;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -71,6 +68,8 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.hibernate.dialect.OracleDialect;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -155,12 +154,8 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
     protected boolean isOracle() {
         return IS_ORACLE.computeIfAbsent(
                 AuthContextUtils.getDomain(),
-                k -> {
-                    OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(
-                            OpenJPAEntityManagerFactorySPI.class);
-                    return ((MappingRepository) emfspi.getConfiguration().
-                            getMetaDataRepositoryInstance()).getDBDictionary() instanceof OracleDictionary;
-                });
+                k -> entityManagerFactory.unwrap(SessionFactoryImpl.class).getJdbcServices().
+                        getDialect() instanceof OracleDialect);
     }
 
     protected SearchSupport.SearchView defaultSV(final SearchSupport svs) {

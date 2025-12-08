@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
+import org.apache.syncope.common.lib.types.SRARoutePredicateCond;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.sra.filters.ClientCertsToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.filters.CustomGatewayFilterFactory;
@@ -97,6 +98,10 @@ import org.springframework.web.server.ServerWebExchange;
 
 public class RouteProvider {
 
+    protected record TranslatedPredicate(SRARoutePredicateCond cond, AsyncPredicate<ServerWebExchange> predicate) {
+
+    }
+
     protected static final Logger LOG = LoggerFactory.getLogger(RouteProvider.class);
 
     protected final ServiceOps serviceOps;
@@ -128,7 +133,7 @@ public class RouteProvider {
     }
 
     @SuppressWarnings("unchecked")
-    protected GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
+    protected GatewayFilter translate(final SRARouteTO route, final SRARouteFilter gwfilter)
             throws ClassNotFoundException, NumberFormatException {
 
         GatewayFilter filter;
@@ -404,7 +409,7 @@ public class RouteProvider {
         return filter instanceof Ordered ? filter : new OrderedGatewayFilter(filter, 0);
     }
 
-    protected AsyncPredicate<ServerWebExchange> toPredicate(final SRARoutePredicate gwpredicate, final boolean negate)
+    protected AsyncPredicate<ServerWebExchange> translate(final SRARoutePredicate gwpredicate)
             throws ClassNotFoundException, NumberFormatException {
 
         AsyncPredicate<ServerWebExchange> predicate;
@@ -477,7 +482,7 @@ public class RouteProvider {
 
             case WEIGHT:
                 String[] weigthArgs = gwpredicate.getArgs().split(",");
-                Mutable<Integer> weight = new MutableObject<Integer>();
+                Mutable<Integer> weight = new MutableObject<>();
                 try {
                     weight.setValue(Integer.valueOf(weigthArgs[1].trim()));
                 } catch (NumberFormatException e) {
@@ -506,7 +511,7 @@ public class RouteProvider {
             throw new IllegalArgumentException("Could not translate predicate " + gwpredicate);
         }
 
-        return negate ? predicate.negate() : predicate;
+        return gwpredicate.isNegate() ? predicate.negate() : predicate;
     }
 
     protected Route.AsyncBuilder toRoute(final SRARouteTO gwroute) {
@@ -516,27 +521,31 @@ public class RouteProvider {
         if (gwroute.getPredicates().isEmpty()) {
             builder.predicate(exchange -> true);
         } else {
+            List<TranslatedPredicate> asyncPredicates = new ArrayList<>();
+
             gwroute.getPredicates().forEach(gwpredicate -> {
-                if (builder.getPredicate() == null) {
+                if (asyncPredicates.isEmpty()) {
                     try {
-                        builder.asyncPredicate(toPredicate(gwpredicate, gwpredicate.isNegate()));
+                        asyncPredicates.add(new TranslatedPredicate(null, translate(gwpredicate)));
                     } catch (Exception e) {
                         LOG.error("Could not translate {}, skipping", gwpredicate, e);
                     }
                 } else {
                     try {
-                        switch (gwpredicate.getCond()) {
-                            case OR:
-                                builder.or(toPredicate(gwpredicate, gwpredicate.isNegate()));
-                                break;
-
-                            case AND:
-                            default:
-                                builder.and(toPredicate(gwpredicate, gwpredicate.isNegate()));
-                        }
+                        asyncPredicates.add(new TranslatedPredicate(gwpredicate.getCond(), translate(gwpredicate)));
                     } catch (Exception e) {
                         LOG.error("Could not translate {}, skipping", gwpredicate, e);
                     }
+                }
+            });
+
+            asyncPredicates.forEach(translated -> {
+                if (translated.cond() == null) {
+                    builder.asyncPredicate(translated.predicate());
+                } else if (translated.cond() == SRARoutePredicateCond.AND) {
+                    builder.and(translated.predicate());
+                } else if (translated.cond() == SRARoutePredicateCond.OR) {
+                    builder.or(translated.predicate());
                 }
             });
         }
@@ -545,7 +554,7 @@ public class RouteProvider {
             builder.filters(gwroute.getFilters().stream().
                     map(gwfilter -> {
                         try {
-                            return toFilter(gwroute, gwfilter);
+                            return translate(gwroute, gwfilter);
                         } catch (Exception e) {
                             LOG.error("Could not translate {}, skipping", gwfilter, e);
                             return null;

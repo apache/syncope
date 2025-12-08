@@ -18,29 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.jpa.converters.AuthModuleConfConverter;
+import org.apache.syncope.core.persistence.jpa.converters.ItemListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAAuthModule.TABLE)
@@ -49,9 +43,6 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     private static final long serialVersionUID = 5681033638234853077L;
 
     public static final String TABLE = "AuthModule";
-
-    protected static final TypeReference<List<Item>> TYPEREF = new TypeReference<List<Item>>() {
-    };
 
     private String description;
 
@@ -62,14 +53,13 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     @NotNull
     private Integer authModuleOrder = 0;
 
+    @Convert(converter = ItemListConverter.class)
     @Lob
-    private String items;
+    private List<Item> items = new ArrayList<>();
 
-    @Transient
-    private final List<Item> itemList = new ArrayList<>();
-
+    @Convert(converter = AuthModuleConfConverter.class)
     @Lob
-    private String jsonConf;
+    private AuthModuleConf jsonConf;
 
     @Override
     public String getDescription() {
@@ -103,47 +93,16 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
 
     @Override
     public List<Item> getItems() {
-        return itemList;
+        return items;
     }
 
     @Override
     public AuthModuleConf getConf() {
-        AuthModuleConf conf = null;
-        if (!StringUtils.isBlank(jsonConf)) {
-            conf = POJOHelper.deserialize(jsonConf, AuthModuleConf.class);
-        }
-
-        return conf;
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AuthModuleConf conf) {
-        jsonConf = POJOHelper.serialize(conf);
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getItems().clear();
-        }
-        if (items != null) {
-            getItems().addAll(POJOHelper.deserialize(items, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        items = POJOHelper.serialize(getItems());
+        jsonConf = conf;
     }
 }

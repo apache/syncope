@@ -53,17 +53,30 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-maven-plugin</artifactId>
-        <inherited>true</inherited>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-maven-plugin</artifactId>
         <configuration>
-          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
-          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
+          <fileSets>
+            <fileset>
+              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
+            </fileset>
+          </fileSets>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.syncope.core</groupId>
+            <artifactId>syncope-core-persistence-jpa</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
+            <artifactId>syncope-ext-oidcc4ui-persistence-api</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
-            <id>enhancer</id>
-            <phase>process-classes</phase>
+            <id>enhance</id>
             <goals>
               <goal>enhance</goal>
             </goals>
@@ -84,37 +97,4 @@ under the License.
       </testResource>
     </testResources>
   </build>
-
-  <profiles>
-    <profile>
-      <id>sqlgen</id>
-      
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
-        <plugins>
-          <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>sqlgen</id>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>sql</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>          
-        </plugins>
-      </build>
-        
-    </profile>
-  </profiles>
-
 </project>

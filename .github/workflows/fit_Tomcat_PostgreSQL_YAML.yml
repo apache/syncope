@@ -18,10 +18,10 @@ name: "FIT Tomcat PostgreSQL YAML"
 
 on:
   push:
-    branches: [master]
+    branches: [JAKARTA_EE_11]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [JAKARTA_EE_11]
 
 jobs:
   fit_Tomcat_PostgreSQL_YAML:

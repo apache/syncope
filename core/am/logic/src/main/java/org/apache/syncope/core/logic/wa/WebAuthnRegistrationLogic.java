@@ -64,7 +64,7 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.setWebAuthnDeviceCredentials(List.of());
+            profile.getWebAuthnDeviceCredentials().clear();
             authProfileDAO.save(profile);
         });
     }
@@ -75,7 +75,8 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
                 ifPresent(profile -> {
                     List<WebAuthnDeviceCredential> credentials = profile.getWebAuthnDeviceCredentials();
                     if (credentials.removeIf(acct -> acct.getIdentifier().equals(credentialId))) {
-                        profile.setWebAuthnDeviceCredentials(credentials);
+                        profile.getWebAuthnDeviceCredentials().clear();
+                        credentials.forEach(profile::add);
                         authProfileDAO.save(profile);
                     }
                 });
@@ -85,14 +86,16 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
     public void create(final String owner, final WebAuthnAccount account) {
         AuthProfile profile = authProfile(owner);
 
-        profile.setWebAuthnDeviceCredentials(account.getCredentials());
+        profile.getWebAuthnDeviceCredentials().clear();
+        account.getCredentials().forEach(profile::add);
         authProfileDAO.save(profile);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void update(final String owner, final WebAuthnAccount account) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.setWebAuthnDeviceCredentials(account.getCredentials());
+            profile.getWebAuthnDeviceCredentials().clear();
+            account.getCredentials().forEach(profile::add);
             authProfileDAO.save(profile);
         });
     }

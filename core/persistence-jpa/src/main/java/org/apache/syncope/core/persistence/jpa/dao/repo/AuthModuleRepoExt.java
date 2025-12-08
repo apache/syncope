@@ -22,7 +22,5 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 
 public interface AuthModuleRepoExt {
 
-    AuthModule save(AuthModule authModule);
-
     void delete(AuthModule authModule);
 }

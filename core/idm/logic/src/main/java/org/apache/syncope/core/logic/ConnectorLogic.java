@@ -88,7 +88,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     protected ConnInstance doSave(final ConnInstance connInstance) {
         ConnInstance merged = connInstanceDAO.save(connInstance);
-        merged.getResources().forEach(resource -> {
+        resourceDAO.findByConnInstance(merged.getKey()).forEach(resource -> {
             try {
                 connectorManager.registerConnector(resource);
             } catch (NotFoundException e) {
@@ -138,10 +138,11 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 connInstance.getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, connInstance.getAdminRealm().getFullPath(), connInstance.getKey());
 
-        if (!connInstance.getResources().isEmpty()) {
+        List<? extends ExternalResource> resources = resourceDAO.findByConnInstance(connInstance.getKey());
+        if (!resources.isEmpty()) {
             SyncopeClientException associatedResources = SyncopeClientException.build(
                     ClientExceptionType.AssociatedResources);
-            connInstance.getResources().forEach(resource -> associatedResources.getElements().add(resource.getKey()));
+            resources.forEach(resource -> associatedResources.getElements().add(resource.getKey()));
             throw associatedResources;
         }
 

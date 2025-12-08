@@ -42,10 +42,4 @@ public class SAML2SPClientAppRepoExtImpl
     public List<SAML2SPClientApp> findAllByRealm(final Realm realm) {
         return findAllByRealm(realm, SAML2SPClientApp.class, JPASAML2SPClientApp.class);
     }
-
-    @Override
-    public SAML2SPClientApp save(final SAML2SPClientApp clientApp) {
-        ((JPASAML2SPClientApp) clientApp).list2json();
-        return entityManager.merge(clientApp);
-    }
 }

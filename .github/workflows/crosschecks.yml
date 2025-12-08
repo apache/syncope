@@ -18,10 +18,10 @@ name: "Cross Checks"
 
 on:
   push:
-    branches: [master]
+    branches: [JAKARTA_EE_11]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [JAKARTA_EE_11]
 
 jobs:
   crosschecks:
@@ -47,7 +47,7 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
+      run: mvn -U -T 1C -D'apache.snapshots=true' -P 'skipTests,all'
     - name: Validate
       if: runner.os == 'Linux'
       run: mvn -T 1C checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check

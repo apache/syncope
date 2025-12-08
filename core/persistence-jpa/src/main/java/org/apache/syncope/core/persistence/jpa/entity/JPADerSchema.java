@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -37,7 +37,7 @@ public class JPADerSchema extends AbstractSchema implements DerSchema {
 
     public static final String TABLE = "DerSchema";
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @NotNull

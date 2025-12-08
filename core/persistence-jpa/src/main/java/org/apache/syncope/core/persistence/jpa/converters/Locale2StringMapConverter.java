@@ -16,12 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Converter;
+import java.util.HashMap;
+import java.util.Locale;
 
-@FunctionalInterface
-public interface AttrRepoRepoExt {
+@Converter
+public class Locale2StringMapConverter extends SerializableMapConverter<Locale, String> {
 
-    AttrRepo save(AttrRepo attrRepo);
+    protected static final TypeReference<HashMap<Locale, String>> TYPEREF =
+            new TypeReference<HashMap<Locale, String>>() {
+    };
+
+    @Override
+    protected TypeReference<HashMap<Locale, String>> typeRef() {
+        return TYPEREF;
+    }
 }

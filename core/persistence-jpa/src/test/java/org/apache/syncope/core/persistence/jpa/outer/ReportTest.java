@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.core.MediaType;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -33,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +60,7 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void saveWithExistingName() {
-        assertThrows(EntityExistsException.class, () -> {
+        assertThrows(ConstraintViolationException.class, () -> {
             Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
 
             String name = report.getName();

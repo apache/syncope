@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -30,7 +30,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
@@ -53,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.common.validation.RealmCheck;
+import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
@@ -63,7 +63,6 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpiration
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "name", "parent_id" }))
-@EntityListeners({ JSONRealmListener.class })
 @Cacheable
 @RealmCheck
 public class JPARealm extends AbstractAttributable implements Realm {
@@ -81,10 +80,8 @@ public class JPARealm extends AbstractAttributable implements Realm {
     @Column(nullable = false, unique = true)
     private String fullPath;
 
-    private String plainAttrs;
-
-    @Transient
-    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
+    @Convert(converter = PlainAttrListConverter.class)
+    private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(joinColumns =
@@ -164,40 +161,25 @@ public class JPARealm extends AbstractAttributable implements Realm {
     }
 
     @Override
-    public List<PlainAttr> getPlainAttrsList() {
-        return plainAttrsList;
-    }
-
-    @Override
-    public String getPlainAttrsJSON() {
-        return plainAttrs;
-    }
-
-    @Override
-    public void setPlainAttrsJSON(final String plainAttrs) {
-        this.plainAttrs = plainAttrs;
-    }
-
-    @Override
     public boolean add(final PlainAttr attr) {
-        return plainAttrsList.add(attr);
+        return plainAttrs.add(attr);
     }
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema()));
+        return plainAttrs.removeIf(a -> a.getSchema().equals(attr.getSchema()));
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
     public List<PlainAttr> getPlainAttrs() {
-        return plainAttrsList.stream().toList();
+        return plainAttrs;
     }
 
     @Override

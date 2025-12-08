@@ -18,19 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -38,15 +31,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.common.validation.ConnInstanceCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.ConnConfPropertyListConverter;
+import org.apache.syncope.core.persistence.jpa.converters.ConnPoolConfConverter;
+import org.apache.syncope.core.persistence.jpa.converters.ConnectorCapabilitySetConverter;
 
 @Entity
 @Table(name = JPAConnInstance.TABLE)
@@ -56,16 +49,6 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     private static final long serialVersionUID = -2294708794497208872L;
 
     public static final String TABLE = "ConnInstance";
-
-    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
-            new TypeReference<Set<ConnectorCapability>>() {
-    };
-
-    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
-            new TypeReference<List<ConnConfProperty>>() {
-    };
-
-    private static final int DEFAULT_TIMEOUT = 10;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm adminRealm;
@@ -94,10 +77,9 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     @NotNull
     private String version;
 
+    @Convert(converter = ConnectorCapabilitySetConverter.class)
     @Lob
-    private String capabilities;
-
-    private final Set<ConnectorCapability> capabilitiesSet = new HashSet<>();
+    private Set<ConnectorCapability> capabilities = new HashSet<>();
 
     /**
      * The main configuration for the connector instance. This is directly implemented by the Configuration bean class
@@ -105,17 +87,12 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
      *
      * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
+    @Convert(converter = ConnConfPropertyListConverter.class)
     @Lob
-    private String jsonConf;
+    private List<ConnConfProperty> jsonConf = new ArrayList<>();
 
     @Column(unique = true)
     private String displayName;
-
-    /**
-     * External resources associated to the connector.
-     */
-    @OneToMany(cascade = { CascadeType.ALL }, mappedBy = "connector")
-    private List<JPAExternalResource> resources = new ArrayList<>();
 
     /**
      * Connection request timeout.
@@ -124,7 +101,9 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
      */
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
-    private String poolConf;
+    @Convert(converter = ConnPoolConfConverter.class)
+    @Lob
+    private ConnPoolConf poolConf;
 
     @Override
     public Realm getAdminRealm() {
@@ -179,14 +158,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public List<ConnConfProperty> getConf() {
-        return StringUtils.isNotBlank(jsonConf)
-                ? POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF)
-                : new ArrayList<>();
-    }
-
-    @Override
-    public void setConf(final List<ConnConfProperty> conf) {
-        jsonConf = POJOHelper.serialize(conf);
+        return jsonConf;
     }
 
     @Override
@@ -200,19 +172,8 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     }
 
     @Override
-    public List<? extends ExternalResource> getResources() {
-        return resources;
-    }
-
-    @Override
-    public boolean add(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
-    }
-
-    @Override
     public Set<ConnectorCapability> getCapabilities() {
-        return capabilitiesSet;
+        return capabilities;
     }
 
     @Override
@@ -227,37 +188,11 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public ConnPoolConf getPoolConf() {
-        return Optional.ofNullable(poolConf).map(pc -> POJOHelper.deserialize(pc, ConnPoolConf.class)).orElse(null);
+        return poolConf;
     }
 
     @Override
     public void setPoolConf(final ConnPoolConf poolConf) {
-        this.poolConf = Optional.ofNullable(poolConf).map(POJOHelper::serialize).orElse(null);
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getCapabilities().clear();
-        }
-        if (capabilities != null) {
-            getCapabilities().addAll(POJOHelper.deserialize(capabilities, CONNECTOR_CAPABILITY_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        capabilities = POJOHelper.serialize(getCapabilities());
+        this.poolConf = poolConf;
     }
 }

@@ -26,6 +26,8 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 public interface ConnInstance extends Entity {
 
+    int DEFAULT_TIMEOUT = 10;
+
     Realm getAdminRealm();
 
     void setAdminRealm(Realm adminRealm);
@@ -56,16 +58,9 @@ public interface ConnInstance extends Entity {
 
     Set<ConnectorCapability> getCapabilities();
 
-    boolean add(ExternalResource resource);
-
-    List<? extends ExternalResource> getResources();
-
-    void setConf(List<ConnConfProperty> conf);
-
     List<ConnConfProperty> getConf();
 
     void setConnRequestTimeout(Integer timeout);
 
     Integer getConnRequestTimeout();
-
 }

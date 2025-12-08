@@ -16,23 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import jakarta.persistence.EntityManager;
-import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Converter;
+import java.util.Set;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 
-public class AttrRepoRepoExtImpl implements AttrRepoRepoExt {
+@Converter
+public class ConnectorCapabilitySetConverter extends SerializableSetConverter<ConnectorCapability> {
 
-    protected final EntityManager entityManager;
-
-    public AttrRepoRepoExtImpl(final EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    protected static final TypeReference<Set<ConnectorCapability>> TYPEREF =
+            new TypeReference<Set<ConnectorCapability>>() {
+    };
 
     @Override
-    public AttrRepo save(final AttrRepo attrRepo) {
-        ((JPAAttrRepo) attrRepo).list2json();
-        return entityManager.merge(attrRepo);
+    protected TypeReference<Set<ConnectorCapability>> typeRef() {
+        return TYPEREF;
     }
 }

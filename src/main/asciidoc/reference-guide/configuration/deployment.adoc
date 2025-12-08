@@ -273,11 +273,6 @@ Finally, create
 
 [source]
 ....
-persistence.metaDataFactory=jpa(URLs=\
-vfs:/content/${project.build.finalName}.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar; \
-vfs:/content/${project.build.finalName}.war/WEB-INF/lib/syncope-core-self-keymaster-starter-${syncope.version}.jar, \
-Resources=##orm##)
-
 javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-javadoc.jar,\
 /WEB-INF/lib/syncope-common-idm-rest-api-${syncope.version}-javadoc.jar,\
 /WEB-INF/lib/syncope-common-am-rest-api-${syncope.version}-javadoc.jar

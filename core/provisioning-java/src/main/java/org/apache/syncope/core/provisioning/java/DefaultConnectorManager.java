@@ -121,7 +121,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         override.setBundleName(connInstance.getBundleName());
         override.setVersion(connInstance.getVersion());
         override.setLocation(connInstance.getLocation());
-        override.setConf(connInstance.getConf());
+        override.getConf().addAll(connInstance.getConf());
         override.getCapabilities().addAll(connInstance.getCapabilities());
         override.setConnRequestTimeout(connInstance.getConnRequestTimeout());
 
@@ -147,7 +147,8 @@ public class DefaultConnectorManager implements ConnectorManager {
         // add override properties not substituted
         conf.addAll(overridable.values());
 
-        override.setConf(conf);
+        override.getConf().clear();
+        override.getConf().addAll(conf);
 
         // replace capabilities
         capabilitiesOverride.ifPresent(capabilities -> {
@@ -170,30 +171,35 @@ public class DefaultConnectorManager implements ConnectorManager {
     public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
-            unregisterConnector(beanName);
+        synchronized (this) {
+            if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+                unregisterConnector(beanName);
+            }
+
+            ConnInstance connInstance = buildConnInstanceOverride(
+                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                    resource.getConfOverride(),
+                    resource.getCapabilitiesOverride());
+            Connector connector = createConnector(connInstance);
+            LOG.debug("Connector to be registered: {}", connector);
+
+            ApplicationContextProvider.getBeanFactory().registerSingleton(beanName, connector);
+            LOG.debug("Successfully registered bean {}", beanName);
         }
-
-        ConnInstance connInstance = buildConnInstanceOverride(
-                connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
-                resource.getConfOverride(),
-                resource.getCapabilitiesOverride());
-        Connector connector = createConnector(connInstance);
-        LOG.debug("Connector to be registered: {}", connector);
-
-        ApplicationContextProvider.getBeanFactory().registerSingleton(beanName, connector);
-        LOG.debug("Successfully registered bean {}", beanName);
     }
 
-    protected void unregisterConnector(final String id) {
-        ApplicationContextProvider.getBeanFactory().destroySingleton(id);
+    protected void unregisterConnector(final String beanName) {
+        ApplicationContextProvider.getBeanFactory().destroySingleton(beanName);
     }
 
     @Override
     public void unregisterConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
-            unregisterConnector(beanName);
+
+        synchronized (this) {
+            if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+                unregisterConnector(beanName);
+            }
         }
     }
 

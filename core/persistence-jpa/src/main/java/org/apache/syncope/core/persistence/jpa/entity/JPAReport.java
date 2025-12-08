@@ -22,8 +22,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
 
     public static final String TABLE = "Report";
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private JPAImplementation jobDelegate;
 
     @Column(unique = true, nullable = false)

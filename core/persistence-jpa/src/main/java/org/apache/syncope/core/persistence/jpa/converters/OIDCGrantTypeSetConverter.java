@@ -16,31 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Converter;
+import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
 
-public class JSONRealmListener extends JSONEntityListener<Realm> {
+@Converter
+public class OIDCGrantTypeSetConverter extends SerializableSetConverter<OIDCGrantType> {
 
-    @PostLoad
-    public void read(final JPARealm realm) {
-        super.json2list(realm, false);
-    }
+    protected static final TypeReference<Set<OIDCGrantType>> TYPEREF = new TypeReference<Set<OIDCGrantType>>() {
+    };
 
-    @PrePersist
-    @PreUpdate
-    public void save(final JPARealm realm) {
-        realm.list2json();
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void readAfterSave(final JPARealm realm) {
-        super.json2list(realm, true);
+    @Override
+    protected TypeReference<Set<OIDCGrantType>> typeRef() {
+        return TYPEREF;
     }
 }

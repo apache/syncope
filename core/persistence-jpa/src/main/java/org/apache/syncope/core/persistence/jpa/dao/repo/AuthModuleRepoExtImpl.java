@@ -23,7 +23,6 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
 
 public class AuthModuleRepoExtImpl implements AuthModuleRepoExt {
 
@@ -34,12 +33,6 @@ public class AuthModuleRepoExtImpl implements AuthModuleRepoExt {
     public AuthModuleRepoExtImpl(final PolicyDAO policyDAO, final EntityManager entityManager) {
         this.policyDAO = policyDAO;
         this.entityManager = entityManager;
-    }
-
-    @Override
-    public AuthModule save(final AuthModule authModule) {
-        ((JPAAuthModule) authModule).list2json();
-        return entityManager.merge(authModule);
     }
 
     @Override
