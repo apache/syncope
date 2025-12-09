@@ -18,10 +18,10 @@ name: "FIT WA SRA OAuth2"
 
 on:
   push:
-    branches: [JAKARTA_EE_11]
+    branches: [master]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [JAKARTA_EE_11]
+    branches: [master]
 
 jobs:
   fit_WA_SRA_OAuth2:
