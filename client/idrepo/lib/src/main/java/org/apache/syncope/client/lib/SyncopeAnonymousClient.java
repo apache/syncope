@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -35,6 +34,7 @@ import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import tools.jackson.databind.JsonNode;
 
 public class SyncopeAnonymousClient extends SyncopeClient {
 
@@ -76,9 +76,9 @@ public class SyncopeAnonymousClient extends SyncopeClient {
             JsonNode info = info();
             return Pair.of(
                     info.has("git") && info.get("git").has("commit") && info.get("git").get("commit").has("id")
-                    ? info.get("git").get("commit").get("id").asText()
+                    ? info.get("git").get("commit").get("id").asString()
                     : StringUtils.EMPTY,
-                    info.get("build").get("version").asText());
+                    info.get("build").get("version").asString());
         } catch (IOException e) {
             throw new RuntimeException("While getting build and git Info", e);
         }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.reports;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +50,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 

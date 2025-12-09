@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -43,6 +39,11 @@ import org.apache.syncope.ext.scimv2.api.data.SchemaExtension;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 public class SCIMLogic extends AbstractLogic<EntityTO> {
 
@@ -148,7 +149,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
                         extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
                                 + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:"
                                 + confItem.getType() + "}\""));
-                    } catch (IOException e) {
+                    } catch (JacksonException e) {
                         LOG.error("Could not parse the default schema definitions", e);
                     }
                     schemaArray.add(extensionObject);
@@ -158,7 +159,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
             schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
+                schemaMap.put(schema.get("id").asString(), MAPPER.writeValueAsString(schema));
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);

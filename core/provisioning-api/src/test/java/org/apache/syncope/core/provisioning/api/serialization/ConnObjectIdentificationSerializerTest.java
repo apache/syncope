@@ -22,9 +22,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.util.Set;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -33,23 +30,26 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class ConnObjectIdentificationSerializerTest extends AbstractTest {
 
     @Test
     public void serialize(
             final @Mock JsonGenerator jgen,
-            final @Mock SerializerProvider sp)
-            throws IOException {
-        ConnectorObjectIdentification source = new ConnectorObjectIdentification(ObjectClass.ACCOUNT,
+            final @Mock SerializationContext ctx) {
+
+        ConnectorObjectIdentification source = new ConnectorObjectIdentification(
+                ObjectClass.ACCOUNT,
                 Set.of(AttributeBuilder.build(Uid.NAME, "someuid")));
-        
-        new ConnectorObjectIdentificationSerializer().serialize(source, jgen, sp);
+
+        new ConnectorObjectIdentificationSerializer().serialize(source, jgen, ctx);
         verify(jgen, times(2)).writeStartObject();
-        verify(jgen).writeStringField(eq("objectClass"), eq(ObjectClass.ACCOUNT.getObjectClassValue()));
-        verify(jgen).writeFieldName("attributes");
-        verify(jgen).writeFieldName("value");
-        verify(jgen).writeStringField(eq("name"), eq(Uid.NAME));
+        verify(jgen).writeStringProperty(eq("objectClass"), eq(ObjectClass.ACCOUNT.getObjectClassValue()));
+        verify(jgen).writeName("attributes");
+        verify(jgen).writeName("value");
+        verify(jgen).writeStringProperty(eq("name"), eq(Uid.NAME));
         verify(jgen, times(2)).writeStartArray();
         verify(jgen).writeString("someuid");
         verify(jgen, times(2)).writeEndArray();

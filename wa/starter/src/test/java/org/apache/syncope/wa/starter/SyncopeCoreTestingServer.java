@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.wa.starter;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
@@ -56,6 +54,8 @@ import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
 

@@ -1235,7 +1235,7 @@ public class SCIMDataBinder {
 
                         // Workaround for Microsoft Entra being not SCIM compliant on PATCH requests
                         if (op.getValue().getFirst() instanceof String a) {
-                            op.setValue(List.of(BooleanUtils.toBoolean(a)));
+                            op.getValue().set(0, BooleanUtils.toBoolean(a));
                         }
 
                         statusR.setValue(new StatusR.Builder(before.getKey(), (boolean) op.getValue().getFirst()

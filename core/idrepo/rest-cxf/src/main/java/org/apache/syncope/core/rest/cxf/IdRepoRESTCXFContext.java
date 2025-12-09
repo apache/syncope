@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
 import java.util.HashMap;
@@ -138,6 +135,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
+import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)
@@ -172,7 +173,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
+        return new JacksonXMLProvider(new SyncopeXmlMapper(), new JacksonXmlAnnotationIntrospector());
     }
 
     @ConditionalOnMissingBean

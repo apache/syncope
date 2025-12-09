@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * Resource De-association Request.

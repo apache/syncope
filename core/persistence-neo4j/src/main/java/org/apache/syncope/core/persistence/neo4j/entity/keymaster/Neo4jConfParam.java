@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.keymaster;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
 import org.springframework.data.neo4j.core.schema.Node;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @Node(Neo4jConfParam.NODE)
 public class Neo4jConfParam extends AbstractProvidedKeyNode implements ConfParam {
@@ -42,7 +41,7 @@ public class Neo4jConfParam extends AbstractProvidedKeyNode implements ConfParam
         JsonNode deserialized = null;
         try {
             deserialized = MAPPER.readTree(jsonValue);
-        } catch (final IOException e) {
+        } catch (JacksonException e) {
             LOG.error("Could not deserialize {}", jsonValue, e);
         }
         return deserialized;
@@ -52,7 +51,7 @@ public class Neo4jConfParam extends AbstractProvidedKeyNode implements ConfParam
     public void setValue(final JsonNode value) {
         try {
             this.jsonValue = MAPPER.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOG.error("Could not serialize {}", value, e);
         }
     }

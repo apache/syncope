@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 public class XMLTest extends SerializationTest {
 

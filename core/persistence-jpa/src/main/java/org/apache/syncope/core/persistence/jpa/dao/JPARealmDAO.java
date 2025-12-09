@@ -211,7 +211,7 @@ public class JPARealmDAO implements RealmDAO {
     @Override
     public <S extends Realm> S save(final S realm) {
         // check UNIQUE constraints
-        new ArrayList<>(((JPARealm) realm).getPlainAttrsList()).stream().
+        new ArrayList<>(((JPARealm) realm).getPlainAttrs()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
                     if (plainSchemaDAO.existsPlainAttrUniqueValue(

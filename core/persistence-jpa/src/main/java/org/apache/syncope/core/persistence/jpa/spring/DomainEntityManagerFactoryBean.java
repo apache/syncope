@@ -20,8 +20,13 @@ package org.apache.syncope.core.persistence.jpa.spring;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitInfo;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
+import java.util.Optional;
+import javax.cache.Caching;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
+import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -58,7 +63,17 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
     protected void postProcessEntityManagerFactory(final EntityManagerFactory emf, final PersistenceUnitInfo pui) {
         super.postProcessEntityManagerFactory(emf, pui);
 
-        OpenJPAEntityManagerFactorySPI emfspi = emf.unwrap(OpenJPAEntityManagerFactorySPI.class);
-        emfspi.getConfiguration().getRemoteCommitEventManager().addListener(connectorManagerRemoteCommitListener);
+        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                getCache(JPAConnInstance.class.getName())).
+                ifPresent(cache -> cache.registerCacheEntryListener(
+                new MutableCacheEntryListenerConfiguration<Object, Object>(
+                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                        null, false, false)));
+        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                getCache(JPAExternalResource.class.getName())).
+                ifPresent(cache -> cache.registerCacheEntryListener(
+                new MutableCacheEntryListenerConfiguration<Object, Object>(
+                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                        null, false, false)));
     }
 }

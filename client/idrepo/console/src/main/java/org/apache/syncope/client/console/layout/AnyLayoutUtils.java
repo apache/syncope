@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.layout;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Function;
@@ -39,6 +37,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public final class AnyLayoutUtils {
 
@@ -94,7 +94,7 @@ public final class AnyLayoutUtils {
             setAnyObjectsIfEmpty(anyLayout, anyTypes);
 
             return anyLayout;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("While parsing console layout for "
                     + SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
         }
@@ -108,14 +108,14 @@ public final class AnyLayoutUtils {
 
             try {
                 result = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(anyLayout);
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 throw new IllegalArgumentException("While generating default console layout for "
                         + SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
             }
         } else {
             try {
                 result = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(MAPPER.readTree(content));
-            } catch (IOException e) {
+            } catch (JacksonException e) {
                 result = content;
             }
         }

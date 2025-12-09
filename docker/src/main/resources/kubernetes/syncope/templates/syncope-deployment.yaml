@@ -25,7 +25,7 @@ data:
  DB_PASSWORD: {{.Values.syncopeEnvironment.userCreds}}
  DB_POOL_MAX: "{{.Values.syncopeEnvironment.dbPoolMax}}"
  DB_POOL_MIN: "{{.Values.syncopeEnvironment.dbPoolMin}}"
- OPENJPA_REMOTE_COMMIT: sjvm
+ HIBERNATE_JCACHE_PROVIDER: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

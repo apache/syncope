@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
@@ -224,7 +223,7 @@ public class AuditITCase extends AbstractITCase {
     }
 
     @Test
-    public void findByConnector() throws JsonProcessingException {
+    public void findByConnector() {
         String connectorKey = "74141a3b-0762-4720-a4aa-fc3e374ef3ef";
 
         AuditQuery query = new AuditQuery.Builder().

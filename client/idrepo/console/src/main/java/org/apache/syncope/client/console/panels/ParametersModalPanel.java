@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.Reader;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Set;
@@ -39,6 +37,8 @@ import org.apache.wicket.PageReference;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
 
@@ -72,14 +72,14 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
         try {
             JSON_MAPPER.readTree(value);
             return true;
-        } catch (JsonProcessingException jpe) {
+        } catch (JacksonException e) {
             return false;
         }
     }
 
     protected static boolean isXML(final String value) {
         try {
-            SAX_PARSER_FACTORY.newSAXParser().getXMLReader().parse(new InputSource(new StringReader(value)));
+            SAX_PARSER_FACTORY.newSAXParser().getXMLReader().parse(new InputSource(Reader.of(value)));
             return true;
         } catch (IOException | ParserConfigurationException | SAXException xmle) {
             return false;
@@ -87,7 +87,7 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
     }
 
     protected static boolean isPEM(final String value) {
-        try (PemReader reader = new PemReader(new StringReader(value))) {
+        try (PemReader reader = new PemReader(Reader.of(value))) {
             return reader.readPemObject() != null;
         } catch (IOException e) {
             return false;

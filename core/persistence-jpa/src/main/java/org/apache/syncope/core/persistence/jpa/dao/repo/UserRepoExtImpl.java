@@ -180,7 +180,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             entityManager.flush();
             merged = entityManager.merge(user);
         }
-        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
 
         super.checkBeforeSave((JPAUser) merged);
         merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));

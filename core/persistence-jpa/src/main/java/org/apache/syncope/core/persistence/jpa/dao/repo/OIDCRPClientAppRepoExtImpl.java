@@ -42,10 +42,4 @@ public class OIDCRPClientAppRepoExtImpl
     public List<OIDCRPClientApp> findAllByRealm(final Realm realm) {
         return findAllByRealm(realm, OIDCRPClientApp.class, JPAOIDCRPClientApp.class);
     }
-
-    @Override
-    public OIDCRPClientApp save(final OIDCRPClientApp clientApp) {
-        ((JPAOIDCRPClientApp) clientApp).list2json();
-        return entityManager.merge(clientApp);
-    }
 }

@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
+import org.apache.syncope.core.persistence.jpa.converters.StringListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAWAConfigEntry.TABLE)
@@ -36,19 +36,17 @@ public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WACon
 
     public static final String TABLE = "WAConfigEntry";
 
-    protected static TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
+    @Convert(converter = StringListConverter.class)
     @Lob
-    private String waConfigValues;
+    private List<String> waConfigValues = new ArrayList<>();
 
     @Override
     public List<String> getValues() {
-        return Optional.ofNullable(waConfigValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElseGet(List::of);
+        return waConfigValues;
     }
 
     @Override
     public void setValues(final List<String> values) {
-        this.waConfigValues = POJOHelper.serialize(values);
+        waConfigValues = values;
     }
 }

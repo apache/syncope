@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import tools.jackson.core.type.TypeReference;
 
 public abstract class AbstractClientApp extends AbstractGeneratedKeyNode implements ClientApp {
 

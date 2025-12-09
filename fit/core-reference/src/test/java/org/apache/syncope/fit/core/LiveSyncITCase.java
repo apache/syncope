@@ -24,9 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
@@ -65,6 +63,8 @@ import org.apache.syncope.fit.core.reference.TestLiveSyncDeltaMapper;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 public class LiveSyncITCase extends AbstractITCase {
 
@@ -148,12 +148,12 @@ public class LiveSyncITCase extends AbstractITCase {
                     try {
                         JsonNode syncDelta = JSON_MAPPER.readTree(record.value());
                         if (syncDelta.has("deltaType")) {
-                            sdt = SyncDeltaType.valueOf(syncDelta.get("deltaType").asText());
+                            sdt = SyncDeltaType.valueOf(syncDelta.get("deltaType").asString());
                         }
                         if (syncDelta.has("uid") && syncDelta.get("uid").has("value")) {
-                            uid = syncDelta.get("uid").get("value").iterator().next().asText();
+                            uid = syncDelta.get("uid").get("value").iterator().next().asString();
                         }
-                    } catch (IOException e) {
+                    } catch (JacksonException e) {
                         fail(e.getMessage(), e);
                     }
 

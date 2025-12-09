@@ -18,12 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.time.OffsetDateTime;
@@ -32,12 +26,19 @@ import java.time.format.DateTimeParseException;
 import org.apache.syncope.common.lib.AMSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 public class AMSessionDeserializer extends StdDeserializer<AMSession> {
 
-    private static final long serialVersionUID = 24527200564172L;
+    protected static final Logger LOG = LoggerFactory.getLogger(AMSessionDeserializer.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AMSessionDeserializer.class);
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public AMSessionDeserializer() {
         this(null);
@@ -48,15 +49,13 @@ public class AMSessionDeserializer extends StdDeserializer<AMSession> {
     }
 
     @Override
-    public AMSession deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException {
-
-        JsonNode node = jp.getCodec().readTree(jp);
+    public AMSession deserialize(final JsonParser jp, final DeserializationContext ctxt) throws JacksonException {
+        JsonNode node = jp.readValueAsTree();
 
         AMSession waSession = new AMSession();
 
         if (node.has("authentication_date_formatted")) {
-            String authenticationDate = node.get("authentication_date_formatted").textValue();
+            String authenticationDate = node.get("authentication_date_formatted").stringValue();
             try {
                 waSession.setAuthenticationDate(
                         OffsetDateTime.parse(authenticationDate, DateTimeFormatter.ISO_OFFSET_DATE_TIME));
@@ -66,18 +65,19 @@ public class AMSessionDeserializer extends StdDeserializer<AMSession> {
         }
 
         if (node.has("authenticated_principal")) {
-            waSession.setPrincipal(node.get("authenticated_principal").textValue());
+            waSession.setPrincipal(node.get("authenticated_principal").stringValue());
         }
 
         if (node.has("ticket_granting_ticket")) {
-            waSession.setKey(node.get("ticket_granting_ticket").textValue());
+            waSession.setKey(node.get("ticket_granting_ticket").stringValue());
         }
 
-        StringWriter writer = new StringWriter();
-        JsonGenerator jgen = jp.getCodec().getFactory().createGenerator(writer);
-        jgen.setPrettyPrinter(new DefaultPrettyPrinter());
-        jp.getCodec().writeTree(jgen, node);
-        waSession.setJson(writer.toString());
+        try (StringWriter writer = new StringWriter()) {
+            MAPPER.writerWithDefaultPrettyPrinter().writeValue(writer, node);
+            waSession.setJson(writer.toString());
+        } catch (IOException e) {
+            throw JacksonIOException.construct(e);
+        }
 
         return waSession;
     }

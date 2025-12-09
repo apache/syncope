@@ -31,7 +31,7 @@ The default configuration in `core.properties` is
 
 [source]
 ....
-persistence.remoteCommitProvider=sjvm
+persistence.cacheProvider=com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 ....
 
 which is suited for single JVM installations; with multiple instances, more options like as TCP, JMS or Kubernetes

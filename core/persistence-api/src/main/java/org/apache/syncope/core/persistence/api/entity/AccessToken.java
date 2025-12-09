@@ -34,7 +34,7 @@ public interface AccessToken extends ProvidedKeyEntity {
 
     void setOwner(String owner);
 
-    byte[] getAuthorities();
+    String getAuthorities();
 
-    void setAuthorities(byte[] authorities);
+    void setAuthorities(String authorities);
 }

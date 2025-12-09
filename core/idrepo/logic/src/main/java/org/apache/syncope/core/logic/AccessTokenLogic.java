@@ -60,11 +60,11 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         this.accessTokenDAO = accessTokenDAO;
     }
 
-    protected byte[] getAuthorities() {
-        byte[] authorities = null;
+    protected String getAuthorities() {
+        String authorities = null;
         try {
             authorities = encryptorManager.getInstance().
-                    encode(POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).getBytes();
+                    encode(POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES);
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }

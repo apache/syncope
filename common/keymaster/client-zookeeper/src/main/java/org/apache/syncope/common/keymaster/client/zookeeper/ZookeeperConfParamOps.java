@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -28,6 +27,7 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implements {@link ConfParamOps} via Apache Curator / Zookeeper.

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -30,13 +30,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.persistence.api.validation.SAML2SP4UIIdPCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.ItemListConverter;
 
 @Entity
 @Table(name = JPASAML2SP4UIIdP.TABLE)
@@ -89,11 +83,9 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
     private JPASAML2SP4UIUserTemplate userTemplate;
 
+    @Convert(converter = ItemListConverter.class)
     @Lob
-    private String items;
-
-    @Transient
-    private final List<Item> itemList = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "SAML2IdP4UIAction",
@@ -199,7 +191,7 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
 
     @Override
     public List<Item> getItems() {
-        return itemList;
+        return items;
     }
 
     @Override
@@ -236,33 +228,5 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
         checkImplementationType(requestedAuthnContextProvider,
                 SAML2SP4UIImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER);
         this.requestedAuthnContextProvider = (JPAImplementation) requestedAuthnContextProvider;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getItems().clear();
-        }
-        if (items != null) {
-            getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
-                    }));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        items = POJOHelper.serialize(getItems());
     }
 }

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -61,6 +60,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ArrayNode;
 
 public class DynRealmITCase extends AbstractITCase {
 
@@ -279,7 +279,7 @@ public class DynRealmITCase extends AbstractITCase {
 
                 ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
                 assertEquals(1, dynRealms.size());
-                assertEquals(dynRealm.getKey(), dynRealms.get(0).asText());
+                assertEquals(dynRealm.getKey(), dynRealms.get(0).asString());
             }
 
             // 4b. now there is 1 realm member

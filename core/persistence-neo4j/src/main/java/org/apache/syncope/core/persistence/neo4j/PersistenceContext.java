@@ -122,6 +122,8 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepo;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepoExt;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExtImpl;
@@ -707,8 +709,20 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileDAO authProfileDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
-        return neo4jRepositoryFactory.getRepository(AuthProfileRepo.class);
+    public AuthProfileRepoExt authProfileRepoExt(
+            final Neo4jTemplate neo4jTemplate,
+            final NodeValidator nodeValidator) {
+
+        return new AuthProfileRepoExtImpl(neo4jTemplate, nodeValidator);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AuthProfileDAO authProfileDAO(
+            final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
+            final AuthProfileRepoExt authProfileRepoExt) {
+
+        return neo4jRepositoryFactory.getRepository(AuthProfileRepo.class, authProfileRepoExt);
     }
 
     @ConditionalOnMissingBean

@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.Bus;
@@ -51,6 +48,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @Configuration(proxyBeanMethods = false)
 public class SCIMv2RESTCXFContext {
@@ -58,8 +57,7 @@ public class SCIMv2RESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public JacksonJsonProvider scimJacksonJsonProvider() {
-        return new JacksonJsonProvider(JsonMapper.builder().
-                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build());
+        return new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build());
     }
 
     @ConditionalOnMissingBean

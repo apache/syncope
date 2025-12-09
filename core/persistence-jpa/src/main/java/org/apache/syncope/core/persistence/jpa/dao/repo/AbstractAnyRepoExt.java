@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -52,6 +51,8 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -104,9 +105,8 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     @Transactional(readOnly = true)
     @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
-        OpenJPAEntityManagerFactorySPI emf = entityManager.getEntityManagerFactory().
-                unwrap(OpenJPAEntityManagerFactorySPI.class);
-        return new JdbcTemplate((DataSource) emf.getConfiguration().getConnectionFactory()).query(
+        return new JdbcTemplate(entityManager.getEntityManagerFactory().unwrap(SessionFactoryImpl.class).
+                getServiceRegistry().getService(ConnectionProvider.class).unwrap(DataSource.class)).query(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?",
                 rs -> {
                     if (rs.next()) {
@@ -213,7 +213,7 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
 
     protected <T extends AbstractAttributable> void checkBeforeSave(final T attributable) {
         // check UNIQUE constraints
-        new ArrayList<>(attributable.getPlainAttrsList()).stream().
+        new ArrayList<>(attributable.getPlainAttrs()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
                     if (plainSchemaDAO.existsPlainAttrUniqueValue(

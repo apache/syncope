@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +43,7 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import tools.jackson.databind.json.JsonMapper;
 
 public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWrapper> {
 

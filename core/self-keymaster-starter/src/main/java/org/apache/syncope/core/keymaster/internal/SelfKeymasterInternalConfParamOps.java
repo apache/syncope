@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.keymaster.internal;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
@@ -55,7 +55,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
         try {
             return MAPPER.treeToValue(valueNode, reference);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.error("Could not deserialize {}", valueNode, e);
             return defaultValue;
         }

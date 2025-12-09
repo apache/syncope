@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
@@ -29,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import tools.jackson.core.type.TypeReference;
 
 @Entity
 @Table(name = JPAAuditEvent.TABLE)

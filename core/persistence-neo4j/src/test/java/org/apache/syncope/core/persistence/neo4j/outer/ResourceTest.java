@@ -115,7 +115,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals(
                 Set.of(resourceDAO.findById("resource-testdb2").orElseThrow(),
                         resourceDAO.findById("resource-ldap").orElseThrow()),
-            new HashSet<>(resourceDAO.findByPropagationActionsContaining(impl)));
+                new HashSet<>(resourceDAO.findByPropagationActionsContaining(impl)));
     }
 
     @Test
@@ -200,7 +200,6 @@ public class ResourceTest extends AbstractTest {
 
         // check connector
         connector = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
-        assertNotNull(connector.getResources());
 
         assertNotNull(resource.getConnector());
         assertTrue(resource.getConnector().equals(connector));
@@ -257,8 +256,8 @@ public class ResourceTest extends AbstractTest {
 
         // resource must be not referenced any more from the connector
         ConnInstance actualConnector = connInstanceDAO.findById(connector.getKey()).orElseThrow();
-        actualConnector.getResources().
-                forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
+        resourceDAO.findByConnInstance(actualConnector.getKey()).
+                forEach(r -> assertFalse(r.getKey().equalsIgnoreCase(resource.getKey())));
 
         // there must be no tasks
         propagationTasks.forEach(task -> assertTrue(taskDAO.findById(task.getKey()).isEmpty()));
