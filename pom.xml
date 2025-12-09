@@ -1472,7 +1472,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.3.0</version>
+        <version>5.0.1</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
