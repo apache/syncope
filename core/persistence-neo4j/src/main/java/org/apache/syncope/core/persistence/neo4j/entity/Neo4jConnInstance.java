@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +32,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.common.validation.ConnInstanceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -47,6 +47,10 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
+    };
+
+    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
+            new TypeReference<List<ConnConfProperty>>() {
     };
 
     /**
@@ -84,8 +88,10 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
      *
      * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
-    @CompositeProperty(converterRef = "connConfPropertiesConverter")
-    private List<ConnConfProperty> jsonConf;
+    private String jsonConf;
+
+    @Transient
+    private List<ConnConfProperty> conf = new ArrayList<>();
 
     private String displayName;
 
@@ -154,7 +160,7 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Override
     public List<ConnConfProperty> getConf() {
-        return jsonConf;
+        return conf;
     }
 
     @Override
@@ -195,10 +201,12 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getCapabilities().clear();
+            getConf().clear();
         }
-        if (capabilities != null) {
-            getCapabilities().addAll(POJOHelper.deserialize(capabilities, CONNECTOR_CAPABILITY_TYPEREF));
-        }
+        Optional.ofNullable(capabilities).
+                ifPresent(v -> getCapabilities().addAll(POJOHelper.deserialize(v, CONNECTOR_CAPABILITY_TYPEREF)));
+        Optional.ofNullable(jsonConf).
+                ifPresent(v -> getConf().addAll(POJOHelper.deserialize(v, CONN_CONF_PROPS_TYPEREF)));
     }
 
     @PostLoad
@@ -212,5 +220,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     public void list2json() {
         capabilities = POJOHelper.serialize(getCapabilities());
+        jsonConf = POJOHelper.serialize(getConf());
     }
 }

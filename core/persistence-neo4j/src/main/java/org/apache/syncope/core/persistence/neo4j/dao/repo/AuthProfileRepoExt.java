@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 
-public interface AuthProfileRepo
-        extends PagingAndSortingRepository<Neo4jAuthProfile, String>, AuthProfileRepoExt, AuthProfileDAO {
+public interface AuthProfileRepoExt {
 
+    AuthProfile save(AuthProfile authProfileI);
 }

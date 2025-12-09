@@ -18,11 +18,27 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
+import org.springframework.data.neo4j.core.Neo4jTemplate;
 
-public interface AuthProfileRepo
-        extends PagingAndSortingRepository<Neo4jAuthProfile, String>, AuthProfileRepoExt, AuthProfileDAO {
+public class AuthProfileRepoExtImpl implements AuthProfileRepoExt {
 
+    protected final Neo4jTemplate neo4jTemplate;
+
+    protected final NodeValidator nodeValidator;
+
+    public AuthProfileRepoExtImpl(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
+        this.neo4jTemplate = neo4jTemplate;
+        this.nodeValidator = nodeValidator;
+    }
+
+    @Override
+    public AuthProfile save(final AuthProfile connector) {
+        ((Neo4jAuthProfile) connector).list2json();
+        AuthProfile saved = neo4jTemplate.save(nodeValidator.validate(connector));
+        ((Neo4jAuthProfile) saved).postSave();
+        return saved;
+    }
 }
