@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
@@ -45,6 +44,7 @@ import org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfigura
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,

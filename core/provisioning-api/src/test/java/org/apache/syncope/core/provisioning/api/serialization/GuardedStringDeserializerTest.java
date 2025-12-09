@@ -22,12 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +32,11 @@ import org.identityconnectors.common.security.GuardedString;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 public class GuardedStringDeserializerTest extends AbstractTest {
 
@@ -61,7 +60,7 @@ public class GuardedStringDeserializerTest extends AbstractTest {
     private JsonNode node;
 
     @Test
-    public void deserialize() throws IOException {
+    public void deserialize() {
         Map<String, JsonNode> kids = new HashMap<>();
         kids.put(READONLY, node);
         kids.put(DISPOSED, node);
@@ -73,12 +72,12 @@ public class GuardedStringDeserializerTest extends AbstractTest {
         String encryptedString = Base64.getEncoder().encodeToString(encryptedBytes);
 
         when(jp.readValueAsTree()).thenReturn(tree);
-        when(node.asText()).thenReturn(encryptedString);
+        when(node.asString()).thenReturn(encryptedString);
         assertEquals(Boolean.FALSE, ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), READONLY));
         kids.remove(READONLY);
         assertEquals(Boolean.FALSE, ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), DISPOSED));
         kids.remove(DISPOSED);
-        assertEquals(encryptedString, 
+        assertEquals(encryptedString,
                 ReflectionTestUtils.getField(deserializer.deserialize(jp, ctx), BASE64_SHA1_HASH));
 
         kids.remove(BASE64_SHA1_HASH);

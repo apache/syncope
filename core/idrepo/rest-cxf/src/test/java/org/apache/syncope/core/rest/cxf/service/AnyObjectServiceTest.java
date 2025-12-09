@@ -28,10 +28,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
@@ -84,6 +80,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.util.ReflectionTestUtils;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 @SpringJUnitConfig(classes = { IdRepoRESTCXFTestContext.class })
 public class AnyObjectServiceTest {

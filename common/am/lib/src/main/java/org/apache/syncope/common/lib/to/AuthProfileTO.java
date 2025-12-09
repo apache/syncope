@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +29,8 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class AuthProfileTO implements EntityTO {
 

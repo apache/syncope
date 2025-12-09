@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -40,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
 import org.apache.syncope.core.persistence.jpa.converters.String2StringMapConverter;
+import tools.jackson.core.type.TypeReference;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)

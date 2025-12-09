@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -45,6 +44,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
 public class StreamPullJobDelegateTest extends AbstractTest {

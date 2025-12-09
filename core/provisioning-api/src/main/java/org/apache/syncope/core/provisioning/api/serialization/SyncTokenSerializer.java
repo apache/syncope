@@ -18,43 +18,42 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.util.Base64;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-class SyncTokenSerializer extends JsonSerializer<SyncToken> {
+class SyncTokenSerializer extends ValueSerializer<SyncToken> {
 
     @Override
-    public void serialize(final SyncToken source, final JsonGenerator jgen, final SerializerProvider sp)
-            throws IOException {
+    public void serialize(final SyncToken source, final JsonGenerator jgen, final SerializationContext ctx)
+            throws JacksonException {
 
         jgen.writeStartObject();
 
         if (source.getValue() == null) {
-            jgen.writeNullField("value");
+            jgen.writeNullProperty("value");
         } else if (source.getValue() instanceof final Boolean b) {
-            jgen.writeStringField("type", Boolean.class.getSimpleName());
-            jgen.writeBooleanField("value", b);
+            jgen.writeStringProperty("type", Boolean.class.getSimpleName());
+            jgen.writeBooleanProperty("value", b);
         } else if (source.getValue() instanceof final Double v) {
-            jgen.writeStringField("type", Double.class.getSimpleName());
-            jgen.writeNumberField("value", v);
+            jgen.writeStringProperty("type", Double.class.getSimpleName());
+            jgen.writeNumberProperty("value", v);
         } else if (source.getValue() instanceof final Long l) {
-            jgen.writeStringField("type", Long.class.getSimpleName());
-            jgen.writeNumberField("value", l);
+            jgen.writeStringProperty("type", Long.class.getSimpleName());
+            jgen.writeNumberProperty("value", l);
         } else if (source.getValue() instanceof final Integer i) {
-            jgen.writeStringField("type", Integer.class.getSimpleName());
-            jgen.writeNumberField("value", i);
+            jgen.writeStringProperty("type", Integer.class.getSimpleName());
+            jgen.writeNumberProperty("value", i);
         } else if (source.getValue() instanceof final byte[] bytes) {
-            jgen.writeStringField("value", Base64.getEncoder().encodeToString(bytes));
+            jgen.writeStringProperty("value", Base64.getEncoder().encodeToString(bytes));
         } else {
-            jgen.writeStringField("type", String.class.getSimpleName());
-            jgen.writeStringField("value", source.getValue().toString());
+            jgen.writeStringProperty("type", String.class.getSimpleName());
+            jgen.writeStringProperty("value", source.getValue().toString());
         }
 
         jgen.writeEndObject();
     }
-
 }

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.neo4j.core.schema.Node;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jWAConfigEntry.NODE)
 public class Neo4jWAConfigEntry extends AbstractProvidedKeyNode implements WAConfigEntry {

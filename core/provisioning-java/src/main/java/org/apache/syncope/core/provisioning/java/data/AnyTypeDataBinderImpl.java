@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
 
 public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 

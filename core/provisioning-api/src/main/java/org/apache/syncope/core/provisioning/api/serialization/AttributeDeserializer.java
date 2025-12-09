@@ -18,24 +18,24 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.List;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.node.ObjectNode;
 
 @SuppressWarnings("squid:S3776")
 class AttributeDeserializer extends AbstractValueDeserializer<Attribute> {
 
     @Override
-    public Attribute deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
+    public Attribute deserialize(final JsonParser jp, final DeserializationContext ctx) throws JacksonException {
         ObjectNode tree = jp.readValueAsTree();
 
-        String name = tree.get("name").asText();
+        String name = tree.get("name").asString();
 
         List<Object> values = doDeserialize(tree.get("value"), jp);
 

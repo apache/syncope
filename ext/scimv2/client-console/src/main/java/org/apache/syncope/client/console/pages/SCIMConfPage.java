@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.SCIMConfPanel;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
@@ -27,6 +26,7 @@ import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.databind.json.JsonMapper;
 
 @ExtPage(label = "SCIM 2.0", icon = "fa fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
 public class SCIMConfPage extends BaseExtPage {

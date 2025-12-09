@@ -2189,12 +2189,11 @@ under the License.
             <link>https://www.slf4j.org/api/</link>
             <link>https://connid.tirasa.net/apidocs/1.6/</link>
             <link>https://cxf.apache.org/javadoc/latest/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-core/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-databind/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-csv/2.17.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.core/jackson-core/3.0.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.core/jackson-databind/3.0.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.dataformat/jackson-dataformat-xml/3.0.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.dataformat/jackson-dataformat-yaml/3.0.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.dataformat/jackson-dataformat-csv/3.0.3/</link>
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>

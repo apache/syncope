@@ -16,21 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.converters;
+package org.apache.syncope.core.starter.actuate;
 
-import jakarta.persistence.Converter;
-import java.util.Set;
-import org.apache.syncope.common.lib.types.OIDCGrantType;
-import tools.jackson.core.type.TypeReference;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
+import org.springframework.boot.actuate.endpoint.annotation.DeleteOperation;
+import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 
-@Converter
-public class OIDCGrantTypeSetConverter extends SerializableSetConverter<OIDCGrantType> {
+@Endpoint(id = "entityCache")
+public class EntityCacheEndpoint {
 
-    protected static final TypeReference<Set<OIDCGrantType>> TYPEREF = new TypeReference<Set<OIDCGrantType>>() {
-    };
+    protected final EntityCacheDAO entityCacheDAO;
 
-    @Override
-    protected TypeReference<Set<OIDCGrantType>> typeRef() {
-        return TYPEREF;
+    public EntityCacheEndpoint(final EntityCacheDAO entityCacheDAO) {
+        this.entityCacheDAO = entityCacheDAO;
+    }
+
+    @DeleteOperation
+    public void clearCache() {
+        entityCacheDAO.clearCache();
     }
 }

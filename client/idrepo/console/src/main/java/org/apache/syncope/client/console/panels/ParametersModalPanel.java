@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -39,6 +37,8 @@ import org.apache.wicket.PageReference;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
 
@@ -72,7 +72,7 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
         try {
             JSON_MAPPER.readTree(value);
             return true;
-        } catch (JsonProcessingException jpe) {
+        } catch (JacksonException e) {
             return false;
         }
     }

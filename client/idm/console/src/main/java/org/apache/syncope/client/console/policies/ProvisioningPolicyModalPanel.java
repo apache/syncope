@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.policies;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,6 +63,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ProvisioningPolicyModalPanel extends AbstractModalPanel<ProvisioningPolicyTO> {
 

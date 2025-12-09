@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.SequenceWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,6 +52,11 @@ import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import tools.jackson.databind.MappingIterator;
+import tools.jackson.databind.SequenceWriter;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvReadFeature;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 public class CSVStreamConnector implements Connector, AutoCloseable {
 
@@ -107,8 +107,9 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
     public MappingIterator<Map<String, String>> reader() throws IOException {
         synchronized (this) {
             if (reader == null) {
-                reader = new CsvMapper().
-                        enable(CsvParser.Feature.SKIP_EMPTY_LINES).
+                reader = CsvMapper.builder().
+                        enable(CsvReadFeature.SKIP_EMPTY_LINES).
+                        build().
                         readerFor(Map.class).with(schemaBuilder.build()).readValues(in);
             }
         }
@@ -117,7 +118,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
 
     public List<String> getColumns(final CSVPullSpec spec) throws IOException {
         List<String> fromSpec = new ArrayList<>();
-        ((CsvSchema) reader().getParserSchema()).forEach(column -> {
+        ((CsvSchema) reader().parserSchema()).forEach(column -> {
             if (!spec.getIgnoreColumns().contains(column.getName())) {
                 fromSpec.add(column.getName());
             }

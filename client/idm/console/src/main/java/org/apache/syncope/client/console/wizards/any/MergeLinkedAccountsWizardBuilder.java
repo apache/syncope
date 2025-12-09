@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -50,6 +49,7 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
+import tools.jackson.databind.json.JsonMapper;
 
 public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<UserTO> implements IEventSink {
 

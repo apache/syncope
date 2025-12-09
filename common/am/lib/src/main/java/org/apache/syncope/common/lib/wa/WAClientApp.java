@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
@@ -29,6 +27,8 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class WAClientApp implements BaseBean {
 

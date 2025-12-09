@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.spring;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +27,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NullValue;
 import org.neo4j.driver.internal.value.StringValue;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyConverter;
+import tools.jackson.core.type.TypeReference;
 
 public class BaseBeanListConverter<T extends BaseBean> implements Neo4jPersistentPropertyConverter<List<T>> {
 

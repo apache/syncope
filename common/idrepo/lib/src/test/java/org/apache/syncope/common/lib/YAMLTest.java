@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 public class YAMLTest extends SerializationTest {
 

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.AttributeConverter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import tools.jackson.core.type.TypeReference;
 
 abstract class SerializableListConverter<T extends Serializable> implements AttributeConverter<List<T>, String> {
 

@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +32,8 @@ import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { ClientAppTO.class })
 public class OIDCRPClientAppTO extends ClientAppTO {

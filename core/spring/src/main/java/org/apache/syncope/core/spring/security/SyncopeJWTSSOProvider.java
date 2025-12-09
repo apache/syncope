@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -39,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.type.TypeReference;
 
 /**
  * Default implementation for internal JWT validation.

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Converter;
 import java.util.List;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
+import tools.jackson.core.type.TypeReference;
 
 @Converter
 public class WebAuthnDeviceCredentialListConverter extends SerializableListConverter<WebAuthnDeviceCredential> {

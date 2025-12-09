@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.io.InputStream;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
 
 public class OpenAPIITCase extends AbstractITCase {
 
@@ -43,14 +43,14 @@ public class OpenAPIITCase extends AbstractITCase {
         assertNotNull(tree);
 
         JsonNode info = tree.get("info");
-        assertEquals("Apache Syncope", info.get("title").asText());
+        assertEquals("Apache Syncope", info.get("title").asString());
 
         JsonNode paths = tree.get("paths");
         assertNotNull(paths);
-        assertTrue(paths.isContainerNode());
+        assertTrue(paths.isContainer());
 
         JsonNode components = tree.get("components");
         assertNotNull(components);
-        assertTrue(components.isContainerNode());
+        assertTrue(components.isContainer());
     }
 }

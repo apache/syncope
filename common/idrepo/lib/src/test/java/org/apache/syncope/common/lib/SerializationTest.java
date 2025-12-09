@@ -21,8 +21,6 @@ package org.apache.syncope.common.lib;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -42,6 +40,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 public abstract class SerializationTest {
 
@@ -54,8 +54,7 @@ public abstract class SerializationTest {
         StringWriter writer = new StringWriter();
         objectMapper().writeValue(writer, original);
 
-        List<ReportTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<>() {
+        List<ReportTO> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
     }

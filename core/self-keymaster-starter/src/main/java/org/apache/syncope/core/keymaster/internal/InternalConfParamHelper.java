@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.keymaster.internal;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -30,6 +27,9 @@ import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class InternalConfParamHelper {
 
@@ -52,7 +52,7 @@ public class InternalConfParamHelper {
         confParamDAO.findAll().forEach(param -> {
             try {
                 params.put(param.getKey(), MAPPER.treeToValue(param.getValue(), Object.class));
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 LOG.error("While processing {}'s value", param.getKey(), e);
             }
         });

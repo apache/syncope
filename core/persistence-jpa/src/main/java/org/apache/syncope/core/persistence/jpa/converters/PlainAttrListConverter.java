@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import java.util.ArrayList;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import tools.jackson.core.type.TypeReference;
 
 @Converter
 public class PlainAttrListConverter implements AttributeConverter<List<PlainAttr>, String> {

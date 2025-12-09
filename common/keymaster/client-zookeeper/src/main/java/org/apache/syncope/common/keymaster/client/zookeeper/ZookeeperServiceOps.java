@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +30,7 @@ import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implements {@link ServiceOps} via Apache Curator / Zookeeper.

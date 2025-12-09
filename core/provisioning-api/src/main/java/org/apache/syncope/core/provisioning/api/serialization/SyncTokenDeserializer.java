@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.Objects;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ObjectNode;
 
-class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
+class SyncTokenDeserializer extends ValueDeserializer<SyncToken> {
 
     @Override
-    public SyncToken deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
+    public SyncToken deserialize(final JsonParser jp, final DeserializationContext ctx) throws JacksonException {
         ObjectNode tree = jp.readValueAsTree();
 
         Object value = tree.has("value")
@@ -44,21 +44,21 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
     }
 
     private Object deserialize(final JsonNode value, final JsonNode type) {
-        if (Boolean.class.getSimpleName().equals(type.asText())) {
+        if (Boolean.class.getSimpleName().equals(type.asString())) {
             return value.asBoolean();
         }
 
-        if (Double.class.getSimpleName().equals(type.asText())) {
+        if (Double.class.getSimpleName().equals(type.asString())) {
             return value.asDouble();
         }
-        if (Long.class.getSimpleName().equals(type.asText())) {
+        if (Long.class.getSimpleName().equals(type.asString())) {
             return value.asLong();
         }
-        if (Integer.class.getSimpleName().equals(type.asText())) {
+        if (Integer.class.getSimpleName().equals(type.asString())) {
             return value.asInt();
         }
 
-        return value.asText();
+        return value.asString();
     }
 
     private Object deserialize(final JsonNode value) {
@@ -79,9 +79,9 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
         }
 
         try {
-            return Base64.getDecoder().decode(value.asText());
+            return Base64.getDecoder().decode(value.asString());
         } catch (RuntimeException e) {
-            return value.asText();
+            return value.asString();
         }
     }
 }

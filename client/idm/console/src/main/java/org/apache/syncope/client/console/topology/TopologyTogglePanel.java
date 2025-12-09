@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -63,6 +62,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TopologyTogglePanel extends TogglePanel<Serializable> {
 

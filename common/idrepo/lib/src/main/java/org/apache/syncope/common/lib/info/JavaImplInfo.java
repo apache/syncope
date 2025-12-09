@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.common.lib.info;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.BaseBean;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class JavaImplInfo implements BaseBean {
 

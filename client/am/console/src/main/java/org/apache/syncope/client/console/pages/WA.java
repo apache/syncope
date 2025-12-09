@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import jakarta.ws.rs.core.MediaType;
@@ -67,6 +65,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @AMPage(label = "WA", icon = "fas fa-id-card", listEntitlement = "", priority = 200)
 public class WA extends BasePage {
@@ -155,7 +155,7 @@ public class WA extends BasePage {
                                 if (properties.has("cas.server.prefix")) {
                                     JsonNode prefix = properties.get("cas.server.prefix");
                                     if (prefix.has("value")) {
-                                        waPrefix = Strings.CS.removeEnd(prefix.get("value").asText(), "/");
+                                        waPrefix = Strings.CS.removeEnd(prefix.get("value").asString(), "/");
                                     }
                                 }
                             }

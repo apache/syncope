@@ -19,25 +19,20 @@
 package org.apache.syncope.common.lib.jackson;
 
 import com.ctc.wstx.stax.WstxOutputFactory;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlFactory;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser;
-import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.dataformat.xml.XmlFactory;
+import tools.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlReadFeature;
+import tools.jackson.dataformat.xml.XmlWriteFeature;
 
 public class SyncopeXmlMapper extends XmlMapper {
 
     private static final long serialVersionUID = 1022020055828974308L;
 
     public SyncopeXmlMapper() {
-        super(new XmlFactory() {
+        super(new Builder(new XmlFactory() {
 
             private static final long serialVersionUID = 1022020055828974306L;
 
@@ -46,18 +41,9 @@ public class SyncopeXmlMapper extends XmlMapper {
                 super._initFactories(xmlIn, xmlOut);
                 xmlOut.setProperty(WstxOutputFactory.P_AUTOMATIC_EMPTY_ELEMENTS, Boolean.FALSE);
             }
-        });
-
-        findAndRegisterModules();
-
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
-
-        configOverride(List.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-        configOverride(Set.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-        configOverride(Map.class).setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
-
-        enable(ToXmlGenerator.Feature.WRITE_XML_DECLARATION);
-        enable(FromXmlParser.Feature.EMPTY_ELEMENT_AS_NULL);
+        }).findAndAddModules().
+                enable(MapperFeature.USE_GETTERS_AS_SETTERS).
+                enable(XmlWriteFeature.WRITE_XML_DECLARATION).
+                enable(XmlReadFeature.EMPTY_ELEMENT_AS_NULL));
     }
 }

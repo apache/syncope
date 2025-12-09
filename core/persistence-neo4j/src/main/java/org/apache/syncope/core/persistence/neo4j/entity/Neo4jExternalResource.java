@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jExternalResource.NODE)
 @ExternalResourceCheck

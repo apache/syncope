@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
@@ -33,6 +31,8 @@ import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 public abstract class SerializationTest {
 

@@ -56,7 +56,6 @@ under the License.
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-maven-plugin</artifactId>
         <configuration>
-          <failOnError>true</failOnError>
           <fileSets>
             <fileset>
               <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>

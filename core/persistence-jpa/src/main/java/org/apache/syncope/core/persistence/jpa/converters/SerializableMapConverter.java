@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.AttributeConverter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import tools.jackson.core.type.TypeReference;
 
 abstract class SerializableMapConverter<K extends Serializable, V extends Serializable>
         implements AttributeConverter<Map<K, V>, String> {

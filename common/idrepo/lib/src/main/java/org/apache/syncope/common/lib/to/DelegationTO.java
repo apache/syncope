@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
@@ -27,6 +25,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AbstractStartEndBean.class })
 public class DelegationTO extends AbstractStartEndBean implements EntityTO {

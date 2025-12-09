@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
@@ -47,6 +45,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
+import tools.jackson.databind.JsonNode;
 
 public class OpenFGAUIITCase extends OIDCC4UIITCase {
 
@@ -99,14 +98,14 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
         });
     }
 
-    private static AccessPolicyTO getAccessPolicy() throws JsonProcessingException {
+    private static AccessPolicyTO getAccessPolicy() {
         JsonNode health = MAPPER.readTree(WebClient.create(
                 StringUtils.substringBefore(CORE_ADDRESS, "/rest") + "/actuator/health",
                 ANONYMOUS_USER, ANONYMOUS_KEY, null).
                 get().readEntity(String.class));
         JsonNode openfga = health.get("components").get("openFga").get("details");
-        String baseUri = openfga.get("baseUri").asText();
-        String storeId = openfga.get(SyncopeConstants.MASTER_DOMAIN).get("storeId").asText();
+        String baseUri = openfga.get("baseUri").asString();
+        String storeId = openfga.get(SyncopeConstants.MASTER_DOMAIN).get("storeId").asString();
 
         String description = "OpenFGA access policy";
 
@@ -138,7 +137,7 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
     }
 
     @BeforeAll
-    public static void consoleOpenFGASetup() throws JsonProcessingException {
+    public static void consoleOpenFGASetup() {
         ClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> getAppName(CONSOLE_ADDRESS).equals(app.getName())).
                 findFirst().orElseThrow();

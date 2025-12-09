@@ -19,8 +19,6 @@
 package org.apache.syncope.client.ui.commons.resources.saml2sp4ui;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
@@ -32,18 +30,22 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResource {
 
     private static final long serialVersionUID = 3858609271031003370L;
 
     protected static final JsonMapper MAPPER =
-            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
+            JsonMapper.builder().findAndAddModules().
+                    changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY)).
+                    changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY)).
+                    build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 
-    protected abstract Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(UserTO newUser)
-            throws JsonProcessingException;
+    protected abstract Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(UserTO newUser);
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -58,7 +60,7 @@ public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResour
             try {
                 Pair<Class<? extends WebPage>, PageParameters> selfRegInfo = getSelfRegInfo(newUser);
                 throw new RestartResponseException(selfRegInfo.getLeft(), selfRegInfo.getRight());
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 LOG.error("Could not serialize new user {}", newUser, e);
                 throw new WicketRuntimeException(e);
             }

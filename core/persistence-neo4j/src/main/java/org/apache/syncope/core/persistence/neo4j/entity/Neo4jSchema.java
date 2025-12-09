@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +28,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jSchema.NODE)
 @SchemaKeyCheck

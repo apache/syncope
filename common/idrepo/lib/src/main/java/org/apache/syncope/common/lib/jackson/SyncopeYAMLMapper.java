@@ -18,18 +18,14 @@
  */
 package org.apache.syncope.common.lib.jackson;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 public class SyncopeYAMLMapper extends YAMLMapper {
 
     private static final long serialVersionUID = 1022020055828974308L;
 
     public SyncopeYAMLMapper() {
-        super();
-
-        findAndRegisterModules();
-
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        super(YAMLMapper.builder().findAndAddModules().enable(MapperFeature.USE_GETTERS_AS_SETTERS));
     }
 }

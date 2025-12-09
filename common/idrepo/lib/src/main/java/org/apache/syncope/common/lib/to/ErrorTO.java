@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ErrorTO implements BaseBean {
 

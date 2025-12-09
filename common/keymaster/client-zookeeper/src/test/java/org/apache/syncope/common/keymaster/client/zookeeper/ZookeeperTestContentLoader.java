@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ZookeeperTestContentLoader implements InitializingBean {
 

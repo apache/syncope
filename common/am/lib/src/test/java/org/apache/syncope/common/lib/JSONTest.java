@@ -18,15 +18,16 @@
  */
 package org.apache.syncope.common.lib;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JSONTest extends SerializationTest {
 
-    private static final ObjectMapper OBJECT_MAPPER = new SyncopeJsonMapper();
+    private static final JsonMapper JSON_MAPPER = new SyncopeJsonMapper();
 
     @Override
     protected ObjectMapper objectMapper() {
-        return OBJECT_MAPPER;
+        return JSON_MAPPER;
     }
 }

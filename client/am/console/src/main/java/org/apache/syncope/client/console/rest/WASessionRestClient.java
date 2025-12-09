@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
@@ -30,6 +26,10 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 public final class WASessionRestClient extends AMSessionRestClient {
 

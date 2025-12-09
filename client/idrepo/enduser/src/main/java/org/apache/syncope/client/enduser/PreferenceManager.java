@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -35,6 +33,8 @@ import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 public final class PreferenceManager implements Serializable {
 

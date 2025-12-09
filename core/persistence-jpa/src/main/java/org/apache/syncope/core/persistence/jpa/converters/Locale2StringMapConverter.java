@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Converter;
 import java.util.HashMap;
 import java.util.Locale;
+import tools.jackson.core.type.TypeReference;
 
 @Converter
 public class Locale2StringMapConverter extends SerializableMapConverter<Locale, String> {

@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import jakarta.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +33,10 @@ import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 /**
  * Factory bean for creating instances of {@link SyncopeClient}.
@@ -95,7 +96,7 @@ public class SyncopeClientFactoryBean {
     }
 
     protected static JacksonXMLProvider defaultXmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
+        return new JacksonXMLProvider(new SyncopeXmlMapper(), new JacksonXmlAnnotationIntrospector());
     }
 
     protected static JacksonYAMLProvider defaultYamlProvider() {

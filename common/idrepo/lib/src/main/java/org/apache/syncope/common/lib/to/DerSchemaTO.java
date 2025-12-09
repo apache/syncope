@@ -19,10 +19,10 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { SchemaTO.class })
 public class DerSchemaTO extends SchemaTO {

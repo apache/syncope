@@ -22,10 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -34,6 +30,10 @@ import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 public class SyncTokenDeserializerTest extends AbstractTest {
 
@@ -93,11 +93,11 @@ public class SyncTokenDeserializerTest extends AbstractTest {
     @Test
     public void deserializeIsString() throws IOException {
         String value = "testValue";
-        when(node.asText()).thenReturn(value);
+        when(node.asString()).thenReturn(value);
         assertEquals(value, deserializer.deserialize(jp, ct).getValue());
 
         value = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.ISO_8859_1));
-        when(node.asText()).thenReturn(value);
+        when(node.asString()).thenReturn(value);
         assertTrue(EqualsBuilder.reflectionEquals(Base64.getDecoder().decode(value),
                 deserializer.deserialize(jp, ct).getValue()));
     }

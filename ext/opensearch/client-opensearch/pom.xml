@@ -53,6 +53,16 @@ under the License.
       <artifactId>opensearch-java</artifactId>
     </dependency>
 
+    <!-- Required until https://github.com/opensearch-project/opensearch-java/issues/1810 -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-health</artifactId>

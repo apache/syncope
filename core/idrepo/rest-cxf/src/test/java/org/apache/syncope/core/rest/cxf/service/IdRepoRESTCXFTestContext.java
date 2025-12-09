@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
@@ -36,6 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
+import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFTestContext {
@@ -50,7 +51,7 @@ public class IdRepoRESTCXFTestContext {
 
     @Bean
     public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
+        return new JacksonXMLProvider(new SyncopeXmlMapper(), new JacksonXmlAnnotationIntrospector());
     }
 
     @Bean

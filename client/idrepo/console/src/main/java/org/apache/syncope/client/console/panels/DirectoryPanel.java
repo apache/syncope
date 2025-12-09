@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.Collection;
@@ -50,6 +49,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class DirectoryPanel<
         T extends Serializable, W extends Serializable, DP extends DirectoryDataProvider<T>, E extends RestClient>

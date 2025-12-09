@@ -19,12 +19,12 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { PolicyTO.class },
         subTypes = { InboundPolicyTO.class, PushPolicyTO.class },

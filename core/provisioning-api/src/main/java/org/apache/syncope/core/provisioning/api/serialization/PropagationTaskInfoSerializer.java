@@ -18,43 +18,48 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-class PropagationTaskInfoSerializer extends JsonSerializer<PropagationTaskInfo> {
+class PropagationTaskInfoSerializer extends ValueSerializer<PropagationTaskInfo> {
 
     @Override
-    public void serialize(final PropagationTaskInfo propagationTaskInfo, final JsonGenerator jgen,
-            final SerializerProvider serializerProvider) throws IOException {
+    public void serialize(
+            final PropagationTaskInfo propagationTaskInfo,
+            final JsonGenerator jgen,
+            final SerializationContext ctx) throws JacksonException {
 
         jgen.writeStartObject();
 
-        jgen.writeStringField("key", propagationTaskInfo.getKey());
+        jgen.writeStringProperty("key", propagationTaskInfo.getKey());
 
         if (propagationTaskInfo.getResource() != null) {
-            jgen.writeStringField("resource", propagationTaskInfo.getResource().getKey());
+            jgen.writeStringProperty("resource", propagationTaskInfo.getResource().getKey());
         }
         if (propagationTaskInfo.getOperation() != null) {
-            jgen.writeStringField("operation", propagationTaskInfo.getOperation().name());
+            jgen.writeStringProperty("operation", propagationTaskInfo.getOperation().name());
         }
         if (propagationTaskInfo.getObjectClass() != null) {
-            jgen.writeStringField("objectClass", propagationTaskInfo.getObjectClass().getObjectClassValue());
+            jgen.writeStringProperty("objectClass", propagationTaskInfo.getObjectClass().getObjectClassValue());
         }
         if (propagationTaskInfo.getAnyTypeKind() != null) {
-            jgen.writeStringField("anyTypeKind", propagationTaskInfo.getAnyTypeKind().name());
+            jgen.writeStringProperty("anyTypeKind", propagationTaskInfo.getAnyTypeKind().name());
         }
-        jgen.writeStringField("anyType", propagationTaskInfo.getAnyType());
-        jgen.writeStringField("entityKey", propagationTaskInfo.getEntityKey());
-        jgen.writeStringField("connObjectKey", propagationTaskInfo.getConnObjectKey());
-        jgen.writeStringField("oldConnObjectKey", propagationTaskInfo.getOldConnObjectKey());
-        jgen.writeObjectField("propagationData", propagationTaskInfo.getPropagationData());
+        jgen.writeStringProperty("anyType", propagationTaskInfo.getAnyType());
+        jgen.writeStringProperty("entityKey", propagationTaskInfo.getEntityKey());
+        jgen.writeStringProperty("connObjectKey", propagationTaskInfo.getConnObjectKey());
+        jgen.writeStringProperty("oldConnObjectKey", propagationTaskInfo.getOldConnObjectKey());
+        jgen.writeName("propagationData");
+        jgen.writePOJO(propagationTaskInfo.getPropagationData());
         if (propagationTaskInfo.getConnector() != null) {
-            jgen.writeObjectField("connector", propagationTaskInfo.getConnector().getConnInstance().getKey());
+            jgen.writeName("connector");
+            jgen.writePOJO(propagationTaskInfo.getConnector().getConnInstance().getKey());
         }
-        jgen.writeObjectField("beforeObj", propagationTaskInfo.getBeforeObj());
+        jgen.writeName("beforeObj");
+        jgen.writePOJO(propagationTaskInfo.getBeforeObj());
 
         jgen.writeEndObject();
     }

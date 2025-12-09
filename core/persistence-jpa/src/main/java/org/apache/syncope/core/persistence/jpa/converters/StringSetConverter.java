@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.converters;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Converter;
 import java.util.Set;
+import tools.jackson.core.type.TypeReference;
 
 @Converter
 public class StringSetConverter extends SerializableSetConverter<String> {

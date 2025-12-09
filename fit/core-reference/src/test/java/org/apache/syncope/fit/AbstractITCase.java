@@ -22,10 +22,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
@@ -194,6 +190,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.util.function.ThrowingFunction;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 @SpringJUnitConfig(
         classes = { CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class },
@@ -501,14 +501,14 @@ public abstract class AbstractITCase {
         JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
-        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asString().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
-        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("Elasticsearch");
+        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
 
-        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asText().contains("Neo4j");
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asString().contains("Neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;
