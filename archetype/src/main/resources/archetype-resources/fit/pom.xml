@@ -437,6 +437,11 @@ under the License.
                       <container>postgres</container>
                     </dependsOn>
                     <env>
+                      <JAVA_OPTS>-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m
+                        -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
+                        -Djava.security.egd=file:/dev/./urandom
+                        -Djavax.net.ssl.trustStore=/opt/syncope/conf/keystore.p12
+                        -Djavax.net.ssl.trustStorePassword=password</JAVA_OPTS>
                       <SPRING_PROFILES_ACTIVE>docker,postgresql,all</SPRING_PROFILES_ACTIVE>
                       <DB_URL>jdbc:postgresql://postgres:5432/syncope?stringtype=unspecified</DB_URL>
                       <DB_USER>syncope</DB_USER>
@@ -455,6 +460,7 @@ under the License.
                         <volume>${basedir}/../core/target/classes/domains/MasterContent.xml:/opt/syncope/conf/domains/MasterContent.xml:ro</volume>
                         <volume>${settings.localRepository}/${groupIdDocker}/syncope-core/${project.version}/syncope-core-${project.version}-classes.jar:/opt/syncope/lib/syncope-core-classes.jar:ro</volume>
                         <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
+                        <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
                       </bind>
                     </volumes>
                     <network>
@@ -473,11 +479,6 @@ under the License.
                       <container>syncope</container>
                     </dependsOn>
                     <env>
-                      <JAVA_OPTS>-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m 
-                        -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC 
-                        -Djava.security.egd=file:/dev/./urandom 
-                        -Djavax.net.ssl.trustStore=/opt/syncope/conf/keystore.p12 
-                        -Djavax.net.ssl.trustStorePassword=password</JAVA_OPTS>
                       <SPRING_PROFILES_ACTIVE>docker,all</SPRING_PROFILES_ACTIVE>
                       <SERVICE_DISCOVERY_ADDRESS>http://syncope-console:8080/syncope-console/</SERVICE_DISCOVERY_ADDRESS>
                       <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
@@ -488,7 +489,6 @@ under the License.
                     </env>
                     <volumes>
                       <bind>
-                        <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
                         <volume>${settings.localRepository}/${groupIdDocker}/syncope-console/${project.version}/syncope-console-${project.version}-classes.jar:/opt/syncope/lib/syncope-console-classes.jar:ro</volume>
                         <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
