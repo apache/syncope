@@ -64,8 +64,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     protected void addToJpaPropertyMap(
             final DomainEntityManagerFactoryBean emf,
             final JpaVendorAdapter vendorAdapter,
-            final String dbSchema,
-            final String orm) {
+            final String dbSchema) {
 
         emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
 
@@ -94,8 +93,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         addToJpaPropertyMap(
                 emf,
                 vendorAdapter,
-                props.getDomain().getFirst().getDbSchema(),
-                props.getDomain().getFirst().getOrm());
+                props.getDomain().getFirst().getDbSchema());
 
         emf.afterPropertiesSet();
 
@@ -119,7 +117,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
 
-        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm());
+        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema());
 
         emf.afterPropertiesSet();
 

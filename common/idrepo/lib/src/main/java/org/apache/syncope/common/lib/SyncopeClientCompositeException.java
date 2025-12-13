@@ -19,9 +19,9 @@
 package org.apache.syncope.common.lib;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 public class SyncopeClientCompositeException extends SyncopeClientException {
@@ -38,23 +38,8 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
         return !exceptions.isEmpty();
     }
 
-    public boolean hasException(final ClientExceptionType exceptionType) {
-        return getException(exceptionType) != null;
-    }
-
-    public SyncopeClientException getException(final ClientExceptionType exceptionType) {
-        boolean found = false;
-        SyncopeClientException syncopeClientException = null;
-        for (Iterator<SyncopeClientException> itor = exceptions.iterator(); itor.hasNext() && !found;) {
-            syncopeClientException = itor.next();
-            if (syncopeClientException.getType().equals(exceptionType)) {
-                found = true;
-            }
-        }
-
-        return found
-                ? syncopeClientException
-                : null;
+    public Optional<SyncopeClientException> getException(final ClientExceptionType exceptionType) {
+        return exceptions.stream().filter(e -> e.getType() == exceptionType).findFirst();
     }
 
     public Set<SyncopeClientException> getExceptions() {
@@ -63,35 +48,22 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
 
     public boolean addException(final SyncopeClientException exception) {
         if (exception.getType() == null) {
-            throw new IllegalArgumentException(exception + " does not have the right "
-                    + ClientExceptionType.class.getName() + " set");
+            exception.setType(ClientExceptionType.Unknown);
         }
 
-        Optional<SyncopeClientException> alreadyAdded =
-                exceptions.stream().filter(ex -> ex.getType() == exception.getType()).findFirst();
-
-        return alreadyAdded.map(e -> e.getElements()
-            .addAll(exception.getElements())).orElseGet(() -> exceptions.add(exception));
+        return exceptions.stream().
+                filter(e -> e.getType() == exception.getType()).findFirst().
+                map(e -> e.getElements().addAll(exception.getElements())).
+                orElseGet(() -> exceptions.add(exception));
     }
 
     @Override
     public String getMessage() {
-        StringBuilder message = new StringBuilder();
-
-        message.append('{');
-        Iterator<SyncopeClientException> iter = getExceptions().iterator();
-        while (iter.hasNext()) {
-            SyncopeClientException e = iter.next();
-            message.append('[').
-                    append(e.getMessage()).
-                    append(']');
-            if (iter.hasNext()) {
-                message.append(", ");
-            }
-        }
-        message.append('}');
-
-        return message.toString();
+        return new StringBuilder().
+                append('{').
+                append(getExceptions().stream().map(e -> '[' + e.getMessage() + ']').collect(Collectors.joining(", "))).
+                append('}').
+                toString();
     }
 
     @Override
