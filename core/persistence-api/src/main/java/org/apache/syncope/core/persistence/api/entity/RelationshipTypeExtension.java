@@ -16,21 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
+public interface RelationshipTypeExtension extends TypeExtension {
 
-public interface RelationshipTypeRepoExt {
+    RelationshipType getRelationshipType();
 
-    List<String> findByEndAnyType(AnyType anyType);
-
-    List<? extends RelationshipType> findByLeftEndAnyType(AnyType anyType);
-
-    List<RelationshipTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
-
-    void deleteById(String key);
+    void setRelationshipType(RelationshipType relationshipType);
 }

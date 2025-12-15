@@ -395,10 +395,10 @@ under the License.
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup_Realm left="f779c0d4-633b-4be5-8f57-32eb478a3ca5" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
-  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"/>
-  <TypeExtension_SyncopeGroup left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
-  <TypeExtension_AnyType left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="PRINTER"/>
-  <TypeExtension_AnyTypeClass left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="other"/>
+  <GroupTypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"/>
+  <GroupTypeExtension_SyncopeGroup left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
+  <GroupTypeExtension_AnyType left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="PRINTER"/>
+  <GroupTypeExtension_AnyTypeClass left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="other"/>
   <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -431,11 +431,11 @@ under the License.
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup_Realm left="034740a9-fa10-453b-af37-dc7897e98fb1" right="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
-  <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"/>
-  <TypeExtension_SyncopeGroup left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="034740a9-fa10-453b-af37-dc7897e98fb1"/>
-  <TypeExtension_AnyType left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="USER"/>
-  <TypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="csv"/>
-  <TypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="other"/>
+  <GroupTypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"/>
+  <GroupTypeExtension_SyncopeGroup left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="034740a9-fa10-453b-af37-dc7897e98fb1"/>
+  <GroupTypeExtension_AnyType left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="USER"/>
+  <GroupTypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="csv"/>
+  <GroupTypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="other"/>
   <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>

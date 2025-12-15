@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 
-public abstract class AbstractMembership<L extends Any>
+public abstract class AbstractRelationship<L extends Any, R extends Any>
         extends AbstractGeneratedKeyNode
-        implements Membership<L> {
+        implements Relationship<L, R> {
 
-    private static final long serialVersionUID = -6360036936818368868L;
+    private static final long serialVersionUID = 6593799565567684878L;
 
     protected abstract Map<String, PlainAttr> plainAttrs();
 

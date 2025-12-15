@@ -16,37 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.group;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.UniqueConstraint;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.TypeExtension;
 
-@Entity
-@Table(name = JPATypeExtension.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "group_id", "anyType_id" }))
-public class JPATypeExtension extends AbstractGeneratedKeyEntity implements TypeExtension {
+@MappedSuperclass
+public abstract class AbstractTypeExtension extends AbstractGeneratedKeyEntity implements TypeExtension {
 
-    private static final long serialVersionUID = -8367626793791263551L;
-
-    public static final String TABLE = "TypeExtension";
-
-    @ManyToOne
-    private JPAGroup group;
+    private static final long serialVersionUID = -840023594563575766L;
 
     @ManyToOne
     private JPAAnyType anyType;
@@ -59,17 +47,6 @@ public class JPATypeExtension extends AbstractGeneratedKeyEntity implements Type
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "typeExtension_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
-
-    @Override
-    public Group getGroup() {
-        return group;
-    }
-
-    @Override
-    public void setGroup(final Group group) {
-        checkType(group, JPAGroup.class);
-        this.group = (JPAGroup) group;
-    }
 
     @Override
     public AnyType getAnyType() {

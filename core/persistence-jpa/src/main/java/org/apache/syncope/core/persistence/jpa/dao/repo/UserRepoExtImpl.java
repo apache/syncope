@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -162,11 +161,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
             securityChecks(authRealms, user.getKey(), user.getRealm().getFullPath(), findAllGroupKeys(user));
         }
-    }
-
-    @Override
-    public UMembership findMembership(final String key) {
-        return entityManager.find(JPAUMembership.class, key);
     }
 
     @Override

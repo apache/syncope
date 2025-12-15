@@ -54,7 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -71,7 +71,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroup
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroupTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -329,10 +329,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             beforeADynMembs.removeAll(group.getADynMemberships().stream().map(ADynGroupMembership::getKey).toList());
             beforeADynMembs.forEach(m -> neo4jTemplate.deleteById(m, Neo4jADynGroupMembership.class));
 
-            Set<String> beforeTypeExts = before.getTypeExtensions().stream().map(TypeExtension::getKey).
+            Set<String> beforeTypeExts = before.getTypeExtensions().stream().map(GroupTypeExtension::getKey).
                     collect(Collectors.toSet());
-            beforeTypeExts.removeAll(group.getTypeExtensions().stream().map(TypeExtension::getKey).toList());
-            beforeTypeExts.forEach(r -> neo4jTemplate.deleteById(r, Neo4jTypeExtension.class));
+            beforeTypeExts.removeAll(group.getTypeExtensions().stream().map(GroupTypeExtension::getKey).toList());
+            beforeTypeExts.forEach(r -> neo4jTemplate.deleteById(r, Neo4jGroupTypeExtension.class));
         });
 
         S merged = neo4jTemplate.save(nodeValidator.validate(group));
@@ -444,8 +444,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 Neo4jGroup.NODE,
                 group.getKey());
 
-        cascadeDelete(
-                Neo4jTypeExtension.NODE,
+        cascadeDelete(Neo4jGroupTypeExtension.NODE,
                 Neo4jGroup.NODE,
                 group.getKey());
 
@@ -453,12 +452,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     }
 
     @Override
-    public List<TypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
+    public List<GroupTypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
         return findByRelationship(
-                Neo4jTypeExtension.NODE,
+                Neo4jGroupTypeExtension.NODE,
                 Neo4jAnyTypeClass.NODE,
                 anyTypeClass.getKey(),
-                Neo4jTypeExtension.class,
+                Neo4jGroupTypeExtension.class,
                 null);
     }
 

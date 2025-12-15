@@ -24,6 +24,8 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 
 public interface DerAttrHandler {
 
@@ -80,4 +82,24 @@ public interface DerAttrHandler {
      * @return derived attribute values
      */
     Map<DerSchema, String> getValues(Groupable<?, ?, ?> any, Membership<?> membership);
+
+    /**
+     * Calculates derived attribute value associated to the given any, for the given relationship and
+     * derived schema.
+     *
+     * @param any any object
+     * @param relationship relationship
+     * @param schema derived schema
+     * @return derived attribute value
+     */
+    String getValue(Any any, Relationship<?, ?> relationship, DerSchema schema);
+
+    /**
+     * Calculates derived attributes values associated to the given any, for the given relationship.
+     *
+     * @param any any object
+     * @param relationship relationship
+     * @return derived attribute values
+     */
+    Map<DerSchema, String> getValues(Relatable<?, ?> any, Relationship<?, ?> relationship);
 }

@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -136,7 +136,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         Group group = groupDAO.findByName(groupName).
                 orElseThrow(() -> new NotFoundException("Group " + groupName));
 
-        TypeExtension typeExt = group.getTypeExtension(anyTypeDAO.getUser()).
+        GroupTypeExtension typeExt = group.getTypeExtension(anyTypeDAO.getUser()).
                 orElseThrow(() -> new NotFoundException("TypeExtension in " + groupName + " for users"));
 
         return groupDataBinder.getTypeExtensionTO(typeExt);

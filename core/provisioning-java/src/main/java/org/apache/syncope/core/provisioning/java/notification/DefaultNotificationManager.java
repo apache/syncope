@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -58,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -76,6 +79,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Transactional(rollbackFor = { Throwable.class })
 public class DefaultNotificationManager implements NotificationManager {
@@ -97,6 +101,8 @@ public class DefaultNotificationManager implements NotificationManager {
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final TaskDAO taskDAO;
+
+    protected final RelationshipTypeDAO relationshipTypeDAO;
 
     protected final DerAttrHandler derAttrHandler;
 
@@ -127,6 +133,7 @@ public class DefaultNotificationManager implements NotificationManager {
             final AnySearchDAO anySearchDAO,
             final AnyMatchDAO anyMatchDAO,
             final TaskDAO taskDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
             final UserDataBinder userDataBinder,
             final GroupDataBinder groupDataBinder,
@@ -145,6 +152,7 @@ public class DefaultNotificationManager implements NotificationManager {
         this.anySearchDAO = anySearchDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.taskDAO = taskDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.derAttrHandler = derAttrHandler;
         this.userDataBinder = userDataBinder;
         this.groupDataBinder = groupDataBinder;
@@ -379,12 +387,20 @@ public class DefaultNotificationManager implements NotificationManager {
                     flatMap(groupDAO::findByName).
                     flatMap(group -> user.getMembership(group.getKey())).
                     orElse(null);
+            URelationship relationship = Optional.ofNullable(intAttrName.getRelationshipType()).
+                    flatMap(relationshipTypeDAO::findById).
+                    map(user::getRelationships).
+                    filter(Predicate.not(CollectionUtils::isEmpty)).
+                    map(List::getFirst).
+                    orElse(null);
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    Optional<PlainAttr> attr = membership == null
+                    Optional<PlainAttr> attr = membership == null && relationship == null
                             ? user.getPlainAttr(recipientAttrName)
-                            : user.getPlainAttr(recipientAttrName, membership);
+                            : relationship == null
+                                    ? user.getPlainAttr(recipientAttrName, membership)
+                                    : user.getPlainAttr(recipientAttrName, relationship);
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()
                             ? null
                             : a.getValuesAsStrings().getFirst()).
@@ -393,9 +409,11 @@ public class DefaultNotificationManager implements NotificationManager {
 
                 case DERIVED -> {
                     email = derSchemaDAO.findById(recipientAttrName).
-                            map(derSchema -> membership == null
+                            map(derSchema -> membership == null && relationship == null
                             ? derAttrHandler.getValue(user, derSchema)
-                            : derAttrHandler.getValue(user, membership, derSchema)).
+                            : relationship == null
+                                    ? derAttrHandler.getValue(user, membership, derSchema)
+                                    : derAttrHandler.getValue(user, relationship, derSchema)).
                             orElse(null);
                 }
 

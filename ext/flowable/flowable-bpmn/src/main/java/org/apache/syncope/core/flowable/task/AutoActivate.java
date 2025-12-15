@@ -46,12 +46,16 @@ public class AutoActivate extends FlowableServiceTask {
             user = userDAO.save(user);
 
             UserUR req = AnyOperations.diff(userTO, dataBinder.getUserTO(user, true), false);
-            // don't mess with password, as the cleartext values was already properly saved
-            req.setPassword(null);
+            if (req.isEmpty()) {
+                LOG.debug("Nothing to change, skip user update");
+            } else {
+                // don't mess with password, as the cleartext values was already properly saved
+                req.setPassword(null);
 
-            dataBinder.update(user, req);
+                dataBinder.update(user, req);
 
-            execution.setVariable(FlowableRuntimeUtils.USER, user);
+                execution.setVariable(FlowableRuntimeUtils.USER, user);
+            }
         }
 
         execution.setVariable(FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.TRUE);

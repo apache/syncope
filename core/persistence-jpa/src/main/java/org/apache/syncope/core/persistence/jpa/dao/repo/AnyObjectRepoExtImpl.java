@@ -51,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
@@ -148,11 +147,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Set.of());
 
         securityChecks(authRealms, anyObject.getKey(), anyObject.getRealm().getFullPath(), findAllGroupKeys(anyObject));
-    }
-
-    @Override
-    public AMembership findMembership(final String key) {
-        return entityManager.find(JPAAMembership.class, key);
     }
 
     @Override
@@ -281,13 +275,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         dynRealmDAO.removeDynMemberships(anyObject.getKey());
 
         findARelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
+            relationship.getLeftEnd().remove(relationship);
             save(relationship.getLeftEnd());
 
             entityManager.remove(relationship);
         });
         findURelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
+            relationship.getLeftEnd().remove(relationship);
             userDAO.save(relationship.getLeftEnd());
 
             entityManager.remove(relationship);

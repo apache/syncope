@@ -203,11 +203,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    public AMembership findMembership(final String key) {
-        return neo4jTemplate.findById(key, Neo4jAMembership.class).orElse(null);
-    }
-
-    @Override
     public void deleteMembership(final AMembership membership) {
         neo4jTemplate.deleteById(membership.getKey(), Neo4jAMembership.class);
     }
@@ -358,7 +353,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
         findARelationships(anyObject).forEach(relationship -> {
             findById(relationship.getLeftEnd().getKey()).ifPresent(le -> {
-                le.getRelationships().remove(relationship);
+                le.remove(relationship);
                 save(le);
             });
 
@@ -366,7 +361,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         });
         findURelationships(anyObject).forEach(relationship -> {
             userDAO.findById(relationship.getLeftEnd().getKey()).ifPresent(le -> {
-                le.getRelationships().remove(relationship);
+                le.remove(relationship);
                 userDAO.save(le);
             });
 

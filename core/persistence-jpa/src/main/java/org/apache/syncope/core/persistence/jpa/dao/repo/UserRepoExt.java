@@ -37,8 +37,6 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     Map<String, Long> countByStatus();
 
-    UMembership findMembership(String key);
-
     void deleteMembership(UMembership membership);
 
     List<Role> findDynRoles(String key);

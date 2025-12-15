@@ -437,6 +437,7 @@ public class PersistenceContext {
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final @Lazy GroupDAO groupDAO,
+            final @Lazy RelationshipTypeDAO relationshipTypeDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityManager entityManager) {
 
@@ -445,6 +446,7 @@ public class PersistenceContext {
                 plainSchemaDAO,
                 derSchemaDAO,
                 groupDAO,
+                relationshipTypeDAO,
                 resourceDAO,
                 entityManager);
     }

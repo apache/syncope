@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -28,13 +29,28 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public abstract class AbstractRelatable<
         L extends Any,
-        REL extends Relationship<L, AnyObject>>
-        extends AbstractAny implements Relatable<L, REL> {
+        R extends Relationship<L, AnyObject>>
+        extends AbstractAny implements Relatable<L, R> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
     @Override
-    public Optional<? extends REL> getRelationship(
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Relationship<?, ?> relationship) {
+        return getPlainAttrsList().stream().
+                filter(attr -> plainSchema.equals(attr.getSchema())
+                && relationship.getKey().equals(attr.getRelationship())).
+                findFirst();
+    }
+
+    @Override
+    public List<PlainAttr> getPlainAttrs(final Relationship<?, ?> relationship) {
+        return getPlainAttrsList().stream().
+                filter(attr -> relationship.getKey().equals(attr.getRelationship())).
+                toList();
+    }
+
+    @Override
+    public Optional<? extends R> getRelationship(
             final RelationshipType relationshipType, final String otherEndKey) {
 
         return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
@@ -44,14 +60,14 @@ public abstract class AbstractRelatable<
     }
 
     @Override
-    public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
+    public List<? extends R> getRelationships(final RelationshipType relationshipType) {
         return getRelationships().stream().
                 filter(relationship -> relationshipType.equals(relationship.getType())).
                 toList();
     }
 
     @Override
-    public Collection<? extends REL> getRelationships(final String otherEndKey) {
+    public List<? extends R> getRelationships(final String otherEndKey) {
         return getRelationships().stream().
                 filter(relationship -> otherEndKey.equals(relationship.getRightEnd().getKey())).
                 toList();

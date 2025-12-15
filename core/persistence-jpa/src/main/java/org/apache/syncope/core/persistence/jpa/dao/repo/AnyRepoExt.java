@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface AnyRepoExt<A extends Any> {
 
@@ -39,6 +41,8 @@ public interface AnyRepoExt<A extends Any> {
     List<String> findDynRealms(String key);
 
     Collection<String> findAllResourceKeys(String key);
+
+    void deleteRelationship(Relationship<? extends A, AnyObject> relationship);
 
     <S extends A> S save(S any);
 

@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -147,13 +146,6 @@ public class UserTest extends AbstractTest {
         assertTrue(userDAO.findByUsername("rossini").isPresent());
         assertTrue(userDAO.findByUsername("vivaldi").isPresent());
         assertTrue(userDAO.findByUsername("user6").isEmpty());
-    }
-
-    @Test
-    public void findMembership() {
-        UMembership memb = userDAO.findMembership("3d5e91f6-305e-45f9-ad30-4897d3d43bd9");
-        assertNotNull(memb);
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", memb.getLeftEnd().getKey());
     }
 
     @Test

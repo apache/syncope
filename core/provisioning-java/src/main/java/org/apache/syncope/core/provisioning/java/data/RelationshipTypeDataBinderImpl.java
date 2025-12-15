@@ -20,20 +20,36 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinder {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(RelationshipTypeDataBinder.class);
+
     protected final AnyTypeDAO anyTypeDAO;
+
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
     protected final EntityFactory entityFactory;
 
-    public RelationshipTypeDataBinderImpl(final AnyTypeDAO anyTypeDAO, final EntityFactory entityFactory) {
+    public RelationshipTypeDataBinderImpl(
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
+            final EntityFactory entityFactory) {
+
         this.anyTypeDAO = anyTypeDAO;
+        this.anyTypeClassDAO = anyTypeClassDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -60,6 +76,50 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
         }
 
         relationshipType.setDescription(relationshipTypeTO.getDescription());
+
+        // type extensions
+        relationshipTypeTO.getTypeExtensions().
+                forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(anyType -> {
+
+            RelationshipTypeExtension typeExt = relationshipType.getTypeExtension(anyType).orElse(null);
+            if (typeExt == null) {
+                typeExt = entityFactory.newEntity(RelationshipTypeExtension.class);
+                typeExt.setAnyType(anyType);
+                typeExt.setRelationshipType(relationshipType);
+                relationshipType.add(typeExt);
+            }
+
+            // add all classes contained in the TO
+            for (String key : typeExtTO.getAuxClasses()) {
+                AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(key).orElse(null);
+                if (anyTypeClass == null) {
+                    LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), key);
+                } else {
+                    typeExt.add(anyTypeClass);
+                }
+            }
+            // remove all classes not contained in the TO
+            typeExt.getAuxClasses().
+                    removeIf(anyTypeClass -> !typeExtTO.getAuxClasses().contains(anyTypeClass.getKey()));
+
+            // only consider non-empty type extensions
+            if (typeExt.getAuxClasses().isEmpty()) {
+                relationshipType.getTypeExtensions().remove(typeExt);
+                typeExt.setRelationshipType(null);
+            }
+
+        }, () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType())));
+
+        // remove all type extensions not contained in the TO
+        relationshipType.getTypeExtensions().
+                removeIf(typeExt -> relationshipTypeTO.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
+    }
+
+    protected TypeExtensionTO getTypeExtensionTO(final RelationshipTypeExtension typeExt) {
+        TypeExtensionTO typeExtTO = new TypeExtensionTO();
+        typeExtTO.setAnyType(typeExt.getAnyType().getKey());
+        typeExtTO.getAuxClasses().addAll(typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
+        return typeExtTO;
     }
 
     @Override
@@ -70,6 +130,9 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
         relationshipTypeTO.setDescription(relationshipType.getDescription());
         relationshipTypeTO.setLeftEndAnyType(relationshipType.getLeftEndAnyType().getKey());
         relationshipTypeTO.setRightEndAnyType(relationshipType.getRightEndAnyType().getKey());
+
+        relationshipType.getTypeExtensions().
+                forEach(typeExt -> relationshipTypeTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
         return relationshipTypeTO;
     }

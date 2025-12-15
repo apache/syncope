@@ -37,6 +37,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -44,10 +45,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
@@ -112,7 +114,7 @@ public class JPAGroup
     private List<JPAADynGroupMembership> aDynMemberships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
-    private List<JPATypeExtension> typeExtensions = new ArrayList<>();
+    private List<JPAGroupTypeExtension> typeExtensions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
     @Valid
@@ -222,7 +224,7 @@ public class JPAGroup
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
-        return auxClasses.contains((JPAAnyTypeClass) auxClass) || this.auxClasses.add((JPAAnyTypeClass) auxClass);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || auxClasses.add((JPAAnyTypeClass) auxClass);
     }
 
     @Override
@@ -233,7 +235,7 @@ public class JPAGroup
     @Override
     public boolean add(final ADynGroupMembership dynGroupMembership) {
         checkType(dynGroupMembership, JPAADynGroupMembership.class);
-        return this.aDynMemberships.add((JPAADynGroupMembership) dynGroupMembership);
+        return aDynMemberships.add((JPAADynGroupMembership) dynGroupMembership);
     }
 
     @Override
@@ -249,27 +251,34 @@ public class JPAGroup
     }
 
     @Override
-    public boolean add(final TypeExtension typeExtension) {
-        checkType(typeExtension, JPATypeExtension.class);
-        return this.typeExtensions.add((JPATypeExtension) typeExtension);
+    public boolean add(final GroupTypeExtension typeExtension) {
+        checkType(typeExtension, JPAGroupTypeExtension.class);
+        return typeExtensions.add((JPAGroupTypeExtension) typeExtension);
     }
 
     @Override
-    public Optional<? extends TypeExtension> getTypeExtension(final AnyType anyType) {
+    public Optional<? extends GroupTypeExtension> getTypeExtension(final AnyType anyType) {
         return typeExtensions.stream().
                 filter(typeExtension -> typeExtension.getAnyType().equals(anyType)).
                 findFirst();
     }
 
     @Override
-    public List<? extends TypeExtension> getTypeExtensions() {
+    public List<? extends GroupTypeExtension> getTypeExtensions() {
         return typeExtensions;
     }
 
     @Override
     public boolean add(final GRelationship relationship) {
         checkType(relationship, JPAGRelationship.class);
-        return this.relationships.add((JPAGRelationship) relationship);
+        return relationships.add((JPAGRelationship) relationship);
+    }
+
+    @Override
+    public boolean remove(final Relationship<?, ?> relationship) {
+        checkType(relationship, JPAGRelationship.class);
+        plainAttrsList.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        return relationships.remove((JPAGRelationship) relationship);
     }
 
     @Override

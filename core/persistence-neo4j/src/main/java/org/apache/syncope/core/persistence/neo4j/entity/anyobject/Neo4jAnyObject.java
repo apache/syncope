@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGroupableRelatable;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
@@ -149,7 +150,13 @@ public class Neo4jAnyObject
     }
 
     @Override
-    public List<? extends ARelationship> getRelationships() {
+    public boolean remove(final org.apache.syncope.core.persistence.api.entity.Relationship<?, ?> relationship) {
+        checkType(relationship, Neo4jARelationship.class);
+        return relationships.remove((Neo4jARelationship) relationship);
+    }
+
+    @Override
+    protected List<? extends AbstractRelationship<AnyObject, AnyObject>> relationships() {
         return relationships;
     }
 

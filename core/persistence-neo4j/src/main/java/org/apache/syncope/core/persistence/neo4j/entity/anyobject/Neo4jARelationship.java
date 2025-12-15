@@ -19,20 +19,24 @@
 package org.apache.syncope.core.persistence.neo4j.entity.anyobject;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.entity.AMembershipType;
 import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 import org.apache.syncope.core.persistence.common.validation.RelationshipCheck;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
+import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jARelationship.NODE)
 @RelationshipCheck
-public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARelationship {
+public class Neo4jARelationship extends AbstractRelationship<AnyObject, AnyObject> implements ARelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
 
@@ -51,6 +55,9 @@ public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARel
 
     @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jAnyObject rightEnd;
+
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    private Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     @Override
     public RelationshipType getType() {
@@ -88,5 +95,10 @@ public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARel
     public void setRightEnd(final AnyObject rightEnd) {
         checkType(rightEnd, Neo4jAnyObject.class);
         this.rightEnd = (Neo4jAnyObject) rightEnd;
+    }
+
+    @Override
+    protected Map<String, PlainAttr> plainAttrs() {
+        return plainAttrs;
     }
 }

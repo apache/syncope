@@ -54,14 +54,19 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
@@ -345,37 +350,59 @@ public class DefaultAnyUtils implements AnyUtils {
 
     @Transactional
     @Override
-    public void addRelationship(
-            final Relatable<?, ?> relatable,
-            final RelationshipType relationshipType,
-            final AnyObject otherEnd) {
+    public Membership<?> add(
+            final Groupable<?, ?, ?> groupable,
+            final Group group) {
+
+        Membership<?> result = null;
 
         switch (anyTypeKind) {
             case USER -> {
-                URelationship urelationship = entityFactory.newEntity(URelationship.class);
-                urelationship.setType(relationshipType);
-                urelationship.setRightEnd(otherEnd);
-                urelationship.setLeftEnd((User) relatable);
+                UMembership umembership = entityFactory.newEntity(UMembership.class);
+                umembership.setRightEnd(group);
+                umembership.setLeftEnd((User) groupable);
 
-                ((User) relatable).add(urelationship);
-            }
+                ((User) groupable).add(umembership);
 
-            case GROUP -> {
-                GRelationship grelationship = entityFactory.newEntity(GRelationship.class);
-                grelationship.setType(relationshipType);
-                grelationship.setRightEnd(otherEnd);
-                grelationship.setLeftEnd((Group) relatable);
-
-                ((Group) relatable).add(grelationship);
+                result = umembership;
             }
 
             case ANY_OBJECT -> {
-                ARelationship arelationship = entityFactory.newEntity(ARelationship.class);
-                arelationship.setType(relationshipType);
-                arelationship.setRightEnd(otherEnd);
-                arelationship.setLeftEnd((AnyObject) relatable);
+                AMembership amembership = entityFactory.newEntity(AMembership.class);
+                amembership.setRightEnd(group);
+                amembership.setLeftEnd((AnyObject) groupable);
 
-                ((AnyObject) relatable).add(arelationship);
+                ((AnyObject) groupable).add(amembership);
+
+                result = amembership;
+            }
+
+            default -> {
+            }
+        }
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public void remove(
+            final Groupable<?, ?, ?> groupable,
+            final Membership<?> membership) {
+
+        switch (anyTypeKind) {
+            case USER -> {
+                ((User) groupable).remove((UMembership) membership);
+                membership.setLeftEnd(null);
+                groupable.getPlainAttrs(membership).forEach(groupable::remove);
+                userDAO.deleteMembership((UMembership) membership);
+            }
+
+            case ANY_OBJECT -> {
+                ((AnyObject) groupable).remove((AMembership) membership);
+                membership.setLeftEnd(null);
+                groupable.getPlainAttrs(membership).forEach(groupable::remove);
+                anyObjectDAO.deleteMembership((AMembership) membership);
             }
 
             default -> {
@@ -385,14 +412,76 @@ public class DefaultAnyUtils implements AnyUtils {
 
     @Transactional
     @Override
-    public void removeRelationship(
+    public Relationship<?, ?> add(
             final Relatable<?, ?> relatable,
             final RelationshipType relationshipType,
-            final String otherEndKey) {
+            final AnyObject otherEnd) {
 
-        relatable.getRelationship(relationshipType, otherEndKey).ifPresent(relationship -> {
-            relatable.getRelationships().remove(relationship);
-            relationship.setLeftEnd(null);
-        });
+        Relationship<?, ?> result = null;
+
+        switch (anyTypeKind) {
+            case USER -> {
+                URelationship urelationship = entityFactory.newEntity(URelationship.class);
+                urelationship.setType(relationshipType);
+                urelationship.setRightEnd(otherEnd);
+                urelationship.setLeftEnd((User) relatable);
+
+                ((User) relatable).add(urelationship);
+
+                result = urelationship;
+            }
+
+            case GROUP -> {
+                GRelationship grelationship = entityFactory.newEntity(GRelationship.class);
+                grelationship.setType(relationshipType);
+                grelationship.setRightEnd(otherEnd);
+                grelationship.setLeftEnd((Group) relatable);
+
+                ((Group) relatable).add(grelationship);
+
+                result = grelationship;
+            }
+
+            case ANY_OBJECT -> {
+                ARelationship arelationship = entityFactory.newEntity(ARelationship.class);
+                arelationship.setType(relationshipType);
+                arelationship.setRightEnd(otherEnd);
+                arelationship.setLeftEnd((AnyObject) relatable);
+
+                ((AnyObject) relatable).add(arelationship);
+
+                result = arelationship;
+            }
+
+            default -> {
+            }
+        }
+
+        return result;
+    }
+
+    @Transactional
+    @Override
+    public void remove(
+            final Relatable<?, ?> relatable,
+            final Relationship<?, ?> relationship) {
+
+        relatable.getPlainAttrs(relationship).forEach(relatable::remove);
+        relatable.remove(relationship);
+        relationship.setLeftEnd(null);
+
+        switch (anyTypeKind) {
+            case USER ->
+                userDAO.deleteRelationship((URelationship) relationship);
+
+            case GROUP ->
+                groupDAO.deleteRelationship((GRelationship) relationship);
+
+            case ANY_OBJECT ->
+                anyObjectDAO.deleteRelationship((ARelationship) relationship);
+
+            default -> {
+            }
+        }
     }
 }

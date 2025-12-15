@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -62,7 +62,7 @@ import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
@@ -338,10 +338,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
-    public List<TypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
-        TypedQuery<TypeExtension> query = entityManager.createQuery(
-                "SELECT e FROM " + JPATypeExtension.class.getSimpleName()
-                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", TypeExtension.class);
+    public List<GroupTypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
+        TypedQuery<GroupTypeExtension> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAGroupTypeExtension.class.getSimpleName()
+                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", GroupTypeExtension.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();

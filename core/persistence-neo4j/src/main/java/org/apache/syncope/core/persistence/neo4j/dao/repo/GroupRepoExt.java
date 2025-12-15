@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.data.domain.Pageable;
@@ -53,7 +53,7 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     Group saveAndRefreshDynMemberships(Group group);
 
-    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+    List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     long countADynMembers(Group group);
 

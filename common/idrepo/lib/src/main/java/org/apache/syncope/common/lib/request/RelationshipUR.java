@@ -18,9 +18,15 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.Attr;
 
 public class RelationshipUR extends AbstractPatch {
 
@@ -28,32 +34,83 @@ public class RelationshipUR extends AbstractPatch {
 
     public static class Builder extends AbstractPatch.Builder<RelationshipUR, Builder> {
 
-        public Builder(final RelationshipTO relationshipTO) {
+        public Builder(final String type) {
             super();
-            getInstance().setRelationshipTO(relationshipTO);
+            getInstance().setType(type);
         }
 
         @Override
         protected RelationshipUR newInstance() {
             return new RelationshipUR();
         }
+
+        public Builder otherEnd(final String type, final String key) {
+            getInstance().setOtherEndType(type);
+            getInstance().setOtherEndKey(key);
+            return this;
+        }
+
+        public Builder plainAttr(final Attr plainAttr) {
+            getInstance().getPlainAttrs().add(plainAttr);
+            return this;
+        }
+
+        public Builder plainAttrs(final Attr... plainAttrs) {
+            getInstance().getPlainAttrs().addAll(List.of(plainAttrs));
+            return this;
+        }
+
+        public Builder plainAttrs(final Collection<Attr> plainAttrs) {
+            getInstance().getPlainAttrs().addAll(plainAttrs);
+            return this;
+        }
     }
 
-    private RelationshipTO relationshipTO;
+    private String type;
 
-    public RelationshipTO getRelationshipTO() {
-        return relationshipTO;
+    private String otherEndType;
+
+    private String otherEndKey;
+
+    private final Set<Attr> plainAttrs = new HashSet<>();
+
+    public String getType() {
+        return type;
     }
 
-    public void setRelationshipTO(final RelationshipTO relationshipTO) {
-        this.relationshipTO = relationshipTO;
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public String getOtherEndType() {
+        return otherEndType;
+    }
+
+    public void setOtherEndType(final String otherEndType) {
+        this.otherEndType = otherEndType;
+    }
+
+    public String getOtherEndKey() {
+        return otherEndKey;
+    }
+
+    public void setOtherEndKey(final String otherEndKey) {
+        this.otherEndKey = otherEndKey;
+    }
+
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
+    public Set<Attr> getPlainAttrs() {
+        return plainAttrs;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
-                append(relationshipTO).
+                append(type).
+                append(otherEndType).
+                append(otherEndKey).
                 build();
     }
 
@@ -71,7 +128,9 @@ public class RelationshipUR extends AbstractPatch {
         final RelationshipUR other = (RelationshipUR) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
-                append(relationshipTO, other.relationshipTO).
+                append(type, other.type).
+                append(otherEndType, other.otherEndType).
+                append(otherEndKey, other.otherEndKey).
                 build();
     }
 }

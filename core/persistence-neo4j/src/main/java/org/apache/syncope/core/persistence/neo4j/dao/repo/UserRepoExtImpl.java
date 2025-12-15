@@ -222,11 +222,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     }
 
     @Override
-    public UMembership findMembership(final String key) {
-        return neo4jTemplate.findById(key, Neo4jUMembership.class).orElse(null);
-    }
-
-    @Override
     public void deleteMembership(final UMembership membership) {
         neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
     }

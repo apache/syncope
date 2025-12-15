@@ -50,9 +50,9 @@ public interface Group extends Relatable<Group, GRelationship> {
 
     List<? extends ADynGroupMembership> getADynMemberships();
 
-    boolean add(TypeExtension typeExtension);
+    boolean add(GroupTypeExtension typeExtension);
 
-    Optional<? extends TypeExtension> getTypeExtension(AnyType anyType);
+    Optional<? extends GroupTypeExtension> getTypeExtension(AnyType anyType);
 
-    List<? extends TypeExtension> getTypeExtensions();
+    List<? extends GroupTypeExtension> getTypeExtensions();
 }

@@ -31,6 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
@@ -82,7 +84,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Any any, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).forSelfContains(schema)) {
+        if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).selfContains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
         }
@@ -93,7 +95,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     @Override
     public String getValue(final Any any, final Membership<?> membership, final DerSchema schema) {
         if (!anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
+                findAllowedSchemas(any, DerSchema.class).membershipsContains(membership.getRightEnd(), schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
@@ -114,18 +116,19 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     public Map<DerSchema, String> getValues(final Any any) {
         return getValues(
                 any,
-                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
+                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).self());
     }
 
-    protected Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?> groupable, final Membership<?> membership, final Set<DerSchema> schemas) {
-
+    @Override
+    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
+        Set<DerSchema> schemas = anyUtilsFactory.getInstance(any).dao().
+                findAllowedSchemas(any, DerSchema.class).membership(membership.getRightEnd());
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
-                    plainAttrs(groupable.getPlainAttrs(membership)).
-                    fields(groupable).
+                    plainAttrs(any.getPlainAttrs(membership)).
+                    fields(any).
                     build();
 
             result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
@@ -135,11 +138,32 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
-        return getValues(
-                any,
-                membership,
-                anyUtilsFactory.getInstance(any).dao().
-                        findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()));
+    public String getValue(final Any any, final Relationship<?, ?> relationship, final DerSchema schema) {
+        if (!anyUtilsFactory.getInstance(any).dao().
+                findAllowedSchemas(any, DerSchema.class).relationshipTypesContains(relationship.getType(), schema)) {
+
+            LOG.debug("{} not allowed for {}", schema, any);
+            return null;
+        }
+
+        return getValues(any, Set.of(schema)).get(schema);
+    }
+
+    @Override
+    public Map<DerSchema, String> getValues(final Relatable<?, ?> any, final Relationship<?, ?> relationship) {
+        Set<DerSchema> schemas = anyUtilsFactory.getInstance(any).dao().
+                findAllowedSchemas(any, DerSchema.class).relationshipType(relationship.getType());
+        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+
+        schemas.forEach(schema -> {
+            JexlContext jexlContext = new JexlContextBuilder().
+                    plainAttrs(any.getPlainAttrs(relationship)).
+                    fields(any).
+                    build();
+
+            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+        });
+
+        return result;
     }
 }

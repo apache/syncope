@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -27,8 +26,7 @@ public interface Groupable<L extends Any, M extends Membership<L>, REL extends R
         extends Any {
 
     /**
-     * Returns the plain attribute for this instance, the given schema name and the given membership -
-     * if found, {@code NULL} otherwise.
+     * Returns the plain attribute for this instance, the given schema name and the given membership.
      *
      * @param plainSchema plain schema name
      * @param membership membership
@@ -37,21 +35,12 @@ public interface Groupable<L extends Any, M extends Membership<L>, REL extends R
     Optional<PlainAttr> getPlainAttr(String plainSchema, Membership<?> membership);
 
     /**
-     * Returns the list of plain attributes for this instance and the given schema name (including membeship attributes,
-     * as opposite to {@link Any#getPlainAttr(java.lang.String)}).
-     *
-     * @param plainSchema plain schema name
-     * @return list of plain attributes for this instance and the given schema name (including membeship attributes)
-     */
-    Collection<PlainAttr> getPlainAttrs(String plainSchema);
-
-    /**
      * Returns the list of plain attributes for this instance and the given membership.
      *
      * @param membership membership
      * @return list of plain attributes for this instance and the given membership
      */
-    Collection<PlainAttr> getPlainAttrs(Membership<?> membership);
+    List<PlainAttr> getPlainAttrs(Membership<?> membership);
 
     boolean add(M membership);
 
