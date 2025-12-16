@@ -19,9 +19,15 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 
@@ -34,8 +40,24 @@ public class JPARelationshipTypeExtension extends AbstractTypeExtension implemen
 
     public static final String TABLE = "RelationshipTypeExtension";
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "RelTypeExtension_Class",
+            joinColumns =
+            @JoinColumn(name = "typeExtension_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "typeExtension_id", "anyTypeClass_id" }))
+    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
+
     @ManyToOne
     private JPARelationshipType relationshipType;
+
+    @Override
+    protected List<JPAAnyTypeClass> auxClasses() {
+        return auxClasses;
+    }
 
     @Override
     public RelationshipType getRelationshipType() {

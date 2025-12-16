@@ -19,12 +19,19 @@
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractTypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
 @Entity
 @Table(name = JPAGroupTypeExtension.TABLE, uniqueConstraints =
@@ -35,8 +42,24 @@ public class JPAGroupTypeExtension extends AbstractTypeExtension implements Grou
 
     public static final String TABLE = "GroupTypeExtension";
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "GroupTypeExtension_Class",
+            joinColumns =
+            @JoinColumn(name = "typeExtension_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_id"),
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "typeExtension_id", "anyTypeClass_id" }))
+    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
+
     @ManyToOne
     private JPAGroup group;
+
+    @Override
+    protected List<JPAAnyTypeClass> auxClasses() {
+        return auxClasses;
+    }
 
     @Override
     public Group getGroup() {
