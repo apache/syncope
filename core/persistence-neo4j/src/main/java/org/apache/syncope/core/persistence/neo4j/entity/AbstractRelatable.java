@@ -36,19 +36,43 @@ public abstract class AbstractRelatable<
     private static final long serialVersionUID = -2269285197388729673L;
 
     protected abstract List<? extends AbstractRelationship<L, AnyObject>> relationships();
+    
+    @Override
+    public boolean add(final PlainAttr attr) {
+        if (attr.getRelationship() != null) {
+            return relationships().stream().
+                    filter(r -> r.getKey().equals(attr.getRelationship())).findFirst().
+                    map(r -> r.add(attr)).
+                    orElse(false);
+        }
 
+        return super.add(attr);
+    }
+
+    @Override
+    public boolean remove(final PlainAttr attr) {
+        if (attr.getRelationship() != null) {
+            return relationships().stream().
+                    filter(m -> m.getKey().equals(attr.getRelationship())).findFirst().
+                    map(r -> r.plainAttrs().put(attr.getSchema(), null) != null).
+                    orElse(false);
+        }
+
+        return super.remove(attr);
+    }
+    
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Relationship<?, ?> relationship) {
         return relationships().stream().
                 filter(r -> r.getKey().equals(relationship.getKey())).findFirst().
-                flatMap(m -> m.getPlainAttr(plainSchema));
+                flatMap(r -> r.getPlainAttr(plainSchema));
     }
 
     @Override
     public List<PlainAttr> getPlainAttrs(final Relationship<?, ?> relationship) {
         return relationships().stream().
                 filter(r -> r.getKey().equals(relationship.getKey())).
-                flatMap(m -> m.getPlainAttrs().stream()).toList();
+                flatMap(r -> r.getPlainAttrs().stream()).toList();
     }
 
     @Override
@@ -60,7 +84,7 @@ public abstract class AbstractRelatable<
                 && (otherEndKey.equals(relationship.getLeftEnd().getKey())
                 || otherEndKey.equals(relationship.getRightEnd().getKey()))).findFirst();
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public List<? extends R> getRelationships() {

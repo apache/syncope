@@ -120,7 +120,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         tabs.add(new RealmDetailsTabPanel());
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(roleRestClient, anyTypes.stream().map(AnyTypeTO::getKey).toList());
-        for (AnyTypeTO anyType : anyTypes) {
+        anyTypes.forEach(anyType -> {
             tabs.add(new ITabComponent(
                     new ResourceModel("anyType." + anyType.getKey(), anyType.getKey()),
                     String.format("%s_SEARCH", anyType.getKey())) {
@@ -139,7 +139,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                             isActionAuthorized(this, RENDER);
                 }
             });
-        }
+        });
 
         return tabs;
     }

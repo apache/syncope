@@ -121,18 +121,6 @@ public class Neo4jAnyObject
     }
 
     @Override
-    public boolean add(final PlainAttr attr) {
-        if (attr.getMembership() == null) {
-            return plainAttrs.put(attr.getSchema(), attr) != null;
-        }
-
-        return memberships().stream().
-                filter(membership -> membership.getKey().equals(attr.getMembership())).findFirst().
-                map(membership -> membership.add(attr)).
-                orElse(false);
-    }
-
-    @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, Neo4jAnyTypeClass.class);
         return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);

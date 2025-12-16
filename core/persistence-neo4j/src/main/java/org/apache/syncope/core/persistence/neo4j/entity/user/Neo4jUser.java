@@ -236,18 +236,6 @@ public class Neo4jUser
     }
 
     @Override
-    public boolean add(final PlainAttr attr) {
-        if (attr.getMembership() == null) {
-            return plainAttrs.put(attr.getSchema(), attr) != null;
-        }
-
-        return memberships().stream().
-                filter(membership -> membership.getKey().equals(attr.getMembership())).findFirst().
-                map(membership -> membership.add(attr)).
-                orElse(false);
-    }
-
-    @Override
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
         this.token = SecureRandomUtils.generateRandomPassword(tokenLength);
         this.tokenExpireTime = OffsetDateTime.now().plusMinutes(tokenExpireTime);

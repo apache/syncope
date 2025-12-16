@@ -39,18 +39,27 @@ public abstract class AbstractGroupableRelatable<
     protected abstract List<? extends AbstractMembership<L>> memberships();
 
     @Override
-    public boolean remove(final PlainAttr attr) {
-        if (attr.getMembership() == null && attr.getRelationship() == null) {
-            return plainAttrs().put(attr.getSchema(), null) != null;
+    public boolean add(final PlainAttr attr) {
+        if (attr.getMembership() != null) {
+            return memberships().stream().
+                    filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
+                    map(m -> m.add(attr)).
+                    orElse(false);
         }
 
-        return memberships().stream().
-                filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
-                map(membership -> membership.plainAttrs().put(attr.getSchema(), null) != null).
-                or(() -> relationships().stream().
-                filter(r -> r.getKey().equals(attr.getRelationship())).findFirst().
-                map(relationship -> relationship.plainAttrs().put(attr.getSchema(), null) != null)).
-                orElse(false);
+        return super.add(attr);
+    }
+
+    @Override
+    public boolean remove(final PlainAttr attr) {
+        if (attr.getMembership() != null) {
+            return memberships().stream().
+                    filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
+                    map(m -> m.plainAttrs().put(attr.getSchema(), null) != null).
+                    orElse(false);
+        }
+
+        return super.remove(attr);
     }
 
     @Override

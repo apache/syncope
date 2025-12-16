@@ -46,7 +46,7 @@ public abstract class AbstractRelationship<L extends Any, R extends Any>
     }
 
     public boolean add(final PlainAttr attr) {
-        return getKey().equals(attr.getMembership())
+        return getKey().equals(attr.getRelationship())
                 && plainAttrs().put(attr.getSchema(), attr) != null;
     }
 

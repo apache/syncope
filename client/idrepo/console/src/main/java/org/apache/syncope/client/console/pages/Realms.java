@@ -150,28 +150,31 @@ public class Realms extends BasePage {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof ChosenRealm) {
-            @SuppressWarnings("unchecked")
-            ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
-            updateRealmContent(choosenRealm.getObj(), 0);
-            choosenRealm.getTarget().add(content);
-        } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent<?> newItemEvent) {
-            WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
+        switch (event.getPayload()) {
+            case ChosenRealm chosenRealm -> {
+                updateRealmContent(chosenRealm.obj(), 0);
+                chosenRealm.target().add(content);
+            }
+            case AjaxWizard.NewItemEvent<?> newItemEvent -> {
+                WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
-                final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
-                templateModal.setFormModel(model);
-                templateModal.header(newItemEvent.getTitleModel());
-                newItemEvent.getTarget().ifPresent(t -> t.add(templateModal.setContent(modalPanel)));
-                templateModal.show(true);
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                newItemEvent.getTarget().ifPresent(templateModal::close);
-            } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                newItemEvent.getTarget().ifPresent(t -> {
-                    ((BasePage) getPage()).getNotificationPanel().refresh(t);
-                    templateModal.close(t);
-                });
+                if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
+                    final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
+                    templateModal.setFormModel(model);
+                    templateModal.header(newItemEvent.getTitleModel());
+                    newItemEvent.getTarget().ifPresent(t -> t.add(templateModal.setContent(modalPanel)));
+                    templateModal.show(true);
+                } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
+                    newItemEvent.getTarget().ifPresent(templateModal::close);
+                } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    newItemEvent.getTarget().ifPresent(t -> {
+                        ((BasePage) getPage()).getNotificationPanel().refresh(t);
+                        templateModal.close(t);
+                    });
+                }
+            }
+            default -> {
             }
         }
     }
@@ -200,12 +203,12 @@ public class Realms extends BasePage {
         @Override
         protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
             modal.setWindowClosedCallback(target -> {
-                if (modal.getContent() instanceof ResultPanel<?, ?> rp) {
+                if (modal.getContent() instanceof final ResultPanel<?, ?> rp) {
                     RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(rp.getResult()).getEntity());
                     // reload realmChoicePanel label too - SYNCOPE-1151
                     target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
                     realmChoicePanel.setCurrentRealm(newRealmTO);
-                    send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
+                    send(Realms.this, Broadcast.DEPTH, new ChosenRealm(newRealmTO, target));
                 } else {
                     target.add(realmChoicePanel.reloadRealmTree(target));
                 }

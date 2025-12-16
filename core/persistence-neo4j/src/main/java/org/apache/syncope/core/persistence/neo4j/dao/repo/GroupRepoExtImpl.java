@@ -444,7 +444,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 Neo4jGroup.NODE,
                 group.getKey());
 
-        cascadeDelete(Neo4jGroupTypeExtension.NODE,
+        cascadeDelete(
+                Neo4jGroupTypeExtension.NODE,
                 Neo4jGroup.NODE,
                 group.getKey());
 
