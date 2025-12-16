@@ -451,7 +451,7 @@ under the License.
 
     <elasticsearch.version>9.2.2</elasticsearch.version>
     <opensearch.version>3.3.2</opensearch.version>
-    <opensearch-java.version>3.3.0</opensearch-java.version>
+    <opensearch-java.version>3.4.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
@@ -491,7 +491,7 @@ under the License.
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.4</zookeeper.version>
 
-    <testcontainers.version>2.0.2</testcontainers.version>
+    <testcontainers.version>2.0.3</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.2.0</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>18.1.0</zonky.embedded-postgres-binaries.version>
