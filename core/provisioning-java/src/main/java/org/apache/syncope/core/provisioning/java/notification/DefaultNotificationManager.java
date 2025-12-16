@@ -26,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -79,7 +80,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 @Transactional(rollbackFor = { Throwable.class })
 public class DefaultNotificationManager implements NotificationManager {
@@ -382,25 +382,27 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();
-        } else if (intAttrName.getSchemaType() != null) {
-            UMembership membership = Optional.ofNullable(intAttrName.getMembershipOfGroup()).
+        } else if (intAttrName.getSchemaInfo() != null) {
+            UMembership membership = Optional.ofNullable(intAttrName.getMembership()).
                     flatMap(groupDAO::findByName).
                     flatMap(group -> user.getMembership(group.getKey())).
                     orElse(null);
-            URelationship relationship = Optional.ofNullable(intAttrName.getRelationshipType()).
-                    flatMap(relationshipTypeDAO::findById).
-                    map(user::getRelationships).
-                    filter(Predicate.not(CollectionUtils::isEmpty)).
-                    map(List::getFirst).
-                    orElse(null);
 
-            switch (intAttrName.getSchemaType()) {
+            Mutable<URelationship> relationship = new MutableObject<>();
+            Optional.ofNullable(intAttrName.getRelationshipInfo()).
+                    ifPresent(ri -> relationshipTypeDAO.findById(ri.type()).
+                    ifPresent(relationshipType -> anyObjectDAO.findByName(
+                    relationshipType.getRightEndAnyType().getKey(), ri.anyObject()).
+                    ifPresent(otherEnd -> user.getRelationship(relationshipType, otherEnd.getKey()).
+                    ifPresent(relationship::setValue))));
+
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
-                    Optional<PlainAttr> attr = membership == null && relationship == null
+                    Optional<PlainAttr> attr = membership == null && relationship.get() == null
                             ? user.getPlainAttr(recipientAttrName)
-                            : relationship == null
-                                    ? user.getPlainAttr(recipientAttrName, membership)
-                                    : user.getPlainAttr(recipientAttrName, relationship);
+                            : relationship.get() == null
+                            ? user.getPlainAttr(recipientAttrName, membership)
+                            : user.getPlainAttr(recipientAttrName, relationship.get());
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()
                             ? null
                             : a.getValuesAsStrings().getFirst()).
@@ -409,11 +411,11 @@ public class DefaultNotificationManager implements NotificationManager {
 
                 case DERIVED -> {
                     email = derSchemaDAO.findById(recipientAttrName).
-                            map(derSchema -> membership == null && relationship == null
+                            map(derSchema -> membership == null && relationship.get() == null
                             ? derAttrHandler.getValue(user, derSchema)
-                            : relationship == null
-                                    ? derAttrHandler.getValue(user, membership, derSchema)
-                                    : derAttrHandler.getValue(user, relationship, derSchema)).
+                            : relationship.get() == null
+                            ? derAttrHandler.getValue(user, membership, derSchema)
+                            : derAttrHandler.getValue(user, relationship.get(), derSchema)).
                             orElse(null);
                 }
 

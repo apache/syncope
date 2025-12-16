@@ -186,21 +186,21 @@ public class SAML2SP4UIUserManager {
                     default ->
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
-            } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
-                switch (intAttrName.getSchemaType()) {
-                    case PLAIN:
-                        Optional<Attr> attr = userTO.getPlainAttr(intAttrName.getSchema().getKey());
+            } else if (intAttrName != null && intAttrName.getSchemaInfo() != null) {
+                switch (intAttrName.getSchemaInfo().type()) {
+                    case PLAIN -> {
+                        Optional<Attr> attr = userTO.getPlainAttr(intAttrName.getSchemaInfo().schema().getKey());
                         if (attr.isPresent()) {
                             attr.get().getValues().clear();
                         } else {
-                            attr = Optional.of(new Attr.Builder(intAttrName.getSchema().getKey()).build());
+                            attr = Optional.of(new Attr.Builder(intAttrName.getSchemaInfo().schema().getKey()).build());
                             userTO.getPlainAttrs().add(attr.get());
                         }
                         attr.get().getValues().addAll(values);
-                        break;
+                    }
 
-                    default:
-                        LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchema().getKey());
+                    default ->
+                        LOG.warn("Unsupported: {}", intAttrName.getSchemaInfo());
                 }
             }
         });

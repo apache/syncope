@@ -272,9 +272,9 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             } catch (ParseException e) {
                 LOG.error("Invalid intAttrName '{}', ignoring", item.getIntAttrName(), e);
             }
-            if (intAttrName != null && intAttrName.getSchema() != null) {
-                AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                        ? intAttrName.getSchema().getType()
+            if (intAttrName != null && intAttrName.getSchemaInfo() != null) {
+                AttrSchemaType schemaType = intAttrName.getSchemaInfo().schema() instanceof PlainSchema
+                        ? intAttrName.getSchemaInfo().schema().getType()
                         : AttrSchemaType.String;
 
                 MappingManager.IntValues intValues = mappingManager.getIntValues(

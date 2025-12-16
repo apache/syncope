@@ -294,18 +294,18 @@ public class InboundMatcher {
                 default -> {
                 }
             }
-        } else if (intAttrName.getSchemaType() != null) {
-            switch (intAttrName.getSchemaType()) {
+        } else if (intAttrName.getSchemaInfo() != null) {
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
                     AttrCond attrCond = new AttrCond(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
-                    attrCond.setSchema(intAttrName.getSchema().getKey());
+                    attrCond.setSchema(intAttrName.getSchemaInfo().schema().getKey());
                     attrCond.setExpression(finalConnObjectKeyValue);
                     anys.addAll(anySearchDAO.search(SearchCond.of(attrCond), anyTypeKind));
                 }
 
                 case DERIVED ->
                     anys.addAll(anyUtils.dao().findByDerAttrValue(
-                            ((DerSchema) intAttrName.getSchema()).getExpression(),
+                            ((DerSchema) intAttrName.getSchemaInfo().schema()).getExpression(),
                             finalConnObjectKeyValue,
                             ignoreCaseMatch));
 

@@ -398,7 +398,6 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public MappingManager mappingManager(
-            final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
@@ -411,7 +410,6 @@ public class ProvisioningContext {
             final JexlTools jexlTools) {
 
         return new DefaultMappingManager(
-                anyTypeDAO,
                 userDAO,
                 anyObjectDAO,
                 groupDAO,
