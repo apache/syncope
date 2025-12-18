@@ -35,8 +35,6 @@ public abstract class AbstractGroupableRelatable<
 
     private static final long serialVersionUID = -2269285197388729673L;
 
-    protected abstract List<PlainAttr> plainAttrs();
-
     @Override
     public List<PlainAttr> getPlainAttrs() {
         return plainAttrs().stream().

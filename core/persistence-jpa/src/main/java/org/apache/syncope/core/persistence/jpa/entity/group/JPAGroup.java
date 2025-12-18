@@ -171,6 +171,11 @@ public class JPAGroup
     }
 
     @Override
+    protected List<PlainAttr> plainAttrs() {
+        return plainAttrs;
+    }
+
+    @Override
     public boolean add(final PlainAttr attr) {
         return plainAttrs.add(attr);
     }

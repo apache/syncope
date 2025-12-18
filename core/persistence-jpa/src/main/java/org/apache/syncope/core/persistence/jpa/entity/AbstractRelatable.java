@@ -34,9 +34,11 @@ public abstract class AbstractRelatable<
 
     private static final long serialVersionUID = -2269285197388729673L;
 
+    protected abstract List<PlainAttr> plainAttrs();
+
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Relationship<?, ?> relationship) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())
                 && relationship.getKey().equals(attr.getRelationship())).
                 findFirst();
@@ -44,7 +46,7 @@ public abstract class AbstractRelatable<
 
     @Override
     public List<PlainAttr> getPlainAttrs(final Relationship<?, ?> relationship) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> relationship.getKey().equals(attr.getRelationship())).
                 toList();
     }
