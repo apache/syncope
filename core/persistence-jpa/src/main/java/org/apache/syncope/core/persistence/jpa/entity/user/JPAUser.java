@@ -286,7 +286,8 @@ public class JPAUser
     @Override
     public boolean remove(final PlainAttr attr) {
         return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
-                && Objects.equals(a.getMembership(), attr.getMembership()));
+                && Objects.equals(a.getMembership(), attr.getMembership())
+                && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override

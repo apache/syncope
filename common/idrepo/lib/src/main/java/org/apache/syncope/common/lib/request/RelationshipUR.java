@@ -44,9 +44,8 @@ public class RelationshipUR extends AbstractPatch {
             return new RelationshipUR();
         }
 
-        public Builder otherEnd(final String type, final String key) {
-            getInstance().setOtherEndType(type);
-            getInstance().setOtherEndKey(key);
+        public Builder otherEnd(final String otherEndKey) {
+            getInstance().setOtherEndKey(otherEndKey);
             return this;
         }
 
@@ -68,8 +67,6 @@ public class RelationshipUR extends AbstractPatch {
 
     private String type;
 
-    private String otherEndType;
-
     private String otherEndKey;
 
     private final Set<Attr> plainAttrs = new HashSet<>();
@@ -80,14 +77,6 @@ public class RelationshipUR extends AbstractPatch {
 
     public void setType(final String type) {
         this.type = type;
-    }
-
-    public String getOtherEndType() {
-        return otherEndType;
-    }
-
-    public void setOtherEndType(final String otherEndType) {
-        this.otherEndType = otherEndType;
     }
 
     public String getOtherEndKey() {
@@ -109,7 +98,6 @@ public class RelationshipUR extends AbstractPatch {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(type).
-                append(otherEndType).
                 append(otherEndKey).
                 build();
     }
@@ -129,7 +117,6 @@ public class RelationshipUR extends AbstractPatch {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(type, other.type).
-                append(otherEndType, other.otherEndType).
                 append(otherEndKey, other.otherEndKey).
                 build();
     }

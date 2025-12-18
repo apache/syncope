@@ -16,20 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.lib.to.TypeExtensionTO;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 
-public interface RelationshipTypeDataBinder {
+public interface TypeExtensionHolderTO extends Serializable {
 
-    RelationshipType create(RelationshipTypeTO relationshipTypeTO);
+    Optional<TypeExtensionTO> getTypeExtension(String anyType);
 
-    void update(RelationshipType relationshipType, RelationshipTypeTO relationshipTypeTO);
-
-    TypeExtensionTO getTypeExtensionTO(RelationshipTypeExtension typeExt);
-
-    RelationshipTypeTO getRelationshipTypeTO(RelationshipType relationshipType);
+    List<TypeExtensionTO> getTypeExtensions();
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -90,7 +92,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
-                final MembershipTO membershipTO = item.getModelObject();
+                MembershipTO membershipTO = item.getModelObject();
                 item.add(new Accordion("membershipPlainSchemas", List.of(new AbstractTab(
                         new StringResourceModel(
                                 "attributes.membership.accordion",
@@ -101,7 +103,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new PlainSchemasMemberships(
+                        return new PlainSchemasAttributable(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
                                 new LoadableDetachableModel<>() {
@@ -111,6 +113,41 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             @Override
                             protected AttributableTO load() {
                                 return membershipTO;
+                            }
+                        });
+                    }
+                }), Model.of(-1)).setOutputMarkupId(true));
+            }
+        });
+
+        add(new ListView<>("relationshipsPlainSchemas", relationships) {
+
+            private static final long serialVersionUID = 6741044372185745296L;
+
+            @Override
+            protected void populateItem(final ListItem<RelationshipTO> item) {
+                RelationshipTO relationshipTO = item.getModelObject();
+                item.add(new Accordion("relationshipPlainSchemas", List.of(new AbstractTab(
+                        new StringResourceModel(
+                                "attributes.relationship.accordion",
+                                PlainAttrs.this,
+                                Model.of(relationshipTO))) {
+
+                    private static final long serialVersionUID = 1037272333056449378L;
+
+                    @Override
+                    public WebMarkupContainer getPanel(final String panelId) {
+                        return new PlainSchemasAttributable(
+                                panelId,
+                                relationshipSchemas.get(Pair.of(
+                                        relationshipTO.getType(), relationshipTO.getOtherEndKey())),
+                                new LoadableDetachableModel<>() {
+
+                            private static final long serialVersionUID = 526768546610546553L;
+
+                            @Override
+                            protected AttributableTO load() {
+                                return relationshipTO;
                             }
                         });
                     }
@@ -137,6 +174,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     @Override
     protected List<Attr> getAttrsFromTO(final MembershipTO membershipTO) {
         return membershipTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
+    }
+
+    @Override
+    protected List<Attr> getAttrsFromTO(final RelationshipTO relationshipTO) {
+        return relationshipTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
@@ -184,6 +226,32 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         membershipTO.getPlainAttrs().addAll(plainAttrs);
     }
 
+    @Override
+    protected void setAttrs(final RelationshipTO relationshipTO) {
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(attributable).
+                getRelationship(relationshipTO.getType(), relationshipTO.getOtherEndKey()).
+                map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
+                orElseGet(HashMap::new);
+
+        List<Attr> plainAttrs = relationshipSchemas.get(
+                Pair.of(relationshipTO.getType(), relationshipTO.getOtherEndKey())).values().stream().map(schema -> {
+
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
+            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
+                    attr.getValues().add(StringUtils.EMPTY);
+                }
+            } else {
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+            }
+            return attr;
+        }).toList();
+
+        relationshipTO.getPlainAttrs().clear();
+        relationshipTO.getPlainAttrs().addAll(plainAttrs);
+    }
+
     protected class PlainSchemasOwn extends PlainSchemas<List<Attr>> {
 
         private static final long serialVersionUID = -4730563859116024676L;
@@ -208,11 +276,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
     }
 
-    protected class PlainSchemasMemberships extends PlainSchemas<AttributableTO> {
+    protected class PlainSchemasAttributable extends PlainSchemas<AttributableTO> {
 
         private static final long serialVersionUID = 456754923340249215L;
 
-        public PlainSchemasMemberships(
+        public PlainSchemasAttributable(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
                 final IModel<AttributableTO> attributableTO) {

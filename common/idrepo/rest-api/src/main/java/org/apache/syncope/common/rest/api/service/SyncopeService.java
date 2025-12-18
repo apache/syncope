@@ -136,9 +136,20 @@ public interface SyncopeService extends JAXRSService {
      * @return User type extension information, for the provided group
      */
     @GET
-    @Path("userTypeExtension/{groupName}")
+    @Path("userTypeExtension/group/{groupName}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    TypeExtensionTO readUserTypeExtension(@NotNull @PathParam("groupName") String groupName);
+    TypeExtensionTO readUserGroupTypeExtension(@NotNull @PathParam("groupName") String groupName);
+
+    /**
+     * Extracts User type extension information, for the provided relationship type.
+     *
+     * @param relationshipType relationship type
+     * @return User type extension information, for the provided relationship type
+     */
+    @GET
+    @Path("userTypeExtension/relationshipType/{relationshipType}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    TypeExtensionTO readUserRelationshipTypeExtension(@NotNull @PathParam("relationshipType") String relationshipType);
 
     /**
      * Exports the internal storage content as downloadable XML file.

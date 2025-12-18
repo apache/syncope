@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -33,8 +32,9 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -51,11 +51,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class RelationshipTypesPanel extends TypesDirectoryPanel<
         RelationshipTypeTO, RelationshipTypeProvider, RelationshipTypeRestClient> {
 
     private static final long serialVersionUID = -3731778000138547357L;
+
+    protected final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>(Constants.OUTER);
 
     public RelationshipTypesPanel(
             final String id,
@@ -64,6 +67,11 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
 
         super(id, restClient, false, pageRef);
         disableCheckBoxes();
+
+        typeExtensionsModal.size(Modal.Size.Large);
+        typeExtensionsModal.addSubmitButton();
+        setWindowClosedReloadCallback(typeExtensionsModal);
+        addOuterObject(typeExtensionsModal);
 
         this.addNewItemPanelBuilder(
                 new AbstractModalPanelBuilder<RelationshipTypeTO>(new RelationshipTypeTO(), pageRef) {
@@ -121,41 +129,18 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
 
     @Override
     protected List<IColumn<RelationshipTypeTO, String>> getColumns() {
+        List<IColumn<RelationshipTypeTO, String>> columns = new ArrayList<>();
 
-        final List<IColumn<RelationshipTypeTO, String>> columns = new ArrayList<>();
-
-        for (Field field : RelationshipTypeTO.class.getDeclaredFields()) {
-            if (!field.isSynthetic() && !Modifier.isStatic(field.getModifiers())) {
-                final String fieldName = field.getName();
-                if (field.getType().isArray()
-                        || Collection.class.isAssignableFrom(field.getType())
-                        || Map.class.isAssignableFrom(field.getType())) {
-
-                    columns.add(new PropertyColumn<>(
-                            new ResourceModel(field.getName()), field.getName()));
-                } else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
-                    columns.add(new BooleanPropertyColumn<>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()));
-                } else {
-                    columns.add(new PropertyColumn<>(
-                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
-
-                        private static final long serialVersionUID = -6902459669035442212L;
-
-                        @Override
-                        public String getCssClass() {
-                            String css = super.getCssClass();
-                            if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
-                                css = StringUtils.isBlank(css)
-                                        ? "col-xs-1"
-                                        : css + " col-xs-1";
-                            }
-                            return css;
-                        }
-                    });
-                }
-            }
-        }
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel(Constants.DESCRIPTION_FIELD_NAME),
+                Constants.DESCRIPTION_FIELD_NAME,
+                Constants.DESCRIPTION_FIELD_NAME));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel("leftEndAnyType"), "leftEndAnyType", "leftEndAnyType"));
+        columns.add(new PropertyColumn<>(
+                new ResourceModel("rightEndAnyType"), "rightEndAnyType", "rightEndAnyType"));
 
         return columns;
     }
@@ -174,6 +159,37 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                         new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE);
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = 6242834621660352855L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
+                        typeExtensionsModal, model.getObject(), pageRef) {
+
+                    private static final long serialVersionUID = -2603789363348077538L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target) {
+                        try {
+                            RelationshipTypesPanel.this.restClient.update(model.getObject());
+
+                            baseModal.show(false);
+                            baseModal.close(target);
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("RelationshipType update failure", e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
+                typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
+                typeExtensionsModal.show(true);
+            }
+        }, ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE);
         panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;

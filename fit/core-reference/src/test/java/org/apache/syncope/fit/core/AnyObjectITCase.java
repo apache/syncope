@@ -37,8 +37,6 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.RelationshipTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -180,20 +178,6 @@ public class AnyObjectITCase extends AbstractITCase {
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
-        }
-    }
-
-    @Test
-    public void issueSYNCOPE756() {
-        AnyObjectCR anyObjectCR = getSample("issueSYNCOPE756");
-        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").otherEnd(
-                AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
-
-        try {
-            createAnyObject(anyObjectCR).getEntity();
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
         }
     }
 

@@ -27,8 +27,10 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -59,8 +61,7 @@ public class RelationshipITCase extends AbstractITCase {
         assertEquals(left.getKey(), right.getRelationships().getFirst().getOtherEndKey());
 
         AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(left.getKey()).
-                relationship(new RelationshipUR.Builder("inclusion").
-                        otherEnd(right.getType(), right.getKey()).build()).build();
+                relationship(new RelationshipUR.Builder("inclusion").otherEnd(right.getKey()).build()).build();
         left = updateAnyObject(anyObjectUR).getEntity();
         assertEquals(2, left.getRelationships().size());
         assertTrue(left.getRelationships().stream().anyMatch(r -> right.getKey().equals(r.getOtherEndKey())));
@@ -85,7 +86,7 @@ public class RelationshipITCase extends AbstractITCase {
         // then add relationship with attribute
         UserCR userCR = UserITCase.getUniqueSample("relationshipWithAttr@syncope.apache.org");
         userCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
-                otherEnd("PRINTER", "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                otherEnd("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
                 plainAttr(new Attr.Builder("obscure").value("testvalue3").build()).
                 build());
 
@@ -94,6 +95,27 @@ public class RelationshipITCase extends AbstractITCase {
         RelationshipTO rel = user.getRelationship("neighborhood", "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
         assertEquals(1, rel.getPlainAttrs().size());
         assertEquals(1, rel.getPlainAttr("obscure").orElseThrow().getValues().size());
+        assertEquals(1, rel.getDerAttrs().size());
+        assertEquals(1, rel.getDerAttr("noschema").orElseThrow().getValues().size());
+
+        // finally add another relationship attribute
+        UserUR req = new UserUR();
+        req.setKey(user.getKey());
+        req.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("aLong").value("5678").build()).build());
+        req.getRelationships().add(new RelationshipUR.Builder("neighborhood").
+                otherEnd(rel.getOtherEndKey()).
+                plainAttr(new Attr.Builder("aLong").value("1234").build()).
+                plainAttrs(rel.getPlainAttrs()).
+                build());
+
+        user = updateUser(req).getEntity();
+
+        assertEquals("5678", user.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
+
+        rel = user.getRelationship("neighborhood", "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
+        assertEquals(2, rel.getPlainAttrs().size());
+        assertEquals(1, rel.getPlainAttr("obscure").orElseThrow().getValues().size());
+        assertEquals("1234", rel.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
         assertEquals(1, rel.getDerAttrs().size());
         assertEquals(1, rel.getDerAttr("noschema").orElseThrow().getValues().size());
     }
@@ -115,10 +137,10 @@ public class RelationshipITCase extends AbstractITCase {
 
         // Add relationships: printer1 -> printer2 and printer2 -> printer3
         AnyObjectUR relationship1To2 = new AnyObjectUR.Builder(key1)
-                .relationship(new RelationshipUR.Builder("inclusion").otherEnd(PRINTER, key2).build())
+                .relationship(new RelationshipUR.Builder("inclusion").otherEnd(key2).build())
                 .build();
         AnyObjectUR relationship2To3 = new AnyObjectUR.Builder(key2)
-                .relationship(new RelationshipUR.Builder("inclusion").otherEnd(PRINTER, key3).build())
+                .relationship(new RelationshipUR.Builder("inclusion").otherEnd(key3).build())
                 .build();
 
         updateAnyObject(relationship1To2);

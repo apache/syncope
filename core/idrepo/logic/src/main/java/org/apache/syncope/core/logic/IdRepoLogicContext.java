@@ -440,8 +440,10 @@ public class IdRepoLogicContext {
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final AnySearchDAO anySearchDAO,
             final GroupDataBinder groupDataBinder,
+            final RelationshipTypeDataBinder relationshipTypeDataBinder,
             final ConfParamOps confParamOps,
             final ContentExporter exporter) {
 
@@ -449,8 +451,10 @@ public class IdRepoLogicContext {
                 realmSearchDAO,
                 anyTypeDAO,
                 groupDAO,
+                relationshipTypeDAO,
                 anySearchDAO,
                 groupDataBinder,
+                relationshipTypeDataBinder,
                 confParamOps,
                 exporter);
     }

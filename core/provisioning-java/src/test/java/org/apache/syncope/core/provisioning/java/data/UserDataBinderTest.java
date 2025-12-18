@@ -159,7 +159,7 @@ public class UserDataBinderTest extends AbstractTest {
         // then add relationship with attribute
         UserUR userUR = new UserUR.Builder("1417acbe-cbf6-4277-9372-e75e04f97000").
                 relationship(new RelationshipUR.Builder("neighborhood").
-                        otherEnd("PRINTER", "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                        otherEnd("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
                         plainAttr(new Attr.Builder("obscure").value("testvalue3").build()).
                         build()).
                 build();

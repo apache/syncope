@@ -51,8 +51,7 @@ public class CreateARelationship extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getRelationships().add(new RelationshipUR.Builder("neighborhood").
-                    otherEnd("PRINTER", printer).build());
+            userUR.getRelationships().add(new RelationshipUR.Builder("neighborhood").otherEnd(printer).build());
 
             UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 

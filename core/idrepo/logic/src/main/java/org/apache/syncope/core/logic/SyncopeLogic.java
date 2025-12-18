@@ -35,14 +35,18 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,9 +62,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     protected final GroupDAO groupDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final AnySearchDAO anySearchDAO;
 
     protected final GroupDataBinder groupDataBinder;
+
+    protected final RelationshipTypeDataBinder relationshipTypeDataBinder;
 
     protected final ConfParamOps confParamOps;
 
@@ -70,16 +78,20 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final AnySearchDAO anySearchDAO,
             final GroupDataBinder groupDataBinder,
+            final RelationshipTypeDataBinder relationshipTypeDataBinder,
             final ConfParamOps confParamOps,
             final ContentExporter exporter) {
 
         this.realmSearchDAO = realmSearchDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.groupDAO = groupDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.anySearchDAO = anySearchDAO;
         this.groupDataBinder = groupDataBinder;
+        this.relationshipTypeDataBinder = relationshipTypeDataBinder;
         this.confParamOps = confParamOps;
         this.exporter = exporter;
     }
@@ -125,14 +137,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 searchCond,
                 pageable,
                 AnyTypeKind.GROUP);
-        List<GroupTO> result = matching.stream().
-                map(group -> groupDataBinder.getGroupTO(group, false)).toList();
+        List<GroupTO> result = matching.stream().map(group -> groupDataBinder.getGroupTO(group, false)).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("isAuthenticated()")
-    public TypeExtensionTO readTypeExtension(final String groupName) {
+    public TypeExtensionTO readUserGroupTypeExtension(final String groupName) {
         Group group = groupDAO.findByName(groupName).
                 orElseThrow(() -> new NotFoundException("Group " + groupName));
 
@@ -140,6 +151,17 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 orElseThrow(() -> new NotFoundException("TypeExtension in " + groupName + " for users"));
 
         return groupDataBinder.getTypeExtensionTO(typeExt);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public TypeExtensionTO readUserRelationshipTypeExtension(final String relationshipType) {
+        RelationshipType rt = relationshipTypeDAO.findById(relationshipType).
+                orElseThrow(() -> new NotFoundException("RelationshipType " + relationshipType));
+
+        RelationshipTypeExtension typeExt = rt.getTypeExtension(anyTypeDAO.getUser()).
+                orElseThrow(() -> new NotFoundException("TypeExtension in " + relationshipType + " for users"));
+
+        return relationshipTypeDataBinder.getTypeExtensionTO(typeExt);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")

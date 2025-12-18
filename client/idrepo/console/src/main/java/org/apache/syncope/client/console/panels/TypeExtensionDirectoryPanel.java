@@ -32,7 +32,6 @@ import org.apache.syncope.client.console.panels.TypeExtensionDirectoryPanel.Type
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.BaseRestClient;
-import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -40,8 +39,7 @@ import org.apache.syncope.client.console.wizards.any.TypeExtensionWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.request.GroupUR;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionHolderTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -55,14 +53,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class TypeExtensionDirectoryPanel
+public abstract class TypeExtensionDirectoryPanel
         extends DirectoryPanel<TypeExtensionTO, TypeExtensionTO, TypeExtensionDataProvider, BaseRestClient>
         implements SubmitableModalPanel {
 
     private static final long serialVersionUID = -4117015319209624858L;
-
-    @SpringBean
-    protected GroupRestClient groupRestClient;
 
     @SpringBean
     protected AnyTypeRestClient anyTypeRestClient;
@@ -72,20 +67,20 @@ public class TypeExtensionDirectoryPanel
 
     protected final BaseModal<Serializable> baseModal;
 
-    protected final GroupTO groupTO;
+    protected final TypeExtensionHolderTO typeExtensionHolder;
 
     protected TypeExtensionDirectoryPanel(
             final BaseModal<Serializable> baseModal,
-            final GroupTO groupTO,
+            final TypeExtensionHolderTO typeExtensionHolder,
             final PageReference pageRef) {
 
         super(BaseModal.CONTENT_ID, null, pageRef, false);
 
         this.baseModal = baseModal;
-        this.groupTO = groupTO;
+        this.typeExtensionHolder = typeExtensionHolder;
 
         TypeExtensionWizardBuilder builder = new TypeExtensionWizardBuilder(
-                groupTO,
+                typeExtensionHolder,
                 new TypeExtensionTO(),
                 new StringResourceModel("anyType", this).getObject(),
                 new StringResourceModel("auxClasses", this).getObject(),
@@ -96,26 +91,6 @@ public class TypeExtensionDirectoryPanel
 
         setShowResultPanel(false);
         initResultTable();
-    }
-
-    @Override
-    public void onSubmit(final AjaxRequestTarget target) {
-        GroupUR req = new GroupUR();
-        req.setKey(groupTO.getKey());
-        req.getTypeExtensions().addAll(groupTO.getTypeExtensions());
-
-        try {
-            groupRestClient.update(groupTO.getETagValue(), req);
-
-            this.baseModal.show(false);
-            this.baseModal.close(target);
-
-            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-        } catch (Exception e) {
-            LOG.error("Group update failure", e);
-            SyncopeConsoleSession.get().onException(e);
-        }
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -167,8 +142,8 @@ public class TypeExtensionDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
-                groupTO.getTypeExtension(typeExtension.getAnyType()).ifPresent(typeExt -> {
-                    groupTO.getTypeExtensions().remove(typeExt);
+                typeExtensionHolder.getTypeExtension(typeExtension.getAnyType()).ifPresent(typeExt -> {
+                    typeExtensionHolder.getTypeExtensions().remove(typeExt);
                     target.add(container);
                 });
             }
@@ -193,36 +168,17 @@ public class TypeExtensionDirectoryPanel
 
         @Override
         public Iterator<? extends TypeExtensionTO> iterator(final long first, final long count) {
-            return groupTO.getTypeExtensions().subList((int) first, (int) (first + count)).iterator();
+            return typeExtensionHolder.getTypeExtensions().subList((int) first, (int) (first + count)).iterator();
         }
 
         @Override
         public long size() {
-            return groupTO.getTypeExtensions().size();
+            return typeExtensionHolder.getTypeExtensions().size();
         }
 
         @Override
         public IModel<TypeExtensionTO> model(final TypeExtensionTO object) {
             return new CompoundPropertyModel<>(object);
         }
-
-    }
-
-    @Override
-    protected void customActionCallback(final AjaxRequestTarget target) {
-        // change modal footer visibility
-        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
-    }
-
-    @Override
-    protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
-        // change modal footer visibility
-        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
-    }
-
-    @Override
-    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
-        // change modal footer visibility
-        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
     }
 }

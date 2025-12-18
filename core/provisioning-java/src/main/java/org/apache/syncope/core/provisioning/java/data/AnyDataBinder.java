@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RelationshipTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -62,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -422,8 +420,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         // 2. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         for (RelationshipUR patch : anyUR.getRelationships().stream().
-                filter(patch -> patch.getType() != null
-                && patch.getOtherEndType() != null && patch.getOtherEndKey() != null).toList()) {
+                filter(patch -> patch.getType() != null && patch.getOtherEndKey() != null).toList()) {
 
             RelationshipType relationshipType = relationshipTypeDAO.findById(patch.getType()).orElse(null);
             if (relationshipType == null) {
@@ -444,41 +441,33 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                     }
 
                     case ADD_REPLACE -> {
-                        if (AnyTypeKind.USER.name().equals(patch.getOtherEndType())
-                                || AnyTypeKind.GROUP.name().equals(patch.getOtherEndType())) {
-
-                            SyncopeClientException invalidAnyType =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-                            invalidAnyType.getElements().add(AnyType.class.getSimpleName()
-                                    + " not allowed for relationship: " + patch.getOtherEndType());
-                            scce.addException(invalidAnyType);
+                        AnyObject otherEnd = anyObjectDAO.findById(patch.getOtherEndKey()).orElse(null);
+                        if (otherEnd == null) {
+                            LOG.debug("Ignoring invalid any object {}", patch.getOtherEndKey());
+                        } else if (!relationshipType.getRightEndAnyType().equals(otherEnd.getType())) {
+                            LOG.debug("Ignoring mismatching anyType {}", otherEnd.getType().getKey());
+                        } else if (relationships.contains(Pair.of(relationshipType.getKey(), otherEnd.getKey()))) {
+                            SyncopeClientException assigned =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                                    + " in relationship " + relationshipType.getKey());
+                            scce.addException(assigned);
                         } else {
-                            AnyObject otherEnd = anyObjectDAO.findById(patch.getOtherEndKey()).orElse(null);
-                            if (otherEnd == null) {
-                                LOG.debug("Ignoring invalid any object {}", patch.getOtherEndKey());
-                            } else if (relationships.contains(Pair.of(relationshipType.getKey(), otherEnd.getKey()))) {
-                                SyncopeClientException assigned =
-                                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                                        + " in relationship " + relationshipType.getKey());
-                                scce.addException(assigned);
+                            relationships.add(Pair.of(relationshipType.getKey(), otherEnd.getKey()));
+
+                            Relationship<?, ?> relationship = any.getRelationship(
+                                    relationshipType, patch.getOtherEndKey()).orElse(null);
+                            if (relationship == null) {
+                                relationship = anyUtils.add(any, relationshipType, otherEnd);
                             } else {
-                                relationships.add(Pair.of(relationshipType.getKey(), otherEnd.getKey()));
-
-                                Relationship<?, ?> relationship = any.getRelationship(
-                                        relationshipType, patch.getOtherEndKey()).orElse(null);
-                                if (relationship == null) {
-                                    relationship = anyUtils.add(any, relationshipType, otherEnd);
-                                } else {
-                                    any.getPlainAttrs(relationship).forEach(any::remove);
-                                }
-
-                                // relationship attributes
-                                relationshipPlainAttrsOnUpdate(patch.getPlainAttrs(), anyTO, any, relationship, scce);
-
-                                propByRes.addAll(
-                                        ResourceOperation.UPDATE, anyObjectDAO.findAllResourceKeys(otherEnd.getKey()));
+                                any.getPlainAttrs(relationship).forEach(any::remove);
                             }
+
+                            // relationship attributes
+                            relationshipPlainAttrsOnUpdate(patch.getPlainAttrs(), anyTO, any, relationship, scce);
+
+                            propByRes.addAll(
+                                    ResourceOperation.UPDATE, anyObjectDAO.findAllResourceKeys(otherEnd.getKey()));
                         }
                     }
 
@@ -627,44 +616,33 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         // 1. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         anyCR.getRelationships().forEach(relationshipTO -> {
-            if (StringUtils.isBlank(relationshipTO.getOtherEndType())
-                    || AnyTypeKind.USER.name().equals(relationshipTO.getOtherEndType())
-                    || AnyTypeKind.GROUP.name().equals(relationshipTO.getOtherEndType())) {
-
-                SyncopeClientException invalidAnyType =
-                        SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-                invalidAnyType.getElements().add(AnyType.class.getSimpleName()
-                        + " not allowed for relationship: " + relationshipTO.getOtherEndType());
-                scce.addException(invalidAnyType);
+            RelationshipType relationshipType = relationshipTypeDAO.findById(relationshipTO.getType()).orElse(null);
+            AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
+            if (relationshipType == null) {
+                LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
+            } else if (otherEnd == null) {
+                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
+            } else if (!relationshipType.getRightEndAnyType().equals(otherEnd.getType())) {
+                LOG.debug("Ignoring mismatching anyType {}", relationshipTO.getOtherEndType());
+            } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
+                SyncopeClientException noRight =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                noRight.getElements().add(
+                        "Relationships shall be created or updated only from their left end");
+                scce.addException(noRight);
+            } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipType.getKey()))) {
+                SyncopeClientException assigned =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                        + " in relationship " + relationshipTO.getType());
+                scce.addException(assigned);
             } else {
-                RelationshipType relationshipType = relationshipTypeDAO.findById(relationshipTO.getType()).orElse(null);
-                AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
-                if (relationshipType == null) {
-                    LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
-                } else if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
-                } else if (!relationshipTO.getOtherEndType().equals(otherEnd.getType().getKey())) {
-                    LOG.debug("Ignoring mismatching anyType {}", relationshipTO.getOtherEndType());
-                } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
-                    SyncopeClientException noRight =
-                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    noRight.getElements().add(
-                            "Relationships shall be created or updated only from their left end");
-                    scce.addException(noRight);
-                } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipType.getKey()))) {
-                    SyncopeClientException assigned =
-                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                            + " in relationship " + relationshipTO.getType());
-                    scce.addException(assigned);
-                } else {
-                    relationships.add(Pair.of(otherEnd.getKey(), relationshipType.getKey()));
+                relationships.add(Pair.of(otherEnd.getKey(), relationshipType.getKey()));
 
-                    Relationship<?, ?> relationship = anyUtils.add(any, relationshipType, otherEnd);
+                Relationship<?, ?> relationship = anyUtils.add(any, relationshipType, otherEnd);
 
-                    // relationship attributes
-                    relationshipPlainAttrsOnCreate(anyTO, any, relationship, relationshipTO, scce);
-                }
+                // relationship attributes
+                relationshipPlainAttrsOnCreate(anyTO, any, relationship, relationshipTO, scce);
             }
         });
 

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class RelationshipTypeTO implements EntityTO {
+public class RelationshipTypeTO implements TypeExtensionHolderTO, EntityTO {
 
     private static final long serialVersionUID = -1884088415277925817L;
 
@@ -76,6 +76,7 @@ public class RelationshipTypeTO implements EntityTO {
     }
 
     @JsonIgnore
+    @Override
     public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
         return typeExtensions.stream().filter(
                 typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
@@ -83,6 +84,7 @@ public class RelationshipTypeTO implements EntityTO {
 
     @JacksonXmlElementWrapper(localName = "typeExtensions")
     @JacksonXmlProperty(localName = "typeExtension")
+    @Override
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

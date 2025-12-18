@@ -57,6 +57,11 @@ public class RelationshipTO implements BaseBean, AttributableTO {
             instance.setEnd(end);
         }
 
+        public Builder otherEnd(final String otherEndKey) {
+            instance.setOtherEndKey(otherEndKey);
+            return this;
+        }
+
         public Builder otherEnd(final String otherEndType, final String otherEndKey) {
             instance.setOtherEndType(otherEndType);
             instance.setOtherEndKey(otherEndKey);

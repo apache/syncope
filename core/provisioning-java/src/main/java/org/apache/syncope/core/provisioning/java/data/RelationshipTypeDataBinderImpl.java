@@ -115,7 +115,8 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
                 removeIf(typeExt -> relationshipTypeTO.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
     }
 
-    protected TypeExtensionTO getTypeExtensionTO(final RelationshipTypeExtension typeExt) {
+    @Override
+    public TypeExtensionTO getTypeExtensionTO(final RelationshipTypeExtension typeExt) {
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
         typeExtTO.getAuxClasses().addAll(typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());

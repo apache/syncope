@@ -195,19 +195,22 @@ public class JPAGroup
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema()));
+        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+                && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return plainAttrsList.stream().
-                filter(attr -> plainSchema.equals(attr.getSchema())).
+                filter(attr -> attr.getRelationship() == null && plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
     public List<PlainAttr> getPlainAttrs() {
-        return plainAttrsList.stream().toList();
+        return plainAttrsList.stream().
+                filter(attr -> attr.getRelationship() == null).
+                toList();
     }
 
     @Override

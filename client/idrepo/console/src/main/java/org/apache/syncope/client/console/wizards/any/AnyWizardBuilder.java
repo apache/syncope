@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -46,6 +47,8 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizardBuilder<A> {
 
     private static final long serialVersionUID = -2480279868319546243L;
+
+    private static final List<String> NO_VALUES = List.of(StringUtils.EMPTY);
 
     @SuppressWarnings("unchecked")
     protected static <T extends AnyTO> AnyWrapper<T> wrapper(final T anyTO) {
@@ -123,6 +126,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
             wizardModel.add(new Groups(modelObject, mode == AjaxWizard.Mode.TEMPLATE));
         }
 
+        if (formLayoutInfo.isRelationships()) {
+            wizardModel.add(new Relationships(modelObject, pageRef));
+        }
+
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new PlainAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
@@ -146,10 +153,6 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
                 && ufli.isRoles()) {
 
             wizardModel.add(new Roles(userWrapper));
-        }
-
-        if (formLayoutInfo.isRelationships()) {
-            wizardModel.add(new Relationships(modelObject, pageRef));
         }
 
         SyncopeWebApplication.get().getAnyWizardBuilderAdditionalSteps().
@@ -182,14 +185,23 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
                     ifPresent(uMemb -> oMemb.getPlainAttrs().stream().
                     filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
                     forEach(attr -> uMemb.getPlainAttrs().add(attr))));
+            originalTO.getRelationships().
+                    forEach(oRel -> updatedTO.getRelationship(oRel.getType(), oRel.getOtherEndKey()).
+                    ifPresent(uRel -> oRel.getPlainAttrs().stream().
+                    filter(attr -> uRel.getPlainAttr(attr.getSchema()).isEmpty()).
+                    forEach(attr -> uRel.getPlainAttrs().add(attr))));
         }
 
         // remove from the updated object any plain attribute without values, thus triggering for removal in
         // the generated patch
-        updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
+        updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty() || NO_VALUES.equals(attr.getValues()));
         if (updated instanceof GroupableRelatableTO updatedTO) {
             updatedTO.getMemberships().
-                    forEach(memb -> memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty()));
+                    forEach(memb -> memb.getPlainAttrs().
+                    removeIf(attr -> attr.getValues().isEmpty() || NO_VALUES.equals(attr.getValues())));
+            updatedTO.getRelationships().
+                    forEach(rel -> rel.getPlainAttrs().
+                    removeIf(attr -> attr.getValues().isEmpty() || NO_VALUES.equals(attr.getValues())));
         }
     }
 

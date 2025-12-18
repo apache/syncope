@@ -78,6 +78,41 @@ public final class AnyOperations {
         return proto;
     }
 
+    private static void relationships(
+            final RelatableTO updated,
+            final RelatableTO original,
+            final boolean incremental,
+            final Set<RelationshipUR> updateReqs) {
+
+        Map<Pair<String, String>, RelationshipTO> updatedRels =
+                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+        Map<Pair<String, String>, RelationshipTO> originalRels =
+                EntityTOUtils.buildRelationshipMap(original.getRelationships());
+
+        updatedRels.forEach((pair, relationship) -> {
+            if (!originalRels.containsKey(pair)
+                    || (originalRels.containsKey(pair) && !originalRels.get(pair).equals(relationship))) {
+
+                RelationshipUR patch = new RelationshipUR.Builder(relationship.getType()).
+                        otherEnd(relationship.getOtherEndKey()).
+                        operation(PatchOperation.ADD_REPLACE).build();
+
+                patch.getPlainAttrs().addAll(relationship.getPlainAttrs().stream().
+                        filter(attr -> !isEmpty(attr)).toList());
+
+                updateReqs.add(patch);
+            }
+        });
+
+        if (!incremental) {
+            originalRels.keySet().stream().filter(pair -> !updatedRels.containsKey(pair)).
+                    forEach(pair -> updateReqs.add(
+                    new RelationshipUR.Builder(originalRels.get(pair).getType()).
+                            otherEnd(originalRels.get(pair).getOtherEndKey()).
+                            operation(PatchOperation.DELETE).build()));
+        }
+    }
+
     private static void diff(
             final AnyTO updated, final AnyTO original, final AnyUR result, final boolean incremental) {
 
@@ -92,7 +127,7 @@ public final class AnyOperations {
         // 1. realm
         result.setRealm(replacePatchItem(updated.getRealm(), original.getRealm(), new StringReplacePatchItem()));
 
-        // 2. auxilairy classes
+        // 2. auxiliary classes
         result.getAuxClasses().clear();
 
         if (!incremental) {
@@ -105,7 +140,10 @@ public final class AnyOperations {
                 forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(auxClass).build()));
 
-        // 3. plain attributes
+        // 3. relationships
+        relationships(updated, original, incremental, result.getRelationships());
+
+        // 4. plain attributes
         Map<String, Attr> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
         Map<String, Attr> originalAttrs = EntityTOUtils.buildAttrMap(original.getPlainAttrs());
 
@@ -150,41 +188,6 @@ public final class AnyOperations {
         updated.getResources().stream().filter(resource -> !original.getResources().contains(resource)).
                 forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(resource).build()));
-    }
-
-    private static void relationships(
-            final RelatableTO updated,
-            final RelatableTO original,
-            final boolean incremental,
-            final Set<RelationshipUR> updateReqs) {
-
-        Map<Pair<String, String>, RelationshipTO> updatedRels =
-                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
-        Map<Pair<String, String>, RelationshipTO> originalRels =
-                EntityTOUtils.buildRelationshipMap(original.getRelationships());
-
-        updatedRels.forEach((pair, relationship) -> {
-            if (!originalRels.containsKey(pair)
-                    || (originalRels.containsKey(pair) && !originalRels.get(pair).equals(relationship))) {
-
-                RelationshipUR patch = new RelationshipUR.Builder(relationship.getType()).
-                        otherEnd(relationship.getOtherEndType(), relationship.getOtherEndKey()).
-                        operation(PatchOperation.ADD_REPLACE).build();
-
-                patch.getPlainAttrs().addAll(relationship.getPlainAttrs().stream().
-                        filter(attr -> !isEmpty(attr)).toList());
-
-                updateReqs.add(patch);
-            }
-        });
-
-        if (!incremental) {
-            originalRels.keySet().stream().filter(pair -> !updatedRels.containsKey(pair)).
-                    forEach(pair -> updateReqs.add(
-                    new RelationshipUR.Builder(originalRels.get(pair).getType()).
-                            otherEnd(originalRels.get(pair).getOtherEndType(), originalRels.get(pair).getOtherEndKey()).
-                            operation(PatchOperation.DELETE).build()));
-        }
     }
 
     private static void memberships(
@@ -234,10 +237,7 @@ public final class AnyOperations {
         // 1. name
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
-        // 2. relationships
-        relationships(updated, original, incremental, result.getRelationships());
-
-        // 3. memberships
+        // 2. memberships
         memberships(updated, original, incremental, result.getMemberships());
 
         return result;
@@ -296,13 +296,10 @@ public final class AnyOperations {
                 forEach(toAdd -> result.getRoles().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(toAdd).build()));
 
-        // 5. relationships
-        relationships(updated, original, incremental, result.getRelationships());
-
-        // 6. memberships
+        // 5. memberships
         memberships(updated, original, incremental, result.getMemberships());
 
-        // 7. linked accounts
+        // 6. linked accounts
         Map<Pair<String, String>, LinkedAccountTO> updatedAccounts =
                 EntityTOUtils.buildLinkedAccountMap(updated.getLinkedAccounts());
         Map<Pair<String, String>, LinkedAccountTO> originalAccounts =
@@ -350,9 +347,6 @@ public final class AnyOperations {
 
         // 4. type extensions
         result.getTypeExtensions().addAll(updated.getTypeExtensions());
-
-        // 5. relationships
-        relationships(updated, original, incremental, result.getRelationships());
 
         return result;
     }
@@ -449,19 +443,17 @@ public final class AnyOperations {
 
     private static void relationships(final Set<RelationshipUR> updateReqs, final RelatableTO relatable) {
         updateReqs.forEach(relPatch -> {
-            if (relPatch.getType() == null || relPatch.getOtherEndType() == null || relPatch.getOtherEndKey() == null) {
+            if (relPatch.getType() == null || relPatch.getOtherEndKey() == null) {
                 LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
             } else {
                 relatable.getRelationships().stream().
                         filter(relationship -> relPatch.getType().equals(relationship.getType())
-                        && relPatch.getOtherEndType().equals(relationship.getOtherEndType())
                         && relPatch.getOtherEndKey().equals(relationship.getOtherEndKey())).
                         findFirst().ifPresent(memb -> relatable.getRelationships().remove(memb));
 
                 if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
                     RelationshipTO newRelationshipTO = new RelationshipTO.Builder(relPatch.getType()).
-                            otherEnd(relPatch.getOtherEndType(), relPatch.getOtherEndKey()).
-                            // 3. plain attributes
+                            otherEnd(relPatch.getOtherEndKey()).
                             plainAttrs(relPatch.getPlainAttrs()).
                             build();
 

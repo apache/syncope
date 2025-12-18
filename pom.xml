@@ -857,6 +857,11 @@ under the License.
         <artifactId>tomcat-embed-el</artifactId>
         <version>${tomcat.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-websocket</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.apache.cxf</groupId>
