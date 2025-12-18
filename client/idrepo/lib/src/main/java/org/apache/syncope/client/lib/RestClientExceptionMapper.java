@@ -94,13 +94,11 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
     }
 
     private static SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
-        SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
-
         // Attempts to read ErrorTO or List<ErrorTO> as entity...
         List<ErrorTO> errors = null;
         try {
             ErrorTO error = response.readEntity(ErrorTO.class);
-            if (error != null) {
+            if (error != null && error.getType() != null) {
                 errors = List.of(error);
             }
         } catch (Exception e) {
@@ -116,6 +114,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
         }
 
         // ...if not possible, attempts to parse response headers
+        SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
         if (errors == null) {
             List<String> exTypesInHeaders = response.getStringHeaders().get(RESTHeaders.ERROR_CODE);
             if (exTypesInHeaders == null) {

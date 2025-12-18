@@ -88,7 +88,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
+                new ConnectorManagerRemoteCommitListener(this, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -115,7 +115,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
+        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(this, domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema());
 
