@@ -436,7 +436,7 @@ under the License.
     <nimbus-jose-jwt.version>10.6</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.5.8</spring-boot.version>
-    <spring-cloud-gateway.version>4.3.2</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.3.3</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
@@ -450,7 +450,7 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.2.2</elasticsearch.version>
-    <opensearch.version>3.3.2</opensearch.version>
+    <opensearch.version>3.4.0</opensearch.version>
     <opensearch-java.version>3.4.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
@@ -458,7 +458,7 @@ under the License.
     <debezium.version>3.0</debezium.version>
 
     <commons-lang3.version>3.20.0</commons-lang3.version>
-    <commons-jexl.version>3.6.0</commons-jexl.version>
+    <commons-jexl.version>3.6.1</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
 
     <pac4j.version>6.2.2</pac4j.version>
@@ -523,7 +523,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>11.0.15</tomcat.version>
+    <tomcat.version>10.1.50</tomcat.version>
     <wildfly.version>38.0.1.Final</wildfly.version>
     <payara.version>6.2025.11</payara.version>
     <jakarta.faces.version>4.1.5</jakarta.faces.version>
@@ -536,7 +536,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.8</jdbc.postgresql.version>
     <jdbc.mysql.version>9.5.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.6</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.7</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.0.0.0</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1472,7 +1472,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.3.0</version>
+        <version>4.3.1</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
