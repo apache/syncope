@@ -18,22 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity.group;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.TypeExtension;
 
-public interface TypeExtension extends Entity {
+public interface GroupTypeExtension extends TypeExtension {
 
     Group getGroup();
 
     void setGroup(Group group);
-
-    AnyType getAnyType();
-
-    void setAnyType(AnyType anyType);
-
-    boolean add(AnyTypeClass anyTypeClass);
-
-    List<? extends AnyTypeClass> getAuxClasses();
 }

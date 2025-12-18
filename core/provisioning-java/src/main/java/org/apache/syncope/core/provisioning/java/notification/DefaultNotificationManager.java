@@ -29,6 +29,8 @@ import java.util.Set;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -46,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -58,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -98,6 +102,8 @@ public class DefaultNotificationManager implements NotificationManager {
 
     protected final TaskDAO taskDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final DerAttrHandler derAttrHandler;
 
     protected final UserDataBinder userDataBinder;
@@ -127,6 +133,7 @@ public class DefaultNotificationManager implements NotificationManager {
             final AnySearchDAO anySearchDAO,
             final AnyMatchDAO anyMatchDAO,
             final TaskDAO taskDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
             final UserDataBinder userDataBinder,
             final GroupDataBinder groupDataBinder,
@@ -145,6 +152,7 @@ public class DefaultNotificationManager implements NotificationManager {
         this.anySearchDAO = anySearchDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.taskDAO = taskDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.derAttrHandler = derAttrHandler;
         this.userDataBinder = userDataBinder;
         this.groupDataBinder = groupDataBinder;
@@ -374,17 +382,27 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();
-        } else if (intAttrName.getSchemaType() != null) {
-            UMembership membership = Optional.ofNullable(intAttrName.getMembershipOfGroup()).
+        } else if (intAttrName.getSchemaInfo() != null) {
+            UMembership membership = Optional.ofNullable(intAttrName.getMembership()).
                     flatMap(groupDAO::findByName).
                     flatMap(group -> user.getMembership(group.getKey())).
                     orElse(null);
 
-            switch (intAttrName.getSchemaType()) {
+            Mutable<URelationship> relationship = new MutableObject<>();
+            Optional.ofNullable(intAttrName.getRelationshipInfo()).
+                    ifPresent(ri -> relationshipTypeDAO.findById(ri.type()).
+                    ifPresent(relationshipType -> anyObjectDAO.findByName(
+                    relationshipType.getRightEndAnyType().getKey(), ri.anyObject()).
+                    ifPresent(otherEnd -> user.getRelationship(relationshipType, otherEnd.getKey()).
+                    ifPresent(relationship::setValue))));
+
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
-                    Optional<PlainAttr> attr = membership == null
+                    Optional<PlainAttr> attr = membership == null && relationship.get() == null
                             ? user.getPlainAttr(recipientAttrName)
-                            : user.getPlainAttr(recipientAttrName, membership);
+                            : relationship.get() == null
+                            ? user.getPlainAttr(recipientAttrName, membership)
+                            : user.getPlainAttr(recipientAttrName, relationship.get());
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()
                             ? null
                             : a.getValuesAsStrings().getFirst()).
@@ -393,9 +411,11 @@ public class DefaultNotificationManager implements NotificationManager {
 
                 case DERIVED -> {
                     email = derSchemaDAO.findById(recipientAttrName).
-                            map(derSchema -> membership == null
+                            map(derSchema -> membership == null && relationship.get() == null
                             ? derAttrHandler.getValue(user, derSchema)
-                            : derAttrHandler.getValue(user, membership, derSchema)).
+                            : relationship.get() == null
+                            ? derAttrHandler.getValue(user, membership, derSchema)
+                            : derAttrHandler.getValue(user, relationship.get(), derSchema)).
                             orElse(null);
                 }
 

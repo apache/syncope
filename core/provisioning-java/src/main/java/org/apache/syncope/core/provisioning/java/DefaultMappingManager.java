@@ -49,14 +49,12 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
@@ -69,7 +67,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.Account;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -169,8 +166,6 @@ public class DefaultMappingManager implements MappingManager {
         return dst;
     }
 
-    protected final AnyTypeDAO anyTypeDAO;
-
     protected final UserDAO userDAO;
 
     protected final AnyObjectDAO anyObjectDAO;
@@ -192,7 +187,6 @@ public class DefaultMappingManager implements MappingManager {
     protected final JexlTools jexlTools;
 
     public DefaultMappingManager(
-            final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
@@ -204,7 +198,6 @@ public class DefaultMappingManager implements MappingManager {
             final EncryptorManager encryptorManager,
             final JexlTools jexlTools) {
 
-        this.anyTypeDAO = anyTypeDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.groupDAO = groupDAO;
@@ -511,9 +504,10 @@ public class DefaultMappingManager implements MappingManager {
             return null;
         }
 
-        AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                ? intAttrName.getSchema().getType()
-                : AttrSchemaType.String;
+        AttrSchemaType schemaType = Optional.ofNullable(intAttrName.getSchemaInfo()).
+                filter(schemaInfo -> schemaInfo.schema() instanceof PlainSchema).
+                map(schemaInfo -> schemaInfo.schema().getType()).
+                orElse(AttrSchemaType.String);
 
         IntValues intValues = getIntValues(
                 resource, provision, item, intAttrName, schemaType, any, usernameAccountGetter, plainAttrGetter);
@@ -528,27 +522,30 @@ public class DefaultMappingManager implements MappingManager {
                   * ClassType {}
                   * AttrSchemaType {}
                   * Values {}""",
-                item, intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
+                item, intAttrName.getSchemaInfo(), schemaType.getType().getName(), schemaType, values);
 
         List<Object> objValues = new ArrayList<>();
 
         for (PlainAttrValue value : values) {
-            if (intAttrName.getSchema() instanceof PlainSchema schema && schemaType == AttrSchemaType.Encrypted) {
+            if (schemaType == AttrSchemaType.Encrypted
+                    && intAttrName.getSchemaInfo().schema() instanceof PlainSchema schema) {
+
                 String decoded = null;
                 try {
                     decoded = encryptorManager.getInstance(schema.getSecretKey()).
                             decode(value.getStringValue(), schema.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.warn("Could not decode value for {} with algorithm {}",
-                            intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
+                            intAttrName.getSchemaInfo(), schema.getCipherAlgorithm(), e);
                 }
                 objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
             } else if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                 objValues.add(value.getValue());
             } else {
-                PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
-                        ? schema
-                        : null;
+                PlainSchema plainSchema = Optional.ofNullable(intAttrName.getSchemaInfo()).
+                        map(IntAttrName.SchemaInfo::schema).
+                        filter(PlainSchema.class::isInstance).map(PlainSchema.class::cast).
+                        orElse(null);
                 if (plainSchema == null || plainSchema.getType() != schemaType) {
                     objValues.add(value.getValueAsString(schemaType));
                 } else {
@@ -596,9 +593,10 @@ public class DefaultMappingManager implements MappingManager {
             return null;
         }
 
-        AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                ? intAttrName.getSchema().getType()
-                : AttrSchemaType.String;
+        AttrSchemaType schemaType = Optional.ofNullable(intAttrName.getSchemaInfo()).
+                filter(schemaInfo -> schemaInfo.schema() instanceof PlainSchema).
+                map(schemaInfo -> schemaInfo.schema().getType()).
+                orElse(AttrSchemaType.String);
 
         IntValues intValues = getIntValues(resource, item, intAttrName, schemaType, realm);
         schemaType = intValues.attrSchemaType();
@@ -612,27 +610,30 @@ public class DefaultMappingManager implements MappingManager {
                   * ClassType {}
                   * AttrSchemaType {}
                   * Values {}""",
-                item, intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
+                item, intAttrName.getSchemaInfo(), schemaType.getType().getName(), schemaType, values);
 
         List<Object> objValues = new ArrayList<>();
 
         for (PlainAttrValue value : values) {
-            if (intAttrName.getSchema() instanceof PlainSchema schema && schemaType == AttrSchemaType.Encrypted) {
+            if (schemaType == AttrSchemaType.Encrypted
+                    && intAttrName.getSchemaInfo().schema() instanceof PlainSchema schema) {
+
                 String decoded = null;
                 try {
                     decoded = encryptorManager.getInstance(schema.getSecretKey()).
                             decode(value.getStringValue(), schema.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.warn("Could not decode value for {} with algorithm {}",
-                            intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
+                            intAttrName.getSchemaInfo(), schema.getCipherAlgorithm(), e);
                 }
                 objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
             } else if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                 objValues.add(value.getValue());
             } else {
-                PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
-                        ? schema
-                        : null;
+                PlainSchema plainSchema = Optional.ofNullable(intAttrName.getSchemaInfo()).
+                        map(IntAttrName.SchemaInfo::schema).
+                        filter(PlainSchema.class::isInstance).map(PlainSchema.class::cast).
+                        orElse(null);
                 if (plainSchema == null || plainSchema.getType() != schemaType) {
                     objValues.add(value.getValueAsString(schemaType));
                 } else {
@@ -676,65 +677,41 @@ public class DefaultMappingManager implements MappingManager {
         LOG.debug("Get internal values for {} as '{}' on {}", any, item.getIntAttrName(), resource);
 
         List<Any> references = new ArrayList<>();
-        if (intAttrName.getEnclosingGroup() == null
-                && intAttrName.getRelatedAnyObject() == null
-                && intAttrName.getRelationshipAnyType() == null
-                && intAttrName.getRelationshipType() == null
-                && intAttrName.getRelatedUser() == null) {
+        if (intAttrName.getExternalGroup() == null
+                && intAttrName.getExternalAnyObject() == null
+                && intAttrName.getExternalUser() == null) {
 
             references.add(any);
         }
+
+        Relationship<?, ?> relationship = null;
         Membership<?> membership = null;
 
-        if (intAttrName.getEnclosingGroup() != null) {
-            Group group = groupDAO.findByName(intAttrName.getEnclosingGroup()).orElse(null);
-            if (group == null
-                    || any instanceof User
-                            ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
-                            : any instanceof final AnyObject anyObject
-                                    ? !anyObjectDAO.findAllGroupKeys(anyObject).contains(group.getKey())
-                                    : false) {
-
-                LOG.warn("No (dyn) membership for {} in {}, ignoring", intAttrName.getEnclosingGroup(), any);
-            } else {
-                references.add(group);
-            }
-        } else if (intAttrName.getRelatedUser() != null) {
-            User user = userDAO.findByUsername(intAttrName.getRelatedUser()).orElse(null);
-            if (user == null || user.getRelationships(any.getKey()).isEmpty()) {
-                LOG.warn("No relationship for {} in {}, ignoring", intAttrName.getRelatedUser(), any);
-            } else if (any.getType().getKind() == AnyTypeKind.USER) {
-                LOG.warn("Users cannot have relationship with other users, ignoring");
-            } else {
-                references.add(user);
-            }
-        } else if (intAttrName.getRelatedAnyObject() != null && any instanceof Relatable<?, ?> relatable) {
-            AnyObject anyObject = anyObjectDAO.findById(intAttrName.getRelatedAnyObject()).orElse(null);
-            if (anyObject == null || relatable.getRelationships(anyObject.getKey()).isEmpty()) {
-                LOG.warn("No relationship for {} in {}, ignoring", intAttrName.getRelatedAnyObject(), relatable);
-            } else {
-                references.add(anyObject);
-            }
-        } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null
-                && any instanceof Relatable<?, ?> relatable) {
-
-            RelationshipType relationshipType = relationshipTypeDAO.findById(
-                    intAttrName.getRelationshipType()).orElse(null);
-            AnyType anyType = anyTypeDAO.findById(intAttrName.getRelationshipAnyType()).orElse(null);
-            if (relationshipType == null || relatable.getRelationships(relationshipType).isEmpty()) {
-                LOG.warn("No relationship for type {} in {}, ignoring", intAttrName.getRelationshipType(), relatable);
-            } else if (anyType == null) {
-                LOG.warn("No anyType {}, ignoring", intAttrName.getRelationshipAnyType());
-            } else {
-                references.addAll(relatable.getRelationships(relationshipType).stream().
-                        filter(relationship -> anyType.equals(relationship.getRightEnd().getType())).
-                        map(Relationship::getRightEnd).
-                        toList());
-            }
-        } else if (intAttrName.getMembershipOfGroup() != null && any instanceof Groupable<?, ?, ?> groupable) {
-            membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
+        if (intAttrName.getExternalUser() != null) {
+            userDAO.findByUsername(intAttrName.getExternalUser()).ifPresentOrElse(
+                    references::add,
+                    () -> LOG.warn("Could not find user {}, ignoring", intAttrName.getExternalUser()));
+        } else if (intAttrName.getExternalGroup() != null) {
+            groupDAO.findByName(intAttrName.getExternalGroup()).ifPresentOrElse(
+                    references::add,
+                    () -> LOG.warn("Could not find group {}, ignoring", intAttrName.getExternalGroup()));
+        } else if (intAttrName.getExternalAnyObject() != null) {
+            references.addAll(anyObjectDAO.findByName(intAttrName.getExternalAnyObject()));
+        } else if (intAttrName.getMembership() != null && any instanceof Groupable<?, ?, ?> groupable) {
+            membership = groupDAO.findByName(intAttrName.getMembership()).
                     flatMap(group -> groupable.getMembership(group.getKey())).
                     orElse(null);
+        } else if (intAttrName.getRelationshipInfo() != null && any instanceof Relatable<?, ?> relatable) {
+            RelationshipType relationshipType = relationshipTypeDAO.findById(
+                    intAttrName.getRelationshipInfo().type()).orElse(null);
+            if (relationshipType == null) {
+                LOG.warn("Could not find relationship type {}, ignoring", intAttrName.getRelationshipInfo().type());
+            } else {
+                relationship = anyObjectDAO.findByName(
+                        relationshipType.getRightEndAnyType().getKey(), intAttrName.getRelationshipInfo().anyObject()).
+                        flatMap(otherEnd -> relatable.getRelationship(relationshipType, otherEnd.getKey())).
+                        orElse(null);
+            }
         }
         if (references.isEmpty()) {
             LOG.warn("Could not determine the reference instance for {}", item.getIntAttrName());
@@ -828,13 +805,17 @@ public class DefaultMappingManager implements MappingManager {
                     }
                 }
                 // ignore
-            } else if (intAttrName.getSchemaType() != null) {
-                switch (intAttrName.getSchemaType()) {
+            } else if (intAttrName.getSchemaInfo() != null) {
+                switch (intAttrName.getSchemaInfo().type()) {
                     case PLAIN -> {
-                        PlainAttr attr = membership == null
-                                ? plainAttrGetter.apply(ref, intAttrName.getSchema().getKey())
-                                : ((Groupable<?, ?, ?>) ref).getPlainAttr(
-                                        intAttrName.getSchema().getKey(), membership).orElse(null);
+                        PlainAttr attr = membership == null && relationship == null
+                                ? plainAttrGetter.apply(ref, intAttrName.getSchemaInfo().schema().getKey())
+                                : membership == null
+                                        ? ((Relatable<?, ?>) ref).getPlainAttr(
+                                                intAttrName.getSchemaInfo().schema().getKey(), relationship).
+                                                orElse(null)
+                                        : ((Groupable<?, ?, ?>) ref).getPlainAttr(
+                                                intAttrName.getSchemaInfo().schema().getKey(), membership).orElse(null);
                         if (attr != null) {
                             if (attr.getUniqueValue() != null) {
                                 values.add(clonePlainAttrValue(attr.getUniqueValue()));
@@ -845,10 +826,12 @@ public class DefaultMappingManager implements MappingManager {
                     }
 
                     case DERIVED -> {
-                        DerSchema derSchema = (DerSchema) intAttrName.getSchema();
-                        String derValue = membership == null
+                        DerSchema derSchema = (DerSchema) intAttrName.getSchemaInfo().schema();
+                        String derValue = membership == null && relationship == null
                                 ? derAttrHandler.getValue(ref, derSchema)
-                                : derAttrHandler.getValue(ref, membership, derSchema);
+                                : membership == null
+                                        ? derAttrHandler.getValue(ref, relationship, derSchema)
+                                        : derAttrHandler.getValue(ref, membership, derSchema);
                         if (derValue != null) {
                             PlainAttrValue attrValue = new PlainAttrValue();
                             attrValue.setStringValue(derValue);
@@ -914,10 +897,10 @@ public class DefaultMappingManager implements MappingManager {
                 default -> {
                 }
             }
-        } else if (intAttrName.getSchemaType() != null) {
-            switch (intAttrName.getSchemaType()) {
+        } else if (intAttrName.getSchemaInfo() != null) {
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
-                    realm.getPlainAttr(intAttrName.getSchema().getKey()).ifPresent(attr -> {
+                    realm.getPlainAttr(intAttrName.getSchemaInfo().schema().getKey()).ifPresent(attr -> {
                         if (attr.getUniqueValue() != null) {
                             values.add(clonePlainAttrValue(attr.getUniqueValue()));
                         } else if (attr.getValues() != null) {
@@ -927,7 +910,8 @@ public class DefaultMappingManager implements MappingManager {
                 }
 
                 case DERIVED -> {
-                    Optional.ofNullable(derAttrHandler.getValue(realm, (DerSchema) intAttrName.getSchema())).
+                    Optional.ofNullable(derAttrHandler.getValue(
+                            realm, (DerSchema) intAttrName.getSchemaInfo().schema())).
                             ifPresent(derValue -> {
                                 PlainAttrValue attrValue = new PlainAttrValue();
                                 attrValue.setStringValue(derValue);
@@ -1121,24 +1105,25 @@ public class DefaultMappingManager implements MappingManager {
                 default -> {
                 }
             }
-        } else if (intAttrName.getSchemaType() != null && attr != null) {
+        } else if (intAttrName.getSchemaInfo() != null && attr != null) {
             GroupableRelatableTO groupableTO;
             Group group;
             if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO
-                    && intAttrName.getMembershipOfGroup() != null) {
+                    && intAttrName.getMembership() != null) {
+
                 groupableTO = groupableRelatableTO;
-                group = groupDAO.findByName(intAttrName.getMembershipOfGroup()).orElse(null);
+                group = groupDAO.findByName(intAttrName.getMembership()).orElse(null);
             } else {
                 groupableTO = null;
                 group = null;
             }
 
-            switch (intAttrName.getSchemaType()) {
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
                     Attr attrTO = new Attr();
-                    attrTO.setSchema(intAttrName.getSchema().getKey());
+                    attrTO.setSchema(intAttrName.getSchemaInfo().schema().getKey());
 
-                    PlainSchema schema = (PlainSchema) intAttrName.getSchema();
+                    PlainSchema schema = (PlainSchema) intAttrName.getSchemaInfo().schema();
 
                     for (Object value : values) {
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
@@ -1165,7 +1150,7 @@ public class DefaultMappingManager implements MappingManager {
 
                 case DERIVED -> {
                     Attr attrTO = new Attr();
-                    attrTO.setSchema(intAttrName.getSchema().getKey());
+                    attrTO.setSchema(intAttrName.getSchemaInfo().schema().getKey());
                     if (groupableTO == null || group == null) {
                         anyTO.getDerAttrs().add(attrTO);
                     } else {
@@ -1221,13 +1206,13 @@ public class DefaultMappingManager implements MappingManager {
                 default -> {
                 }
             }
-        } else if (intAttrName.getSchemaType() != null && attr != null) {
-            switch (intAttrName.getSchemaType()) {
+        } else if (intAttrName.getSchemaInfo() != null && attr != null) {
+            switch (intAttrName.getSchemaInfo().type()) {
                 case PLAIN -> {
                     Attr attrTO = new Attr();
-                    attrTO.setSchema(intAttrName.getSchema().getKey());
+                    attrTO.setSchema(intAttrName.getSchemaInfo().schema().getKey());
 
-                    PlainSchema schema = (PlainSchema) intAttrName.getSchema();
+                    PlainSchema schema = (PlainSchema) intAttrName.getSchemaInfo().schema();
 
                     for (Object value : values) {
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
@@ -1245,7 +1230,7 @@ public class DefaultMappingManager implements MappingManager {
 
                 case DERIVED -> {
                     Attr attrTO = new Attr();
-                    attrTO.setSchema(intAttrName.getSchema().getKey());
+                    attrTO.setSchema(intAttrName.getSchemaInfo().schema().getKey());
                     realmTO.getDerAttrs().add(attrTO);
                 }
 

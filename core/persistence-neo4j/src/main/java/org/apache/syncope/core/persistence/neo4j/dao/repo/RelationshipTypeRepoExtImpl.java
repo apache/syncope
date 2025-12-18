@@ -22,15 +22,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -60,6 +65,16 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
                 null);
     }
 
+    @Override
+    public List<RelationshipTypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
+        return findByRelationship(
+                Neo4jRelationshipTypeExtension.NODE,
+                Neo4jAnyTypeClass.NODE,
+                anyTypeClass.getKey(),
+                Neo4jRelationshipTypeExtension.class,
+                null);
+    }
+
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
         List<Relationship<?, ?>> result = new ArrayList<>();
 
@@ -77,11 +92,13 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
             findRelationshipsByType(type).stream().peek(relationship -> {
                 switch (relationship) {
                     case URelationship uRelationship ->
-                        uRelationship.getLeftEnd().getRelationships().remove(uRelationship);
+                        uRelationship.getLeftEnd().remove(uRelationship);
+                    case ARelationship aRelationship ->
+                        aRelationship.getLeftEnd().remove(aRelationship);
+                    case GRelationship gRelationship ->
+                        gRelationship.getLeftEnd().remove(gRelationship);
                     case UMembership uMembership ->
                         uMembership.getLeftEnd().remove(uMembership);
-                    case ARelationship aRelationship ->
-                        aRelationship.getLeftEnd().getRelationships().remove(aRelationship);
                     case AMembership aMembership ->
                         aMembership.getLeftEnd().remove(aMembership);
                     default -> {

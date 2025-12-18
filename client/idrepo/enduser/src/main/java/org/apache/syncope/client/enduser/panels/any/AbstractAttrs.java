@@ -34,6 +34,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -65,9 +66,13 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected final Map<String, Map<String, S>> membershipSchemas = new LinkedHashMap<>();
 
+    protected final Map<Pair<String, String>, Map<String, S>> relationshipSchemas = new LinkedHashMap<>();
+
     protected final IModel<List<Attr>> attrs;
 
     protected final IModel<List<MembershipTO>> membershipTOs;
+
+    protected final IModel<List<RelationshipTO>> relationshipTOs;
 
     private final List<String> anyTypeClasses;
 
@@ -81,6 +86,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         this.anyTypeClasses = anyTypeClasses;
         this.attrs = new ListModel<>(List.of());
         this.membershipTOs = new ListModel<>(List.of());
+        this.relationshipTOs = new ListModel<>(List.of());
 
         this.setOutputMarkupId(true);
 
@@ -99,16 +105,13 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         return AbstractAttrs.this.getAttrsFromTO();
     }
 
-    @SuppressWarnings({ "unchecked" })
     protected List<MembershipTO> loadMembershipAttrs() {
         List<MembershipTO> memberships = new ArrayList<>();
 
         membershipSchemas.clear();
 
         for (MembershipTO membership : userTO.getMemberships()) {
-            setSchemas(Pair.of(
-                    membership.getGroupKey(), membership.getGroupName()),
-                    getMembershipAuxClasses(membership));
+            setSchemas(membership, getMembershipAuxClasses(membership));
             setAttrs(membership);
 
             if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
@@ -119,6 +122,25 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         }
 
         return memberships;
+    }
+
+    protected List<RelationshipTO> loadRelationshipAttrs() {
+        List<RelationshipTO> relationships = new ArrayList<>();
+
+        relationshipSchemas.clear();
+
+        for (RelationshipTO relationship : userTO.getRelationships()) {
+            setSchemas(relationship, getRelationshipAuxClasses(relationship));
+            setAttrs(relationship);
+
+            if (AbstractAttrs.this instanceof PlainAttrs && !relationship.getPlainAttrs().isEmpty()) {
+                relationships.add(relationship);
+            } else if (AbstractAttrs.this instanceof DerAttrs && !relationship.getDerAttrs().isEmpty()) {
+                relationships.add(relationship);
+            }
+        }
+
+        return relationships;
     }
 
     protected boolean filterSchemas() {
@@ -150,23 +172,35 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected abstract SchemaType getSchemaType();
 
-    protected void setSchemas(final Pair<String, String> membership, final List<String> anyTypeClasses) {
+    protected void setSchemas(final MembershipTO membership, final List<String> anyTypeClasses) {
         final Map<String, S> mscs;
 
-        if (membershipSchemas.containsKey(membership.getLeft())) {
-            mscs = membershipSchemas.get(membership.getLeft());
+        if (membershipSchemas.containsKey(membership.getGroupKey())) {
+            mscs = membershipSchemas.get(membership.getGroupKey());
         } else {
             mscs = new LinkedHashMap<>();
-            membershipSchemas.put(membership.getLeft(), mscs);
+            membershipSchemas.put(membership.getGroupKey(), mscs);
         }
-        setSchemas(anyTypeClasses, membership.getRight(), mscs);
+        setSchemas(anyTypeClasses, membership.getGroupName(), mscs);
+    }
+
+    protected void setSchemas(final RelationshipTO relationship, final List<String> anyTypeClasses) {
+        final Map<String, S> mscs;
+
+        if (relationshipSchemas.containsKey(Pair.of(relationship.getType(), relationship.getOtherEndKey()))) {
+            mscs = relationshipSchemas.get(Pair.of(relationship.getType(), relationship.getOtherEndKey()));
+        } else {
+            mscs = new LinkedHashMap<>();
+            relationshipSchemas.put(Pair.of(relationship.getType(), relationship.getOtherEndKey()), mscs);
+        }
+        setSchemas(anyTypeClasses, relationship.getOtherEndName(), mscs);
     }
 
     protected void setSchemas(final List<String> anyTypeClasses) {
         setSchemas(anyTypeClasses, null, schemas);
     }
 
-    protected void setSchemas(final List<String> anyTypeClasses, final String groupName, final Map<String, S> scs) {
+    protected void setSchemas(final List<String> anyTypeClasses, final String name, final Map<String, S> scs) {
         final List<S> allSchemas;
         if (anyTypeClasses.isEmpty()) {
             allSchemas = new ArrayList<>();
@@ -179,9 +213,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         if (filterSchemas()) {
             // 1. remove attributes not selected for display
             allSchemas.removeAll(allSchemas.stream().
-                    filter(schemaTO -> StringUtils.isBlank(groupName)
+                    filter(schemaTO -> StringUtils.isBlank(name)
                     ? !whichAttrs.containsKey(schemaTO.getKey())
-                    : !whichAttrs.containsKey(groupName + '#' + schemaTO.getKey())).collect(Collectors.toSet()));
+                    : !whichAttrs.containsKey(name + '#' + schemaTO.getKey())).collect(Collectors.toSet()));
         }
 
         allSchemas.forEach(schemaTO -> scs.put(schemaTO.getKey(), schemaTO));
@@ -195,13 +229,23 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected abstract void setAttrs(MembershipTO membershipTO);
 
+    protected abstract void setAttrs(RelationshipTO membershipTO);
+
     protected abstract List<Attr> getAttrsFromTO();
 
     protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO) {
         try {
-            return syncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
+            return syncopeRestClient.readUserGroupTypeExtension(membershipTO.getGroupName());
+        } catch (Exception e) {
+            return List.of();
+        }
+    }
+
+    protected List<String> getRelationshipAuxClasses(final RelationshipTO relationshipTO) {
+        try {
+            return syncopeRestClient.readUserRelationshipTypeExtension(relationshipTO.getType());
         } catch (Exception e) {
             return List.of();
         }

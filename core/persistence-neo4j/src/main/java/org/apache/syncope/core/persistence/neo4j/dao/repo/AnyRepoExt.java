@@ -26,7 +26,9 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
@@ -84,6 +86,8 @@ public interface AnyRepoExt<A extends Any> {
     Collection<String> findAllResourceKeys(String key);
 
     List<A> findByResourcesContaining(ExternalResource resource);
+
+    void deleteRelationship(Relationship<? extends A, AnyObject> relationship);
 
     <S extends A> S save(S any);
 

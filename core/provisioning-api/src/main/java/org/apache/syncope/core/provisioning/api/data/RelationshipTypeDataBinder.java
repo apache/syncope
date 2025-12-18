@@ -19,13 +19,17 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 
 public interface RelationshipTypeDataBinder {
 
     RelationshipType create(RelationshipTypeTO relationshipTypeTO);
 
     void update(RelationshipType relationshipType, RelationshipTypeTO relationshipTypeTO);
+
+    TypeExtensionTO getTypeExtensionTO(RelationshipTypeExtension typeExt);
 
     RelationshipTypeTO getRelationshipTypeTO(RelationshipType relationshipType);
 }

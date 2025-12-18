@@ -260,7 +260,30 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 target.add(typeExtensionsModal.setContent(new TypeExtensionDirectoryPanel(
-                        typeExtensionsModal, model.getObject(), pageRef)));
+                        typeExtensionsModal, model.getObject(), pageRef) {
+
+                    private static final long serialVersionUID = -2603789363348077538L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target) {
+                        GroupUR req = new GroupUR();
+                        req.setKey(model.getObject().getKey());
+                        req.getTypeExtensions().addAll(typeExtensionHolder.getTypeExtensions());
+
+                        try {
+                            groupRestClient.update(model.getObject().getETagValue(), req);
+
+                            baseModal.show(false);
+                            baseModal.close(target);
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("Group update failure", e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
                 typeExtensionsModal.show(true);
             }

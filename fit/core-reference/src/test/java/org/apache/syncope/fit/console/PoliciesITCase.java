@@ -780,23 +780,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
 
-        formTester = TESTER.newFormTester(
-                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(
-                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(
-                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
+        for (int i = 0; i < 4; i++) {
+            formTester = TESTER.newFormTester(
+                    "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                    + "outerObjectsRepeater:0:outer:form:content:form");
+            assertNotNull(formTester);
+            formTester.submit("buttons:next");
+        }
 
         formTester = TESTER.newFormTester(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"

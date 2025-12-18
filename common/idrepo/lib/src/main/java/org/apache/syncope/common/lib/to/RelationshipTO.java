@@ -18,11 +18,22 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class RelationshipTO implements BaseBean {
+public class RelationshipTO implements BaseBean, AttributableTO {
 
     private static final long serialVersionUID = 360672942026613929L;
 
@@ -46,6 +57,11 @@ public class RelationshipTO implements BaseBean {
             instance.setEnd(end);
         }
 
+        public Builder otherEnd(final String otherEndKey) {
+            instance.setOtherEndKey(otherEndKey);
+            return this;
+        }
+
         public Builder otherEnd(final String otherEndType, final String otherEndKey) {
             instance.setOtherEndType(otherEndType);
             instance.setOtherEndKey(otherEndKey);
@@ -56,6 +72,21 @@ public class RelationshipTO implements BaseBean {
             instance.setOtherEndType(otherEndType);
             instance.setOtherEndKey(otherEndKey);
             instance.setOtherEndName(otherEndName);
+            return this;
+        }
+
+        public Builder plainAttr(final Attr plainAttr) {
+            instance.getPlainAttrs().add(plainAttr);
+            return this;
+        }
+
+        public Builder plainAttrs(final Attr... plainAttrs) {
+            instance.getPlainAttrs().addAll(List.of(plainAttrs));
+            return this;
+        }
+
+        public Builder plainAttrs(final Collection<Attr> plainAttrs) {
+            instance.getPlainAttrs().addAll(plainAttrs);
             return this;
         }
 
@@ -73,6 +104,10 @@ public class RelationshipTO implements BaseBean {
     private String otherEndKey;
 
     private String otherEndName;
+
+    private final Set<Attr> plainAttrs = new TreeSet<>();
+
+    private final Set<Attr> derAttrs = new TreeSet<>();
 
     public String getType() {
         return type;
@@ -114,6 +149,32 @@ public class RelationshipTO implements BaseBean {
         this.end = end;
     }
 
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
+    @Override
+    public Set<Attr> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Attr> getPlainAttr(final String schema) {
+        return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "derAttrs")
+    @JacksonXmlProperty(localName = "derAttr")
+    @Override
+    public Set<Attr> getDerAttrs() {
+        return derAttrs;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Attr> getDerAttr(final String schema) {
+        return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -122,6 +183,8 @@ public class RelationshipTO implements BaseBean {
                 append(otherEndKey).
                 append(otherEndName).
                 append(end).
+                append(plainAttrs).
+                append(derAttrs).
                 build();
     }
 
@@ -143,6 +206,18 @@ public class RelationshipTO implements BaseBean {
                 append(otherEndKey, other.otherEndKey).
                 append(otherEndName, other.otherEndName).
                 append(end, other.end).
+                append(plainAttrs, other.plainAttrs).
+                append(derAttrs, other.derAttrs).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
+                append(type).
+                append(end).
+                append(otherEndType).
+                append(otherEndKey).
                 build();
     }
 }

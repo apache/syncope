@@ -21,125 +21,115 @@ package org.apache.syncope.core.provisioning.api;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public class IntAttrName {
 
-    private AnyTypeKind anyTypeKind;
+    public record SchemaInfo(Schema schema, SchemaType type) {
+
+    }
+
+    public record RelationshipInfo(String type, String anyObject) {
+
+    }
+
+    protected static class Builder {
+
+        private final IntAttrName instance = new IntAttrName();
+
+        public Builder withField(final String field) {
+            instance.field = field;
+            return this;
+        }
+
+        public Builder withSchemaInfo(final SchemaInfo schemaInfo) {
+            instance.schemaInfo = schemaInfo;
+            return this;
+        }
+
+        public Builder withExternalGroup(final String externalGroup) {
+            instance.externalGroup = externalGroup;
+            return this;
+        }
+
+        public Builder withExternalUser(final String externalUser) {
+            instance.externalUser = externalUser;
+            return this;
+        }
+
+        public Builder withExternalAnyObject(final String externalAnyObject) {
+            instance.externalAnyObject = externalAnyObject;
+            return this;
+        }
+
+        public Builder withMembership(final String membership) {
+            instance.membership = membership;
+            return this;
+        }
+
+        public Builder withRelationship(final String type, final String anyObject) {
+            instance.relationshipInfo = new RelationshipInfo(type, anyObject);
+            return this;
+        }
+
+        protected IntAttrName build() {
+            return instance;
+        }
+    }
 
     private String field;
 
-    private SchemaType schemaType;
+    private SchemaInfo schemaInfo;
 
-    private Schema schema;
+    private String externalGroup;
 
-    private String enclosingGroup;
+    private String externalUser;
 
-    private String relatedUser;
+    private String externalAnyObject;
 
-    private String relatedAnyObject;
+    private String membership;
 
-    private String membershipOfGroup;
-
-    private String relationshipType;
-
-    private String relationshipAnyType;
-
-    public AnyTypeKind getAnyTypeKind() {
-        return anyTypeKind;
-    }
-
-    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
-        this.anyTypeKind = anyTypeKind;
-    }
+    private RelationshipInfo relationshipInfo;
 
     public String getField() {
         return field;
     }
 
-    public void setField(final String field) {
-        this.field = field;
+    public SchemaInfo getSchemaInfo() {
+        return schemaInfo;
     }
 
-    public SchemaType getSchemaType() {
-        return schemaType;
+    public String getExternalGroup() {
+        return externalGroup;
     }
 
-    public void setSchemaType(final SchemaType schemaType) {
-        this.schemaType = schemaType;
+    public String getExternalUser() {
+        return externalUser;
     }
 
-    public Schema getSchema() {
-        return schema;
+    public String getExternalAnyObject() {
+        return externalAnyObject;
     }
 
-    public void setSchema(final Schema schemaName) {
-        this.schema = schemaName;
+    public String getMembership() {
+        return membership;
     }
 
-    public String getEnclosingGroup() {
-        return enclosingGroup;
-    }
-
-    public void setEnclosingGroup(final String enclosingGroup) {
-        this.enclosingGroup = enclosingGroup;
-    }
-
-    public String getRelatedUser() {
-        return relatedUser;
-    }
-
-    public void setRelatedUser(final String relatedUser) {
-        this.relatedUser = relatedUser;
-    }
-
-    public String getRelatedAnyObject() {
-        return relatedAnyObject;
-    }
-
-    public void setRelatedAnyObject(final String relatedAnyObject) {
-        this.relatedAnyObject = relatedAnyObject;
-    }
-
-    public String getMembershipOfGroup() {
-        return membershipOfGroup;
-    }
-
-    public void setMembershipOfGroup(final String membershipOfGroup) {
-        this.membershipOfGroup = membershipOfGroup;
-    }
-
-    public String getRelationshipType() {
-        return relationshipType;
-    }
-
-    public void setRelationshipType(final String relationshipType) {
-        this.relationshipType = relationshipType;
-    }
-
-    public String getRelationshipAnyType() {
-        return relationshipAnyType;
-    }
-
-    public void setRelationshipAnyType(final String relationshipAnyType) {
-        this.relationshipAnyType = relationshipAnyType;
+    public RelationshipInfo getRelationshipInfo() {
+        return relationshipInfo;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(anyTypeKind).
                 append(field).
-                append(schemaType).
-                append(schema).
-                append(enclosingGroup).
-                append(relatedUser).
-                append(relatedAnyObject).
-                append(membershipOfGroup).
-                append(relationshipType).
-                append(relationshipAnyType).
+                append(schemaInfo).
+                append(externalGroup).
+                append(externalUser).
+                append(externalAnyObject).
+                append(membership).
+                append(relationshipInfo).
                 build();
     }
 
@@ -156,32 +146,26 @@ public class IntAttrName {
         }
         final IntAttrName other = (IntAttrName) obj;
         return new EqualsBuilder().
-                append(anyTypeKind, other.anyTypeKind).
                 append(field, other.field).
-                append(schemaType, other.schemaType).
-                append(schema, other.schema).
-                append(enclosingGroup, other.enclosingGroup).
-                append(relatedUser, other.relatedUser).
-                append(relatedAnyObject, other.relatedAnyObject).
-                append(membershipOfGroup, other.membershipOfGroup).
-                append(relationshipType, other.relationshipType).
-                append(relationshipAnyType, other.relationshipAnyType).
+                append(schemaInfo, other.schemaInfo).
+                append(externalGroup, other.externalGroup).
+                append(externalUser, other.externalUser).
+                append(externalAnyObject, other.externalAnyObject).
+                append(membership, other.membership).
+                append(relationshipInfo, other.relationshipInfo).
                 build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this).
-                append(anyTypeKind).
                 append(field).
-                append(schemaType).
-                append(schema).
-                append(enclosingGroup).
-                append(relatedUser).
-                append(relatedAnyObject).
-                append(membershipOfGroup).
-                append(relationshipType).
-                append(relationshipAnyType).
+                append(schemaInfo).
+                append(externalGroup).
+                append(externalUser).
+                append(externalAnyObject).
+                append(membership).
+                append(relationshipInfo).
                 build();
     }
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.fit.core.reference.flowable;
 
 import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.flowable.task.FlowableServiceTask;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -52,8 +51,7 @@ public class CreateARelationship extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getRelationships().add(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
-                    otherEnd("PRINTER", printer).build()).build());
+            userUR.getRelationships().add(new RelationshipUR.Builder("neighborhood").otherEnd(printer).build());
 
             UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 

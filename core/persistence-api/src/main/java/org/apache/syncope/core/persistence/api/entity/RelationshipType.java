@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface RelationshipType extends ProvidedKeyEntity {
 
     String getDescription();
@@ -31,4 +34,10 @@ public interface RelationshipType extends ProvidedKeyEntity {
     AnyType getRightEndAnyType();
 
     void setRightEndAnyType(AnyType anyType);
+
+    boolean add(RelationshipTypeExtension typeExtension);
+
+    Optional<? extends RelationshipTypeExtension> getTypeExtension(AnyType anyType);
+
+    List<? extends RelationshipTypeExtension> getTypeExtensions();
 }

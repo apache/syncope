@@ -128,11 +128,11 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
 
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"));
+                + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), Constants.ON_CLICK);
+                + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"), Constants.ON_CLICK);
 
         assertSuccessMessage();
 

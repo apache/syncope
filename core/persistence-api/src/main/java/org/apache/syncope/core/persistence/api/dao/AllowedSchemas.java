@@ -21,82 +21,61 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public class AllowedSchemas<S extends Schema> {
 
-    private final Set<S> forSelf = new HashSet<>();
+    private final Set<S> self = new HashSet<>();
 
-    private final Map<Group, Set<S>> forMemberships = new HashMap<>();
+    private final Map<Group, Set<S>> memberships = new HashMap<>();
 
-    public Set<S> getForSelf() {
-        return forSelf;
+    private final Map<RelationshipType, Set<S>> relationshipTypes = new HashMap<>();
+
+    public Set<S> self() {
+        return self;
     }
 
-    public Set<S> getForMembership(final Group group) {
-        return forMemberships.get(group) == null ? Set.of() : forMemberships.get(group);
+    public Set<S> membership(final Group group) {
+        return Optional.ofNullable(memberships.get(group)).orElseGet(Set::of);
     }
 
-    public Map<Group, Set<S>> getForMemberships() {
-        return forMemberships;
+    public Map<Group, Set<S>> memberships() {
+        return memberships;
     }
 
-    public boolean forSelfContains(final S schema) {
-        return forSelf.contains(schema);
+    public Set<S> relationshipType(final RelationshipType relationshipType) {
+        return Optional.ofNullable(relationshipTypes.get(relationshipType)).orElseGet(Set::of);
     }
 
-    public boolean forSelfContains(final String schema) {
-        return forSelf.stream().anyMatch(new KeyMatches(schema));
+    public Map<RelationshipType, Set<S>> relationshipTypes() {
+        return relationshipTypes;
     }
 
-    public boolean forMembershipsContains(final Group group, final S schema) {
-        return getForMembership(group).stream().anyMatch(s -> s.equals(schema));
+    public boolean selfContains(final S schema) {
+        return self.contains(schema);
     }
 
-    public boolean forMembershipsContains(final S schema) {
-        return forMemberships.entrySet().stream().
-                anyMatch(entry -> entry.getValue().contains(schema));
+    public boolean selfContains(final String schema) {
+        return self.stream().anyMatch(s -> s.getKey().equals(schema));
     }
 
-    public boolean forMembershipsContains(final Group group, final String schema) {
-        return getForMembership(group).stream().anyMatch(new KeyMatches(schema));
+    public boolean membershipsContains(final Group group, final S schema) {
+        return membership(group).contains(schema);
     }
 
-    public boolean forMembershipsContains(final String schema) {
-        KeyMatches keyMatches = new KeyMatches(schema);
-
-        return forMemberships.entrySet().stream().
-                anyMatch(entry -> entry.getValue().stream().anyMatch(keyMatches));
+    public boolean membershipsContains(final Group group, final String schema) {
+        return membership(group).stream().anyMatch(s -> s.getKey().equals(schema));
     }
 
-    public boolean contains(final S schema) {
-        if (forSelfContains(schema)) {
-            return true;
-        }
-        return forMembershipsContains(schema);
+    public boolean relationshipTypesContains(final RelationshipType relationshipType, final S schema) {
+        return relationshipType(relationshipType).contains(schema);
     }
 
-    public boolean contains(final String schema) {
-        if (forSelfContains(schema)) {
-            return true;
-        }
-        return forMembershipsContains(schema);
-    }
-
-    private class KeyMatches implements Predicate<S> {
-
-        private final String schema;
-
-        KeyMatches(final String schema) {
-            this.schema = schema;
-        }
-
-        @Override
-        public boolean test(final S object) {
-            return object.getKey().equals(schema);
-        }
+    public boolean relationshipTypesContains(final RelationshipType relationshipType, final String schema) {
+        return relationshipType(relationshipType).stream().anyMatch(s -> s.getKey().equals(schema));
     }
 }

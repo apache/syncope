@@ -46,8 +46,6 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
     Map<String, Long> countByRealm(AnyType anyType);
 
-    AMembership findMembership(String key);
-
     void deleteMembership(AMembership membership);
 
     List<Group> findDynGroups(String key);

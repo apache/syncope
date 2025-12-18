@@ -101,7 +101,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
                     LOG.error("Invalid intAttrName '{}' specified, ignoring", itemTO.getIntAttrName(), e);
                 }
 
-                if (intAttrName == null || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                if (intAttrName == null || intAttrName.getSchemaInfo() == null && intAttrName.getField() == null) {
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {

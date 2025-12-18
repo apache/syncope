@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,11 +34,23 @@ public abstract class AbstractMembership<L extends Any>
 
     protected abstract Map<String, PlainAttr> plainAttrs();
 
-    public abstract List<PlainAttr> getPlainAttrs();
+    public List<PlainAttr> getPlainAttrs() {
+        return plainAttrs().entrySet().stream().
+                filter(e -> e.getValue() != null).
+                sorted(Comparator.comparing(Map.Entry::getKey)).
+                map(Map.Entry::getValue).toList();
+    }
 
-    public abstract Optional<PlainAttr> getPlainAttr(String plainSchema);
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
+        return Optional.ofNullable(plainAttrs().get(plainSchema));
+    }
 
-    public abstract boolean add(PlainAttr attr);
+    public boolean add(final PlainAttr attr) {
+        return getKey().equals(attr.getMembership())
+                && plainAttrs().put(attr.getSchema(), attr) != null;
+    }
 
-    public abstract boolean remove(String plainSchema);
+    public boolean remove(final String plainSchema) {
+        return plainAttrs().put(plainSchema, null) != null;
+    }
 }

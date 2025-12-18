@@ -19,12 +19,19 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Cacheable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
 
 @Entity
@@ -46,6 +53,9 @@ public class JPARelationshipType extends AbstractProvidedKeyEntity implements Re
     @NotNull
     @ManyToOne
     private JPAAnyType rightEndAnyType;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "relationshipType")
+    private List<JPARelationshipTypeExtension> typeExtensions = new ArrayList<>();
 
     @Override
     public String getDescription() {
@@ -77,5 +87,23 @@ public class JPARelationshipType extends AbstractProvidedKeyEntity implements Re
     public void setRightEndAnyType(final AnyType anyType) {
         checkType(anyType, JPAAnyType.class);
         this.rightEndAnyType = (JPAAnyType) anyType;
+    }
+
+    @Override
+    public boolean add(final RelationshipTypeExtension typeExtension) {
+        checkType(typeExtension, JPARelationshipTypeExtension.class);
+        return typeExtensions.add((JPARelationshipTypeExtension) typeExtension);
+    }
+
+    @Override
+    public Optional<? extends RelationshipTypeExtension> getTypeExtension(final AnyType anyType) {
+        return typeExtensions.stream().
+                filter(typeExtension -> typeExtension.getAnyType().equals(anyType)).
+                findFirst();
+    }
+
+    @Override
+    public List<? extends RelationshipTypeExtension> getTypeExtensions() {
+        return typeExtensions;
     }
 }

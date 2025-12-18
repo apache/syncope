@@ -29,28 +29,10 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 
 public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
-
-    private static boolean raiseNotAllowedViolation(
-            final ConstraintValidatorContext context,
-            final String schema,
-            final Group group) {
-
-        if (group == null) {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidPlainAttr,
-                            schema + " not allowed for this instance")).
-                    addPropertyNode("plainAttrs").addConstraintViolation();
-        } else {
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidPlainAttr,
-                            schema + " not allowed for membership of group " + group.getName())).
-                    addPropertyNode("plainAttrs").addConstraintViolation();
-        }
-        return false;
-    }
 
     @Override
     public boolean isValid(final Any any, final ConstraintValidatorContext context) {
@@ -62,18 +44,44 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
 
         for (PlainAttr attr : any.getPlainAttrs()) {
             String plainSchema = Optional.ofNullable(attr).map(PlainAttr::getSchema).orElse(null);
-            if (plainSchema != null && !allowedPlainSchemas.forSelfContains(plainSchema)) {
-                return raiseNotAllowedViolation(context, plainSchema, null);
+            if (plainSchema != null && !allowedPlainSchemas.selfContains(plainSchema)) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidPlainAttr,
+                                plainSchema + " not allowed for this instance")).
+                        addPropertyNode("plainAttrs").addConstraintViolation();
+                return false;
             }
         }
-        if (any instanceof Groupable<?, ?, ?> groupableRelatable) {
-            for (Membership<?> membership : groupableRelatable.getMemberships()) {
-                for (PlainAttr attr : groupableRelatable.getPlainAttrs(membership)) {
+        if (any instanceof Groupable<?, ?, ?> groupable) {
+            for (Membership<?> membership : groupable.getMemberships()) {
+                for (PlainAttr attr : groupable.getPlainAttrs(membership)) {
                     String plainSchema = Optional.ofNullable(attr).map(PlainAttr::getSchema).orElse(null);
                     if (plainSchema != null
-                            && !allowedPlainSchemas.forMembershipsContains(membership.getRightEnd(), plainSchema)) {
+                            && !allowedPlainSchemas.membershipsContains(membership.getRightEnd(), plainSchema)) {
 
-                        return raiseNotAllowedViolation(context, plainSchema, membership.getRightEnd());
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidPlainAttr,
+                                        plainSchema + " not allowed for membership of group "
+                                        + membership.getRightEnd().getName())).
+                                addPropertyNode("plainAttrs").addConstraintViolation();
+                        return false;
+                    }
+                }
+            }
+        }
+        if (any instanceof Relatable<?, ?> relatable) {
+            for (Relationship<?, ?> relationship : relatable.getRelationships()) {
+                for (PlainAttr attr : relatable.getPlainAttrs(relationship)) {
+                    String plainSchema = Optional.ofNullable(attr).map(PlainAttr::getSchema).orElse(null);
+                    if (plainSchema != null
+                            && !allowedPlainSchemas.relationshipTypesContains(relationship.getType(), plainSchema)) {
+
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidPlainAttr,
+                                        plainSchema + " not allowed for relationships of type "
+                                        + relationship.getType().getKey())).
+                                addPropertyNode("plainAttrs").addConstraintViolation();
+                        return false;
                     }
                 }
             }

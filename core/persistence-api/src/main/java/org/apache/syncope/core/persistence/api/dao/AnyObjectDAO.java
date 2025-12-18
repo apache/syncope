@@ -60,8 +60,6 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Map<String, Long> countByRealm(AnyType anyType);
 
-    AMembership findMembership(String key);
-
     void deleteMembership(AMembership membership);
 
     List<Group> findDynGroups(String key);

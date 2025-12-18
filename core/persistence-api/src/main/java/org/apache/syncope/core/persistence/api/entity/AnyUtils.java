@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyUtils {
 
@@ -51,7 +52,11 @@ public interface AnyUtils {
 
     void removeAttr(String key, PlainSchema schema);
 
-    void addRelationship(Relatable<?, ?> relatable, RelationshipType relationshipType, AnyObject otherEnd);
+    Membership<?> add(Groupable<?, ?, ?> groupable, Group group);
 
-    void removeRelationship(Relatable<?, ?> relatable, RelationshipType relationshipType, String otherEndKey);
+    void remove(Groupable<?, ?, ?> groupable, Membership<?> membership);
+
+    Relationship<?, ?> add(Relatable<?, ?> relatable, RelationshipType relationshipType, AnyObject otherEnd);
+
+    void remove(Relatable<?, ?> relatable, Relationship<?, ?> relationship);
 }

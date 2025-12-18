@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -285,7 +286,8 @@ public class JPAUser
     @Override
     public boolean remove(final PlainAttr attr) {
         return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
-                && Objects.equals(a.getMembership(), attr.getMembership()));
+                && Objects.equals(a.getMembership(), attr.getMembership())
+                && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override
@@ -453,6 +455,13 @@ public class JPAUser
     }
 
     @Override
+    public boolean remove(final Relationship<?, ?> relationship) {
+        checkType(relationship, JPAURelationship.class);
+        plainAttrsList.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        return relationships.remove((JPAURelationship) relationship);
+    }
+
+    @Override
     public List<? extends URelationship> getRelationships() {
         return relationships;
     }
@@ -460,14 +469,14 @@ public class JPAUser
     @Override
     public boolean add(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
-        return this.memberships.add((JPAUMembership) membership);
+        return memberships.add((JPAUMembership) membership);
     }
 
     @Override
     public boolean remove(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
         plainAttrsList.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
-        return this.memberships.remove((JPAUMembership) membership);
+        return memberships.remove((JPAUMembership) membership);
     }
 
     @Override

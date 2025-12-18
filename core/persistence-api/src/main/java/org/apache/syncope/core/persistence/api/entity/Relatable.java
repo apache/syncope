@@ -18,20 +18,38 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface Relatable<L extends Any, REL extends Relationship<L, AnyObject>> extends Any {
+public interface Relatable<L extends Any, R extends Relationship<L, AnyObject>> extends Any {
 
-    boolean add(REL relationship);
+    /**
+     * Returns the plain attribute for this instance, the given schema name and the given relationship.
+     *
+     * @param plainSchema plain schema name
+     * @param relationship relationship
+     * @return plain attribute for this instance, the given schema name and the given membership
+     */
+    Optional<PlainAttr> getPlainAttr(String plainSchema, Relationship<?, ?> relationship);
 
-    Optional<? extends REL> getRelationship(RelationshipType relationshipType, String otherEndKey);
+    /**
+     * Returns the list of plain attributes for this instance and the given membership.
+     *
+     * @param relationship membership
+     * @return list of plain attributes for this instance and the given membership
+     */
+    List<PlainAttr> getPlainAttrs(Relationship<?, ?> relationship);
 
-    Collection<? extends REL> getRelationships(String otherEndKey);
+    boolean add(R relationship);
 
-    Collection<? extends REL> getRelationships(RelationshipType relationshipType);
+    boolean remove(Relationship<?, ?> relationship);
 
-    List<? extends REL> getRelationships();
+    Optional<? extends R> getRelationship(RelationshipType relationshipType, String otherEndKey);
+
+    List<? extends R> getRelationships(String otherEndKey);
+
+    List<? extends R> getRelationships(RelationshipType relationshipType);
+
+    List<? extends R> getRelationships();
 }

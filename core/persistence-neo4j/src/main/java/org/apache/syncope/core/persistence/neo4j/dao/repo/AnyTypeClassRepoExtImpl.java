@@ -26,11 +26,13 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
@@ -54,6 +56,8 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
 
     protected final GroupDAO groupDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final ExternalResourceDAO resourceDAO;
 
     protected final NodeValidator nodeValidator;
@@ -69,6 +73,7 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -83,6 +88,7 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.groupDAO = groupDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.resourceDAO = resourceDAO;
         this.nodeValidator = nodeValidator;
         this.anyTypeCache = anyTypeCache;
@@ -160,7 +166,7 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
                     ifPresent(cached -> cached.getClasses().remove(anyTypeClass));
         }
 
-        for (TypeExtension typeExt : groupDAO.findTypeExtensions(anyTypeClass)) {
+        for (GroupTypeExtension typeExt : groupDAO.findTypeExtensions(anyTypeClass)) {
             typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
@@ -168,6 +174,14 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
 
                 typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
+            }
+        }
+        for (RelationshipTypeExtension typeExt : relationshipTypeDAO.findTypeExtensions(anyTypeClass)) {
+            typeExt.getAuxClasses().remove(anyTypeClass);
+
+            if (typeExt.getAuxClasses().isEmpty()) {
+                typeExt.getRelationshipType().getTypeExtensions().remove(typeExt);
+                typeExt.setRelationshipType(null);
             }
         }
 

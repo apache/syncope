@@ -74,7 +74,6 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -857,7 +856,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Item relationships = new Item();
             relationships.setPurpose(MappingPurpose.PROPAGATION);
-            relationships.setIntAttrName("relationships[neighborhood][PRINTER].model");
+            relationships.setIntAttrName("anyObjects[HP LJ 1300n].model");
             relationships.setExtAttrName("l");
             provision.getMapping().add(relationships);
 
@@ -865,16 +864,13 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ldap.getProvisions().add(provision);
             RESOURCE_SERVICE.create(ldap);
 
-            // 1. create user with relationship and the new resource assigned
+            // 1. create user with the new resource assigned
             UserCR userCR = UserITCase.getUniqueSample("syncope1567@syncope.apache.org");
-            userCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
-                    otherEnd(PRINTER, "fc6dbc3a-6c07-4965-8781-921e7401a4a5").build());
             userCR.getResources().clear();
             userCR.getResources().add(ldap.getKey());
 
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
-            assertFalse(userTO.getRelationships().isEmpty());
 
             // 2. check attributes prepared for propagation
             PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -890,8 +886,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals("Canon MFC8030", value.getFirst().toString());
 
             // 3. check propagated value
-            ConnObject connObject =
-                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+            ConnObject connObject = RESOURCE_SERVICE.readConnObject(
+                    ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             List<String> values = connObject.getAttr("l").map(Attr::getValues).orElseThrow();
             assertFalse(values.isEmpty());

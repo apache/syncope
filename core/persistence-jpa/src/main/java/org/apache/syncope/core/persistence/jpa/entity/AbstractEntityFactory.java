@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -63,7 +64,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
@@ -110,7 +111,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGRelationship;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPAConfParam;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPADomain;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
@@ -184,10 +185,12 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAUser();
         } else if (reference.equals(Group.class)) {
             result = (E) new JPAGroup();
-        } else if (reference.equals(TypeExtension.class)) {
-            result = (E) new JPATypeExtension();
+        } else if (reference.equals(GroupTypeExtension.class)) {
+            result = (E) new JPAGroupTypeExtension();
         } else if (reference.equals(RelationshipType.class)) {
             result = (E) new JPARelationshipType();
+        } else if (reference.equals(RelationshipTypeExtension.class)) {
+            result = (E) new JPARelationshipTypeExtension();
         } else if (reference.equals(ARelationship.class)) {
             result = (E) new JPAARelationship();
         } else if (reference.equals(URelationship.class)) {

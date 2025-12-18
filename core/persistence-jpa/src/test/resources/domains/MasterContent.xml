@@ -393,9 +393,9 @@ under the License.
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin"
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"
-                 group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" anyType_id="PRINTER"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" anyTypeClass_id="other"/>
+  <GroupTypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"
+                      group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" anyType_id="PRINTER"/>
+  <GroupTypeExtension_Class typeExtension_id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" anyTypeClass_id="other"/>
   <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin"
@@ -428,10 +428,10 @@ under the License.
                 realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
                 creator="admin" lastModifier="admin"
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"
-                 group_id="034740a9-fa10-453b-af37-dc7897e98fb1" anyType_id="USER"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="csv"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="other"/>
+  <GroupTypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"
+                      group_id="034740a9-fa10-453b-af37-dc7897e98fb1" anyType_id="USER"/>
+  <GroupTypeExtension_Class typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="csv"/>
+  <GroupTypeExtension_Class typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="other"/>
   <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
                 realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"
                 creator="admin" lastModifier="admin"

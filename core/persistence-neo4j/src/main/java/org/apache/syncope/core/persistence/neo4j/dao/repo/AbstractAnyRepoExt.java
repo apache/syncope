@@ -45,9 +45,13 @@ import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
@@ -55,6 +59,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGRelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -192,17 +199,17 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
                 atc.getPlainSchemas().stream().
                         map(schema -> plainSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
-                        forEach(schema -> result.getForSelf().add((S) schema));
+                        forEach(schema -> result.self().add((S) schema));
             } else if (reference.equals(DerSchema.class)) {
                 atc.getDerSchemas().stream().
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
-                        forEach(schema -> result.getForSelf().add((S) schema));
+                        forEach(schema -> result.self().add((S) schema));
             }
         });
 
         // schemas given by type extensions
-        Map<Group, Set<AnyTypeClass>> typeExtensionClasses = new HashMap<>();
+        Map<Group, Set<AnyTypeClass>> gTypeExtensionClasses = new HashMap<>();
         switch (any) {
             case User user ->
                 user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().forEach(typeExt -> {
@@ -213,7 +220,7 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
                         typeExtClasses.add(anyTypeClass);
                     });
 
-                    typeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
+                    gTypeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
                 }));
 
             case AnyObject anyObject ->
@@ -227,26 +234,73 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
                         typeExtClasses.add(anyTypeClass);
                     });
 
-                    typeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
+                    gTypeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
                 }));
 
             default -> {
             }
         }
-
-        typeExtensionClasses.entrySet().stream().peek(
-                entry -> result.getForMemberships().put(entry.getKey(), new HashSet<>()))
+        gTypeExtensionClasses.entrySet().stream().peek(
+                entry -> result.memberships().put(entry.getKey(), new HashSet<>()))
                 .forEach(entry -> entry.getValue().forEach(atc -> {
             if (reference.equals(PlainSchema.class)) {
                 atc.getPlainSchemas().stream().
                         map(schema -> plainSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
-                        forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
+                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
             } else if (reference.equals(DerSchema.class)) {
                 atc.getDerSchemas().stream().
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
-                        forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
+                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
+            }
+        }));
+
+        // schemas given by relationship type extensions
+        Map<RelationshipType, Set<AnyTypeClass>> rTypeExtensionClasses = new HashMap<>();
+        switch (any) {
+            case User user ->
+                user.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().forEach(typeExt -> {
+                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
+                    typeExt.getAuxClasses().forEach(atc -> {
+                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
+                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
+                        typeExtClasses.add(anyTypeClass);
+                    });
+
+                    rTypeExtensionClasses.put(rel.getType(), typeExtClasses);
+                }));
+
+            case AnyObject anyObject ->
+                anyObject.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().stream().
+                        filter(typeExt -> any.getType().equals(typeExt.getAnyType())).forEach(typeExt -> {
+
+                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
+                    typeExt.getAuxClasses().forEach(atc -> {
+                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
+                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
+                        typeExtClasses.add(anyTypeClass);
+                    });
+
+                    rTypeExtensionClasses.put(rel.getType(), typeExtClasses);
+                }));
+
+            default -> {
+            }
+        }
+        rTypeExtensionClasses.entrySet().stream().peek(
+                entry -> result.relationshipTypes().put(entry.getKey(), new HashSet<>()))
+                .forEach(entry -> entry.getValue().forEach(atc -> {
+            if (reference.equals(PlainSchema.class)) {
+                atc.getPlainSchemas().stream().
+                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
+                        flatMap(Optional::stream).
+                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
+            } else if (reference.equals(DerSchema.class)) {
+                atc.getDerSchemas().stream().
+                        map(schema -> derSchemaDAO.findById(schema.getKey())).
+                        flatMap(Optional::stream).
+                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
             }
         }));
 
@@ -273,6 +327,16 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
                 resource.getKey(),
                 anyUtils.anyClass(),
                 cache());
+    }
+
+    @Override
+    public void deleteRelationship(final Relationship<? extends A, AnyObject> relationship) {
+        var domainType = relationship instanceof URelationship
+                ? Neo4jURelationship.class
+                : relationship instanceof GRelationship
+                        ? Neo4jGRelationship.class
+                        : Neo4jARelationship.class;
+        neo4jTemplate.deleteById(relationship.getKey(), domainType);
     }
 
     protected <T extends Attributable> void checkBeforeSave(final T attributable) {

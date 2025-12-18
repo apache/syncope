@@ -31,14 +31,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelatable;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
@@ -97,7 +99,7 @@ public class Neo4jGroup
     private List<Neo4jADynGroupMembership> aDynMemberships = new ArrayList<>();
 
     @Relationship(type = GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jTypeExtension> typeExtensions = new ArrayList<>();
+    private List<Neo4jGroupTypeExtension> typeExtensions = new ArrayList<>();
 
     @Relationship(type = Neo4jGRelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jGRelationship> relationships = new ArrayList<>();
@@ -174,7 +176,7 @@ public class Neo4jGroup
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, Neo4jAnyTypeClass.class);
-        return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || this.auxClasses.add((Neo4jAnyTypeClass) auxClass);
+        return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);
     }
 
     @Override
@@ -185,7 +187,7 @@ public class Neo4jGroup
     @Override
     public boolean add(final ADynGroupMembership dynGroupMembership) {
         checkType(dynGroupMembership, Neo4jADynGroupMembership.class);
-        return this.aDynMemberships.add((Neo4jADynGroupMembership) dynGroupMembership);
+        return aDynMemberships.add((Neo4jADynGroupMembership) dynGroupMembership);
     }
 
     @Override
@@ -201,31 +203,37 @@ public class Neo4jGroup
     }
 
     @Override
-    public boolean add(final TypeExtension typeExtension) {
-        checkType(typeExtension, Neo4jTypeExtension.class);
-        return this.typeExtensions.add((Neo4jTypeExtension) typeExtension);
+    public boolean add(final GroupTypeExtension typeExtension) {
+        checkType(typeExtension, Neo4jGroupTypeExtension.class);
+        return typeExtensions.add((Neo4jGroupTypeExtension) typeExtension);
     }
 
     @Override
-    public Optional<? extends TypeExtension> getTypeExtension(final AnyType anyType) {
+    public Optional<? extends GroupTypeExtension> getTypeExtension(final AnyType anyType) {
         return typeExtensions.stream().
                 filter(typeExtension -> typeExtension.getAnyType().equals(anyType)).
                 findFirst();
     }
 
     @Override
-    public List<? extends TypeExtension> getTypeExtensions() {
+    public List<? extends GroupTypeExtension> getTypeExtensions() {
         return typeExtensions;
     }
 
     @Override
     public boolean add(final GRelationship relationship) {
         checkType(relationship, Neo4jGRelationship.class);
-        return this.relationships.add((Neo4jGRelationship) relationship);
+        return relationships.add((Neo4jGRelationship) relationship);
     }
 
     @Override
-    public List<? extends GRelationship> getRelationships() {
+    public boolean remove(final org.apache.syncope.core.persistence.api.entity.Relationship<?, ?> relationship) {
+        checkType(relationship, Neo4jGRelationship.class);
+        return relationships.remove((Neo4jGRelationship) relationship);
+    }
+
+    @Override
+    protected List<? extends AbstractRelationship<Group, AnyObject>> relationships() {
         return relationships;
     }
 }

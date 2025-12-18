@@ -18,33 +18,21 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.group;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractTypeExtension;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Node(Neo4jTypeExtension.NODE)
-public class Neo4jTypeExtension extends AbstractGeneratedKeyNode implements TypeExtension {
+@Node(Neo4jGroupTypeExtension.NODE)
+public class Neo4jGroupTypeExtension extends AbstractTypeExtension implements GroupTypeExtension {
 
     private static final long serialVersionUID = -8367626793791263551L;
 
-    public static final String NODE = "TypeExtension";
+    public static final String NODE = "GroupTypeExtension";
 
     @Relationship(type = Neo4jGroup.GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jGroup group;
-
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    private Neo4jAnyType anyType;
-
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    private List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Override
     public Group getGroup() {
@@ -55,27 +43,5 @@ public class Neo4jTypeExtension extends AbstractGeneratedKeyNode implements Type
     public void setGroup(final Group group) {
         checkType(group, Neo4jGroup.class);
         this.group = (Neo4jGroup) group;
-    }
-
-    @Override
-    public AnyType getAnyType() {
-        return anyType;
-    }
-
-    @Override
-    public void setAnyType(final AnyType anyType) {
-        checkType(anyType, Neo4jAnyType.class);
-        this.anyType = (Neo4jAnyType) anyType;
-    }
-
-    @Override
-    public boolean add(final AnyTypeClass auxClass) {
-        checkType(auxClass, Neo4jAnyTypeClass.class);
-        return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);
-    }
-
-    @Override
-    public List<? extends AnyTypeClass> getAuxClasses() {
-        return auxClasses;
     }
 }

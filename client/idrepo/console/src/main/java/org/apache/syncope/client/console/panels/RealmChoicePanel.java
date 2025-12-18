@@ -73,6 +73,10 @@ import org.apache.wicket.request.Response;
 
 public class RealmChoicePanel extends Panel {
 
+    public record ChosenRealm(RealmTO obj, AjaxRequestTarget target) {
+
+    }
+
     private static final long serialVersionUID = -1100228004207271270L;
 
     protected static final String SEARCH_REALMS = "searchRealms";
@@ -124,8 +128,7 @@ public class RealmChoicePanel extends Panel {
                 Stream<Pair<String, RealmTO>> full;
                 if (fullRealmsTree) {
                     full = map.values().stream().
-                            map(realmTOListPair ->
-                                Pair.of(realmTOListPair.getLeft().getFullPath(), realmTOListPair.getKey())).
+                            map(pair -> Pair.of(pair.getLeft().getFullPath(), pair.getLeft())).
                             sorted(Comparator.comparing(Pair::getLeft));
                 } else {
                     full = map.entrySet().stream().
@@ -250,7 +253,7 @@ public class RealmChoicePanel extends Panel {
         model.setObject(realm);
         setBreadcrumb(realm);
         target.add(container);
-        send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realm, target));
+        send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm(realm, target));
     }
 
     public void reloadRealmsTree() {
@@ -510,26 +513,6 @@ public class RealmChoicePanel extends Panel {
             }
         }
         return null;
-    }
-
-    public static class ChosenRealm<T> {
-
-        protected final AjaxRequestTarget target;
-
-        protected final T obj;
-
-        public ChosenRealm(final T obj, final AjaxRequestTarget target) {
-            this.obj = obj;
-            this.target = target;
-        }
-
-        public T getObj() {
-            return obj;
-        }
-
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
     }
 
     public List<AbstractLink> getLinks() {

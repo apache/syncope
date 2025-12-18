@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.user;
 
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -86,29 +83,5 @@ public class Neo4jUMembership extends AbstractMembership<User> implements UMembe
     @Override
     protected Map<String, PlainAttr> plainAttrs() {
         return plainAttrs;
-    }
-
-    @Override
-    public List<PlainAttr> getPlainAttrs() {
-        return plainAttrs.entrySet().stream().
-                filter(e -> e.getValue() != null).
-                sorted(Comparator.comparing(Map.Entry::getKey)).
-                map(Map.Entry::getValue).toList();
-    }
-
-    @Override
-    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return Optional.ofNullable(plainAttrs.get(plainSchema));
-    }
-
-    @Override
-    public boolean add(final PlainAttr attr) {
-        return getKey().equals(attr.getMembership())
-                && plainAttrs.put(attr.getSchema(), attr) != null;
-    }
-
-    @Override
-    public boolean remove(final String plainSchema) {
-        return plainAttrs.put(plainSchema, null) != null;
     }
 }
