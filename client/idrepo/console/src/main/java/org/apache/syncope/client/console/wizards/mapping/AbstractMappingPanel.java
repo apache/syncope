@@ -149,11 +149,11 @@ public abstract class AbstractMappingPanel extends Panel {
         intAttrNameInfo.add(new PopoverBehavior(
                 Model.of(),
                 Model.of(getString("intAttrNameInfo.help")
-                        + "<code>groups[groupName].attribute</code>, "
+                        + " <code>groups[groupName].attribute</code>, "
                         + "<code>users[userName].attribute</code>, "
                         + "<code>anyObjects[anyObjectName].attribute</code>, "
-                        + "<code>relationships[relationshipType][anyType].attribute</code> or "
-                        + "<code>memberships[groupName].attribute</code>"),
+                        + "<code>memberships[groupName].attribute</code>, "
+                        + "<code>relationships[relationshipType][anyObjectName].attribute</code>"),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.right)) {
 
             private static final long serialVersionUID = -7867802555691605021L;

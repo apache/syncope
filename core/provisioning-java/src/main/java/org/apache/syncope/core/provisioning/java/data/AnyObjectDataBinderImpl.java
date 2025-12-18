@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -28,15 +27,12 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
-import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -51,12 +47,9 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -144,21 +137,22 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
             // relationships
             anyObjectTO.getRelationships().addAll(
                     anyObjectDAO.findAllRelationships(anyObject).stream().
-                            map(r -> getRelationshipTO(
-                            r.getType().getKey(),
-                            r.getLeftEnd().getKey().equals(anyObject.getKey())
+                            map(relationship -> getRelationshipTO(anyObject.getPlainAttrs(relationship),
+                            derAttrHandler.getValues(anyObject, relationship),
+                            relationship.getType().getKey(),
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
                             ? RelationshipTO.End.LEFT
                             : RelationshipTO.End.RIGHT,
-                            r.getLeftEnd().getKey().equals(anyObject.getKey())
-                            ? r.getRightEnd()
-                            : r.getLeftEnd())).
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? relationship.getRightEnd()
+                            : relationship.getLeftEnd())).
                             toList());
 
             // memberships
             anyObjectTO.getMemberships().addAll(
                     anyObject.getMemberships().stream().map(membership -> getMembershipTO(
                     anyObject.getPlainAttrs(membership),
-                    derAttrHandler.getValues(anyObject, membership),
+                    derAttrHandler.getValues((Groupable<?, ?, ?>) anyObject, membership),
                     membership)).toList());
 
             // dynamic memberships
@@ -183,6 +177,8 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
 
         AnyObjectTO anyTO = new AnyObjectTO();
         EntityTOUtils.toAnyTO(anyObjectCR, anyTO);
+
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -209,33 +205,7 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
         fill(anyTO, anyObject, anyObjectCR, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
 
         // memberships
-        Set<String> groups = new HashSet<>();
-        anyObjectCR.getMemberships().forEach(membershipTO -> {
-            Group group = membershipTO.getGroupKey() == null
-                    ? groupDAO.findByName(membershipTO.getGroupName()).orElse(null)
-                    : groupDAO.findById(membershipTO.getGroupKey()).orElse(null);
-            if (group == null) {
-                LOG.debug("Ignoring invalid group {} / {}", membershipTO.getGroupKey(), membershipTO.getGroupName());
-            } else if (groups.contains(group.getKey())) {
-                LOG.error("{} was already assigned to {}", group, anyObject);
-
-                SyncopeClientException assigned =
-                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                assigned.getElements().add("Group " + group.getName() + " was already assigned");
-                scce.addException(assigned);
-            } else {
-                groups.add(group.getKey());
-
-                AMembership membership = entityFactory.newEntity(AMembership.class);
-                membership.setRightEnd(group);
-                membership.setLeftEnd(anyObject);
-
-                anyObject.add(membership);
-
-                // membership attributes
-                fill(anyTO, anyObject, membership, membershipTO, scce);
-            }
-        });
+        memberships(anyObjectCR.getMemberships(), anyTO, anyObject, anyUtils, scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -269,77 +239,18 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
         }
 
         // attributes, resources and relationships
-        fill(anyTO, anyObject, anyObjectUR, anyUtils, scce);
-
-        SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+        fill(anyTO, anyObject, anyObjectUR, propByRes, anyUtils, scce);
 
         // memberships
-        Set<String> groups = new HashSet<>();
-        anyObjectUR.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
-            anyObject.getMembership(patch.getGroup()).ifPresent(membership -> {
-                anyObject.remove(membership);
-                membership.setLeftEnd(null);
-                anyObject.getPlainAttrs(membership).forEach(anyObject::remove);
-                anyObjectDAO.deleteMembership(membership);
-
-                if (patch.getOperation() == PatchOperation.DELETE) {
-                    propByRes.addAll(
-                            ResourceOperation.UPDATE,
-                            groupDAO.findAllResourceKeys((membership.getRightEnd().getKey())));
-                }
-            });
-            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                Group group = groupDAO.findById(patch.getGroup()).orElse(null);
-                if (group == null) {
-                    LOG.debug("Ignoring invalid group {}", patch.getGroup());
-                } else if (groups.contains(group.getKey())) {
-                    LOG.error("Multiple patches for group {} of {} were found", group, anyObject);
-
-                    SyncopeClientException assigned =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
-                    scce.addException(assigned);
-                } else {
-                    groups.add(group.getKey());
-
-                    AMembership newMembership = entityFactory.newEntity(AMembership.class);
-                    newMembership.setRightEnd(group);
-                    newMembership.setLeftEnd(anyObject);
-
-                    anyObject.add(newMembership);
-
-                    patch.getPlainAttrs().forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresentOrElse(
-                            schema -> anyObject.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
-                                    attr -> LOG.debug(
-                                            "Plain attribute found for {} and membership of {}, nothing to do",
-                                            schema, newMembership.getRightEnd()),
-                                    () -> {
-                                        LOG.debug("No plain attribute found for {} and membership of {}",
-                                                schema, newMembership.getRightEnd());
-
-                                        PlainAttr newAttr = new PlainAttr();
-                                        newAttr.setMembership(newMembership.getKey());
-                                        newAttr.setPlainSchema(schema);
-                                        anyObject.add(newAttr);
-
-                                        processAttrPatch(
-                                                anyTO,
-                                                anyObject,
-                                                new AttrPatch.Builder(attrTO).build(),
-                                                schema,
-                                                newAttr,
-                                                invalidValues);
-                                    }),
-                            () -> LOG.debug("Invalid {}{}, ignoring...",
-                                    PlainSchema.class.getSimpleName(), attrTO.getSchema())));
-                    if (!invalidValues.isEmpty()) {
-                        scce.addException(invalidValues);
-                    }
-
-                    propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            }
-        });
+        memberships(
+                anyObjectUR.getMemberships(),
+                anyTO,
+                anyObject,
+                group -> {
+                },
+                propByRes,
+                anyUtils,
+                scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

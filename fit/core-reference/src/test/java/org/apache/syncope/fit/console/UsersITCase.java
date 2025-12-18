@@ -198,8 +198,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
@@ -213,6 +212,11 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "additional,root,otherchild");
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        // skip relationships
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -306,6 +310,11 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
                 Constants.ON_CLICK);
 
+        // advance relationships
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
@@ -381,6 +390,11 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
                 Constants.ON_CLICK);
+
+        // advance relationships
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -464,6 +478,11 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form:buttons:next",
                 Constants.ON_CLICK);
+
+        // skip relationships
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);

@@ -41,6 +41,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -159,34 +161,59 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
 
         typeOwnClasses.forEach(typeClass -> {
             if (reference.equals(PlainSchema.class)) {
-                result.getForSelf().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                result.self().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
             } else if (reference.equals(DerSchema.class)) {
-                result.getForSelf().addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                result.self().addAll((Collection<? extends S>) typeClass.getDerSchemas());
             }
         });
 
-        // schemas given by type extensions
-        Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
+        // schemas given by group type extensions
+        Map<Group, List<? extends AnyTypeClass>> gTypeExtensionClasses = new HashMap<>();
         switch (any) {
             case User user ->
                 user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().
-                        forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
+                        forEach(typeExt -> gTypeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
             case AnyObject anyObject ->
                 anyObject.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
                         filter(typeExt -> any.getType().equals(typeExt.getAnyType())).
-                        forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
+                        forEach(typeExt -> gTypeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
             default -> {
             }
         }
-
-        typeExtensionClasses.entrySet().stream().peek(
-                entry -> result.getForMemberships().put(entry.getKey(), new HashSet<>())).
+        gTypeExtensionClasses.entrySet().stream().peek(
+                entry -> result.memberships().put(entry.getKey(), new HashSet<>())).
                 forEach(entry -> entry.getValue().forEach(typeClass -> {
             if (reference.equals(PlainSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
+                result.memberships().get(entry.getKey()).
                         addAll((Collection<? extends S>) typeClass.getPlainSchemas());
             } else if (reference.equals(DerSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
+                result.memberships().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            }
+        }));
+
+        // schemas given by relationship type extensions
+        Map<RelationshipType, List<? extends AnyTypeClass>> rTypeExtensionClasses = new HashMap<>();
+        switch (any) {
+            case User user ->
+                user.getRelationships().stream().map(Relationship::getType).distinct().
+                        forEach(rt -> rt.getTypeExtensions().
+                        forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
+            case AnyObject anyObject ->
+                anyObject.getRelationships().stream().map(Relationship::getType).distinct().
+                        forEach(rt -> rt.getTypeExtensions().
+                        forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
+            default -> {
+            }
+        }
+        rTypeExtensionClasses.entrySet().stream().peek(
+                entry -> result.relationshipTypes().put(entry.getKey(), new HashSet<>())).
+                forEach(entry -> entry.getValue().forEach(typeClass -> {
+            if (reference.equals(PlainSchema.class)) {
+                result.relationshipTypes().get(entry.getKey()).
+                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.relationshipTypes().get(entry.getKey()).
                         addAll((Collection<? extends S>) typeClass.getDerSchemas());
             }
         }));
@@ -209,6 +236,11 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
                 map(DynRealm::getKey).
                 distinct().
                 toList();
+    }
+
+    @Override
+    public void deleteRelationship(final Relationship<? extends A, AnyObject> relationship) {
+        entityManager.remove(relationship);
     }
 
     protected <T extends AbstractAttributable> void checkBeforeSave(final T attributable) {

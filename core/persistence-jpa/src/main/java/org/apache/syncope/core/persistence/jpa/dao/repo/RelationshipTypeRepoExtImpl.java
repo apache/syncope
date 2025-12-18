@@ -24,13 +24,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
+import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 
@@ -62,6 +66,16 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
         return query.getResultList();
     }
 
+    @Override
+    public List<RelationshipTypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
+        TypedQuery<RelationshipTypeExtension> query = entityManager.createQuery(
+                "SELECT e FROM " + JPARelationshipTypeExtension.class.getSimpleName()
+                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", RelationshipTypeExtension.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
+    }
+
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
         TypedQuery<ARelationship> aquery = entityManager.createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName() + " e WHERE e.type=:type",
@@ -89,11 +103,13 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
         findRelationshipsByType(type).stream().peek(relationship -> {
             switch (relationship) {
                 case URelationship uRelationship ->
-                    uRelationship.getLeftEnd().getRelationships().remove(uRelationship);
+                    uRelationship.getLeftEnd().remove(uRelationship);
+                case ARelationship aRelationship ->
+                    aRelationship.getLeftEnd().remove(aRelationship);
+                case GRelationship gRelationship ->
+                    gRelationship.getLeftEnd().remove(gRelationship);
                 case UMembership uMembership ->
                     uMembership.getLeftEnd().remove(uMembership);
-                case ARelationship aRelationship ->
-                    aRelationship.getLeftEnd().getRelationships().remove(aRelationship);
                 case AMembership aMembership ->
                     aMembership.getLeftEnd().remove(aMembership);
                 default -> {

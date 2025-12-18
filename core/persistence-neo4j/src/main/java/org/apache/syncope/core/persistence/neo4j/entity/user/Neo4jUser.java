@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGroupableRelatable;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
@@ -234,18 +236,6 @@ public class Neo4jUser
     }
 
     @Override
-    public boolean add(final PlainAttr attr) {
-        if (attr.getMembership() == null) {
-            return plainAttrs.put(attr.getSchema(), attr) != null;
-        }
-
-        return memberships().stream().
-                filter(membership -> membership.getKey().equals(attr.getMembership())).findFirst().
-                map(membership -> membership.add(attr)).
-                orElse(false);
-    }
-
-    @Override
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
         this.token = SecureRandomUtils.generateRandomPassword(tokenLength);
         this.tokenExpireTime = OffsetDateTime.now().plusMinutes(tokenExpireTime);
@@ -406,24 +396,30 @@ public class Neo4jUser
     @Override
     public boolean add(final URelationship relationship) {
         checkType(relationship, Neo4jURelationship.class);
-        return this.relationships.add((Neo4jURelationship) relationship);
+        return relationships.add((Neo4jURelationship) relationship);
     }
 
     @Override
-    public List<? extends URelationship> getRelationships() {
+    public boolean remove(final org.apache.syncope.core.persistence.api.entity.Relationship<?, ?> relationship) {
+        checkType(relationship, Neo4jURelationship.class);
+        return relationships.remove((Neo4jURelationship) relationship);
+    }
+
+    @Override
+    protected List<? extends AbstractRelationship<User, AnyObject>> relationships() {
         return relationships;
     }
 
     @Override
     public boolean add(final UMembership membership) {
         checkType(membership, Neo4jUMembership.class);
-        return this.memberships.add((Neo4jUMembership) membership);
+        return memberships.add((Neo4jUMembership) membership);
     }
 
     @Override
     public boolean remove(final UMembership membership) {
         checkType(membership, Neo4jUMembership.class);
-        return this.memberships.remove((Neo4jUMembership) membership);
+        return memberships.remove((Neo4jUMembership) membership);
     }
 
     @Override

@@ -18,9 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-public class RelationshipTypeTO implements EntityTO {
+public class RelationshipTypeTO implements TypeExtensionHolderTO, EntityTO {
 
     private static final long serialVersionUID = -1884088415277925817L;
 
@@ -31,6 +37,8 @@ public class RelationshipTypeTO implements EntityTO {
     private String leftEndAnyType;
 
     private String rightEndAnyType;
+
+    private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -65,5 +73,19 @@ public class RelationshipTypeTO implements EntityTO {
 
     public void setRightEndAnyType(final String rightEndAnyType) {
         this.rightEndAnyType = rightEndAnyType;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
+        return typeExtensions.stream().filter(
+                typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "typeExtensions")
+    @JacksonXmlProperty(localName = "typeExtension")
+    @Override
+    public List<TypeExtensionTO> getTypeExtensions() {
+        return typeExtensions;
     }
 }

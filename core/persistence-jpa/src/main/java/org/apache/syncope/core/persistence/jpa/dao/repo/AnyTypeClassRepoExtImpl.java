@@ -25,11 +25,13 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
 public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
@@ -42,6 +44,8 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
 
     protected final GroupDAO groupDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final ExternalResourceDAO resourceDAO;
 
     protected final EntityManager entityManager;
@@ -51,6 +55,7 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityManager entityManager) {
 
@@ -58,6 +63,7 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.groupDAO = groupDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.resourceDAO = resourceDAO;
         this.entityManager = entityManager;
     }
@@ -94,12 +100,20 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             type.getClasses().remove(anyTypeClass);
         }
 
-        for (TypeExtension typeExt : groupDAO.findTypeExtensions(anyTypeClass)) {
+        for (GroupTypeExtension typeExt : groupDAO.findTypeExtensions(anyTypeClass)) {
             typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
                 typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
+            }
+        }
+        for (RelationshipTypeExtension typeExt : relationshipTypeDAO.findTypeExtensions(anyTypeClass)) {
+            typeExt.getAuxClasses().remove(anyTypeClass);
+
+            if (typeExt.getAuxClasses().isEmpty()) {
+                typeExt.getRelationshipType().getTypeExtensions().remove(typeExt);
+                typeExt.setRelationshipType(null);
             }
         }
 

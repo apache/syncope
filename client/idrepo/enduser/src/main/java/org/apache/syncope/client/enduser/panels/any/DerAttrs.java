@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -32,8 +33,8 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -125,7 +126,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
+        Map<String, Attr> attrMap = userTO.getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
                 orElseGet(HashMap::new);
 
@@ -141,6 +142,28 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
         membershipTO.getDerAttrs().clear();
         membershipTO.getDerAttrs().addAll(derAttrs);
+    }
+
+    @Override
+    protected void setAttrs(final RelationshipTO relationshipTO) {
+        Map<String, Attr> attrMap = userTO.getRelationship(relationshipTO.getType(), relationshipTO.getOtherEndKey()).
+                map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
+                orElseGet(HashMap::new);
+
+        List<Attr> derAttrs = relationshipSchemas.get(
+                Pair.of(relationshipTO.getType(), relationshipTO.getOtherEndKey())).values().stream().map(schema -> {
+
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
+            if (attrMap.containsKey(schema.getKey())) {
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+            }
+
+            return attr;
+        }).toList();
+
+        relationshipTO.getDerAttrs().clear();
+        relationshipTO.getDerAttrs().addAll(derAttrs);
     }
 
     public static class DerSchemas extends Schemas {

@@ -29,6 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionHolderTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -42,7 +43,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
     private static final long serialVersionUID = -7185214439144835423L;
 
-    protected final GroupTO groupTO;
+    protected final TypeExtensionHolderTO typeExtensionHolder;
 
     protected final String anyTypeLabel;
 
@@ -53,7 +54,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
     protected final AnyTypeClassRestClient anyTypeClassRestClient;
 
     public TypeExtensionWizardBuilder(
-            final GroupTO groupTO,
+            final TypeExtensionHolderTO typeExtensionHolder,
             final TypeExtensionTO defaultItem,
             final String anyTypeLabel,
             final String auxClassesLabel,
@@ -63,7 +64,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
         super(defaultItem, pageRef);
 
-        this.groupTO = groupTO;
+        this.typeExtensionHolder = typeExtensionHolder;
         this.anyTypeLabel = anyTypeLabel;
         this.auxClassesLabel = auxClassesLabel;
         this.anyTypeRestClient = anyTypeRestClient;
@@ -78,12 +79,12 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
     @Override
     protected Serializable onApplyInternal(final TypeExtensionTO modelObject) {
-        List<TypeExtensionTO> typeExtensions = groupTO.getTypeExtensions().stream().
+        List<TypeExtensionTO> typeExtensions = typeExtensionHolder.getTypeExtensions().stream().
                 filter(typeExt -> !typeExt.getAnyType().equals(modelObject.getAnyType())).collect(Collectors.toList());
         typeExtensions.add(modelObject);
-        groupTO.getTypeExtensions().clear();
-        groupTO.getTypeExtensions().addAll(typeExtensions);
-        return groupTO;
+        typeExtensionHolder.getTypeExtensions().clear();
+        typeExtensionHolder.getTypeExtensions().addAll(typeExtensions);
+        return typeExtensionHolder;
     }
 
     public class Details extends WizardStep {
@@ -98,9 +99,11 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
             if (typeExtensionTO.getAnyType() == null) {
                 List<String> anyTypes = anyTypeRestClient.list();
-                anyTypes.remove(AnyTypeKind.GROUP.name());
+                if (typeExtensionHolder instanceof GroupTO) {
+                    anyTypes.remove(AnyTypeKind.GROUP.name());
+                }
                 anyTypes.removeAll(anyTypes.stream().
-                        filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).toList());
+                        filter(anyType -> typeExtensionHolder.getTypeExtension(anyType).isPresent()).toList());
 
                 AjaxDropDownChoicePanel<String> anyTypeComponent = new AjaxDropDownChoicePanel<>(
                         "anyType.component", "anyType", new PropertyModel<>(typeExtensionTO, "anyType"));

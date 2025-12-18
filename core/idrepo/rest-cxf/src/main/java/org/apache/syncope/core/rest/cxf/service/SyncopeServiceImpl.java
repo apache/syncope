@@ -95,8 +95,13 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
     }
 
     @Override
-    public TypeExtensionTO readUserTypeExtension(final String groupName) {
-        return logic.readTypeExtension(groupName);
+    public TypeExtensionTO readUserGroupTypeExtension(final String groupName) {
+        return logic.readUserGroupTypeExtension(groupName);
+    }
+
+    @Override
+    public TypeExtensionTO readUserRelationshipTypeExtension(final String relationshipType) {
+        return logic.readUserRelationshipTypeExtension(relationshipType);
     }
 
     private DestinationRegistry getDestinationRegistryFromBusOrDefault() {

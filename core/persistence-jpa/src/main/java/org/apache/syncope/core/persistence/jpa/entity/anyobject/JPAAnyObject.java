@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -149,13 +150,14 @@ public class JPAAnyObject
     @Override
     public boolean remove(final PlainAttr attr) {
         return plainAttrs.removeIf(a -> a.getSchema().equals(attr.getSchema())
-                && Objects.equals(a.getMembership(), attr.getMembership()));
+                && Objects.equals(a.getMembership(), attr.getMembership())
+                && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, JPAAnyTypeClass.class);
-        return auxClasses.contains((JPAAnyTypeClass) auxClass) || this.auxClasses.add((JPAAnyTypeClass) auxClass);
+        return auxClasses.contains((JPAAnyTypeClass) auxClass) || auxClasses.add((JPAAnyTypeClass) auxClass);
     }
 
     @Override
@@ -166,7 +168,14 @@ public class JPAAnyObject
     @Override
     public boolean add(final ARelationship relationship) {
         checkType(relationship, JPAARelationship.class);
-        return this.relationships.add((JPAARelationship) relationship);
+        return relationships.add((JPAARelationship) relationship);
+    }
+
+    @Override
+    public boolean remove(final Relationship<?, ?> relationship) {
+        checkType(relationship, JPAARelationship.class);
+        plainAttrs.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        return relationships.remove((JPAARelationship) relationship);
     }
 
     @Override
@@ -177,14 +186,14 @@ public class JPAAnyObject
     @Override
     public boolean add(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
-        return this.memberships.add((JPAAMembership) membership);
+        return memberships.add((JPAAMembership) membership);
     }
 
     @Override
     public boolean remove(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
         plainAttrs.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
-        return this.memberships.remove((JPAAMembership) membership);
+        return memberships.remove((JPAAMembership) membership);
     }
 
     @Override

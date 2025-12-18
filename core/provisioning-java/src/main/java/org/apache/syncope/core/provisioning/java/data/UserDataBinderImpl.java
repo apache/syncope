@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -69,14 +68,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -280,6 +277,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         UserTO anyTO = new UserTO();
         EntityTOUtils.toAnyTO(userCR, anyTO);
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // set username
@@ -319,34 +318,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         fill(anyTO, user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // memberships
-        Set<String> groups = new HashSet<>();
-        userCR.getMemberships().forEach(membershipTO -> {
-            Group group = membershipTO.getGroupKey() == null
-                    ? groupDAO.findByName(membershipTO.getGroupName()).orElse(null)
-                    : groupDAO.findById(membershipTO.getGroupKey()).orElse(null);
-            if (group == null) {
-                LOG.debug("Ignoring invalid group {}",
-                        membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
-            } else if (groups.contains(group.getKey())) {
-                LOG.error("{} was already assigned to {}", group, user);
-
-                SyncopeClientException assigned =
-                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                assigned.getElements().add("Group " + group.getName() + " was already assigned");
-                scce.addException(assigned);
-            } else {
-                groups.add(group.getKey());
-
-                UMembership membership = entityFactory.newEntity(UMembership.class);
-                membership.setRightEnd(group);
-                membership.setLeftEnd(user);
-
-                user.add(membership);
-
-                // membership attributes
-                fill(anyTO, user, membership, membershipTO, scce);
-            }
-        });
+        memberships(userCR.getMemberships(), anyTO, user, anyUtils, scce);
 
         // linked accounts
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
@@ -459,75 +431,16 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         }
 
         // attributes, resources and relationships
-        fill(anyTO, user, userUR, anyUtils, scce);
+        fill(anyTO, user, userUR, propByRes, anyUtils, scce);
 
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        Set<String> groups = new HashSet<>();
-        userUR.getMemberships().stream().filter(patch -> patch.getGroup() != null).forEach(patch -> {
-            user.getMembership(patch.getGroup()).ifPresent(membership -> {
-                user.remove(membership);
-                membership.setLeftEnd(null);
-                user.getPlainAttrs(membership).forEach(user::remove);
-                userDAO.deleteMembership(membership);
-
-                if (patch.getOperation() == PatchOperation.DELETE) {
-                    propByRes.addAll(
-                            ResourceOperation.UPDATE,
-                            groupDAO.findAllResourceKeys((membership.getRightEnd().getKey())));
-                }
-            });
-            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                Group group = groupDAO.findById(patch.getGroup()).orElse(null);
-                if (group == null) {
-                    LOG.debug("Ignoring invalid group {}", patch.getGroup());
-                } else if (groups.contains(group.getKey())) {
-                    LOG.error("Multiple patches for group {} of {} were found", group, user);
-
-                    SyncopeClientException assigned =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
-                    scce.addException(assigned);
-                } else {
-                    groups.add(group.getKey());
-
-                    UMembership newMembership = entityFactory.newEntity(UMembership.class);
-                    newMembership.setRightEnd(group);
-                    newMembership.setLeftEnd(user);
-
-                    user.add(newMembership);
-
-                    patch.getPlainAttrs().forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresentOrElse(
-                            schema -> user.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
-                                    attr -> LOG.debug(
-                                            "Plain attribute found for {} and membership of {}, nothing to do",
-                                            schema, newMembership.getRightEnd()),
-                                    () -> {
-                                        LOG.debug("No plain attribute found for {} and membership of {}",
-                                                schema, newMembership.getRightEnd());
-
-                                        PlainAttr newAttr = new PlainAttr();
-                                        newAttr.setMembership(newMembership.getKey());
-                                        newAttr.setPlainSchema(schema);
-                                        user.add(newAttr);
-
-                                        processAttrPatch(
-                                                anyTO,
-                                                user,
-                                                new AttrPatch.Builder(attrTO).build(),
-                                                schema,
-                                                newAttr,
-                                                invalidValues);
-                                    }),
-                            () -> LOG.debug("Invalid {}{}, ignoring...",
-                                    PlainSchema.class.getSimpleName(), attrTO.getSchema())));
-                    if (!invalidValues.isEmpty()) {
-                        scce.addException(invalidValues);
-                    }
-
-                    propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-
+        memberships(
+                userUR.getMemberships(),
+                anyTO,
+                user,
+                group -> {
                     // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                     // ensure that they are counted for password propagation
                     if (toBeUpdated.canDecodeSecrets()) {
@@ -538,9 +451,10 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                                 filter(this::isPasswordMapped).
                                 forEach(resource -> userUR.getPassword().getResources().add(resource.getKey()));
                     }
-                }
-            }
-        });
+                },
+                propByRes,
+                anyUtils,
+                scce);
 
         // linked accounts
         userUR.getLinkedAccounts().stream().filter(patch -> patch.getLinkedAccountTO() != null).forEach(patch -> {
@@ -675,13 +589,17 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                     userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).toList());
 
             // relationships
-            userTO.getRelationships().addAll(user.getRelationships().stream().map(r -> getRelationshipTO(
-                    r.getType().getKey(), RelationshipTO.End.LEFT, r.getRightEnd())).toList());
+            userTO.getRelationships().addAll(user.getRelationships().stream().
+                    map(relationship -> getRelationshipTO(user.getPlainAttrs(relationship),
+                    derAttrHandler.getValues(user, relationship),
+                    relationship.getType().getKey(),
+                    RelationshipTO.End.LEFT,
+                    relationship.getRightEnd())).toList());
 
             // memberships
             userTO.getMemberships().addAll(user.getMemberships().stream().
                     map(membership -> getMembershipTO(user.getPlainAttrs(membership),
-                    derAttrHandler.getValues(user, membership),
+                    derAttrHandler.getValues((Groupable<?, ?, ?>) user, membership),
                     membership)).toList());
 
             // dynamic memberships

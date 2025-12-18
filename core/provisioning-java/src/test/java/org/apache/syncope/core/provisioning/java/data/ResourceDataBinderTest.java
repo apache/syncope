@@ -75,7 +75,7 @@ public class ResourceDataBinderTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private ResourceDataBinder resourceDataBinder;
+    private ResourceDataBinder binder;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -112,7 +112,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
-        ExternalResource resource = resourceDataBinder.create(resourceTO);
+        ExternalResource resource = binder.create(resourceTO);
         resource = resourceDAO.save(resource);
         entityManager.flush();
 

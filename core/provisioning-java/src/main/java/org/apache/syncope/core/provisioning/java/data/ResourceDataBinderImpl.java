@@ -379,24 +379,28 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
 
                 if (intAttrName == null
-                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                        || intAttrName.getSchemaInfo() == null && intAttrName.getField() == null) {
 
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
                 } else {
                     boolean allowed = true;
-                    if (intAttrName.getSchemaType() != null
-                            && intAttrName.getEnclosingGroup() == null
-                            && intAttrName.getRelatedAnyObject() == null
-                            && intAttrName.getRelationshipType() == null) {
+                    if (intAttrName.getSchemaInfo() != null
+                            && intAttrName.getExternalUser() == null
+                            && intAttrName.getExternalGroup() == null
+                            && intAttrName.getExternalAnyObject() == null
+                            && intAttrName.getMembership() != null
+                            && intAttrName.getRelationshipInfo() != null) {
 
-                        switch (intAttrName.getSchemaType()) {
+                        switch (intAttrName.getSchemaInfo().type()) {
                             case PLAIN:
-                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchema().getKey());
+                                allowed = allowedSchemas.getPlainSchemas().
+                                        contains(intAttrName.getSchemaInfo().schema().getKey());
                                 break;
 
                             case DERIVED:
-                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchema().getKey());
+                                allowed = allowedSchemas.getDerSchemas().
+                                        contains(intAttrName.getSchemaInfo().schema().getKey());
                                 break;
 
                             default:
@@ -442,35 +446,35 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             mapping.add(item);
                         }
 
-                        if (intAttrName.getEnclosingGroup() != null
+                        if (intAttrName.getExternalGroup() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to groups");
                         }
-                        if (intAttrName.getRelatedAnyObject() != null
+                        if (intAttrName.getExternalAnyObject() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to any objects");
                         }
-                        if (intAttrName.getSchemaType() == SchemaType.DERIVED
+                        if (intAttrName.getSchemaInfo() != null
+                                && intAttrName.getSchemaInfo().type() == SchemaType.DERIVED
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name() + " allowed for derived");
                         }
-                        if (intAttrName.getRelatedUser() != null
+                        if (intAttrName.getExternalUser() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to users");
                         }
-                        if ((intAttrName.getRelationshipType() != null
-                                || intAttrName.getRelationshipAnyType() != null)
+                        if (intAttrName.getRelationshipInfo() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(

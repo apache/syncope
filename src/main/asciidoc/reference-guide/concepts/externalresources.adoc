@@ -125,16 +125,17 @@ specifies:
 * internal attribute - the <<schema, schema>> acting as the source or destination of provisioning operations; it must be
 specified by an expression matching one of the following models:
 ** `schema` - resolves to the attribute for the given `schema`, owned by the mapped entity (user, group, any object)
-** `groups[groupName].schema` - resolves to the attribute for the given `schema`, owned by the group with name
-`groupName`, if a membership for the mapped entity exists
-** `users[userName].schema` - resolves to the attribute for the given `schema`, owned by the user with name
-`userName`, if a relationship with the mapped entity exists
-** `anyObjects[anyObjectName].schema` - resolves to the attribute for the given `schema`, owned by the any object with
-name `anyObjectName`, if a relationship with the mapped entity exists
-** `relationships[relationshipType][relationshipAnyType].schema` - resolves to the attribute for the given `schema`, 
-owned by the any object of type `relationshipAnyType`, if a relationship of type `relationshipType` with the mapped entity exists
-** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
-`groupName` of the mapped entity (user, any object), if such a membership exists
+** `groups[name].schema` - resolves to the attribute for the given `schema`, owned by the group with name
+`name`
+** `users[username].schema` - resolves to the attribute for the given `schema`, owned by the user with username
+`username`
+** `anyObjects[name].schema` - resolves to the attribute for the given `schema`, owned by the any object with
+name `name`
+** `memberships[name].schema` - resolves to the attribute for the given `schema`, owned by the membership, of group
+with name `name`, of the mapped entity (user, any object), if such a membership exists
+** `relationships[type][name].schema` - resolves to the attribute for the given `schema`, owned by the relationship, of
+type `type` with any object with name `name`, of the mapped entity (user, group, any object), if such a relationship
+exists
 * external attribute - the name of the attribute on the Identity Store
 * transformers - <<jexl,JEXL>> expression or Java class implementing
 ifeval::["{snapshotOrRelease}" == "release"]

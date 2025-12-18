@@ -138,55 +138,45 @@ public class IntAttrNameParserTest extends AbstractTest {
     public void ownFields() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("key", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("key", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("name", AnyTypeKind.GROUP);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("name", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("userOwner", AnyTypeKind.GROUP);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("userOwner", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("name", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
 
         Object nullObj = null;
         int expected = new HashCodeBuilder().
-                append(AnyTypeKind.USER).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
-                append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
+                append(nullObj).append(nullObj).append(nullObj).
+                append(nullObj).append(nullObj).append(nullObj).append(nullObj).
                 build();
         assertEquals(expected, intAttrName.hashCode());
         IntAttrName intAttrName2 = intAttrNameParser.parse("email", AnyTypeKind.USER);
@@ -195,122 +185,107 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertTrue(intAttrName.equals(intAttrName));
         String toString = intAttrName.toString();
         assertTrue(toString.startsWith("org.apache.syncope.core.provisioning.api.IntAttrName"));
-        assertTrue(toString.endsWith("[USER,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>]"));
+        assertTrue(toString.endsWith("[<null>,<null>,<null>,<null>,<null>,<null>,<null>]"));
     }
 
     @Test
     public void ownSchema() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("email", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("email", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("email", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof PlainSchema);
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("cn", AnyTypeKind.ANY_OBJECT);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof DerSchema);
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("cn", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof DerSchema);
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
     }
 
     @Test
-    public void enclosingGroup() throws ParseException {
+    public void externalGroup() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("groups[readers].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.GROUP, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof DerSchema);
-        assertEquals("readers", intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("cn", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof DerSchema);
+        assertEquals("readers", intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
     }
 
     @Test
-    public void relatedUser() throws ParseException {
+    public void externalUser() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("users[bellini].firstname", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("firstname", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
-        assertEquals("bellini", intAttrName.getRelatedUser());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
+        assertEquals("firstname", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof PlainSchema);
+        assertEquals("bellini", intAttrName.getExternalUser());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
     }
 
     @Test
-    public void relatedAnyObject() throws ParseException {
+    public void externalAnyObject() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("anyObjects[hp].name", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertEquals("name", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertEquals("hp", intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertEquals("hp", intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
     }
 
     @Test
     public void membership() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("memberships[top].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("cn", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof DerSchema);
-        assertNull(intAttrName.getEnclosingGroup());
-        assertEquals("top", intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("cn", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.DERIVED, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof DerSchema);
+        assertNull(intAttrName.getExternalGroup());
+        assertEquals("top", intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
     }
 
     @Test
     public void relationship() throws ParseException {
-        IntAttrName intAttrName = intAttrNameParser.parse(
-                "relationships[inclusion][PRINTER].location", AnyTypeKind.USER);
+        IntAttrName intAttrName = intAttrNameParser.parse("relationships[inclusion][hp].location", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("location", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
-        assertEquals("inclusion", intAttrName.getRelationshipType());
-        assertEquals("PRINTER", intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("location", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof PlainSchema);
+        assertEquals("inclusion", intAttrName.getRelationshipInfo().type());
+        assertEquals("hp", intAttrName.getRelationshipInfo().anyObject());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getExternalUser());
     }
 
     @Test
@@ -327,45 +302,37 @@ public class IntAttrNameParserTest extends AbstractTest {
     public void realm() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("key");
         assertNotNull(intAttrName);
-        assertNull(intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("key", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("name");
         assertNotNull(intAttrName);
-        assertNull(intAttrName.getAnyTypeKind());
         assertNotNull(intAttrName.getField());
         assertEquals("name", intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertNull(intAttrName.getSchemaInfo());
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         intAttrName = intAttrNameParser.parse("index");
         assertNotNull(intAttrName);
-        assertNull(intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("index", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
+        assertEquals("index", intAttrName.getSchemaInfo().schema().getKey());
+        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaInfo().type());
+        assertTrue(intAttrName.getSchemaInfo().schema() instanceof PlainSchema);
+        assertNull(intAttrName.getExternalGroup());
+        assertNull(intAttrName.getMembership());
+        assertNull(intAttrName.getExternalAnyObject());
+        assertNull(intAttrName.getRelationshipInfo());
+        assertNull(intAttrName.getExternalUser());
 
         try {
             intAttrNameParser.parse("groups[readers].cn");
@@ -375,12 +342,11 @@ public class IntAttrNameParserTest extends AbstractTest {
         }
     }
 
-    @Test    
+    @Test
     public void issueSYNCOPE1894() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("user.valueWithDot", AnyTypeKind.USER);
         assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
         assertNull(intAttrName.getField());
-        assertEquals("user.valueWithDot", intAttrName.getSchema().getKey());
+        assertEquals("user.valueWithDot", intAttrName.getSchemaInfo().schema().getKey());
     }
 }

@@ -184,13 +184,58 @@ increase readability):
 
 ==== RelationshipType
 
-Relationships allow the creation of a link between a user, a group or an any object with an any object; relationship
-types define the available link types.
+Relationships allow the creation of a link between a user, a group or an any object with another any object;
+relationship types define the available link types, including:
 
-.Relationship between Any Objects (printers)
+* name
+* description
+* what any type shall be on the left side
+* what any type shall be on the right side
+* the related <<relationships,type extension>>
+
+.RelationshipType definitions
 ====
-The following any object of type `PRINTER` contains a relationship of type `neighbourhood` with another `PRINTER`
-(details are simplified to increase readability):
+The following shows two definitions:
+
+. `inclusion`: between `PRINTER` and `PRINTER`, with no type extension
+. `neighborhood`: between `USER` and `PRINTER`, with type extension of the `other` any type class.
+
+[source,json]
+----
+[
+  {
+    "key": "inclusion",
+    "description": "Models the act that a printer is included by another printer",
+    "leftEndAnyType": "PRINTER",
+    "rightEndAnyType": "PRINTER",
+    "typeExtensions": []
+  },
+  {
+    "key": "neighborhood",
+    "description": "Models the act that an user is near a printer",
+    "leftEndAnyType": "USER",
+    "rightEndAnyType": "PRINTER",
+    "typeExtensions": [
+      {
+        "anyType": "USER",
+        "auxClasses": [
+          "other"
+        ]
+      }
+    ]
+  }
+]
+----
+====
+
+.Relationships for Any Object
+====
+The following any object of type `PRINTER` contains (details are simplified to increase readability):
+
+* a relationship of type `inclusion` with another `PRINTER` named `Canon MF 8030cn`, where this any object is on the
+left side of the relationship
+* a relationship of type `neighborhood` with the user `bellini`, where this any object is on the
+right side of the relationship
 
 [source,json]
 ----
@@ -216,7 +261,7 @@ The following any object of type `PRINTER` contains a relationship of type `neig
   ],
   "relationships": [
     {
-      "type": "neighborhood",
+      "type": "inclusion",
       "end": "LEFT",
       "otherEndType": "PRINTER",
       "otherEndKey": "8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
@@ -234,7 +279,51 @@ The following any object of type `PRINTER` contains a relationship of type `neig
 ----
 ====
 
+.Relationship for User
+====
+The following user contains a relationship of type `neighborhood` with the `PRINTER` `HP LJ 1300n`, bearing attributes
+(details are simplified to increase readability):
+
+[source,json]
+----
+{
+  "key": "c9b2dec2-00a7-4855-97c0-d854842b4b24",
+  "type": "USER",
+  "realm": "/",
+  "username": "bellini",
+  "relationships": [
+    {
+      "type": "neighborhood",
+      "end": "LEFT",
+      "otherEndType": "PRINTER",
+      "otherEndKey": "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
+      "otherEndName": "HP LJ 1300n",
+      "plainAttrs": [
+        {
+          "schema": "activationDate",
+          "values": [
+            "2025-12-18T12:30:00.000+0000"
+          ]
+        }
+      ],
+      "derAttrs": [
+        {
+          "schema": "noschema",
+          "values": [
+            ", "
+          ]
+        }
+      ]
+    }
+  ]
+}
+----
+====
+
 ==== Type Extensions
+
+[discrete]
+===== Memberships
 
 When a user (or an any object) is part of a group, a _membership_ is defined.
 
@@ -289,3 +378,16 @@ With reference to the sample above (details are simplified to increase readabili
 }
 ----
 ====
+
+[discrete]
+===== Relationships
+
+When a user (or a group or an any object) is linked to another any object according to a given
+<<relationshiptype,relationship type>>, a _relationship_ is defined.
+
+As already indicated above for memberships, it is sometimes useful to define attributes which are bound to a particular
+relationship.
+
+Type extensions define a set of <<anytypeclass,classes>> associated to a relationship type, that can be automatically
+assigned to a given user (or group or any object) when entering in a relationship of the given type with another
+any object.

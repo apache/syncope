@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -64,7 +65,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
 import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
@@ -111,7 +112,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelation
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroupTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jConfParam;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jDomain;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jNetworkService;
@@ -185,10 +186,12 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jUser();
         } else if (reference.equals(Group.class)) {
             result = (E) new Neo4jGroup();
-        } else if (reference.equals(TypeExtension.class)) {
-            result = (E) new Neo4jTypeExtension();
+        } else if (reference.equals(GroupTypeExtension.class)) {
+            result = (E) new Neo4jGroupTypeExtension();
         } else if (reference.equals(RelationshipType.class)) {
             result = (E) new Neo4jRelationshipType();
+        } else if (reference.equals(RelationshipTypeExtension.class)) {
+            result = (E) new Neo4jRelationshipTypeExtension();
         } else if (reference.equals(ARelationship.class)) {
             result = (E) new Neo4jARelationship();
         } else if (reference.equals(GRelationship.class)) {

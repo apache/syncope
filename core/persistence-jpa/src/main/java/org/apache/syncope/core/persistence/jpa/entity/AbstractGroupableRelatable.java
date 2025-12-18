@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -31,17 +30,24 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 public abstract class AbstractGroupableRelatable<
         L extends Any, 
         M extends Membership<L>, 
-        REL extends Relationship<L, AnyObject>>
-        extends AbstractRelatable<L, REL> implements Groupable<L, M, REL> {
+        R extends Relationship<L, AnyObject>>
+        extends AbstractRelatable<L, R> implements Groupable<L, M, R> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
     protected abstract List<PlainAttr> plainAttrs();
 
     @Override
+    public List<PlainAttr> getPlainAttrs() {
+        return plainAttrs().stream().
+                filter(attr -> attr.getMembership() == null && attr.getRelationship() == null).
+                toList();
+    }
+
+    @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return plainAttrs().stream().
-                filter(attr -> attr.getMembership() == null
+                filter(attr -> attr.getMembership() == null && attr.getRelationship() == null
                 && plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
@@ -55,14 +61,7 @@ public abstract class AbstractGroupableRelatable<
     }
 
     @Override
-    public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
-        return plainAttrs().stream().
-                filter(attr -> plainSchema.equals(attr.getSchema())).
-                toList();
-    }
-
-    @Override
-    public Collection<PlainAttr> getPlainAttrs(final Membership<?> membership) {
+    public List<PlainAttr> getPlainAttrs(final Membership<?> membership) {
         return plainAttrs().stream().
                 filter(attr -> membership.getKey().equals(attr.getMembership())).
                 toList();

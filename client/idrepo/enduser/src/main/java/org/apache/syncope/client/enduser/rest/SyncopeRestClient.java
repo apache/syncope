@@ -25,11 +25,20 @@ public class SyncopeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public List<String> searchUserTypeExtensions(final String groupName) {
+    public List<String> readUserGroupTypeExtension(final String groupName) {
         try {
-            return getService(SyncopeService.class).readUserTypeExtension(groupName).getAuxClasses();
+            return getService(SyncopeService.class).readUserGroupTypeExtension(groupName).getAuxClasses();
         } catch (Exception e) {
             LOG.debug("While reading any type classes for type extension of group {}", groupName, e);
+            return List.of();
+        }
+    }
+
+    public List<String> readUserRelationshipTypeExtension(final String relationshipType) {
+        try {
+            return getService(SyncopeService.class).readUserRelationshipTypeExtension(relationshipType).getAuxClasses();
+        } catch (Exception e) {
+            LOG.debug("While reading any type classes for type extension of relationship type {}", relationshipType, e);
             return List.of();
         }
     }

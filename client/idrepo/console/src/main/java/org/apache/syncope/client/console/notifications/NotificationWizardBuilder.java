@@ -363,11 +363,11 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             recipientAttrName.setChoices(getSchemas());
             recipientAttrName.addRequiredLabel();
             recipientAttrName.setTitle(getString("intAttrNameInfo.help")
-                    + "<code>groups[groupName].attribute</code>, "
+                    + " <code>groups[groupName].attribute</code>, "
                     + "<code>users[userName].attribute</code>, "
                     + "<code>anyObjects[anyObjectName].attribute</code>, "
-                    + "<code>relationships[relationshipType][anyType].attribute</code> or "
-                    + "<code>memberships[groupName].attribute</code>", true);
+                    + "<code>memberships[groupName].attribute</code>, "
+                    + "<code>relationships[relationshipType][anyObjectName].attribute</code>", true);
             add(recipientAttrName);
 
             AjaxTextFieldPanel staticRecipientsFieldPanel =

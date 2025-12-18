@@ -19,8 +19,12 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -37,6 +41,8 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
 
     public static final String RIGHT_END_ANYTYPE = "RELATIONSHIPTYPE_RIGHT_END_ANYTYPE";
 
+    public static final String RELATIONSHIP_TYPE_EXTENSION_REL = "RELATIONSHIP_TYPE_EXTENSION";
+
     private String description;
 
     @NotNull
@@ -46,6 +52,9 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
     @NotNull
     @Relationship(type = RIGHT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING)
     private Neo4jAnyType rightEndAnyType;
+
+    @Relationship(type = RELATIONSHIP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)
+    private List<Neo4jRelationshipTypeExtension> typeExtensions = new ArrayList<>();
 
     @Override
     public String getDescription() {
@@ -77,5 +86,23 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
     public void setRightEndAnyType(final AnyType anyType) {
         checkType(anyType, Neo4jAnyType.class);
         this.rightEndAnyType = (Neo4jAnyType) anyType;
+    }
+
+    @Override
+    public boolean add(final RelationshipTypeExtension typeExtension) {
+        checkType(typeExtension, Neo4jRelationshipTypeExtension.class);
+        return typeExtensions.add((Neo4jRelationshipTypeExtension) typeExtension);
+    }
+
+    @Override
+    public Optional<? extends RelationshipTypeExtension> getTypeExtension(final AnyType anyType) {
+        return typeExtensions.stream().
+                filter(typeExtension -> typeExtension.getAnyType().equals(anyType)).
+                findFirst();
+    }
+
+    @Override
+    public List<? extends RelationshipTypeExtension> getTypeExtensions() {
+        return typeExtensions;
     }
 }

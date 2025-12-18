@@ -115,10 +115,10 @@ public class MembershipITCase extends AbstractITCase {
             userUR.getPlainAttrs().
                     add(new AttrPatch.Builder(new Attr.Builder("aLong").value("1977").build()).build());
 
-            MembershipUR membershipPatch = new MembershipUR.Builder(membership.getGroupKey()).build();
-            membershipPatch.getPlainAttrs().add(new Attr.Builder("aLong").value("1976").build());
-            membershipPatch.getPlainAttrs().add(new Attr.Builder("ctype").value("membership type").build());
-            userUR.getMemberships().add(membershipPatch);
+            userUR.getMemberships().add(new MembershipUR.Builder(membership.getGroupKey()).
+                    plainAttr(new Attr.Builder("aLong").value("1976").build()).
+                    plainAttr(new Attr.Builder("ctype").value("membership type").build()).
+                    build());
 
             userTO = updateUser(userUR).getEntity();
 
@@ -141,9 +141,8 @@ public class MembershipITCase extends AbstractITCase {
             userUR = new UserUR();
             userUR.setKey(userTO.getKey());
 
-            membershipPatch = new MembershipUR.Builder(membership.getGroupKey()).
-                    operation(PatchOperation.DELETE).build();
-            userUR.getMemberships().add(membershipPatch);
+            userUR.getMemberships().add(new MembershipUR.Builder(membership.getGroupKey()).
+                    operation(PatchOperation.DELETE).build());
 
             userTO = updateUser(userUR).getEntity();
 

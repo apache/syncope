@@ -58,8 +58,6 @@ public interface UserDAO extends AnyDAO<User> {
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
 
-    UMembership findMembership(String key);
-
     void deleteMembership(UMembership membership);
 
     List<Role> findDynRoles(String key);

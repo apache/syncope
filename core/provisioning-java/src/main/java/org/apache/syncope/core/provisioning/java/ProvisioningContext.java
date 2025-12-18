@@ -398,7 +398,6 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public MappingManager mappingManager(
-            final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
@@ -411,7 +410,6 @@ public class ProvisioningContext {
             final JexlTools jexlTools) {
 
         return new DefaultMappingManager(
-                anyTypeDAO,
                 userDAO,
                 anyObjectDAO,
                 groupDAO,
@@ -587,6 +585,7 @@ public class ProvisioningContext {
             final AnySearchDAO anySearchDAO,
             final AnyMatchDAO anyMatchDAO,
             final TaskDAO taskDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final UserDataBinder userDataBinder,
             final GroupDataBinder groupDataBinder,
             final AnyObjectDataBinder anyObjectDataBinder,
@@ -604,6 +603,7 @@ public class ProvisioningContext {
                 anySearchDAO,
                 anyMatchDAO,
                 taskDAO,
+                relationshipTypeDAO,
                 derAttrHandler,
                 userDataBinder,
                 groupDataBinder,
@@ -991,9 +991,10 @@ public class ProvisioningContext {
     @Bean
     public RelationshipTypeDataBinder relationshipTypeDataBinder(
             final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final EntityFactory entityFactory) {
 
-        return new RelationshipTypeDataBinderImpl(anyTypeDAO, entityFactory);
+        return new RelationshipTypeDataBinderImpl(anyTypeDAO, anyTypeClassDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

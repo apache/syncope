@@ -18,23 +18,65 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 
 public abstract class AbstractRelatable<
         L extends Any,
-        REL extends Relationship<L, AnyObject>>
-        extends AbstractAny implements Relatable<L, REL> {
+        R extends Relationship<L, AnyObject>>
+        extends AbstractAny implements Relatable<L, R> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
+    protected abstract List<? extends AbstractRelationship<L, AnyObject>> relationships();
+    
     @Override
-    public Optional<? extends REL> getRelationship(
+    public boolean add(final PlainAttr attr) {
+        if (attr.getRelationship() != null) {
+            return relationships().stream().
+                    filter(r -> r.getKey().equals(attr.getRelationship())).findFirst().
+                    map(r -> r.add(attr)).
+                    orElse(false);
+        }
+
+        return super.add(attr);
+    }
+
+    @Override
+    public boolean remove(final PlainAttr attr) {
+        if (attr.getRelationship() != null) {
+            return relationships().stream().
+                    filter(m -> m.getKey().equals(attr.getRelationship())).findFirst().
+                    map(r -> r.plainAttrs().put(attr.getSchema(), null) != null).
+                    orElse(false);
+        }
+
+        return super.remove(attr);
+    }
+    
+    @Override
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Relationship<?, ?> relationship) {
+        return relationships().stream().
+                filter(r -> r.getKey().equals(relationship.getKey())).findFirst().
+                flatMap(r -> r.getPlainAttr(plainSchema));
+    }
+
+    @Override
+    public List<PlainAttr> getPlainAttrs(final Relationship<?, ?> relationship) {
+        return relationships().stream().
+                filter(r -> r.getKey().equals(relationship.getKey())).
+                flatMap(r -> r.getPlainAttrs().stream()).toList();
+    }
+
+    @Override
+    public Optional<? extends R> getRelationship(
             final RelationshipType relationshipType, final String otherEndKey) {
 
         return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
@@ -43,17 +85,28 @@ public abstract class AbstractRelatable<
                 || otherEndKey.equals(relationship.getRightEnd().getKey()))).findFirst();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
+    public List<? extends R> getRelationships() {
+        return relationships().stream().map(r -> (R) r).toList();
+    }
+
+    @Override
+    public List<? extends R> getRelationships(final RelationshipType relationshipType) {
         return getRelationships().stream().
                 filter(relationship -> relationshipType.equals(relationship.getType())).
                 toList();
     }
 
     @Override
-    public Collection<? extends REL> getRelationships(final String otherEndKey) {
+    public List<? extends R> getRelationships(final String otherEndKey) {
         return getRelationships().stream().
                 filter(relationship -> otherEndKey.equals(relationship.getRightEnd().getKey())).
                 toList();
+    }
+
+    @PostLoad
+    public void completeRelationshipPlainAttrs() {
+        relationships().forEach(m -> doComplete(m.plainAttrs()));
     }
 }

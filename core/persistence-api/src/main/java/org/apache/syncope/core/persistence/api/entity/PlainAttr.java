@@ -59,6 +59,11 @@ public class PlainAttr implements Serializable {
      */
     private String membership;
 
+    /**
+     * The relationship of this attribute; might be {@code NULL} if this attribute is not related to a relationship.
+     */
+    private String relationship;
+
     public String getSchema() {
         return schema;
     }
@@ -141,8 +146,20 @@ public class PlainAttr implements Serializable {
         this.membership = membership;
     }
 
+    public String getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(final String relationship) {
+        this.relationship = relationship;
+    }
+
     @JsonIgnore
     public boolean isValid() {
+        if (membership != null && relationship != null) {
+            return false;
+        }
+
         boolean validSchema = false;
         try {
             validSchema = fetchPlainSchema() != null;
@@ -159,6 +176,7 @@ public class PlainAttr implements Serializable {
                 append(values).
                 append(uniqueValue).
                 append(membership).
+                append(relationship).
                 build();
     }
 
@@ -173,13 +191,13 @@ public class PlainAttr implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         final PlainAttr other = (PlainAttr) obj;
         return new EqualsBuilder().
                 append(schema, other.schema).
                 append(values, other.values).
                 append(uniqueValue, other.uniqueValue).
                 append(membership, other.membership).
+                append(relationship, other.relationship).
                 build();
     }
 
@@ -190,6 +208,7 @@ public class PlainAttr implements Serializable {
                 append(values).
                 append(uniqueValue).
                 append(membership).
+                append(relationship).
                 build();
     }
 }

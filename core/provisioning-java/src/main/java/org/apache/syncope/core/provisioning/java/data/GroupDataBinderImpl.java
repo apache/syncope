@@ -55,9 +55,10 @@ import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
@@ -201,7 +202,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         // type extensions
         groupCR.getTypeExtensions().forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(
                 anyType -> {
-                    TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
+                    GroupTypeExtension typeExt = entityFactory.newEntity(GroupTypeExtension.class);
                     typeExt.setAnyType(anyType);
                     typeExt.setGroup(group);
                     group.add(typeExt);
@@ -229,6 +230,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         Group group = groupDAO.save(toBeUpdated);
 
         GroupTO anyTO = AnyOperations.patch(getGroupTO(group, true), groupUR);
+
+        PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
@@ -284,7 +287,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         }
 
         // attributes, resources and relationships
-        fill(anyTO, group, groupUR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
+        fill(anyTO, group, groupUR, propByRes, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
 
@@ -321,9 +324,9 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
             } else {
-                TypeExtension typeExt = group.getTypeExtension(anyType).orElse(null);
+                GroupTypeExtension typeExt = group.getTypeExtension(anyType).orElse(null);
                 if (typeExt == null) {
-                    typeExt = entityFactory.newEntity(TypeExtension.class);
+                    typeExt = entityFactory.newEntity(GroupTypeExtension.class);
                     typeExt.setAnyType(anyType);
                     typeExt.setGroup(group);
                     group.add(typeExt);
@@ -362,18 +365,17 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         group = groupDAO.save(group);
 
         // Build final information for next stage (propagation)
-        PropagationByResource<String> propByRes = propByRes(
-                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of()));
+        propByRes.merge(propByRes(
+                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of())));
         propByRes.merge(ownerPropByRes);
         return propByRes;
     }
 
     @Override
-    public TypeExtensionTO getTypeExtensionTO(final TypeExtension typeExt) {
+    public TypeExtensionTO getTypeExtensionTO(final GroupTypeExtension typeExt) {
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
-        typeExtTO.getAuxClasses().addAll(
-                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
+        typeExtTO.getAuxClasses().addAll(typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
         return typeExtTO;
     }
 
@@ -424,8 +426,12 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
 
         if (details) {
             // relationships
-            groupTO.getRelationships().addAll(group.getRelationships().stream().map(r -> getRelationshipTO(
-                    r.getType().getKey(), RelationshipTO.End.LEFT, r.getRightEnd())).toList());
+            groupTO.getRelationships().addAll(group.getRelationships().stream().
+                    map(relationship -> getRelationshipTO(group.getPlainAttrs(relationship),
+                    derAttrHandler.getValues((Relatable<?, ?>) group, relationship),
+                    relationship.getType().getKey(),
+                    RelationshipTO.End.LEFT,
+                    relationship.getRightEnd())).toList());
         }
 
         return groupTO;

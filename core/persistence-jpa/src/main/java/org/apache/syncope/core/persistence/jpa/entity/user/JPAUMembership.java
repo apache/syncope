@@ -22,6 +22,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -31,7 +32,8 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
-@Table(name = JPAUMembership.TABLE)
+@Table(name = JPAUMembership.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "user_id", "group_id" }))
 public class JPAUMembership extends AbstractGeneratedKeyEntity implements UMembership {
 
     private static final long serialVersionUID = -14584450896965100L;

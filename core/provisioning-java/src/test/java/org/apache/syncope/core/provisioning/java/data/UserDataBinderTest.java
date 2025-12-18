@@ -25,16 +25,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
@@ -53,7 +64,9 @@ public class UserDataBinderTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {
-        List<GrantedAuthority> authorities = IdRepoEntitlement.values().stream().
+        List<GrantedAuthority> authorities = Stream.concat(
+                IdRepoEntitlement.values().stream(),
+                Stream.of(AnyEntitlement.READ.getFor("PRINTER"))).
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
 
@@ -70,10 +83,19 @@ public class UserDataBinderTest extends AbstractTest {
     }
 
     @Autowired
-    private UserDataBinder dataBinder;
+    private UserDataBinder binder;
+
+    @Autowired
+    private RelationshipTypeDataBinder relationshipTypeDataBinder;
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private RelationshipTypeDAO relationshipTypeDAO;
+
+    @Autowired
+    private EncryptorManager encryptorManager;
 
     @Test
     public void membershipWithAttrNotAllowed() {
@@ -90,7 +112,7 @@ public class UserDataBinderTest extends AbstractTest {
 
         assertThrows(
                 InvalidEntityException.class,
-                () -> dataBinder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR));
+                () -> binder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR));
     }
 
     @Test
@@ -105,16 +127,52 @@ public class UserDataBinderTest extends AbstractTest {
         userUR.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
                 plainAttr(new Attr.Builder("obscure").value("testvalue2").build()).build());
 
-        dataBinder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR);
+        binder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR);
 
         User user = userDAO.findById(userUR.getKey()).orElseThrow();
         UMembership newM = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
         assertEquals(1, user.getPlainAttrs(newM).size());
 
         assertNull(user.getPlainAttr("obscure").orElseThrow().getMembership());
-        assertEquals(2, user.getPlainAttrs("obscure").size());
-        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").orElseThrow()));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> a.getMembership() == null));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.getKey().equals(a.getMembership())));
+        assertTrue(encryptorManager.getInstance().verify(
+                "testvalue2",
+                user.getCipherAlgorithm(),
+                user.getPlainAttr("obscure", newM).orElseThrow().getValuesAsStrings().getFirst()));
+    }
+
+    @Test
+    public void relationshipWithAttr() {
+        // first add type extension to neighborhood
+        RelationshipType relType = relationshipTypeDAO.findById("neighborhood").orElseThrow();
+        RelationshipTypeTO relTypeTO = relationshipTypeDataBinder.getRelationshipTypeTO(relType);
+
+        TypeExtensionTO typeExt = new TypeExtensionTO();
+        typeExt.setAnyType(AnyTypeKind.USER.name());
+        typeExt.getAuxClasses().add("other");
+        relTypeTO.getTypeExtensions().add(typeExt);
+
+        relationshipTypeDataBinder.update(relType, relTypeTO);
+        relType = relationshipTypeDAO.save(relType);
+        relTypeTO = relationshipTypeDataBinder.getRelationshipTypeTO(relType);
+        assertEquals("other", relTypeTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().getFirst());
+
+        // then add relationship with attribute
+        UserUR userUR = new UserUR.Builder("1417acbe-cbf6-4277-9372-e75e04f97000").
+                relationship(new RelationshipUR.Builder("neighborhood").
+                        otherEnd("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                        plainAttr(new Attr.Builder("obscure").value("testvalue3").build()).
+                        build()).
+                build();
+
+        binder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR);
+
+        User user = userDAO.findById(userUR.getKey()).orElseThrow();
+        URelationship newR = user.getRelationship(relType, "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
+        assertEquals(1, user.getPlainAttrs(newR).size());
+
+        assertTrue(encryptorManager.getInstance().verify(
+                "testvalue3",
+                user.getCipherAlgorithm(),
+                user.getPlainAttr("obscure", newR).orElseThrow().getValuesAsStrings().getFirst()));
     }
 }

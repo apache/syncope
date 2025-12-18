@@ -33,7 +33,7 @@ import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AnyTO.class })
-public class GroupTO extends AnyTO {
+public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
 
@@ -145,6 +145,7 @@ public class GroupTO extends AnyTO {
     }
 
     @JsonIgnore
+    @Override
     public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
         return typeExtensions.stream().filter(
                 typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).
@@ -153,6 +154,7 @@ public class GroupTO extends AnyTO {
 
     @JacksonXmlElementWrapper(localName = "typeExtensions")
     @JacksonXmlProperty(localName = "typeExtension")
+    @Override
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

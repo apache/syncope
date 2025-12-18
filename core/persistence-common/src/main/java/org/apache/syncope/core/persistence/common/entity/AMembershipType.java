@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.persistence.common.entity;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipTypeExtension;
 
 public class AMembershipType implements RelationshipType {
 
@@ -73,5 +76,20 @@ public class AMembershipType implements RelationshipType {
     @Override
     public void setRightEndAnyType(final AnyType anyType) {
         // cannot be changed
+    }
+
+    @Override
+    public boolean add(final RelationshipTypeExtension typeExtension) {
+        return false;
+    }
+
+    @Override
+    public Optional<? extends RelationshipTypeExtension> getTypeExtension(final AnyType anyType) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<? extends RelationshipTypeExtension> getTypeExtensions() {
+        return List.of();
     }
 }

@@ -48,7 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -185,7 +185,7 @@ public class GroupTest extends AbstractTest {
         group.setRealm(realmDAO.getRoot());
         group.setName("new");
 
-        TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
+        GroupTypeExtension typeExt = entityFactory.newEntity(GroupTypeExtension.class);
         typeExt.setAnyType(anyTypeDAO.getUser());
         typeExt.add(anyTypeClassDAO.findById("csv").orElseThrow());
         typeExt.add(anyTypeClassDAO.findById("other").orElseThrow());

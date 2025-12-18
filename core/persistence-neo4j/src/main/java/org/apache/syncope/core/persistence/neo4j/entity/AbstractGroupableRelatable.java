@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -33,23 +31,35 @@ import org.springframework.data.neo4j.core.schema.PostLoad;
 public abstract class AbstractGroupableRelatable<
         L extends Any, 
         M extends Membership<L>, 
-        REL extends Relationship<L, AnyObject>>
-        extends AbstractRelatable<L, REL> implements Groupable<L, M, REL> {
+        R extends Relationship<L, AnyObject>>
+        extends AbstractRelatable<L, R> implements Groupable<L, M, R> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
     protected abstract List<? extends AbstractMembership<L>> memberships();
 
     @Override
-    public boolean remove(final PlainAttr attr) {
-        if (attr.getMembership() == null) {
-            return plainAttrs().put(attr.getSchema(), null) != null;
+    public boolean add(final PlainAttr attr) {
+        if (attr.getMembership() != null) {
+            return memberships().stream().
+                    filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
+                    map(m -> m.add(attr)).
+                    orElse(false);
         }
 
-        return memberships().stream().
-                filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
-                map(membership -> membership.plainAttrs().put(attr.getSchema(), null) != null).
-                orElse(false);
+        return super.add(attr);
+    }
+
+    @Override
+    public boolean remove(final PlainAttr attr) {
+        if (attr.getMembership() != null) {
+            return memberships().stream().
+                    filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
+                    map(m -> m.plainAttrs().put(attr.getSchema(), null) != null).
+                    orElse(false);
+        }
+
+        return super.remove(attr);
     }
 
     @Override
@@ -60,14 +70,7 @@ public abstract class AbstractGroupableRelatable<
     }
 
     @Override
-    public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
-        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElseGet(Stream::empty),
-                memberships().stream().map(m -> m.getPlainAttr(plainSchema)).flatMap(Optional::stream)).
-                toList();
-    }
-
-    @Override
-    public Collection<PlainAttr> getPlainAttrs(final Membership<?> membership) {
+    public List<PlainAttr> getPlainAttrs(final Membership<?> membership) {
         return memberships().stream().
                 filter(m -> m.getKey().equals(membership.getKey())).
                 flatMap(m -> m.getPlainAttrs().stream()).toList();

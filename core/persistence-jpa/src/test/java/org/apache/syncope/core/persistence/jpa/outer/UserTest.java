@@ -134,7 +134,7 @@ public class UserTest extends AbstractTest {
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
                 user.getRelationships().getFirst().getRightEnd().getKey());
 
-        user.getRelationships().removeFirst();
+        user.remove(user.getRelationships().getFirst());
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
         newR.setType(relationshipTypeDAO.findById("neighborhood").orElseThrow());

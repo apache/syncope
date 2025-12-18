@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
@@ -45,9 +46,9 @@ import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.AttributeModifier;
@@ -115,6 +116,35 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
         });
+        add(new ListView<>("relationshipsPlainSchemas", relationshipTOs) {
+
+            private static final long serialVersionUID = 6741044372185745296L;
+
+            @Override
+            protected void populateItem(final ListItem<RelationshipTO> item) {
+                RelationshipTO relationshipTO = item.getModelObject();
+                item.add(new Accordion("relationshipPlainSchemas", List.of(new AbstractTab(
+                        new StringResourceModel(
+                                "attributes.relationship.accordion",
+                                PlainAttrs.this,
+                                Model.of(relationshipTO))) {
+
+                    private static final long serialVersionUID = 1037272333056449378L;
+
+                    @Override
+                    public WebMarkupContainer getPanel(final String panelId) {
+                        return new PlainSchemas(
+                                panelId,
+                                relationshipTO.getOtherEndName(),
+                                relationshipSchemas.get(Pair.of(
+                                        relationshipTO.getType(), relationshipTO.getOtherEndKey())),
+                                new ListModel<>(relationshipTO.getPlainAttrs().stream().
+                                        sorted(attrComparator).
+                                        collect(Collectors.toList())));
+                    }
+                }), Model.of(-1)).setOutputMarkupId(true));
+            }
+        });
     }
 
     @Override
@@ -155,7 +185,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
+        Map<String, Attr> attrMap = userTO.getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
                 orElseGet(HashMap::new);
 
@@ -174,6 +204,31 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         membershipTO.getPlainAttrs().clear();
         membershipTO.getPlainAttrs().addAll(plainAttrs);
+    }
+
+    @Override
+    protected void setAttrs(final RelationshipTO relationshipTO) {
+        Map<String, Attr> attrMap = userTO.getRelationship(relationshipTO.getType(), relationshipTO.getOtherEndKey()).
+                map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
+                orElseGet(HashMap::new);
+
+        List<Attr> plainAttrs = relationshipSchemas.get(
+                Pair.of(relationshipTO.getType(), relationshipTO.getOtherEndKey())).values().stream().map(schema -> {
+
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
+            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
+                    attr.getValues().add(StringUtils.EMPTY);
+                }
+            } else {
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+            }
+            return attr;
+        }).toList();
+
+        relationshipTO.getPlainAttrs().clear();
+        relationshipTO.getPlainAttrs().addAll(plainAttrs);
     }
 
     @SuppressWarnings("unchecked")
