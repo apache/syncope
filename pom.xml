@@ -438,7 +438,7 @@ under the License.
     <spring-boot.version>4.0.0</spring-boot.version>
     <spring-cloud-version>5.0.0</spring-cloud-version>
 
-    <hibernate.version>7.1.12.Final</hibernate.version>
+    <hibernate.version>7.2.0.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -449,7 +449,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.2.2</elasticsearch.version>
+    <elasticsearch.version>9.2.3</elasticsearch.version>
     <opensearch.version>3.4.0</opensearch.version>
     <opensearch-java.version>3.4.0</opensearch-java.version>
 
