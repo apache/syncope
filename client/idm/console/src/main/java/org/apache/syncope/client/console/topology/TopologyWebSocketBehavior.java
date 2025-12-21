@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
@@ -51,7 +52,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
 

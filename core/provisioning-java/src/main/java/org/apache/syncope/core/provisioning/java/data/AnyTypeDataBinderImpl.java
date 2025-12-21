@@ -141,7 +141,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
                         encryptorManager.getInstance().
-                                decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                                decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 

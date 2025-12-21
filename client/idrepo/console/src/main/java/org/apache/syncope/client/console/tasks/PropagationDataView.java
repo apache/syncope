@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.tasks;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
@@ -39,7 +40,7 @@ public class PropagationDataView extends MultilevelPanel.SecondLevel {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyPropagationTasks.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public PropagationDataView(final PropagationTaskTO taskTO) {
         super();

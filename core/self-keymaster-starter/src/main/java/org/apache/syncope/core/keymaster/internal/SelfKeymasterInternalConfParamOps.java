@@ -20,6 +20,7 @@ package org.apache.syncope.core.keymaster.internal;
 
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +32,7 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final InternalConfParamHelper helper;
 

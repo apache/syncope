@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import org.apache.syncope.common.lib.AMSession;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
@@ -38,7 +39,7 @@ public class AMSessionDeserializer extends StdDeserializer<AMSession> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AMSessionDeserializer.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public AMSessionDeserializer() {
         this(null);

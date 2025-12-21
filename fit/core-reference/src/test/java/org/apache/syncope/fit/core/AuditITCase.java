@@ -241,13 +241,13 @@ public class AuditITCase extends AbstractITCase {
         String originalDisplayName = ldapConn.getDisplayName();
         Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
         ConnConfProperty originalConfProp = SerializationUtils.clone(
-                ldapConn.getConf("maintainPosixGroupMembership").get());
+                ldapConn.getConf("maintainPosixGroupMembership").orElseThrow());
         assertEquals(1, originalConfProp.getValues().size());
         assertEquals("false", originalConfProp.getValues().getFirst());
 
         ldapConn.setDisplayName(originalDisplayName + " modified");
         ldapConn.getCapabilities().clear();
-        ldapConn.getConf("maintainPosixGroupMembership").get().getValues().set(0, "true");
+        ldapConn.getConf("maintainPosixGroupMembership").orElseThrow().getValues().set(0, "true");
         CONNECTOR_SERVICE.update(ldapConn);
 
         ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
@@ -264,7 +264,7 @@ public class AuditITCase extends AbstractITCase {
         ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
         assertEquals(originalDisplayName, ldapConn.getDisplayName());
         assertEquals(originalCapabilities, ldapConn.getCapabilities());
-        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").get());
+        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").orElseThrow());
     }
 
     @Test

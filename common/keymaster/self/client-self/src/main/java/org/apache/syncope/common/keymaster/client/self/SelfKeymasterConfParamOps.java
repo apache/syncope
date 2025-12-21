@@ -27,6 +27,7 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfP
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public SelfKeymasterConfParamOps(final JAXRSClientFactoryBean clientFactory) {
         super(clientFactory);

@@ -53,7 +53,8 @@ public final class POJOHelper {
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(AttributeDelta.class, new AttributeDeltaDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());
-        pojoModule.addDeserializer(ConnectorObjectIdentification.class,
+        pojoModule.addDeserializer(
+                ConnectorObjectIdentification.class,
                 new ConnectorObjectIdentificationDeserializer());
 
         MAPPER = JsonMapper.builder().

@@ -28,6 +28,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
@@ -36,7 +37,9 @@ public final class WASessionRestClient extends AMSessionRestClient {
     private static final long serialVersionUID = 22118820292494L;
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().
-            addModule(new SimpleModule().addDeserializer(AMSession.class, new AMSessionDeserializer())).build();
+            addModule(new SimpleModule().addDeserializer(AMSession.class, new AMSessionDeserializer())).
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).
+            build();
 
     public WASessionRestClient(final List<NetworkService> instances) {
         super(instances);

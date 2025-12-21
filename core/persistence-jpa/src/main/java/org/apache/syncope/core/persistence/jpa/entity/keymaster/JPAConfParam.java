@@ -22,6 +22,7 @@ package org.apache.syncope.core.persistence.jpa.entity.keymaster;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import tools.jackson.core.JacksonException;
@@ -34,7 +35,7 @@ public class JPAConfParam extends AbstractProvidedKeyEntity implements ConfParam
 
     private static final long serialVersionUID = 8742750097008236475L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public static final String TABLE = "ConfParam";
 

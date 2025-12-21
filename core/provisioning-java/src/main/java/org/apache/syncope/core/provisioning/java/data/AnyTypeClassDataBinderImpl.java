@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -36,6 +37,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeClassDataBinder.class);
 
+    protected final AnyTypeClassDAO anyTypeClassDAO;
+
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final DerSchemaDAO derSchemaDAO;
@@ -45,11 +48,13 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
     protected final EntityFactory entityFactory;
 
     public AnyTypeClassDataBinderImpl(
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final AnyTypeDAO anyTypeDAO,
             final EntityFactory entityFactory) {
 
+        this.anyTypeClassDAO = anyTypeClassDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.anyTypeDAO = anyTypeDAO;
@@ -65,40 +70,44 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
     @Override
     public void update(final AnyTypeClass anyTypeClass, final AnyTypeClassTO anyTypeClassTO) {
+        AnyTypeClass atc;
         if (anyTypeClass.getKey() == null) {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
+            atc = anyTypeClassDAO.save(anyTypeClass);
+        } else {
+            atc = anyTypeClass;
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
+        plainSchemaDAO.findByAnyTypeClasses(List.of(atc)).forEach(schema -> {
             schema.setAnyTypeClass(null);
             plainSchemaDAO.save(schema);
         });
 
-        anyTypeClass.getPlainSchemas().clear();
+        atc.getPlainSchemas().clear();
         anyTypeClassTO.getPlainSchemas().forEach(key -> {
             PlainSchema schema = plainSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
                 LOG.debug("Invalid or already in use: {} {}, ignoring...", PlainSchema.class.getSimpleName(), key);
             } else {
-                anyTypeClass.add(schema);
-                schema.setAnyTypeClass(anyTypeClass);
+                atc.add(schema);
+                schema.setAnyTypeClass(atc);
                 plainSchemaDAO.save(schema);
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
+        derSchemaDAO.findByAnyTypeClasses(List.of(atc)).forEach(schema -> {
             schema.setAnyTypeClass(null);
             derSchemaDAO.save(schema);
         });
 
-        anyTypeClass.getDerSchemas().clear();
+        atc.getDerSchemas().clear();
         anyTypeClassTO.getDerSchemas().forEach(key -> {
             DerSchema schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
                 LOG.debug("Invalid or already in use: {} {}, ignoring...", DerSchema.class.getSimpleName(), key);
             } else {
-                anyTypeClass.add(schema);
-                schema.setAnyTypeClass(anyTypeClass);
+                atc.add(schema);
+                schema.setAnyTypeClass(atc);
                 derSchemaDAO.save(schema);
             }
         });

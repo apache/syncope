@@ -20,6 +20,7 @@ package org.apache.syncope.core.keymaster.internal;
 
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -35,7 +36,7 @@ public class InternalConfParamHelper {
 
     protected static final Logger LOG = LoggerFactory.getLogger(InternalConfParamHelper.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final ConfParamDAO confParamDAO;
 

@@ -28,13 +28,13 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @Component
@@ -61,7 +61,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
             sf.setResourceClasses(SRARouteService.class);
             sf.setResourceProvider(SRARouteService.class,
                     new SingletonResourceProvider(new StubSRARouteService(), true));
-            sf.setProviders(List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build())));
+            sf.setProviders(List.of(new JacksonJsonProvider(new SyncopeJsonMapper())));
             sf.create();
 
             // 2. register Core in Keymaster

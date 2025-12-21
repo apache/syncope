@@ -31,6 +31,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.PageReference;
@@ -46,7 +47,7 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
 
     protected static final Set<String> BASE64_EXCEPTIONS = Set.of("username");
 
-    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper JSON_MAPPER = new SyncopeJsonMapper();
 
     protected static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
 

@@ -21,6 +21,7 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
@@ -28,7 +29,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 public class ZookeeperTestContentLoader implements InitializingBean {
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Autowired
     private ConfParamOps confParamOps;

@@ -26,6 +26,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -36,7 +37,6 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
@@ -68,7 +68,7 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setInheritHeaders(true);
         restClientFactoryBean.getFeatures().add(new LoggingFeature());
         restClientFactoryBean.setProviders(List.of(
-                new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()),
+                new JacksonJsonProvider(new SyncopeJsonMapper()),
                 new SelfKeymasterClientExceptionMapper()));
         return restClientFactoryBean;
     }

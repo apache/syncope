@@ -44,6 +44,7 @@ import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -73,7 +74,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public static SyncopeWebApplication get() {
         return (SyncopeWebApplication) WebApplication.get();

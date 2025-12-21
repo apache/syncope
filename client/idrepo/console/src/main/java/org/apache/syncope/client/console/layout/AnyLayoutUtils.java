@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -42,7 +43,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 public final class AnyLayoutUtils {
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     private static void setUserIfEmpty(final AnyLayout anyLayout) {
         if (anyLayout.getUser() == null) {

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.common.attrvalue;
 
 import jakarta.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -30,7 +31,7 @@ public class BinaryValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 1344152444666540361L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     private static final Tika TIKA = new Tika();
 

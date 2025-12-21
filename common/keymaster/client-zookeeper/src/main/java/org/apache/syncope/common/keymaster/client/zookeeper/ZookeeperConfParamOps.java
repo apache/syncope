@@ -24,6 +24,7 @@ import java.util.TreeMap;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class ZookeeperConfParamOps implements ConfParamOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String CONF_PATH = "/conf";
 

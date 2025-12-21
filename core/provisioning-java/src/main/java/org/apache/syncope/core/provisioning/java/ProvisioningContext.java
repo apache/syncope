@@ -759,11 +759,12 @@ public class ProvisioningContext {
     @Bean
     public AnyTypeClassDataBinder anyTypeClassDataBinder(
             final EntityFactory entityFactory,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final AnyTypeDAO anyTypeDAO) {
 
-        return new AnyTypeClassDataBinderImpl(plainSchemaDAO, derSchemaDAO, anyTypeDAO, entityFactory);
+        return new AnyTypeClassDataBinderImpl(anyTypeClassDAO, plainSchemaDAO, derSchemaDAO, anyTypeDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -990,11 +991,12 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public RelationshipTypeDataBinder relationshipTypeDataBinder(
+            final RelationshipTypeDAO relationshipTypeDAO,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final EntityFactory entityFactory) {
 
-        return new RelationshipTypeDataBinderImpl(anyTypeDAO, anyTypeClassDAO, entityFactory);
+        return new RelationshipTypeDataBinderImpl(relationshipTypeDAO, anyTypeDAO, anyTypeClassDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

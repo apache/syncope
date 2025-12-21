@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -55,7 +56,7 @@ public abstract class AbstractUIITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractUIITCase.class);
 
-    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper JSON_MAPPER = new SyncopeJsonMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 

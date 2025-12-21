@@ -169,11 +169,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     }
 
     protected User checkBeforeSave(final User user) {
-        User merged = user;
-        if (user.getLinkedAccounts() == null) {
-            entityManager.flush();
-            merged = entityManager.merge(user);
-        }
+        User merged = entityManager.merge(user);
 
         super.checkBeforeSave((JPAUser) merged);
         merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));

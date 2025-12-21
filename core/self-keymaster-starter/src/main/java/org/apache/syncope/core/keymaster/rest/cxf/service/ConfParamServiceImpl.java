@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ public class ConfParamServiceImpl implements ConfParamService {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamService.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final ConfParamLogic logic;
 

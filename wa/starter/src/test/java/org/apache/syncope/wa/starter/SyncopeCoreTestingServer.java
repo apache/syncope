@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
@@ -54,7 +55,6 @@ import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefreshedEvent> {
@@ -393,7 +393,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setResourceProvider(
                         ImpersonationService.class,
                         new SingletonResourceProvider(new StubImpersonationService(), true));
-                sf.setProviders(List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build())));
+                sf.setProviders(List.of(new JacksonJsonProvider(new SyncopeJsonMapper())));
                 sf.create();
 
                 // 2. register Core in Keymaster

@@ -57,6 +57,7 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -213,7 +214,8 @@ public class SyncopeClient {
 
     protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).build();
 
     protected final MediaType mediaType;
 

@@ -23,6 +23,7 @@ import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.panels.UserSelfFormPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -36,7 +37,7 @@ public class SelfRegistration extends BaseNoSidebarPage {
 
     public static final String NEW_USER_PARAM = "newUser";
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public SelfRegistration(final PageParameters parameters) {
         super(parameters, SELF_REGISTRATION);

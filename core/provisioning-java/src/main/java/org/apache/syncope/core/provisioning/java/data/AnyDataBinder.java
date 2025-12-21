@@ -605,13 +605,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         anyCR.getAuxClasses().stream().
                 map(anyTypeClassDAO::findById).
                 flatMap(Optional::stream).
-                forEach(auxClass -> {
-                    if (auxClass == null) {
-                        LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), auxClass);
-                    } else {
-                        any.add(auxClass);
-                    }
-                });
+                forEach(any::add);
 
         // 1. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();

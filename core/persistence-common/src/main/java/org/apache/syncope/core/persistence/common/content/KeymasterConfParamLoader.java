@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ConfParamLoader;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -38,7 +39,7 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final ConfParamOps confParamOps;
 

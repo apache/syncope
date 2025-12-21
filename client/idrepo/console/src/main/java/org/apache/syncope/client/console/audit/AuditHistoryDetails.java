@@ -53,6 +53,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamReadFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
@@ -129,6 +130,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     protected static final JsonMapper MAPPER = JsonMapper.builder().
             nodeFactory(new SortingNodeFactory()).
             findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).
             addModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
             build();
 

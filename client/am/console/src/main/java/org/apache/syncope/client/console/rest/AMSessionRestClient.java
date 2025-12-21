@@ -27,10 +27,10 @@ import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 public abstract class AMSessionRestClient implements RestClient {
@@ -39,8 +39,7 @@ public abstract class AMSessionRestClient implements RestClient {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AMSessionRestClient.class);
 
-    protected static final List<?> JAX_RS_PROVIDERS =
-            List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()));
+    protected static final List<?> JAX_RS_PROVIDERS = List.of(new JacksonJsonProvider(new SyncopeJsonMapper()));
 
     protected final List<NetworkService> instances;
 
