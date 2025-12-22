@@ -78,13 +78,11 @@ public abstract class PolicyTO implements NamedEntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-
     public List<String> getUsedByResources() {
         return usedByResources;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-
     public List<String> getUsedByRealms() {
         return usedByRealms;
     }

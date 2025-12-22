@@ -66,7 +66,6 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-
     public List<String> getPassthroughResources() {
         return passthroughResources;
     }

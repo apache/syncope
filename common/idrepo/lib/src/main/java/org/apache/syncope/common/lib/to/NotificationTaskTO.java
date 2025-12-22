@@ -88,7 +88,6 @@ public class NotificationTaskTO extends TaskTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-
     public Set<String> getRecipients() {
         return recipients;
     }
