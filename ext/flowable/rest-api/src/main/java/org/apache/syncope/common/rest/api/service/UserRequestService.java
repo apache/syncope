@@ -65,7 +65,7 @@ public interface UserRequestService extends JAXRSService {
      * @return list of all running user requests
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<UserRequest> listRequests(@BeanParam UserRequestQuery query);
 
     /**
@@ -78,8 +78,8 @@ public interface UserRequestService extends JAXRSService {
      */
     @POST
     @Path("start/{bpmnProcess}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     UserRequest startRequest(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
             @QueryParam(JAXRSService.PARAM_USER) String user,
@@ -95,7 +95,7 @@ public interface UserRequestService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{executionId}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void cancelRequest(
             @NotNull @PathParam("executionId") String executionId,
             @QueryParam("reason") String reason);
@@ -109,7 +109,7 @@ public interface UserRequestService extends JAXRSService {
      */
     @GET
     @Path("forms/{username}/{taskId}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     UserRequestForm getForm(
             @NotNull @PathParam("username") String username,
             @NotNull @PathParam("taskId") String taskId);
@@ -122,7 +122,7 @@ public interface UserRequestService extends JAXRSService {
      */
     @GET
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<UserRequestForm> listForms(@BeanParam UserRequestQuery query);
 
     /**
@@ -133,7 +133,7 @@ public interface UserRequestService extends JAXRSService {
      */
     @POST
     @Path("forms/{taskId}/claim")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     UserRequestForm claimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
@@ -144,7 +144,7 @@ public interface UserRequestService extends JAXRSService {
      */
     @POST
     @Path("forms/{taskId}/unclaim")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     UserRequestForm unclaimForm(@NotNull @PathParam("taskId") String taskId);
 
     /**
@@ -177,7 +177,7 @@ public interface UserRequestService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("forms")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response submitForm(@NotNull UserRequestForm form);
 }

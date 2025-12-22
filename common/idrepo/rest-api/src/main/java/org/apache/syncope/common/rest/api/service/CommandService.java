@@ -35,7 +35,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.command.CommandOutput;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.CommandQuery;
 
 /**
@@ -55,7 +54,7 @@ public interface CommandService extends JAXRSService {
      * @return list of all commands.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<CommandTO> search(@BeanParam CommandQuery query);
 
     /**
@@ -68,7 +67,7 @@ public interface CommandService extends JAXRSService {
             @Schema(type = "string"))
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     CommandTO read(@PathParam("key") String key);
 
     /**
@@ -81,7 +80,7 @@ public interface CommandService extends JAXRSService {
             @Schema(type = "string"))
     @POST
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     CommandOutput run(CommandTO command);
 }

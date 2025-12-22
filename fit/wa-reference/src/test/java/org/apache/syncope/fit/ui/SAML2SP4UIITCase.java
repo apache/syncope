@@ -116,8 +116,8 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             // nothing bad if already imported
         } finally {
             WebClient.client(SAML2SP4UI_IDP_SERVICE).
-                    accept(CLIENT_FACTORY.getContentType().getMediaType()).
-                    type(CLIENT_FACTORY.getContentType().getMediaType());
+                    accept(MediaType.APPLICATION_JSON).
+                    type(MediaType.APPLICATION_JSON);
         }
 
         List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();

@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -44,7 +42,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private static final long serialVersionUID = -754311920679872084L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -184,8 +181,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         this.realm = realm;
     }
 
-    @JacksonXmlElementWrapper(localName = "dynRealms")
-    @JacksonXmlProperty(localName = "dynRealmF")
     public List<String> getDynRealms() {
         return dynRealms;
     }
@@ -198,15 +193,11 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         this.status = status;
     }
 
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "class")
     @Override
     public Set<String> getAuxClasses() {
         return auxClasses;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -218,8 +209,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "derAttrs")
-    @JacksonXmlProperty(localName = "derAttr")
     @Override
     public Set<Attr> getDerAttrs() {
         return derAttrs;
@@ -244,8 +233,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
                 findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
     @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;

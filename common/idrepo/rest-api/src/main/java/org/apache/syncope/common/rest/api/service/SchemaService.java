@@ -69,7 +69,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends SchemaTO> List<T> search(@BeanParam SchemaQuery query);
 
     /**
@@ -82,7 +82,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends SchemaTO> T read(
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
@@ -104,8 +104,8 @@ public interface SchemaService extends JAXRSService {
                         description = "URL of the entity created") }))
     @POST
     @Path("{type}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
@@ -120,8 +120,8 @@ public interface SchemaService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull @PathParam("type") SchemaType type, @NotNull SchemaTO schemaTO);
 
     /**
@@ -134,18 +134,18 @@ public interface SchemaService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
     @POST
     @Path("PLAIN/any/{key}/dropdownValues")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Attr getDropdownValues(@NotNull @PathParam("key") String key, @NotNull AnyTO anyTO);
 
     @POST
     @Path("PLAIN/realm/{key}/dropdownValues")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Attr getDropdownValues(@NotNull @PathParam("key") String key, @NotNull RealmTO realmTO);
 }

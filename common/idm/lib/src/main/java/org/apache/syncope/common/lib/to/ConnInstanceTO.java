@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
@@ -122,8 +120,6 @@ public class ConnInstanceTO implements EntityTO {
         this.version = version;
     }
 
-    @JacksonXmlElementWrapper(localName = "conf")
-    @JacksonXmlProperty(localName = "property")
     public List<ConnConfProperty> getConf() {
         return this.conf;
     }
@@ -133,8 +129,6 @@ public class ConnInstanceTO implements EntityTO {
         return conf.stream().filter(property -> property.getSchema().getName().equals(schemaName)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "capabilities")
-    @JacksonXmlProperty(localName = "capability")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }

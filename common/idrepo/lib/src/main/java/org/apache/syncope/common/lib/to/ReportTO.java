@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -108,8 +106,6 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.jobDelegate = jobDelegate;
     }
 
-    @JacksonXmlElementWrapper(localName = "executions")
-    @JacksonXmlProperty(localName = "execution")
     public List<ExecTO> getExecutions() {
         return executions;
     }

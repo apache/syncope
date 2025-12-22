@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -72,8 +70,6 @@ public class MembershipUR extends AbstractPatch {
         this.group = group;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }

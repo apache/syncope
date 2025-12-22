@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -72,7 +70,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<String> delegatedDelegations = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.UserTO")
@@ -186,47 +183,33 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     @Override
     public List<MembershipTO> getMemberships() {
         return memberships;
     }
 
-    @JacksonXmlElementWrapper(localName = "dynMemberships")
-    @JacksonXmlProperty(localName = "dynMembership")
     @Override
     public List<MembershipTO> getDynMemberships() {
         return dynMemberships;
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public List<String> getRoles() {
         return roles;
     }
 
-    @JacksonXmlElementWrapper(localName = "dynRoles")
-    @JacksonXmlProperty(localName = "dynRole")
     public List<String> getDynRoles() {
         return dynRoles;
     }
 
-    @JacksonXmlElementWrapper(localName = "linkedAccounts")
-    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountTO> getLinkedAccounts() {
         return linkedAccounts;
     }
 
-    @JacksonXmlElementWrapper(localName = "delegatingDelegations")
-    @JacksonXmlProperty(localName = "delegatingDelegation")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public List<String> getDelegatingDelegations() {
         return delegatingDelegations;
     }
 
-    @JacksonXmlElementWrapper(localName = "getDelegatedDelegations")
-    @JacksonXmlProperty(localName = "getDelegatedDelegation")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     public List<String> getDelegatedDelegations() {
         return delegatedDelegations;

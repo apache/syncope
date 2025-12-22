@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +30,7 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
     private boolean bypassEnabled;
 
     private boolean forceMfaExecution = true;
-    
+
     private String bypassPrincipalAttributeName;
 
     private String bypassPrincipalAttributeValue;
@@ -89,8 +87,6 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
         this.bypassTrustedDeviceEnabled = bypassTrustedDeviceEnabled;
     }
 
-    @JacksonXmlElementWrapper(localName = "authModules")
-    @JacksonXmlProperty(localName = "authModule")
     public List<String> getAuthModules() {
         return authModules;
     }

@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.oidc;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -89,8 +87,6 @@ public class OIDCLoginResponse implements Serializable {
         return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "attrs")
-    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }

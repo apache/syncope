@@ -20,17 +20,18 @@ package org.apache.syncope.common.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.junit.jupiter.api.Test;
 
-public abstract class SerializationTest {
+public class SerializationTest {
 
-    protected abstract ObjectMapper objectMapper();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
     public void accessPolicyConf() throws IOException {
@@ -46,9 +47,9 @@ public abstract class SerializationTest {
         policy.setConf(conf);
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, policy);
+        MAPPER.writeValue(writer, policy);
 
-        AccessPolicyTO actual = objectMapper().readValue(writer.toString(), AccessPolicyTO.class);
+        AccessPolicyTO actual = MAPPER.readValue(writer.toString(), AccessPolicyTO.class);
         assertEquals(policy, actual);
     }
 }

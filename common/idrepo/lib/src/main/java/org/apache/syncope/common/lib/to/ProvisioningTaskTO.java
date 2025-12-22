@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,8 +109,6 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
         this.matchingRule = matchigRule;
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

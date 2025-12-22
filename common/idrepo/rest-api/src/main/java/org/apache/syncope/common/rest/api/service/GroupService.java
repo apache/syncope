@@ -108,8 +108,8 @@ public interface GroupService extends AnyService<GroupTO> {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response create(@NotNull GroupCR createReq);
 
     /**
@@ -151,8 +151,8 @@ public interface GroupService extends AnyService<GroupTO> {
                 + " date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(@NotNull GroupUR updateReq);
 
     /**
@@ -162,7 +162,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @GET
     @Path("own")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<GroupTO> own();
 
     /**
@@ -174,7 +174,7 @@ public interface GroupService extends AnyService<GroupTO> {
      */
     @POST
     @Path("{key}/members/{action}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     ExecTO provisionMembers(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("action") ProvisionAction action);

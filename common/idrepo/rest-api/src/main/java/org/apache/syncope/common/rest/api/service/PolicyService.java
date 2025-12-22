@@ -64,7 +64,7 @@ public interface PolicyService extends JAXRSService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends PolicyTO> T read(@NotNull @PathParam("type") PolicyType type, @NotNull @PathParam("key") String key);
 
     /**
@@ -76,7 +76,7 @@ public interface PolicyService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends PolicyTO> List<T> list(@NotNull @PathParam("type") PolicyType type);
 
     /**
@@ -97,8 +97,8 @@ public interface PolicyService extends JAXRSService {
                         description = "URL of the entity created") }))
     @POST
     @Path("{type}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull @PathParam("type") PolicyType type, @NotNull PolicyTO policyTO);
 
     /**
@@ -113,8 +113,8 @@ public interface PolicyService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull @PathParam("type") PolicyType type, @NotNull PolicyTO policyTO);
 
     /**
@@ -127,7 +127,7 @@ public interface PolicyService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("type") PolicyType type, @NotNull @PathParam("key") String key);
 
 }

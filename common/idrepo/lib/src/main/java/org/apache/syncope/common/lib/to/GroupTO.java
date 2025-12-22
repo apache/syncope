@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,7 +55,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.GroupTO")
@@ -152,8 +149,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
                 findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     @Override
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;

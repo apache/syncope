@@ -146,7 +146,7 @@ public class LiveSyncITCase extends AbstractITCase {
                     SyncDeltaType sdt = null;
                     String uid = null;
                     try {
-                        JsonNode syncDelta = JSON_MAPPER.readTree(record.value());
+                        JsonNode syncDelta = MAPPER.readTree(record.value());
                         if (syncDelta.has("deltaType")) {
                             sdt = SyncDeltaType.valueOf(syncDelta.get("deltaType").asText());
                         }

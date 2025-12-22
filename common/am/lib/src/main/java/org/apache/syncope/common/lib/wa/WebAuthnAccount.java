@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -58,8 +56,6 @@ public class WebAuthnAccount implements BaseBean {
 
     private final List<WebAuthnDeviceCredential> credentials = new ArrayList<>();
 
-    @JacksonXmlElementWrapper(localName = "credentials")
-    @JacksonXmlProperty(localName = "credential")
     public List<WebAuthnDeviceCredential> getCredentials() {
         return credentials;
     }

@@ -35,7 +35,6 @@ import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
 import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for the provided SAML 2.0 SP4UI Service Provider.
@@ -69,7 +68,7 @@ public interface SAML2SP4UIService extends JAXRSService {
      */
     @POST
     @Path("loginRequest")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SAML2Request createLoginRequest(
             @QueryParam("spEntityID") String spEntityID,
             @QueryParam("urlContext") String urlContext,
@@ -84,8 +83,8 @@ public interface SAML2SP4UIService extends JAXRSService {
      */
     @POST
     @Path("loginResponse")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     SAML2LoginResponse validateLoginResponse(SAML2Response response);
 
     /**
@@ -97,7 +96,7 @@ public interface SAML2SP4UIService extends JAXRSService {
      */
     @POST
     @Path("logoutRequest")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SAML2Request createLogoutRequest(
             @QueryParam("spEntityID") String spEntityID, @QueryParam("urlContext") String urlContext);
 
@@ -110,7 +109,7 @@ public interface SAML2SP4UIService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("logoutResponse")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void validateLogoutResponse(SAML2Response response);
 }

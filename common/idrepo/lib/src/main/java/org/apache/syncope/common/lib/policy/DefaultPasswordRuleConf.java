@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.Schema;
@@ -123,14 +121,10 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
         this.special = special;
     }
 
-    @JacksonXmlElementWrapper(localName = "specialChars")
-    @JacksonXmlProperty(localName = "char")
     public List<Character> getSpecialChars() {
         return specialChars;
     }
 
-    @JacksonXmlElementWrapper(localName = "illegalChars")
-    @JacksonXmlProperty(localName = "char")
     public List<Character> getIllegalChars() {
         return illegalChars;
     }
@@ -151,14 +145,10 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
         this.usernameAllowed = usernameAllowed;
     }
 
-    @JacksonXmlElementWrapper(localName = "wordsNotPermitted")
-    @JacksonXmlProperty(localName = "word")
     public List<String> getWordsNotPermitted() {
         return wordsNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "schemasNotPermitted")
-    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
     }

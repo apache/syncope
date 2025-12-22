@@ -52,7 +52,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<ExecTO> listExecutions(@BeanParam ExecQuery query);
 
     /**
@@ -63,7 +63,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("executions/recent")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
 
     /**
@@ -75,7 +75,7 @@ public interface ExecutableService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("executions/{executionKey}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void deleteExecution(@NotNull @PathParam("executionKey") String executionKey);
 
     /**
@@ -100,7 +100,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @POST
     @Path("{key}/execute")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     ExecTO execute(@BeanParam ExecSpecs specs);
 
     /**
@@ -111,7 +111,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     JobTO getJob(@PathParam("key") String key);
 
     /**
@@ -121,7 +121,7 @@ public interface ExecutableService extends JAXRSService {
      */
     @GET
     @Path("jobs")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<JobTO> listJobs();
 
     /**

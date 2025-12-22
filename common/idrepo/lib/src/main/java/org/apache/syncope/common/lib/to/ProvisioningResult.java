@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -42,8 +40,6 @@ public class ProvisioningResult<E extends EntityTO> implements BaseBean {
         this.entity = entity;
     }
 
-    @JacksonXmlElementWrapper(localName = "propagationStatuses")
-    @JacksonXmlProperty(localName = "propagationStatus")
     public List<PropagationStatus> getPropagationStatuses() {
         return propagationStatuses;
     }

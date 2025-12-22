@@ -22,12 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -43,19 +44,18 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
 
-public abstract class SerializationTest {
+public class SerializationTest {
 
-    protected abstract ObjectMapper objectMapper();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
     public void emptyListAsRoot() throws IOException {
         List<ReportTO> original = new ArrayList<>();
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, original);
+        MAPPER.writeValue(writer, original);
 
-        List<ReportTO> actual = objectMapper().readValue(writer.toString(),
-                new TypeReference<>() {
+        List<ReportTO> actual = MAPPER.readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
     }
@@ -68,9 +68,9 @@ public abstract class SerializationTest {
         original.getPlainAttrs().add(new Attr.Builder("location").value("new").build());
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, original);
+        MAPPER.writeValue(writer, original);
 
-        AnyObjectCR actual = objectMapper().readValue(writer.toString(), AnyObjectCR.class);
+        AnyObjectCR actual = MAPPER.readValue(writer.toString(), AnyObjectCR.class);
         assertEquals(original, actual);
     }
 
@@ -82,9 +82,9 @@ public abstract class SerializationTest {
         req.getADynMembershipConds().put("key2", "value2");
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, req);
+        MAPPER.writeValue(writer, req);
 
-        GroupUR actual = objectMapper().readValue(writer.toString(), GroupUR.class);
+        GroupUR actual = MAPPER.readValue(writer.toString(), GroupUR.class);
         assertEquals(req, actual);
     }
 
@@ -103,9 +103,9 @@ public abstract class SerializationTest {
         req.getRoles().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).value("role").build());
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, req);
+        MAPPER.writeValue(writer, req);
 
-        UserUR actual = objectMapper().readValue(writer.toString(), UserUR.class);
+        UserUR actual = MAPPER.readValue(writer.toString(), UserUR.class);
         assertEquals(req, actual);
     }
 
@@ -123,9 +123,9 @@ public abstract class SerializationTest {
         original.setTotalCount(1);
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, original);
+        MAPPER.writeValue(writer, original);
 
-        PagedResult<GroupTO> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        PagedResult<GroupTO> actual = MAPPER.readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
     }
@@ -146,9 +146,9 @@ public abstract class SerializationTest {
         original.getPropagationStatuses().add(status);
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, original);
+        MAPPER.writeValue(writer, original);
 
-        ProvisioningResult<GroupTO> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        ProvisioningResult<GroupTO> actual = MAPPER.readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
     }

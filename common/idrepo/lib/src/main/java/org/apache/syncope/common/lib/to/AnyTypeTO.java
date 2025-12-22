@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +54,6 @@ public class AnyTypeTO implements EntityTO {
         this.kind = kind;
     }
 
-    @JacksonXmlElementWrapper(localName = "classes")
-    @JacksonXmlProperty(localName = "class")
     public List<String> getClasses() {
         return classes;
     }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -139,8 +137,6 @@ public class Item implements Serializable {
         this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
-    @JacksonXmlElementWrapper(localName = "transformers")
-    @JacksonXmlProperty(localName = "transformer")
     public List<String> getTransformers() {
         return transformers;
     }

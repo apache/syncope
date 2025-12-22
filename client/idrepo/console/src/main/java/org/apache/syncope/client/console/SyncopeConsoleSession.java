@@ -166,10 +166,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         error(message.replace("\n", "<br/>"));
     }
 
-    public MediaType getMediaType() {
-        return clientFactory.getContentType().getMediaType();
-    }
-
     public void execute(final Runnable command) {
         try {
             executor.execute(command);

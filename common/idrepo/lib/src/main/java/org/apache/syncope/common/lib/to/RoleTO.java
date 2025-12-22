@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,20 +51,14 @@ public class RoleTO implements EntityTO {
         this.key = key;
     }
 
-    @JacksonXmlElementWrapper(localName = "entitlements")
-    @JacksonXmlProperty(localName = "entitlement")
     public Set<String> getEntitlements() {
         return entitlements;
     }
 
-    @JacksonXmlElementWrapper(localName = "realms")
-    @JacksonXmlProperty(localName = "realm")
     public List<String> getRealms() {
         return realms;
     }
 
-    @JacksonXmlElementWrapper(localName = "dynRealms")
-    @JacksonXmlProperty(localName = "dynRealm")
     public List<String> getDynRealms() {
         return dynRealms;
     }

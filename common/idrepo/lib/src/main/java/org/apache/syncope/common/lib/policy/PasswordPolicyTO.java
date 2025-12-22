@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +36,6 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
 
     private final List<String> rules = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.PasswordPolicyTO")
@@ -63,8 +60,6 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
         this.historyLength = historyLength;
     }
 
-    @JacksonXmlElementWrapper(localName = "rules")
-    @JacksonXmlProperty(localName = "rule")
     @Override
     public List<String> getRules() {
         return rules;

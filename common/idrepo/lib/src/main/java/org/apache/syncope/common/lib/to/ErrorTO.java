@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
@@ -51,8 +49,6 @@ public class ErrorTO implements BaseBean {
         this.type = type;
     }
 
-    @JacksonXmlElementWrapper(localName = "elements")
-    @JacksonXmlProperty(localName = "element")
     public List<String> getElements() {
         return elements;
     }

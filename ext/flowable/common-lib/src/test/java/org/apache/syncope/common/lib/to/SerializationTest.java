@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.to;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
@@ -30,13 +30,14 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.junit.jupiter.api.Test;
 
-public abstract class SerializationTest {
+public class SerializationTest {
 
-    protected abstract ObjectMapper objectMapper();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
     public void userRequestForm() throws IOException {
@@ -72,9 +73,9 @@ public abstract class SerializationTest {
         original.setTotalCount(1);
 
         StringWriter writer = new StringWriter();
-        objectMapper().writeValue(writer, original);
+        MAPPER.writeValue(writer, original);
 
-        PagedResult<UserRequestForm> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        PagedResult<UserRequestForm> actual = MAPPER.readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
     }

@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Collection;
 import java.util.HashSet;
@@ -70,7 +68,6 @@ public class AnyObjectUR extends AnyUR {
 
     private final Set<MembershipUR> memberships = new HashSet<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.AnyObjectUR")
@@ -87,8 +84,6 @@ public class AnyObjectUR extends AnyUR {
         this.name = name;
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
         return memberships;
     }

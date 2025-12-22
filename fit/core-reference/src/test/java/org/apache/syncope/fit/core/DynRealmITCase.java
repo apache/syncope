@@ -81,7 +81,7 @@ public class DynRealmITCase extends AbstractITCase {
                 BodyHandlers.ofString());
         assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
 
-        return (ArrayNode) JSON_MAPPER.readTree(response.body()).
+        return (ArrayNode) MAPPER.readTree(response.body()).
                 get("hits").get("hits").get(0).get("_source").get("dynRealms");
     }
 

@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -91,8 +89,6 @@ public class Attr implements Comparable<Attr>, BaseBean {
     /**
      * @return attribute values as strings
      */
-    @JacksonXmlElementWrapper(localName = "values")
-    @JacksonXmlProperty(localName = "value")
     @JsonProperty(required = true)
     public List<String> getValues() {
         return values;

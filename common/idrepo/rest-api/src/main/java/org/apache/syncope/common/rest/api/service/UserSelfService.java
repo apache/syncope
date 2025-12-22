@@ -78,7 +78,7 @@ public interface UserSelfService extends JAXRSService {
                         description = "List of entitlements owned by the calling user")
             }))
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response read();
 
     /**
@@ -110,8 +110,8 @@ public interface UserSelfService extends JAXRSService {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response create(@NotNull UserCR createReq);
 
     /**
@@ -143,8 +143,8 @@ public interface UserSelfService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(@NotNull UserUR updateReq);
 
     /**
@@ -176,8 +176,8 @@ public interface UserSelfService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(@NotNull UserTO user);
 
     /**
@@ -209,8 +209,8 @@ public interface UserSelfService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @POST
     @Path("{key}/status")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response status(@NotNull StatusR statusR);
 
     /**
@@ -222,7 +222,7 @@ public interface UserSelfService extends JAXRSService {
         @SecurityRequirement(name = "BasicAuthentication"),
         @SecurityRequirement(name = "Bearer") })
     @DELETE
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response delete();
 
     /**
@@ -237,8 +237,8 @@ public interface UserSelfService extends JAXRSService {
         @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("mustChangePassword")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response mustChangePassword(@NotNull PasswordPatch password);
 
     /**
@@ -253,8 +253,8 @@ public interface UserSelfService extends JAXRSService {
         @SecurityRequirement(name = "Bearer") })
     @POST
     @Path("compliance")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     void compliance(@NotNull ComplianceQuery query);
 
     /**
@@ -269,7 +269,7 @@ public interface UserSelfService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("requestPasswordReset")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
     /**
@@ -285,6 +285,6 @@ public interface UserSelfService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("confirmPasswordReset")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

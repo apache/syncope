@@ -19,16 +19,12 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
@@ -49,18 +45,8 @@ public class IdRepoRESTCXFTestContext {
     }
 
     @Bean
-    public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
-    }
-
-    @Bean
     public JacksonJsonProvider jsonProvider() {
         return new JacksonJsonProvider(new SyncopeJsonMapper());
-    }
-
-    @Bean
-    public JacksonYAMLProvider yamlProvider() {
-        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @Bean

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,8 +98,6 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
             this.timeUnit = timeUnit;
         }
 
-        @JacksonXmlElementWrapper(localName = "attrRepos")
-        @JacksonXmlProperty(localName = "attrRepo")
         public List<String> getAttrRepos() {
             return attrRepos;
         }
@@ -127,20 +123,14 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
         return releaseAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "allowedAttrs")
-    @JacksonXmlProperty(localName = "allowedAttr")
     public List<String> getAllowedAttrs() {
         return allowedAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "excludedAttrs")
-    @JacksonXmlProperty(localName = "excludedAttr")
     public List<String> getExcludedAttrs() {
         return excludedAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "includeOnlyAttrs")
-    @JacksonXmlProperty(localName = "includeOnlyAttr")
     public List<String> getIncludeOnlyAttrs() {
         return includeOnlyAttrs;
     }

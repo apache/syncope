@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
@@ -34,7 +33,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.io.IOUtils;
 
 @BinaryPreview(mimeTypes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
-    RESTHeaders.APPLICATION_YAML, "application/x-yaml", "text/x-yaml", "text/yaml" })
+    "application/yaml", "application/x-yaml", "text/x-yaml", "text/yaml" })
 public class BinaryTextPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3808379310090668773L;
@@ -81,7 +80,7 @@ public class BinaryTextPreviewer extends BinaryPreviewer {
                 options = "autoCloseTags: true, mode: 'text/html',";
                 break;
 
-            case RESTHeaders.APPLICATION_YAML:
+            case "application/yaml":
             case "application/x-yaml":
             case "text/x-yaml":
             case "text/yaml":

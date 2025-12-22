@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +43,6 @@ public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<
         this.schema = schema;
     }
 
-    @JacksonXmlElementWrapper(localName = "values")
-    @JacksonXmlProperty(localName = "value")
     public List<String> getValues() {
         return values;
     }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,8 +143,6 @@ public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
         this.endSessionEndpoint = endSessionEndpoint;
     }
 
-    @JacksonXmlElementWrapper(localName = "scopes")
-    @JacksonXmlProperty(localName = "scope")
     public List<String> getScopes() {
         return scopes;
     }
@@ -191,8 +187,6 @@ public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
         this.selfRegUnmatching = selfRegUnmatching;
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

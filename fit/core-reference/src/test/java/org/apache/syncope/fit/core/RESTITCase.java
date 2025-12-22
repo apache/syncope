@@ -30,16 +30,12 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -52,7 +48,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -157,32 +152,6 @@ public class RESTITCase extends AbstractITCase {
 
         userTO = USER_SERVICE.read(userTO.getKey());
         assertTrue(userTO.getUsername().endsWith("XX"));
-    }
-
-    @Test
-    public void defaultContentType() {
-        // manualy instantiate SyncopeClient so that media type can be set to */*
-        SyncopeClientFactoryBean factory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-        SyncopeClient client = new SyncopeClient(
-                MediaType.WILDCARD_TYPE,
-                factory.getRestClientFactoryBean(),
-                factory.getExceptionMapper(),
-                new BasicAuthenticationHandler(ADMIN_UNAME, ADMIN_PWD),
-                false,
-                null,
-                null);
-
-        // perform operation
-        AnyTypeClassService service = client.getService(AnyTypeClassService.class);
-        service.list();
-
-        // check that */* was actually sent
-        MultivaluedMap<String, String> requestHeaders = WebClient.client(service).getHeaders();
-        assertEquals(MediaType.WILDCARD, requestHeaders.getFirst(HttpHeaders.ACCEPT));
-
-        // check that application/json was received
-        String contentType = WebClient.client(service).getResponse().getHeaderString(HttpHeaders.CONTENT_TYPE);
-        assertTrue(contentType.startsWith(MediaType.APPLICATION_JSON));
     }
 
     @Test

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.request;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -100,8 +98,6 @@ public class ResourceDR implements BaseBean {
         this.action = action;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }
