@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { TaskTO.class },
         subTypes = { ProvisioningTaskTO.class, MacroTaskTO.class },
@@ -46,7 +45,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private boolean active = true;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.SchedTaskTO")

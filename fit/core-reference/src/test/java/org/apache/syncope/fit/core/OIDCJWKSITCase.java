@@ -20,10 +20,8 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
@@ -37,8 +35,6 @@ public class OIDCJWKSITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setup() {
-        assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
-
         WA_OIDC_JWKS_SERVICE = ANONYMOUS_CLIENT.getService(OIDCJWKSService.class);
     }
 

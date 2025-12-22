@@ -20,14 +20,12 @@ package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { ProvisioningPolicyTO.class })
 public class InboundPolicyTO extends ProvisioningPolicyTO {
 
     private static final long serialVersionUID = 993024634238024242L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.InboundPolicyTO")

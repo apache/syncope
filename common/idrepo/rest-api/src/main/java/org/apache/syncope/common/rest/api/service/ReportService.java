@@ -61,7 +61,7 @@ public interface ReportService extends ExecutableService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     ReportTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -70,7 +70,7 @@ public interface ReportService extends ExecutableService {
      * @return paged list of existing reports matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ReportTO> list();
 
     /**
@@ -89,8 +89,8 @@ public interface ReportService extends ExecutableService {
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull ReportTO reportTO);
 
     /**
@@ -104,8 +104,8 @@ public interface ReportService extends ExecutableService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull ReportTO reportTO);
 
     /**
@@ -117,7 +117,7 @@ public interface ReportService extends ExecutableService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -128,6 +128,6 @@ public interface ReportService extends ExecutableService {
      */
     @GET
     @Path("executions/{executionKey}/stream")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response exportExecutionResult(@NotNull @PathParam("executionKey") String executionKey);
 }

@@ -35,7 +35,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for SAML 2.0 IdP metadata.
@@ -55,7 +54,7 @@ public interface SAML2IdPEntityService extends JAXRSService {
      * @return SAML 2.0 IdP entities
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<SAML2IdPEntityTO> list();
 
     /**
@@ -66,7 +65,7 @@ public interface SAML2IdPEntityService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SAML2IdPEntityTO get(@NotNull @PathParam("key") String key);
 
     /**
@@ -78,8 +77,8 @@ public interface SAML2IdPEntityService extends JAXRSService {
             @Schema(type = "string"))
     @POST
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void set(@NotNull SAML2IdPEntityTO entityTO);
 
     /**
@@ -91,6 +90,6 @@ public interface SAML2IdPEntityService extends JAXRSService {
             @Schema(type = "string"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("key") String key);
 }

@@ -66,7 +66,7 @@ public interface RemediationService extends JAXRSService {
      * @return list of all remediations.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<RemediationTO> list(@BeanParam RemediationQuery query);
 
     /**
@@ -77,7 +77,7 @@ public interface RemediationService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     RemediationTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -88,7 +88,7 @@ public interface RemediationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -127,8 +127,8 @@ public interface RemediationService extends JAXRSService {
                         + "client about the fact that a specified preference was applied") }))
     @POST
     @Path("{remediationKey}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyCR createReq);
 
     /**
@@ -169,8 +169,8 @@ public interface RemediationService extends JAXRSService {
                 + " date of the entity") })
     @PATCH
     @Path("{remediationKey}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response remedy(@NotNull @PathParam("remediationKey") String remediationKey, @NotNull AnyUR updateReq);
 
     /**
@@ -211,7 +211,7 @@ public interface RemediationService extends JAXRSService {
                 + " date of the entity") })
     @DELETE
     @Path("{remediationKey}/{anyKey}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response remedy(
             @NotNull @PathParam("remediationKey") String remediationKey,
             @NotNull @PathParam("anyKey") String anyKey);

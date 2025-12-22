@@ -38,7 +38,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 @Tag(name = "OpenID Connect 1.0")
 @SecurityRequirements({
@@ -48,14 +47,14 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface OIDCJWKSService extends JAXRSService {
 
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     OIDCJWKSTO get();
 
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void set(@NotNull OIDCJWKSTO entityTO);
 
     @ApiResponses({
@@ -67,8 +66,8 @@ public interface OIDCJWKSService extends JAXRSService {
         @ApiResponse(responseCode = "409",
                 description = "JWKS already exists") })
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     @Path("new")
     Response generate(
             @NotNull @QueryParam("jwksKeyId") @DefaultValue("syncope") String jwksKeyId,
@@ -76,7 +75,7 @@ public interface OIDCJWKSService extends JAXRSService {
             @NotNull @QueryParam("jwksKeySize") @DefaultValue("2048") int jwksKeySize);
 
     @DELETE
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete();
 }

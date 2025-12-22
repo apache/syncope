@@ -26,8 +26,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { TaskTO.class })
 public class NotificationTaskTO extends TaskTO {
@@ -54,7 +52,6 @@ public class NotificationTaskTO extends TaskTO {
 
     private TraceLevel traceLevel;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
@@ -91,8 +88,6 @@ public class NotificationTaskTO extends TaskTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JacksonXmlElementWrapper(localName = "recipients")
-    @JacksonXmlProperty(localName = "recipient")
     public Set<String> getRecipients() {
         return recipients;
     }

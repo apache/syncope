@@ -64,7 +64,7 @@ public interface RealmService extends JAXRSService {
      * @return paged list of existing realms matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<RealmTO> search(@BeanParam RealmQuery query);
 
     /**
@@ -103,8 +103,8 @@ public interface RealmService extends JAXRSService {
                         + "client about the fact that a specified preference was applied") }))
     @POST
     @Path("{parentPath:.*}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull @PathParam("parentPath") String parentPath, @NotNull RealmTO realmTO);
 
     /**
@@ -138,8 +138,8 @@ public interface RealmService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @PUT
     @Path("{fullPath:.*}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response update(@NotNull RealmTO realmTO);
 
     /**
@@ -171,6 +171,6 @@ public interface RealmService extends JAXRSService {
                         + "client about the fact that a specified preference was applied")) })
     @DELETE
     @Path("{fullPath:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response delete(@NotNull @PathParam("fullPath") String fullPath);
 }

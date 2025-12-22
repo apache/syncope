@@ -23,8 +23,6 @@ import jakarta.ws.rs.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class RelationshipTypeTO implements TypeExtensionHolderTO, EntityTO {
 
@@ -82,8 +80,6 @@ public class RelationshipTypeTO implements TypeExtensionHolderTO, EntityTO {
                 typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     @Override
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;

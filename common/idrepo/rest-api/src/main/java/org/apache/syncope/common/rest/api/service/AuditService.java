@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.OpEvent;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 
 /**
@@ -62,7 +61,7 @@ public interface AuditService extends JAXRSService {
      */
     @GET
     @Path("conf")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<AuditConfTO> confs();
 
     /**
@@ -73,11 +72,11 @@ public interface AuditService extends JAXRSService {
      */
     @GET
     @Path("conf/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     AuditConfTO getConf(@NotNull @PathParam("key") String key);
 
     /**
-     * Sets an audit configuration 
+     * Sets an audit configuration
      *
      * @param auditTO audit configuration to be stored
      */
@@ -87,8 +86,8 @@ public interface AuditService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("conf/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void setConf(@NotNull AuditConfTO auditTO);
 
     /**
@@ -100,7 +99,7 @@ public interface AuditService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("conf/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void deleteConf(@NotNull @PathParam("key") String key);
 
     /**
@@ -110,7 +109,7 @@ public interface AuditService extends JAXRSService {
      */
     @GET
     @Path("opEvents")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<OpEvent> events();
 
     /**
@@ -121,7 +120,7 @@ public interface AuditService extends JAXRSService {
      */
     @GET
     @Path("auditEvents")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<AuditEventTO> search(@BeanParam AuditQuery auditQuery);
 
     /**
@@ -131,6 +130,6 @@ public interface AuditService extends JAXRSService {
      */
     @POST
     @Path("auditEvents")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     void create(@NotNull AuditEventTO auditEvent);
 }

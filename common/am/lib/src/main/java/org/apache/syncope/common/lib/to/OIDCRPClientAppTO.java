@@ -32,8 +32,6 @@ import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { ClientAppTO.class })
 public class OIDCRPClientAppTO extends ClientAppTO {
@@ -89,7 +87,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String logoutUri;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
@@ -114,20 +111,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.clientSecret = clientSecret;
     }
 
-    @JacksonXmlElementWrapper(localName = "redirectUris")
-    @JacksonXmlProperty(localName = "redirectUri")
     public List<String> getRedirectUris() {
         return redirectUris;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
     public List<OIDCGrantType> getSupportedGrantTypes() {
         return supportedGrantTypes;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedResponseTypes")
-    @JacksonXmlProperty(localName = "supportedResponseType")
     public List<OIDCResponseType> getSupportedResponseTypes() {
         return supportedResponseTypes;
     }
@@ -228,8 +219,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessToken = jwtAccessToken;
     }
 
-    @JacksonXmlElementWrapper(localName = "scopes")
-    @JacksonXmlProperty(localName = "scope")
     public List<String> getScopes() {
         return scopes;
     }

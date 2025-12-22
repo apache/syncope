@@ -41,7 +41,6 @@ public class SyncopeAnonymousClient extends SyncopeClient {
     protected final AnonymousAuthenticationHandler anonymousAuthHandler;
 
     public SyncopeAnonymousClient(
-            final MediaType mediaType,
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AnonymousAuthenticationHandler anonymousAuthHandler,
@@ -50,7 +49,6 @@ public class SyncopeAnonymousClient extends SyncopeClient {
             final TLSClientParameters tlsClientParameters) {
 
         super(
-                mediaType,
                 restClientFactory,
                 exceptionMapper,
                 anonymousAuthHandler,

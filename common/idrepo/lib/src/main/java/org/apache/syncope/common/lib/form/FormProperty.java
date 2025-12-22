@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class FormProperty implements Serializable {
 
@@ -123,14 +121,10 @@ public class FormProperty implements Serializable {
         this.datePattern = datePattern;
     }
 
-    @JacksonXmlElementWrapper(localName = "enumValues")
-    @JacksonXmlProperty(localName = "enumValue")
     public List<FormPropertyValue> getEnumValues() {
         return enumValues;
     }
 
-    @JacksonXmlElementWrapper(localName = "dropdownValues")
-    @JacksonXmlProperty(localName = "dropdownValue")
     public List<FormPropertyValue> getDropdownValues() {
         return dropdownValues;
     }

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { PolicyTO.class },
         subTypes = { InboundPolicyTO.class, PushPolicyTO.class },
@@ -37,7 +36,6 @@ public abstract class ProvisioningPolicyTO extends PolicyTO {
 
     private final Map<String, String> correlationRules = new HashMap<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.ProvisioningPolicyTO")

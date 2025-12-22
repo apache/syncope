@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ConnIdBundle implements BaseBean {
 
@@ -73,8 +71,6 @@ public class ConnIdBundle implements BaseBean {
         this.connectorName = connectorName;
     }
 
-    @JacksonXmlElementWrapper(localName = "properties")
-    @JacksonXmlProperty(localName = "connConfPropSchema")
     public List<ConnConfPropSchema> getProperties() {
         return properties;
     }

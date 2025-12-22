@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class DefaultInboundCorrelationRuleConf
         extends AbstractCorrelationRuleConf implements InboundCorrelationRuleConf {
@@ -40,8 +38,6 @@ public class DefaultInboundCorrelationRuleConf
         this.orSchemas = orSchemas;
     }
 
-    @JacksonXmlElementWrapper(localName = "schemas")
-    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemas() {
         return schemas;
     }

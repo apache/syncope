@@ -24,8 +24,6 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
@@ -33,10 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
-import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFTestContext {
@@ -50,18 +45,8 @@ public class IdRepoRESTCXFTestContext {
     }
 
     @Bean
-    public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper(), new JacksonXmlAnnotationIntrospector());
-    }
-
-    @Bean
     public JacksonJsonProvider jsonProvider() {
         return new JacksonJsonProvider(new SyncopeJsonMapper());
-    }
-
-    @Bean
-    public JacksonYAMLProvider yamlProvider() {
-        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @Bean

@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
@@ -100,8 +98,6 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
             this.timeUnit = timeUnit;
         }
 
-        @JacksonXmlElementWrapper(localName = "attrRepos")
-        @JacksonXmlProperty(localName = "attrRepo")
         public List<String> getAttrRepos() {
             return attrRepos;
         }
@@ -127,20 +123,14 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
         return releaseAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "allowedAttrs")
-    @JacksonXmlProperty(localName = "allowedAttr")
     public List<String> getAllowedAttrs() {
         return allowedAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "excludedAttrs")
-    @JacksonXmlProperty(localName = "excludedAttr")
     public List<String> getExcludedAttrs() {
         return excludedAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "includeOnlyAttrs")
-    @JacksonXmlProperty(localName = "includeOnlyAttr")
     public List<String> getIncludeOnlyAttrs() {
         return includeOnlyAttrs;
     }

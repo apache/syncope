@@ -23,8 +23,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ProvisioningResult<E extends EntityTO> implements BaseBean {
 
@@ -42,8 +40,6 @@ public class ProvisioningResult<E extends EntityTO> implements BaseBean {
         this.entity = entity;
     }
 
-    @JacksonXmlElementWrapper(localName = "propagationStatuses")
-    @JacksonXmlProperty(localName = "propagationStatus")
     public List<PropagationStatus> getPropagationStatuses() {
         return propagationStatuses;
     }

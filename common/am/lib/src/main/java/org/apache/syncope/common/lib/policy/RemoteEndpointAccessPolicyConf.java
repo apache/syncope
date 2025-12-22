@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class RemoteEndpointAccessPolicyConf implements AccessPolicyConf {
 
@@ -39,8 +37,6 @@ public class RemoteEndpointAccessPolicyConf implements AccessPolicyConf {
         this.endpointUrl = endpointUrl;
     }
 
-    @JacksonXmlElementWrapper(localName = "acceptableResponseCodes")
-    @JacksonXmlProperty(localName = "acceptableResponseCode")
     public List<String> getAcceptableResponseCodes() {
         return acceptableResponseCodes;
     }

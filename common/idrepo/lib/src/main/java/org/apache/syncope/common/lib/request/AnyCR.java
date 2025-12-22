@@ -36,8 +36,6 @@ import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.RealmMember;
 import org.apache.syncope.common.lib.to.RelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class" })
@@ -140,7 +138,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         }
     }
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -183,8 +180,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -202,8 +197,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return Set.of();
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     @Override
     public Set<String> getResources() {
         return resources;
@@ -217,8 +210,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
                 findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
     @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;

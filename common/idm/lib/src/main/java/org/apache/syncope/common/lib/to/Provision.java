@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class Provision implements Serializable {
 
@@ -60,8 +58,6 @@ public class Provision implements Serializable {
         this.objectClass = objectClass;
     }
 
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "class")
     public List<String> getAuxClasses() {
         return auxClasses;
     }

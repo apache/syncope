@@ -21,8 +21,6 @@ package org.apache.syncope.common.lib.info;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class JavaImplInfo implements BaseBean {
 
@@ -40,8 +38,6 @@ public class JavaImplInfo implements BaseBean {
         this.type = type;
     }
 
-    @JacksonXmlElementWrapper(localName = "classes")
-    @JacksonXmlProperty(localName = "class")
     public Set<String> getClasses() {
         return classes;
     }

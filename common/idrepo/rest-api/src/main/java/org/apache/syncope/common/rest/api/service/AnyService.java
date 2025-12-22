@@ -66,7 +66,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}/{schemaType}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Set<Attr> read(@NotNull @PathParam("key") String key, @NotNull @PathParam("schemaType") SchemaType schemaType);
 
     /**
@@ -82,7 +82,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Attr read(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -96,7 +96,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     TO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -106,7 +106,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
      * @return paged list of any objects matching the given query
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<TO> search(@BeanParam AnyQuery anyQuery);
 
     /**
@@ -121,8 +121,8 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             @Schema(type = "string"))
     @PUT
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -140,7 +140,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}/{schemaType}/{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
@@ -184,7 +184,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 + " date of the entity") })
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response delete(@NotNull @PathParam("key") String key);
 
     /**
@@ -225,7 +225,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 + " date of the entity") })
     @POST
     @Path("{key}/deassociate/{action}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(RESTHeaders.MULTIPART_MIXED)
     Response deassociate(@NotNull ResourceDR req);
 
@@ -267,7 +267,7 @@ public interface AnyService<TO extends AnyTO> extends JAXRSService {
                 + " date of the entity") })
     @POST
     @Path("{key}/associate/{action}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     @Produces(RESTHeaders.MULTIPART_MIXED)
     Response associate(@NotNull ResourceAR req);
 }

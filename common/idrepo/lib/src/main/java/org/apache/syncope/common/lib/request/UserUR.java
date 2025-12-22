@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AnyUR.class })
 public class UserUR extends AnyUR {
@@ -119,7 +117,6 @@ public class UserUR extends AnyUR {
 
     private final List<LinkedAccountUR> linkedAccounts = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.UserUR")
@@ -168,20 +165,14 @@ public class UserUR extends AnyUR {
         this.mustChangePassword = mustChangePassword;
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
         return memberships;
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public Set<StringPatchItem> getRoles() {
         return roles;
     }
 
-    @JacksonXmlElementWrapper(localName = "linkedAccounts")
-    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountUR> getLinkedAccounts() {
         return linkedAccounts;
     }

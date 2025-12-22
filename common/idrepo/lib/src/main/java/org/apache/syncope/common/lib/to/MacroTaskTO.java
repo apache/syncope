@@ -25,8 +25,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.command.CommandTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { SchedTaskTO.class }, discriminatorProperty = "_class")
 public class MacroTaskTO extends SchedTaskTO {
@@ -45,7 +43,6 @@ public class MacroTaskTO extends SchedTaskTO {
 
     private String macroActions;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.MacroTaskTO")
@@ -62,8 +59,6 @@ public class MacroTaskTO extends SchedTaskTO {
         this.realm = realm;
     }
 
-    @JacksonXmlElementWrapper(localName = "commands")
-    @JacksonXmlProperty(localName = "command")
     public List<CommandTO> getCommands() {
         return commands;
     }
@@ -84,8 +79,6 @@ public class MacroTaskTO extends SchedTaskTO {
         this.saveExecs = saveExecs;
     }
 
-    @JacksonXmlElementWrapper(localName = "formPropertyDefs")
-    @JacksonXmlProperty(localName = "formPropertyDef")
     public List<FormPropertyDefTO> getFormPropertyDefs() {
         return formPropertyDefs;
     }

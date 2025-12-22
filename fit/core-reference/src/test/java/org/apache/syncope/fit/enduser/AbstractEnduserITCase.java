@@ -169,7 +169,6 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
     @BeforeAll
     public static void restSetup() {
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
 
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 

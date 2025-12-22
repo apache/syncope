@@ -25,8 +25,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class WebAuthnAccount implements BaseBean {
 
@@ -58,8 +56,6 @@ public class WebAuthnAccount implements BaseBean {
 
     private final List<WebAuthnDeviceCredential> credentials = new ArrayList<>();
 
-    @JacksonXmlElementWrapper(localName = "credentials")
-    @JacksonXmlProperty(localName = "credential")
     public List<WebAuthnDeviceCredential> getCredentials() {
         return credentials;
     }

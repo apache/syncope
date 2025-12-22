@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key" })
@@ -38,7 +37,6 @@ public abstract class SchemaTO implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 

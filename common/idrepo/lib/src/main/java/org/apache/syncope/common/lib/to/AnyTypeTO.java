@@ -24,8 +24,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class AnyTypeTO implements EntityTO {
 
@@ -56,8 +54,6 @@ public class AnyTypeTO implements EntityTO {
         this.kind = kind;
     }
 
-    @JacksonXmlElementWrapper(localName = "classes")
-    @JacksonXmlProperty(localName = "class")
     public List<String> getClasses() {
         return classes;
     }

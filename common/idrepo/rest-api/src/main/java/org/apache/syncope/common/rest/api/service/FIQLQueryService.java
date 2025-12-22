@@ -61,7 +61,7 @@ public interface FIQLQueryService extends JAXRSService {
      * @return list of all FIQL queries for the calling user, matching the given target if provided
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<FIQLQueryTO> list(@QueryParam("target") String target);
 
     /**
@@ -72,7 +72,7 @@ public interface FIQLQueryService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     FIQLQueryTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -91,8 +91,8 @@ public interface FIQLQueryService extends JAXRSService {
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull FIQLQueryTO fiqlQueryTO);
 
     /**
@@ -106,8 +106,8 @@ public interface FIQLQueryService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull FIQLQueryTO fiqlQueryTO);
 
     /**
@@ -119,6 +119,6 @@ public interface FIQLQueryService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("key") String key);
 }

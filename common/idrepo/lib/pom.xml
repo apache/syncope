@@ -53,12 +53,8 @@ under the License.
     </dependency>      
 
     <dependency>
-      <groupId>tools.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-yaml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>tools.jackson.dataformat</groupId>
-      <artifactId>jackson-dataformat-xml</artifactId>
+      <groupId>tools.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
     </dependency>
 
     <dependency>

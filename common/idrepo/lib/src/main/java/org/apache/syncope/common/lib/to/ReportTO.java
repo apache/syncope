@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
@@ -108,8 +106,6 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.jobDelegate = jobDelegate;
     }
 
-    @JacksonXmlElementWrapper(localName = "executions")
-    @JacksonXmlProperty(localName = "execution")
     public List<ExecTO> getExecutions() {
         return executions;
     }

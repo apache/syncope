@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public abstract class ItemContainer implements Serializable {
 
@@ -52,8 +50,6 @@ public abstract class ItemContainer implements Serializable {
                 orElseGet(() -> getConnObjectKeyItem().map(items::remove).orElse(false));
     }
 
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
     public List<Item> getItems() {
         return items;
     }

@@ -26,8 +26,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class NotificationTO implements EntityTO {
 
@@ -63,14 +61,10 @@ public class NotificationTO implements EntityTO {
         return abouts;
     }
 
-    @JacksonXmlElementWrapper(localName = "events")
-    @JacksonXmlProperty(localName = "event")
     public List<String> getEvents() {
         return events;
     }
 
-    @JacksonXmlElementWrapper(localName = "staticRecipients")
-    @JacksonXmlProperty(localName = "staticRecipient")
     public List<String> getStaticRecipients() {
         return staticRecipients;
     }

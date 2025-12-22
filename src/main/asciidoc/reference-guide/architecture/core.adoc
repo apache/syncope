@@ -34,7 +34,7 @@ given Apache Syncope deployment to complement the native features with domain-sp
 
 At a technical level, the RESTful interface is a fully-compliant 
 https://en.wikipedia.org/wiki/Jakarta_RESTful_Web_Services[Jakarta RESTful Web Services 3.1^] implementation based on 
-http://cxf.apache.org[Apache CXF^], natively dealing either with JSON, YAML and XML payloads.
+http://cxf.apache.org[Apache CXF^], natively dealing with JSON payloads.
 
 More details are available in the dedicated <<core-usage,usage>> section.
 

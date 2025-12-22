@@ -26,8 +26,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.Attr;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class SAML2LoginResponse implements Serializable {
 
@@ -107,8 +105,6 @@ public class SAML2LoginResponse implements Serializable {
         return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "attrs")
-    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }

@@ -36,7 +36,6 @@ import java.util.List;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 @Tag(name = "Flowable")
 @SecurityRequirements({
@@ -53,7 +52,7 @@ public interface UserWorkflowTaskService extends JAXRSService {
      */
     @GET
     @Path("tasks/{userKey}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<WorkflowTask> getAvailableTasks(@NotNull @PathParam("userKey") String userKey);
 
     /**
@@ -66,7 +65,7 @@ public interface UserWorkflowTaskService extends JAXRSService {
             @Schema(type = "string"))
     @POST
     @Path("tasks/{userKey}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     UserTO executeNextTask(@NotNull WorkflowTaskExecInput workflowTaskExecInput);
 }

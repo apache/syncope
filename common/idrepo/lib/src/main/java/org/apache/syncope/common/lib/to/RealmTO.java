@@ -30,8 +30,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
 
@@ -106,8 +104,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         this.fullPath = fullPath;
     }
 
-    @JacksonXmlElementWrapper(localName = "anyTypeClasses")
-    @JacksonXmlProperty(localName = "anyTypeClasses")
     public List<String> getAnyTypeClasses() {
         return anyTypeClasses;
     }
@@ -160,8 +156,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         this.ticketExpirationPolicy = ticketExpirationPolicy;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -173,8 +167,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "derAttrs")
-    @JacksonXmlProperty(localName = "derAttr")
     @Override
     public Set<Attr> getDerAttrs() {
         return derAttrs;
@@ -186,8 +178,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }
@@ -197,8 +187,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
         return templates;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }

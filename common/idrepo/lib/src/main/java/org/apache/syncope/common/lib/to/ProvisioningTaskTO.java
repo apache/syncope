@@ -27,8 +27,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { SchedTaskTO.class },
         subTypes = { PushTaskTO.class, InboundTaskTO.class }, discriminatorProperty = "_class")
@@ -111,8 +109,6 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
         this.matchingRule = matchigRule;
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

@@ -24,8 +24,6 @@ import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<LinkedAccountPlainAttrProperty> {
 
@@ -45,8 +43,6 @@ public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<
         this.schema = schema;
     }
 
-    @JacksonXmlElementWrapper(localName = "values")
-    @JacksonXmlProperty(localName = "value")
     public List<String> getValues() {
         return values;
     }

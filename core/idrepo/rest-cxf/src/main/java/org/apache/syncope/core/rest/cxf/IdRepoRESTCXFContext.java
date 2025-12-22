@@ -41,8 +41,6 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
@@ -135,10 +133,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
-import tools.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
-import tools.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import tools.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)
@@ -168,18 +163,6 @@ public class IdRepoRESTCXFContext {
     @Bean
     public JacksonJsonProvider jsonProvider() {
         return new JacksonJsonProvider(new SyncopeJsonMapper());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper(), new JacksonXmlAnnotationIntrospector());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public JacksonYAMLProvider yamlProvider() {
-        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     @ConditionalOnMissingBean
@@ -293,8 +276,6 @@ public class IdRepoRESTCXFContext {
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
             final ContextProvider<SearchContext> searchContextProvider,
-            final JacksonYAMLProvider yamlProvider,
-            final JacksonXMLProvider xmlProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
             final MDCInInterceptor mdcInInterceptor,
@@ -322,8 +303,6 @@ public class IdRepoRESTCXFContext {
         restContainer.setProviders(List.of(
                 dateParamConverterProvider,
                 jsonProvider,
-                xmlProvider,
-                yamlProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
                 addDomainFilter,

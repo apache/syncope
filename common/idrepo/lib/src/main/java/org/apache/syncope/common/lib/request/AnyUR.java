@@ -31,8 +31,6 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key" })
@@ -141,7 +139,6 @@ public abstract class AnyUR implements BaseBean {
         }
     }
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -182,26 +179,18 @@ public abstract class AnyUR implements BaseBean {
         this.realm = realm;
     }
 
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "auxClass")
     public Set<StringPatchItem> getAuxClasses() {
         return auxClasses;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     public Set<AttrPatch> getPlainAttrs() {
         return plainAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public Set<StringPatchItem> getResources() {
         return resources;
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
     public Set<RelationshipUR> getRelationships() {
         return relationships;
     }

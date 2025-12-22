@@ -29,8 +29,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key" })
@@ -41,7 +39,6 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -91,8 +88,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JacksonXmlElementWrapper(localName = "executions")
-    @JacksonXmlProperty(localName = "execution")
+
     public List<ExecTO> getExecutions() {
         return executions;
     }

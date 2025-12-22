@@ -21,8 +21,6 @@ package org.apache.syncope.common.lib.to;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * Metadata description of ConnId ObjectClass.
@@ -63,8 +61,6 @@ public class ConnIdObjectClass implements BaseBean {
         this.auxiliary = auxiliary;
     }
 
-    @JacksonXmlElementWrapper(localName = "attributes")
-    @JacksonXmlProperty(localName = "attribute")
     public List<PlainSchemaTO> getAttributes() {
         return attributes;
     }

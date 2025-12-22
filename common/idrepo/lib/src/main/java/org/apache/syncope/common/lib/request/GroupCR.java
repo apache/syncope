@@ -29,8 +29,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonPropertyOrder(value = { "_class", "name" })
 @Schema(allOf = { AnyCR.class })
@@ -98,7 +96,6 @@ public class GroupCR extends AnyCR {
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.GroupCR")
@@ -144,8 +141,6 @@ public class GroupCR extends AnyCR {
         return adynMembershipConds;
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

@@ -33,8 +33,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonPropertyOrder(value = { "_class", "username" })
 @Schema(allOf = { AnyCR.class })
@@ -143,7 +141,6 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.UserCR")
@@ -207,8 +204,6 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     @Override
     public List<MembershipTO> getMemberships() {
         return memberships;
@@ -220,14 +215,10 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         return List.of();
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public Set<String> getRoles() {
         return roles;
     }
 
-    @JacksonXmlElementWrapper(localName = "linkedAccounts")
-    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountTO> getLinkedAccounts() {
         return linkedAccounts;
     }

@@ -193,8 +193,6 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.util.function.ThrowingFunction;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.dataformat.xml.XmlMapper;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 
 @SpringJUnitConfig(
         classes = { CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class },
@@ -223,11 +221,7 @@ public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
-    protected static final JsonMapper JSON_MAPPER = new SyncopeJsonMapper();
-
-    protected static final XmlMapper XML_MAPPER = XmlMapper.builder().findAndAddModules().build();
-
-    protected static final YAMLMapper YAML_MAPPER = YAMLMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -236,8 +230,6 @@ public abstract class AbstractITCase {
     protected static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
     protected static final String BUILD_TOOLS_ADDRESS = "http://localhost:9080/syncope-fit-build-tools/cxf";
-
-    protected static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     protected static final String RESOURCE_NAME_WS1 = "ws-target-resource-1";
 
@@ -499,7 +491,7 @@ public abstract class AbstractITCase {
                 return null;
             }
         }, Objects::nonNull);
-        JsonNode beans = JSON_MAPPER.readTree(beansJSON);
+        JsonNode beans = MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asString().contains("Flowable");
@@ -517,11 +509,6 @@ public abstract class AbstractITCase {
 
         SyncopeClientFactoryBean masterCF = new SyncopeClientFactoryBean().setAddress(ADDRESS);
         SyncopeClientFactoryBean twoCF = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
-        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        if (StringUtils.isNotBlank(envContentType)) {
-            masterCF.setContentType(envContentType);
-            twoCF.setContentType(envContentType);
-        }
         SyncopeClient masterSC = masterCF.create(ADMIN_UNAME, ADMIN_PWD);
         ImplementationService masterIS = masterSC.getService(ImplementationService.class);
         TaskService masterTS = masterSC.getService(TaskService.class);
@@ -554,12 +541,6 @@ public abstract class AbstractITCase {
     @BeforeAll
     public static void restSetup() {
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-
-        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        if (StringUtils.isNotBlank(envContentType)) {
-            CLIENT_FACTORY.setContentType(envContentType);
-        }
-        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
 
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
@@ -622,7 +603,7 @@ public abstract class AbstractITCase {
 
     protected static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(ADMIN_CLIENT.getService(serviceClass)));
-        webClient.accept(CLIENT_FACTORY.getContentType().getMediaType()).to(location.toASCIIString(), false);
+        webClient.accept(MediaType.APPLICATION_JSON).to(location.toASCIIString(), false);
 
         return webClient.
                 header(RESTHeaders.DOMAIN, ADMIN_CLIENT.getDomain()).

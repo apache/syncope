@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { PolicyTO.class })
 public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
@@ -38,7 +36,6 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
 
     private final List<String> passthroughResources = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.AccountPolicyTO")
@@ -63,16 +60,12 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
-    @JacksonXmlElementWrapper(localName = "rules")
-    @JacksonXmlProperty(localName = "rule")
     @Override
     public List<String> getRules() {
         return rules;
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JacksonXmlElementWrapper(localName = "passthroughResources")
-    @JacksonXmlProperty(localName = "passthroughResource")
     public List<String> getPassthroughResources() {
         return passthroughResources;
     }

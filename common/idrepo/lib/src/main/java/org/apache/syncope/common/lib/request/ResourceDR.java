@@ -24,8 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 /**
  * Resource De-association Request.
@@ -100,8 +98,6 @@ public class ResourceDR implements BaseBean {
         this.action = action;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }

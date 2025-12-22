@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AnyUR.class })
 public class AnyObjectUR extends AnyUR {
@@ -70,7 +68,6 @@ public class AnyObjectUR extends AnyUR {
 
     private final Set<MembershipUR> memberships = new HashSet<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.AnyObjectUR")
@@ -87,8 +84,6 @@ public class AnyObjectUR extends AnyUR {
         this.name = name;
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
         return memberships;
     }

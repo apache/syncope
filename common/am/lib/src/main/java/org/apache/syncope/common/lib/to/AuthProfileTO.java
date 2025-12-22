@@ -29,8 +29,6 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class AuthProfileTO implements EntityTO {
 
@@ -148,32 +146,22 @@ public class AuthProfileTO implements EntityTO {
         this.owner = owner;
     }
 
-    @JacksonXmlElementWrapper(localName = "impersonationAccounts")
-    @JacksonXmlProperty(localName = "impersonationAccount")
     public List<ImpersonationAccount> getImpersonationAccounts() {
         return impersonationAccounts;
     }
 
-    @JacksonXmlElementWrapper(localName = "googleMfaAuthTokens")
-    @JacksonXmlProperty(localName = "googleMfaAuthToken")
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens;
     }
 
-    @JacksonXmlElementWrapper(localName = "googleMfaAuthAccounts")
-    @JacksonXmlProperty(localName = "googleMfaAuthAccount")
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
         return googleMfaAuthAccounts;
     }
 
-    @JacksonXmlElementWrapper(localName = "mfaTrustedDevices")
-    @JacksonXmlProperty(localName = "mfaTrustedDevice")
     public List<MfaTrustedDevice> getMfaTrustedDevices() {
         return mfaTrustedDevices;
     }
 
-    @JacksonXmlElementWrapper(localName = "credentials")
-    @JacksonXmlProperty(localName = "credential")
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
         return webAuthnDeviceCredentials;
     }

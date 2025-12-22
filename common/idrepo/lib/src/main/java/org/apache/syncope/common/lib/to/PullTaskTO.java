@@ -25,7 +25,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PullMode;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { InboundTaskTO.class })
 public class PullTaskTO extends InboundTaskTO implements TemplatableTO {
@@ -37,7 +36,6 @@ public class PullTaskTO extends InboundTaskTO implements TemplatableTO {
 
     private String reconFilterBuilder;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.PullTaskTO")

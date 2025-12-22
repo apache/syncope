@@ -23,8 +23,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ConnConfPropSchema implements BaseBean, Comparable<ConnConfPropSchema> {
 
@@ -102,8 +100,6 @@ public class ConnConfPropSchema implements BaseBean, Comparable<ConnConfPropSche
         this.confidential = confidential;
     }
 
-    @JacksonXmlElementWrapper(localName = "defaultValues")
-    @JacksonXmlProperty(localName = "defaultValue")
     public List<Object> getDefaultValues() {
         return defaultValues;
     }

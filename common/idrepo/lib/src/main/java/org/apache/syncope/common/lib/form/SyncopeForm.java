@@ -25,8 +25,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class SyncopeForm implements BaseBean {
 
@@ -39,8 +37,6 @@ public class SyncopeForm implements BaseBean {
         return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "properties")
-    @JacksonXmlProperty(localName = "property")
     public List<FormProperty> getProperties() {
         return properties;
     }

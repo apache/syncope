@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleConf {
 
@@ -167,7 +165,7 @@ public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleCo
      * </ul>
      */
     private String credentialCriteria;
-    
+
     public AuthenticationType getAuthenticationType() {
         return authenticationType;
     }
@@ -224,8 +222,6 @@ public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleCo
         this.principalDnAttributeName = principalDnAttributeName;
     }
 
-    @JacksonXmlElementWrapper(localName = "additionalAttributes")
-    @JacksonXmlProperty(localName = "additionalAttribute")
     public List<String> getAdditionalAttributes() {
         return additionalAttributes;
     }

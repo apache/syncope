@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { ProvisioningTaskTO.class })
 public class PushTaskTO extends ProvisioningTaskTO {
@@ -36,7 +35,6 @@ public class PushTaskTO extends ProvisioningTaskTO {
 
     private final Map<String, String> filters = new HashMap<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.PushTaskTO")

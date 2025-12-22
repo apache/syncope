@@ -25,8 +25,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AbstractStartEndBean.class })
 public class DelegationTO extends AbstractStartEndBean implements EntityTO {
@@ -69,8 +67,6 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
         this.delegated = delegated;
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public Set<String> getRoles() {
         return roles;
     }

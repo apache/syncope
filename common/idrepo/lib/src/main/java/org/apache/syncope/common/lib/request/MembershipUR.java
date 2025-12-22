@@ -25,8 +25,6 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class MembershipUR extends AbstractPatch {
 
@@ -72,8 +70,6 @@ public class MembershipUR extends AbstractPatch {
         this.group = group;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }

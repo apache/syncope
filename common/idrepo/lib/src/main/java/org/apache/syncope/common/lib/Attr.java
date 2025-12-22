@@ -26,8 +26,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class Attr implements Comparable<Attr>, BaseBean {
 
@@ -91,8 +89,6 @@ public class Attr implements Comparable<Attr>, BaseBean {
     /**
      * @return attribute values as strings
      */
-    @JacksonXmlElementWrapper(localName = "values")
-    @JacksonXmlProperty(localName = "value")
     @JsonProperty(required = true)
     public List<String> getValues() {
         return values;

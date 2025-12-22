@@ -23,8 +23,6 @@ import java.util.List;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements AccountRuleConf {
 
@@ -117,26 +115,18 @@ public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements A
         this.pattern = pattern;
     }
 
-    @JacksonXmlElementWrapper(localName = "wordsNotPermitted")
-    @JacksonXmlProperty(localName = "word")
     public List<String> getWordsNotPermitted() {
         return wordsNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "prefixesNotPermitted")
-    @JacksonXmlProperty(localName = "prefix")
     public List<String> getPrefixesNotPermitted() {
         return prefixesNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "schemasNotPermitted")
-    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "suffixesNotPermitted")
-    @JacksonXmlProperty(localName = "suffix")
     public List<String> getSuffixesNotPermitted() {
         return suffixesNotPermitted;
     }

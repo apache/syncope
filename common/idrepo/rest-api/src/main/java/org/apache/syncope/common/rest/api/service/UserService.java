@@ -105,8 +105,8 @@ public interface UserService extends AnyService<UserTO> {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response create(@NotNull UserCR createReq);
 
     /**
@@ -148,8 +148,8 @@ public interface UserService extends AnyService<UserTO> {
                 + " date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(@NotNull UserUR updateReq);
 
     /**
@@ -192,8 +192,8 @@ public interface UserService extends AnyService<UserTO> {
                 + " date of the entity") })
     @POST
     @Path("{key}/status")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response status(@NotNull StatusR updateReq);
 
     /**
@@ -208,6 +208,6 @@ public interface UserService extends AnyService<UserTO> {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("verifySecurityAnswer")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void verifySecurityAnswer(@NotNull @QueryParam("username") String username, String securityAnswer);
 }

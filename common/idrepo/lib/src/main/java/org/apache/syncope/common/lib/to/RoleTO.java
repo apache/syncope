@@ -25,8 +25,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class RoleTO implements EntityTO {
 
@@ -53,20 +51,14 @@ public class RoleTO implements EntityTO {
         this.key = key;
     }
 
-    @JacksonXmlElementWrapper(localName = "entitlements")
-    @JacksonXmlProperty(localName = "entitlement")
     public Set<String> getEntitlements() {
         return entitlements;
     }
 
-    @JacksonXmlElementWrapper(localName = "realms")
-    @JacksonXmlProperty(localName = "realm")
     public List<String> getRealms() {
         return realms;
     }
 
-    @JacksonXmlElementWrapper(localName = "dynRealms")
-    @JacksonXmlProperty(localName = "dynRealm")
     public List<String> getDynRealms() {
         return dynRealms;
     }

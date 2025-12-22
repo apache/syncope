@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class PlatformInfo implements BaseBean {
 
@@ -66,44 +64,30 @@ public class PlatformInfo implements BaseBean {
         return pwdResetRequiringSecurityQuestions;
     }
 
-    @JacksonXmlElementWrapper(localName = "connIdLocations")
-    @JacksonXmlProperty(localName = "connIdLocation")
     public Set<String> getConnIdLocations() {
         return connIdLocations;
     }
 
-    @JacksonXmlElementWrapper(localName = "anyTypes")
-    @JacksonXmlProperty(localName = "anyType")
     public List<String> getAnyTypes() {
         return anyTypes;
     }
 
-    @JacksonXmlElementWrapper(localName = "userClasses")
-    @JacksonXmlProperty(localName = "userClass")
     public List<String> getUserClasses() {
         return userClasses;
     }
 
-    @JacksonXmlElementWrapper(localName = "anyTypeClasses")
-    @JacksonXmlProperty(localName = "anyTypeClass")
     public List<String> getAnyTypeClasses() {
         return anyTypeClasses;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }
 
-    @JacksonXmlElementWrapper(localName = "entitlements")
-    @JacksonXmlProperty(localName = "entitlement")
     public Set<String> getEntitlements() {
         return entitlements;
     }
 
-    @JacksonXmlElementWrapper(localName = "implementationTypes")
-    @JacksonXmlProperty(localName = "implementationType")
     public Set<String> getImplementationTypes() {
         return implementationTypes;
     }
@@ -113,8 +97,6 @@ public class PlatformInfo implements BaseBean {
         return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType().equals(type)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "javaImplInfos")
-    @JacksonXmlProperty(localName = "javaImplInfo")
     public Set<JavaImplInfo> getJavaImplInfos() {
         return javaImplInfos;
     }

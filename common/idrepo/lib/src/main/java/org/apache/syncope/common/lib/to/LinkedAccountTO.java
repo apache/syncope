@@ -25,8 +25,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class LinkedAccountTO implements EntityTO {
 
@@ -130,8 +128,6 @@ public class LinkedAccountTO implements EntityTO {
         this.suspended = suspended;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }

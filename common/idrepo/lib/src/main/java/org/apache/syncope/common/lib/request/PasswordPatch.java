@@ -23,8 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class PasswordPatch extends StringReplacePatchItem {
 
@@ -80,8 +78,6 @@ public class PasswordPatch extends StringReplacePatchItem {
         this.onSyncope = onSyncope;
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     public List<String> getResources() {
         return resources;
     }

@@ -31,8 +31,6 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ConnInstanceTO implements EntityTO {
 
@@ -122,8 +120,6 @@ public class ConnInstanceTO implements EntityTO {
         this.version = version;
     }
 
-    @JacksonXmlElementWrapper(localName = "conf")
-    @JacksonXmlProperty(localName = "property")
     public List<ConnConfProperty> getConf() {
         return this.conf;
     }
@@ -133,8 +129,6 @@ public class ConnInstanceTO implements EntityTO {
         return conf.stream().filter(property -> property.getSchema().getName().equals(schemaName)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "capabilities")
-    @JacksonXmlProperty(localName = "capability")
     public Set<ConnectorCapability> getCapabilities() {
         return capabilities;
     }

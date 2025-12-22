@@ -30,8 +30,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { AnyUR.class })
 public class GroupUR extends AnyUR {
@@ -107,7 +105,6 @@ public class GroupUR extends AnyUR {
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.GroupUR")
@@ -158,8 +155,6 @@ public class GroupUR extends AnyUR {
                 typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

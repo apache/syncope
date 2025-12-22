@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @Schema(allOf = { PolicyTO.class })
 public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
@@ -38,7 +36,6 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
 
     private final List<String> rules = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.PasswordPolicyTO")
@@ -63,8 +60,6 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
         this.historyLength = historyLength;
     }
 
-    @JacksonXmlElementWrapper(localName = "rules")
-    @JacksonXmlProperty(localName = "rule")
     @Override
     public List<String> getRules() {
         return rules;

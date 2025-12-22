@@ -30,8 +30,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class RelationshipTO implements BaseBean, AttributableTO {
 
@@ -149,8 +147,6 @@ public class RelationshipTO implements BaseBean, AttributableTO {
         this.end = end;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -162,8 +158,6 @@ public class RelationshipTO implements BaseBean, AttributableTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "derAttrs")
-    @JacksonXmlProperty(localName = "derAttr")
     @Override
     public Set<Attr> getDerAttrs() {
         return derAttrs;

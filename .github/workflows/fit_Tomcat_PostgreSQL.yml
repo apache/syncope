@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License
-name: "FIT Tomcat PostgreSQL XML"
+name: "FIT Tomcat PostgreSQL"
 
 on:
   push:
@@ -24,7 +24,7 @@ on:
     branches: [master]
 
 jobs:
-  fit_Tomcat_PostgreSQL_XML:
+  fit_Tomcat_PostgreSQL:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,5 +41,5 @@ jobs:
         maven-version: 3.9.6
     - name: Build
       run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
-    - name: 'Tomcat / PostgreSQL / XML'
-      run: mvn -f fit/core-reference/pom.xml verify -Djaxrs.content.type=application/xml -Dit.test=org.apache.syncope.fit.core.*ITCase -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+    - name: 'Tomcat / PostgreSQL'
+      run: mvn -f fit/core-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

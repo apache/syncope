@@ -24,8 +24,6 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class PagedResult<T extends BaseBean> implements BaseBean {
 
@@ -59,8 +57,6 @@ public class PagedResult<T extends BaseBean> implements BaseBean {
         this.next = next;
     }
 
-    @JacksonXmlElementWrapper(localName = "result")
-    @JacksonXmlProperty(localName = "item")
     public List<T> getResult() {
         return result;
     }

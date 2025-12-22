@@ -27,8 +27,6 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class WAClientApp implements BaseBean {
 
@@ -62,8 +60,6 @@ public class WAClientApp implements BaseBean {
         this.accessPolicy = accessPolicy;
     }
 
-    @JacksonXmlElementWrapper(localName = "authModules")
-    @JacksonXmlProperty(localName = "authModule")
     public List<AuthModuleTO> getAuthModules() {
         return authModules;
     }

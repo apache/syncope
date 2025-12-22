@@ -26,8 +26,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class ConnObject implements BaseBean {
 
@@ -45,8 +43,6 @@ public class ConnObject implements BaseBean {
         this.fiql = fiql;
     }
 
-    @JacksonXmlElementWrapper(localName = "attrs")
-    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }
