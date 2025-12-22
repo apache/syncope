@@ -60,7 +60,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
      * @return list of all defined SAML 2.0 Identity Providers
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<SAML2SP4UIIdPTO> list();
 
     /**
@@ -71,7 +71,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SAML2SP4UIIdPTO read(@PathParam("key") String key);
 
     /**
@@ -91,7 +91,7 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
                         description = "URL of the entity created") }))
     @POST
     @Consumes({ MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response importFromMetadata(@NotNull InputStream input);
 
     /**
@@ -105,8 +105,8 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull SAML2SP4UIIdPTO saml2IdpTO);
 
     /**
@@ -118,6 +118,6 @@ public interface SAML2SP4UIIdPService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@PathParam("key") String key);
 }

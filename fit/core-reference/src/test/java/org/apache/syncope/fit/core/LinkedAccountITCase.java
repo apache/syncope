@@ -477,7 +477,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users").
                 accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
 
-        ObjectNode user = JSON_MAPPER.createObjectNode();
+        ObjectNode user = MAPPER.createObjectNode();
         user.put("username", "linkedaccount1");
         user.put("password", "Password123");
         user.put("firstName", "Pasquale");
@@ -489,7 +489,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         String user1Key = StringUtils.substringAfterLast(response.getHeaderString(HttpHeaders.LOCATION), "/");
         assertNotNull(user1Key);
 
-        user = JSON_MAPPER.createObjectNode();
+        user = MAPPER.createObjectNode();
         user.put("username", "vivaldi");
         user.put("password", "Password123");
         user.put("firstName", "Giovannino");
@@ -501,7 +501,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         String user2Key = StringUtils.substringAfterLast(response.getHeaderString(HttpHeaders.LOCATION), "/");
         assertNotNull(user2Key);
 
-        user = JSON_MAPPER.createObjectNode();
+        user = MAPPER.createObjectNode();
         user.put("username", "not.vivaldi");
         user.put("password", "Password123");
         user.put("email", "not.vivaldi@syncope.org");
@@ -559,12 +559,12 @@ public class LinkedAccountITCase extends AbstractITCase {
             response = webClient.path(user1Key).delete();
             assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
-            user = JSON_MAPPER.createObjectNode();
+            user = MAPPER.createObjectNode();
             user.put("username", "linkedaccount2");
             response = webClient.replacePath(user2Key).put(user.toString());
             assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
-            user = JSON_MAPPER.createObjectNode();
+            user = MAPPER.createObjectNode();
             user.put("status", "INACTIVE");
             response = webClient.replacePath(user3Key).put(user.toString());
             assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());

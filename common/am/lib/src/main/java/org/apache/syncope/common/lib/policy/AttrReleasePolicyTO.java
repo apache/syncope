@@ -19,7 +19,6 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(allOf = { PolicyTO.class })
@@ -33,7 +32,6 @@ public class AttrReleasePolicyTO extends PolicyTO {
 
     private AttrReleasePolicyConf conf;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.policy.AttrReleasePolicyTO")

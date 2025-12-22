@@ -61,7 +61,7 @@ public interface ReconciliationService extends JAXRSService {
      * @return reconciliation status
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     ReconStatus status(@BeanParam ReconQuery query);
 
     /**
@@ -75,8 +75,8 @@ public interface ReconciliationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("push")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ProvisioningReport> push(@BeanParam ReconQuery query, @NotNull PushTaskTO pushTask);
 
     /**
@@ -90,8 +90,8 @@ public interface ReconciliationService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("pull")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ProvisioningReport> pull(@BeanParam ReconQuery query, @NotNull PullTaskTO pullTask);
 
     /**
@@ -103,7 +103,7 @@ public interface ReconciliationService extends JAXRSService {
      */
     @GET
     @Path("csv/push")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ RESTHeaders.TEXT_CSV })
     Response push(@BeanParam AnyQuery anyQuery, @BeanParam CSVPushSpec spec);
 
@@ -117,6 +117,6 @@ public interface ReconciliationService extends JAXRSService {
     @POST
     @Path("csv/pull")
     @Consumes({ RESTHeaders.TEXT_CSV })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ProvisioningReport> pull(@BeanParam CSVPullSpec spec, InputStream csv);
 }

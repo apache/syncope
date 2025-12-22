@@ -68,40 +68,40 @@ public class BatchITCase extends AbstractITCase {
     private static String requestBody(final String boundary) throws JsonProcessingException {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
-        // 1. create user as YAML
+        // 1. create user
         UserCR userCR = UserITCase.getUniqueSample("batch@syncope.apache.org");
         assertNotEquals("/odd", userCR.getRealm());
-        String createUserPayload = YAML_MAPPER.writeValueAsString(userCR);
+        String createUserPayload = MAPPER.writeValueAsString(userCR);
 
         BatchRequestItem createUser = new BatchRequestItem();
         createUser.setMethod(HttpMethod.POST);
         createUser.setRequestURI("/users");
         createUser.setHeaders(new HashMap<>());
-        createUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(RESTHeaders.APPLICATION_YAML));
-        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(RESTHeaders.APPLICATION_YAML));
+        createUser.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        createUser.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
         createUser.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createUserPayload.length()));
         createUser.setContent(createUserPayload);
         reqItems.add(createUser);
 
-        // 2. create group as XML
+        // 2. create group
         GroupCR groupCR = GroupITCase.getBasicSample("batch");
-        String createGroupPayload = XML_MAPPER.writeValueAsString(groupCR);
+        String createGroupPayload = MAPPER.writeValueAsString(groupCR);
 
         BatchRequestItem createGroup = new BatchRequestItem();
         createGroup.setMethod(HttpMethod.POST);
         createGroup.setRequestURI("/groups");
         createGroup.setHeaders(new HashMap<>());
-        createGroup.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_XML));
-        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_XML));
+        createGroup.getHeaders().put(HttpHeaders.ACCEPT, List.of(MediaType.APPLICATION_JSON));
+        createGroup.getHeaders().put(HttpHeaders.CONTENT_TYPE, List.of(MediaType.APPLICATION_JSON));
         createGroup.getHeaders().put(HttpHeaders.CONTENT_LENGTH, List.of(createGroupPayload.length()));
         createGroup.setContent(createGroupPayload);
         reqItems.add(createGroup);
 
-        // 3. update the user above as JSON, request for no user data being returned
+        // 3. update the user above, request for no user data being returned
         UserUR userUR = new UserUR();
         userUR.setKey(userCR.getUsername());
         userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
-        String updateUserPayload = JSON_MAPPER.writeValueAsString(userUR);
+        String updateUserPayload = MAPPER.writeValueAsString(userUR);
 
         BatchRequestItem updateUser = new BatchRequestItem();
         updateUser.setMethod(HttpMethod.PATCH);
@@ -126,7 +126,7 @@ public class BatchITCase extends AbstractITCase {
         groupNotFound.setRequestURI("/groups/" + UUID.randomUUID());
         reqItems.add(groupNotFound);
 
-        // 6, delete the group created above, expect deleted group as JSON
+        // 6, delete the group created above, expect deleted group
         BatchRequestItem deleteGroup = new BatchRequestItem();
         deleteGroup.setMethod(HttpMethod.DELETE);
         deleteGroup.setRequestURI("/groups/" + groupCR.getName());
@@ -146,9 +146,9 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.getFirst().getHeaders().get(HttpHeaders.ETAG));
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.RESOURCE_KEY));
-        assertEquals(RESTHeaders.APPLICATION_YAML, resItems.getFirst().
+        assertEquals(MediaType.APPLICATION_JSON, resItems.getFirst().
                 getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
-        ProvisioningResult<UserTO> user = YAML_MAPPER.readValue(
+        ProvisioningResult<UserTO> user = MAPPER.readValue(
                 resItems.get(0).getContent(), new TypeReference<>() {
         });
         assertNotNull(user.getEntity().getKey());
@@ -158,9 +158,9 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(1).getHeaders().get(HttpHeaders.ETAG));
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.RESOURCE_KEY));
-        assertEquals(MediaType.APPLICATION_XML, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
+        assertEquals(MediaType.APPLICATION_JSON, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
 
-        ProvisioningResult<GroupTO> group = XML_MAPPER.readValue(
+        ProvisioningResult<GroupTO> group = MAPPER.readValue(
                 resItems.get(1).getContent(), new TypeReference<>() {
         });
         assertNotNull(group.getEntity().getKey());
@@ -182,7 +182,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), resItems.get(5).getStatus());
         assertNotNull(resItems.get(5).getHeaders().get(RESTHeaders.DOMAIN));
         assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
-        group = JSON_MAPPER.readValue(
+        group = MAPPER.readValue(
                 resItems.get(5).getContent(), new TypeReference<>() {
         });
         assertNotNull(group);
@@ -262,22 +262,22 @@ public class BatchITCase extends AbstractITCase {
     private static BatchRequest batchRequest() {
         BatchRequest batchRequest = ADMIN_CLIENT.batch();
 
-        // 1. create user as YAML
+        // 1. create user
         UserService batchUserService = batchRequest.getService(UserService.class);
         Client client = WebClient.client(batchUserService).reset();
-        client.type(RESTHeaders.APPLICATION_YAML).accept(RESTHeaders.APPLICATION_YAML);
+        client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         UserCR userCR = UserITCase.getUniqueSample("batch@syncope.apache.org");
         assertNotEquals("/odd", userCR.getRealm());
         batchUserService.create(userCR);
 
-        // 2. create group as XML
+        // 2. create group
         GroupService batchGroupService = batchRequest.getService(GroupService.class);
         client = WebClient.client(batchGroupService).reset();
-        client.type(MediaType.APPLICATION_XML).accept(MediaType.APPLICATION_XML);
+        client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         GroupCR groupCR = GroupITCase.getBasicSample("batch");
         batchGroupService.create(groupCR);
 
-        // 3. update the user above as JSON, request for no user data being returned
+        // 3. update the user above, request for no user data being returned
         client = WebClient.client(batchUserService).reset();
         client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         client.header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT.toString());
@@ -294,7 +294,7 @@ public class BatchITCase extends AbstractITCase {
         client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         batchGroupService.delete(UUID.randomUUID().toString());
 
-        // 6, delete the group created above, expect deleted group as JSON
+        // 6, delete the group created above, expect deleted group
         batchGroupService.delete(groupCR.getName());
 
         return batchRequest;

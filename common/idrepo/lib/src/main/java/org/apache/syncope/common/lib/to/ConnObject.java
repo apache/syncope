@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -45,8 +43,6 @@ public class ConnObject implements BaseBean {
         this.fiql = fiql;
     }
 
-    @JacksonXmlElementWrapper(localName = "attrs")
-    @JacksonXmlProperty(localName = "attr")
     public Set<Attr> getAttrs() {
         return attrs;
     }

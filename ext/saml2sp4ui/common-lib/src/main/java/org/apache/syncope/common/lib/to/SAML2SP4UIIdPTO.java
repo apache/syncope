@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -144,8 +142,6 @@ public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
         this.userTemplate = userTemplate;
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
     }

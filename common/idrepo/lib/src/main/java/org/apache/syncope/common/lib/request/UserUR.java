@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -119,7 +117,6 @@ public class UserUR extends AnyUR {
 
     private final List<LinkedAccountUR> linkedAccounts = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.UserUR")
@@ -168,20 +165,14 @@ public class UserUR extends AnyUR {
         this.mustChangePassword = mustChangePassword;
     }
 
-    @JacksonXmlElementWrapper(localName = "memberships")
-    @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
         return memberships;
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public Set<StringPatchItem> getRoles() {
         return roles;
     }
 
-    @JacksonXmlElementWrapper(localName = "linkedAccounts")
-    @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountUR> getLinkedAccounts() {
         return linkedAccounts;
     }

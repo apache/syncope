@@ -1573,12 +1573,12 @@ public class UserIssuesITCase extends AbstractITCase {
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE);
 
-        Response response = webClient.invoke(HttpMethod.PATCH, JSON_MAPPER.writeValueAsString(req));
+        Response response = webClient.invoke(HttpMethod.PATCH, MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Key is mismatched in the path parameter and the request body.
         req.setKey(UUID.randomUUID().toString());
-        response = webClient.invoke(HttpMethod.PATCH, JSON_MAPPER.writeValueAsString(req));
+        response = webClient.invoke(HttpMethod.PATCH, MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
 
         // reading user by its username still works

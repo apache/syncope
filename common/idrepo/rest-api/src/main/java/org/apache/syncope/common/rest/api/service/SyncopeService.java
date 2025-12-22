@@ -122,7 +122,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @POST
     @Path("assignableGroups/{realm:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<GroupTO> searchAssignableGroups(
             @NotNull @PathParam("realm") String realm,
             @QueryParam("term") String term,
@@ -137,7 +137,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("userTypeExtension/group/{groupName}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     TypeExtensionTO readUserGroupTypeExtension(@NotNull @PathParam("groupName") String groupName);
 
     /**
@@ -148,7 +148,7 @@ public interface SyncopeService extends JAXRSService {
      */
     @GET
     @Path("userTypeExtension/relationshipType/{relationshipType}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     TypeExtensionTO readUserRelationshipTypeExtension(@NotNull @PathParam("relationshipType") String relationshipType);
 
     /**

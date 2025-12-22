@@ -22,8 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -140,7 +138,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         }
     }
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -183,8 +180,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     @Override
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
@@ -202,8 +197,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return Set.of();
     }
 
-    @JacksonXmlElementWrapper(localName = "resources")
-    @JacksonXmlProperty(localName = "resource")
     @Override
     public Set<String> getResources() {
         return resources;
@@ -217,8 +210,6 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
                 findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
     @Override
     public List<RelationshipTO> getRelationships() {
         return relationships;

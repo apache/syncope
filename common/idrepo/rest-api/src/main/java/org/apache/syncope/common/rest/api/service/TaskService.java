@@ -76,7 +76,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends TaskTO> T read(
             @NotNull @PathParam("type") TaskType type,
             @NotNull @PathParam("key") String key,
@@ -91,7 +91,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     <T extends TaskTO> PagedResult<T> search(@BeanParam TaskQuery query);
 
     /**
@@ -112,8 +112,8 @@ public interface TaskService extends ExecutableService {
                         description = "URL of the entity created") }))
     @POST
     @Path("{type}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
@@ -128,8 +128,8 @@ public interface TaskService extends ExecutableService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void update(@NotNull @PathParam("type") TaskType type, @NotNull SchedTaskTO taskTO);
 
     /**
@@ -142,7 +142,7 @@ public interface TaskService extends ExecutableService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("type") TaskType type, @NotNull @PathParam("key") String key);
 
     /**
@@ -159,7 +159,7 @@ public interface TaskService extends ExecutableService {
         @ApiResponse(responseCode = "412", description = "At least one matching condition must be specified") })
     @DELETE
     @Path("PROPAGATION/purge")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response purgePropagations(
             @QueryParam("since") OffsetDateTime since,
             @QueryParam("statuses") List<ExecStatus> statuses,
@@ -174,7 +174,7 @@ public interface TaskService extends ExecutableService {
      */
     @GET
     @Path("MACRO/{key}/form")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SyncopeForm getMacroTaskForm(@NotNull @PathParam("key") String key, @NotNull @QueryParam("locale") String locale);
 
     /**
@@ -186,7 +186,7 @@ public interface TaskService extends ExecutableService {
      */
     @POST
     @Path("MACRO/{key}/execute")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     ExecTO execute(@BeanParam ExecSpecs specs, SyncopeForm macroTaskForm);
 }

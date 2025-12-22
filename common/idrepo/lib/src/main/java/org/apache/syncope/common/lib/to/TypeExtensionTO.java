@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -42,8 +40,6 @@ public class TypeExtensionTO implements BaseBean {
         this.anyType = anyType;
     }
 
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "class")
     public List<String> getAuxClasses() {
         return auxClasses;
     }

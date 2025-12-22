@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -148,32 +146,22 @@ public class AuthProfileTO implements EntityTO {
         this.owner = owner;
     }
 
-    @JacksonXmlElementWrapper(localName = "impersonationAccounts")
-    @JacksonXmlProperty(localName = "impersonationAccount")
     public List<ImpersonationAccount> getImpersonationAccounts() {
         return impersonationAccounts;
     }
 
-    @JacksonXmlElementWrapper(localName = "googleMfaAuthTokens")
-    @JacksonXmlProperty(localName = "googleMfaAuthToken")
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return googleMfaAuthTokens;
     }
 
-    @JacksonXmlElementWrapper(localName = "googleMfaAuthAccounts")
-    @JacksonXmlProperty(localName = "googleMfaAuthAccount")
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
         return googleMfaAuthAccounts;
     }
 
-    @JacksonXmlElementWrapper(localName = "mfaTrustedDevices")
-    @JacksonXmlProperty(localName = "mfaTrustedDevice")
     public List<MfaTrustedDevice> getMfaTrustedDevices() {
         return mfaTrustedDevices;
     }
 
-    @JacksonXmlElementWrapper(localName = "credentials")
-    @JacksonXmlProperty(localName = "credential")
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
         return webAuthnDeviceCredentials;
     }

@@ -59,7 +59,7 @@ public interface AnyTypeService extends JAXRSService {
      * @return list of all anyTypes.
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<AnyTypeTO> list();
 
     /**
@@ -70,7 +70,7 @@ public interface AnyTypeService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     AnyTypeTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -89,7 +89,7 @@ public interface AnyTypeService extends JAXRSService {
                         @Schema(type = "string"),
                         description = "URL of the entity created") }))
     @POST
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response create(@NotNull AnyTypeTO anyTypeTO);
 
     /**
@@ -103,7 +103,7 @@ public interface AnyTypeService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
     @Path("{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
     void update(@NotNull AnyTypeTO anyTypeTO);
 
     /**
@@ -115,6 +115,6 @@ public interface AnyTypeService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("key") String key);
 }

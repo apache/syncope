@@ -20,11 +20,9 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
@@ -38,8 +36,6 @@ public class SAML2IdPEntityITCase extends AbstractITCase {
 
     @BeforeAll
     public static void setup() {
-        assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
-
         WA_SAML2IDP_ENTITY_SERVICE = ANONYMOUS_CLIENT.getService(SAML2IdPEntityService.class);
     }
 

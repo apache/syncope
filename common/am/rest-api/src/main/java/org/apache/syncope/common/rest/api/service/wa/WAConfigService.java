@@ -39,7 +39,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 /**
@@ -59,8 +58,8 @@ public interface WAConfigService extends JAXRSService {
     }
 
     @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<Attr> list();
 
     /**
@@ -71,8 +70,8 @@ public interface WAConfigService extends JAXRSService {
      */
     @GET
     @Path("{schema}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Attr get(@NotNull @PathParam("schema") String schema);
 
     /**
@@ -85,8 +84,8 @@ public interface WAConfigService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     @Path("{schema}")
     void set(@NotNull Attr value);
 
@@ -99,7 +98,7 @@ public interface WAConfigService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{schema}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@NotNull @PathParam("schema") String schema);
 
     /**
@@ -112,6 +111,6 @@ public interface WAConfigService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("push/{subject}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void pushToWA(@NotNull @PathParam("subject") PushSubject subject, @QueryParam("service") List<String> services);
 }

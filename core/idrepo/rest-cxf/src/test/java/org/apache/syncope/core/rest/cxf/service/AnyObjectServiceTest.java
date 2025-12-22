@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
@@ -60,8 +58,6 @@ import org.apache.cxf.transport.local.LocalConduit;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -97,12 +93,6 @@ public class AnyObjectServiceTest {
 
     @Autowired
     private JacksonJsonProvider jsonProvider;
-
-    @Autowired
-    private JacksonXMLProvider xmlProvider;
-
-    @Autowired
-    private JacksonYAMLProvider yamlProvider;
 
     @Autowired
     private RestServiceExceptionMapper exceptionMapper;
@@ -193,7 +183,7 @@ public class AnyObjectServiceTest {
             sf.setInInterceptors(List.of(gzipInInterceptor, validationInInterceptor));
             sf.setOutInterceptors(List.of(gzipOutInterceptor));
 
-            sf.setProviders(List.of(dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider,
+            sf.setProviders(List.of(dateParamConverterProvider, jsonProvider,
                     exceptionMapper, searchContextProvider, addETagFilter));
 
             SERVER = sf.create();
@@ -204,20 +194,9 @@ public class AnyObjectServiceTest {
 
     private WebClient client(final MediaType mediaType) {
         WebClient client = WebClient.create(LOCAL_ADDRESS, List.of(
-                dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider));
+                dateParamConverterProvider, jsonProvider));
         WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
         return client.accept(mediaType).type(mediaType).path("anyObjects");
-    }
-
-    private InputStream list(final MediaType mediaType) {
-        Response response = client(mediaType).
-                query("fiql", "$type==PRINTER").
-                query("page", "1").
-                query("size", "10").
-                get();
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        return (InputStream) response.getEntity();
     }
 
     private void checkList(final PagedResult<AnyObjectTO> list) {
@@ -233,8 +212,15 @@ public class AnyObjectServiceTest {
     }
 
     @Test
-    public void jsonList() throws IOException {
-        InputStream in = list(MediaType.APPLICATION_JSON_TYPE);
+    public void list() throws IOException {
+        Response response = client(MediaType.APPLICATION_JSON_TYPE).
+                query("fiql", "$type==PRINTER").
+                query("page", "1").
+                query("size", "10").
+                get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        InputStream in = (InputStream) response.getEntity();
 
         PagedResult<AnyObjectTO> list = new SyncopeJsonMapper().
                 readValue(IOUtils.toString(in), new TypeReference<>() {
@@ -243,48 +229,14 @@ public class AnyObjectServiceTest {
     }
 
     @Test
-    public void xmlList() throws IOException {
-        InputStream in = list(MediaType.APPLICATION_XML_TYPE);
-
-        PagedResult<AnyObjectTO> list = new SyncopeXmlMapper().
-                readValue(IOUtils.toString(in), new TypeReference<>() {
-                });
-        checkList(list);
-    }
-
-    @Test
-    public void yamlList() throws IOException {
-        InputStream in = list(RESTHeaders.APPLICATION_YAML_TYPE);
-
-        PagedResult<AnyObjectTO> list = new SyncopeYAMLMapper().
-                readValue(IOUtils.toString(in), new TypeReference<>() {
-                });
-        checkList(list);
-    }
-
-    private void create(final MediaType mediaType) {
+    public void create() {
         AnyObjectCR newPrinter = new AnyObjectCR();
         newPrinter.setName("newPrinter");
         newPrinter.setType("PRINTER");
         newPrinter.getPlainAttrs().add(new Attr.Builder("location").value("new").build());
 
-        Response response = client(mediaType).post(newPrinter);
+        Response response = client(MediaType.APPLICATION_JSON_TYPE).post(newPrinter);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertNotNull(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-    }
-
-    @Test
-    public void jsonCreate() {
-        create(MediaType.APPLICATION_JSON_TYPE);
-    }
-
-    @Test
-    public void xmlCreate() {
-        create(MediaType.APPLICATION_XML_TYPE);
-    }
-
-    @Test
-    public void yamlCreate() {
-        create(RESTHeaders.APPLICATION_YAML_TYPE);
     }
 }

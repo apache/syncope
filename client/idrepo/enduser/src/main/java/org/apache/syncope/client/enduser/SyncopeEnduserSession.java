@@ -177,10 +177,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         error(message);
     }
 
-    public MediaType getMediaType() {
-        return clientFactory.getContentType().getMediaType();
-    }
-
     @Override
     public <T> Future<T> execute(final Callable<T> command) {
         try {

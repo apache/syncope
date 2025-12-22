@@ -31,7 +31,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.scim.SCIMConf;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for SCIM 2.0 configuration.
@@ -49,7 +48,7 @@ public interface SCIMConfService extends JAXRSService {
      * @return SCIM configuration
      */
     @GET
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     SCIMConf get();
 
     /**
@@ -60,7 +59,7 @@ public interface SCIMConfService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     void set(@NotNull SCIMConf conf);
 }

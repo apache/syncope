@@ -19,9 +19,6 @@
 package org.apache.syncope.client.lib;
 
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
-import jakarta.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +29,6 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -43,42 +38,11 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 public class SyncopeClientFactoryBean {
 
-    public enum ContentType {
-
-        JSON(MediaType.APPLICATION_JSON_TYPE),
-        YAML(RESTHeaders.APPLICATION_YAML_TYPE),
-        XML(MediaType.APPLICATION_XML_TYPE);
-
-        private final MediaType mediaType;
-
-        ContentType(final MediaType mediaType) {
-            this.mediaType = mediaType;
-        }
-
-        public MediaType getMediaType() {
-            return mediaType;
-        }
-
-        public static ContentType fromString(final String value) {
-            return XML.getMediaType().toString().equalsIgnoreCase(value)
-                    ? XML
-                    : YAML.getMediaType().toString().equalsIgnoreCase(value)
-                    ? YAML
-                    : JSON;
-        }
-    }
-
     private JacksonJsonProvider jsonProvider;
-
-    private JacksonXMLProvider xmlProvider;
-
-    private JacksonYAMLProvider yamlProvider;
 
     private RestClientExceptionMapper exceptionMapper;
 
     private String address;
-
-    private ContentType contentType;
 
     private String domain;
 
@@ -92,14 +56,6 @@ public class SyncopeClientFactoryBean {
 
     protected static JacksonJsonProvider defaultJsonProvider() {
         return new JacksonJsonProvider(new SyncopeJsonMapper());
-    }
-
-    protected static JacksonXMLProvider defaultXmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
-    }
-
-    protected static JacksonYAMLProvider defaultYamlProvider() {
-        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
     }
 
     protected static RestClientExceptionMapper defaultExceptionMapper() {
@@ -133,8 +89,6 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setProviders(List.of(
                 new DateParamConverterProvider(),
                 getJsonProvider(),
-                getXmlProvider(),
-                getYamlProvider(),
                 getExceptionMapper()));
 
         return defaultRestClientFactoryBean;
@@ -146,22 +100,6 @@ public class SyncopeClientFactoryBean {
 
     public void setJsonProvider(final JacksonJsonProvider jsonProvider) {
         this.jsonProvider = jsonProvider;
-    }
-
-    public JacksonXMLProvider getXmlProvider() {
-        return Optional.ofNullable(xmlProvider).orElseGet(SyncopeClientFactoryBean::defaultXmlProvider);
-    }
-
-    public void setXmlProvider(final JacksonXMLProvider xmlProvider) {
-        this.xmlProvider = xmlProvider;
-    }
-
-    public JacksonYAMLProvider getYamlProvider() {
-        return Optional.ofNullable(yamlProvider).orElseGet(SyncopeClientFactoryBean::defaultYamlProvider);
-    }
-
-    public void setYamlProvider(final JacksonYAMLProvider yamlProvider) {
-        this.yamlProvider = yamlProvider;
     }
 
     public RestClientExceptionMapper getExceptionMapper() {
@@ -179,20 +117,6 @@ public class SyncopeClientFactoryBean {
 
     public SyncopeClientFactoryBean setAddress(final String address) {
         this.address = address;
-        return this;
-    }
-
-    public ContentType getContentType() {
-        return Optional.ofNullable(contentType).orElse(ContentType.JSON);
-    }
-
-    public SyncopeClientFactoryBean setContentType(final ContentType contentType) {
-        this.contentType = contentType;
-        return this;
-    }
-
-    public SyncopeClientFactoryBean setContentType(final String contentType) {
-        this.contentType = ContentType.fromString(contentType);
         return this;
     }
 
@@ -286,7 +210,6 @@ public class SyncopeClientFactoryBean {
      */
     public SyncopeClient create(final AuthenticationHandler handler) {
         return new SyncopeClient(
-                getContentType().getMediaType(),
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 handler,
@@ -304,7 +227,6 @@ public class SyncopeClientFactoryBean {
      */
     public SyncopeAnonymousClient createAnonymous(final String username, final String password) {
         return new SyncopeAnonymousClient(
-                getContentType().getMediaType(),
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 new AnonymousAuthenticationHandler(username, password),

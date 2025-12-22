@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +38,6 @@ public class DefaultInboundCorrelationRuleConf
         this.orSchemas = orSchemas;
     }
 
-    @JacksonXmlElementWrapper(localName = "schemas")
-    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemas() {
         return schemas;
     }

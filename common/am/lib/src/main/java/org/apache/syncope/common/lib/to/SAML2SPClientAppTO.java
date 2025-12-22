@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +72,6 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private final List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.client.SAML2SPTO")
@@ -179,8 +176,6 @@ public class SAML2SPClientAppTO extends ClientAppTO {
         this.nameIdQualifier = nameIdQualifier;
     }
 
-    @JacksonXmlElementWrapper(localName = "assertionAudiences")
-    @JacksonXmlProperty(localName = "assertionAudience")
     public List<String> getAssertionAudiences() {
         return assertionAudiences;
     }
@@ -193,38 +188,26 @@ public class SAML2SPClientAppTO extends ClientAppTO {
         this.serviceProviderNameIdQualifier = serviceProviderNameIdQualifier;
     }
 
-    @JacksonXmlElementWrapper(localName = "signingSignatureAlgorithms")
-    @JacksonXmlProperty(localName = "signingSignatureAlgorithm")
     public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
         return signingSignatureAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "signingSignatureReferenceDigestMethods")
-    @JacksonXmlProperty(localName = "signingSignatureReferenceDigestMethod")
     public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
         return signingSignatureReferenceDigestMethods;
     }
 
-    @JacksonXmlElementWrapper(localName = "encryptionDataAlgorithms")
-    @JacksonXmlProperty(localName = "encryptionDataAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
         return encryptionDataAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "encryptionKeyAlgorithms")
-    @JacksonXmlProperty(localName = "encryptionKeyAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
         return encryptionKeyAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "signingSignatureBlackListedAlgorithms")
-    @JacksonXmlProperty(localName = "signingSignatureBlackListedAlgorithm")
     public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
         return signingSignatureBlackListedAlgorithms;
     }
 
-    @JacksonXmlElementWrapper(localName = "encryptionBlackListedAlgorithms")
-    @JacksonXmlProperty(localName = "encryptionBlackListedAlgorithm")
     public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
         return encryptionBlackListedAlgorithms;
     }

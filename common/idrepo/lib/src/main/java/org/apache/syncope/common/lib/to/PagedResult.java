@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,8 +57,6 @@ public class PagedResult<T extends BaseBean> implements BaseBean {
         this.next = next;
     }
 
-    @JacksonXmlElementWrapper(localName = "result")
-    @JacksonXmlProperty(localName = "item")
     public List<T> getResult() {
         return result;
     }

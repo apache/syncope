@@ -41,8 +41,6 @@ public class BatchRequest {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchRequest.class);
 
-    private final MediaType mediaType;
-
     private final String jwt;
 
     private final String address;
@@ -54,13 +52,11 @@ public class BatchRequest {
     private BatchClientFactoryBean bcfb;
 
     public BatchRequest(
-            final MediaType mediaType,
             final String address,
             final List<?> providers,
             final String jwt,
             final TLSClientParameters tlsClientParameters) {
 
-        this.mediaType = mediaType;
         this.jwt = jwt;
         this.address = address;
         this.providers = providers;
@@ -79,7 +75,7 @@ public class BatchRequest {
         T serviceInstance = bcfb.create(serviceClass);
 
         Client client = WebClient.client(serviceInstance);
-        client.type(mediaType).accept(mediaType);
+        client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
     }

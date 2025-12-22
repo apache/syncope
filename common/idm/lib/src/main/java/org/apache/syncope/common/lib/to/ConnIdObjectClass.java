@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.BaseBean;
@@ -63,8 +61,6 @@ public class ConnIdObjectClass implements BaseBean {
         this.auxiliary = auxiliary;
     }
 
-    @JacksonXmlElementWrapper(localName = "attributes")
-    @JacksonXmlProperty(localName = "attribute")
     public List<PlainSchemaTO> getAttributes() {
         return attributes;
     }

@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +87,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String logoutUri;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
@@ -114,20 +111,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.clientSecret = clientSecret;
     }
 
-    @JacksonXmlElementWrapper(localName = "redirectUris")
-    @JacksonXmlProperty(localName = "redirectUri")
     public List<String> getRedirectUris() {
         return redirectUris;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedGrantTypes")
-    @JacksonXmlProperty(localName = "supportedGrantType")
     public List<OIDCGrantType> getSupportedGrantTypes() {
         return supportedGrantTypes;
     }
 
-    @JacksonXmlElementWrapper(localName = "supportedResponseTypes")
-    @JacksonXmlProperty(localName = "supportedResponseType")
     public List<OIDCResponseType> getSupportedResponseTypes() {
         return supportedResponseTypes;
     }
@@ -228,8 +219,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessToken = jwtAccessToken;
     }
 
-    @JacksonXmlElementWrapper(localName = "scopes")
-    @JacksonXmlProperty(localName = "scope")
     public List<String> getScopes() {
         return scopes;
     }

@@ -76,7 +76,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
                             + " by this endpoint")))
     @GET
     @Path("byName/{type}/{name}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     AnyObjectTO read(@NotNull @PathParam("type") String type, @NotNull @PathParam("name") String name);
 
     @Override
@@ -117,8 +117,8 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
                         description = "Allows the server to inform the "
                         + "client about the fact that a specified preference was applied") }))
     @POST
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response create(@NotNull AnyObjectCR createReq);
 
     /**
@@ -160,7 +160,7 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
                 + " date of the entity") })
     @PATCH
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
     Response update(@NotNull AnyObjectUR updateReq);
 }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.form;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,14 +121,10 @@ public class FormProperty implements Serializable {
         this.datePattern = datePattern;
     }
 
-    @JacksonXmlElementWrapper(localName = "enumValues")
-    @JacksonXmlProperty(localName = "enumValue")
     public List<FormPropertyValue> getEnumValues() {
         return enumValues;
     }
 
-    @JacksonXmlElementWrapper(localName = "dropdownValues")
-    @JacksonXmlProperty(localName = "dropdownValue")
     public List<FormPropertyValue> getDropdownValues() {
         return dropdownValues;
     }

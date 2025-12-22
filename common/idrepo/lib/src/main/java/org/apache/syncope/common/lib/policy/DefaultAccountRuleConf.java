@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.Schema;
@@ -117,26 +115,18 @@ public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements A
         this.pattern = pattern;
     }
 
-    @JacksonXmlElementWrapper(localName = "wordsNotPermitted")
-    @JacksonXmlProperty(localName = "word")
     public List<String> getWordsNotPermitted() {
         return wordsNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "prefixesNotPermitted")
-    @JacksonXmlProperty(localName = "prefix")
     public List<String> getPrefixesNotPermitted() {
         return prefixesNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "schemasNotPermitted")
-    @JacksonXmlProperty(localName = "schema")
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
     }
 
-    @JacksonXmlElementWrapper(localName = "suffixesNotPermitted")
-    @JacksonXmlProperty(localName = "suffix")
     public List<String> getSuffixesNotPermitted() {
         return suffixesNotPermitted;
     }

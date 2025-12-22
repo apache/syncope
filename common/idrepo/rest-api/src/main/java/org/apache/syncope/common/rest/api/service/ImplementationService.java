@@ -37,7 +37,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.syncope.common.lib.to.ImplementationTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for implementations.
@@ -57,7 +56,7 @@ public interface ImplementationService extends JAXRSService {
      */
     @GET
     @Path("{type}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     List<ImplementationTO> list(@NotNull @PathParam("type") String type);
 
     /**
@@ -69,7 +68,7 @@ public interface ImplementationService extends JAXRSService {
      */
     @GET
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     ImplementationTO read(@NotNull @PathParam("type") String type, @NotNull @PathParam("key") String key);
 
     /**
@@ -84,8 +83,8 @@ public interface ImplementationService extends JAXRSService {
             @Schema(type = "string"))
     @POST
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response create(@NotNull ImplementationTO implementationTO);
 
     /**
@@ -100,8 +99,8 @@ public interface ImplementationService extends JAXRSService {
             @Schema(type = "string"))
     @PUT
     @Path("{type}/{key}")
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response update(@NotNull ImplementationTO implementationTO);
 
     /**
@@ -113,6 +112,6 @@ public interface ImplementationService extends JAXRSService {
      */
     @DELETE
     @Path("{type}/{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response delete(@NotNull @PathParam("type") String type, @NotNull @PathParam("key") String key);
 }

@@ -216,8 +216,6 @@ public class SyncopeClient {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    protected final MediaType mediaType;
-
     protected final JAXRSClientFactoryBean restClientFactory;
 
     protected final RestClientExceptionMapper exceptionMapper;
@@ -229,7 +227,6 @@ public class SyncopeClient {
     protected final TLSClientParameters tlsClientParameters;
 
     public SyncopeClient(
-            final MediaType mediaType,
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AuthenticationHandler authHandler,
@@ -237,7 +234,6 @@ public class SyncopeClient {
             final HTTPClientPolicy httpClientPolicy,
             final TLSClientParameters tlsClientParameters) {
 
-        this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
         if (this.restClientFactory.getHeaders() == null) {
             this.restClientFactory.setHeaders(new HashMap<>());
@@ -404,7 +400,7 @@ public class SyncopeClient {
         }
 
         Client client = WebClient.client(serviceInstance);
-        client.type(mediaType).accept(mediaType);
+        client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
         if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
             client.accept(RESTHeaders.MULTIPART_MIXED);
         }
@@ -470,7 +466,6 @@ public class SyncopeClient {
      */
     public BatchRequest batch() {
         return new BatchRequest(
-                mediaType,
                 restClientFactory.getAddress(),
                 restClientFactory.getProviders(),
                 jwtInfo().map(JwtInfo::value).orElse(null),

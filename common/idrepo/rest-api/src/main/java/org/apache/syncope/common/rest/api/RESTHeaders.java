@@ -64,16 +64,6 @@ public final class RESTHeaders {
     public static final String MEDIATYPE_IMAGE_PNG = "image/png";
 
     /**
-     * Mediatype for YAML, not defined in {@link jakarta.ws.rs.core.MediaType}.
-     */
-    public static final String APPLICATION_YAML = "application/yaml";
-
-    /**
-     * Mediatype for YAML, not defined in {@link jakarta.ws.rs.core.MediaType}.
-     */
-    public static final MediaType APPLICATION_YAML_TYPE = new MediaType("application", "yaml");
-
-    /**
      * Mediatype for text/csv, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String TEXT_CSV = "text/csv";

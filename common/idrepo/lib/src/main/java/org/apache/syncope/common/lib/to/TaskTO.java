@@ -21,8 +21,6 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
@@ -41,7 +39,6 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     private String discriminator;
 
@@ -91,8 +88,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JacksonXmlElementWrapper(localName = "executions")
-    @JacksonXmlProperty(localName = "execution")
+
     public List<ExecTO> getExecutions() {
         return executions;
     }

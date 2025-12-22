@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +43,6 @@ public class MacroTaskTO extends SchedTaskTO {
 
     private String macroActions;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.MacroTaskTO")
@@ -62,8 +59,6 @@ public class MacroTaskTO extends SchedTaskTO {
         this.realm = realm;
     }
 
-    @JacksonXmlElementWrapper(localName = "commands")
-    @JacksonXmlProperty(localName = "command")
     public List<CommandTO> getCommands() {
         return commands;
     }
@@ -84,8 +79,6 @@ public class MacroTaskTO extends SchedTaskTO {
         this.saveExecs = saveExecs;
     }
 
-    @JacksonXmlElementWrapper(localName = "formPropertyDefs")
-    @JacksonXmlProperty(localName = "formPropertyDef")
     public List<FormPropertyDefTO> getFormPropertyDefs() {
         return formPropertyDefs;
     }

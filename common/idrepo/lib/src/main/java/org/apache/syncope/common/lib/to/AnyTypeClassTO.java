@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,20 +45,14 @@ public class AnyTypeClassTO implements EntityTO {
         this.key = key;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainSchemas")
-    @JacksonXmlProperty(localName = "plainSchema")
     public List<String> getPlainSchemas() {
         return plainSchemas;
     }
 
-    @JacksonXmlElementWrapper(localName = "derSchemas")
-    @JacksonXmlProperty(localName = "derSchema")
     public List<String> getDerSchemas() {
         return derSchemas;
     }
 
-    @JacksonXmlElementWrapper(localName = "inUseByTypes")
-    @JacksonXmlProperty(localName = "inUseByType")
     public List<String> getInUseByTypes() {
         return inUseByTypes;
     }

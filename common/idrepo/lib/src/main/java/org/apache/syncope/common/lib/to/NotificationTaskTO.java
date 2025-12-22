@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.Set;
 import java.util.TreeSet;
@@ -54,7 +52,6 @@ public class NotificationTaskTO extends TaskTO {
 
     private TraceLevel traceLevel;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
@@ -91,8 +88,7 @@ public class NotificationTaskTO extends TaskTO {
     }
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JacksonXmlElementWrapper(localName = "recipients")
-    @JacksonXmlProperty(localName = "recipient")
+
     public Set<String> getRecipients() {
         return recipients;
     }

@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,7 +96,6 @@ public class GroupCR extends AnyCR {
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.request.GroupCR")
@@ -144,8 +141,6 @@ public class GroupCR extends AnyCR {
         return adynMembershipConds;
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }

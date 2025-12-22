@@ -222,8 +222,7 @@ delegating users for each <<delegation,Delegation>> for which the requesting use
 
 Batch requests allow grouping multiple operations into a single HTTP request payload. +
 A batch request is represented as a https://tools.ietf.org/html/rfc2046[Multipart MIME v1.0 message^], a standard format
-allowing the representation of multiple parts, each of which may have a different content type (currently
-JSON, YAML or XML), within a single request.
+allowing the representation of multiple parts within a single request.
 
 Batch requests are handled by the `/batch` REST endpoint: via HTTP `POST` method to submit requests, via HTTP `GET`
 method to fetch responses <<asynchronous-batch-processing,asynchronously>>.

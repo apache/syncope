@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.form;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,8 +37,6 @@ public class SyncopeForm implements BaseBean {
         return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "properties")
-    @JacksonXmlProperty(localName = "property")
     public List<FormProperty> getProperties() {
         return properties;
     }

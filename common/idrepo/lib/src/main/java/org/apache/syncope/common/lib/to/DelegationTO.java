@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
@@ -69,8 +67,6 @@ public class DelegationTO extends AbstractStartEndBean implements EntityTO {
         this.delegated = delegated;
     }
 
-    @JacksonXmlElementWrapper(localName = "roles")
-    @JacksonXmlProperty(localName = "role")
     public Set<String> getRoles() {
         return roles;
     }

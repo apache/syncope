@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.core.GenericType;
@@ -33,7 +32,6 @@ import java.util.List;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -54,7 +52,6 @@ public class UserRequestITCase extends AbstractITCase {
 
     @BeforeAll
     public static void loadBpmnProcesses() throws IOException {
-        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
 
         WebClient.client(BPMN_PROCESS_SERVICE).type(MediaType.APPLICATION_XML_TYPE);
@@ -68,7 +65,6 @@ public class UserRequestITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
-        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
     }
 

@@ -144,6 +144,10 @@ Add
       <artifactId>jakarta.faces</artifactId>
       <version>${jakarta.faces.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+    </dependency>
 ....
 
 to `core/pom.xml`, `console/pom.xml`, `enduser/pom.xml` and `wa/pom.xml`,
@@ -154,7 +158,7 @@ then replace
 ....
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <artifactId>syncope-core-starter</artifactId>
     </dependency>
 ....
 
@@ -164,7 +168,17 @@ with
 ....
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <artifactId>syncope-core-starter</artifactId>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-el</artifactId>
+          </exclusion>
+        <exclusion>
+          <groupId>com.github.ben-manes.caffeine</groupId>
+          <artifactId>jcache</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 ....
 

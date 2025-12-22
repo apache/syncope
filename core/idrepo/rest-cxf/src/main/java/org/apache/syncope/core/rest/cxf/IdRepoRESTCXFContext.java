@@ -19,8 +19,6 @@
 package org.apache.syncope.core.rest.cxf;
 
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
 import java.util.HashMap;
@@ -44,8 +42,6 @@ import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.validation.BeanValidationProvider;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
-import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
@@ -171,18 +167,6 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public JacksonXMLProvider xmlProvider() {
-        return new JacksonXMLProvider(new SyncopeXmlMapper());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public JacksonYAMLProvider yamlProvider() {
-        return new JacksonYAMLProvider(new SyncopeYAMLMapper());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public MDCInInterceptor mdcInInterceptor() {
         return new MDCInInterceptor();
     }
@@ -292,8 +276,6 @@ public class IdRepoRESTCXFContext {
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
             final ContextProvider<SearchContext> searchContextProvider,
-            final JacksonYAMLProvider yamlProvider,
-            final JacksonXMLProvider xmlProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
             final MDCInInterceptor mdcInInterceptor,
@@ -321,8 +303,6 @@ public class IdRepoRESTCXFContext {
         restContainer.setProviders(List.of(
                 dateParamConverterProvider,
                 jsonProvider,
-                xmlProvider,
-                yamlProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
                 addDomainFilter,

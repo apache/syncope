@@ -164,12 +164,6 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         content.addMediaType(
                 jakarta.ws.rs.core.MediaType.APPLICATION_JSON,
                 new MediaType().schema(errorSchema));
-        content.addMediaType(
-                RESTHeaders.APPLICATION_YAML,
-                new MediaType().schema(errorSchema));
-        content.addMediaType(
-                jakarta.ws.rs.core.MediaType.APPLICATION_XML,
-                new MediaType().schema(errorSchema));
 
         responses.addApiResponse("400", new ApiResponse().
                 description("An error occurred; HTTP status code can vary depending on the actual error: "

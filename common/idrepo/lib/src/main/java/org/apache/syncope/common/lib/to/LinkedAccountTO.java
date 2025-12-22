@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -130,8 +128,6 @@ public class LinkedAccountTO implements EntityTO {
         this.suspended = suspended;
     }
 
-    @JacksonXmlElementWrapper(localName = "plainAttrs")
-    @JacksonXmlProperty(localName = "plainAttr")
     public Set<Attr> getPlainAttrs() {
         return plainAttrs;
     }

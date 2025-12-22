@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,14 +61,10 @@ public class NotificationTO implements EntityTO {
         return abouts;
     }
 
-    @JacksonXmlElementWrapper(localName = "events")
-    @JacksonXmlProperty(localName = "event")
     public List<String> getEvents() {
         return events;
     }
 
-    @JacksonXmlElementWrapper(localName = "staticRecipients")
-    @JacksonXmlProperty(localName = "staticRecipient")
     public List<String> getStaticRecipients() {
         return staticRecipients;
     }

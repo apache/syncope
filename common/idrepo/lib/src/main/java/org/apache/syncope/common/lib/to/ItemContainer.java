@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +50,6 @@ public abstract class ItemContainer implements Serializable {
                 orElseGet(() -> getConnObjectKeyItem().map(items::remove).orElse(false));
     }
 
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
     public List<Item> getItems() {
         return items;
     }

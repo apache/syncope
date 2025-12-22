@@ -85,12 +85,6 @@ public class MultitenancyITCase extends AbstractITCase {
 
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 
-        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
-        if (StringUtils.isNotBlank(envContentType)) {
-            CLIENT_FACTORY.setContentType(envContentType);
-        }
-        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
-
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, "password2");
     }
 

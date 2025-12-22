@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -91,8 +89,6 @@ public class AuditEventTO implements EntityTO {
         this.before = before;
     }
 
-    @JacksonXmlElementWrapper(localName = "inputs")
-    @JacksonXmlProperty(localName = "input")
     public List<String> getInputs() {
         return inputs;
     }

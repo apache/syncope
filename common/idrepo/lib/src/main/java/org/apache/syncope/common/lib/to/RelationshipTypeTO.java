@@ -19,8 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +80,6 @@ public class RelationshipTypeTO implements TypeExtensionHolderTO, EntityTO {
                 typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "typeExtensions")
-    @JacksonXmlProperty(localName = "typeExtension")
     @Override
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;

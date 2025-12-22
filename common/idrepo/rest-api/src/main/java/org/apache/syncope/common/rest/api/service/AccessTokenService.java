@@ -66,7 +66,7 @@ public interface AccessTokenService extends JAXRSService {
     })
     @POST
     @Path("login")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response login();
 
     /**
@@ -88,7 +88,7 @@ public interface AccessTokenService extends JAXRSService {
                         description = "Expiration of the refreshed JWT") }))
     @POST
     @Path("refresh")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     Response refresh();
 
     /**
@@ -100,7 +100,7 @@ public interface AccessTokenService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("logout")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void logout();
 
     /**
@@ -113,8 +113,8 @@ public interface AccessTokenService extends JAXRSService {
         @SecurityRequirement(name = "BasicAuthentication"),
         @SecurityRequirement(name = "Bearer") })
     @GET
-    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON })
     PagedResult<AccessTokenTO> list(@BeanParam AccessTokenQuery query);
 
     /**
@@ -129,6 +129,6 @@ public interface AccessTokenService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void delete(@PathParam("key") String key);
 }

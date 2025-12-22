@@ -30,7 +30,6 @@ import jakarta.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.oidc.OIDCConstants;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for OpenID Connect Clients.
@@ -52,7 +51,7 @@ public interface OIDCC4UIService extends JAXRSService {
      */
     @POST
     @Path("loginRequest")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     OIDCRequest createLoginRequest(
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
             @QueryParam(OIDCConstants.OP) String op,
@@ -69,7 +68,7 @@ public interface OIDCC4UIService extends JAXRSService {
      */
     @POST
     @Path("login")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     OIDCLoginResponse login(
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
             @QueryParam("authorizationCode") String authorizationCode,
@@ -83,7 +82,7 @@ public interface OIDCC4UIService extends JAXRSService {
      */
     @POST
     @Path("logout")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     OIDCRequest createLogoutRequest(@QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI);
 
     /**
@@ -94,7 +93,7 @@ public interface OIDCC4UIService extends JAXRSService {
      */
     @POST
     @Path("backChannelLogout")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON })
     void backChannelLogout(
             @QueryParam(OIDCConstants.LOGOUT_TOKEN) String logoutToken,
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI);

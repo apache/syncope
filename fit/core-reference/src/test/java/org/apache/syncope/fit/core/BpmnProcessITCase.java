@@ -20,13 +20,10 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
@@ -39,7 +36,6 @@ public class BpmnProcessITCase extends AbstractITCase {
 
     @BeforeAll
     public static void findDefault() {
-        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
 
         BPMN_PROCESS_SERVICE.list().stream().
@@ -50,15 +46,12 @@ public class BpmnProcessITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
-        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
     }
 
     @Test
     public void exportUserWorkflowProcess() throws IOException {
         Response response = BPMN_PROCESS_SERVICE.get(USER_WORKFLOW_KEY);
-        assertTrue(response.getMediaType().toString().
-                startsWith(CLIENT_FACTORY.getContentType().getMediaType().toString()));
         String definition = response.readEntity(String.class);
         assertNotNull(definition);
         assertFalse(definition.isEmpty());

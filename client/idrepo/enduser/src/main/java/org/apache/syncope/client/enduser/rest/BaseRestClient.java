@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.rest;
 
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.net.URI;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -77,7 +78,7 @@ public abstract class BaseRestClient implements RestClient {
             final E service, final URI location, final Class<T> resultClass) {
 
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
-        webClient.accept(SyncopeEnduserSession.get().getMediaType()).to(location.toASCIIString(), false);
+        webClient.accept(MediaType.APPLICATION_JSON).to(location.toASCIIString(), false);
         return webClient.
                 header(RESTHeaders.DOMAIN, SyncopeEnduserSession.get().getDomain()).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + SyncopeEnduserSession.get().getJWT()).

@@ -41,5 +41,5 @@ jobs:
         maven-version: 3.9.6
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
-    - name: 'Elasticsearch / PostgreSQL / JSON'
+    - name: 'Elasticsearch / PostgreSQL'
       run: mvn -f fit/core-reference/pom.xml -P elasticsearch-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
