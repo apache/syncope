@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JPA validation listener implementing bean validation.
+ * JPA entity listener triggering bean validation.
  */
 public class EntityValidationListener {
 

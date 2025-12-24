@@ -32,12 +32,12 @@ import javax.cache.Cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -83,11 +83,11 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -97,9 +97,9 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         super(
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),
                 neo4jTemplate,
@@ -229,7 +229,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     protected <S extends AnyObject> Pair<S, GroupDAO.DynMembershipInfo> doSave(final S anyObject) {
-        checkBeforeSave(anyObject);
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
 
         // unlink any resource or aux class that was unlinked from anyObject
         // delete any membership or relationship that was removed from anyObject

@@ -32,6 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -39,10 +40,8 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -95,7 +94,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
@@ -103,6 +101,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder,
             final SecurityProperties securityProperties,
             final Neo4jTemplate neo4jTemplate,
@@ -113,9 +112,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         super(
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
@@ -226,14 +225,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
     }
 
-    @Override
-    protected <T extends Attributable> void checkBeforeSave(final T user) {
-        super.checkBeforeSave(user);
-        ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
-    }
-
     protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
-        checkBeforeSave(user);
+        anyChecker.checkBeforeSave(user, anyUtils);
+        user.getLinkedAccounts().forEach(account -> anyChecker.checkBeforeSave(account, anyUtils));
 
         // unlink any role, resource, aux class or security question that was unlinked from user
         // delete any membership, relationship or linked account that was removed from user

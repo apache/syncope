@@ -69,13 +69,14 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
                 flatMap(anyTypeDAO::findById).
                 orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getRightEndAnyType())));
 
-        update(relationshipType, relationshipTypeTO);
-
-        return relationshipType;
+        return update(relationshipType, relationshipTypeTO);
     }
 
     @Override
-    public void update(final RelationshipType relationshipType, final RelationshipTypeTO relationshipTypeTO) {
+    public RelationshipType update(
+            final RelationshipType relationshipType,
+            final RelationshipTypeTO relationshipTypeTO) {
+
         RelationshipType rt;
         if (relationshipType.getKey() == null) {
             relationshipType.setKey(relationshipTypeTO.getKey());
@@ -122,6 +123,8 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
         // remove all type extensions not contained in the TO
         rt.getTypeExtensions().
                 removeIf(typeExt -> relationshipTypeTO.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
+
+        return rt;
     }
 
     @Override

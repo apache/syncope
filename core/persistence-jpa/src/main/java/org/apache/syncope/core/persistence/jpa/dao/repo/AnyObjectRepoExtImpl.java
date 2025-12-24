@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -68,16 +67,16 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
                 dynRealmDAO,
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
@@ -180,9 +179,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     protected Pair<AnyObject, GroupDAO.DynMembershipInfo> doSave(final AnyObject anyObject) {
         AnyObject merged = entityManager.merge(anyObject);
 
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
-
         GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
@@ -192,13 +188,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
         return (S) doSave(anyObject).getLeft();
     }
 
     @Override
     public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
         return doSave(anyObject).getRight();
     }
 

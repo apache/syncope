@@ -72,7 +72,7 @@ public class JPAAnyObject
     @Convert(converter = PlainAttrListConverter.class)
     private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =

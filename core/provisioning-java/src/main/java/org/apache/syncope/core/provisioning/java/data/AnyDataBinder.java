@@ -51,6 +51,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -175,6 +176,8 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
     protected final RelationshipTypeDAO relationshipTypeDAO;
 
+    protected final AnyChecker anyChecker;
+
     protected final EntityFactory entityFactory;
 
     protected final AnyUtilsFactory anyUtilsFactory;
@@ -191,6 +194,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
@@ -209,6 +213,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         this.groupDAO = groupDAO;
         this.resourceDAO = resourceDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
+        this.anyChecker = anyChecker;
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
         this.outboundMatcher = outboundMatcher;
@@ -314,11 +319,11 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         return reqValMissing;
     }
 
-    protected SyncopeClientException checkMandatory(final Any any, final AnyUtils anyUtils) {
+    protected SyncopeClientException checkMandatory(final Any any) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
-        AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
+        AllowedSchemas<PlainSchema> allowedPlainSchemas = anyChecker.findAllowedSchemas(any, PlainSchema.class);
         allowedPlainSchemas.self().forEach(schema -> checkMandatory(
                 schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
         if (any instanceof Groupable<?, ?, ?> groupable) {
@@ -522,7 +527,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             scce.addException(invalidValues);
         }
 
-        SyncopeClientException reqValMissing = checkMandatory(any, anyUtils);
+        SyncopeClientException reqValMissing = checkMandatory(any);
         if (!reqValMissing.isEmpty()) {
             scce.addException(reqValMissing);
         }
@@ -663,7 +668,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             scce.addException(invalidValues);
         }
 
-        SyncopeClientException requiredValuesMissing = checkMandatory(any, anyUtils);
+        SyncopeClientException requiredValuesMissing = checkMandatory(any);
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }

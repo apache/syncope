@@ -134,7 +134,7 @@ public class JPAUser
     /**
      * Provisioning external resources.
      */
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =

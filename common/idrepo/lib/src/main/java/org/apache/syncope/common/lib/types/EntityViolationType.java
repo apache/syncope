@@ -53,24 +53,27 @@ public enum EntityViolationType {
 
     private Object invalidValue;
 
-    public void setMessage(final String message) {
+    public EntityViolationType message(final String message) {
         this.message = message;
+        return this;
     }
 
     public String getMessage() {
         return message;
     }
 
+    public EntityViolationType propertyPath(final String propertyPath) {
+        this.propertyPath = propertyPath;
+        return this;
+    }
+
     public String getPropertyPath() {
         return propertyPath;
     }
 
-    public void setPropertyPath(final String propertyPath) {
-        this.propertyPath = propertyPath;
-    }
-
-    public void setInvalidValue(final Object invalidValue) {
+    public EntityViolationType invalidValue(final Object invalidValue) {
         this.invalidValue = invalidValue;
+        return this;
     }
 
     public Object getInvalidValue() {

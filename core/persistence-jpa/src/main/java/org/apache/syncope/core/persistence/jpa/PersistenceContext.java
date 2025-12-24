@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -354,6 +355,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
+        return new AnyChecker(plainSchemaDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
         return new AnyFinder(plainSchemaDAO, anySearchDAO);
     }
@@ -392,19 +399,19 @@ public class PersistenceContext {
     public AnyObjectRepoExt anyObjectRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new AnyObjectRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
-                plainSchemaDAO,
                 userDAO,
                 groupDAO,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 
@@ -642,7 +649,6 @@ public class PersistenceContext {
             final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final @Lazy UserDAO userDAO,
@@ -650,13 +656,13 @@ public class PersistenceContext {
             final AnySearchDAO anySearchDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
                 publisher,
                 dynRealmDAO,
-                plainSchemaDAO,
                 realmDAO,
                 anyMatchDAO,
                 userDAO,
@@ -664,6 +670,7 @@ public class PersistenceContext {
                 anySearchDAO,
                 searchCondVisitor,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 
@@ -980,19 +987,18 @@ public class PersistenceContext {
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new UserRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
-                plainSchemaDAO,
                 roleDAO,
                 accessTokenDAO,
                 groupDAO,
@@ -1000,6 +1006,7 @@ public class PersistenceContext {
                 fiqlQueryDAO,
                 securityProperties,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 

@@ -63,13 +63,11 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
     @Override
     public AnyTypeClass create(final AnyTypeClassTO anyTypeClassTO) {
-        AnyTypeClass anyTypeClass = entityFactory.newEntity(AnyTypeClass.class);
-        update(anyTypeClass, anyTypeClassTO);
-        return anyTypeClass;
+        return update(entityFactory.newEntity(AnyTypeClass.class), anyTypeClassTO);
     }
 
     @Override
-    public void update(final AnyTypeClass anyTypeClass, final AnyTypeClassTO anyTypeClassTO) {
+    public AnyTypeClass update(final AnyTypeClass anyTypeClass, final AnyTypeClassTO anyTypeClassTO) {
         AnyTypeClass atc;
         if (anyTypeClass.getKey() == null) {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
@@ -111,6 +109,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 derSchemaDAO.save(schema);
             }
         });
+
+        return atc;
     }
 
     @Override

@@ -25,7 +25,7 @@ public interface AnyTypeClassDataBinder {
 
     AnyTypeClass create(AnyTypeClassTO anyTypeClassTO);
 
-    void update(AnyTypeClass anyTypeClass, AnyTypeClassTO anyTypeClassTO);
+    AnyTypeClass update(AnyTypeClass anyTypeClass, AnyTypeClassTO anyTypeClassTO);
 
     AnyTypeClassTO getAnyTypeClassTO(AnyTypeClass anyTypeClass);
 }

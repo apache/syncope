@@ -238,9 +238,6 @@ public class JPARealmDAO implements RealmDAO {
 
         S merged = entityManager.merge(realm);
 
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
-
         if (!fullPathAfter.equals(fullPathBefore)) {
             realmSearchDAO.findChildren(realm).forEach(this::save);
         }

@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
@@ -45,12 +45,12 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    protected final AnyUtilsFactory anyUtilsFactory;
+    protected final AnyChecker anyChecker;
 
     protected final JexlTools jexlTools;
 
-    public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
-        this.anyUtilsFactory = anyUtilsFactory;
+    public DefaultDerAttrHandler(final AnyChecker anyChecker, final JexlTools jexlTools) {
+        this.anyChecker = anyChecker;
         this.jexlTools = jexlTools;
     }
 
@@ -84,7 +84,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Any any, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).selfContains(schema)) {
+        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).selfContains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
         }
@@ -94,8 +94,8 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Any any, final Membership<?> membership, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).membershipsContains(membership.getRightEnd(), schema)) {
+        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).
+                membershipsContains(membership.getRightEnd(), schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
@@ -116,13 +116,13 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     public Map<DerSchema, String> getValues(final Any any) {
         return getValues(
                 any,
-                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).self());
+                anyChecker.findAllowedSchemas(any, DerSchema.class).self());
     }
 
     @Override
     public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
-        Set<DerSchema> schemas = anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).membership(membership.getRightEnd());
+        Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
+                membership(membership.getRightEnd());
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
@@ -139,8 +139,8 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Any any, final Relationship<?, ?> relationship, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).relationshipTypesContains(relationship.getType(), schema)) {
+        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).
+                relationshipTypesContains(relationship.getType(), schema)) {
 
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
@@ -151,8 +151,8 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public Map<DerSchema, String> getValues(final Relatable<?, ?> any, final Relationship<?, ?> relationship) {
-        Set<DerSchema> schemas = anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).relationshipType(relationship.getType());
+        Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
+                relationshipType(relationship.getType());
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {

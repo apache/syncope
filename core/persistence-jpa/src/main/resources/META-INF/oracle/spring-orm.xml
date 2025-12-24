@@ -27,10 +27,7 @@ under the License.
     <persistence-unit-defaults>
       <access>FIELD</access>
       <entity-listeners>
-        <entity-listener class="org.apache.syncope.core.persistence.jpa.entity.EntityValidationListener">
-          <pre-persist method-name="validate"/>
-          <pre-update method-name="validate"/>
-        </entity-listener>
+        <entity-listener class="org.apache.syncope.core.persistence.jpa.entity.EntityValidationListener"/>
       </entity-listeners>
     </persistence-unit-defaults>
   </persistence-unit-metadata>

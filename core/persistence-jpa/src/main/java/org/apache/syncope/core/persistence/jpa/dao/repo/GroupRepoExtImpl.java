@@ -31,13 +31,13 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -94,7 +93,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
             final DynRealmDAO dynRealmDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
@@ -102,12 +100,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnySearchDAO searchDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
                 dynRealmDAO,
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
@@ -237,7 +236,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
-        checkBeforeSave((JPAGroup) group);
+        anyChecker.checkBeforeSave(group, anyUtils);
         return entityManager.merge(group);
     }
 

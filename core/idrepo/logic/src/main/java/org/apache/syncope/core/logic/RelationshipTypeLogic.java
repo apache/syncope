@@ -83,8 +83,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         RelationshipType relationshipType = relationshipTypeDAO.findById(relationshipTypeTO.getKey()).
                 orElseThrow(() -> new NotFoundException("RelationshipType " + relationshipTypeTO.getKey()));
 
-        binder.update(relationshipType, relationshipTypeTO);
-        relationshipType = relationshipTypeDAO.save(relationshipType);
+        relationshipType = relationshipTypeDAO.save(binder.update(relationshipType, relationshipTypeTO));
 
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, relationshipType, AuthContextUtils.getDomain()));

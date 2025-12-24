@@ -429,9 +429,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         retryTemplate = new RetryTemplate();
 
-        RetryPolicy.Builder builder = RetryPolicy.builder();
-        builder.maxRetries(resource.getPropagationPolicy().getMaxAttempts());
-
         String[] params = resource.getPropagationPolicy().getBackOffParams().split(";");
 
         BackOff backOff = null;
@@ -439,6 +436,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             case EXPONENTIAL:
             case RANDOM:
                 backOff = new ExponentialBackOff();
+                ((ExponentialBackOff) backOff).setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
                 if (params.length > 0) {
                     try {
                         ((ExponentialBackOff) backOff).setInitialInterval(Long.parseLong(params[0]));
@@ -470,6 +468,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 if (params.length > 0) {
                     try {
                         backOff = new FixedBackOff(Long.parseLong(params[0]));
+                        ((FixedBackOff) backOff).setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
                     } catch (NumberFormatException e) {
                         LOG.error("Could not convert to long: {}", params[0], e);
                     }
@@ -477,6 +476,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
         }
 
+        RetryPolicy.Builder builder = RetryPolicy.builder();
         Optional.ofNullable(backOff).ifPresent(builder::backOff);
         retryTemplate.setRetryPolicy(builder.build());
         retryTemplates.put(resource.getKey(), retryTemplate);

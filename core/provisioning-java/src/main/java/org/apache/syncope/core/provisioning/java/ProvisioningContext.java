@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -391,8 +392,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
-        return new DefaultDerAttrHandler(anyUtilsFactory, jexlTools);
+    public DerAttrHandler derAttrHandler(final AnyChecker anyChecker, final JexlTools jexlTools) {
+        return new DefaultDerAttrHandler(anyChecker, jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -728,6 +729,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -745,6 +747,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
@@ -883,6 +886,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -900,6 +904,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
@@ -1142,6 +1147,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -1164,6 +1170,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
