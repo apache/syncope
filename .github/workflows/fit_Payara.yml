@@ -42,5 +42,4 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
     - name: 'Payara / PostgreSQL'
->>>>>>> upstream/master
       run: mvn -f fit/core-reference/pom.xml -P payara-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

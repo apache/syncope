@@ -187,7 +187,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @SuppressWarnings("unchecked")
     @Override
     public <S extends User> S save(final S user) {
-        return (S) doSave(checkBeforeSave(user)).getLeft();
+        return (S) doSave(checkBeforeSave(entityManager.merge(user))).getLeft();
     }
 
     @Override

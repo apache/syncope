@@ -62,5 +62,4 @@ public class DynRealmServiceImpl extends AbstractService implements DynRealmServ
     public void delete(final String key) {
         logic.delete(key);
     }
-
 }
