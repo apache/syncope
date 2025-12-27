@@ -1214,6 +1214,10 @@ under the License.
     <profile>
       <id>payara-it</id>
 
+      <properties>
+        <spring.profiles.active>embedded,payara</spring.profiles.active>
+      </properties>
+
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
