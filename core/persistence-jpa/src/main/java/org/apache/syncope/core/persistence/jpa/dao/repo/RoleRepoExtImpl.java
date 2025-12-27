@@ -69,14 +69,8 @@ public class RoleRepoExtImpl implements RoleRepoExt {
     }
 
     @Override
-    public Role save(final Role role) {
-        ((JPARole) role).list2json();
-        return entityManager.merge(role);
-    }
-
-    @Override
     public Role saveAndRefreshDynMemberships(final Role role) {
-        Role merged = save(role);
+        Role merged = entityManager.merge(role);
 
         // refresh dynamic memberships
         clearDynMembers(merged);

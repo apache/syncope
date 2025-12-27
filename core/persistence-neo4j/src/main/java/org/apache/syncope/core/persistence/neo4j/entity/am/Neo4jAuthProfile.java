@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,10 @@ import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jAuthProfile.NODE)
 public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthProfile {
@@ -63,15 +65,30 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
     @NotNull
     private String owner;
 
-    private String impersonationAccounts;
-
     private String googleMfaAuthAccounts;
+
+    @Transient
+    private List<GoogleMfaAuthAccount> googleMfaAuthAccountsList = new ArrayList<>();
 
     private String googleMfaAuthTokens;
 
+    @Transient
+    private List<GoogleMfaAuthToken> googleMfaAuthTokensList = new ArrayList<>();
+
     private String mfaTrustedDevices;
 
+    @Transient
+    private List<MfaTrustedDevice> mfaTrustedDevicesList = new ArrayList<>();
+
+    private String impersonationAccounts;
+
+    @Transient
+    private List<ImpersonationAccount> impersonationAccountsList = new ArrayList<>();
+
     private String webAuthnDeviceCredentials;
+
+    @Transient
+    private List<WebAuthnDeviceCredential> webAuthnDeviceCredentialsList = new ArrayList<>();
 
     @Override
     public String getOwner() {
@@ -84,57 +101,89 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
     }
 
     @Override
-    public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
-        return Optional.ofNullable(googleMfaAuthTokens).
-                map(v -> POJOHelper.deserialize(v, GOOGLE_MFA_TOKENS_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+    public boolean add(final GoogleMfaAuthToken googleMfaAuthToken) {
+        return googleMfaAuthTokensList.add(googleMfaAuthToken);
     }
 
     @Override
-    public void setGoogleMfaAuthTokens(final List<GoogleMfaAuthToken> tokens) {
-        googleMfaAuthTokens = POJOHelper.serialize(tokens);
+    public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
+        return googleMfaAuthTokensList;
+    }
+
+    @Override
+    public boolean add(final GoogleMfaAuthAccount googleMfaAuthAccount) {
+        return googleMfaAuthAccountsList.add(googleMfaAuthAccount);
     }
 
     @Override
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
-        return Optional.ofNullable(googleMfaAuthAccounts).
-                map(v -> POJOHelper.deserialize(v, GOOGLE_MFA_ACCOUNTS_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+        return googleMfaAuthAccountsList;
     }
 
     @Override
-    public void setGoogleMfaAuthAccounts(final List<GoogleMfaAuthAccount> accounts) {
-        googleMfaAuthAccounts = POJOHelper.serialize(accounts);
+    public boolean add(final MfaTrustedDevice mfaTrustedDevice) {
+        return mfaTrustedDevicesList.add(mfaTrustedDevice);
     }
 
     @Override
     public List<MfaTrustedDevice> getMfaTrustedDevices() {
-        return Optional.ofNullable(mfaTrustedDevices).
-                map(v -> POJOHelper.deserialize(v, MFA_TRUSTED_DEVICE_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+        return mfaTrustedDevicesList;
     }
 
     @Override
-    public void setMfaTrustedDevices(final List<MfaTrustedDevice> devices) {
-        mfaTrustedDevices = POJOHelper.serialize(devices);
+    public boolean add(final ImpersonationAccount impersonationAccount) {
+        return impersonationAccountsList.add(impersonationAccount);
     }
 
     @Override
     public List<ImpersonationAccount> getImpersonationAccounts() {
-        return Optional.ofNullable(impersonationAccounts).
-                map(v -> POJOHelper.deserialize(v, IMPERSONATION_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+        return impersonationAccountsList;
     }
 
     @Override
-    public void setImpersonationAccounts(final List<ImpersonationAccount> accounts) {
-        impersonationAccounts = POJOHelper.serialize(accounts);
+    public boolean add(final WebAuthnDeviceCredential webAuthnDeviceCredential) {
+        return webAuthnDeviceCredentialsList.add(webAuthnDeviceCredential);
     }
 
     @Override
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
-        return Optional.ofNullable(webAuthnDeviceCredentials).
-                map(v -> POJOHelper.deserialize(v, WEBAUTHN_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+        return webAuthnDeviceCredentialsList;
     }
 
-    @Override
-    public void setWebAuthnDeviceCredentials(final List<WebAuthnDeviceCredential> credentials) {
-        webAuthnDeviceCredentials = POJOHelper.serialize(credentials);
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getGoogleMfaAuthTokens().clear();
+            getGoogleMfaAuthAccounts().clear();
+            getMfaTrustedDevices().clear();
+            getImpersonationAccounts().clear();
+            getWebAuthnDeviceCredentials().clear();
+        }
+        Optional.ofNullable(googleMfaAuthTokens).ifPresent(v -> getGoogleMfaAuthTokens().
+                addAll(POJOHelper.deserialize(v, GOOGLE_MFA_TOKENS_TYPEREF)));
+        Optional.ofNullable(googleMfaAuthAccounts).ifPresent(v -> getGoogleMfaAuthAccounts().
+                addAll(POJOHelper.deserialize(v, GOOGLE_MFA_ACCOUNTS_TYPEREF)));
+        Optional.ofNullable(mfaTrustedDevices).ifPresent(v -> getMfaTrustedDevices().
+                addAll(POJOHelper.deserialize(v, MFA_TRUSTED_DEVICE_TYPEREF)));
+        Optional.ofNullable(impersonationAccounts).ifPresent(v -> getImpersonationAccounts().
+                addAll(POJOHelper.deserialize(v, IMPERSONATION_TYPEREF)));
+        Optional.ofNullable(webAuthnDeviceCredentials).ifPresent(v -> getWebAuthnDeviceCredentials().
+                addAll(POJOHelper.deserialize(v, WEBAUTHN_TYPEREF)));
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    public void postSave() {
+        json2list(true);
+    }
+
+    public void list2json() {
+        googleMfaAuthTokens = POJOHelper.serialize(getGoogleMfaAuthTokens());
+        googleMfaAuthAccounts = POJOHelper.serialize(getGoogleMfaAuthAccounts());
+        mfaTrustedDevices = POJOHelper.serialize(getMfaTrustedDevices());
+        impersonationAccounts = POJOHelper.serialize(getImpersonationAccounts());
+        webAuthnDeviceCredentials = POJOHelper.serialize(getWebAuthnDeviceCredentials());
     }
 }

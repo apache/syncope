@@ -123,7 +123,7 @@ public class GroupTest extends AbstractTest {
 
         assertEquals(
                 memberships.stream().map(m -> m.getLeftEnd().getKey()).collect(Collectors.toSet()),
-            new HashSet<>(groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806")));
+                new HashSet<>(groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806")));
 
         assertTrue(groupDAO.existsUMembership(
                 "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "37d15e4c-cdc1-460b-a591-8505c8133806"));
@@ -139,19 +139,17 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void saveWithTwoOwners() {
-        assertThrows(InvalidEntityException.class, () -> {
-            Group root = groupDAO.findByName("root").orElseThrow();
+        Group root = groupDAO.findByName("root").orElseThrow();
 
-            User user = userDAO.findByUsername("rossini").orElseThrow();
+        User user = userDAO.findByUsername("rossini").orElseThrow();
 
-            Group group = entityFactory.newEntity(Group.class);
-            group.setRealm(realmDAO.getRoot());
-            group.setName("error");
-            group.setUserOwner(user);
-            group.setGroupOwner(root);
+        Group group = entityFactory.newEntity(Group.class);
+        group.setRealm(realmDAO.getRoot());
+        group.setName("error");
+        group.setUserOwner(user);
+        group.setGroupOwner(root);
 
-            groupDAO.save(group);
-        });
+        assertThrows(InvalidEntityException.class, () -> groupDAO.save(group));
     }
 
     @Test
@@ -446,7 +444,7 @@ public class GroupTest extends AbstractTest {
         group = groupDAO.findByName("root").orElseThrow();
         assertEquals(1, group.getRelationships().size());
         assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
-            group.getRelationships().getFirst().getRightEnd().getKey());
+                group.getRelationships().getFirst().getRightEnd().getKey());
     }
 
     @Test

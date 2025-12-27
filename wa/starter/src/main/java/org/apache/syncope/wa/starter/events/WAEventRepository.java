@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.wa.starter.events;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -27,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.service.AuditService;
@@ -36,12 +35,14 @@ import org.apereo.cas.support.events.dao.AbstractCasEventRepository;
 import org.apereo.cas.support.events.dao.CasEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class WAEventRepository extends AbstractCasEventRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(WAEventRepository.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     private final WARestClient waRestClient;
 
@@ -95,7 +96,7 @@ public class WAEventRepository extends AbstractCasEventRepository {
                     OpEvent.Outcome.SUCCESS);
             auditEvent.setOpEvent(opEvent);
             waRestClient.getService(AuditService.class).create(auditEvent);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             LOG.error("During serialization", e);
         }
         return event;

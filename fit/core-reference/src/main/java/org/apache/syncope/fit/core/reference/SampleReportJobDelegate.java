@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -35,6 +31,10 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
 import org.apache.syncope.core.provisioning.java.job.report.AbstractReportJobDelegate;
 import org.springframework.http.MediaType;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.dataformat.csv.CsvMapper;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 @ReportConfClass(SampleReportConf.class)
 public class SampleReportJobDelegate extends AbstractReportJobDelegate {
@@ -82,8 +82,7 @@ public class SampleReportJobDelegate extends AbstractReportJobDelegate {
     }
 
     private void generateSampleCsvContent(final OutputStream os) throws IOException {
-        CsvMapper mapper = new CsvMapper();
-        mapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
+        CsvMapper mapper = CsvMapper.builder().configure(StreamWriteFeature.IGNORE_UNKNOWN, true).build();
 
         CsvSchema schema = CsvSchema.builder().
                 setUseHeader(true).

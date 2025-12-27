@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -113,6 +114,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
@@ -137,6 +139,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,

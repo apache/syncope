@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.sra.filters;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +41,8 @@ import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Inspired by {@link org.springframework.cloud.gateway.filter.factory.rewrite.ModifyResponseBodyGatewayFilterFactory}.
@@ -118,7 +118,7 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
                             content.put(kv[0], kv[1]);
 
                             output = MAPPER.writeValueAsBytes(content);
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             LOG.error("While (de)serializing as JSON", e);
                             output = ArrayUtils.clone(input);
                         } finally {

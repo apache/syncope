@@ -25,9 +25,7 @@ import jakarta.persistence.MappedSuperclass;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.common.validation.AnyCheck;
 
-@AnyCheck
 @MappedSuperclass
 public abstract class AbstractAny extends AbstractAttributable implements Any {
 

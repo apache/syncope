@@ -22,9 +22,12 @@ import jakarta.persistence.Cache;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnitTransactionType;
 import jakarta.persistence.PersistenceUnitUtil;
 import jakarta.persistence.Query;
+import jakarta.persistence.SchemaManager;
 import jakarta.persistence.SynchronizationType;
+import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 import java.io.Closeable;
@@ -32,15 +35,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable {
 
@@ -56,25 +63,20 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected void addToJpaPropertyMap(
             final DomainEntityManagerFactoryBean emf,
-            final OpenJpaVendorAdapter vendorAdapter,
-            final String dbSchema,
-            final String orm,
-            final String metadataFactory) {
+            final JpaVendorAdapter vendorAdapter,
+            final String dbSchema) {
 
         emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
 
         Optional.ofNullable(dbSchema).
-                ifPresent(s -> emf.getJpaPropertyMap().put("openjpa.jdbc.Schema", s));
-
-        Optional.ofNullable(metadataFactory).
-                ifPresent(m -> emf.getJpaPropertyMap().put("openjpa.MetaDataFactory", m.replace("##orm##", orm)));
+                ifPresent(s -> emf.getJpaPropertyMap().put("hibernate.default_schema", s));
     }
 
     public void master(
             final PersistenceProperties props,
             final JndiObjectFactoryBean dataSource) {
 
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(props.getDomain().getFirst().getDatabasePlatform());
@@ -86,14 +88,12 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
+                new ConnectorManagerRemoteCommitListener(this, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
                 vendorAdapter,
-                props.getDomain().getFirst().getDbSchema(),
-                props.getDomain().getFirst().getOrm(),
-                props.getMetaDataFactory());
+                props.getDomain().getFirst().getDbSchema());
 
         emf.afterPropertiesSet();
 
@@ -102,10 +102,9 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     public void domain(
             final JPADomain domain,
-            final DataSource dataSource,
-            final String metadataFactory) {
+            final DataSource dataSource) {
 
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
+        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
@@ -116,9 +115,9 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
+        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(this, domain.getKey()));
 
-        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm(), metadataFactory);
+        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema());
 
         emf.afterPropertiesSet();
 
@@ -215,5 +214,40 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     @Override
     public <T> void addNamedEntityGraph(final String graphName, final EntityGraph<T> entityGraph) {
         delegate().addNamedEntityGraph(graphName, entityGraph);
+    }
+
+    @Override
+    public String getName() {
+        return delegate().getName();
+    }
+
+    @Override
+    public PersistenceUnitTransactionType getTransactionType() {
+        return delegate().getTransactionType();
+    }
+
+    @Override
+    public SchemaManager getSchemaManager() {
+        return delegate().getSchemaManager();
+    }
+
+    @Override
+    public <R> Map<String, TypedQueryReference<R>> getNamedQueries(final Class<R> type) {
+        return delegate().getNamedQueries(type);
+    }
+
+    @Override
+    public <E> Map<String, EntityGraph<? extends E>> getNamedEntityGraphs(final Class<E> type) {
+        return delegate().getNamedEntityGraphs(type);
+    }
+
+    @Override
+    public void runInTransaction(final Consumer<EntityManager> cnsmr) {
+        delegate().runInTransaction(cnsmr);
+    }
+
+    @Override
+    public <R> R callInTransaction(final Function<EntityManager, R> fnctn) {
+        return delegate().callInTransaction(fnctn);
     }
 }

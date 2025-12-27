@@ -19,12 +19,10 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.json.jackson.Jackson3JsonpMapper;
 import co.elastic.clients.transport.rest5_client.Rest5ClientTransport;
 import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
 import co.elastic.clients.transport.rest5_client.low_level.Rest5ClientBuilder;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -34,6 +32,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Spring {@link FactoryBean} for getting the {@link ElasticsearchClient} singleton instance.
@@ -115,8 +114,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
                 restClient = builder.build();
                 client = new ElasticsearchClient(new Rest5ClientTransport(
                         restClient,
-                        new JacksonJsonpMapper(JsonMapper.builder().
-                                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build())));
+                        new Jackson3JsonpMapper(JsonMapper.builder().findAndAddModules().build())));
             }
         }
         return client;
