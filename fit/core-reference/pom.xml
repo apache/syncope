@@ -69,11 +69,6 @@ under the License.
       <artifactId>syncope-core-self-keymaster-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-metrics-starter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
@@ -1336,6 +1331,10 @@ under the License.
               <groupId>org.springframework.boot</groupId>
               <artifactId>spring-boot-starter-tomcat</artifactId>
             </exclusion>
+            <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-micrometer-metrics</artifactId>
+            </exclusion>
           </exclusions>
         </dependency>
 
@@ -1395,7 +1394,7 @@ under the License.
               <container>
                 <containerId>wildfly38x</containerId>
                 <zipUrlInstaller>
-                  <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
+                  <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-preview-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1797,6 +1796,12 @@ under the License.
       </properties>
 
       <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-metrics-starter</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
         <dependency>
           <groupId>org.apache.syncope.ext.flowable</groupId>
           <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
