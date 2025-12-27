@@ -1102,6 +1102,15 @@ under the License.
         </dependency>
 
         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-jdbc</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-hibernate</artifactId>
+        </dependency>
+
+        <dependency>
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-persistence-neo4j</artifactId>
           <version>${project.version}</version>
