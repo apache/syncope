@@ -265,15 +265,16 @@ public class UserTest extends AbstractTest {
         user.add(attr);
 
         InvalidEntityException iee = assertThrows(InvalidEntityException.class, () -> userDAO.save(user));
+        assertTrue(iee.getMessage().contains("propertyPath=username"));
+
+        user.setUsername("username");
+
+        iee = assertThrows(InvalidEntityException.class, () -> userDAO.save(user));
         assertTrue(iee.getMessage().contains("message=title not allowed for this instance, propertyPath=plainAttrs"));
 
         user.add(anyTypeClassDAO.findById("minimal group").orElseThrow());
         assertEquals("minimal group", user.getAuxClasses().getFirst().getKey());
 
-        iee = assertThrows(InvalidEntityException.class, () -> userDAO.save(user));
-        assertTrue(iee.getMessage().contains("propertyPath=username"));
-
-        user.setUsername("username");
         assertDoesNotThrow(() -> userDAO.save(user));
     }
 
