@@ -28,9 +28,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -42,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSinglePushExecutor {
 
@@ -85,6 +84,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ProvisioningReport> push(
             final ExternalResource resource,
@@ -96,14 +96,11 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
         try {
             before(resource, connector, pushTaskTO, executor);
-            dispatcher = new PushResultHandlerDispatcher(profile, this);
-
-            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
-                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
+            dispatcher = buildDispatcher();
 
             dispatcher.addHandlerSupplier(provision.getAnyType(), () -> {
                 SyncopePushResultHandler handler;
-                switch (anyType.getKind()) {
+                switch (any.getType().getKind()) {
                     case USER:
                         handler = buildUserHandler();
                         break;
@@ -134,6 +131,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ProvisioningReport push(
             final ExternalResource resource,

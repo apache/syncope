@@ -59,7 +59,6 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultRealmPushResultHandler
@@ -107,12 +106,10 @@ public class DefaultRealmPushResultHandler
     @Autowired
     private SyncopeTaskScheduler scheduler;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true)
     @Override
-    public boolean handle(final String realmKey) {
-        Realm realm = null;
+    public boolean handle(final Realm realm) {
         try {
-            realm = realmDAO.findById(realmKey).orElseThrow(() -> new NotFoundException("Realm " + realmKey));
             doHandle(realm);
 
             if (stopRequested) {
@@ -126,7 +123,7 @@ public class DefaultRealmPushResultHandler
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(realm == null ? null : SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.IGNORE);
-            result.setKey(realmKey);
+            result.setKey(realm.getKey());
             profile.getResults().add(result);
 
             LOG.warn("Ignoring during push", e);

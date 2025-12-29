@@ -78,7 +78,7 @@ public class PullJobDelegate
                 executor,
                 context.isDryRun());
 
-        dispatcher = new PullResultHandlerDispatcher(profile, this);
+        dispatcher = buildDispatcher();
     }
 
     @Override

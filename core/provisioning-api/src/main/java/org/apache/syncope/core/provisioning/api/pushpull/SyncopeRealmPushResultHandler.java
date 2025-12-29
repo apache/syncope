@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface SyncopePushResultHandler extends SyncopeResultHandler<PushTask, PushActions> {
+public interface SyncopeRealmPushResultHandler extends SyncopePushResultHandler {
+
+    boolean handle(Realm realm);
 }

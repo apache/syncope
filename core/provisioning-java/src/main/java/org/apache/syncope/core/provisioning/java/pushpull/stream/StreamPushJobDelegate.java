@@ -46,7 +46,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushResultHandlerDispatcher;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -149,7 +148,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
                     executor,
                     false);
 
-            dispatcher = new PushResultHandlerDispatcher(profile, this);
+            dispatcher = buildDispatcher();
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);

@@ -112,7 +112,7 @@ public class PushJobDelegate
         boolean result = true;
         for (int i = 0; i < anys.size() && result; i++) {
             try {
-                result = dispatcher.handle(anys.get(i).getType().getKey(), anys.get(i).getKey());
+                result = dispatcher.handle(anys.get(i));
             } catch (Exception e) {
                 LOG.warn("Failure pushing '{}' on '{}'", anys.get(i), resource, e);
                 throw new JobExecutionException("While pushing " + anys.get(i) + " on " + resource, e);
@@ -179,11 +179,16 @@ public class PushJobDelegate
         Optional.ofNullable(dispatcher).ifPresent(PushResultHandlerDispatcher::stop);
     }
 
+    protected PushResultHandlerDispatcher buildDispatcher() {
+        return ApplicationContextProvider.getBeanFactory().createBean(PushResultHandlerDispatcher.class).
+                init(profile, this);
+    }
+
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Executing push on {}", task.getResource());
 
-        dispatcher = new PushResultHandlerDispatcher(profile, this);
+        dispatcher = buildDispatcher();
 
         if (!profile.isDryRun()) {
             for (PushActions action : profile.getActions()) {
@@ -210,7 +215,7 @@ public class PushJobDelegate
             boolean result = true;
             for (int i = 0; i < realms.size() && result; i++) {
                 try {
-                    result = dispatcher.handle(SyncopeConstants.REALM_ANYTYPE, realms.get(i).getKey());
+                    result = dispatcher.handle(realms.get(i));
                 } catch (Exception e) {
                     LOG.warn("Failure pushing '{}' on '{}'", realms.get(i), task.getResource(), e);
                     throw new JobExecutionException(
