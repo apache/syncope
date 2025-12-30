@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.keymaster;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
+import tools.jackson.databind.JsonNode;
 
 public interface ConfParam extends ProvidedKeyEntity {
 

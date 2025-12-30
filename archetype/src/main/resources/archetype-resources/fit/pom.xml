@@ -448,7 +448,6 @@ under the License.
                       <DB_PASSWORD>syncope</DB_PASSWORD>
                       <DB_POOL_MAX>20</DB_POOL_MAX>
                       <DB_POOL_MIN>5</DB_POOL_MIN>
-                      <OPENJPA_REMOTE_COMMIT>sjvm</OPENJPA_REMOTE_COMMIT>
                       <SERVICE_DISCOVERY_ADDRESS>http://syncope:8080/syncope/rest/</SERVICE_DISCOVERY_ADDRESS>
                       <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
                       <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>

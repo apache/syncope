@@ -37,14 +37,14 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public List<PlainAttr> getPlainAttrs() {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> attr.getMembership() == null && attr.getRelationship() == null).
                 toList();
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> attr.getMembership() == null && attr.getRelationship() == null
                 && plainSchema.equals(attr.getSchema())).
                 findFirst();
@@ -52,7 +52,7 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> plainSchema.equals(attr.getSchema())
                 && membership.getKey().equals(attr.getMembership())).
                 findFirst();
@@ -60,7 +60,7 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public List<PlainAttr> getPlainAttrs(final Membership<?> membership) {
-        return getPlainAttrsList().stream().
+        return plainAttrs().stream().
                 filter(attr -> membership.getKey().equals(attr.getMembership())).
                 toList();
     }

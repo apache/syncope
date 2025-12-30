@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security.jws;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
@@ -44,6 +43,8 @@ import javax.cache.integration.CacheLoader;
 import javax.cache.integration.CacheLoaderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class MSEntraJWSVerifierCacheLoader implements CacheLoader<String, JWSVerifier> {
 
@@ -69,8 +70,8 @@ public class MSEntraJWSVerifierCacheLoader implements CacheLoader<String, JWSVer
 
     protected String extractJwksUri(final String openIdMetadataDocument) {
         try {
-            return MAPPER.readTree(openIdMetadataDocument).get("jwks_uri").asText();
-        } catch (IOException e) {
+            return MAPPER.readTree(openIdMetadataDocument).get("jwks_uri").asString();
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Extracting value of 'jwks_url' key from OpenID Metadata JSON "
                     + "document for Microsoft Entra failed:", e);
         }

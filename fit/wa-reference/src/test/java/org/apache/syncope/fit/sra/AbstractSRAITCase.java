@@ -27,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -61,6 +58,9 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 abstract class AbstractSRAITCase extends AbstractITCase {
 
@@ -246,21 +246,21 @@ abstract class AbstractSRAITCase extends AbstractITCase {
         JsonNode json = MAPPER.readTree(EntityUtils.toString(response.getEntity()));
 
         ObjectNode args = (ObjectNode) json.get("args");
-        assertEquals("value1", args.get("key1").asText());
+        assertEquals("value1", args.get("key1").asString());
 
         ArrayNode key2 = (ArrayNode) args.get("key2");
-        assertEquals("value2", key2.get(0).asText());
-        assertEquals("value3", key2.get(1).asText());
+        assertEquals("value2", key2.get(0).asString());
+        assertEquals("value3", key2.get(1).asString());
 
-        assertEquals("an url encoded value: this!", args.get("key3").asText());
+        assertEquals("an url encoded value: this!", args.get("key3").asString());
 
         ObjectNode headers = (ObjectNode) json.get("headers");
-        assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
-        assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
+        assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asString());
+        assertThat(headers.get("X-Forwarded-Host").asString(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
 
         String withHost = StringUtils.substringBefore(originalRequestURI, "?");
         String withIP = withHost.replace("localhost", "127.0.0.1");
-        assertThat(StringUtils.substringBefore(json.get("url").asText(), "?"), is(oneOf(withHost, withIP)));
+        assertThat(StringUtils.substringBefore(json.get("url").asString(), "?"), is(oneOf(withHost, withIP)));
 
         return headers;
     }

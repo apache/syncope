@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
@@ -29,13 +31,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -85,6 +90,12 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -241,6 +252,30 @@ public class UserTest extends AbstractTest {
         entityManager.flush();
 
         assertTrue(delegationDAO.findById(delegation.getKey()).isEmpty());
+    }
+
+    @Test
+    public void auxClasses() {
+        User user = entityFactory.newEntity(User.class);
+        user.setRealm(realmDAO.getRoot());
+
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("title");
+        attr.add(validator, "value");
+        user.add(attr);
+
+        InvalidEntityException iee = assertThrows(InvalidEntityException.class, () -> userDAO.save(user));
+        assertTrue(iee.getMessage().contains("propertyPath=username"));
+
+        user.setUsername("username");
+
+        iee = assertThrows(InvalidEntityException.class, () -> userDAO.save(user));
+        assertTrue(iee.getMessage().contains("message=title not allowed for this instance, propertyPath=plainAttrs"));
+
+        user.add(anyTypeClassDAO.findById("minimal group").orElseThrow());
+        assertEquals("minimal group", user.getAuxClasses().getFirst().getKey());
+
+        assertDoesNotThrow(() -> userDAO.save(user));
     }
 
     /**

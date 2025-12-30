@@ -96,7 +96,7 @@ public abstract class AbstractTest {
 
         if (classExists("org.postgresql.Driver")) {
             JDBC_DRIVER = "org.postgresql.Driver";
-            DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.PostgresDictionary";
+            DATABASE_PLATFORM = "org.apache.syncope.core.persistence.jpa.hibernate.SyncopePostgreSQLDialect";
             ORM = "META-INF/spring-orm.xml";
             INDEXES = "classpath:META-INF/indexes.xml";
             VIEWS = "classpath:META-INF/views.xml";
@@ -120,8 +120,7 @@ public abstract class AbstractTest {
             }
         } else if (classExists("com.mysql.cj.jdbc.Driver")) {
             JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-            DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MySQLDictionary("
-                    + "blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)";
+            DATABASE_PLATFORM = "org.hibernate.dialect.MySQLDialect";
             ORM = "META-INF/mysql/spring-orm.xml";
             INDEXES = "classpath:META-INF/mysql/indexes.xml";
             VIEWS = "classpath:META-INF/mysql/views.xml";
@@ -143,8 +142,7 @@ public abstract class AbstractTest {
             JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
         } else if (classExists("org.mariadb.jdbc.Driver")) {
             JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-            DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MariaDBDictionary("
-                    + "blobTypeName=LONGBLOB,dateFractionDigits=3)";
+            DATABASE_PLATFORM = "org.hibernate.dialect.MariaDBDialect";
             ORM = "META-INF/mariadb/spring-orm.xml";
             INDEXES = "classpath:META-INF/mariadb/indexes.xml";
             VIEWS = "classpath:META-INF/mariadb/views.xml";
@@ -166,7 +164,7 @@ public abstract class AbstractTest {
             JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
         } else if (classExists("oracle.jdbc.OracleDriver")) {
             JDBC_DRIVER = "oracle.jdbc.OracleDriver";
-            DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.OracleDictionary";
+            DATABASE_PLATFORM = "org.hibernate.dialect.OracleDialect";
             ORM = "META-INF/oracle/spring-orm.xml";
             INDEXES = "classpath:META-INF/oracle/indexes.xml";
             VIEWS = "classpath:META-INF/oracle/views.xml";

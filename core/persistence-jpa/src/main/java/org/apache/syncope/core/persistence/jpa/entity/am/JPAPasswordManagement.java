@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.common.validation.PasswordManagementCheck;
+import org.apache.syncope.core.persistence.jpa.converters.PasswordManagementConfConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAPasswordManagement.TABLE)
@@ -43,8 +43,9 @@ public class JPAPasswordManagement extends AbstractProvidedKeyEntity implements 
     @NotNull
     private boolean enabled;
 
+    @Convert(converter = PasswordManagementConfConverter.class)
     @Lob
-    private String jsonConf;
+    private PasswordManagementConf jsonConf;
 
     @Override
     public String getDescription() {
@@ -69,16 +70,11 @@ public class JPAPasswordManagement extends AbstractProvidedKeyEntity implements 
 
     @Override
     public PasswordManagementConf getConf() {
-        PasswordManagementConf conf = null;
-        if (!StringUtils.isBlank(jsonConf)) {
-            conf = POJOHelper.deserialize(jsonConf, PasswordManagementConf.class);
-        }
-
-        return conf;
+        return jsonConf;
     }
 
     @Override
     public void setConf(final PasswordManagementConf conf) {
-        jsonConf = POJOHelper.serialize(conf);
+        jsonConf = conf;
     }
 }

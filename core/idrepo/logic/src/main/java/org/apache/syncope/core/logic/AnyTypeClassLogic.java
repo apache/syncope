@@ -78,10 +78,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(anyTypeClassTO.getKey()).
                 orElseThrow(() -> new NotFoundException("AnyTypeClass " + anyTypeClassTO.getKey()));
 
-        binder.update(anyTypeClass, anyTypeClassTO);
-        anyTypeClass = anyTypeClassDAO.save(anyTypeClass);
-
-        return binder.getAnyTypeClassTO(anyTypeClass);
+        return binder.getAnyTypeClassTO(anyTypeClassDAO.save(binder.update(anyTypeClass, anyTypeClassTO)));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPECLASS_DELETE + "')")

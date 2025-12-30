@@ -18,26 +18,20 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Cacheable;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Lob;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.common.validation.SchemaKeyCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.Locale2StringMapConverter;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -50,49 +44,17 @@ public abstract class AbstractSchema extends AbstractProvidedKeyEntity implement
 
     public static final String TABLE = "SyncopeSchema";
 
-    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
-            new TypeReference<HashMap<Locale, String>>() {
-    };
-
+    @Convert(converter = Locale2StringMapConverter.class)
     @Lob
-    private String labels;
-
-    @Transient
-    private Map<Locale, String> labelMap = new HashMap<>();
+    private Map<Locale, String> labels = new HashMap<>();
 
     @Override
     public Optional<String> getLabel(final Locale locale) {
-        return Optional.ofNullable(labelMap.get(locale));
+        return Optional.ofNullable(labels.get(locale));
     }
 
     @Override
     public Map<Locale, String> getLabels() {
-        return labelMap;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getLabels().clear();
-        }
-        if (labels != null) {
-            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2map(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void map2json() {
-        labels = POJOHelper.serialize(getLabels());
+        return labels;
     }
 }

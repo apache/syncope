@@ -22,8 +22,6 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
@@ -71,6 +69,7 @@ import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContex
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
@@ -192,6 +191,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.TestPropertySourceUtils;
 import org.springframework.util.function.ThrowingFunction;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @SpringJUnitConfig(
         classes = { CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class },
@@ -220,7 +221,7 @@ public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -493,14 +494,14 @@ public abstract class AbstractITCase {
         JsonNode beans = MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
-        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asString().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
-        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("Elasticsearch");
+        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
 
-        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asText().contains("Neo4j");
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asString().contains("Neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;

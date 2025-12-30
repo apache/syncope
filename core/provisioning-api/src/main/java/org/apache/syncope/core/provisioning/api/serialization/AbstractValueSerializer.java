@@ -18,20 +18,20 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import org.identityconnectors.common.security.GuardedString;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ValueSerializer;
 
-public abstract class AbstractValueSerializer<T extends Object> extends JsonSerializer<T> {
+public abstract class AbstractValueSerializer<T extends Object> extends ValueSerializer<T> {
 
     public static final String BYTE_ARRAY_PREFIX = "<binary>";
 
     public static final String BYTE_ARRAY_SUFFIX = "</binary>";
 
-    protected void doSerialize(final List<Object> value, final JsonGenerator jgen) throws IOException {
+    protected void doSerialize(final List<Object> value, final JsonGenerator jgen) throws JacksonException {
         if (value == null) {
             jgen.writeNull();
         } else {
@@ -40,7 +40,7 @@ public abstract class AbstractValueSerializer<T extends Object> extends JsonSeri
                 if (v == null) {
                     jgen.writeNull();
                 } else if (v instanceof GuardedString) {
-                    jgen.writeObject(v);
+                    jgen.writePOJO(v);
                 } else if (v instanceof final Integer i) {
                     jgen.writeNumber(i);
                 } else if (v instanceof final Long l) {

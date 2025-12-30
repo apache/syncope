@@ -211,7 +211,7 @@ public class JPARealmDAO implements RealmDAO {
     @Override
     public <S extends Realm> S save(final S realm) {
         // check UNIQUE constraints
-        new ArrayList<>(((JPARealm) realm).getPlainAttrsList()).stream().
+        new ArrayList<>(((JPARealm) realm).getPlainAttrs()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
                     if (plainSchemaDAO.existsPlainAttrUniqueValue(
@@ -237,9 +237,6 @@ public class JPARealmDAO implements RealmDAO {
         }
 
         S merged = entityManager.merge(realm);
-
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
 
         if (!fullPathAfter.equals(fullPathBefore)) {
             realmSearchDAO.findChildren(realm).forEach(this::save);

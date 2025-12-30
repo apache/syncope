@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
 
 public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
@@ -89,15 +89,14 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                     orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        encryptorManager.getInstance().
-                                decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
                 added.forEach(e -> authorities.add(new SyncopeGrantedAuthority(e, SyncopeConstants.ROOT_REALM)));
 
                 accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES).getBytes());
+                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
 
                 accessTokenDAO.save(accessToken);
             } catch (Exception e) {
@@ -142,7 +141,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
                         encryptorManager.getInstance().
-                                decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                                decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
@@ -150,7 +149,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         filter(authority -> removed.contains(authority.getAuthority())).toList());
 
                 accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES).getBytes());
+                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
 
                 accessTokenDAO.save(accessToken);
             } catch (Exception e) {

@@ -83,6 +83,11 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
     protected GroupPullResultHandler ghandler;
 
+    protected PullResultHandlerDispatcher buildDispatcher() {
+        return ApplicationContextProvider.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
+                init(profile, this);
+    }
+
     protected RealmPullResultHandler buildRealmHandler() {
         return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
     }

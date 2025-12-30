@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,8 +67,6 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
         idCond.setSchema("id");
         return SearchCond.of(idCond);
     }
-
-    <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
     List<String> findDynRealms(String key);
 

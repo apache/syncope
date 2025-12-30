@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -35,7 +34,7 @@ public class JPADynRealmMembership extends AbstractGeneratedKeyEntity implements
 
     public static final String TABLE = "DynRealmMembership";
 
-    @OneToOne
+    @ManyToOne
     private JPADynRealm dynRealm;
 
     @ManyToOne

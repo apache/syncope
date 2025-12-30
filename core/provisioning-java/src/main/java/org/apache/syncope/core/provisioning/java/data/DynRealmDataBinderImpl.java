@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Iterator;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -59,26 +58,6 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
         this.searchCondVisitor = searchCondVisitor;
     }
 
-    protected void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
-        if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-            sce.getElements().add(dynMembershipFIQL);
-            throw sce;
-        }
-
-        DynRealmMembership dynMembership;
-        if (dynRealm.getDynMembership(anyType).isPresent()) {
-            dynMembership = dynRealm.getDynMembership(anyType).get();
-        } else {
-            dynMembership = entityFactory.newEntity(DynRealmMembership.class);
-            dynMembership.setDynRealm(dynRealm);
-            dynMembership.setAnyType(anyType);
-            dynRealm.add(dynMembership);
-        }
-        dynMembership.setFIQLCond(dynMembershipFIQL);
-    }
-
     @Override
     public DynRealm create(final DynRealmTO dynRealmTO) {
         return update(entityFactory.newEntity(DynRealm.class), dynRealmTO);
@@ -89,15 +68,30 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
         toBeUpdated.setKey(dynRealmTO.getKey());
         DynRealm dynRealm = dynRealmDAO.save(toBeUpdated);
 
-        for (Iterator<? extends DynRealmMembership> itor = dynRealm.getDynMemberships().iterator(); itor.hasNext();) {
-            DynRealmMembership memb = itor.next();
-            memb.setDynRealm(null);
-            itor.remove();
-        }
-
         dynRealmTO.getDynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
-                anyType -> setDynMembership(dynRealm, anyType, fiql),
+                anyType -> {
+                    SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, fiql);
+                    if (!dynMembershipCond.isValid()) {
+                        SyncopeClientException sce = SyncopeClientException.build(
+                                ClientExceptionType.InvalidSearchParameters);
+                        sce.getElements().add(fiql);
+                        throw sce;
+                    }
+
+                    DynRealmMembership dynMembership = dynRealm.getDynMembership(anyType).orElse(null);
+                    if (dynMembership == null) {
+                        dynMembership = entityFactory.newEntity(DynRealmMembership.class);
+                        dynMembership.setDynRealm(dynRealm);
+                        dynMembership.setAnyType(anyType);
+                        dynRealm.add(dynMembership);
+                    }
+                    dynMembership.setFIQLCond(fiql);
+                },
                 () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type)));
+
+        dynRealm.getDynMemberships().removeAll(dynRealm.getDynMemberships().stream().
+                filter(d -> !dynRealmTO.getDynMembershipConds().keySet().contains(d.getAnyType().getKey())).
+                toList());
 
         return dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
     }

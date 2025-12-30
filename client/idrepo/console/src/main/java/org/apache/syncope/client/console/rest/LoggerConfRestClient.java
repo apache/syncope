@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
@@ -38,6 +36,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.logging.LogLevel;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
@@ -84,7 +84,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
                         LoggerConf loggerConf = new LoggerConf();
                         loggerConf.setKey(entry.getKey());
                         if (entry.getValue().has("effectiveLevel")) {
-                            loggerConf.setLevel(LogLevel.valueOf(entry.getValue().get("effectiveLevel").asText()));
+                            loggerConf.setLevel(LogLevel.valueOf(entry.getValue().get("effectiveLevel").asString()));
                         } else {
                             loggerConf.setLevel(LogLevel.OFF);
                         }

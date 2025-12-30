@@ -32,11 +32,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -72,7 +71,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -80,12 +78,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
                 dynRealmDAO,
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
@@ -169,25 +168,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     }
 
     protected User checkBeforeSave(final User user) {
-        User merged = user;
-        if (user.getLinkedAccounts() == null) {
-            entityManager.flush();
-            merged = entityManager.merge(user);
-        }
-        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        anyChecker.checkBeforeSave(user, anyUtils);
+        user.getLinkedAccounts().forEach(account -> anyChecker.checkBeforeSave(account, anyUtils));
 
-        super.checkBeforeSave((JPAUser) merged);
-        merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
-
-        return merged;
+        return user;
     }
 
     protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
-        entityManager.flush();
         User merged = entityManager.merge(user);
-
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
 
         roleDAO.refreshDynMemberships(merged);
         GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
@@ -199,7 +187,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @SuppressWarnings("unchecked")
     @Override
     public <S extends User> S save(final S user) {
-        return (S) doSave(checkBeforeSave(user)).getLeft();
+        return (S) doSave(checkBeforeSave(entityManager.merge(user))).getLeft();
     }
 
     @Override

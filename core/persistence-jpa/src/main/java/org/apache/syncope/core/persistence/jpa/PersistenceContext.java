@@ -23,6 +23,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.ValidationMode;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -31,6 +32,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -111,8 +113,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExt;
@@ -186,13 +186,13 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.hibernate.DomainJCacheRegionFactory;
+import org.apache.syncope.core.persistence.jpa.hibernate.Jackson3JsonFormatMapper;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -218,8 +218,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Configuration(proxyBeanMethods = false)
 public class PersistenceContext {
 
-    private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
-
     @ConditionalOnMissingBean
     @Bean
     public CommonEntityManagerFactoryConf commonEMFConf(
@@ -233,25 +231,18 @@ public class PersistenceContext {
         commonEMFConf.setPersistenceUnitPostProcessors(new MultiJarAwarePersistenceUnitPostProcessor());
         Map<String, Object> jpaPropertyMap = new HashMap<>();
 
-        jpaPropertyMap.put("openjpa.Log", "slf4j");
-        if (OPENJPA_LOG.isDebugEnabled()) {
-            jpaPropertyMap.put("openjpa.Log", "SQL=TRACE");
-            jpaPropertyMap.put("openjpa.ConnectionFactoryProperties",
-                    "PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=120");
-        }
+        jpaPropertyMap.put("jakarta.persistence.schema-generation.database.action", "create");
 
-        jpaPropertyMap.put("openjpa.NontransactionalWrite", false);
+        jpaPropertyMap.put("hibernate.cache.use_second_level_cache", "true");
+        jpaPropertyMap.put("hibernate.cache.use_query_cache", "true");
+        jpaPropertyMap.put("hibernate.cache.region.factory_class", "jcache");
+        jpaPropertyMap.put("hibernate.javax.cache.provider", props.getCacheProvider());
+        Optional.ofNullable(props.getCacheURI()).
+                ifPresent(cacheURI -> jpaPropertyMap.put("hibernate.javax.cache.uri", cacheURI));
+        jpaPropertyMap.put("hibernate.cache.region.factory_class", DomainJCacheRegionFactory.class.getName());
 
-        jpaPropertyMap.put("openjpa.jdbc.MappingDefaults",
-                "ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict,"
-                + "FieldStrategies='"
-                + "java.util.Locale=org.apache.syncope.core.persistence.jpa.openjpa.LocaleValueHandler,"
-                + "java.lang.Boolean=org.apache.syncope.core.persistence.jpa.openjpa.BooleanValueHandler'");
-
-        jpaPropertyMap.put("openjpa.DataCache", "true");
-        jpaPropertyMap.put("openjpa.QueryCache", "true");
-
-        jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
+        // until https://hibernate.atlassian.net/browse/HHH-19890 https://github.com/hibernate/hibernate-orm/pull/11357
+        jpaPropertyMap.put("hibernate.type.json_format_mapper", Jackson3JsonFormatMapper.class.getName());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
@@ -367,6 +358,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
+        return new AnyChecker(plainSchemaDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
         return new AnyFinder(plainSchemaDAO, anySearchDAO);
     }
@@ -405,19 +402,19 @@ public class PersistenceContext {
     public AnyObjectRepoExt anyObjectRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new AnyObjectRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
-                plainSchemaDAO,
                 userDAO,
                 groupDAO,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 
@@ -493,12 +490,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoRepoExt attrRepoRepoExt(final EntityManager entityManager) {
-        return new AttrRepoRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleRepoExt authModuleRepoExt(final PolicyDAO policyDAO, final EntityManager entityManager) {
         return new AuthModuleRepoExtImpl(policyDAO, entityManager);
     }
@@ -514,11 +505,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDAO attrRepoDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AttrRepoRepoExt attrRepoRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
+    public AttrRepoDAO attrRepoDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class);
     }
 
     @ConditionalOnMissingBean
@@ -664,7 +652,6 @@ public class PersistenceContext {
             final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy RealmDAO realmDAO,
             final AnyMatchDAO anyMatchDAO,
             final @Lazy UserDAO userDAO,
@@ -672,13 +659,13 @@ public class PersistenceContext {
             final AnySearchDAO anySearchDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
                 publisher,
                 dynRealmDAO,
-                plainSchemaDAO,
                 realmDAO,
                 anyMatchDAO,
                 userDAO,
@@ -686,6 +673,7 @@ public class PersistenceContext {
                 anySearchDAO,
                 searchCondVisitor,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 
@@ -1002,19 +990,18 @@ public class PersistenceContext {
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         return new UserRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
-                plainSchemaDAO,
                 roleDAO,
                 accessTokenDAO,
                 groupDAO,
@@ -1022,6 +1009,7 @@ public class PersistenceContext {
                 fiqlQueryDAO,
                 securityProperties,
                 entityManager,
+                anyChecker,
                 anyFinder);
     }
 

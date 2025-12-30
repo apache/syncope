@@ -19,43 +19,76 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.concurrent.RejectedExecutionException;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
+import org.apache.syncope.core.provisioning.api.pushpull.SyncopeAnyPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.SyncopeRealmPushResultHandler;
+import org.springframework.transaction.annotation.Transactional;
 
 public class PushResultHandlerDispatcher
         extends SyncopeResultHandlerDispatcher<PushTask, PushActions, SyncopePushResultHandler> {
 
-    protected final SyncopePushExecutor executor;
+    protected SyncopePushExecutor executor;
 
-    public PushResultHandlerDispatcher(
+    public PushResultHandlerDispatcher init(
             final ProvisioningProfile<PushTask, PushActions> profile,
             final SyncopePushExecutor executor) {
 
-        super(profile);
+        init(profile);
         this.executor = executor;
+
+        return this;
     }
 
-    public boolean handle(final String anyType, final String anyKey) {
+    @Transactional(readOnly = true)
+    public boolean handle(final Any any) {
         if (tpte.isEmpty()) {
-            boolean result = nonConcurrentHandler(anyType).handle(anyKey);
+            boolean result = ((SyncopeAnyPushResultHandler) nonConcurrentHandler(any.getType().getKey())).handle(any);
 
-            executor.reportHandled(anyType, anyKey);
+            executor.reportHandled(any.getType().getKey(), any.getKey());
 
             return result;
         }
 
         try {
             submit(() -> {
-                suppliers.get(anyType).get().handle(anyKey);
+                ((SyncopeAnyPushResultHandler) suppliers.get(any.getType().getKey()).get()).handle(any);
 
-                executor.reportHandled(anyType, anyKey);
+                executor.reportHandled(any.getType().getKey(), any.getKey());
             });
             return true;
         } catch (RejectedExecutionException e) {
-            LOG.error("Could not submit push handler for {} {}", anyType, anyKey);
+            LOG.error("Could not submit push handler for {} {}", any.getType().getKey(), any.getKey());
+            return false;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public boolean handle(final Realm realm) {
+        if (tpte.isEmpty()) {
+            boolean result = ((SyncopeRealmPushResultHandler) nonConcurrentHandler(SyncopeConstants.REALM_ANYTYPE)).
+                    handle(realm);
+
+            executor.reportHandled(SyncopeConstants.REALM_ANYTYPE, realm.getKey());
+
+            return result;
+        }
+
+        try {
+            submit(() -> {
+                ((SyncopeRealmPushResultHandler) suppliers.get(SyncopeConstants.REALM_ANYTYPE).get()).handle(realm);
+
+                executor.reportHandled(SyncopeConstants.REALM_ANYTYPE, realm.getKey());
+            });
+            return true;
+        } catch (RejectedExecutionException e) {
+            LOG.error("Could not submit push handler for {} {}", SyncopeConstants.REALM_ANYTYPE, realm.getKey());
             return false;
         }
     }

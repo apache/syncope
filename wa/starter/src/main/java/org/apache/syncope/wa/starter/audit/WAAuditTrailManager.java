@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.wa.starter.audit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import org.apache.commons.lang3.Strings;
@@ -68,7 +67,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
                     result);
             auditEvent.setOpEvent(opEvent);
             waRestClient.getService(AuditService.class).create(auditEvent);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             LOG.error("During serialization", e);
         }
     }

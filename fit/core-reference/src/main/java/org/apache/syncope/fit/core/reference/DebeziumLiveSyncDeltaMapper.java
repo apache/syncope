@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
@@ -37,6 +34,9 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class DebeziumLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
 
@@ -69,7 +69,7 @@ public class DebeziumLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
         JsonNode payload;
         try {
             payload = JSON_MAPPER.readTree(value).get("payload");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Could not parse the received value as JSON", e);
         }
 
@@ -84,7 +84,7 @@ public class DebeziumLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
             String element = syncDeltaType == SyncDeltaType.DELETE
                     ? "before" : "after";
 
-            Uid uid = new Uid(payload.get(element).get("id").asText());
+            Uid uid = new Uid(payload.get(element).get("id").asString());
             syncDeltaBuilder.setUid(uid);
 
             ConnectorObjectBuilder connObjectBuilder = new ConnectorObjectBuilder().
@@ -94,15 +94,15 @@ public class DebeziumLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
             if (syncDeltaType != SyncDeltaType.DELETE) {
                 connObjectBuilder.
                         addAttribute(AttributeBuilder.build(
-                                "email", payload.get(element).get("email").asText())).
+                                "email", payload.get(element).get("email").asString())).
                         addAttribute(AttributeBuilder.build(
-                                "givenName", payload.get(element).get("first_name").asText())).
+                                "givenName", payload.get(element).get("first_name").asString())).
                         addAttribute(AttributeBuilder.build(
-                                "lastName", payload.get(element).get("last_name").asText())).
+                                "lastName", payload.get(element).get("last_name").asString())).
                         addAttribute(AttributeBuilder.build(
                                 "fullname",
-                                payload.get(element).get("first_name").asText() + " "
-                                + payload.get(element).get("last_name").asText()));
+                                payload.get(element).get("first_name").asString() + " "
+                                + payload.get(element).get("last_name").asString()));
             }
 
             syncDeltaBuilder.setObject(connObjectBuilder.build());
