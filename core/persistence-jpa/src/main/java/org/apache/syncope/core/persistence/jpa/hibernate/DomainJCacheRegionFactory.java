@@ -16,12 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.hibernate;
 
-import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
-import org.springframework.data.repository.ListCrudRepository;
+import org.hibernate.cache.jcache.internal.JCacheRegionFactory;
 
-public interface NotificationRepo
-        extends ListCrudRepository<JPANotification, String>, NotificationRepoExt, NotificationDAO {
+public class DomainJCacheRegionFactory extends JCacheRegionFactory {
+
+    private static final long serialVersionUID = -6813667559684397717L;
+
+    @Override
+    protected void releaseFromUse() {
+        // nothing to release, there might be other Domains using the cacheManager instance
+    }
 }

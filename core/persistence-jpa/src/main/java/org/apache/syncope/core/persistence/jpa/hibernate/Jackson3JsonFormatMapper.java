@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa;
+package org.apache.syncope.core.persistence.jpa.hibernate;
 
 import java.lang.reflect.Type;
 import java.util.List;
