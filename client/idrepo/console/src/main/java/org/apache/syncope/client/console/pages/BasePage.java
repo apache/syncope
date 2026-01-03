@@ -187,7 +187,7 @@ public class BasePage extends BaseWebPage {
                 IdMPage ann = item.getModelObject().getAnnotation(IdMPage.class);
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("idmPage", item.getModelObject());
-                link.add(new Label("idmPageLabel", ann.label()));
+                link.add(new Label("idmPageLabel", getString(ann.label())));
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
                     MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                 }
@@ -226,7 +226,7 @@ public class BasePage extends BaseWebPage {
                 AMPage ann = item.getModelObject().getAnnotation(AMPage.class);
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("amPage", item.getModelObject());
-                link.add(new Label("amPageLabel", ann.label()));
+                link.add(new Label("amPageLabel", getString(ann.label())));
                 if (StringUtils.isNotBlank(ann.listEntitlement())) {
                     MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, ann.listEntitlement());
                 }
