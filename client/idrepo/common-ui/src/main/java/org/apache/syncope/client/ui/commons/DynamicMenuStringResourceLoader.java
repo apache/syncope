@@ -19,7 +19,6 @@
 package org.apache.syncope.client.ui.commons;
 
 import java.util.Locale;
-import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
 import org.apache.wicket.core.util.resource.locator.IResourceNameIterator;
 import org.apache.wicket.resource.IPropertiesFactory;
 import org.apache.wicket.resource.Properties;
@@ -42,33 +41,24 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
             Locale locale,
             String style,
             String variation) {
-        LOG.info("XXXXX key {}", key);
 
         if (key != null && key.startsWith("menu.")) {
             Class<?> pageClass = DynamicMenuRegister.getPage(key);
-
-            LOG.info("XXXXX clazz {}", clazz);
-            LOG.info("XXXXX pageClass {}", pageClass);
 
             if (pageClass != null) {
                 final String path = pageClass.getName().replace('.', '/');
                 final IResourceNameIterator iter = newResourceNameIterator(path, locale, style, variation);
                 final IPropertiesFactory propertiesFactory = getPropertiesFactory();
-                LOG.info("XXXXX path {}", path);
 
                 while (iter.hasNext()) {
                     final String newPath = iter.next();
-                    LOG.info("XXXXX newPath {}", newPath);
-
                     final Properties props = propertiesFactory.load(pageClass, newPath);
 
                     if (props != null) {
                         final String localeLabel = props.getString(key);
-                        LOG.info("XXXXX localeLabel {}", localeLabel);
                         LOG.debug("Found label \"{}\" for key: {}", localeLabel, key);
                         return localeLabel;
                     }
-
                 }
             }
         }
