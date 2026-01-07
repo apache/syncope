@@ -24,6 +24,7 @@ import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import jakarta.servlet.http.Cookie;
+import java.lang.annotation.Annotation;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -34,12 +35,15 @@ import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
+import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
+import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
@@ -53,6 +57,7 @@ import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -239,6 +244,26 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         initSecurity();
 
         mountPage("/login", getSignInPageClass());
+
+        //[SYNCOPE-1942]
+        //--
+        final List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
+        amPageClasses.forEach(claz -> {
+            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
+        idmPageClasses.forEach(claz -> {
+            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BaseExtPage>> extPageClasses = lookup.getClasses(BaseExtPage.class);
+        extPageClasses.stream().filter(claz -> (claz.isAnnotationPresent(ExtPage.class))).forEach(claz -> {
+            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        getResourceSettings().getStringResourceLoaders().add(new DynamicMenuStringResourceLoader());
+        //--
 
         for (IResource resource : resources) {
             Class<?> resourceClass = AopUtils.getTargetClass(resource);

@@ -34,7 +34,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@ExtPage(label = "OIDC 1.0 C4UI", icon = "fab fa-openid",
+@ExtPage(label = "OIDCC4UI", icon = "fab fa-openid",
         listEntitlement = OIDCC4UIEntitlement.OP_READ, priority = 300)
 public class OIDCC4UI extends BaseExtPage {
 
