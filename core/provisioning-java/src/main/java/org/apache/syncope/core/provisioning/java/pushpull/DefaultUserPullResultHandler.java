@@ -698,7 +698,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         LOG.debug("Linked account to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport result = new ProvisioningReport();
-        result.setKey(account.getOwner().getKey());
+        result.setKey(Optional.ofNullable(account).map(LinkedAccount::getOwner).map(User::getKey).orElse(null));
         result.setName(delta.getUid().getUidValue());
         result.setUidValue(delta.getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
@@ -707,11 +707,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         if (message != null && message.length >= 1) {
             result.setMessage(message[0]);
         }
-        if (account != null) {
-            result.setKey(account.getKey());
-        }
 
-        end(Optional.of(result.getKey()),
+        end(Optional.ofNullable(result.getKey()),
                 AnyTypeKind.USER.name(),
                 matching ? MatchingRule.toOp(MatchingRule.IGNORE) : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
                 OpEvent.Outcome.SUCCESS,

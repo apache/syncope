@@ -48,7 +48,7 @@ public class KafkaBrokerStartStopListener implements ServletContextListener {
 
         embeddedKafkaBroker.afterPropertiesSet();
 
-        LOG.info("Kafka broker successfully (re)started {}");
+        LOG.info("Kafka broker successfully (re)started on {}", embeddedKafkaBroker.getBrokersAsString());
     }
 
     @Override

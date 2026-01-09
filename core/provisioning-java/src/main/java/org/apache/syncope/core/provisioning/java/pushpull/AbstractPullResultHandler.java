@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -706,7 +707,7 @@ public abstract class AbstractPullResultHandler
         LOG.debug("About to ignore {}", match);
 
         ProvisioningReport result = new ProvisioningReport();
-        result.setKey(match.getAny().getKey());
+        result.setKey(Optional.ofNullable(match).map(InboundMatch::getAny).map(Any::getKey).orElse(null));
         result.setName(delta.getObject().getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
         result.setAnyType(provision.getAnyType());
@@ -718,7 +719,7 @@ public abstract class AbstractPullResultHandler
 
         profile.getResults().add(result);
 
-        end(Optional.of(result.getKey()),
+        end(Optional.ofNullable(result.getKey()),
                 provision.getAnyType(),
                 matching ? MatchingRule.toOp(MatchingRule.IGNORE) : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
                 OpEvent.Outcome.SUCCESS,
