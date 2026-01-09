@@ -76,8 +76,11 @@ public class MacroTaskITCase extends AbstractITCase {
         TCA.setPrinterName("aprinter112");
     }
 
-    private static void createMacroActionsIfNeeded(final String key, final ImplementationEngine engine,
+    private static void createMacroActionsIfNeeded(
+            final String key,
+            final ImplementationEngine engine,
             final String body) {
+
         ImplementationTO macroActions = null;
         try {
             macroActions = IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.MACRO_ACTIONS, key);

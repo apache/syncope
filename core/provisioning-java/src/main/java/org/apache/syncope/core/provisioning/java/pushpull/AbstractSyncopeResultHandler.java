@@ -95,7 +95,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask<?>
 
     protected volatile boolean stopRequested = false;
 
-    protected abstract AnyUtils getAnyUtils();
+    protected abstract AnyUtils anyUtils();
 
     protected abstract AnyTO getAnyTO(Any any);
 

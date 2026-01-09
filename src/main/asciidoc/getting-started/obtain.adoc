@@ -666,7 +666,7 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  Click 'Connect' button
 
 | External resource: Apache Kafka
-| Broker listening at localhost:19092
+| Broker connection information available at https://localhost:9443/syncope-fit-build-tools/cxf/rest/kafka/brokers
 
 |===
 

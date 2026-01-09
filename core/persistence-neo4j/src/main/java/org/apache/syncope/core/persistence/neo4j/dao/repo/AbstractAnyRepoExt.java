@@ -197,4 +197,9 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
     public void deleteById(final String key) {
         findById(key).ifPresent(this::delete);
     }
+
+    @Override
+    public void evict(final Class<A> entityClass, final String key) {
+        cache().remove(EntityCacheKey.of(key));
+    }
 }

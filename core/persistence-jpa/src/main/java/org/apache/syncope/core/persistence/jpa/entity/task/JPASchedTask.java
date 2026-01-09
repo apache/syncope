@@ -20,8 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -32,7 +30,6 @@ import org.apache.syncope.core.persistence.common.validation.SchedTaskCheck;
 
 @Entity
 @Table(name = JPASchedTask.TABLE)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @SchedTaskCheck
 public class JPASchedTask extends AbstractSchedTask {
 

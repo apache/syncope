@@ -45,4 +45,6 @@ public interface AnyRepoExt<A extends Any> {
     void deleteById(String key);
 
     void delete(A any);
+
+    void evict(Class<A> entityClass, String key);
 }

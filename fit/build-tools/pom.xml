@@ -61,11 +61,7 @@ under the License.
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-log4j2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
+      <artifactId>spring-boot-starter-logback</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -110,12 +106,8 @@ under the License.
       <artifactId>spring-kafka-test</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.junit.platform</groupId>
-          <artifactId>junit-platform-launcher</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

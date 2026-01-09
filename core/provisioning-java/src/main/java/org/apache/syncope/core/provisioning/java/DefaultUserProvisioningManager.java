@@ -296,8 +296,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public void internalSuspend(final String key, final String updater, final String context) {
-        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.internalSuspend(key, updater, context);
+    public void suspendOnAuthFailures(final String key, final String updater, final String context) {
+        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.suspendOnAuthFailures(key, updater, context);
 
         // propagate suspension if and only if it is required by policy
         if (updated != null && updated.getRight()) {

@@ -190,23 +190,25 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional(readOnly = true)
     @Override
     public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, anyObjectKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                groupKey, anyObjectKey) > 0;
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsUMembership(final String userKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, userKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                groupKey, userKey) > 0;
     }
 
     @Override
@@ -348,24 +350,24 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public long countADynMembers(final Group group) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(DISTINCT any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
-        query.setParameter(1, group.getKey());
-
-        return ((Number) query.getSingleResult()).longValue();
+        return query(
+                "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                group.getKey());
     }
 
     @Override
     public long countUDynMembers(final Group group) {
-        if (group.getUDynMembership() == null) {
-            return 0;
-        }
-
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(DISTINCT any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
-        query.setParameter(1, group.getKey());
-
-        return ((Number) query.getSingleResult()).longValue();
+        return query(
+                "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                group.getKey());
     }
 
     @Transactional(readOnly = true)
@@ -373,38 +375,35 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
 
-        group.getADynMemberships().forEach(memb -> {
-            Query query = entityManager.createNativeQuery(
-                    "SELECT DISTINCT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
-            query.setParameter(1, group.getKey());
-            query.setParameter(2, memb.getAnyType().getKey());
-
-            @SuppressWarnings("unchecked")
-            List<Object> queryResult = query.getResultList();
-            result.addAll(queryResult.stream().
-                    map(Object::toString).
-                    filter(anyObject -> !result.contains(anyObject)).
-                    toList());
-        });
+        group.getADynMemberships().forEach(memb -> query(
+                "SELECT DISTINCT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
+                rs -> {
+                    List<String> list = new ArrayList<>();
+                    while (rs.next()) {
+                        String anyObject = rs.getString(1);
+                        if (!result.contains(anyObject)) {
+                            result.add(anyObject);
+                        }
+                    }
+                    return list;
+                },
+                group.getKey(), memb.getAnyType().getKey()));
 
         return result;
     }
 
     @Override
     public List<String> findUDynMembers(final Group group) {
-        if (group.getUDynMembership() == null) {
-            return List.of();
-        }
-
-        Query query = entityManager.createNativeQuery(
-                "SELECT DISTINCT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
-        query.setParameter(1, group.getKey());
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(Object::toString).
-                toList();
+        return query(
+                "SELECT DISTINCT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                group.getKey());
     }
 
     @Override
@@ -441,11 +440,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 after.add(memb.getGroup().getKey());
             }
 
-            Query query = entityManager.createNativeQuery(
-                    "SELECT COUNT(group_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            query.setParameter(1, memb.getGroup().getKey());
-            query.setParameter(2, anyObject.getKey());
-            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
+            boolean existing = query(
+                    "SELECT COUNT(group_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
+                    rs -> {
+                        rs.next();
+                        return rs.getLong(1);
+                    },
+                    memb.getGroup().getKey(), anyObject.getKey()) > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }
@@ -511,11 +512,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 after.add(memb.getGroup().getKey());
             }
 
-            Query query = entityManager.createNativeQuery(
-                    "SELECT COUNT(group_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            query.setParameter(1, memb.getGroup().getKey());
-            query.setParameter(2, user.getKey());
-            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
+            boolean existing = query(
+                    "SELECT COUNT(group_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
+                    rs -> {
+                        rs.next();
+                        return rs.getLong(1);
+                    },
+                    memb.getGroup().getKey(), user.getKey()) > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }

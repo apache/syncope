@@ -121,7 +121,7 @@ public class ConnInstanceTO implements EntityTO {
     }
 
     public List<ConnConfProperty> getConf() {
-        return this.conf;
+        return conf;
     }
 
     @JsonIgnore

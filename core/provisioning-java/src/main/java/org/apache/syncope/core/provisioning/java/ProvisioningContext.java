@@ -682,7 +682,6 @@ public class ProvisioningContext {
     public LiveSyncTaskSaver liveSyncTaskExecSaver(
             final ExternalResourceDAO resourceDAO,
             final TaskDAO taskDAO,
-            final TaskExecDAO taskExecDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final NotificationManager notificationManager,
             final AuditManager auditManager) {
@@ -690,7 +689,6 @@ public class ProvisioningContext {
         return new LiveSyncTaskSaver(
                 resourceDAO,
                 taskDAO,
-                taskExecDAO,
                 taskUtilsFactory,
                 notificationManager,
                 auditManager);

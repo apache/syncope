@@ -270,4 +270,9 @@ public class JPARealmDAO implements RealmDAO {
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, toBeDeleted, AuthContextUtils.getDomain()));
         });
     }
+
+    @Override
+    public void evict(final String key) {
+        Optional.ofNullable(entityManager.find(JPARealm.class, key)).ifPresent(entityManager::detach);
+    }
 }

@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.Spring
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
 import org.apache.syncope.fit.buildtools.cxf.GreenMailService;
+import org.apache.syncope.fit.buildtools.cxf.KafkaService;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.apache.syncope.fit.buildtools.cxf.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -94,6 +95,11 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
+    public KafkaService kafkaService() {
+        return new KafkaService();
+    }
+
+    @Bean
     public UserService userService() {
         return new UserService();
     }
@@ -101,6 +107,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     @Bean
     public Server restProvisioning(
             final GreenMailService greenMailService,
+            final KafkaService kafkaService,
             final UserService userService,
             final Bus bus,
             final ApplicationContext ctx) {
@@ -110,7 +117,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         restProvisioning.setBus(bus);
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
-        restProvisioning.setServiceBeans(List.of(greenMailService, userService));
+        restProvisioning.setServiceBeans(List.of(greenMailService, kafkaService, userService));
         restProvisioning.setProviders(List.of(new JacksonJsonProvider(), new DateParamConverterProvider()));
         return restProvisioning.create();
     }

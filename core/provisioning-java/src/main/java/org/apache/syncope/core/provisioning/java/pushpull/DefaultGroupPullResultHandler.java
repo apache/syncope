@@ -54,7 +54,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
@@ -69,7 +69,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> provisioningManager() {
         return groupProvisioningManager;
     }
 

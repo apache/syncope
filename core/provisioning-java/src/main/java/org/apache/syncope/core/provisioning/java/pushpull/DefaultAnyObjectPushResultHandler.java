@@ -32,7 +32,7 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
         implements AnyObjectPushResultHandler {
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
     }
 

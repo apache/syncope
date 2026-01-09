@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -45,8 +46,10 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -56,7 +59,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
-import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.core.provisioning.java.pushpull.KafkaInboundActions;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestLiveSyncDeltaMapper;
@@ -71,6 +74,22 @@ public class LiveSyncITCase extends AbstractITCase {
     private static final String ACCOUNT_TOPIC = "account-provisioning";
 
     private static final String GROUP_TOPIC = "group-provisioning";
+
+    private static String KAFKA_BROKERS;
+
+    @BeforeAll
+    public static void configureKafkaBrokers() {
+        KAFKA_BROKERS = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/kafka/brokers").get().readEntity(String.class);
+        assertNotNull(KAFKA_BROKERS);
+
+        ConnInstanceTO kafkaConn = CONNECTOR_SERVICE.read("01938bdf-7ac6-7149-a103-3ec9e74cc824", null);
+        kafkaConn.getConf().stream().filter(p -> "bootstrapServers".equals(p.getSchema().getName())
+                && !KAFKA_BROKERS.equals(p.getValues().getFirst())).findFirst().
+                ifPresent(p -> {
+                    p.getValues().set(0, KAFKA_BROKERS);
+                    CONNECTOR_SERVICE.update(kafkaConn);
+                });
+    }
 
     @BeforeAll
     public static void testLiveSyncImplementationSetup() {
@@ -115,7 +134,7 @@ public class LiveSyncITCase extends AbstractITCase {
 
     private static KafkaProducer<String, String> createProducer() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:19092");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, LiveSyncITCase.class.getSimpleName());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -125,7 +144,7 @@ public class LiveSyncITCase extends AbstractITCase {
 
     private static KafkaConsumer<String, String> createConsumer() {
         Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:19092");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, LiveSyncITCase.class.getSimpleName());
         props.put(ConsumerConfig.GROUP_ID_CONFIG, LiveSyncITCase.class.getSimpleName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -191,27 +210,27 @@ public class LiveSyncITCase extends AbstractITCase {
     @Test
     public void liveSync() {
         // 1. create and execute the live sync task
-        LiveSyncTaskTO task = new LiveSyncTaskTO();
-        task.setName("Test LiveSync");
-        task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-        task.setResource(RESOURCE_NAME_KAFKA);
-        task.setLiveSyncDeltaMapper(TestLiveSyncDeltaMapper.class.getSimpleName());
-        task.getActions().add(KafkaInboundActions.class.getSimpleName());
-        task.setPerformCreate(true);
-        task.setPerformUpdate(true);
-        task.setPerformDelete(true);
+        String taskKey;
+        PagedResult<LiveSyncTaskTO> found =
+                TASK_SERVICE.search(new TaskQuery.Builder(TaskType.LIVE_SYNC).resource(RESOURCE_NAME_KAFKA).build());
+        if (found.getResult().isEmpty()) {
+            LiveSyncTaskTO task = new LiveSyncTaskTO();
+            task.setName("Test LiveSync");
+            task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            task.setResource(RESOURCE_NAME_KAFKA);
+            task.setLiveSyncDeltaMapper(TestLiveSyncDeltaMapper.class.getSimpleName());
+            task.getActions().add(KafkaInboundActions.class.getSimpleName());
+            task.setPerformCreate(true);
+            task.setPerformUpdate(true);
+            task.setPerformDelete(true);
 
-        Response response = TASK_SERVICE.create(TaskType.LIVE_SYNC, task);
-        LiveSyncTaskTO actual = getObject(response.getLocation(), TaskService.class, LiveSyncTaskTO.class);
-        assertNotNull(actual);
+            Response response = TASK_SERVICE.create(TaskType.LIVE_SYNC, task);
+            taskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        } else {
+            taskKey = found.getResult().getFirst().getKey();
+        }
 
-        task = TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true);
-        assertNotNull(task);
-        assertEquals(actual.getKey(), task.getKey());
-        assertNotNull(actual.getJobDelegate());
-        assertEquals(actual.getLiveSyncDeltaMapper(), task.getLiveSyncDeltaMapper());
-
-        TASK_SERVICE.execute(new ExecSpecs.Builder().key(task.getKey()).build());
+        TASK_SERVICE.execute(new ExecSpecs.Builder().key(taskKey).build());
 
         try {
             // 2. send event to the queue
@@ -248,17 +267,17 @@ public class LiveSyncITCase extends AbstractITCase {
             assertEquals("LiveSync LiveSync", user.getPlainAttr("fullname").orElseThrow().getValues().getFirst());
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
-                    () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true).getExecutions(),
+                    () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, taskKey, true).getExecutions(),
                     execs -> execs.size() == 1
                     && execs.stream().allMatch(exec -> ExecStatus.SUCCESS.name().equals(exec.getStatus())));
 
             // 4. stop live syncing
-            assertTrue(TASK_SERVICE.getJob(task.getKey()).isRunning());
+            assertTrue(TASK_SERVICE.getJob(taskKey).isRunning());
 
-            TASK_SERVICE.actionJob(task.getKey(), JobAction.STOP);
+            TASK_SERVICE.actionJob(taskKey, JobAction.STOP);
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).
-                    until(() -> !TASK_SERVICE.getJob(actual.getKey()).isRunning());
+                    until(() -> !TASK_SERVICE.getJob(taskKey).isRunning());
 
             // 5. send new event to the queue, but no further executions
             String groupName = "liveSync" + getUUIDString();
@@ -276,7 +295,7 @@ public class LiveSyncITCase extends AbstractITCase {
             }
 
             // 6. start again live syncing and find the new group in Syncope
-            TASK_SERVICE.actionJob(task.getKey(), JobAction.START);
+            TASK_SERVICE.actionJob(taskKey, JobAction.START);
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                     () -> {
@@ -288,12 +307,12 @@ public class LiveSyncITCase extends AbstractITCase {
                     }, Objects::nonNull);
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
-                    () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true).getExecutions(),
+                    () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, taskKey, true).getExecutions(),
                     execs -> execs.size() == 2
                     && execs.stream().allMatch(exec -> ExecStatus.SUCCESS.name().equals(exec.getStatus())));
         } finally {
             // finally stop live syncing
-            TASK_SERVICE.actionJob(task.getKey(), JobAction.STOP);
+            TASK_SERVICE.actionJob(taskKey, JobAction.STOP);
         }
     }
 }

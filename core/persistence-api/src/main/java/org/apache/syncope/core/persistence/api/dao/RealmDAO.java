@@ -42,4 +42,6 @@ public interface RealmDAO extends DAO<Realm> {
     List<Realm> findByActionsContaining(Implementation logicActions);
 
     Page<? extends Realm> findAll(Pageable pageable);
+
+    void evict(String key);
 }

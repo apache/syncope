@@ -73,4 +73,6 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
     Collection<String> findAllResourceKeys(String key);
 
     void deleteRelationship(Relationship<? extends A, AnyObject> relationship);
+
+    void evict(Class<A> entityClass, String key);
 }

@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implements AnyObjectRepoExt {
@@ -216,23 +215,29 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return query.getResultList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
+    protected List<String> findDynGroupKeys(final String key) {
+        return query(
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
+    @Override
+    public List<? extends Group> findDynGroups(final String key) {
+        return findDynGroupKeys(key).stream().
+                map(groupDAO::findById).
+                flatMap(Optional::stream).
+                toList();
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
@@ -243,13 +248,17 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return findAllGroups(anyObject).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(anyObject.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+        result.addAll(findDynGroupKeys(anyObject.getKey()));
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final AnyObject anyObject) {
         Set<ExternalResource> result = new HashSet<>();

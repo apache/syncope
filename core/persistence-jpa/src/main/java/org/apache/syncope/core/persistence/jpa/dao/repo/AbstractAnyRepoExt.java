@@ -19,28 +19,27 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
-import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A> {
@@ -86,11 +85,26 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
         }
     }
 
+    protected <T> T query(final String sql, final ResultSetExtractor<T> rse, final String... parameters) {
+        return entityManager.unwrap(Session.class).doReturningWork(conn -> {
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                if (parameters != null) {
+                    for (int i = 0; i < parameters.length; i++) {
+                        stmt.setString(i + 1, parameters[i]);
+                    }
+                }
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    return rse.extractData(rs);
+                }
+            }
+        });
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
-        return new JdbcTemplate(entityManager.getEntityManagerFactory().unwrap(SessionFactoryImpl.class).
-                getServiceRegistry().getService(ConnectionProvider.class).unwrap(DataSource.class)).query(
+        return query(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?",
                 rs -> {
                     if (rs.next()) {
@@ -133,18 +147,16 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     @Transactional(readOnly = true)
     @Override
     public List<String> findDynRealms(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT dynRealm_id FROM " + DynRealmRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(dynRealm -> dynRealmDAO.findById(dynRealm.toString())).
-                flatMap(Optional::stream).
-                map(DynRealm::getKey).
-                distinct().
-                toList();
+        return query(
+                "SELECT DISTINCT dynRealm_id FROM " + DynRealmRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key);
     }
 
     @Override
@@ -155,5 +167,10 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     @Override
     public void deleteById(final String key) {
         findById(key).ifPresent(this::delete);
+    }
+
+    @Override
+    public void evict(final Class<A> entityClass, final String key) {
+        Optional.ofNullable(entityManager.find(entityClass, key)).ifPresent(entityManager::detach);
     }
 }

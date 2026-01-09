@@ -277,4 +277,9 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, toBeDeleted, AuthContextUtils.getDomain()));
         });
     }
+
+    @Override
+    public void evict(final String key) {
+        cache.remove(EntityCacheKey.of(key));
+    }
 }

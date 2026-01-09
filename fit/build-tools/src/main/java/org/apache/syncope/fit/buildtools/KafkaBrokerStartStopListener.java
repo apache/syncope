@@ -43,11 +43,12 @@ public class KafkaBrokerStartStopListener implements ServletContextListener {
                 1,
                 1,
                 ctx.getEnvironment().getProperty("kafka.topics", String[].class)).
+                // this call is useless with EmbeddedKafkaKraftBroker, there is no way to set fixed port
                 kafkaPorts(ctx.getEnvironment().getProperty("kafka.port", Integer.class));
 
         embeddedKafkaBroker.afterPropertiesSet();
 
-        LOG.info("Kafka broker successfully (re)started");
+        LOG.info("Kafka broker successfully (re)started {}");
     }
 
     @Override

@@ -524,36 +524,35 @@ public class LinkedAccountITCase extends AbstractITCase {
             accounts = USER_SERVICE.read("vivaldi").getLinkedAccounts();
             assertEquals(3, accounts.size());
 
-            Optional<LinkedAccountTO> firstAccount = accounts.stream().
+            LinkedAccountTO account1 = accounts.stream().
                     filter(account -> user1Key.equals(account.getConnObjectKeyValue())).
-                    findFirst();
-            assertTrue(firstAccount.isPresent());
-            assertFalse(firstAccount.orElseThrow().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, firstAccount.orElseThrow().getResource());
-            assertEquals("linkedaccount1", firstAccount.orElseThrow().getUsername());
+                    findFirst().orElseThrow();
+            assertFalse(account1.isSuspended());
+            assertEquals(RESOURCE_NAME_REST, account1.getResource());
+            assertEquals("linkedaccount1", account1.getUsername());
             assertEquals(
                     "Pasquale",
-                    firstAccount.orElseThrow().getPlainAttr("firstname").orElseThrow().getValues().getFirst());
+                    account1.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
 
-            Optional<LinkedAccountTO> secondAccount = accounts.stream().
+            LinkedAccountTO account2 = accounts.stream().
                     filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
-                    findFirst();
-            assertTrue(secondAccount.isPresent());
-            assertFalse(secondAccount.orElseThrow().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, secondAccount.orElseThrow().getResource());
-            assertNull(secondAccount.orElseThrow().getUsername());
+                    findFirst().orElseThrow();
+            assertFalse(account2.isSuspended());
+            assertEquals(RESOURCE_NAME_REST, account2.getResource());
+            assertNull(account2.getUsername());
             assertEquals(
                     "Giovannino",
-                    secondAccount.orElseThrow().getPlainAttr("firstname").orElseThrow().getValues().getFirst());
+                    account2.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
 
-            Optional<LinkedAccountTO> thirdAccount = accounts.stream().
+            LinkedAccountTO account3 = accounts.stream().
                     filter(account -> user3Key.equals(account.getConnObjectKeyValue())).
-                    filter(account -> "not.vivaldi".equals(account.getUsername())).
-                    findFirst();
-            assertTrue(thirdAccount.isPresent());
-            assertFalse(thirdAccount.orElseThrow().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, thirdAccount.orElseThrow().getResource());
-            assertEquals("not.vivaldi", thirdAccount.orElseThrow().getUsername());
+                    findFirst().orElseThrow();
+            assertFalse(account3.isSuspended());
+            assertEquals(RESOURCE_NAME_REST, account3.getResource());
+            assertEquals("not.vivaldi", account3.getUsername());
+            assertEquals(
+                    "not.vivaldi@syncope.org",
+                    account3.getPlainAttr("email").orElseThrow().getValues().getFirst());
 
             // 3. update / remove REST users
             response = webClient.path(user1Key).delete();
@@ -579,25 +578,22 @@ public class LinkedAccountITCase extends AbstractITCase {
             accounts = USER_SERVICE.read("vivaldi").getLinkedAccounts();
             assertEquals(2, accounts.size());
 
-            firstAccount = accounts.stream().
+            assertTrue(accounts.stream().
                     filter(account -> user1Key.equals(account.getConnObjectKeyValue())).
-                    findFirst();
-            assertFalse(firstAccount.isPresent());
+                    findFirst().isEmpty());
 
-            secondAccount = accounts.stream().
+            account2 = accounts.stream().
                     filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
-                    findFirst();
-            assertTrue(secondAccount.isPresent());
-            assertFalse(secondAccount.orElseThrow().isSuspended());
-            assertEquals(user2Key, secondAccount.orElseThrow().getConnObjectKeyValue());
-            assertEquals("linkedaccount2", secondAccount.orElseThrow().getUsername());
+                    findFirst().orElseThrow();
+            assertFalse(account2.isSuspended());
+            assertEquals(user2Key, account2.getConnObjectKeyValue());
+            assertEquals("linkedaccount2", account2.getUsername());
 
-            thirdAccount = accounts.stream().
-                    filter(account -> "not.vivaldi".equals(account.getUsername())).
-                    findFirst();
-            assertTrue(thirdAccount.isPresent());
-            assertTrue(thirdAccount.orElseThrow().isSuspended());
-            assertEquals(user3Key, thirdAccount.orElseThrow().getConnObjectKeyValue());
+            account3 = accounts.stream().
+                    filter(account -> user3Key.equals(account.getConnObjectKeyValue())).
+                    findFirst().orElseThrow();
+            assertEquals("not.vivaldi", account3.getUsername());
+            assertTrue(account3.isSuspended());
         } finally {
             // clean up
             UserUR patch = new UserUR();

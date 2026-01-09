@@ -371,7 +371,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
     }
 
     @Override
-    public Pair<UserWorkflowResult<String>, Boolean> internalSuspend(
+    public Pair<UserWorkflowResult<String>, Boolean> suspendOnAuthFailures(
             final String key, final String updater, final String context) {
 
         User user = userDAO.authFind(key);

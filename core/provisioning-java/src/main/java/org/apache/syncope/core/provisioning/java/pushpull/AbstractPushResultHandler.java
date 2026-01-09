@@ -137,7 +137,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
 
-        List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
+        List<String> ownedResources = anyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).toList();
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
@@ -222,7 +222,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void link(final Any any, final boolean unlink, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -234,7 +234,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void unassign(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -246,7 +246,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void assign(final Any any, final Boolean enabled, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());

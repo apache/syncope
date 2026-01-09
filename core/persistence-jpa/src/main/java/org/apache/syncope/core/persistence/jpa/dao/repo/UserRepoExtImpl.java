@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +52,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
@@ -211,7 +211,25 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
+    @Override
+    public List<Role> findDynRoles(final String key) {
+        return query(
+                "SELECT DISTINCT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key).stream().
+                map(roleDAO::findById).
+                flatMap(Optional::stream).
+                collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
@@ -221,39 +239,29 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(roleKey -> roleDAO.findById(roleKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
+    protected List<String> findDynGroupKeys(final String key) {
+        return query(
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
+        return findDynGroupKeys(key).stream().
+                map(groupDAO::findById).
                 flatMap(Optional::stream).
-                distinct().
                 collect(Collectors.toList());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
@@ -264,19 +272,23 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return findAllGroups(user).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(user.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+        result.addAll(findDynGroupKeys(user.getKey()));
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
         return findAllGroups(user).stream().map(Group::getName).toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
@@ -295,11 +307,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(readOnly = true)
     @Override
     public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
-        query.setParameter(1, userKey);
-        query.setParameter(2, connObjectKeyValue);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                userKey, connObjectKeyValue) > 0;
     }
 }

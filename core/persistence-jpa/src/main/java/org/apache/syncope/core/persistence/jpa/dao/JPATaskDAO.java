@@ -132,6 +132,9 @@ public class JPATaskDAO implements TaskDAO {
     public Optional<? extends Task<?>> findById(final String key) {
         Optional<? extends Task<?>> task = findById(TaskType.SCHEDULED, key);
         if (task.isEmpty()) {
+            task = findById(TaskType.LIVE_SYNC, key);
+        }
+        if (task.isEmpty()) {
             task = findById(TaskType.PULL, key);
         }
         if (task.isEmpty()) {

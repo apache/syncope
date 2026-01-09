@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
@@ -43,6 +42,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -63,10 +63,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class DefaultUserPullResultHandler extends AbstractPullResultHandler implements UserPullResultHandler {
 
     @Autowired
-    private UserProvisioningManager userProvisioningManager;
+    protected UserProvisioningManager userProvisioningManager;
+
+    @Autowired
+    protected UserDAO userDAO;
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
@@ -81,7 +84,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> provisioningManager() {
         return userProvisioningManager;
     }
 
@@ -137,100 +140,100 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected OpEvent.Outcome handleLinkedAccounts(
+    protected OpEvent.Outcome handleLinkedAccount(
             final SyncDelta delta,
-            final List<InboundMatch> matches,
+            final InboundMatch match,
             final Provision provision) throws JobExecutionException {
 
-        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
-        for (InboundMatch match : matches) {
-            if (match.getAny() == null) {
-                LOG.error("Could not find linking user, cannot process match {}", match);
-                return OpEvent.Outcome.FAILURE;
+        if (match.getAny() == null) {
+            LOG.error("Could not find linking user, cannot process match {}", match);
+            return OpEvent.Outcome.FAILURE;
+        }
+
+        OpEvent.Outcome resultStatus = OpEvent.Outcome.SUCCESS;
+        User user = (User) match.getAny();
+
+        Optional<? extends LinkedAccount> found =
+                user.getLinkedAccount(profile.getTask().getResource().getKey(), delta.getUid().getUidValue());
+        if (found.isPresent()) {
+            LinkedAccount account = found.get();
+
+            switch (delta.getDeltaType()) {
+                case CREATE:
+                case UPDATE:
+                case CREATE_OR_UPDATE:
+                    switch (profile.getTask().getMatchingRule()) {
+                        case UPDATE:
+                            resultStatus = update(delta, account, provision);
+                            break;
+
+                        case DEPROVISION:
+                        case UNASSIGN:
+                            resultStatus = deprovision(profile.getTask().getMatchingRule(), delta, account);
+                            break;
+
+                        case LINK:
+                        case UNLINK:
+                            LOG.warn("{} not applicable to linked accounts, ignoring",
+                                    profile.getTask().getMatchingRule());
+                            break;
+
+                        case IGNORE:
+                            resultStatus = ignore(delta, account, true);
+                            break;
+
+                        default:
+                        // do nothing
+                        }
+                    break;
+
+                case DELETE:
+                    resultStatus = delete(delta, account, provision);
+                    break;
+
+                default:
             }
-            User user = (User) match.getAny();
+        } else {
+            switch (delta.getDeltaType()) {
+                case CREATE:
+                case UPDATE:
+                case CREATE_OR_UPDATE:
+                    LinkedAccountTO accountTO = new LinkedAccountTO();
+                    accountTO.setConnObjectKeyValue(delta.getUid().getUidValue());
+                    accountTO.setResource(profile.getTask().getResource().getKey());
 
-            Optional<? extends LinkedAccount> found =
-                    user.getLinkedAccount(profile.getTask().getResource().getKey(), delta.getUid().getUidValue());
-            if (found.isPresent()) {
-                LinkedAccount account = found.get();
+                    switch (profile.getTask().getUnmatchingRule()) {
+                        case ASSIGN:
+                        case PROVISION:
+                            resultStatus = provision(
+                                    profile.getTask().getUnmatchingRule(), delta, user, accountTO, provision);
+                            break;
 
-                switch (delta.getDeltaType()) {
-                    case CREATE:
-                    case UPDATE:
-                    case CREATE_OR_UPDATE:
-                        switch (profile.getTask().getMatchingRule()) {
-                            case UPDATE:
-                                global = and(global, update(delta, account, provision));
-                                break;
+                        case IGNORE:
+                            resultStatus = ignore(delta, null, false);
+                            break;
 
-                            case DEPROVISION:
-                            case UNASSIGN:
-                                global = and(global, deprovision(profile.getTask().getMatchingRule(), delta, account));
-                                break;
-
-                            case LINK:
-                            case UNLINK:
-                                LOG.warn("{} not applicable to linked accounts, ignoring",
-                                        profile.getTask().getMatchingRule());
-                                break;
-
-                            case IGNORE:
-                                global = and(global, ignore(delta, account, true));
-                                break;
-
-                            default:
-                            // do nothing
+                        default:
+                        // do nothing
                         }
-                        break;
+                    break;
 
-                    case DELETE:
-                        global = and(global, delete(delta, account, provision));
-                        break;
+                case DELETE:
+                    end(Optional.empty(),
+                            AnyTypeKind.USER.name(),
+                            ResourceOperation.DELETE.name().toLowerCase(),
+                            OpEvent.Outcome.SUCCESS,
+                            null,
+                            null,
+                            delta);
+                    LOG.debug("No match found for deletion");
+                    break;
 
-                    default:
-                }
-            } else {
-                switch (delta.getDeltaType()) {
-                    case CREATE:
-                    case UPDATE:
-                    case CREATE_OR_UPDATE:
-                        LinkedAccountTO accountTO = new LinkedAccountTO();
-                        accountTO.setConnObjectKeyValue(delta.getUid().getUidValue());
-                        accountTO.setResource(profile.getTask().getResource().getKey());
-
-                        switch (profile.getTask().getUnmatchingRule()) {
-                            case ASSIGN:
-                            case PROVISION:
-                                global = and(global, provision(
-                                        profile.getTask().getUnmatchingRule(), delta, user, accountTO, provision));
-                                break;
-
-                            case IGNORE:
-                                global = and(global, ignore(delta, null, false));
-                                break;
-
-                            default:
-                            // do nothing
-                        }
-                        break;
-
-                    case DELETE:
-                        end(AnyTypeKind.USER.name(),
-                                ResourceOperation.DELETE.name().toLowerCase(),
-                                OpEvent.Outcome.SUCCESS,
-                                null,
-                                null,
-                                delta);
-                        LOG.debug("No match found for deletion");
-                        break;
-
-                    default:
-                }
+                default:
             }
         }
 
-        return global;
+        return resultStatus;
     }
 
     protected OpEvent.Outcome deprovision(
@@ -240,19 +243,24 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER.name(),
-                    MatchingRule.toOp(MatchingRule.UPDATE), OpEvent.Outcome.SUCCESS, null, null, delta);
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
+                    MatchingRule.toOp(MatchingRule.UPDATE),
+                    OpEvent.Outcome.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to deprovision {}", account);
 
-        ProvisioningReport report = new ProvisioningReport();
-        report.setOperation(ResourceOperation.DELETE);
-        report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-        report.setStatus(ProvisioningReport.Status.SUCCESS);
-        report.setKey(account.getKey());
-        report.setUidValue(account.getConnObjectKeyValue());
+        ProvisioningReport result = new ProvisioningReport();
+        result.setOperation(ResourceOperation.DELETE);
+        result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
+        result.setKey(account.getKey());
+        result.setUidValue(account.getConnObjectKeyValue());
 
         LinkedAccountTO before = userDataBinder.getLinkedAccountTO(account);
 
@@ -285,7 +293,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         profile.getExecutor());
 
                 for (InboundActions action : profile.getActions()) {
-                    action.after(profile, delta, before, report);
+                    action.after(profile, delta, before, result);
                 }
 
                 resultStatus = OpEvent.Outcome.SUCCESS;
@@ -300,15 +308,21 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             } catch (Exception e) {
                 throwIgnoreProvisionException(delta, e);
 
-                report.setStatus(ProvisioningReport.Status.FAILURE);
-                report.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                result.setStatus(ProvisioningReport.Status.FAILURE);
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update linked account {}", account, e);
                 output = e;
                 resultStatus = OpEvent.Outcome.FAILURE;
             }
 
-            end(AnyTypeKind.USER.name(), MatchingRule.toOp(matchingRule), resultStatus, before, output, delta);
-            profile.getResults().add(report);
+            end(Optional.of(account.getOwner().getKey()),
+                    AnyTypeKind.USER.name(),
+                    MatchingRule.toOp(matchingRule),
+                    resultStatus,
+                    before,
+                    output,
+                    delta);
+            profile.getResults().add(result);
         }
 
         return resultStatus;
@@ -324,24 +338,38 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(AnyTypeKind.USER.name(), UnmatchingRule.toOp(rule), OpEvent.Outcome.SUCCESS, null, null, delta);
+            end(
+                    Optional.empty(),
+                    AnyTypeKind.USER.name(),
+                    UnmatchingRule.toOp(rule),
+                    OpEvent.Outcome.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to create {}", accountTO);
 
-        ProvisioningReport report = new ProvisioningReport();
-        report.setOperation(ResourceOperation.CREATE);
-        report.setName(accountTO.getConnObjectKeyValue());
-        report.setUidValue(accountTO.getConnObjectKeyValue());
-        report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-        report.setStatus(ProvisioningReport.Status.SUCCESS);
+        ProvisioningReport result = new ProvisioningReport();
+        result.setOperation(ResourceOperation.CREATE);
+        result.setName(accountTO.getConnObjectKeyValue());
+        result.setUidValue(accountTO.getConnObjectKeyValue());
+        result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
 
         if (profile.isDryRun()) {
-            report.setKey(null);
-            end(AnyTypeKind.USER.name(), UnmatchingRule.toOp(rule), OpEvent.Outcome.SUCCESS, null, null, delta);
+            result.setKey(null);
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
+                    UnmatchingRule.toOp(rule),
+                    OpEvent.Outcome.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return OpEvent.Outcome.SUCCESS;
         }
+        result.setKey(user.getKey());
 
         UserTO owner = userDataBinder.getUserTO(user, false);
         UserCR connObject = connObjectUtils.getAnyCR(
@@ -375,7 +403,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 action.beforeProvision(profile, delta, accountTO);
             }
         }
-        report.setName(accountTO.getConnObjectKeyValue());
+        result.setName(accountTO.getConnObjectKeyValue());
 
         UserUR req = new UserUR();
         req.setKey(user.getKey());
@@ -388,7 +416,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         try {
             userProvisioningManager.update(
                     req,
-                    report,
+                    result,
                     null,
                     Set.of(profile.getTask().getResource().getKey()),
                     true,
@@ -405,7 +433,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             resultStatus = OpEvent.Outcome.SUCCESS;
 
             for (InboundActions action : profile.getActions()) {
-                action.after(profile, delta, created, report);
+                action.after(profile, delta, created, result);
             }
 
             LOG.debug("Linked account {} successfully created", accountTO.getConnObjectKeyValue());
@@ -418,19 +446,25 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         } catch (Exception e) {
             throwIgnoreProvisionException(delta, e);
 
-            report.setStatus(ProvisioningReport.Status.FAILURE);
-            report.setMessage(ExceptionUtils.getRootCauseMessage(e));
+            result.setStatus(ProvisioningReport.Status.FAILURE);
+            result.setMessage(ExceptionUtils.getRootCauseMessage(e));
             LOG.error("Could not create linked account {} ", accountTO.getConnObjectKeyValue(), e);
             output = e;
             resultStatus = OpEvent.Outcome.FAILURE;
 
             if (profile.getTask().isRemediation()) {
-                createRemediation(provision.getAnyType(), null, null, req, report, delta);
+                createRemediation(provision.getAnyType(), null, null, req, result, delta);
             }
         }
 
-        end(AnyTypeKind.USER.name(), UnmatchingRule.toOp(rule), resultStatus, null, output, delta);
-        profile.getResults().add(report);
+        end(Optional.of(user.getKey()),
+                AnyTypeKind.USER.name(),
+                UnmatchingRule.toOp(rule),
+                resultStatus,
+                null,
+                output,
+                delta);
+        profile.getResults().add(result);
 
         return resultStatus;
     }
@@ -443,20 +477,25 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER.name(),
-                    MatchingRule.toOp(MatchingRule.UPDATE), OpEvent.Outcome.SUCCESS, null, null, delta);
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
+                    MatchingRule.toOp(MatchingRule.UPDATE),
+                    OpEvent.Outcome.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to update {}", account);
 
-        ProvisioningReport report = new ProvisioningReport();
-        report.setOperation(ResourceOperation.UPDATE);
-        report.setKey(account.getKey());
-        report.setUidValue(account.getConnObjectKeyValue());
-        report.setName(account.getConnObjectKeyValue());
-        report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-        report.setStatus(ProvisioningReport.Status.SUCCESS);
+        ProvisioningReport result = new ProvisioningReport();
+        result.setOperation(ResourceOperation.UPDATE);
+        result.setKey(account.getKey());
+        result.setUidValue(account.getConnObjectKeyValue());
+        result.setName(account.getConnObjectKeyValue());
+        result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
 
         OpEvent.Outcome resultStatus = OpEvent.Outcome.SUCCESS;
         if (!profile.isDryRun()) {
@@ -495,20 +534,20 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             });
             update.getPlainAttrs().removeIf(attr -> attrsToRemove.contains(attr.getSchema()));
 
-            UserUR userUR = new UserUR();
-            userUR.setKey(account.getOwner().getKey());
-            userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().
+            UserUR req = new UserUR();
+            req.setKey(account.getOwner().getKey());
+            req.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                     operation(PatchOperation.ADD_REPLACE).linkedAccountTO(update).build());
 
             for (InboundActions action : profile.getActions()) {
-                action.beforeUpdate(profile, delta, before, userUR);
+                action.beforeUpdate(profile, delta, before, req);
             }
 
             Object output;
             try {
                 userProvisioningManager.update(
-                        userUR,
-                        report,
+                        req,
+                        result,
                         null,
                         Set.of(profile.getTask().getResource().getKey()),
                         true,
@@ -516,7 +555,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         profile.getContext());
                 resultStatus = OpEvent.Outcome.SUCCESS;
 
-                LinkedAccountTO updated = userDAO.findById(userUR.getKey()).
+                LinkedAccountTO updated = userDAO.findById(req.getKey()).
                         orElseThrow(() -> new IllegalStateException("Could not find the User just updated")).
                         getLinkedAccount(account.getResource().getKey(), account.getConnObjectKeyValue()).
                         map(acct -> userDataBinder.getLinkedAccountTO(acct)).
@@ -524,7 +563,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 output = updated;
 
                 for (InboundActions action : profile.getActions()) {
-                    action.after(profile, delta, updated, report);
+                    action.after(profile, delta, updated, result);
                 }
 
                 LOG.debug("Linked account {} successfully updated", account.getConnObjectKeyValue());
@@ -537,21 +576,25 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             } catch (Exception e) {
                 throwIgnoreProvisionException(delta, e);
 
-                report.setStatus(ProvisioningReport.Status.FAILURE);
-                report.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                result.setStatus(ProvisioningReport.Status.FAILURE);
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                 LOG.error("Could not update linked account {}", account, e);
                 output = e;
                 resultStatus = OpEvent.Outcome.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    createRemediation(provision.getAnyType(), null, null, userUR, report, delta);
+                    createRemediation(provision.getAnyType(), null, null, req, result, delta);
                 }
             }
 
-            end(AnyTypeKind.USER.name(),
+            end(Optional.of(account.getOwner().getKey()),
+                    AnyTypeKind.USER.name(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
-                    resultStatus, before, output, delta);
-            profile.getResults().add(report);
+                    resultStatus,
+                    before,
+                    output,
+                    delta);
+            profile.getResults().add(result);
         }
 
         return resultStatus;
@@ -564,8 +607,13 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
-            end(AnyTypeKind.USER.name(),
-                    ResourceOperation.DELETE.name().toLowerCase(), OpEvent.Outcome.SUCCESS, null, null, delta);
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
+                    ResourceOperation.DELETE.name().toLowerCase(),
+                    OpEvent.Outcome.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return OpEvent.Outcome.SUCCESS;
         }
 
@@ -574,15 +622,15 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         Object output;
         OpEvent.Outcome resultStatus = OpEvent.Outcome.FAILURE;
 
-        ProvisioningReport report = new ProvisioningReport();
+        ProvisioningReport result = new ProvisioningReport();
 
         try {
-            report.setKey(account.getKey());
-            report.setName(account.getConnObjectKeyValue());
-            report.setUidValue(account.getConnObjectKeyValue());
-            report.setOperation(ResourceOperation.DELETE);
-            report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-            report.setStatus(ProvisioningReport.Status.SUCCESS);
+            result.setKey(account.getKey());
+            result.setName(account.getConnObjectKeyValue());
+            result.setUidValue(account.getConnObjectKeyValue());
+            result.setOperation(ResourceOperation.DELETE);
+            result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
 
             if (!profile.isDryRun()) {
                 LinkedAccountTO before = userDataBinder.getLinkedAccountTO(account);
@@ -599,7 +647,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 try {
                     userProvisioningManager.update(
                             req,
-                            report,
+                            result,
                             null,
                             Set.of(profile.getTask().getResource().getKey()),
                             true,
@@ -610,25 +658,29 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     output = null;
 
                     for (InboundActions action : profile.getActions()) {
-                        action.after(profile, delta, before, report);
+                        action.after(profile, delta, before, result);
                     }
                 } catch (Exception e) {
                     throwIgnoreProvisionException(delta, e);
 
-                    report.setStatus(ProvisioningReport.Status.FAILURE);
-                    report.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                    result.setStatus(ProvisioningReport.Status.FAILURE);
+                    result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                     LOG.error("Could not delete linked account {}", account, e);
                     output = e;
 
                     if (profile.getTask().isRemediation()) {
-                        createRemediation(provision.getAnyType(), null, null, req, report, delta);
+                        createRemediation(provision.getAnyType(), null, null, req, result, delta);
                     }
                 }
 
-                end(AnyTypeKind.USER.name(),
+                end(Optional.of(account.getOwner().getKey()),
+                        AnyTypeKind.USER.name(),
                         ResourceOperation.DELETE.name().toLowerCase(),
-                        resultStatus, before, output, delta);
-                profile.getResults().add(report);
+                        resultStatus,
+                        before,
+                        output,
+                        delta);
+                profile.getResults().add(result);
             }
         } catch (Exception e) {
             LOG.error("Could not delete linked account {}", account, e);
@@ -645,26 +697,29 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         LOG.debug("Linked account to ignore {}", delta.getObject().getUid().getUidValue());
 
-        ProvisioningReport report = new ProvisioningReport();
-        report.setName(delta.getUid().getUidValue());
-        report.setUidValue(delta.getUid().getUidValue());
-        report.setOperation(ResourceOperation.NONE);
-        report.setAnyType(MatchType.LINKED_ACCOUNT.name());
-        report.setStatus(ProvisioningReport.Status.SUCCESS);
+        ProvisioningReport result = new ProvisioningReport();
+        result.setKey(account.getOwner().getKey());
+        result.setName(delta.getUid().getUidValue());
+        result.setUidValue(delta.getUid().getUidValue());
+        result.setOperation(ResourceOperation.NONE);
+        result.setAnyType(MatchType.LINKED_ACCOUNT.name());
+        result.setStatus(ProvisioningReport.Status.SUCCESS);
         if (message != null && message.length >= 1) {
-            report.setMessage(message[0]);
+            result.setMessage(message[0]);
         }
         if (account != null) {
-            report.setKey(account.getKey());
+            result.setKey(account.getKey());
         }
 
-        end(AnyTypeKind.USER.name(),
-                matching
-                        ? MatchingRule.toOp(MatchingRule.IGNORE)
-                        : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
-                OpEvent.Outcome.SUCCESS, null, null, delta);
+        end(Optional.of(result.getKey()),
+                AnyTypeKind.USER.name(),
+                matching ? MatchingRule.toOp(MatchingRule.IGNORE) : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
+                OpEvent.Outcome.SUCCESS,
+                null,
+                null,
+                delta);
 
-        profile.getResults().add(report);
+        profile.getResults().add(result);
         return OpEvent.Outcome.SUCCESS;
     }
 }

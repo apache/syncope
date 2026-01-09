@@ -43,7 +43,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     private AnyObjectProvisioningManager anyObjectProvisioningManager;
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
@@ -58,7 +58,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected ProvisioningManager<?, ?> getProvisioningManager() {
+    protected ProvisioningManager<?, ?> provisioningManager() {
         return anyObjectProvisioningManager;
     }
 

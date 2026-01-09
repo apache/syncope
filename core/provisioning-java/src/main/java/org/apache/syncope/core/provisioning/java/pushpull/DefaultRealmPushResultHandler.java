@@ -121,7 +121,7 @@ public class DefaultRealmPushResultHandler
         } catch (IgnoreProvisionException e) {
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
-            result.setAnyType(realm == null ? null : SyncopeConstants.REALM_ANYTYPE);
+            result.setAnyType(SyncopeConstants.REALM_ANYTYPE);
             result.setStatus(ProvisioningReport.Status.IGNORE);
             result.setKey(realm.getKey());
             profile.getResults().add(result);
