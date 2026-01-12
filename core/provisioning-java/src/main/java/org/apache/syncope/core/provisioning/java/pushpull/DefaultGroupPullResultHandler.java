@@ -54,6 +54,11 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
+    public void updateOwner(final GroupUR req) {
+        gwfAdapter.update(req, profile.getExecutor(), profile.getContext());
+    }
+
+    @Override
     protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }

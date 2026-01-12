@@ -265,7 +265,7 @@ public abstract class AbstractPullResultHandler
             }
         }
 
-        end(Optional.of(result.getKey()),
+        end(Optional.ofNullable(result.getKey()),
                 provision.getAnyType(),
                 UnmatchingRule.toOp(rule),
                 resultStatus,

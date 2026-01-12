@@ -27,17 +27,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.StringReplacePatchItem;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
@@ -56,9 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
         extends AbstractProvisioningJobDelegate<T>
         implements SyncopePullExecutor {
-
-    @Autowired
-    protected GroupDAO groupDAO;
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -136,27 +132,34 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
     protected void setGroupOwners() {
         ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
-            Group group = groupDAO.findById(groupKey).orElseThrow(() -> new NotFoundException("Group " + groupKey));
+            GroupUR req = new GroupUR();
+            req.setKey(groupKey);
 
             if (StringUtils.isBlank(ownerKey)) {
-                group.setGroupOwner(null);
-                group.setUserOwner(null);
+                req.setUserOwner(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
+                req.setGroupOwner(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
             } else {
                 inboundMatcher.match(
                         anyTypeDAO.getUser(),
                         ownerKey,
                         profile.getTask().getResource(),
                         profile.getConnector()).ifPresentOrElse(
-                        userMatch -> group.setUserOwner((User) userMatch.getAny()),
+                        userMatch -> req.setUserOwner(new StringReplacePatchItem.Builder().
+                                value(userMatch.getAny().getKey()).build()),
                         () -> inboundMatcher.match(
                                 anyTypeDAO.getGroup(),
                                 ownerKey,
                                 profile.getTask().getResource(),
                                 profile.getConnector()).
-                                ifPresent(groupMatch -> group.setGroupOwner((Group) groupMatch.getAny())));
+                                ifPresent(groupMatch -> req.setGroupOwner(new StringReplacePatchItem.Builder().
+                                value(groupMatch.getAny().getKey()).build())));
             }
 
-            groupDAO.save(group);
+            if (req.isEmpty()) {
+                LOG.warn("Unable to set owner {} for group {}", ownerKey, groupKey);
+            } else {
+                ghandler.updateOwner(req);
+            }
         });
     }
 
