@@ -36,11 +36,11 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
 
     @Override
     public String loadStringResource(
-            Class<?> clazz,
-            String key,
-            Locale locale,
-            String style,
-            String variation) {
+            final Class<?> clazz,
+            final String key,
+            final Locale locale,
+            final String style,
+            final String variation) {
 
         if (key != null && key.startsWith("menu.")) {
             Class<?> pageClass = DynamicMenuRegister.getPage(key);

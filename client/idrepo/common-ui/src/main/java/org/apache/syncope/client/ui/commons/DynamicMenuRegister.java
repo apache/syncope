@@ -21,7 +21,7 @@ package org.apache.syncope.client.ui.commons;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DynamicMenuRegister {
+public final class DynamicMenuRegister {
 
     private static final Map<String, Class<?>> KEYS_FOR_PAGES = new HashMap<>();
 
