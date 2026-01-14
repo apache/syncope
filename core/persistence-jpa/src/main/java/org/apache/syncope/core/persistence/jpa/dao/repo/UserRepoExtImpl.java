@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -93,6 +94,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.delegationDAO = delegationDAO;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<String> findByToken(final String token) {
+        return query(
+                "SELECT id FROM " + JPAUser.TABLE + " WHERE token=?",
+                rs -> {
+                    if (rs.next()) {
+                        return Optional.of(rs.getString(1));
+                    }
+                    return Optional.empty();
+                },
+                token);
     }
 
     @Override
@@ -241,7 +256,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     protected List<String> findDynGroupKeys(final String key) {
         return query(
-                "SELECT DISTINCT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?",
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
                 rs -> {
                     List<String> result = new ArrayList<>();
                     while (rs.next()) {

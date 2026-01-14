@@ -45,20 +45,18 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -200,7 +198,7 @@ public class GroupTest extends AbstractTest {
 
         group = groupDAO.findByName("new").orElseThrow();
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).get().getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).orElseThrow().getAuxClasses().size());
     }
 
     @Test
@@ -235,7 +233,7 @@ public class GroupTest extends AbstractTest {
      */
     private List<Group> findDynGroups(final User user) {
         Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
+                "SELECT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
         @SuppressWarnings("unchecked")
@@ -269,11 +267,12 @@ public class GroupTest extends AbstractTest {
         group.setRealm(realmDAO.getRoot());
         group.setName("new");
 
-        UDynGroupMembership dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
+        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
+        dynMembership.setAnyType(anyTypeDAO.getUser());
         dynMembership.setFIQLCond("cool==true");
         dynMembership.setGroup(group);
 
-        group.setUDynMembership(dynMembership);
+        group.add(dynMembership);
 
         Group actual = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(actual);
@@ -282,9 +281,9 @@ public class GroupTest extends AbstractTest {
 
         // 2. verify that dynamic membership is there
         actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual.getUDynMembership());
-        assertNotNull(actual.getUDynMembership().getKey());
-        assertEquals(actual, actual.getUDynMembership().getGroup());
+        assertNotNull(actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow());
+        assertNotNull(actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getKey());
+        assertEquals(actual, actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getGroup());
 
         // 3. verify that expected users have the created group dynamically assigned
         List<String> members = groupDAO.findUDynMembers(actual);
@@ -294,7 +293,8 @@ public class GroupTest extends AbstractTest {
         user = userDAO.findByUsername("bellini").orElseThrow();
         List<Group> dynGroupMemberships = findDynGroups(user);
         assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getUDynMembership().getGroup()));
+        assertTrue(dynGroupMemberships.contains(
+                actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getGroup()));
 
         // 4. delete the new user and verify that dynamic membership was updated
         userDAO.deleteById(newUserKey);
@@ -307,13 +307,13 @@ public class GroupTest extends AbstractTest {
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getUDynMembership().getKey();
+        String dynMembershipKey = actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getKey();
 
         groupDAO.delete(actual);
 
         entityManager.flush();
 
-        assertNull(entityManager.find(JPAUDynGroupMembership.class, dynMembershipKey));
+        assertNull(entityManager.find(JPADynGroupMembership.class, dynMembershipKey));
 
         dynGroupMemberships = findDynGroups(user);
         assertTrue(dynGroupMemberships.isEmpty());
@@ -326,7 +326,7 @@ public class GroupTest extends AbstractTest {
      */
     private List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
+                "SELECT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, anyObject.getKey());
 
         @SuppressWarnings("unchecked")
@@ -360,7 +360,7 @@ public class GroupTest extends AbstractTest {
         group.setRealm(realmDAO.getRoot());
         group.setName("new");
 
-        ADynGroupMembership dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
+        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
         dynMembership.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         dynMembership.setFIQLCond("model==Canon MFC8030");
         dynMembership.setGroup(group);
@@ -374,9 +374,10 @@ public class GroupTest extends AbstractTest {
 
         // 2. verify that dynamic membership is there
         actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get());
-        assertNotNull(actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get().getKey());
-        assertEquals(actual, actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get().getGroup());
+        assertNotNull(actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).orElseThrow());
+        assertNotNull(actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).orElseThrow().getKey());
+        assertEquals(actual, actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).
+                orElseThrow().getGroup());
 
         // 3. verify that expected any objects have the created group dynamically assigned
         List<String> members = groupDAO.findADynMembers(actual).stream().filter(
@@ -390,8 +391,8 @@ public class GroupTest extends AbstractTest {
         anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         Collection<Group> dynGroupMemberships = findDynGroups(anyObject);
         assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getADynMembership(anyTypeDAO.findById("PRINTER").
-                orElseThrow()).get().getGroup()));
+        assertTrue(dynGroupMemberships.contains(actual.getDynMembership(anyTypeDAO.findById("PRINTER").
+                orElseThrow()).orElseThrow().getGroup()));
 
         // 4. delete the new any object and verify that dynamic membership was updated
         anyObjectDAO.deleteById(newAnyObjectKey);
@@ -406,13 +407,14 @@ public class GroupTest extends AbstractTest {
         assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get().getKey();
+        String dynMembershipKey = actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).
+                orElseThrow().getKey();
 
         groupDAO.delete(actual);
 
         entityManager.flush();
 
-        assertNull(entityManager.find(JPAADynGroupMembership.class, dynMembershipKey));
+        assertNull(entityManager.find(JPADynGroupMembership.class, dynMembershipKey));
 
         dynGroupMemberships = findDynGroups(anyObject);
         assertTrue(dynGroupMemberships.isEmpty());
@@ -468,7 +470,8 @@ public class GroupTest extends AbstractTest {
         entityManager.flush();
 
         group = groupDAO.findById(group.getKey()).orElseThrow();
-        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().getFirst());
-        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("title").orElseThrow().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("originalName").orElseThrow().
+                getValuesAsStrings().getFirst());
     }
 }

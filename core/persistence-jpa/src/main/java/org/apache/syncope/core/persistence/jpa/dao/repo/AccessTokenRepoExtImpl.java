@@ -16,27 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.neo4j.entity;
+package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import jakarta.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DynMembership;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
+import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractDynMembership<A extends Any>
-        extends AbstractGeneratedKeyNode implements DynMembership<A> {
+public class AccessTokenRepoExtImpl implements AccessTokenRepoExt {
 
-    private static final long serialVersionUID = 921821654690948787L;
+    protected final EntityManager entityManager;
 
-    @NotNull
-    private String fiql;
-
-    @Override
-    public String getFIQLCond() {
-        return fiql;
+    public AccessTokenRepoExtImpl(final EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
+    @Transactional
     @Override
-    public void setFIQLCond(final String fiql) {
-        this.fiql = fiql;
+    public int deleteByOwner(final String username) {
+        Query query = entityManager.createQuery(
+                "DELETE FROM " + JPAAccessToken.class.getName() + " e WHERE e.owner = :owner");
+        query.setParameter("owner", username);
+        return query.executeUpdate();
     }
 }

@@ -37,7 +37,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHand
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler implements AnyObjectPullResultHandler {
+public class DefaultAnyObjectPullResultHandler
+        extends AbstractPullResultHandler
+        implements AnyObjectPullResultHandler {
 
     @Autowired
     private AnyObjectProvisioningManager anyObjectProvisioningManager;
@@ -74,10 +76,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
 
     @Override
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
-        AnyObjectCR anyObjectCR = AnyObjectCR.class.cast(anyCR);
-
         ProvisioningManager.ProvisioningResult<String> created = anyObjectProvisioningManager.create(
-                anyObjectCR,
+                AnyObjectCR.class.cast(anyCR),
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
@@ -93,10 +93,8 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        AnyObjectUR anyObjectUR = AnyObjectUR.class.cast(req);
-
         ProvisioningManager.ProvisioningResult<AnyObjectUR> updated = anyObjectProvisioningManager.update(
-                anyObjectUR,
+                AnyObjectUR.class.cast(req),
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),

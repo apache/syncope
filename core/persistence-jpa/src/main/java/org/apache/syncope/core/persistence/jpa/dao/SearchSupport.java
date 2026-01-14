@@ -93,8 +93,7 @@ public class SearchSupport {
     }
 
     public SearchView dyngroupmembership() {
-        return new SearchView("sv" + anyTypeKind.name() + "dgm",
-                anyTypeKind == AnyTypeKind.USER ? GroupRepoExt.UDYNMEMB_TABLE : GroupRepoExt.ADYNMEMB_TABLE);
+        return new SearchView("sv" + anyTypeKind.name() + "dgm", GroupRepoExt.DYNMEMB_TABLE);
     }
 
     public SearchView role() {

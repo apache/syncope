@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -49,7 +48,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -197,12 +195,7 @@ public class Neo4jUser
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
                 value,
                 Optional.ofNullable(cipherAlgorithm).
-                        orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                "password.cipher.algorithm",
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                        orElseThrow(() -> new IllegalStateException("No cipherAlgorithm was set")));
     }
 
     @Override

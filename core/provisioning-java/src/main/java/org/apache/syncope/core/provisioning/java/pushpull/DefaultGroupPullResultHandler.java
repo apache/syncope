@@ -90,10 +90,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
     @Override
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
-        GroupCR groupCR = GroupCR.class.cast(anyCR);
-
         ProvisioningManager.ProvisioningResult<String> created = groupProvisioningManager.create(
-                groupCR,
+                GroupCR.class.cast(anyCR),
                 groupOwnerMap,
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
@@ -110,10 +108,8 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
             final SyncDelta delta,
             final ProvisioningReport result) {
 
-        GroupUR groupUR = GroupUR.class.cast(req);
-
         ProvisioningManager.ProvisioningResult<GroupUR> updated = groupProvisioningManager.update(
-                groupUR,
+                GroupUR.class.cast(req),
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
@@ -122,7 +118,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
         createRemediationIfNeeded(req, delta, result);
 
         String groupOwner = null;
-        for (AttrPatch attrPatch : groupUR.getPlainAttrs()) {
+        for (AttrPatch attrPatch : req.getPlainAttrs()) {
             if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttr() != null
                     && attrPatch.getAttr().getSchema().isEmpty() && !attrPatch.getAttr().getValues().isEmpty()) {
 

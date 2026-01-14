@@ -1479,14 +1479,14 @@ public class SCIMDataBinder {
                     searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
 
             for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<UMembership> users = groupDAO.findUMemberships(
+                List<UMembership> membs = groupDAO.findUMemberships(
                         groupDAO.findById(groupTO.getKey())
                                 .orElseThrow(() -> new NotFoundException("Group " + groupTO.getKey())),
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE));
-                users.forEach(uMembership -> group.getMembers().add(new Member(
-                        uMembership.getLeftEnd().getKey(),
-                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + uMembership.getKey(),
-                        uMembership.getLeftEnd().getUsername())));
+                membs.forEach(memb -> group.getMembers().add(new Member(
+                        memb.getLeftEnd().getKey(),
+                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + memb.getKey(),
+                        memb.getLeftEnd().getUsername())));
             }
         }
 

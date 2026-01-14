@@ -217,7 +217,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     protected List<String> findDynGroupKeys(final String key) {
         return query(
-                "SELECT DISTINCT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?",
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
                 rs -> {
                     List<String> result = new ArrayList<>();
                     while (rs.next()) {

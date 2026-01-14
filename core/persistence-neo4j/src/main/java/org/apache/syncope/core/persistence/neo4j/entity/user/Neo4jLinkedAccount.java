@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -35,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
@@ -147,12 +145,7 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
                 value,
                 Optional.ofNullable(cipherAlgorithm).
-                        orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                "password.cipher.algorithm",
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                        orElseThrow(() -> new IllegalStateException("No cipherAlgorithm was set")));
     }
 
     @Override

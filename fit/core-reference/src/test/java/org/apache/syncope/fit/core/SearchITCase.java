@@ -207,7 +207,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchByDynGroup() {
         GroupCR groupCR = GroupITCase.getBasicSample("dynMembership");
-        groupCR.setUDynMembershipCond("cool==true");
+        groupCR.getDynMembershipConds().put("USER", "cool==true");
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
 

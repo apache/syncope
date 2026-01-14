@@ -135,11 +135,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     }
 
     @Override
-    public Optional<? extends User> findByToken(final String token) {
+    public Optional<String> findByToken(final String token) {
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + ") WHERE n.token = $token RETURN n.id").
                 bindAll(Map.of("token", token)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jUser.class, userCache));
+                map(found -> found.get("n.id").toString());
     }
 
     @Override
@@ -361,7 +361,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     public List<Group> findDynGroups(final String key) {
         return toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
-                + "[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
+                + "[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + ") "
                 + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
                 "p.id",

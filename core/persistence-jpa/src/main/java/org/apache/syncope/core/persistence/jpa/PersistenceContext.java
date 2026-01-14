@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmChecker;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -103,6 +104,8 @@ import org.apache.syncope.core.persistence.jpa.dao.JPARealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExtImpl;
@@ -358,20 +361,17 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
-        return new AnyChecker(plainSchemaDAO);
+    public AccessTokenRepoExt accessTokenRepoExt(final EntityManager entityManager) {
+        return new AccessTokenRepoExtImpl(entityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
-        return new AnyFinder(plainSchemaDAO, anySearchDAO);
-    }
+    public AccessTokenDAO accessTokenDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final AccessTokenRepoExt accessTokenRepoExt) {
 
-    @ConditionalOnMissingBean
-    @Bean
-    public AccessTokenDAO accessTokenDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
-        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class);
+        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class, accessTokenRepoExt);
     }
 
     @ConditionalOnMissingBean
@@ -799,9 +799,10 @@ public class PersistenceContext {
             final RealmSearchDAO realmSearchDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final ApplicationEventPublisher publisher,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final RealmChecker realmChecker) {
 
-        return new JPARealmDAO(roleDAO, realmSearchDAO, plainSchemaDAO, publisher, entityManager);
+        return new JPARealmDAO(roleDAO, realmSearchDAO, plainSchemaDAO, publisher, entityManager, realmChecker);
     }
 
     @ConditionalOnMissingBean

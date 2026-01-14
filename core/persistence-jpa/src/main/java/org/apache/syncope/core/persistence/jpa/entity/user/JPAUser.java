@@ -41,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -63,7 +62,6 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 @Entity
@@ -92,6 +90,7 @@ public class JPAUser
     @Convert(converter = PlainAttrListConverter.class)
     private List<PlainAttr> plainAttrs = new ArrayList<>();
 
+    @Lob
     protected String token;
 
     protected OffsetDateTime tokenExpireTime;
@@ -218,12 +217,7 @@ public class JPAUser
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
                 value,
                 Optional.ofNullable(cipherAlgorithm).
-                        orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                "password.cipher.algorithm",
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                        orElseThrow(() -> new IllegalStateException("No cipherAlgorithm was set")));
     }
 
     @Override
@@ -264,7 +258,7 @@ public class JPAUser
     @Override
     public List<PlainAttr> getPlainAttrs() {
         return plainAttrs.stream().
-                filter(attr -> attr.getMembership() == null).
+                filter(attr -> attr.getMembership() == null && attr.getRelationship() == null).
                 toList();
     }
 

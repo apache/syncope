@@ -19,14 +19,9 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
@@ -60,20 +55,6 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidRealm, "Only alphanumeric chars allowed in realm name")).
                         addPropertyNode("name").addConstraintViolation();
-            }
-        }
-
-        Set<String> allowedPlainSchemas = realm.getAnyTypeClasses().stream().
-                flatMap(atc -> atc.getPlainSchemas().stream()).map(PlainSchema::getKey).collect(Collectors.toSet());
-        for (PlainAttr attr : realm.getPlainAttrs()) {
-            String plainSchema = Optional.ofNullable(attr).map(PlainAttr::getSchema).orElse(null);
-            if (plainSchema != null && !allowedPlainSchemas.contains(plainSchema)) {
-                isValid = false;
-
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidPlainAttr,
-                                plainSchema + " not allowed for this instance")).
-                        addPropertyNode("plainAttrs").addConstraintViolation();
             }
         }
 

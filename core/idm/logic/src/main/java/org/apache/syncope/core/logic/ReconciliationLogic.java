@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
+import org.apache.syncope.core.logic.AbstractTransactionalLogic.ProvisioningInfo;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -106,7 +107,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.dataformat.csv.CsvSchema;
 
-public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
+public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
@@ -366,6 +367,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final String anyTypeKey,
             final String resourceKey,
@@ -399,6 +401,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final String anyTypeKey,
             final String resourceKey,
@@ -501,7 +504,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -534,7 +536,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -567,6 +568,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final SearchCond searchCond,
             final Pageable pageable,
@@ -668,7 +670,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
         AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
                 orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
@@ -698,7 +699,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
             SyncopeStreamPullExecutor executor =
                     ApplicationContextProvider.getBeanFactory().createBean(StreamPullJobDelegate.class);
-            return executor.pull(anyType,
+            return executor.pull(
+                    anyType,
                     spec.getKeyColumn(),
                     columns,
                     spec.getConflictResolutionAction(),

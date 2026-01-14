@@ -82,6 +82,7 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -184,7 +185,8 @@ public class SCIMITCase extends AbstractITCase {
     private static WebClient webClient() {
         return WebClient.create(
                 SCIM_ADDRESS,
-                List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()))).
+                List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().
+                        enable(MapperFeature.USE_GETTERS_AS_SETTERS).build()))).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value());

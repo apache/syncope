@@ -131,7 +131,7 @@ public class ReconciliationITCase extends AbstractITCase {
         printerCR.getResources().clear();
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
         assertNotNull(printer.getKey());
-        assertNotEquals("Nowhere", printer.getPlainAttr("location").get().getValues().getFirst());
+        assertNotEquals("Nowhere", printer.getPlainAttr("location").orElseThrow().getValues().getFirst());
 
         // 2. add row into the external resource's table, with same name
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -156,7 +156,7 @@ public class ReconciliationITCase extends AbstractITCase {
 
         // 5. verify reconciliation result (and resource is still not assigned)
         printer = ANY_OBJECT_SERVICE.read(printer.getKey());
-        assertEquals("Nowhere", printer.getPlainAttr("location").get().getValues().getFirst());
+        assertEquals("Nowhere", printer.getPlainAttr("location").orElseThrow().getValues().getFirst());
         assertTrue(printer.getResources().isEmpty());
     }
 
@@ -180,8 +180,8 @@ public class ReconciliationITCase extends AbstractITCase {
         assertNull(status.getMatchType());
         assertNull(status.getOnSyncope());
         assertNotNull(status.getOnResource());
-        assertEquals(externalKey, status.getOnResource().getAttr(Uid.NAME).get().getValues().getFirst());
-        assertEquals(externalName, status.getOnResource().getAttr("PRINTERNAME").get().getValues().getFirst());
+        assertEquals(externalKey, status.getOnResource().getAttr(Uid.NAME).orElseThrow().getValues().getFirst());
+        assertEquals(externalName, status.getOnResource().getAttr("PRINTERNAME").orElseThrow().getValues().getFirst());
 
         // 3. pull
         PullTaskTO pullTask = new PullTaskTO();
@@ -214,13 +214,13 @@ public class ReconciliationITCase extends AbstractITCase {
 
         UserTO donizetti = USER_SERVICE.read(results.getFirst().getKey());
         assertNotNull(donizetti);
-        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().getFirst());
-        assertEquals(1, donizetti.getPlainAttr("loginDate").get().getValues().size());
+        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
+        assertEquals(1, donizetti.getPlainAttr("loginDate").orElseThrow().getValues().size());
 
         UserTO cimarosa = USER_SERVICE.read(results.get(1).getKey());
         assertNotNull(cimarosa);
-        assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().getFirst());
-        assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
+        assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").orElseThrow().getValues().getFirst());
+        assertEquals(2, cimarosa.getPlainAttr("loginDate").orElseThrow().getValues().size());
     }
 
     @Test
@@ -265,23 +265,23 @@ public class ReconciliationITCase extends AbstractITCase {
             assertEquals(users.getResult().get(rows).getStatus(), row.get("status"));
 
             switch (row.get("username")) {
-                case "rossini":
+                case "rossini" -> {
                     assertEquals(spec.getNullValue(), row.get("email"));
                     assertTrue(row.get("loginDate").contains(spec.getArrayElementSeparator()));
-                    break;
+                }
 
-                case "verdi":
+                case "verdi" -> {
                     assertEquals("verdi@syncope.org", row.get("email"));
                     assertEquals(spec.getNullValue(), row.get("loginDate"));
-                    break;
+                }
 
-                case "bellini":
+                case "bellini" -> {
                     assertEquals(spec.getNullValue(), row.get("email"));
                     assertFalse(row.get("loginDate").contains(spec.getArrayElementSeparator()));
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                }
             }
         }
         assertEquals(rows, users.getTotalCount());

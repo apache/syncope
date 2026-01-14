@@ -78,8 +78,8 @@ public class SerializationTest {
     public void map() throws IOException {
         GroupUR req = new GroupUR();
         req.setKey(UUID.randomUUID().toString());
-        req.getADynMembershipConds().put("key1", "value1");
-        req.getADynMembershipConds().put("key2", "value2");
+        req.getDynMembershipConds().put("key1", "value1");
+        req.getDynMembershipConds().put("key2", "value2");
 
         StringWriter writer = new StringWriter();
         MAPPER.writeValue(writer, req);
@@ -115,7 +115,7 @@ public class SerializationTest {
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
         group.getPlainAttrs().add(new Attr.Builder("style").value("cool").value("great").build());
-        group.getADynMembershipConds().put("USER", "username==a*");
+        group.getDynMembershipConds().put("USER", "username==a*");
 
         PagedResult<GroupTO> original = new PagedResult<>();
         original.getResult().add(group);
@@ -135,7 +135,7 @@ public class SerializationTest {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
-        group.getADynMembershipConds().put("USER", "username==a*");
+        group.getDynMembershipConds().put("USER", "username==a*");
 
         ProvisioningResult<GroupTO> original = new ProvisioningResult<>();
         original.setEntity(group);

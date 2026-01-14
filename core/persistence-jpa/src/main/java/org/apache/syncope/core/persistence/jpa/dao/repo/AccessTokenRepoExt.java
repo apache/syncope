@@ -16,14 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.anyobject;
+package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
+public interface AccessTokenRepoExt {
 
-public interface ADynGroupMembership extends DynGroupMembership<AnyObject> {
-
-    AnyType getAnyType();
-
-    void setAnyType(AnyType anyType);
+    int deleteByOwner(String username);
 }

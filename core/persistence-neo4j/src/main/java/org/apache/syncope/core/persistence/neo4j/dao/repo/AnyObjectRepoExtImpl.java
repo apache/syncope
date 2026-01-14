@@ -305,7 +305,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     public List<Group> findDynGroups(final String key) {
         return toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jAnyObject.NODE + " {id: $id})-"
-                + "[:" + GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
+                + "[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + ") "
                 + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
                 "p.id",

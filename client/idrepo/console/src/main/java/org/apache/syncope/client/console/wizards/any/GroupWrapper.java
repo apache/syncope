@@ -34,9 +34,7 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
 
     private GroupTO previousGroupTO;
 
-    private List<SearchClause> uDynClauses;
-
-    private Map<String, List<SearchClause>> aDynClauses;
+    private Map<String, List<SearchClause>> dynClauses;
 
     public GroupWrapper(final GroupTO groupTO) {
         this(null, groupTO);
@@ -45,46 +43,28 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
     public GroupWrapper(final GroupTO previousGroupTO, final GroupTO groupTO) {
         super(groupTO);
         this.previousGroupTO = previousGroupTO;
-        getUDynClauses();
-        getADynClauses();
+        getDynClauses();
     }
 
     public GroupTO getPreviousGroupTO() {
         return previousGroupTO;
     }
 
-    public final List<SearchClause> getUDynClauses() {
-        if (this.uDynClauses == null) {
-            this.uDynClauses = SearchUtils.getSearchClauses(this.anyTO.getUDynMembershipCond());
+    public final Map<String, List<SearchClause>> getDynClauses() {
+        if (dynClauses == null) {
+            dynClauses = SearchUtils.getSearchClauses(anyTO.getDynMembershipConds());
         }
-        return this.uDynClauses;
+        return dynClauses;
     }
 
-    public void setUDynClauses(final List<SearchClause> uDynClauses) {
-        this.uDynClauses = uDynClauses;
+    public void setDynClauses(final Map<String, List<SearchClause>> dynClauses) {
+        this.dynClauses = dynClauses;
     }
 
-    public final Map<String, List<SearchClause>> getADynClauses() {
-        if (this.aDynClauses == null) {
-            this.aDynClauses = SearchUtils.getSearchClauses(this.anyTO.getADynMembershipConds());
-        }
-        return this.aDynClauses;
-    }
-
-    public void setADynClauses(final Map<String, List<SearchClause>> aDynClauses) {
-        this.aDynClauses = aDynClauses;
-    }
-
-    public String getUDynMembershipCond() {
-        return CollectionUtils.isEmpty(this.uDynClauses)
-                ? null
-                : SearchUtils.buildFIQL(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
-    }
-
-    public Map<String, String> getADynMembershipConds() {
+    public Map<String, String> getDynMembershipConds() {
         Map<String, String> res = new HashMap<>();
-        if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
-            this.aDynClauses.entrySet().stream().
+        if (dynClauses != null && !dynClauses.isEmpty()) {
+            dynClauses.entrySet().stream().
                     filter(entry -> CollectionUtils.isNotEmpty(entry.getValue())).
                     forEach(entry -> {
                         String fiql = SearchUtils.buildFIQL(entry.getValue(),
@@ -99,9 +79,8 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
     }
 
     public GroupTO fillDynamicConditions() {
-        this.anyTO.setUDynMembershipCond(this.getUDynMembershipCond());
-        this.anyTO.getADynMembershipConds().clear();
-        this.anyTO.getADynMembershipConds().putAll(this.getADynMembershipConds());
-        return this.anyTO;
+        anyTO.getDynMembershipConds().clear();
+        anyTO.getDynMembershipConds().putAll(getDynMembershipConds());
+        return anyTO;
     }
 }

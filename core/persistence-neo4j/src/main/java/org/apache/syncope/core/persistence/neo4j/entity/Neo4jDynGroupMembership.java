@@ -16,33 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.anyobject;
+package org.apache.syncope.core.persistence.neo4j.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractDynMembership;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
+import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Entity
-@Table(name = JPAADynGroupMembership.TABLE)
-public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> implements ADynGroupMembership {
+@Node(Neo4jDynGroupMembership.NODE)
+public class Neo4jDynGroupMembership extends AbstractGeneratedKeyNode implements DynGroupMembership {
 
     private static final long serialVersionUID = -7336814163949640354L;
 
-    public static final String TABLE = "ADynGroupMembership";
+    public static final String NODE = "DynGroupMembership";
 
-    @OneToOne
-    private JPAGroup group;
+    @Relationship(direction = Relationship.Direction.OUTGOING)
+    private Neo4jGroup group;
 
-    @ManyToOne
-    private JPAAnyType anyType;
+    @Relationship(direction = Relationship.Direction.OUTGOING)
+    private Neo4jAnyType anyType;
+
+    @NotNull
+    private String fiql;
 
     @Override
     public Group getGroup() {
@@ -51,8 +49,8 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     @Override
     public void setGroup(final Group role) {
-        checkType(role, JPAGroup.class);
-        this.group = (JPAGroup) role;
+        checkType(role, Neo4jGroup.class);
+        this.group = (Neo4jGroup) role;
     }
 
     @Override
@@ -62,7 +60,17 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     @Override
     public void setAnyType(final AnyType anyType) {
-        checkType(anyType, JPAAnyType.class);
-        this.anyType = (JPAAnyType) anyType;
+        checkType(anyType, Neo4jAnyType.class);
+        this.anyType = (Neo4jAnyType) anyType;
+    }
+
+    @Override
+    public String getFIQLCond() {
+        return fiql;
+    }
+
+    @Override
+    public void setFIQLCond(final String fiql) {
+        this.fiql = fiql;
     }
 }

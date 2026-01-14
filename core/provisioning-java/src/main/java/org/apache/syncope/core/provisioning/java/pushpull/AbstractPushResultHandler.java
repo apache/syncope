@@ -213,11 +213,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected void copyDynMembershipConds(final Any any, final AnyUR req) {
         if (any instanceof Group group && req instanceof GroupUR gur) {
-            Optional.ofNullable(group.getUDynMembership()).
-                    ifPresent(udc -> gur.setUDynMembershipCond(udc.getFIQLCond()));
-
-            group.getADynMemberships().
-                    forEach(adc -> gur.getADynMembershipConds().put(adc.getAnyType().getKey(), adc.getFIQLCond()));
+            group.getDynMemberships().
+                    forEach(adc -> gur.getDynMembershipConds().put(adc.getAnyType().getKey(), adc.getFIQLCond()));
         }
     }
 

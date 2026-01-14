@@ -28,23 +28,21 @@ import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -93,10 +91,7 @@ public class Neo4jGroup
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(direction = Relationship.Direction.INCOMING)
-    private Neo4jUDynGroupMembership uDynMembership;
-
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private List<Neo4jADynGroupMembership> aDynMemberships = new ArrayList<>();
+    private List<Neo4jDynGroupMembership> dynMemberships = new ArrayList<>();
 
     @Relationship(type = GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jGroupTypeExtension> typeExtensions = new ArrayList<>();
@@ -163,17 +158,6 @@ public class Neo4jGroup
     }
 
     @Override
-    public UDynGroupMembership getUDynMembership() {
-        return uDynMembership;
-    }
-
-    @Override
-    public void setUDynMembership(final UDynGroupMembership uDynMembership) {
-        checkType(uDynMembership, Neo4jUDynGroupMembership.class);
-        this.uDynMembership = (Neo4jUDynGroupMembership) uDynMembership;
-    }
-
-    @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, Neo4jAnyTypeClass.class);
         return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);
@@ -185,21 +169,21 @@ public class Neo4jGroup
     }
 
     @Override
-    public boolean add(final ADynGroupMembership dynGroupMembership) {
-        checkType(dynGroupMembership, Neo4jADynGroupMembership.class);
-        return aDynMemberships.add((Neo4jADynGroupMembership) dynGroupMembership);
+    public boolean add(final DynGroupMembership dynGroupMembership) {
+        checkType(dynGroupMembership, Neo4jDynGroupMembership.class);
+        return dynMemberships.add((Neo4jDynGroupMembership) dynGroupMembership);
     }
 
     @Override
-    public Optional<? extends ADynGroupMembership> getADynMembership(final AnyType anyType) {
-        return aDynMemberships.stream().
+    public Optional<? extends DynGroupMembership> getDynMembership(final AnyType anyType) {
+        return dynMemberships.stream().
                 filter(dynGroupMembership -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).
                 findFirst();
     }
 
     @Override
-    public List<? extends ADynGroupMembership> getADynMemberships() {
-        return aDynMemberships;
+    public List<? extends DynGroupMembership> getDynMemberships() {
+        return dynMemberships;
     }
 
     @Override

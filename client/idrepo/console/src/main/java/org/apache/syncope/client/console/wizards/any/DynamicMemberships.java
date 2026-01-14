@@ -76,7 +76,8 @@ public class DynamicMemberships extends WizardStep {
                 return new UserSearchPanel.Builder(new PropertyModel<>(groupWrapper, "uDynClauses"), pageRef).
                         required(true).build(panelId);
             }
-        }), Model.of(StringUtils.isBlank(groupWrapper.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
+        }), Model.of(StringUtils.isBlank(groupWrapper.getDynMembershipConds().get(AnyTypeKind.USER.name())) ? -1 : 0)).
+                setOutputMarkupId(true));
         // ------------------------ 
 
         // ------------------------
@@ -88,7 +89,7 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {
-                final String key = item.getModelObject().getKey();
+                String key = item.getModelObject().getKey();
                 item.add(new Accordion("aDynMembershipCond", List.of(
                         new AbstractTab(new StringResourceModel(
                                 "aDynMembershipCond", this, new Model<>(item.getModelObject()))) {
@@ -101,7 +102,7 @@ public class DynamicMemberships extends WizardStep {
                                 key, new MapOfListModel<>(groupWrapper, "aDynClauses", key), pageRef).
                                 required(false).build(panelId);
                     }
-                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
+                }), Model.of(StringUtils.isBlank(groupWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
                         setOutputMarkupId(true));
             }
         });

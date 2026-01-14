@@ -138,7 +138,7 @@ public class JPAAnyObject
     @Override
     public List<PlainAttr> getPlainAttrs() {
         return plainAttrs.stream().
-                filter(attr -> attr.getMembership() == null).
+                filter(attr -> attr.getMembership() == null && attr.getRelationship() == null).
                 toList();
     }
 

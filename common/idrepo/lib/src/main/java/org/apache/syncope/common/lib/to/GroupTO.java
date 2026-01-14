@@ -41,8 +41,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private String groupOwner;
 
-    private String udynMembershipCond;
-
     private long staticUserMembershipCount;
 
     private long dynamicUserMembershipCount;
@@ -51,7 +49,7 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private long dynamicAnyObjectMembershipCount;
 
-    private final Map<String, String> adynMembershipConds = new HashMap<>();
+    private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -97,14 +95,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         this.groupOwner = groupOwner;
     }
 
-    public String getUDynMembershipCond() {
-        return udynMembershipCond;
-    }
-
-    public void setUDynMembershipCond(final String uDynMembershipCond) {
-        this.udynMembershipCond = uDynMembershipCond;
-    }
-
     public long getStaticUserMembershipCount() {
         return staticUserMembershipCount;
     }
@@ -137,8 +127,8 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
     }
 
-    public Map<String, String> getADynMembershipConds() {
-        return adynMembershipConds;
+    public Map<String, String> getDynMembershipConds() {
+        return dynMembershipConds;
     }
 
     @JsonIgnore
@@ -161,8 +151,7 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
                 append(name).
                 append(userOwner).
                 append(groupOwner).
-                append(udynMembershipCond).
-                append(adynMembershipConds).
+                append(dynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -184,8 +173,7 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
                 append(name, other.name).
                 append(userOwner, other.userOwner).
                 append(groupOwner, other.groupOwner).
-                append(udynMembershipCond, other.udynMembershipCond).
-                append(adynMembershipConds, other.adynMembershipConds).
+                append(dynMembershipConds, other.dynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

@@ -532,13 +532,15 @@ public class ProvisioningContext {
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final EncryptorManager encryptorManager) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
-                userDAO);
+                userDAO,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -651,14 +653,16 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public NotificationJobDelegate notificationJobDelegate(
-            final TaskUtilsFactory taskUtilsFactory,
+            final ConfParamOps confParamOps,
             final TaskDAO taskDAO,
+            final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
             final NotificationManager notificationManager,
             final ApplicationEventPublisher publisher,
             final JavaMailSender mailSender) {
 
         return new MailNotificationJobDelegate(
+                confParamOps,
                 taskDAO,
                 taskUtilsFactory,
                 auditManager,

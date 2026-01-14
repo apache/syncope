@@ -516,12 +516,11 @@ public class PushTaskITCase extends AbstractTaskITCase {
     void issueSYNCOPE1918() throws Exception {
         // update group citizen
         GroupUR groupUR = new GroupUR.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").
-                udynMembershipCond("username=~ros*").
-                adynMembershipCond(PRINTER, "name=~hp*").
+                dynMembershipCond("USER", "username=~ros*").
+                dynMembershipCond(PRINTER, "name=~hp*").
                 build();
         GroupTO citizen = updateGroup(groupUR).getEntity();
-        assertNotNull(citizen.getUDynMembershipCond());
-        assertFalse(citizen.getADynMembershipConds().isEmpty());
+        assertFalse(citizen.getDynMembershipConds().isEmpty());
 
         try {
             execProvisioningTasks(
@@ -531,16 +530,13 @@ public class PushTaskITCase extends AbstractTaskITCase {
                     MAX_WAIT_SECONDS, false);
 
             citizen = GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
-            assertNotNull(citizen.getUDynMembershipCond());
-            assertFalse(citizen.getADynMembershipConds().isEmpty());
+            assertEquals(2, citizen.getDynMembershipConds().size());
         } finally {
             // restore group citizen
-            groupUR.setUDynMembershipCond(null);
-            groupUR.getADynMembershipConds().clear();
+            groupUR.getDynMembershipConds().clear();
             citizen = updateGroup(groupUR).getEntity();
 
-            assertNull(citizen.getUDynMembershipCond());
-            assertTrue(citizen.getADynMembershipConds().isEmpty());
+            assertTrue(citizen.getDynMembershipConds().isEmpty());
         }
     }
 }

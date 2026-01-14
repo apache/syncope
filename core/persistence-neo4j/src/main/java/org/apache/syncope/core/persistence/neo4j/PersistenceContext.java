@@ -64,6 +64,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmChecker;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -440,18 +441,6 @@ public class PersistenceContext {
             final Neo4jMappingContext mappingContext) {
 
         return new SyncopeNeo4jRepositoryFactory(neo4jOperations, mappingContext);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
-        return new AnyChecker(plainSchemaDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
-        return new AnyFinder(plainSchemaDAO, anySearchDAO);
     }
 
     @ConditionalOnMissingBean
@@ -1192,6 +1181,7 @@ public class PersistenceContext {
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
+            final RealmChecker realmChecker,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache) {
 
         return new Neo4jRealmDAO(
@@ -1201,6 +1191,7 @@ public class PersistenceContext {
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator,
+                realmChecker,
                 realmCache);
     }
 

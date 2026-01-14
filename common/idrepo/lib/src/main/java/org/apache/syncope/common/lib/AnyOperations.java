@@ -342,8 +342,7 @@ public final class AnyOperations {
                 replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(), new StringReplacePatchItem()));
 
         // 3. dynamic membership
-        result.setUDynMembershipCond(updated.getUDynMembershipCond());
-        result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
+        result.getDynMembershipConds().putAll(updated.getDynMembershipConds());
 
         // 4. type extensions
         result.getTypeExtensions().addAll(updated.getTypeExtensions());
@@ -478,9 +477,8 @@ public final class AnyOperations {
             result.setGroupOwner(groupUR.getGroupOwner().getValue());
         }
 
-        result.setUDynMembershipCond(groupUR.getUDynMembershipCond());
-        result.getADynMembershipConds().clear();
-        result.getADynMembershipConds().putAll(groupUR.getADynMembershipConds());
+        result.getDynMembershipConds().clear();
+        result.getDynMembershipConds().putAll(groupUR.getDynMembershipConds());
 
         relationships(groupUR.getRelationships(), result);
 

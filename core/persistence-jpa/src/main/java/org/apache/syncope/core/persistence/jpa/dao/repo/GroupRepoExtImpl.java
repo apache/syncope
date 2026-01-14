@@ -45,24 +45,22 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -247,49 +245,23 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         Group merged = save(group);
 
         // refresh dynamic memberships
-        clearUDynMembers(merged);
-        if (merged.getUDynMembership() != null) {
-            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, merged.getUDynMembership().getFIQLCond());
-            long count = anySearchDAO.count(
-                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.USER);
-            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                List<User> matching = anySearchDAO.search(
-                        realmDAO.getRoot(),
-                        true,
-                        Set.of(SyncopeConstants.ROOT_REALM),
-                        cond,
-                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        AnyTypeKind.USER);
-
-                matching.forEach(user -> {
-                    Query insert = entityManager.createNativeQuery(
-                            "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
-                    insert.setParameter(1, user.getKey());
-                    insert.setParameter(2, merged.getKey());
-                    insert.executeUpdate();
-
-                    publisher.publishEvent(
-                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
-                });
-            }
-        }
-        clearADynMembers(merged);
-        merged.getADynMemberships().forEach(memb -> {
+        clearDynMembers(merged);
+        merged.getDynMemberships().forEach(memb -> {
             SearchCond cond = SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond());
             long count = anySearchDAO.count(
-                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.ANY_OBJECT);
+                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, memb.getAnyType().getKind());
             for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                List<AnyObject> matching = anySearchDAO.search(
+                List<? extends Any> matching = anySearchDAO.search(
                         realmDAO.getRoot(),
                         true,
                         Set.of(SyncopeConstants.ROOT_REALM),
                         cond,
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        AnyTypeKind.ANY_OBJECT);
+                        memb.getAnyType().getKind());
 
                 matching.forEach(any -> {
                     Query insert = entityManager.createNativeQuery(
-                            "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                            "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
                     insert.setParameter(1, any.getType().getKey());
                     insert.setParameter(2, any.getKey());
                     insert.setParameter(3, merged.getKey());
@@ -332,8 +304,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
-        clearUDynMembers(group);
-        clearADynMembers(group);
+        clearDynMembers(group);
 
         entityManager.remove(group);
     }
@@ -351,7 +322,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public long countADynMembers(final Group group) {
         return query(
-                "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?",
+                "SELECT COUNT(any_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=?",
                 rs -> {
                     rs.next();
                     return rs.getLong(1);
@@ -362,7 +333,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public long countUDynMembers(final Group group) {
         return query(
-                "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?",
+                "SELECT COUNT(any_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=?",
                 rs -> {
                     rs.next();
                     return rs.getLong(1);
@@ -375,8 +346,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
 
-        group.getADynMemberships().forEach(memb -> query(
-                "SELECT DISTINCT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
+        group.getDynMemberships().forEach(memb -> query(
+                "SELECT DISTINCT any_id FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
                 rs -> {
                     List<String> list = new ArrayList<>();
                     while (rs.next()) {
@@ -395,7 +366,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public List<String> findUDynMembers(final Group group) {
         return query(
-                "SELECT DISTINCT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?",
+                "SELECT DISTINCT any_id FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
                 rs -> {
                     List<String> result = new ArrayList<>();
                     while (rs.next()) {
@@ -403,27 +374,20 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     }
                     return result;
                 },
-                group.getKey());
+                group.getKey(), AnyTypeKind.USER.name());
     }
 
     @Override
-    public void clearADynMembers(final Group group) {
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+    public void clearDynMembers(final Group group) {
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=?");
         delete.setParameter(1, group.getKey());
         delete.executeUpdate();
     }
 
-    @Override
-    public void clearUDynMembers(final Group group) {
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
-        delete.setParameter(1, group.getKey());
-        delete.executeUpdate();
-    }
-
-    protected List<ADynGroupMembership> findWithADynMemberships(final AnyType anyType) {
-        TypedQuery<ADynGroupMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAADynGroupMembership.class.getSimpleName() + " e  WHERE e.anyType=:anyType",
-                ADynGroupMembership.class);
+    protected List<DynGroupMembership> findWithDynMemberships(final AnyType anyType) {
+        TypedQuery<DynGroupMembership> query = entityManager.createQuery(
+                "SELECT e FROM " + JPADynGroupMembership.class.getSimpleName() + " e  WHERE e.anyType=:anyType",
+                DynGroupMembership.class);
         query.setParameter("anyType", anyType);
         return query.getResultList();
     }
@@ -433,7 +397,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
-        findWithADynMemberships(anyObject.getType()).forEach(memb -> {
+        findWithDynMemberships(anyObject.getType()).forEach(memb -> {
             boolean matches = anyMatchDAO.matches(
                     anyObject, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
             if (matches) {
@@ -441,7 +405,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             }
 
             boolean existing = query(
-                    "SELECT COUNT(group_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
+                    "SELECT COUNT(group_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
                     rs -> {
                         rs.next();
                         return rs.getLong(1);
@@ -453,14 +417,14 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
             if (matches && !existing) {
                 Query insert = entityManager.createNativeQuery(
-                        "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                        "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
                 insert.setParameter(1, anyObject.getType().getKey());
                 insert.setParameter(2, anyObject.getKey());
                 insert.setParameter(3, memb.getGroup().getKey());
                 insert.executeUpdate();
             } else if (!matches && existing) {
                 Query delete = entityManager.createNativeQuery(
-                        "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
                 delete.setParameter(1, memb.getGroup().getKey());
                 delete.setParameter(2, anyObject.getKey());
                 delete.executeUpdate();
@@ -477,7 +441,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public Set<String> removeDynMemberships(final AnyObject anyObject) {
         List<Group> dynGroups = anyObjectDAO.findDynGroups(anyObject.getKey());
 
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, anyObject.getKey());
         delete.executeUpdate();
 
@@ -492,20 +456,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return before;
     }
 
-    protected List<UDynGroupMembership> findWithUDynMemberships() {
-        TypedQuery<UDynGroupMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAUDynGroupMembership.class.getSimpleName() + " e",
-                UDynGroupMembership.class);
-
-        return query.getResultList();
-    }
-
     @Transactional
     @Override
     public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
-        findWithUDynMemberships().forEach(memb -> {
+        findWithDynMemberships(user.getType()).forEach(memb -> {
             boolean matches = anyMatchDAO.matches(
                     user, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
             if (matches) {
@@ -513,7 +469,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             }
 
             boolean existing = query(
-                    "SELECT COUNT(group_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
+                    "SELECT COUNT(group_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
                     rs -> {
                         rs.next();
                         return rs.getLong(1);
@@ -525,13 +481,14 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
             if (matches && !existing) {
                 Query insert = entityManager.createNativeQuery(
-                        "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
-                insert.setParameter(1, user.getKey());
-                insert.setParameter(2, memb.getGroup().getKey());
+                        "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                insert.setParameter(1, user.getType().getKey());
+                insert.setParameter(2, user.getKey());
+                insert.setParameter(3, memb.getGroup().getKey());
                 insert.executeUpdate();
             } else if (!matches && existing) {
                 Query delete = entityManager.createNativeQuery(
-                        "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
                 delete.setParameter(1, memb.getGroup().getKey());
                 delete.setParameter(2, user.getKey());
                 delete.executeUpdate();
@@ -548,7 +505,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public Set<String> removeDynMemberships(final User user) {
         List<Group> dynGroups = userDAO.findDynGroups(user.getKey());
 
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE any_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, user.getKey());
         delete.executeUpdate();
 

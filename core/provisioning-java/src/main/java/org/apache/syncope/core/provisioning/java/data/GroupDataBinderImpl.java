@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -56,11 +55,8 @@ import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Relatable;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -135,20 +131,12 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             throw sce;
         }
 
-        DynGroupMembership<?> dynMembership;
-        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType).isEmpty()) {
-            dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
+        DynGroupMembership dynMembership = group.getDynMembership(anyType).orElse(null);
+        if (dynMembership == null) {
+            dynMembership = entityFactory.newEntity(DynGroupMembership.class);
+            dynMembership.setAnyType(anyType);
             dynMembership.setGroup(group);
-            ((ADynGroupMembership) dynMembership).setAnyType(anyType);
-            group.add((ADynGroupMembership) dynMembership);
-        } else if (anyType.getKind() == AnyTypeKind.USER && group.getUDynMembership() == null) {
-            dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
-            dynMembership.setGroup(group);
-            group.setUDynMembership((UDynGroupMembership) dynMembership);
-        } else {
-            dynMembership = anyType.getKind() == AnyTypeKind.ANY_OBJECT
-                    ? group.getADynMembership(anyType).get()
-                    : group.getUDynMembership();
+            group.add(dynMembership);
         }
         dynMembership.setFIQLCond(dynMembershipFIQL);
     }
@@ -195,10 +183,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         }
 
         // dynamic membership
-        if (groupCR.getUDynMembershipCond() != null) {
-            setDynMembership(group, anyTypeDAO.getUser(), groupCR.getUDynMembershipCond());
-        }
-        groupCR.getADynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
+        groupCR.getDynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
                 anyType -> setDynMembership(group, anyType, fiql),
                 () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type)));
 
@@ -295,22 +280,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         group = groupDAO.save(group);
 
         // dynamic membership
-        if (groupUR.getUDynMembershipCond() == null) {
-            if (group.getUDynMembership() != null) {
-                group.getUDynMembership().setGroup(null);
-                group.setUDynMembership(null);
-                groupDAO.clearUDynMembers(group);
-            }
-        } else {
-            setDynMembership(group, anyTypeDAO.getUser(), groupUR.getUDynMembershipCond());
-        }
-        for (Iterator<? extends ADynGroupMembership> itor = group.getADynMemberships().iterator(); itor.hasNext();) {
-            ADynGroupMembership memb = itor.next();
-            memb.setGroup(null);
-            itor.remove();
-        }
-        groupDAO.clearADynMembers(group);
-        for (Map.Entry<String, String> entry : groupUR.getADynMembershipConds().entrySet()) {
+        for (Map.Entry<String, String> entry : groupUR.getDynMembershipConds().entrySet()) {
             AnyType anyType = anyTypeDAO.findById(entry.getKey()).orElse(null);
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
@@ -318,6 +288,9 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                 setDynMembership(group, anyType, entry.getValue());
             }
         }
+        group.getDynMemberships().removeAll(group.getDynMemberships().stream().
+                filter(d -> !groupUR.getDynMembershipConds().keySet().contains(d.getAnyType().getKey())).
+                toList());
 
         group = groupDAO.saveAndRefreshDynMemberships(group);
 
@@ -419,11 +392,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         groupTO.setDynamicUserMembershipCount(groupDAO.countUDynMembers(group));
         groupTO.setDynamicAnyObjectMembershipCount(groupDAO.countADynMembers(group));
 
-        Optional.ofNullable(group.getUDynMembership()).
-                map(UDynGroupMembership::getFIQLCond).
-                ifPresent(groupTO::setUDynMembershipCond);
-        group.getADynMemberships().
-                forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
+        group.getDynMemberships().
+                forEach(memb -> groupTO.getDynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
         group.getTypeExtensions().forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
@@ -431,7 +401,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             // relationships
             groupTO.getRelationships().addAll(group.getRelationships().stream().
                     map(relationship -> getRelationshipTO(group.getPlainAttrs(relationship),
-                    derAttrHandler.getValues((Relatable<?, ?>) group, relationship),
+                    derAttrHandler.getValues(group, relationship),
                     relationship.getType().getKey(),
                     RelationshipTO.End.LEFT,
                     relationship.getRightEnd())).toList());

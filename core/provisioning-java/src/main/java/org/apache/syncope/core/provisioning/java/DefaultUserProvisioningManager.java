@@ -36,7 +36,10 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -62,16 +65,28 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final UserDAO userDAO;
 
+    protected final EncryptorManager encryptorManager;
+
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final EncryptorManager encryptorManager) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.userDAO = userDAO;
+        this.encryptorManager = encryptorManager;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean checkSecurityAnswer(final String key, final String value) {
+        User user = userDAO.findById(key).orElseThrow(() -> new NotFoundException("User " + key));
+
+        return encryptorManager.getInstance().verify(value, user.getCipherAlgorithm(), user.getSecurityAnswer());
     }
 
     @Override

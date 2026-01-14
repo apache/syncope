@@ -90,8 +90,6 @@ public interface NotificationManager {
             Object output,
             Object... input);
 
-    long getMaxRetries();
-
     /**
      * Set execution state of NotificationTask with provided id.
      *

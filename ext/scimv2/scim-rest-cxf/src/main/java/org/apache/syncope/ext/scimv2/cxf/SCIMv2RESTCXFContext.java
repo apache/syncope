@@ -48,6 +48,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
@@ -57,7 +58,8 @@ public class SCIMv2RESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public JacksonJsonProvider scimJacksonJsonProvider() {
-        return new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build());
+        return new JacksonJsonProvider(JsonMapper.builder().
+                findAndAddModules().enable(MapperFeature.USE_GETTERS_AS_SETTERS).build());
     }
 
     @ConditionalOnMissingBean

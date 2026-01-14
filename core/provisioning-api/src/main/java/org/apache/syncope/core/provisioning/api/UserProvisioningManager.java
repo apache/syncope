@@ -29,6 +29,8 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserCR, UserUR> {
 
+    boolean checkSecurityAnswer(String key, String value);
+
     ProvisioningResult<String> create(
             UserCR userCR,
             boolean disablePwdPolicyCheck,

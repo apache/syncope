@@ -122,7 +122,8 @@ public class PullJobDelegate
                                     ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()));
                         }
 
-                        connector.sync(new ObjectClass(orgUnit.getObjectClass()),
+                        connector.sync(
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()),
                                 dispatcher,
                                 options);
@@ -135,7 +136,8 @@ public class PullJobDelegate
                         break;
 
                     case FILTERED_RECONCILIATION:
-                        connector.filteredReconciliation(new ObjectClass(orgUnit.getObjectClass()),
+                        connector.filteredReconciliation(
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 getReconFilterBuilder(task),
                                 dispatcher,
                                 options);

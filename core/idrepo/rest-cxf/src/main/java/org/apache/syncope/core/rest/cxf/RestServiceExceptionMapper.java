@@ -112,8 +112,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
-                || ((ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException)
-                && (ex.getCause() instanceof EntityExistsException || ex.getMessage().contains("already exists")))) {
+                || ex.getCause() instanceof EntityExistsException || ex.getMessage().contains("already exists")) {
 
             builder = builder(ClientExceptionType.EntityExists, getPersistenceErrorMessage(
                     ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException

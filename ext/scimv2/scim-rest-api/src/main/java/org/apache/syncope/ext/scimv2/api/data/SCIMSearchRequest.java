@@ -19,6 +19,7 @@
 package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class SCIMSearchRequest extends SCIMBean {
 
     private static final long serialVersionUID = 5759362928661983543L;
 
+    @JsonIgnore
     private final List<String> schemas = List.of(Resource.SearchRequest.schema());
 
     private final List<String> attributes = new ArrayList<>();
