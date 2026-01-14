@@ -23,16 +23,17 @@ import java.util.Map;
 
 public final class DynamicMenuRegister {
 
-    private static final Map<String, Class<?>> KEYS_FOR_PAGES = new HashMap<>();
+    private final Map<String, Class<?>> keysForPages;
 
-    private DynamicMenuRegister() {
+    public DynamicMenuRegister() {
+        keysForPages = new HashMap<>();
     }
 
-    public static void register(final String key, final Class<?> pageClass) {
-        KEYS_FOR_PAGES.put(key, pageClass);
+    public void register(final String key, final Class<?> pageClass) {
+        keysForPages.put(key, pageClass);
     }
 
-    public static Class<?> getPage(final String key) {
-        return KEYS_FOR_PAGES.get(key);
+    public Class<?> getPage(final String key) {
+        return keysForPages.get(key);
     }
 }

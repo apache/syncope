@@ -129,6 +129,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected final Cache<String, OffsetDateTime> destroyedSessionIdCache;
 
+    protected final DynamicMenuRegister dynamicMenuRegister;
+
     public SyncopeWebApplication(
             final ConsoleProperties props,
             final ClassPathScanImplementationLookup lookup,
@@ -144,7 +146,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             final List<UserFormFinalizer> userFormFinalizers,
             final List<IResource> resources,
             final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
-            final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
+            final Cache<String, OffsetDateTime> destroyedSessionIdCache,
+            final DynamicMenuRegister dynamicMenuRegister) {
 
         this.props = props;
         this.lookup = lookup;
@@ -161,6 +164,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         this.resources = resources;
         this.loggedoutSessionIdCache = loggedoutSessionIdCache;
         this.destroyedSessionIdCache = destroyedSessionIdCache;
+        this.dynamicMenuRegister = dynamicMenuRegister;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -244,25 +248,22 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
         mountPage("/login", getSignInPageClass());
 
-        //[SYNCOPE-1942]
-        //--
         final List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
         amPageClasses.forEach(claz -> {
-            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+            dynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
         });
 
         final List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
         idmPageClasses.forEach(claz -> {
-            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+            dynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
         });
 
         final List<Class<? extends BaseExtPage>> extPageClasses = lookup.getClasses(BaseExtPage.class);
         extPageClasses.stream().filter(claz -> (claz.isAnnotationPresent(ExtPage.class))).forEach(claz -> {
-            DynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
+            dynamicMenuRegister.register("menu." + claz.getSimpleName(), claz);
         });
 
-        getResourceSettings().getStringResourceLoaders().add(new DynamicMenuStringResourceLoader());
-        //--
+        getResourceSettings().getStringResourceLoaders().add(new DynamicMenuStringResourceLoader(dynamicMenuRegister));
 
         for (IResource resource : resources) {
             Class<?> resourceClass = AopUtils.getTargetClass(resource);

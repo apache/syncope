@@ -52,6 +52,7 @@ import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -169,7 +170,7 @@ public abstract class AbstractTest {
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
                     implementationInfoProvider, accessPolicyConfProvider, policyTabProviders, userFormFinalizers,
-                    resources, loggedoutSessionIdCache, destroyedSessionIdCache);
+                    resources, loggedoutSessionIdCache, destroyedSessionIdCache, new DynamicMenuRegister());
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

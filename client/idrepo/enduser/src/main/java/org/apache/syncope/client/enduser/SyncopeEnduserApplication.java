@@ -22,6 +22,7 @@ import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAut
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -62,9 +63,10 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
             final EnduserProperties props,
             final ClassPathScanImplementationLookup lookup,
             final ServiceOps serviceOps,
-            final List<IResource> resources) {
+            final List<IResource> resources,
+            final DynamicMenuRegister dynamicMenuRegister) {
 
-        return new SyncopeWebApplication(resourceLoader, props, lookup, serviceOps, resources);
+        return new SyncopeWebApplication(resourceLoader, props, lookup, serviceOps, resources, dynamicMenuRegister);
     }
 
     @ConditionalOnMissingBean

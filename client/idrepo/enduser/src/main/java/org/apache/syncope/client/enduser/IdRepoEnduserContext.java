@@ -25,6 +25,7 @@ import org.apache.syncope.client.enduser.rest.SchemaRestClient;
 import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
+import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.PreviewUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -90,5 +91,11 @@ public class IdRepoEnduserContext {
     @Bean
     public UserSelfRestClient userSelfRestClient() {
         return new UserSelfRestClient();
+    }
+    
+    @ConditionalOnMissingBean
+    @Bean
+    public DynamicMenuRegister dynamicMenuRegister() {
+        return new DynamicMenuRegister();
     }
 }

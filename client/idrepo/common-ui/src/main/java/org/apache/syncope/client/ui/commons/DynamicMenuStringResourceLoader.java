@@ -30,8 +30,11 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DynamicMenuStringResourceLoader.class);
 
-    public DynamicMenuStringResourceLoader() {
+    private DynamicMenuRegister dynamicMenuRegister;
+
+    public DynamicMenuStringResourceLoader(final DynamicMenuRegister dynamicMenuRegister) {
         super(DynamicMenuStringResourceLoader.class);
+        this.dynamicMenuRegister = dynamicMenuRegister;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
             final String variation) {
 
         if (key != null && key.startsWith("menu.")) {
-            Class<?> pageClass = DynamicMenuRegister.getPage(key);
+            Class<?> pageClass = dynamicMenuRegister.getPage(key);
 
             if (pageClass != null) {
                 final String path = pageClass.getName().replace('.', '/');
