@@ -482,7 +482,7 @@ under the License.
     <chartjs.version>4.4.3</chartjs.version>
 
     <wicket.version>10.8.0</wicket.version>
-    <wicketstuff.version>10.7.0</wicketstuff.version>
+    <wicketstuff.version>10.8.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
 
