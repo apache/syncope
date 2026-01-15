@@ -341,4 +341,31 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidMembership, e.getType());
         }
     }
+
+    @Test
+    public void issueSYNCOPE1944() {
+        TypeExtensionTO typeExt = new TypeExtensionTO();
+        typeExt.setAnyType(AnyTypeKind.USER.name());
+        typeExt.getAuxClasses().add("minimal user");
+
+        GroupCR gcr = GroupITCase.getBasicSample("syncope1944");
+        gcr.getTypeExtensions().add(typeExt);
+
+        GroupTO group = createGroup(gcr).getEntity();
+        assertNotNull(group.getKey());
+
+        UserCR ucr = UserITCase.getUniqueSample("syncope1944@syncope.apache.org");
+        ucr.getMemberships().add(new MembershipTO.Builder(group.getKey()).
+                plainAttr(attr("fullname", ucr.getUsername())).
+                plainAttr(attr("userId", ucr.getUsername())).
+                plainAttr(attr("firstname", "Galileo")).
+                plainAttr(attr("surname", "Galilei")).build());
+
+        UserTO user = createUser(ucr).getEntity();
+        assertNotNull(user.getKey());
+
+        assertEquals(
+                "Galilei, Galileo",
+                user.getMembership(group.getKey()).orElseThrow().getDerAttr("cn").orElseThrow().getValues().getFirst());
+    }
 }
