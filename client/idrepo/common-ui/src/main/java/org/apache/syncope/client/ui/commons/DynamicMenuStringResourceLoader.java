@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.wicket.core.util.resource.locator.IResourceNameIterator;
 import org.apache.wicket.resource.IPropertiesFactory;
 import org.apache.wicket.resource.Properties;
@@ -30,11 +32,11 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DynamicMenuStringResourceLoader.class);
 
-    private DynamicMenuRegister dynamicMenuRegister;
+    private final Map<String, Class<?>> keysForPages;
 
-    public DynamicMenuStringResourceLoader(final DynamicMenuRegister dynamicMenuRegister) {
+    public DynamicMenuStringResourceLoader() {
         super(DynamicMenuStringResourceLoader.class);
-        this.dynamicMenuRegister = dynamicMenuRegister;
+        keysForPages = new HashMap<>();
     }
 
     @Override
@@ -46,7 +48,7 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
             final String variation) {
 
         if (key != null && key.startsWith("menu.")) {
-            Class<?> pageClass = dynamicMenuRegister.getPage(key);
+            Class<?> pageClass = getPage(key);
 
             if (pageClass != null) {
                 final String path = pageClass.getName().replace('.', '/');
@@ -67,5 +69,13 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
         }
 
         return null;
+    }
+
+    private Class<?> getPage(final String key) {
+        return keysForPages.get(key);
+    }
+
+    public void register(final String key, final Class<?> pageClass) {
+        keysForPages.put(key, pageClass);
     }
 }

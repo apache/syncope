@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
-import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -89,7 +89,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
             @Qualifier(SyncopeWebApplication.DESTROYED_SESSIONID_CACHE)
             final Cache<String, OffsetDateTime> destroyedSessionIdCache,
-            final DynamicMenuRegister dynamicMenuRegister
+            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader
     ) {
 
         return new SyncopeWebApplication(
@@ -107,7 +107,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 resources,
                 loggedoutSessionIdCache,
                 destroyedSessionIdCache,
-                dynamicMenuRegister);
+                dynamicMenuStringResourceLoader);
     }
 
     @ConditionalOnMissingBean

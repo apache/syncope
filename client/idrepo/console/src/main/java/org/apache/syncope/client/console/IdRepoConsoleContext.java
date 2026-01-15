@@ -69,7 +69,7 @@ import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
-import org.apache.syncope.client.ui.commons.DynamicMenuRegister;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.PreviewUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -338,7 +338,7 @@ public class IdRepoConsoleContext {
     
     @ConditionalOnMissingBean
     @Bean
-    public DynamicMenuRegister dynamicMenuRegister() {
-        return new DynamicMenuRegister();
+    public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {
+        return new DynamicMenuStringResourceLoader();
     }
 }
