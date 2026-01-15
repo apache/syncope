@@ -91,7 +91,9 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
     public void create(final GoogleMfaAuthAccount account) {
         AuthProfile profile = authProfile(account.getUsername());
 
+        profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == account.getId());
         profile.getGoogleMfaAuthAccounts().add(account);
+
         authProfileDAO.save(profile);
     }
 
@@ -100,13 +102,10 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
         AuthProfile profile = authProfileDAO.findByOwner(account.getUsername()).
                 orElseThrow(() -> new NotFoundException("Could not find account for Owner " + account.getUsername()));
 
-        List<GoogleMfaAuthAccount> accounts = profile.getGoogleMfaAuthAccounts();
-        if (accounts.removeIf(acct -> acct.getId() == account.getId())) {
-            accounts.add(account);
-            profile.getGoogleMfaAuthAccounts().clear();
-            accounts.forEach(profile::add);
-            authProfileDAO.save(profile);
-        }
+        profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == account.getId());
+        profile.add(account);
+
+        authProfileDAO.save(profile);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

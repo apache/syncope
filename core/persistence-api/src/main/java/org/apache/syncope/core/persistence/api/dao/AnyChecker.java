@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AnyChecker {
@@ -58,7 +57,7 @@ public class AnyChecker {
         this.plainSchemaDAO = plainSchemaDAO;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     public <S extends Schema> AllowedSchemas<S> findAllowedSchemas(final Any any, final Class<S> reference) {
         AllowedSchemas<S> result = new AllowedSchemas<>();

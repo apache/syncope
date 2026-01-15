@@ -53,7 +53,7 @@ public interface DerAttrHandler {
      * @param realm realm
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Realm realm);
+    Map<String, String> getValues(Realm realm);
 
     /**
      * Calculates derived attributes values associated to the given any.
@@ -61,7 +61,7 @@ public interface DerAttrHandler {
      * @param any any object
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Any any);
+    Map<String, String> getValues(Any any);
 
     /**
      * Calculates derived attribute value associated to the given any, for the given membership and
@@ -81,7 +81,7 @@ public interface DerAttrHandler {
      * @param membership membership
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Groupable<?, ?, ?> any, Membership<?> membership);
+    Map<String, String> getValues(Groupable<?, ?, ?> any, Membership<?> membership);
 
     /**
      * Calculates derived attribute value associated to the given any, for the given relationship and
@@ -101,5 +101,5 @@ public interface DerAttrHandler {
      * @param relationship relationship
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Relatable<?, ?> any, Relationship<?, ?> relationship);
+    Map<String, String> getValues(Relatable<?, ?> any, Relationship<?, ?> relationship);
 }

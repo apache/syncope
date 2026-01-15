@@ -130,19 +130,16 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final OffsetDateTime expirationDate, final String recordKey) {
         authProfileDAO.findAll(Pageable.unpaged(Sort.by("owner"))).forEach(profile -> {
-            List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
-            if (devices != null) {
-                if (recordKey != null) {
-                    devices.removeIf(device -> recordKey.equals(device.getRecordKey()));
-                } else if (expirationDate != null) {
-                    devices.removeIf(device -> device.getExpirationDate().isBefore(expirationDate.toZonedDateTime()));
-                } else {
-                    devices = List.of();
-                }
+            if (recordKey != null) {
+                profile.getMfaTrustedDevices().
+                        removeIf(device -> recordKey.equals(device.getRecordKey()));
+            } else if (expirationDate != null) {
+                profile.getMfaTrustedDevices().
+                        removeIf(device -> device.getExpirationDate().isBefore(expirationDate.toZonedDateTime()));
+            } else {
                 profile.getMfaTrustedDevices().clear();
-                devices.forEach(profile::add);
-                authProfileDAO.save(profile);
             }
+            authProfileDAO.save(profile);
         });
     }
 }

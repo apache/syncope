@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
@@ -142,34 +141,32 @@ public class JexlUtilsTest extends AbstractTest {
     @Test
     public void addDerAttrsToContext(
             final @Mock DerAttrHandler derAttrHandler,
-            final @Mock Any any,
-            final @Mock DerSchema derSchema) {
+            final @Mock Any any) {
 
         String expression = null;
 
-        Map<DerSchema, String> derAttrs = new HashMap<>();
-        derAttrs.put(derSchema, expression);
+        Map<String, String> derAttrs = new HashMap<>();
+        derAttrs.put("derSchema", expression);
 
         when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);
 
         JexlContextBuilder builder = new JexlContextBuilder();
         ReflectionTestUtils.setField(builder, "jexlContext", context);
 
-        builder.derAttrs(any, derAttrHandler);
-        verify(context).set(derAttrs.get(derSchema), expression);
+        builder.derAttrs(derAttrHandler.getValues(any));
+        verify(context).set("derSchema", expression);
     }
 
     @Test
     void evaluateMandatoryCondition(
             final @Mock DerAttrHandler derAttrHandler,
             final @Mock Any any,
-            final @Mock DerSchema derSchema,
             final @Mock Collection<PlainAttr> plainAttrs) {
 
         String expression = null;
 
-        Map<DerSchema, String> derAttrs = new HashMap<>();
-        derAttrs.put(derSchema, expression);
+        Map<String, String> derAttrs = new HashMap<>();
+        derAttrs.put("derSchema", expression);
 
         when(any.getPlainAttrs()).thenReturn(new ArrayList<>());
         when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);

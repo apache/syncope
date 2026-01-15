@@ -93,7 +93,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
         JexlContext jexlContext = new JexlContextBuilder().
                 fields(group).
                 plainAttrs(group.getPlainAttrs()).
-                derAttrs(group, derAttrHandler).
+                derAttrs(derAttrHandler.getValues(group)).
                 build();
 
         return jexlTools.evaluateExpression(connObjectLinkTemplate, jexlContext).toString();

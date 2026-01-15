@@ -40,12 +40,9 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
@@ -186,14 +183,8 @@ public class JexlContextBuilder {
         return this;
     }
 
-    public JexlContextBuilder derAttrs(final Attributable attributable, final DerAttrHandler derAttrHandler) {
-        Map<DerSchema, String> derAttrs = attributable instanceof Realm realm
-                ? derAttrHandler.getValues(realm)
-                : attributable instanceof Any any
-                        ? derAttrHandler.getValues(any)
-                        : Map.of();
-
-        derAttrs.forEach((schema, value) -> jexlContext.set(schema.getKey(), value));
+    public JexlContextBuilder derAttrs(final Map<String, String> derAttrs) {
+        derAttrs.forEach((schema, value) -> jexlContext.set(schema, value));
 
         return this;
     }

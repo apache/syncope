@@ -54,11 +54,11 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         this.jexlTools = jexlTools;
     }
 
-    protected Map<DerSchema, String> getValues(
+    protected Map<String, String> getValues(
             final Attributable attributable,
             final Collection<? extends DerSchema> schemas) {
 
-        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+        Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
@@ -66,7 +66,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                     fields(attributable).
                     build();
 
-            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
@@ -79,7 +79,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(realm, Set.of(schema)).get(schema);
+        return getValues(realm, Set.of(schema)).get(schema.getKey());
     }
 
     @Override
@@ -89,7 +89,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Set.of(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema.getKey());
     }
 
     @Override
@@ -101,11 +101,11 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Set.of(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema.getKey());
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Realm realm) {
+    public Map<String, String> getValues(final Realm realm) {
         return getValues(
                 realm,
                 realm.getAnyTypeClasses().stream().
@@ -113,17 +113,17 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Any any) {
+    public Map<String, String> getValues(final Any any) {
         return getValues(
                 any,
                 anyChecker.findAllowedSchemas(any, DerSchema.class).self());
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
+    public Map<String, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
         Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
                 membership(membership.getRightEnd());
-        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+        Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
@@ -131,7 +131,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                     fields(any).
                     build();
 
-            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
@@ -146,14 +146,14 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Set.of(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema.getKey());
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Relatable<?, ?> any, final Relationship<?, ?> relationship) {
+    public Map<String, String> getValues(final Relatable<?, ?> any, final Relationship<?, ?> relationship) {
         Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
                 relationshipType(relationship.getType());
-        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+        Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
@@ -161,7 +161,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                     fields(any).
                     build();
 
-            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;

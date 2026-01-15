@@ -241,6 +241,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
     public ReconStatus status(
             final String anyTypeKey,
             final String resourceKey,
@@ -315,6 +316,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
     public ReconStatus status(
             final String anyTypeKey,
             final String resourceKey,
