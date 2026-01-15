@@ -141,8 +141,7 @@ public class Sidebar extends Panel {
                 IdMPage ann = item.getModelObject().getAnnotation(IdMPage.class);
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("idmPage", item.getModelObject());
-
-                link.add(new Label("idmPageLabel", ann.label()));
+                link.add(new Label("idmPageLabel", getString("menu." + ann.label(), null, ann.label())));
 
                 if (item.getModelObject().equals(pageRef.getPage().getClass())) {
                     link.add(new Behavior() {
@@ -177,8 +176,7 @@ public class Sidebar extends Panel {
                 AMPage ann = item.getModelObject().getAnnotation(AMPage.class);
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("amPage", item.getModelObject());
-
-                link.add(new Label("amPageLabel", ann.label()));
+                link.add(new Label("amPageLabel", getString("menu." + ann.label(), null, ann.label())));
 
                 if (item.getModelObject().equals(pageRef.getPage().getClass())) {
                     link.add(new Behavior() {
@@ -216,8 +214,7 @@ public class Sidebar extends Panel {
                 ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
-
-                link.add(new Label("extPageLabel", ann.label()));
+                link.add(new Label("extPageLabel", getString("menu." + ann.label(), null, ann.label())));
 
                 if (item.getModelObject().equals(pageRef.getPage().getClass())) {
                     link.add(new Behavior() {

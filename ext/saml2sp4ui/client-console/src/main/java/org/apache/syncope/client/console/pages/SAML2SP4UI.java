@@ -36,7 +36,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@ExtPage(label = "SAML 2.0 SP4UI", icon = "fas fa-sign-in-alt",
+@ExtPage(label = "SAML2SP4UI", icon = "fas fa-sign-in-alt",
         listEntitlement = SAML2SP4UIEntitlement.IDP_READ, priority = 400)
 public class SAML2SP4UI extends BaseExtPage {
 

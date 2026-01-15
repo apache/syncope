@@ -48,7 +48,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@ExtPage(label = "User Requests", icon = "fa fa-briefcase", listEntitlement = "")
+@ExtPage(label = "Flowable", icon = "fa fa-briefcase", listEntitlement = "")
 public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;
