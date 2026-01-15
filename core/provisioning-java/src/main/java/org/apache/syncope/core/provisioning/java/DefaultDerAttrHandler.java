@@ -52,11 +52,11 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         this.jexlTools = jexlTools;
     }
 
-    protected Map<DerSchema, String> getValues(
+    protected Map<String, String> getValues(
             final Attributable attributable,
             final Collection<? extends DerSchema> schemas) {
 
-        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+        Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
@@ -64,10 +64,18 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                     fields(attributable).
                     build();
 
-            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
+    }
+
+    @Override
+    public Map<String, String> getValues(final Realm realm) {
+        return getValues(
+                realm,
+                realm.getAnyTypeClasses().stream().
+                        flatMap(atc -> atc.getDerSchemas().stream()).collect(Collectors.toSet()));
     }
 
     @Override
@@ -77,7 +85,14 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(realm, Set.of(schema)).get(schema);
+        return getValues(realm, Set.of(schema)).get(schema.getKey());
+    }
+
+    @Override
+    public Map<String, String> getValues(final Any any) {
+        return getValues(
+                any,
+                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
     @Override
@@ -87,40 +102,15 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             return null;
         }
 
-        return getValues(any, Set.of(schema)).get(schema);
+        return getValues(any, Set.of(schema)).get(schema.getKey());
     }
 
-    @Override
-    public String getValue(final Any any, final Membership<?> membership, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
+    protected Map<String, String> getValues(
+            final Groupable<?, ?, ?> groupable,
+            final Membership<?> membership,
+            final Set<DerSchema> schemas) {
 
-            LOG.debug("{} not allowed for {}", schema, any);
-            return null;
-        }
-
-        return getValues(any, Set.of(schema)).get(schema);
-    }
-
-    @Override
-    public Map<DerSchema, String> getValues(final Realm realm) {
-        return getValues(
-                realm,
-                realm.getAnyTypeClasses().stream().
-                        flatMap(atc -> atc.getDerSchemas().stream()).collect(Collectors.toSet()));
-    }
-
-    @Override
-    public Map<DerSchema, String> getValues(final Any any) {
-        return getValues(
-                any,
-                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
-    }
-
-    protected Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?> groupable, final Membership<?> membership, final Set<DerSchema> schemas) {
-
-        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+        Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
@@ -128,18 +118,31 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                     fields(groupable).
                     build();
 
-            result.put(schema, jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
+    public Map<String, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
         return getValues(
                 any,
                 membership,
                 anyUtilsFactory.getInstance(any).dao().
                         findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()));
+    }
+
+    @Override
+    public String getValue(final Groupable<?, ?, ?> groupable, final Membership<?> membership, final DerSchema schema) {
+        if (!anyUtilsFactory.getInstance(groupable).dao().
+                findAllowedSchemas(groupable, DerSchema.class).
+                getForMembership(membership.getRightEnd()).contains(schema)) {
+
+            LOG.debug("{} not allowed for {}", schema, groupable);
+            return null;
+        }
+
+        return getValues(groupable, membership, Set.of(schema)).get(schema.getKey());
     }
 }

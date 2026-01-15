@@ -278,7 +278,11 @@ public class DefaultMappingManager implements MappingManager {
         String connObjectLink = orgUnit.getConnObjectLink();
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new JexlContextBuilder().fields(realm).build();
+            JexlContext jexlContext = new JexlContextBuilder().
+                    fields(realm).
+                    plainAttrs(realm.getPlainAttrs()).
+                    derAttrs(realm, derAttrHandler).
+                    build();
 
             evalConnObjectLink = jexlTools.evaluateExpression(connObjectLink, jexlContext).toString();
         }
@@ -848,7 +852,7 @@ public class DefaultMappingManager implements MappingManager {
                         DerSchema derSchema = (DerSchema) intAttrName.getSchema();
                         String derValue = membership == null
                                 ? derAttrHandler.getValue(ref, derSchema)
-                                : derAttrHandler.getValue(ref, membership, derSchema);
+                                : derAttrHandler.getValue((Groupable<?, ?, ?>) ref, membership, derSchema);
                         if (derValue != null) {
                             PlainAttrValue attrValue = new PlainAttrValue();
                             attrValue.setStringValue(derValue);
