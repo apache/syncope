@@ -30,6 +30,14 @@ import org.apache.syncope.core.persistence.api.entity.Relationship;
 public interface DerAttrHandler {
 
     /**
+     * Calculates derived attributes values associated to the given realm.
+     *
+     * @param realm realm
+     * @return derived attribute values
+     */
+    Map<String, String> getValues(Realm realm);
+
+    /**
      * Calculates derived attribute value associated to the given realm, for the given derived schema.
      *
      * @param realm realm
@@ -37,6 +45,14 @@ public interface DerAttrHandler {
      * @return derived attribute value
      */
     String getValue(Realm realm, DerSchema schema);
+
+    /**
+     * Calculates derived attributes values associated to the given any.
+     *
+     * @param any any object
+     * @return derived attribute values
+     */
+    Map<String, String> getValues(Any any);
 
     /**
      * Calculates derived attribute value associated to the given any, for the given derived schema.
@@ -48,58 +64,42 @@ public interface DerAttrHandler {
     String getValue(Any any, DerSchema schema);
 
     /**
-     * Calculates derived attributes values associated to the given realm.
+     * Calculates derived attributes values associated to the given groupable, for the given membership.
      *
-     * @param realm realm
+     * @param groupable user or any object
+     * @param membership membership
      * @return derived attribute values
      */
-    Map<String, String> getValues(Realm realm);
+    Map<String, String> getValues(Groupable<?, ?, ?> groupable, Membership<?> membership);
 
     /**
-     * Calculates derived attributes values associated to the given any.
-     *
-     * @param any any object
-     * @return derived attribute values
-     */
-    Map<String, String> getValues(Any any);
-
-    /**
-     * Calculates derived attribute value associated to the given any, for the given membership and
+     * Calculates derived attribute value associated to the given groupable, for the given membership and
      * derived schema.
      *
-     * @param any any object
+     * @param groupable user or any object
      * @param membership membership
      * @param schema derived schema
      * @return derived attribute value
      */
-    String getValue(Any any, Membership<?> membership, DerSchema schema);
+    String getValue(Groupable<?, ?, ?> groupable, Membership<?> membership, DerSchema schema);
 
     /**
-     * Calculates derived attributes values associated to the given any, for the given membership.
+     * Calculates derived attributes values associated to the given relatable, for the given relationship.
      *
-     * @param any any object
-     * @param membership membership
+     * @param relatable user, group or any object
+     * @param relationship relationship
      * @return derived attribute values
      */
-    Map<String, String> getValues(Groupable<?, ?, ?> any, Membership<?> membership);
+    Map<String, String> getValues(Relatable<?, ?> relatable, Relationship<?, ?> relationship);
 
     /**
-     * Calculates derived attribute value associated to the given any, for the given relationship and
+     * Calculates derived attribute value associated to the given relatable, for the given relationship and
      * derived schema.
      *
-     * @param any any object
+     * @param relatable user, group or any object
      * @param relationship relationship
      * @param schema derived schema
      * @return derived attribute value
      */
-    String getValue(Any any, Relationship<?, ?> relationship, DerSchema schema);
-
-    /**
-     * Calculates derived attributes values associated to the given any, for the given relationship.
-     *
-     * @param any any object
-     * @param relationship relationship
-     * @return derived attribute values
-     */
-    Map<String, String> getValues(Relatable<?, ?> any, Relationship<?, ?> relationship);
+    String getValue(Relatable<?, ?> relatable, Relationship<?, ?> relationship, DerSchema schema);
 }

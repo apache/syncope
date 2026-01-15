@@ -53,8 +53,10 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -408,8 +410,8 @@ public class DefaultNotificationManager implements NotificationManager {
                             map(derSchema -> membership == null && relationship.get() == null
                             ? derAttrHandler.getValue(user, derSchema)
                             : relationship.get() == null
-                            ? derAttrHandler.getValue(user, membership, derSchema)
-                            : derAttrHandler.getValue(user, relationship.get(), derSchema)).
+                            ? derAttrHandler.getValue((Groupable<?, ?, ?>) user, membership, derSchema)
+                            : derAttrHandler.getValue((Relatable<?, ?>) user, relationship.get(), derSchema)).
                             orElse(null);
                 }
 

@@ -834,8 +834,8 @@ public class DefaultMappingManager implements MappingManager {
                         String derValue = membership == null && relationship == null
                                 ? derAttrHandler.getValue(ref, derSchema)
                                 : membership == null
-                                        ? derAttrHandler.getValue(ref, relationship, derSchema)
-                                        : derAttrHandler.getValue(ref, membership, derSchema);
+                                        ? derAttrHandler.getValue((Relatable<?, ?>) ref, relationship, derSchema)
+                                        : derAttrHandler.getValue((Groupable<?, ?, ?>) ref, membership, derSchema);
                         if (derValue != null) {
                             PlainAttrValue attrValue = new PlainAttrValue();
                             attrValue.setStringValue(derValue);

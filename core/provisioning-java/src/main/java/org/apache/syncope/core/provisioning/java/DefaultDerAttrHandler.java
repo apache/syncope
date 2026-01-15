@@ -73,6 +73,14 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
+    public Map<String, String> getValues(final Realm realm) {
+        return getValues(
+                realm,
+                realm.getAnyTypeClasses().stream().
+                        flatMap(atc -> atc.getDerSchemas().stream()).collect(Collectors.toSet()));
+    }
+
+    @Override
     public String getValue(final Realm realm, final DerSchema schema) {
         if (realm.getAnyTypeClasses().stream().flatMap(atc -> atc.getDerSchemas().stream()).anyMatch(schema::equals)) {
             LOG.debug("{} not allowed for {}", schema, realm);
@@ -80,6 +88,13 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         }
 
         return getValues(realm, Set.of(schema)).get(schema.getKey());
+    }
+
+    @Override
+    public Map<String, String> getValues(final Any any) {
+        return getValues(
+                any,
+                anyChecker.findAllowedSchemas(any, DerSchema.class).self());
     }
 
     @Override
@@ -92,43 +107,17 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         return getValues(any, Set.of(schema)).get(schema.getKey());
     }
 
-    @Override
-    public String getValue(final Any any, final Membership<?> membership, final DerSchema schema) {
-        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).
-                membershipsContains(membership.getRightEnd(), schema)) {
+    protected Map<String, String> getValues(
+            final Groupable<?, ?, ?> groupable,
+            final Membership<?> membership,
+            final Set<DerSchema> schemas) {
 
-            LOG.debug("{} not allowed for {}", schema, any);
-            return null;
-        }
-
-        return getValues(any, Set.of(schema)).get(schema.getKey());
-    }
-
-    @Override
-    public Map<String, String> getValues(final Realm realm) {
-        return getValues(
-                realm,
-                realm.getAnyTypeClasses().stream().
-                        flatMap(atc -> atc.getDerSchemas().stream()).collect(Collectors.toSet()));
-    }
-
-    @Override
-    public Map<String, String> getValues(final Any any) {
-        return getValues(
-                any,
-                anyChecker.findAllowedSchemas(any, DerSchema.class).self());
-    }
-
-    @Override
-    public Map<String, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
-        Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
-                membership(membership.getRightEnd());
         Map<String, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new JexlContextBuilder().
-                    plainAttrs(any.getPlainAttrs(membership)).
-                    fields(any).
+                    plainAttrs(groupable.getPlainAttrs(membership)).
+                    fields(groupable).
                     build();
 
             result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
@@ -138,32 +127,65 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public String getValue(final Any any, final Relationship<?, ?> relationship, final DerSchema schema) {
-        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).
+    public Map<String, String> getValues(final Groupable<?, ?, ?> groupable, final Membership<?> membership) {
+        Set<DerSchema> schemas = anyChecker.
+                findAllowedSchemas(groupable, DerSchema.class).membership(membership.getRightEnd());
+        return getValues(groupable, membership, schemas);
+    }
+
+    @Override
+    public String getValue(final Groupable<?, ?, ?> groupable, final Membership<?> membership, final DerSchema schema) {
+        if (!anyChecker.
+                findAllowedSchemas(groupable, DerSchema.class).
+                membership(membership.getRightEnd()).contains(schema)) {
+
+            LOG.debug("{} not allowed for {}", schema, groupable);
+            return null;
+        }
+
+        return getValues(groupable, membership, Set.of(schema)).get(schema.getKey());
+    }
+
+    protected Map<String, String> getValues(
+            final Relatable<?, ?> relatable,
+            final Relationship<?, ?> relationship,
+            final Set<DerSchema> schemas) {
+
+        Map<String, String> result = new HashMap<>(schemas.size());
+
+        schemas.forEach(schema -> {
+            JexlContext jexlContext = new JexlContextBuilder().
+                    plainAttrs(relatable.getPlainAttrs(relationship)).
+                    fields(relatable).
+                    build();
+
+            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
+        });
+
+        return result;
+    }
+
+    @Override
+    public Map<String, String> getValues(final Relatable<?, ?> relatable, final Relationship<?, ?> relationship) {
+        Set<DerSchema> schemas = anyChecker.
+                findAllowedSchemas(relatable, DerSchema.class).relationshipType(relationship.getType());
+        return getValues(relatable, relationship, schemas);
+    }
+
+    @Override
+    public String getValue(
+            final Relatable<?, ?> relatable,
+            final Relationship<?, ?> relationship,
+            final DerSchema schema) {
+
+        if (!anyChecker.
+                findAllowedSchemas(relatable, DerSchema.class).
                 relationshipTypesContains(relationship.getType(), schema)) {
 
-            LOG.debug("{} not allowed for {}", schema, any);
+            LOG.debug("{} not allowed for {}", schema, relatable);
             return null;
         }
 
-        return getValues(any, Set.of(schema)).get(schema.getKey());
-    }
-
-    @Override
-    public Map<String, String> getValues(final Relatable<?, ?> any, final Relationship<?, ?> relationship) {
-        Set<DerSchema> schemas = anyChecker.findAllowedSchemas(any, DerSchema.class).
-                relationshipType(relationship.getType());
-        Map<String, String> result = new HashMap<>(schemas.size());
-
-        schemas.forEach(schema -> {
-            JexlContext jexlContext = new JexlContextBuilder().
-                    plainAttrs(any.getPlainAttrs(relationship)).
-                    fields(any).
-                    build();
-
-            result.put(schema.getKey(), jexlTools.evaluateExpression(schema.getExpression(), jexlContext).toString());
-        });
-
-        return result;
+        return getValues(relatable, relationship, Set.of(schema)).get(schema.getKey());
     }
 }
