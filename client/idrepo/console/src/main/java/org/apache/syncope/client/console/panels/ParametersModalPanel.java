@@ -27,6 +27,7 @@ import java.text.ParseException;
 import java.util.Base64;
 import java.util.Set;
 import javax.ws.rs.core.MediaType;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -47,8 +48,6 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
     protected static final Set<String> BASE64_EXCEPTIONS = Set.of("username");
 
     protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
-
-    protected static final SAXParserFactory SAX_PARSER_FACTORY = SAXParserFactory.newInstance();
 
     protected static boolean isDate(final String value) {
         try {
@@ -79,9 +78,12 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
 
     protected static boolean isXML(final String value) {
         try {
-            SAX_PARSER_FACTORY.newSAXParser().getXMLReader().parse(new InputSource(new StringReader(value)));
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.newSAXParser().getXMLReader().parse(new InputSource(new StringReader(value)));
             return true;
-        } catch (IOException | ParserConfigurationException | SAXException xmle) {
+        } catch (IOException | ParserConfigurationException | SAXException e) {
             return false;
         }
     }
