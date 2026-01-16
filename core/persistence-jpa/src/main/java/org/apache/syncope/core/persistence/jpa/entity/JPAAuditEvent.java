@@ -51,8 +51,7 @@ public class JPAAuditEvent extends AbstractGeneratedKeyEntity implements AuditEv
     private OffsetDateTime when;
 
     @Lob
-    @Column(name = "before_value")
-    private String before;
+    private String beforeValue;
 
     @Lob
     private String inputs;
@@ -95,12 +94,12 @@ public class JPAAuditEvent extends AbstractGeneratedKeyEntity implements AuditEv
 
     @Override
     public String getBefore() {
-        return before;
+        return beforeValue;
     }
 
     @Override
     public void setBefore(final String before) {
-        this.before = before;
+        this.beforeValue = before;
     }
 
     @Override
