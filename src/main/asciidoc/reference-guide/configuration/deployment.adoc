@@ -24,7 +24,7 @@ Jakarta EE containers.
 
 [WARNING]
 The only exception is <<secure-remote-access>> that, being based on Spring Cloud Gateway - which in turn is built on 
-https://docs.spring.io/spring-framework/reference/6.2/web-reactive.html[Spring WebFlux^] and
+https://docs.spring.io/spring-framework/reference/7.0/web-reactive.html[Spring WebFlux^] and
 https://projectreactor.io/docs[Project Reactor^], is only available as standalone application.
 
 [CAUTION]
@@ -51,10 +51,10 @@ applications as standalone fat JAR or WAR files.
 
 [TIP]
 Spring Boot applications can also be
-https://docs.spring.io/spring-boot/3.4/how-to/deployment/installing.html[installed as system services^].
+https://docs.spring.io/spring-boot/3.5/how-to/deployment/installing.html[installed as system services^].
 
 [TIP]
-https://docs.spring.io/spring-boot/3.4/reference/features/spring-application.html#features.spring-application.virtual-threads[Virtual Threads^] can be enabled but JDK >= 24 is required in order to run properly.
+https://docs.spring.io/spring-boot/3.5/reference/features/spring-application.html#features.spring-application.virtual-threads[Virtual Threads^] can be enabled but JDK >= 24 is required in order to run properly.
 
 .Run Core application as standalone under GNU / Linux
 ====
@@ -74,7 +74,7 @@ $ java -Dsyncope.conf.dir=/opt/syncope/conf \
   -jar /opt/syncope/lib/syncope.war
 ----
 Further options can be passed to last command, according to Spring Boot
-https://docs.spring.io/spring-boot/3.4/appendix/application-properties/index.html[documentation^];
+https://docs.spring.io/spring-boot/3.5/appendix/application-properties/index.html[documentation^];
 for example:
 
 * `--spring.config.additional-location=/path` +
@@ -300,7 +300,7 @@ javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-java
 as `core/src/main/resources/core-wildfly.properties`.
 
 Do not forget to include `widlfly` as 
-https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
 
 [WARNING]

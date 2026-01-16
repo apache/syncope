@@ -19,7 +19,7 @@
 === Loggers
 
 Spring Boot actuator includes the ability to
-https://docs.spring.io/spring-boot/3.4/reference/actuator/loggers.html[view and configure the log levels^] of all
+https://docs.spring.io/spring-boot/3.5/reference/actuator/loggers.html[view and configure the log levels^] of all
 Syncope modules at runtime. 
 
 In addition, Console provides a UI to view the list of logger’s configuration and set their level, for all

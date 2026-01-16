@@ -40,7 +40,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-postgresql.properties`.
 
 Do not forget to include `postgresql` as
-https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [WARNING]
@@ -73,7 +73,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-mysql.properties`.
 
 Do not forget to include `mysql` as 
-https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [CAUTION]
@@ -109,7 +109,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-mariadb.properties`.
 
 Do not forget to include `mariadb` as 
-https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [CAUTION]
@@ -157,7 +157,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-oracle.properties`.
 
 Do not forget to include `oracle` as 
-https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [WARNING]
