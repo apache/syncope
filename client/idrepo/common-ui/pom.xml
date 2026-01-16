@@ -113,7 +113,12 @@ under the License.
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
     </dependency>
-      
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-api</artifactId>
