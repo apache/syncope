@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -198,7 +199,7 @@ public abstract class BaseLogin extends WebPage {
 
         if (StringUtils.isNotBlank(notificationMessage)) {
             response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(
-                    notificationMessage,
+                    StringEscapeUtils.escapeEcmaScript(notificationMessage),
                     String.format("jQuery('#%s').data('kendoNotification')",
                             notificationPanel.getNotificationMarkupId()),
                     notificationLevel)));
