@@ -104,12 +104,12 @@ for the Master domain.
 . <<JavaEE Container>>-managed, via the JNDI resource matching the name specified for a given <<domains,domain>>, e.g.
 `java:comp/env/jdbc/syncopeMasterDataSource` for the `Master` domain. +
 Each JavaEE Container provides its own way to accomplish this task:
-  * https://tomcat.apache.org/tomcat-10.0-doc/jdbc-pool.html[Apache Tomcat 10^]
-  * https://docs.payara.fish/community/docs/Technical%20Documentation/Payara%20Server%20Documentation/Server%20Configuration%20And%20Management/JDBC%20Resource%20Management/JDBC.html[Payara Server 6^]
+  * https://tomcat.apache.org/tomcat-11.0-doc/jdbc-pool.html[Apache Tomcat 11^]
+  * https://docs.payara.fish/community/docs/Technical%20Documentation/Payara%20Server%20Documentation/General%20Administration/Administering%20Database%20Connectivity.html[Payara Server 7^]
   * https://docs.wildfly.org/38/Admin_Guide.html#DataSource[Wildfly 38^]
 ****
 
-==== Apache Tomcat 10
+==== Apache Tomcat 11
 
 On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
 (keep everything on a single line):
@@ -133,7 +133,7 @@ set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
 ....
 
-==== Payara Server 6
+==== Payara Server 7
 
 Add
 
@@ -170,6 +170,10 @@ with
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-starter</artifactId>
         <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-el</artifactId>
