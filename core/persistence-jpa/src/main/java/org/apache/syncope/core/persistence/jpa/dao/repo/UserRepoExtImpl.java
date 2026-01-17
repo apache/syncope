@@ -100,7 +100,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public Optional<String> findByToken(final String token) {
         return query(
-                "SELECT id FROM " + JPAUser.TABLE + " WHERE token=?",
+                "SELECT id FROM " + JPAUser.TABLE + " WHERE token LIKE ?",
                 rs -> {
                     if (rs.next()) {
                         return Optional.of(rs.getString(1));

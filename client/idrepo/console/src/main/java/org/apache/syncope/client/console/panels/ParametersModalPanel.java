@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Base64;
 import java.util.Set;
@@ -83,7 +82,7 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.newSAXParser().getXMLReader().parse(new InputSource(new StringReader(value)));
+            factory.newSAXParser().getXMLReader().parse(new InputSource(Reader.of(value)));
             return true;
         } catch (IOException | ParserConfigurationException | SAXException e) {
             return false;

@@ -468,7 +468,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDuoIntegrationKey(conf.getIntegrationKey());
         props.setDuoSecretKey(conf.getSecretKey());
 
-        return prefix("cas.authn.mfa.duo.", WAConfUtils.asMap(props));
+        return prefix("cas.authn.mfa.duo[].", WAConfUtils.asMap(props));
     }
 
     @Override
