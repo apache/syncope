@@ -41,7 +41,7 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
     void deleteMembership(AMembership membership);
 
-    List<Group> findDynGroups(String key);
+    List<? extends Group> findDynGroups(String key);
 
     List<Relationship<Any, AnyObject>> findAllRelationships(AnyObject anyObject);
 

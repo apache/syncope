@@ -240,9 +240,10 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void patch() {
         GroupCR createReq = getBasicSample("patch");
-        createReq.setUDynMembershipCond(
+        createReq.getDynMembershipConds().put(
+                "USER",
                 "(($groups==ebf97068-aa4b-4a85-9f01-680e8c4cf227;$resources!=ws-target-resource-1);aLong==1)");
-        createReq.getADynMembershipConds().put(
+        createReq.getDynMembershipConds().put(
                 PRINTER,
                 "(($groups==ece66293-8f31-4a84-8e8d-23da36e70846;cool==ss);$resources==ws-target-resource-2);"
                 + "$type==PRINTER");
@@ -689,7 +690,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
 
         GroupCR groupCR = getBasicSample("uDynMembership");
-        groupCR.setUDynMembershipCond("cool==true");
+        groupCR.getDynMembershipConds().put("USER", "cool==true");
         GroupTO group = null;
         try {
             group = createGroup(groupCR).getEntity();
@@ -701,7 +702,7 @@ public class GroupITCase extends AbstractITCase {
             assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
             assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
 
-            GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).udynMembershipCond("cool==false").build());
+            GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).dynMembershipCond("USER", "cool==false").build());
 
             assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
             assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
@@ -718,9 +719,9 @@ public class GroupITCase extends AbstractITCase {
 
         // 1. create group with a given aDynMembership condition
         GroupCR groupCR = getBasicSample("aDynMembership");
-        groupCR.getADynMembershipConds().put(PRINTER, fiql);
+        groupCR.getDynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
+        assertEquals(fiql, group.getDynMembershipConds().get(PRINTER));
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -732,7 +733,7 @@ public class GroupITCase extends AbstractITCase {
 
         group = GROUP_SERVICE.read(group.getKey());
         String groupKey = group.getKey();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
+        assertEquals(fiql, group.getDynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectCR newAnyCR = AnyObjectITCase.getSample("aDynMembership");
@@ -755,13 +756,13 @@ public class GroupITCase extends AbstractITCase {
 
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(group.getKey());
-        groupUR.getADynMembershipConds().put(PRINTER, fiql);
+        groupUR.getDynMembershipConds().put(PRINTER, fiql);
 
         group = updateGroup(groupUR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
+        assertEquals(fiql, group.getDynMembershipConds().get(PRINTER));
 
         group = GROUP_SERVICE.read(group.getKey());
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
+        assertEquals(fiql, group.getDynMembershipConds().get(PRINTER));
 
         // verify that the condition is dynamically applied
         AnyObjectUR anyObjectUR = new AnyObjectUR();
@@ -787,7 +788,7 @@ public class GroupITCase extends AbstractITCase {
         // Create a new printer as a dynamic member of a new group
         GroupCR groupCR = getBasicSample("aDynamicMembership");
         String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").equalTo("home").query();
-        groupCR.getADynMembershipConds().put(PRINTER, fiql);
+        groupCR.getDynMembershipConds().put(PRINTER, fiql);
         GroupTO group = createGroup(groupCR).getEntity();
 
         AnyObjectCR printerCR = new AnyObjectCR();

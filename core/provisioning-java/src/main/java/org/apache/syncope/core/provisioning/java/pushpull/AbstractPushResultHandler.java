@@ -54,18 +54,17 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.SyncopeAnyPushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
-        implements SyncopePushResultHandler {
+        implements SyncopeAnyPushResultHandler {
 
     protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
         if (!reporter.getStatuses().isEmpty()) {
@@ -138,7 +137,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
 
-        List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
+        List<String> ownedResources = anyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).toList();
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
@@ -214,16 +213,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected void copyDynMembershipConds(final Any any, final AnyUR req) {
         if (any instanceof Group group && req instanceof GroupUR gur) {
-            Optional.ofNullable(group.getUDynMembership()).
-                    ifPresent(udc -> gur.setUDynMembershipCond(udc.getFIQLCond()));
-
-            group.getADynMemberships().
-                    forEach(adc -> gur.getADynMembershipConds().put(adc.getAnyType().getKey(), adc.getFIQLCond()));
+            group.getDynMemberships().
+                    forEach(adc -> gur.getDynMembershipConds().put(adc.getAnyType().getKey(), adc.getFIQLCond()));
         }
     }
 
     protected void link(final Any any, final boolean unlink, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -235,7 +231,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void unassign(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -247,7 +243,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected void assign(final Any any, final Boolean enabled, final ProvisioningReport result) {
-        AnyUR req = getAnyUtils().newAnyUR(any.getKey());
+        AnyUR req = anyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
@@ -258,13 +254,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         provision(any, enabled, result);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true)
     @Override
-    public boolean handle(final String anyKey) {
-        Any any = null;
+    public boolean handle(final Any any) {
         try {
-            any = getAnyUtils().dao().authFind(anyKey);
-
             Provision provision = profile.getTask().getResource().
                     getProvisionByAnyType(any.getType().getKey()).orElse(null);
             if (provision == null) {
@@ -282,12 +275,12 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport ignoreResult = profile.getResults().stream().
-                    filter(report -> anyKey.equalsIgnoreCase(report.getKey())).
+                    filter(report -> any.getKey().equalsIgnoreCase(report.getKey())).
                     findFirst().
                     orElse(null);
             if (ignoreResult == null) {
                 ignoreResult = new ProvisioningReport();
-                ignoreResult.setKey(anyKey);
+                ignoreResult.setKey(any.getKey());
                 ignoreResult.setAnyType(Optional.ofNullable(any).map(any1 -> any1.getType().getKey()).orElse(null));
 
                 profile.getResults().add(ignoreResult);

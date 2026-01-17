@@ -87,9 +87,7 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     long countUDynMembers(Group group);
 
-    void clearADynMembers(Group group);
-
-    void clearUDynMembers(Group group);
+    void clearDynMembers(Group group);
 
     /**
      * Evaluates all the dynamic group membership conditions against the given anyObject (invoked during save).

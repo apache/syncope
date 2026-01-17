@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -49,11 +49,11 @@ public class JPAGRelationship extends AbstractGeneratedKeyEntity implements GRel
     private JPARelationshipType type;
 
     @ManyToOne
-    @Column(name = "group_id")
+    @JoinColumn(name = "group_id")
     private JPAGroup leftEnd;
 
     @ManyToOne
-    @Column(name = "anyObject_id")
+    @JoinColumn(name = "anyObject_id")
     private JPAAnyObject rightEnd;
 
     @Override

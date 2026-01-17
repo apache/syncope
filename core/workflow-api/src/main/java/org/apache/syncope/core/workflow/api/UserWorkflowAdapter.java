@@ -95,7 +95,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param context context information
      * @return user just suspended and information whether to propagate suspension
      */
-    Pair<UserWorkflowResult<String>, Boolean> internalSuspend(String key, String updater, String context);
+    Pair<UserWorkflowResult<String>, Boolean> suspendOnAuthFailures(String key, String updater, String context);
 
     /**
      * Reactivate an user.

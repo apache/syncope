@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -32,6 +31,7 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -49,6 +49,9 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Test
     public void findAll() {
@@ -95,6 +98,7 @@ public class ConnInstanceTest extends AbstractTest {
         connInstance.setBundleName("org.apache.syncope.core.persistence.test.util");
         connInstance.setDisplayName("New");
         connInstance.setConnRequestTimeout(60);
+        connInstance.setAdminRealm(realmDAO.getRoot());
 
         // set the connector configuration
         ConnConfPropSchema endpointSchema = new ConnConfPropSchema();
@@ -113,10 +117,8 @@ public class ConnInstanceTest extends AbstractTest {
         servicename.setSchema(servicenameSchema);
         endpoint.getValues().add("Provisioning");
 
-        List<ConnConfProperty> conf = new ArrayList<>();
-        conf.add(endpoint);
-        conf.add(servicename);
-        connInstance.setConf(conf);
+        connInstance.getConf().add(endpoint);
+        connInstance.getConf().add(servicename);
         assertFalse(connInstance.getConf().isEmpty());
 
         // perform save operation

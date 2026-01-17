@@ -19,13 +19,14 @@
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import jakarta.persistence.Basic;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.AttrReleasePolicyConfConverter;
 
 @Entity
 @Table(name = JPAAttrReleasePolicy.TABLE)
@@ -40,8 +41,9 @@ public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleaseP
 
     private Boolean status;
 
+    @Convert(converter = AttrReleasePolicyConfConverter.class)
     @Lob
-    private String jsonConf;
+    private AttrReleasePolicyConf jsonConf;
 
     @Override
     public int getOrder() {
@@ -65,12 +67,11 @@ public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleaseP
 
     @Override
     public AttrReleasePolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).
-                map(c -> POJOHelper.deserialize(c, AttrReleasePolicyConf.class)).orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AttrReleasePolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

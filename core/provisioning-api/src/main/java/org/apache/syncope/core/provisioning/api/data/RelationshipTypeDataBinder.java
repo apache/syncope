@@ -27,7 +27,7 @@ public interface RelationshipTypeDataBinder {
 
     RelationshipType create(RelationshipTypeTO relationshipTypeTO);
 
-    void update(RelationshipType relationshipType, RelationshipTypeTO relationshipTypeTO);
+    RelationshipType update(RelationshipType relationshipType, RelationshipTypeTO relationshipTypeTO);
 
     TypeExtensionTO getTypeExtensionTO(RelationshipTypeExtension typeExt);
 

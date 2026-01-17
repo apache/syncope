@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -391,8 +392,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
-        return new DefaultDerAttrHandler(anyUtilsFactory, jexlTools);
+    public DerAttrHandler derAttrHandler(final AnyChecker anyChecker, final JexlTools jexlTools) {
+        return new DefaultDerAttrHandler(anyChecker, jexlTools);
     }
 
     @ConditionalOnMissingBean
@@ -531,13 +532,15 @@ public class ProvisioningContext {
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final EncryptorManager encryptorManager) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
-                userDAO);
+                userDAO,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -650,14 +653,16 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public NotificationJobDelegate notificationJobDelegate(
-            final TaskUtilsFactory taskUtilsFactory,
+            final ConfParamOps confParamOps,
             final TaskDAO taskDAO,
+            final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
             final NotificationManager notificationManager,
             final ApplicationEventPublisher publisher,
             final JavaMailSender mailSender) {
 
         return new MailNotificationJobDelegate(
+                confParamOps,
                 taskDAO,
                 taskUtilsFactory,
                 auditManager,
@@ -681,7 +686,6 @@ public class ProvisioningContext {
     public LiveSyncTaskSaver liveSyncTaskExecSaver(
             final ExternalResourceDAO resourceDAO,
             final TaskDAO taskDAO,
-            final TaskExecDAO taskExecDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final NotificationManager notificationManager,
             final AuditManager auditManager) {
@@ -689,7 +693,6 @@ public class ProvisioningContext {
         return new LiveSyncTaskSaver(
                 resourceDAO,
                 taskDAO,
-                taskExecDAO,
                 taskUtilsFactory,
                 notificationManager,
                 auditManager);
@@ -728,6 +731,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -745,6 +749,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
@@ -759,11 +764,12 @@ public class ProvisioningContext {
     @Bean
     public AnyTypeClassDataBinder anyTypeClassDataBinder(
             final EntityFactory entityFactory,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final AnyTypeDAO anyTypeDAO) {
 
-        return new AnyTypeClassDataBinderImpl(plainSchemaDAO, derSchemaDAO, anyTypeDAO, entityFactory);
+        return new AnyTypeClassDataBinderImpl(anyTypeClassDAO, plainSchemaDAO, derSchemaDAO, anyTypeDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -882,6 +888,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -899,6 +906,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
@@ -990,11 +998,12 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public RelationshipTypeDataBinder relationshipTypeDataBinder(
+            final RelationshipTypeDAO relationshipTypeDAO,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final EntityFactory entityFactory) {
 
-        return new RelationshipTypeDataBinderImpl(anyTypeDAO, anyTypeClassDAO, entityFactory);
+        return new RelationshipTypeDataBinderImpl(relationshipTypeDAO, anyTypeDAO, anyTypeClassDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -1140,6 +1149,7 @@ public class ProvisioningContext {
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final DerAttrHandler derAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
@@ -1162,6 +1172,7 @@ public class ProvisioningContext {
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,

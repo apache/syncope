@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.UriBuilder;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -43,6 +39,12 @@ import org.apache.syncope.ext.scimv2.api.data.SchemaExtension;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 public class SCIMLogic extends AbstractLogic<EntityTO> {
 
@@ -50,7 +52,8 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected static final Object MONITOR = new Object();
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).build();
 
     protected static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
 
@@ -123,42 +126,41 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
                         + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:Group\"}"));
                 schemaArray.add(extensionObject);
             }
-            if (!conf.getExtensionAnyObjectsConf().isEmpty()) {
-                conf.getExtensionAnyObjectsConf().forEach(confItem -> {
-                    ObjectNode extensionObject = MAPPER.createObjectNode();
-                    extensionObject.put("id",
-                            "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + confItem.getType());
-                    extensionObject.put("name", confItem.getName());
-                    extensionObject.put("description", confItem.getDescription());
-                    ArrayNode attributes = MAPPER.createArrayNode();
-                    confItem.getAttributes().forEach(scimItem -> {
-                        ObjectNode attribute = MAPPER.createObjectNode();
-                        attribute.put("name", scimItem.getIntAttrName());
-                        attribute.put("type", "string");
-                        attribute.put("multiValued", scimItem.isMultiValued());
-                        attribute.put("required", scimItem.getMandatoryCondition());
-                        attribute.put("caseExact", scimItem.isCaseExact());
-                        attribute.put("mutability", scimItem.isMutability());
-                        attribute.put("returned", scimItem.getReturned().getReturned());
-                        attribute.put("uniqueness", scimItem.isUniqueness());
-                        attributes.add(attribute);
-                    });
-                    extensionObject.putIfAbsent("attributes", attributes);
-                    try {
-                        extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
-                                + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:"
-                                + confItem.getType() + "}\""));
-                    } catch (IOException e) {
-                        LOG.error("Could not parse the default schema definitions", e);
-                    }
-                    schemaArray.add(extensionObject);
+
+            conf.getExtensionAnyObjectsConf().forEach(confItem -> {
+                ObjectNode extensionObject = MAPPER.createObjectNode();
+                extensionObject.put("id",
+                        "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + confItem.getType());
+                extensionObject.put("name", confItem.getName());
+                extensionObject.put("description", confItem.getDescription());
+                ArrayNode attributes = MAPPER.createArrayNode();
+                confItem.getAttributes().forEach(scimItem -> {
+                    ObjectNode attribute = MAPPER.createObjectNode();
+                    attribute.put("name", scimItem.getIntAttrName());
+                    attribute.put("type", "string");
+                    attribute.put("multiValued", scimItem.isMultiValued());
+                    attribute.put("required", scimItem.getMandatoryCondition());
+                    attribute.put("caseExact", scimItem.isCaseExact());
+                    attribute.put("mutability", scimItem.isMutability());
+                    attribute.put("returned", scimItem.getReturned().getReturned());
+                    attribute.put("uniqueness", scimItem.isUniqueness());
+                    attributes.add(attribute);
                 });
-            }
+                extensionObject.putIfAbsent("attributes", attributes);
+                try {
+                    extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
+                            + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:"
+                            + confItem.getType() + "}\""));
+                } catch (JacksonException e) {
+                    LOG.error("Could not parse the default schema definitions", e);
+                }
+                schemaArray.add(extensionObject);
+            });
             schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
             schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
+                schemaMap.put(schema.get("id").asString(), MAPPER.writeValueAsString(schema));
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);

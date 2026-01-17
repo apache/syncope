@@ -40,10 +40,8 @@ under the License.
   <entry key="AnyObject_lower_name">CREATE INDEX AnyObject_lower_name ON AnyObject(type_id,LOWER(name))</entry>
   <entry key="AnyObject_plainAttrs_idx">CREATE INDEX AnyObject_plainAttrs_idx ON AnyObject USING gin ((plainAttrs) jsonb_path_ops)</entry>
 
-  <entry key="UDynGroupMembers_any_id">CREATE INDEX UDynGroupMembers_any_id ON UDynGroupMembers(any_id)</entry>
-  <entry key="UDynGroupMembers_group_id">CREATE INDEX UDynGroupMembers_group_id ON UDynGroupMembers(group_id)</entry>
-  <entry key="ADynGroupMembers_any_id">CREATE INDEX ADynGroupMembers_any_id ON ADynGroupMembers(any_id)</entry>
-  <entry key="ADynGroupMembers_group_id">CREATE INDEX ADynGroupMembers_group_id ON ADynGroupMembers(group_id)</entry>
+  <entry key="DynGroupMembers_any_id">CREATE INDEX DynGroupMembers_any_id ON DynGroupMembers(any_id)</entry>
+  <entry key="DynGroupMembers_group_id">CREATE INDEX DynGroupMembers_group_id ON DynGroupMembers(group_id)</entry>
 
   <entry key="DynRoleMembers_any_id">CREATE INDEX DynRoleMembers_any_id ON DynRoleMembers(any_id)</entry>
   <entry key="DynRoleMembers_role_id">CREATE INDEX DynRoleMembers_role_id ON DynRoleMembers(role_id)</entry>

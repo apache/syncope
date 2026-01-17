@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -105,13 +104,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
             // SYNCOPE-1170
             boolean othersNotEqualsOrBlanks =
-                    !updated.getADynMembershipConds().equals(original.getADynMembershipConds())
-                    || (StringUtils.isNotBlank(original.getUDynMembershipCond())
-                    && StringUtils.isBlank(updated.getUDynMembershipCond()))
-                    || (StringUtils.isBlank(original.getUDynMembershipCond())
-                    && StringUtils.isNotBlank(updated.getUDynMembershipCond()))
-                    || StringUtils.isAllBlank(original.getUDynMembershipCond(), updated.getUDynMembershipCond())
-                    || !updated.getUDynMembershipCond().equals(original.getUDynMembershipCond())
+                    !updated.getDynMembershipConds().equals(original.getDynMembershipConds())
                     || !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
 
             GroupUR groupUR = AnyOperations.diff(updated, original, false);

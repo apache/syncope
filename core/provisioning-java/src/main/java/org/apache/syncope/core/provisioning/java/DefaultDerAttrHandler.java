@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
@@ -45,12 +45,12 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    protected final AnyUtilsFactory anyUtilsFactory;
+    protected final AnyChecker anyChecker;
 
     protected final JexlTools jexlTools;
 
-    public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory, final JexlTools jexlTools) {
-        this.anyUtilsFactory = anyUtilsFactory;
+    public DefaultDerAttrHandler(final AnyChecker anyChecker, final JexlTools jexlTools) {
+        this.anyChecker = anyChecker;
         this.jexlTools = jexlTools;
     }
 
@@ -94,12 +94,12 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     public Map<String, String> getValues(final Any any) {
         return getValues(
                 any,
-                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).self());
+                anyChecker.findAllowedSchemas(any, DerSchema.class).self());
     }
 
     @Override
     public String getValue(final Any any, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).selfContains(schema)) {
+        if (!anyChecker.findAllowedSchemas(any, DerSchema.class).selfContains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
         }
@@ -128,14 +128,14 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public Map<String, String> getValues(final Groupable<?, ?, ?> groupable, final Membership<?> membership) {
-        Set<DerSchema> schemas = anyUtilsFactory.getInstance(groupable).dao().
+        Set<DerSchema> schemas = anyChecker.
                 findAllowedSchemas(groupable, DerSchema.class).membership(membership.getRightEnd());
         return getValues(groupable, membership, schemas);
     }
 
     @Override
     public String getValue(final Groupable<?, ?, ?> groupable, final Membership<?> membership, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(groupable).dao().
+        if (!anyChecker.
                 findAllowedSchemas(groupable, DerSchema.class).
                 membership(membership.getRightEnd()).contains(schema)) {
 
@@ -167,7 +167,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public Map<String, String> getValues(final Relatable<?, ?> relatable, final Relationship<?, ?> relationship) {
-        Set<DerSchema> schemas = anyUtilsFactory.getInstance(relatable).dao().
+        Set<DerSchema> schemas = anyChecker.
                 findAllowedSchemas(relatable, DerSchema.class).relationshipType(relationship.getType());
         return getValues(relatable, relationship, schemas);
     }
@@ -178,7 +178,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             final Relationship<?, ?> relationship,
             final DerSchema schema) {
 
-        if (!anyUtilsFactory.getInstance(relatable).dao().
+        if (!anyChecker.
                 findAllowedSchemas(relatable, DerSchema.class).
                 relationshipTypesContains(relationship.getType(), schema)) {
 

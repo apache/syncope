@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -62,10 +60,11 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
 
 public class BatchITCase extends AbstractITCase {
 
-    private static String requestBody(final String boundary) throws JsonProcessingException {
+    private static String requestBody(final String boundary) {
         List<BatchRequestItem> reqItems = new ArrayList<>();
 
         // 1. create user

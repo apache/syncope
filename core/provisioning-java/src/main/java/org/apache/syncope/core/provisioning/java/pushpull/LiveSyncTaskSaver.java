@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -50,8 +49,6 @@ public class LiveSyncTaskSaver {
 
     protected final TaskDAO taskDAO;
 
-    protected final TaskExecDAO taskExecDAO;
-
     protected final TaskUtilsFactory taskUtilsFactory;
 
     protected final NotificationManager notificationManager;
@@ -61,14 +58,12 @@ public class LiveSyncTaskSaver {
     public LiveSyncTaskSaver(
             final ExternalResourceDAO resourceDAO,
             final TaskDAO taskDAO,
-            final TaskExecDAO taskExecDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final NotificationManager notificationManager,
             final AuditManager auditManager) {
 
         this.resourceDAO = resourceDAO;
         this.taskDAO = taskDAO;
-        this.taskExecDAO = taskExecDAO;
         this.taskUtilsFactory = taskUtilsFactory;
         this.notificationManager = notificationManager;
         this.auditManager = auditManager;
@@ -103,9 +98,9 @@ public class LiveSyncTaskSaver {
         execution.setEnd(OffsetDateTime.now());
 
         if (hasToBeRegistered.apply(execution)) {
-            taskExecDAO.saveAndAdd(TaskType.LIVE_SYNC, task.getKey(), execution);
+            task.add(execution);
+            task = taskDAO.save(task);
         }
-        task = taskDAO.save(task);
 
         notificationManager.createTasks(
                 execution.getExecutor(),

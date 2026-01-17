@@ -27,12 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -88,6 +82,11 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 public class SCIMITCase extends AbstractITCase {
 
@@ -186,8 +185,8 @@ public class SCIMITCase extends AbstractITCase {
     private static WebClient webClient() {
         return WebClient.create(
                 SCIM_ADDRESS,
-                List.of(new JacksonJsonProvider(JsonMapper.builder().
-                        findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()))).
+                List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().
+                        enable(MapperFeature.USE_GETTERS_AS_SETTERS).build()))).
                 accept(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.jwtInfo().orElseThrow().value());
@@ -272,21 +271,21 @@ public class SCIMITCase extends AbstractITCase {
 
         ObjectNode enterpriseUser = response.readEntity(ObjectNode.class);
         assertNotNull(enterpriseUser);
-        assertEquals(Resource.EnterpriseUser.schema(), enterpriseUser.get("id").textValue());
+        assertEquals(Resource.EnterpriseUser.schema(), enterpriseUser.get("id").stringValue());
 
         response = webClient().path("Schemas").path(Resource.ExtensionUser.schema()).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         ObjectNode extensionUser = response.readEntity(ObjectNode.class);
         assertNotNull(extensionUser);
-        assertEquals(Resource.ExtensionUser.schema(), extensionUser.get("id").textValue());
+        assertEquals(Resource.ExtensionUser.schema(), extensionUser.get("id").stringValue());
 
         response = webClient().path("Schemas").path(Resource.ExtensionGroup.schema()).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         ObjectNode extensionGroup = response.readEntity(ObjectNode.class);
         assertNotNull(extensionGroup);
-        assertEquals(Resource.ExtensionGroup.schema(), extensionGroup.get("id").textValue());
+        assertEquals(Resource.ExtensionGroup.schema(), extensionGroup.get("id").stringValue());
 
         response = webClient().path("Schemas").path("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -294,7 +293,7 @@ public class SCIMITCase extends AbstractITCase {
         ObjectNode extensionPrinter = response.readEntity(ObjectNode.class);
         assertNotNull(extensionPrinter);
         assertEquals("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER",
-                extensionPrinter.get("id").textValue());
+                extensionPrinter.get("id").stringValue());
 
         CONF.setExtensionUserConf(null);
         CONF.setExtensionGroupConf(null);
@@ -582,7 +581,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @Test
-    public void createUser() throws JsonProcessingException {
+    public void createUser() {
         SCIM_CONF_SERVICE.set(CONF);
 
         SCIMUser user = getSampleUser(UUID.randomUUID().toString(), List.of(Resource.User.schema()));

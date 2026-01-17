@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,13 +28,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.StringListConverter;
 
 @Entity
 @Table(name = JPANotification.TABLE)
@@ -56,25 +50,18 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     public static final String TABLE = "Notification";
 
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
+    @Convert(converter = StringListConverter.class)
     @Lob
-    private String events;
-
-    @Transient
-    private List<String> eventsList = new ArrayList<>();
+    private List<String> events = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
     private List<JPAAnyAbout> abouts = new ArrayList<>();
 
     private String recipientsFIQL;
 
+    @Convert(converter = StringListConverter.class)
     @Lob
-    private String staticRecipients;
-
-    @Transient
-    private List<String> staticRecipientsList = new ArrayList<>();
+    private List<String> staticRecipients = new ArrayList<>();
 
     @NotNull
     private String recipientAttrName;
@@ -136,7 +123,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public List<String> getEvents() {
-        return eventsList;
+        return events;
     }
 
     @Override
@@ -157,7 +144,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public List<String> getStaticRecipients() {
-        return staticRecipientsList;
+        return staticRecipients;
     }
 
     @Override
@@ -220,36 +207,5 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @Override
     public void setActive(final boolean active) {
         this.active = active;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getEvents().clear();
-            getStaticRecipients().clear();
-        }
-        if (events != null) {
-            getEvents().addAll(POJOHelper.deserialize(events, TYPEREF));
-        }
-        if (staticRecipients != null) {
-            getStaticRecipients().addAll(POJOHelper.deserialize(staticRecipients, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        events = POJOHelper.serialize(getEvents());
-        staticRecipients = POJOHelper.serialize(getStaticRecipients());
     }
 }

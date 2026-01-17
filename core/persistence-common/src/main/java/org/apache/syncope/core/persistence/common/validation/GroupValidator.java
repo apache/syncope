@@ -24,8 +24,8 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
@@ -55,20 +55,20 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
 
         if (isValid) {
             Set<AnyType> anyTypes = new HashSet<>();
-            for (ADynGroupMembership memb : group.getADynMemberships()) {
+            for (DynGroupMembership memb : group.getDynMemberships()) {
                 anyTypes.add(memb.getAnyType());
 
-                if (memb.getAnyType().getKind() != AnyTypeKind.ANY_OBJECT) {
+                if (memb.getAnyType().getKind() == AnyTypeKind.GROUP) {
                     isValid = false;
 
                     context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidADynMemberships,
-                                    "No user or group dynamic membership condition are allowed here")).
-                            addPropertyNode("aDynMemberships").addConstraintViolation();
+                                    "No group dynamic membership condition are allowed here")).
+                            addPropertyNode("dynMemberships").addConstraintViolation();
                 }
             }
 
-            if (isValid && anyTypes.size() < group.getADynMemberships().size()) {
+            if (isValid && anyTypes.size() < group.getDynMemberships().size()) {
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidADynMemberships,
                                 "Each dynamic membership condition requires a different "

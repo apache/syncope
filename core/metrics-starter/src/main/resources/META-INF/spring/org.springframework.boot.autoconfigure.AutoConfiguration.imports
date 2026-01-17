@@ -16,4 +16,4 @@
 # under the License.
 org.apache.syncope.core.starter.MetricsContext
 org.apache.syncope.core.starter.JPAMetricsContext
-org.springframework.boot.actuate.autoconfigure.metrics.cache.CacheMetricsContext
+org.springframework.boot.cache.autoconfigure.metrics.CacheMetricsContext

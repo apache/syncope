@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -115,8 +114,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final RuleProvider ruleEnforcer;
 
-    protected final EncryptorManager encryptorManager;
-
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -131,8 +128,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleEnforcer,
-            final EncryptorManager encryptorManager) {
+            final RuleProvider ruleEnforcer) {
 
         super(realmSearchDAO, anyTypeDAO, templateUtils);
 
@@ -147,7 +143,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         this.provisioningManager = provisioningManager;
         this.syncopeLogic = syncopeLogic;
         this.ruleEnforcer = ruleEnforcer;
-        this.encryptorManager = encryptorManager;
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -251,7 +246,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            accessTokenDAO.findByOwner(updated.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
+            accessTokenDAO.deleteByOwner(updated.getEntity().getUsername());
         }
 
         return updated;
@@ -383,7 +378,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 build();
         ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
 
-        accessTokenDAO.findByOwner(result.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
+        accessTokenDAO.deleteByOwner(result.getEntity().getUsername());
 
         return result;
     }
@@ -440,29 +435,26 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        User user = userDAO.findByUsername(username).
+        String key = userDAO.findKey(username).
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !encryptorManager.getInstance().
-                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
+                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 
-        provisioningManager.requestPasswordReset(user.getKey(), AuthContextUtils.getUsername(), REST_CONTEXT);
+        provisioningManager.requestPasswordReset(key, AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional
     public void confirmPasswordReset(final String token, final String password) {
-        User user = userDAO.findByToken(token).
+        String key = userDAO.findByToken(token).
                 orElseThrow(() -> new NotFoundException("User with token " + token));
 
         provisioningManager.confirmPasswordReset(
-                user.getKey(), token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
+                key, token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -640,14 +632,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true)
     public void verifySecurityAnswer(final String username, final String securityAnswer) {
-        User user = userDAO.findByUsername(username).
+        String key = userDAO.findKey(username).
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !encryptorManager.getInstance().
-                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
+                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }

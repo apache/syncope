@@ -23,7 +23,7 @@ Spring Boot's actuator endpoints let you monitor and interact with Syncope compo
 Each individual endpoint can be enabled / disabled and exposed over HTTP (pre-defined, under the `/actuator` subcontext)
 or JMX.
 
-Besides a number of https://docs.spring.io/spring-boot/3.4/reference/actuator/endpoints.html[built-in endpoints^],
+Besides a number of https://docs.spring.io/spring-boot/4.0/reference/actuator/endpoints.html[built-in endpoints^],
 more are made available for each component, as reported below.
 
 [NOTE]

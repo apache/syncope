@@ -44,9 +44,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     }
 
     protected void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {
-        List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
-        if (tokens.removeIf(criteria)) {
-            profile.setGoogleMfaAuthTokens(tokens);
+        if (profile.getGoogleMfaAuthTokens().removeIf(criteria)) {
             authProfileDAO.save(profile);
         }
     }
@@ -66,7 +64,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            profile.setGoogleMfaAuthTokens(List.of());
+            profile.getGoogleMfaAuthTokens().clear();
             authProfileDAO.save(profile);
         });
     }
@@ -80,7 +78,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAll() {
         authProfileDAO.findAll(Pageable.unpaged()).forEach(profile -> {
-            profile.setGoogleMfaAuthTokens(List.of());
+            profile.getGoogleMfaAuthTokens().clear();
             authProfileDAO.save(profile);
         });
     }
@@ -89,10 +87,9 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     public void store(final String owner, final GoogleMfaAuthToken token) {
         AuthProfile profile = authProfile(owner);
 
-        List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
-        tokens.removeIf(t -> t.getOtp() == token.getOtp());
-        tokens.add(token);
-        profile.setGoogleMfaAuthTokens(tokens);
+        profile.getGoogleMfaAuthTokens().removeIf(t -> t.getOtp() == token.getOtp());
+        profile.add(token);
+
         authProfileDAO.save(profile);
     }
 
@@ -122,6 +119,6 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     public List<GoogleMfaAuthToken> read(final String owner) {
         return authProfileDAO.findByOwner(owner).
                 map(AuthProfile::getGoogleMfaAuthTokens).
-            orElseGet(List::of);
+                orElseGet(List::of);
     }
 }

@@ -23,7 +23,8 @@ import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.test.EmbeddedKafkaZKBroker;
+import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.kafka.test.EmbeddedKafkaKraftBroker;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -32,21 +33,22 @@ public class KafkaBrokerStartStopListener implements ServletContextListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaBrokerStartStopListener.class);
 
-    private EmbeddedKafkaZKBroker embeddedKafkaBroker;
+    private EmbeddedKafkaBroker embeddedKafkaBroker;
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
 
-        embeddedKafkaBroker = new EmbeddedKafkaZKBroker(
+        embeddedKafkaBroker = new EmbeddedKafkaKraftBroker(
                 1,
-                false,
+                1,
                 ctx.getEnvironment().getProperty("kafka.topics", String[].class)).
+                // this call is useless with EmbeddedKafkaKraftBroker, there is no way to set fixed port
                 kafkaPorts(ctx.getEnvironment().getProperty("kafka.port", Integer.class));
 
         embeddedKafkaBroker.afterPropertiesSet();
 
-        LOG.info("Kafka broker successfully (re)started");
+        LOG.info("Kafka broker successfully (re)started on {}", embeddedKafkaBroker.getBrokersAsString());
     }
 
     @Override

@@ -311,12 +311,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
 
-        if (resource.getConnector() != null
-                && resource.getConnector().getResources() != null
-                && !resource.getConnector().getResources().isEmpty()) {
-
-            resource.getConnector().getResources().remove(resource);
-        }
         resource.setConnector(null);
 
         cache.remove(EntityCacheKey.of(key));

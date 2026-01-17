@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope FIT Core Reference</name>
@@ -67,11 +67,6 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-self-keymaster-starter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-metrics-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -1107,6 +1102,15 @@ under the License.
         </dependency>
 
         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-jdbc</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-hibernate</artifactId>
+        </dependency>
+
+        <dependency>
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-persistence-neo4j</artifactId>
           <version>${project.version}</version>
@@ -1219,12 +1223,20 @@ under the License.
     <profile>
       <id>payara-it</id>
 
+      <properties>
+        <spring.profiles.active>embedded,payara</spring.profiles.active>
+      </properties>
+
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-starter</artifactId>
           <version>${project.version}</version>
           <exclusions>
+            <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
             <exclusion>
               <groupId>org.apache.tomcat.embed</groupId>
               <artifactId>tomcat-embed-el</artifactId>
@@ -1329,12 +1341,16 @@ under the License.
           <version>${project.version}</version>
           <exclusions>
             <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
+            <exclusion>
               <groupId>org.apache.tomcat.embed</groupId>
               <artifactId>tomcat-embed-el</artifactId>
             </exclusion>
             <exclusion>
               <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-starter-tomcat</artifactId>
+              <artifactId>spring-boot-starter-micrometer-metrics</artifactId>
             </exclusion>
           </exclusions>
         </dependency>
@@ -1395,7 +1411,7 @@ under the License.
               <container>
                 <containerId>wildfly38x</containerId>
                 <zipUrlInstaller>
-                  <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
+                  <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-preview-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -1797,6 +1813,12 @@ under the License.
       </properties>
 
       <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-metrics-starter</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
         <dependency>
           <groupId>org.apache.syncope.ext.flowable</groupId>
           <artifactId>syncope-ext-flowable-rest-cxf</artifactId>

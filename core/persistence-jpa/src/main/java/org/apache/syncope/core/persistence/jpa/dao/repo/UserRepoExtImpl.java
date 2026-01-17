@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -32,11 +33,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -52,7 +53,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
@@ -72,7 +72,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -80,12 +79,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
                 dynRealmDAO,
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
@@ -94,6 +94,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.delegationDAO = delegationDAO;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<String> findByToken(final String token) {
+        return query(
+                "SELECT id FROM " + JPAUser.TABLE + " WHERE token LIKE ?",
+                rs -> {
+                    if (rs.next()) {
+                        return Optional.of(rs.getString(1));
+                    }
+                    return Optional.empty();
+                },
+                token);
     }
 
     @Override
@@ -169,25 +183,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     }
 
     protected User checkBeforeSave(final User user) {
-        User merged = user;
-        if (user.getLinkedAccounts() == null) {
-            entityManager.flush();
-            merged = entityManager.merge(user);
-        }
-        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        anyChecker.checkBeforeSave(user, anyUtils);
+        user.getLinkedAccounts().forEach(account -> anyChecker.checkBeforeSave(account, anyUtils));
 
-        super.checkBeforeSave((JPAUser) merged);
-        merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
-
-        return merged;
+        return user;
     }
 
     protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
-        entityManager.flush();
         User merged = entityManager.merge(user);
-
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
 
         roleDAO.refreshDynMemberships(merged);
         GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
@@ -199,7 +202,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @SuppressWarnings("unchecked")
     @Override
     public <S extends User> S save(final S user) {
-        return (S) doSave(checkBeforeSave(user)).getLeft();
+        return (S) doSave(checkBeforeSave(entityManager.merge(user))).getLeft();
     }
 
     @Override
@@ -223,7 +226,25 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
+    @Override
+    public List<Role> findDynRoles(final String key) {
+        return query(
+                "SELECT DISTINCT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key).stream().
+                map(roleDAO::findById).
+                flatMap(Optional::stream).
+                collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
@@ -233,39 +254,29 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(roleKey -> roleDAO.findById(roleKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
+    protected List<String> findDynGroupKeys(final String key) {
+        return query(
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
+        return findDynGroupKeys(key).stream().
+                map(groupDAO::findById).
                 flatMap(Optional::stream).
-                distinct().
                 collect(Collectors.toList());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
@@ -276,19 +287,23 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return findAllGroups(user).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(user.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+        result.addAll(findDynGroupKeys(user.getKey()));
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
         return findAllGroups(user).stream().map(Group::getName).toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
@@ -307,11 +322,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(readOnly = true)
     @Override
     public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
-        query.setParameter(1, userKey);
-        query.setParameter(2, connObjectKeyValue);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                userKey, connObjectKeyValue) > 0;
     }
 }

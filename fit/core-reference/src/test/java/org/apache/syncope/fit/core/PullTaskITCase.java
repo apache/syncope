@@ -465,7 +465,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PagedResult<UserTO> matchByLastChangeContext = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("lastChangeContext").
-                                equalTo("*PullTask " + task.getKey() + "*").query()).
+                                equalTo("PULL Task " + task.getKey() + "*").query()).
                         build());
         assertNotNull(matchByLastChangeContext);
         assertNotEquals(0, matchByLastChangeContext.getTotalCount());

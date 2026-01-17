@@ -54,7 +54,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     Optional<? extends User> findByUsername(String username);
 
-    Optional<? extends User> findByToken(String token);
+    Optional<String> findByToken(String token);
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
 

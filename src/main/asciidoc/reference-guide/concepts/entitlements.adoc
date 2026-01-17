@@ -30,7 +30,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
 endif::[]
 , the
-https://docs.spring.io/spring-security/reference/6.4/servlet/authorization/method-security.html#authorization-expressions[`hasRole` expression^]
+https://docs.spring.io/spring-security/reference/7.0/servlet/authorization/method-security.html#authorization-expressions[`hasRole` expression^]
 is used together with one of the standard entitlements to restrict access only to Users owning the `REALM_SEARCH`
 entitlement.
 

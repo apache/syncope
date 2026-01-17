@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -126,17 +127,15 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void deleteFullname() {
-        // fullname is mapped as ConnObjectKey for ws-target-resource-2, need to swap it otherwise validation errors 
+        // fullname is mapped as ConnObjectKey for various resources, need to swap it otherwise validation errors 
         // will be raised
-        resourceDAO.findById("ws-target-resource-2").orElseThrow().
-                getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().
-                forEach(item -> {
-                    if ("fullname".equals(item.getIntAttrName())) {
-                        item.setConnObjectKey(false);
-                    } else if ("surname".equals(item.getIntAttrName())) {
-                        item.setConnObjectKey(true);
-                    }
-                });
+        resourceDAO.findAll().stream().
+                filter(r -> r.getKey().startsWith("ws-target-resource-")).
+                map(r -> r.getProvisionByAnyType(AnyTypeKind.USER.name())).
+                flatMap(Optional::stream).
+                flatMap(p -> p.getMapping().getItems().stream()).
+                filter(item -> "fullname".equals(item.getIntAttrName())).
+                forEach(item -> item.setIntAttrName("surname"));
 
         // search for user schema fullname
         plainSchemaDAO.findById("fullname").orElseThrow();

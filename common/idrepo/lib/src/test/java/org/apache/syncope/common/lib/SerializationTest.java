@@ -21,8 +21,6 @@ package org.apache.syncope.common.lib;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -43,6 +41,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 public class SerializationTest {
 
@@ -78,8 +78,8 @@ public class SerializationTest {
     public void map() throws IOException {
         GroupUR req = new GroupUR();
         req.setKey(UUID.randomUUID().toString());
-        req.getADynMembershipConds().put("key1", "value1");
-        req.getADynMembershipConds().put("key2", "value2");
+        req.getDynMembershipConds().put("key1", "value1");
+        req.getDynMembershipConds().put("key2", "value2");
 
         StringWriter writer = new StringWriter();
         MAPPER.writeValue(writer, req);
@@ -115,7 +115,7 @@ public class SerializationTest {
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
         group.getPlainAttrs().add(new Attr.Builder("style").value("cool").value("great").build());
-        group.getADynMembershipConds().put("USER", "username==a*");
+        group.getDynMembershipConds().put("USER", "username==a*");
 
         PagedResult<GroupTO> original = new PagedResult<>();
         original.getResult().add(group);
@@ -135,7 +135,7 @@ public class SerializationTest {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
-        group.getADynMembershipConds().put("USER", "username==a*");
+        group.getDynMembershipConds().put("USER", "username==a*");
 
         ProvisioningResult<GroupTO> original = new ProvisioningResult<>();
         original.setEntity(group);

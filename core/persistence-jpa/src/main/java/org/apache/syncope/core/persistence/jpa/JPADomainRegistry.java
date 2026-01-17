@@ -83,8 +83,7 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         domainHolder().getDomains().put(domain.getKey(), initedDataSource);
 
         // DomainRoutingEntityManagerFactory#domain
-        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).
-                domain(domain, initedDataSource, ctx.getEnvironment().getProperty("openjpaMetaDataFactory"));
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).domain(domain, initedDataSource);
 
         // domainContentXML
         beanFactory().registerBeanDefinition(domain.getKey() + "ContentXML",

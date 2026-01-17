@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.TicketExpirationPolicyConfConverter;
 
 @Entity
 @Table(name = JPATicketExpirationPolicy.TABLE)
@@ -34,18 +34,17 @@ public class JPATicketExpirationPolicy extends AbstractPolicy implements TicketE
 
     public static final String TABLE = "TicketExpirationPolicy";
 
+    @Convert(converter = TicketExpirationPolicyConfConverter.class)
     @Lob
-    private String jsonConf;
+    private TicketExpirationPolicyConf jsonConf;
 
     @Override
     public TicketExpirationPolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).
-                map(c -> POJOHelper.deserialize(c, TicketExpirationPolicyConf.class)).
-                orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final TicketExpirationPolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

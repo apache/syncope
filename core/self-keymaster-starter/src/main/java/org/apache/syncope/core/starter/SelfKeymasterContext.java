@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.starter;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.media.Schema;
@@ -90,6 +89,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
 @Configuration(proxyBeanMethods = false)

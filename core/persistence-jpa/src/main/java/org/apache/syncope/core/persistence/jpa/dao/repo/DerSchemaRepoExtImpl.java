@@ -41,14 +41,6 @@ public class DerSchemaRepoExtImpl extends AbstractSchemaRepoExt implements DerSc
     }
 
     @Override
-    public DerSchema save(final DerSchema schema) {
-        ((JPADerSchema) schema).map2json();
-        DerSchema merged = entityManager.merge(schema);
-        ((JPADerSchema) merged).postSave();
-        return merged;
-    }
-
-    @Override
     public void deleteById(final String key) {
         DerSchema schema = entityManager.find(JPADerSchema.class, key);
         if (schema == null) {
