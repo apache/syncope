@@ -19,13 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
@@ -52,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -83,31 +81,36 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public Map<AnyType, Long> countByType() {
-        Query query = entityManager.createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "GROUP BY e.type ORDER BY countByType DESC");
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
+    public Map<String, Long> countByType() {
+        return query(
+                "SELECT e.type_id, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e "
+                + "GROUP BY e.type_id",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
 
-        Map<AnyType, Long> countByRealm = new LinkedHashMap<>(results.size());
-        results.forEach(result -> countByRealm.put((AnyType) result[0], ((Number) result[1]).longValue()));
-
-        return Collections.unmodifiableMap(countByRealm);
     }
 
     @Override
-    public Map<String, Long> countByRealm(final AnyType anyType) {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm.fullPath, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "WHERE e.type=:type GROUP BY e.realm.fullPath");
-        query.setParameter("type", anyType);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> result[0].toString(),
-                result -> ((Number) result[1]).longValue()));
+    public Map<String, Long> countByRealm(final String anyType) {
+        return query(
+                "SELECT r.fullPath, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
+                + "WHERE e.type_id=? "
+                + "GROUP BY r.fullPath",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                },
+                anyType);
     }
 
     @Transactional(readOnly = true)
