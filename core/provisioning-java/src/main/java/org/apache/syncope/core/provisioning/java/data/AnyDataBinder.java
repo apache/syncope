@@ -64,7 +64,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
@@ -100,7 +99,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final String realmFullPath,
             final Collection<? extends AnyTypeClass> auxClasses,
             final Collection<PlainAttr> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
+            final Map<String, String> derAttrs,
             final Collection<? extends ExternalResource> resources) {
 
         anyTO.setRealm(realmFullPath);
@@ -111,14 +110,14 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
-                add(new Attr.Builder(schema.getKey()).value(value).build()));
+                add(new Attr.Builder(schema).value(value).build()));
 
         anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
     }
 
     protected static RelationshipTO getRelationshipTO(
             final Collection<PlainAttr> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
+            final Map<String, String> derAttrs,
             final String relationshipType,
             final RelationshipTO.End end,
             final Any otherEnd) {
@@ -137,14 +136,14 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrs.forEach((schema, value) -> relationshipTO.getDerAttrs().
-                add(new Attr.Builder(schema.getKey()).value(value).build()));
+                add(new Attr.Builder(schema).value(value).build()));
 
         return relationshipTO;
     }
 
     protected static MembershipTO getMembershipTO(
             final Collection<PlainAttr> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
+            final Map<String, String> derAttrs,
             final Membership<? extends Any> membership) {
 
         MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
@@ -154,7 +153,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().
-                add(new Attr.Builder(schema.getKey()).value(value).build()));
+                add(new Attr.Builder(schema).value(value).build()));
 
         return membershipTO;
     }

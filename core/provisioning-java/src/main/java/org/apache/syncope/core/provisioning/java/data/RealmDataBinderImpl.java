@@ -359,7 +359,7 @@ public class RealmDataBinderImpl extends AttributableDataBinder implements Realm
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrHandler.getValues(realm).forEach((schema, value) -> realmTO.getDerAttrs().
-                add(new Attr.Builder(schema.getKey()).value(value).build()));
+                add(new Attr.Builder(schema).value(value).build()));
 
         if (admin) {
             Optional.ofNullable(realm.getAccountPolicy()).map(AccountPolicy::getKey).

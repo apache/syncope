@@ -83,7 +83,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
         ExternalResource ldap = resourceDAO.findById("resource-ldap").orElseThrow();
-        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();
 
         assertNotEquals(CipherAlgorithm.AES, bellini.getCipherAlgorithm());
 
@@ -161,7 +161,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi").orElseThrow();
         ExternalResource ldap = resourceDAO.findById("resource-ldap").orElseThrow();
-        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setConnObjectKeyValue("admin");
@@ -264,13 +264,12 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
         entityManager.flush();
 
-        // 2. verify that dynamic membership is in place
+        // 2. verify that dynamic membership is effective
         assertTrue(userDAO.findAllGroupKeys(user).contains(group.getKey()));
 
         // 3. check propagation attrs
         ExternalResource csv = resourceDAO.findById("resource-csv").orElseThrow();
-        Provision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
-        assertNotNull(provision);
+        Provision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();
 
         MappingManager.PreparedAttrs attrs = mappingManager.prepareAttrsFromAny(
                 user,

@@ -716,7 +716,7 @@ under the License.
                 </image>
                 <image>
                   <alias>dashboards</alias>
-                  <name>opensearchproject/opensearch-dashboards:3.3.0</name>
+                  <name>opensearchproject/opensearch-dashboards:${opensearch.version}</name>
                   <run>
                     <env>
                       <OPENSEARCH_HOSTS>http://${docker.container.opensearch.ip}:9200</OPENSEARCH_HOSTS>
