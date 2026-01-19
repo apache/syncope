@@ -34,4 +34,4 @@ endif::[]
 providing the custom logic to extract information from Syncope and generate output according to the configured mime type
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/6.2/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/7.0/integration/scheduling.html#scheduling-cron-expression[cron expression^]

@@ -39,17 +39,25 @@ public class StyledNotificationBehavior extends NotificationBehavior {
     @Override
     public void show(final IPartialPageRequestHandler handler, final Serializable message, final String level) {
         if (handler != null) {
-            handler.appendJavaScript(jQueryShow(this.format(String.valueOf(message), level), this.widget(), level));
+            handler.appendJavaScript(jQueryShow(format(String.valueOf(message), level), widget(), level));
         }
     }
 
     public static String jQueryShow(final CharSequence message, final String widget, final String level) {
+        String actual = Notification.INFO.equalsIgnoreCase(level)
+                ? Notification.INFO
+                : Notification.SUCCESS.equalsIgnoreCase(level)
+                ? Notification.SUCCESS
+                : Notification.ERROR.equalsIgnoreCase(level)
+                ? Notification.ERROR
+                : Notification.WARNING;
+
         return String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
                 widget,
-                Notification.SUCCESS.equalsIgnoreCase(level) || Notification.INFO.equalsIgnoreCase(level)
+                Notification.SUCCESS.equals(actual) || Notification.INFO.equals(actual)
                 ? AUTOHIDEAFTER_GOOD : AUTOHIDEAFTER_BAD,
                 widget,
                 message,
-                level.toLowerCase());
+                actual);
     }
 }
