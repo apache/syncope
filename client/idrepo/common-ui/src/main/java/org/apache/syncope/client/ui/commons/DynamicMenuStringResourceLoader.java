@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.apache.wicket.core.util.resource.locator.IResourceNameIterator;
 import org.apache.wicket.resource.IPropertiesFactory;
-import org.apache.wicket.resource.Properties;
 import org.apache.wicket.resource.loader.ClassStringResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,26 +45,28 @@ public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
             final Locale locale,
             final String style,
             final String variation) {
+        if (key == null || !key.startsWith("menu.")) {
+            return null;
+        }
 
-        if (key != null && key.startsWith("menu.")) {
-            Class<?> pageClass = getPage(key);
+        final Class<?> pageClass = getPage(key);
+        if (pageClass == null) {
+            return null;
+        }
 
-            if (pageClass != null) {
-                final String path = pageClass.getName().replace('.', '/');
-                final IResourceNameIterator iter = newResourceNameIterator(path, locale, style, variation);
-                final IPropertiesFactory propertiesFactory = getPropertiesFactory();
+        final String path = pageClass.getName().replace('.', '/');
+        final IResourceNameIterator resourceNameIterator = newResourceNameIterator(path, locale, style, variation);
+        final IPropertiesFactory propertiesFactory = getPropertiesFactory();
 
-                while (iter.hasNext()) {
-                    final String newPath = iter.next();
-                    final Properties props = propertiesFactory.load(pageClass, newPath);
-
-                    if (props != null) {
-                        final String localeLabel = props.getString(key);
-                        LOG.debug("Found label \"{}\" for key: {}", localeLabel, key);
-                        return localeLabel;
-                    }
-                }
+        while (resourceNameIterator.hasNext()) {
+            final var props = propertiesFactory.load(pageClass, resourceNameIterator.next());
+            if (props == null) {
+                continue;
             }
+
+            final String localeLabel = props.getString(key);
+            LOG.debug("Found label \"{}\" for key: {}", localeLabel, key);
+            return localeLabel;
         }
 
         return null;
