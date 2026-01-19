@@ -52,6 +52,7 @@ import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -145,6 +146,11 @@ public abstract class AbstractTest {
             when(cacheManager.createCache(anyString(), any())).thenAnswer(ic -> mock(Cache.class));
             return cacheManager;
         }
+        
+        @Bean
+        public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {
+            return new DynamicMenuStringResourceLoader();
+        }
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
@@ -164,12 +170,13 @@ public abstract class AbstractTest {
                 final List<UserFormFinalizer> userFormFinalizers,
                 final List<IResource> resources,
                 final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
-                final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
+                final Cache<String, OffsetDateTime> destroyedSessionIdCache,
+                final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader) {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
                     implementationInfoProvider, accessPolicyConfProvider, policyTabProviders, userFormFinalizers,
-                    resources, loggedoutSessionIdCache, destroyedSessionIdCache);
+                    resources, loggedoutSessionIdCache, destroyedSessionIdCache, dynamicMenuStringResourceLoader);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

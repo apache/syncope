@@ -40,6 +40,7 @@ import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -126,6 +127,11 @@ public abstract class AbstractTest {
             lookup.load();
             return lookup;
         }
+        
+        @Bean
+        public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {
+            return new DynamicMenuStringResourceLoader();
+        }
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
@@ -135,9 +141,10 @@ public abstract class AbstractTest {
                 final EnduserProperties props,
                 final ClassPathScanImplementationLookup lookup,
                 final ServiceOps serviceOps,
-                final List<IResource> resources) {
+                final List<IResource> resources,
+                final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader) {
 
-            super(resourceLoader, props, lookup, serviceOps, resources);
+            super(resourceLoader, props, lookup, serviceOps, resources, dynamicMenuStringResourceLoader);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

@@ -1,0 +1,82 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.ui.commons;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import org.apache.wicket.core.util.resource.locator.IResourceNameIterator;
+import org.apache.wicket.resource.IPropertiesFactory;
+import org.apache.wicket.resource.loader.ClassStringResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class DynamicMenuStringResourceLoader extends ClassStringResourceLoader {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(DynamicMenuStringResourceLoader.class);
+
+    private final Map<String, Class<?>> keysForPages;
+
+    public DynamicMenuStringResourceLoader() {
+        super(DynamicMenuStringResourceLoader.class);
+        keysForPages = new HashMap<>();
+    }
+
+    @Override
+    public String loadStringResource(
+            final Class<?> clazz,
+            final String key,
+            final Locale locale,
+            final String style,
+            final String variation) {
+        if (key == null || !key.startsWith("menu.")) {
+            return null;
+        }
+
+        final Class<?> pageClass = getPage(key);
+        if (pageClass == null) {
+            return null;
+        }
+
+        final String path = pageClass.getName().replace('.', '/');
+        final IResourceNameIterator resourceNameIterator = newResourceNameIterator(path, locale, style, variation);
+        final IPropertiesFactory propertiesFactory = getPropertiesFactory();
+
+        while (resourceNameIterator.hasNext()) {
+            final var props = propertiesFactory.load(pageClass, resourceNameIterator.next());
+            if (props == null) {
+                continue;
+            }
+
+            final String localeLabel = props.getString(key);
+            LOG.debug("Found label \"{}\" for key: {}", localeLabel, key);
+            return localeLabel;
+        }
+
+        return null;
+    }
+
+    private Class<?> getPage(final String key) {
+        return keysForPages.get(key);
+    }
+
+    public void register(final String key, final Class<?> pageClass) {
+        keysForPages.put(key, pageClass);
+    }
+}

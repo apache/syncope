@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
@@ -52,7 +53,9 @@ import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -125,6 +128,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected final Cache<String, OffsetDateTime> destroyedSessionIdCache;
 
+    protected final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader;
+
     public SyncopeWebApplication(
             final ConsoleProperties props,
             final ClassPathScanImplementationLookup lookup,
@@ -140,7 +145,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             final List<UserFormFinalizer> userFormFinalizers,
             final List<IResource> resources,
             final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
-            final Cache<String, OffsetDateTime> destroyedSessionIdCache) {
+            final Cache<String, OffsetDateTime> destroyedSessionIdCache,
+            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader) {
 
         this.props = props;
         this.lookup = lookup;
@@ -157,6 +163,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         this.resources = resources;
         this.loggedoutSessionIdCache = loggedoutSessionIdCache;
         this.destroyedSessionIdCache = destroyedSessionIdCache;
+        this.dynamicMenuStringResourceLoader = dynamicMenuStringResourceLoader;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -239,6 +246,23 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         initSecurity();
 
         mountPage("/login", getSignInPageClass());
+
+        final List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
+        amPageClasses.forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
+        idmPageClasses.forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BaseExtPage>> extPageClasses = lookup.getClasses(BaseExtPage.class);
+        extPageClasses.stream().filter(claz -> (claz.isAnnotationPresent(ExtPage.class))).forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        getResourceSettings().getStringResourceLoaders().add(dynamicMenuStringResourceLoader);
 
         for (IResource resource : resources) {
             Class<?> resourceClass = AopUtils.getTargetClass(resource);
