@@ -27,7 +27,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@ExtPage(label = "SCIM 2.0", icon = "fa fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
+@ExtPage(label = "SCIMConfPage", icon = "fa fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
 public class SCIMConfPage extends BaseExtPage {
 
     private static final long serialVersionUID = -8156063343062111770L;

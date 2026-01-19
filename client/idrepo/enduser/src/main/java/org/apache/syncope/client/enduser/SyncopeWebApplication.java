@@ -39,7 +39,9 @@ import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
+import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -92,18 +94,23 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected UserFormLayoutInfo customFormLayout;
 
+    protected final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader;
+
     public SyncopeWebApplication(
             final ResourceLoader resourceLoader,
             final EnduserProperties props,
             final ClassPathScanImplementationLookup lookup,
             final ServiceOps serviceOps,
-            final List<IResource> resources) {
+            final List<IResource> resources,
+            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader
+    ) {
 
         this.resourceLoader = resourceLoader;
         this.props = props;
         this.lookup = lookup;
         this.serviceOps = serviceOps;
         this.resources = resources;
+        this.dynamicMenuStringResourceLoader = dynamicMenuStringResourceLoader;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -203,6 +210,23 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
                 });
             }
         }
+
+        final List<Class<? extends BasePage>> amPageClasses = lookup.getAMPageClasses();
+        amPageClasses.forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BasePage>> idmPageClasses = lookup.getIdMPageClasses();
+        idmPageClasses.forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        final List<Class<? extends BasePage>> extPageClasses = lookup.getExtPageClasses();
+        extPageClasses.stream().filter(claz -> (claz.isAnnotationPresent(ExtPage.class))).forEach(claz -> {
+            dynamicMenuStringResourceLoader.register("menu." + claz.getSimpleName(), claz);
+        });
+
+        getResourceSettings().getStringResourceLoaders().add(dynamicMenuStringResourceLoader);
 
         try (InputStream is = resourceLoader.getResource(props.getCustomFormLayout()).getInputStream()) {
             customFormLayout = MAPPER.readValue(is, new TypeReference<>() {
