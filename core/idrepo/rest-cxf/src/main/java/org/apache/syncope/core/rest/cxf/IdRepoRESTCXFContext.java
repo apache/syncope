@@ -128,6 +128,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -447,9 +448,10 @@ public class IdRepoRESTCXFContext {
             @Qualifier("batchExecutor")
             final AsyncTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ConfigurableApplicationContext ctx) {
 
-        return new SyncopeServiceImpl(syncopeLogic, batchExecutor, bus, batchDAO, entityFactory);
+        return new SyncopeServiceImpl(syncopeLogic, batchExecutor, bus, batchDAO, entityFactory, ctx);
     }
 
     @ConditionalOnMissingBean

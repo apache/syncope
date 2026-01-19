@@ -126,9 +126,10 @@ public class PersistenceTestContext {
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf) {
+            final CommonEntityManagerFactoryConf commonEMFConf,
+            final ConfigurableApplicationContext ctx) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf) {
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf, ctx) {
 
             @Override
             protected EntityManagerFactory delegate() {

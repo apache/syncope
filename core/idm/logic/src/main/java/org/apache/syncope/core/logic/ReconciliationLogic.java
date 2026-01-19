@@ -47,7 +47,6 @@ import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.core.logic.AbstractTransactionalLogic.ProvisioningInfo;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -101,6 +100,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -131,6 +131,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
     protected final ConnectorManager connectorManager;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public ReconciliationLogic(
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
@@ -142,7 +144,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
             final MappingManager mappingManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
-            final ConnectorManager connectorManager) {
+            final ConnectorManager connectorManager,
+            final ConfigurableApplicationContext ctx) {
 
         this.anyUtilsFactory = anyUtilsFactory;
         this.anyTypeDAO = anyTypeDAO;
@@ -155,6 +158,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         this.inboundMatcher = inboundMatcher;
         this.outboundMatcher = outboundMatcher;
         this.connectorManager = connectorManager;
+        this.ctx = ctx;
     }
 
     protected ProvisioningInfo getProvisioningInfo(final String anyTypeKey, final String resourceKey) {
@@ -365,7 +369,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
     }
 
     protected SyncopeSinglePushExecutor singlePushExecutor() {
-        return ApplicationContextProvider.getBeanFactory().createBean(SinglePushJobDelegate.class);
+        return ctx.getBeanFactory().createBean(SinglePushJobDelegate.class);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
@@ -481,7 +485,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         List<ProvisioningReport> results = new ArrayList<>();
         try {
             SyncopeSinglePullExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(SinglePullJobDelegate.class);
+                    ctx.getBeanFactory().createBean(SinglePullJobDelegate.class);
 
             results.addAll(executor.pull(
                     resource,
@@ -654,7 +658,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                 columns.toArray(String[]::new))) {
 
             SyncopeStreamPushExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(StreamPushJobDelegate.class);
+                    ctx.getBeanFactory().createBean(StreamPushJobDelegate.class);
             return executor.push(
                     anyType,
                     matching,
@@ -700,7 +704,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
             }
 
             SyncopeStreamPullExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(StreamPullJobDelegate.class);
+                    ctx.getBeanFactory().createBean(StreamPullJobDelegate.class);
             return executor.pull(
                     anyType,
                     spec.getKeyColumn(),

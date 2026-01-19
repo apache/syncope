@@ -67,7 +67,6 @@ import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
@@ -77,6 +76,7 @@ import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -274,14 +274,18 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected final EntityManagerFactory entityManagerFactory;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public XMLContentExporter(
             final DomainHolder<DataSource> domainHolder,
             final RealmSearchDAO realmSearchDAO,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManagerFactory entityManagerFactory,
+            final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.realmSearchDAO = realmSearchDAO;
         this.entityManagerFactory = entityManagerFactory;
+        this.ctx = ctx;
     }
 
     @SuppressWarnings("unchecked")
@@ -398,8 +402,8 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 orElseThrow(() -> new IllegalArgumentException("Could not find DataSource for domain " + domain));
 
         String schema = null;
-        if (ApplicationContextProvider.getBeanFactory().containsBean(domain + "DatabaseSchema")) {
-            Object schemaBean = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema");
+        if (ctx.getBeanFactory().containsBean(domain + "DatabaseSchema")) {
+            Object schemaBean = ctx.getBeanFactory().getBean(domain + "DatabaseSchema");
             if (schemaBean instanceof String string) {
                 schema = string;
             }

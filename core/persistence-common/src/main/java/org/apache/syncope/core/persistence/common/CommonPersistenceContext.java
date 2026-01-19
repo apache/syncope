@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.common.entity.DefaultAnyUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -151,8 +152,11 @@ public class CommonPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public KeymasterConfParamLoader keymasterConfParamLoader(final ConfParamOps confParamOps) {
-        return new KeymasterConfParamLoader(confParamOps);
+    public KeymasterConfParamLoader keymasterConfParamLoader(
+            final ConfParamOps confParamOps,
+            final ConfigurableApplicationContext ctx) {
+
+        return new KeymasterConfParamLoader(confParamOps, ctx);
     }
 
     @ConditionalOnMissingBean

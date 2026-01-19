@@ -26,7 +26,6 @@ import javax.cache.event.CacheEntryEvent;
 import javax.cache.event.CacheEntryListenerException;
 import javax.cache.event.CacheEntryRemovedListener;
 import javax.cache.event.CacheEntryUpdatedListener;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Takes care of connectors' Spring beans (un)registration in case HA is set up and the actual change is performed by
@@ -53,13 +53,17 @@ public class ConnectorManagerRemoteCommitListener
 
     protected final EntityManagerFactory entityManagerFactory;
 
+    protected final ConfigurableApplicationContext ctx;
+
     protected final String domain;
 
     public ConnectorManagerRemoteCommitListener(
             final EntityManagerFactory entityManagerFactory,
+            final ConfigurableApplicationContext ctx,
             final String domain) {
 
         this.entityManagerFactory = entityManagerFactory;
+        this.ctx = ctx;
         this.domain = domain;
     }
 
@@ -72,12 +76,10 @@ public class ConnectorManagerRemoteCommitListener
                 return;
             }
 
-            ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findById(resourceKey).ifPresentOrElse(
+            ctx.getBean(ExternalResourceDAO.class).findById(resourceKey).ifPresentOrElse(
                     resource -> {
                         try {
-                            ApplicationContextProvider.getApplicationContext().
-                                    getBean(ConnectorManager.class).registerConnector(resource);
+                            ctx.getBean(ConnectorManager.class).registerConnector(resource);
                         } catch (Exception e) {
                             LOG.error("While registering connector for resource {}", resourceKey, e);
                         }
@@ -95,16 +97,15 @@ public class ConnectorManagerRemoteCommitListener
                 return;
             }
 
-            List<ExternalResource> resources = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findByConnInstance(connInstanceKey);
+            List<ExternalResource> resources = ctx.getBean(ExternalResourceDAO.class).
+                    findByConnInstance(connInstanceKey);
             if (resources.isEmpty()) {
                 LOG.debug("No resources found for connInstance '{}', ignoring", connInstanceKey);
             }
 
             resources.forEach(resource -> {
                 try {
-                    ApplicationContextProvider.getApplicationContext().
-                            getBean(ConnectorManager.class).registerConnector(resource);
+                    ctx.getBean(ConnectorManager.class).registerConnector(resource);
                 } catch (Exception e) {
                     LOG.error("While registering connector {} for resource {}", connInstanceKey, resource, e);
                 }
@@ -114,12 +115,10 @@ public class ConnectorManagerRemoteCommitListener
 
     protected void unregister(final String resourceKey) {
         AuthContextUtils.runAsAdmin(domain, () -> {
-            ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findById(resourceKey).ifPresentOrElse(
+            ctx.getBean(ExternalResourceDAO.class).findById(resourceKey).ifPresentOrElse(
                     resource -> {
                         try {
-                            ApplicationContextProvider.getApplicationContext().
-                                    getBean(ConnectorManager.class).unregisterConnector(resource);
+                            ctx.getBean(ConnectorManager.class).unregisterConnector(resource);
                         } catch (Exception e) {
                             LOG.error("While unregistering connector for resource {}", resourceKey, e);
                         }

@@ -206,7 +206,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -260,9 +259,10 @@ public class PersistenceContext {
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf) {
+            final CommonEntityManagerFactoryConf commonEMFConf,
+            final ConfigurableApplicationContext ctx) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf);
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf, ctx);
         emf.master(props, masterDataSource);
         return emf;
     }
@@ -286,13 +286,13 @@ public class PersistenceContext {
             final DomainHolder<DataSource> domainHolder,
             final PersistenceProperties props,
             final ResourceLoader resourceLoader,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
         return new XMLContentLoader(
                 domainHolder,
                 resourceLoader.getResource(props.getViewsXML()),
                 resourceLoader.getResource(props.getIndexesXML()),
-                env);
+                ctx);
     }
 
     @ConditionalOnMissingBean
@@ -300,9 +300,10 @@ public class PersistenceContext {
     public XMLContentExporter xmlContentExporter(
             final DomainHolder<DataSource> domainHolder,
             final RealmSearchDAO realmSearchDAO,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManagerFactory entityManagerFactory,
+            final ConfigurableApplicationContext ctx) {
 
-        return new XMLContentExporter(domainHolder, realmSearchDAO, entityManagerFactory);
+        return new XMLContentExporter(domainHolder, realmSearchDAO, entityManagerFactory, ctx);
     }
 
     @ConditionalOnMissingBean

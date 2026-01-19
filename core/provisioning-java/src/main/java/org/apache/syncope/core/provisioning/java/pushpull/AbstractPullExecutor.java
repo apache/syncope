@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -51,6 +50,7 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 
 abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
         extends AbstractProvisioningJobDelegate<T>
@@ -64,6 +64,9 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
     @Autowired
     protected PlainAttrValidationManager validator;
+
+    @Autowired
+    protected ConfigurableApplicationContext ctx;
 
     protected final Map<String, SyncToken> latestSyncTokens = Collections.synchronizedMap(new HashMap<>());
 
@@ -80,24 +83,24 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
     protected GroupPullResultHandler ghandler;
 
     protected PullResultHandlerDispatcher buildDispatcher() {
-        return ApplicationContextProvider.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
+        return ctx.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
                 init(profile, this);
     }
 
     protected RealmPullResultHandler buildRealmHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
+        return ctx.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
     }
 
     protected AnyObjectPullResultHandler buildAnyObjectHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
+        return ctx.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
     }
 
     protected UserPullResultHandler buildUserHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
+        return ctx.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
     }
 
     protected GroupPullResultHandler buildGroupHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
+        return ctx.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
     }
 
     protected List<InboundActions> getInboundActions(final List<? extends Implementation> impls) {

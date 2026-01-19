@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -56,17 +55,17 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
     @Override
     protected AnyObjectPushResultHandler buildAnyObjectHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
     }
 
     @Override
     protected UserPushResultHandler buildUserHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamUserPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamUserPushResultHandler.class);
     }
 
     @Override
     protected GroupPushResultHandler buildGroupHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
     }
 
     private ExternalResource externalResource(
