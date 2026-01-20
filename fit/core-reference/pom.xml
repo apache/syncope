@@ -1086,7 +1086,6 @@ under the License.
 
       <properties>
         <spring.profiles.active>embedded,neo4j</spring.profiles.active>
-        <skipTests>true</skipTests>
       </properties>
 
       <dependencies>
@@ -1119,7 +1118,7 @@ under the License.
       </dependencies>
 
       <build>
-        <defaultGoal>clean package io.fabric8:docker-maven-plugin:start cargo:run</defaultGoal>
+        <defaultGoal>clean verify</defaultGoal>
 
         <plugins>
           <plugin>
@@ -1201,14 +1200,6 @@ under the License.
             <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>
-                    -Dspring.profiles.active=${spring.profiles.active}
-                    -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
-                </properties>
-              </configuration>
               <container>
                 <systemProperties>
                   <NEO4J_CONTAINER_IP>${docker.container.neo4j.ip}</NEO4J_CONTAINER_IP>
