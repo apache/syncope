@@ -22,16 +22,18 @@ under the License.
     <exclude-subsystems>
       <subsystem name="webservices"/>
       <subsystem name="jaxrs"/>
+      <subsystem name="logging"/>
     </exclude-subsystems>
-    <dependencies>
-      <module name="org.apache.xalan"/>
-    </dependencies>
     <exclusions>
       <module name="javax.ws.rs.api"/>
       <module name="org.apache.cxf"/>
       <module name="org.apache.cxf.impl"/>
       <module name="org.slf4j"/>
       <module name="org.slf4j.impl"/>
+      <module name="org.apache.log4j"/>
+      <module name="org.apache.logging.log4j.api"/>
+      <module name="org.jboss.log4j.logmanager"/>
+      <module name="org.jboss.logmanager.log4j2"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>
