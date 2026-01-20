@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>36</version>
+    <version>37</version>
     <relativePath />
   </parent>
 
@@ -1734,7 +1734,7 @@ under the License.
         <plugin>
           <groupId>org.openapitools</groupId>
           <artifactId>openapi-generator-maven-plugin</artifactId>
-          <version>7.18.0</version>
+          <version>7.19.0</version>
         </plugin>
 
         <plugin>
