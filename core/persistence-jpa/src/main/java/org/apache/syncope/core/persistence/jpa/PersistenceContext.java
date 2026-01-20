@@ -377,6 +377,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
+        return new AnyChecker(plainSchemaDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AnyMatchDAO anyMatchDAO(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,

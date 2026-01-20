@@ -20,11 +20,14 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
 import java.util.Set;
+import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -35,16 +38,20 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
     protected final ExternalResourceDAO resourceDAO;
 
+    protected final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache;
+
     protected final Neo4jTemplate neo4jTemplate;
 
     protected final NodeValidator nodeValidator;
 
     public ConnInstanceRepoExtImpl(
             final ExternalResourceDAO resourceDAO,
+            final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache,
             final Neo4jTemplate neo4jTemplate,
             final NodeValidator nodeValidator) {
 
         this.resourceDAO = resourceDAO;
+        this.resourceCache = resourceCache;
         this.neo4jTemplate = neo4jTemplate;
         this.nodeValidator = nodeValidator;
     }
@@ -88,6 +95,10 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         ((Neo4jConnInstance) connector).list2json();
         ConnInstance saved = neo4jTemplate.save(nodeValidator.validate(connector));
         ((Neo4jConnInstance) saved).postSave();
+
+        resourceDAO.findByConnInstance(saved.getKey()).
+                forEach(resource -> resourceCache.remove(EntityCacheKey.of(resource.getKey())));
+
         return saved;
     }
 

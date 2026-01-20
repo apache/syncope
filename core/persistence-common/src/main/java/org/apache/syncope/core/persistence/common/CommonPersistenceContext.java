@@ -22,7 +22,6 @@ import jakarta.validation.Validator;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
-import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -157,12 +156,6 @@ public class CommonPersistenceContext {
             final ConfigurableApplicationContext ctx) {
 
         return new KeymasterConfParamLoader(confParamOps, ctx);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyChecker anyChecker(final @Lazy PlainSchemaDAO plainSchemaDAO) {
-        return new AnyChecker(plainSchemaDAO);
     }
 
     @ConditionalOnMissingBean

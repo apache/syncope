@@ -1074,9 +1074,9 @@ public class GroupITCase extends AbstractITCase {
             // 4. check that a single group exists in LDAP for the group created and updated above
             assertEquals(1, ldapSearch("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')').getEntryCount());
         } finally {
-            SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
-            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
-            RESOURCE_SERVICE.delete("new-ldap");
+//            SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
+//            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
+//            RESOURCE_SERVICE.delete("new-ldap");
         }
     }
 

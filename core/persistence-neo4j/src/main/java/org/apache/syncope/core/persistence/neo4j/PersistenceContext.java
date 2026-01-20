@@ -93,6 +93,7 @@ import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentLoader;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyChecker;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyMatchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAuditEventDAO;
@@ -450,6 +451,17 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AnyChecker anyChecker(
+            final @Lazy AnyTypeDAO anyTypeDAO,
+            final @Lazy AnyTypeClassDAO anyTypeClassDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy DerSchemaDAO derSchemaDAO) {
+
+        return new Neo4jAnyChecker(anyTypeDAO, anyTypeClassDAO, plainSchemaDAO, derSchemaDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AnyMatchDAO anyMatchDAO(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -754,10 +766,11 @@ public class PersistenceContext {
     @Bean
     public ConnInstanceRepoExt connInstanceRepoExt(
             final @Lazy ExternalResourceDAO resourceDAO,
+            final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache,
             final Neo4jTemplate neo4jTemplate,
             final NodeValidator nodeValidator) {
 
-        return new ConnInstanceRepoExtImpl(resourceDAO, neo4jTemplate, nodeValidator);
+        return new ConnInstanceRepoExtImpl(resourceDAO, resourceCache, neo4jTemplate, nodeValidator);
     }
 
     @ConditionalOnMissingBean
