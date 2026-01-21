@@ -169,13 +169,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(group);
             final String groupKey = group.getKey();
 
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             // 5. verify that the new user and group are found when searching by dynamic realm
             PagedResult<UserTO> matchingUsers = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
@@ -265,11 +259,7 @@ public class DynRealmITCase extends AbstractITCase {
 
             // 4a. check that Elasticsearch index was updated correctly
             if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
+                awaitIfExtSearchEnabled();
 
                 ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
                 assertEquals(1, dynRealms.size());
@@ -287,11 +277,7 @@ public class DynRealmITCase extends AbstractITCase {
 
             // 6a. check that Elasticsearch index was updated correctly
             if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
+                awaitIfExtSearchEnabled();
 
                 ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
                 assertTrue(dynRealms.isEmpty());
@@ -327,13 +313,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(realm2);
 
             // 2. verify that dynamic members are the same
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
@@ -352,13 +332,7 @@ public class DynRealmITCase extends AbstractITCase {
             updateUser(userUR);
 
             // 4. verify that dynamic members are still the same
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());

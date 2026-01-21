@@ -390,13 +390,7 @@ public class AuditITCase extends AbstractITCase {
         auditEvent.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEvent));
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<AuditEventTO> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
@@ -425,13 +419,7 @@ public class AuditITCase extends AbstractITCase {
         auditEvent.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEvent));
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<AuditEventTO> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
@@ -597,13 +585,7 @@ public class AuditITCase extends AbstractITCase {
                     build()).getEntity();
 
             // search by empty type and category events and get both events on testfromLDAP
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             assertEquals(1, AUDIT_SERVICE.search(new AuditQuery.Builder().
                     entityKey(pullFromLDAP.getKey()).

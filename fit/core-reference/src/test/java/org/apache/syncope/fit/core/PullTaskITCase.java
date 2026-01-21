@@ -420,19 +420,22 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
+        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
+            List<ConnConfProperty> conf = CONNECTOR_SERVICE.read(
+                    "74141a3b-0762-4720-a4aa-fc3e374ef3ef", null).getConf();
+            List<Object> principal = conf.stream().
+                    filter(p -> "principal".equals(p.getSchema().getName())).findFirst().orElseThrow().getValues();
+            List<Object> credentials = conf.stream().
+                    filter(p -> "credentials".equals(p.getSchema().getName())).findFirst().orElseThrow().getValues();
+            fail("LDAP PRINCIPAL / CREDENTIALS: " + principal + " / " + credentials);
+        }
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // SYNCOPE-898
         PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, LDAP_PULL_TASK, false);
         assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(
@@ -594,13 +597,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertTrue(connObjectTO.getAttr("LOCATION").orElseThrow().getValues().getFirst().startsWith(prefix));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             PagedResult<AnyObjectTO> matchingPrinters = ANY_OBJECT_SERVICE.search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -621,23 +618,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 4. pull
             execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
 
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             matchingPrinters = ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
@@ -1643,7 +1628,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1905() {
-
         ldapCleanup();
 
         PullTaskTO pullTaskTO = new PullTaskTO();

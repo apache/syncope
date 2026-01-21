@@ -45,6 +45,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,7 @@ import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContex
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -401,10 +403,6 @@ public abstract class AbstractITCase {
 
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
-    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
-
-    protected static boolean IS_OPENSEARCH_ENABLED = false;
-
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
     protected static boolean IS_NEO4J_PERSISTENCE = false;
@@ -497,9 +495,9 @@ public abstract class AbstractITCase {
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asString().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("Elasticsearch");
-        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asString().contains("OpenSearch");
-        IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
+        boolean isElasticsearchEnabled = anySearchDAO.get("type").asString().contains("Elasticsearch");
+        boolean isOpenSearchEnabled = anySearchDAO.get("type").asString().contains("OpenSearch");
+        IS_EXT_SEARCH_ENABLED = isElasticsearchEnabled || isOpenSearchEnabled;
 
         IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asString().contains("Neo4j");
 
@@ -507,19 +505,19 @@ public abstract class AbstractITCase {
             return;
         }
 
-        SyncopeClientFactoryBean masterCF = new SyncopeClientFactoryBean().setAddress(ADDRESS);
-        SyncopeClientFactoryBean twoCF = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
-        SyncopeClient masterSC = masterCF.create(ADMIN_UNAME, ADMIN_PWD);
+        SyncopeClient masterSC = new SyncopeClientFactoryBean().setAddress(ADDRESS).
+                setDomain(SyncopeConstants.MASTER_DOMAIN).create(ADMIN_UNAME, ADMIN_PWD);
         ImplementationService masterIS = masterSC.getService(ImplementationService.class);
         TaskService masterTS = masterSC.getService(TaskService.class);
-        SyncopeClient twoSC = twoCF.create(ADMIN_UNAME, "password2");
+        SyncopeClient twoSC = new SyncopeClientFactoryBean().setAddress(ADDRESS).
+                setDomain("Two").create(ADMIN_UNAME, "password2");
         ImplementationService twoIS = twoSC.getService(ImplementationService.class);
         TaskService twoTS = twoSC.getService(TaskService.class);
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (isElasticsearchEnabled) {
             initExtSearch(masterIS, masterTS, "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
             initExtSearch(twoIS, twoTS, "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
-        } else if (IS_OPENSEARCH_ENABLED) {
+        } else if (isOpenSearchEnabled) {
             initExtSearch(masterIS, masterTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
             initExtSearch(twoIS, twoTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
         }
@@ -587,6 +585,12 @@ public abstract class AbstractITCase {
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
         OIDC_JWKS_SERVICE = ADMIN_CLIENT.getService(OIDCJWKSService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
+    }
+
+    protected static void awaitIfExtSearchEnabled() {
+        if (IS_EXT_SEARCH_ENABLED) {
+            await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofSeconds(1)).until(() -> true);
+        }
     }
 
     protected static String getUUIDString() {
@@ -1065,13 +1069,7 @@ public abstract class AbstractITCase {
     }
 
     protected static List<AuditEventTO> query(final AuditQuery query, final int maxWaitSeconds) {
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         int i = 0;
         List<AuditEventTO> results = List.of();

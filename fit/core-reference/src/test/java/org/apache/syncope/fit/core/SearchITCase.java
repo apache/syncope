@@ -211,13 +211,7 @@ public class SearchITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<GroupTO> matchingGroups = GROUP_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -257,13 +251,7 @@ public class SearchITCase extends AbstractITCase {
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -352,13 +340,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByDate() {
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
@@ -496,13 +478,7 @@ public class SearchITCase extends AbstractITCase {
                 membership(new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
                 build()).getEntity().getKey();
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm("/").
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().withMembers(printer).query()).
@@ -654,13 +630,7 @@ public class SearchITCase extends AbstractITCase {
             updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
         }
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> matching = USER_SERVICE.search(
                 new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
@@ -680,13 +650,7 @@ public class SearchITCase extends AbstractITCase {
                         .plainAttrs(attr("ctype", "additionalemployeectype")).build())
                 .build());
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         matching = USER_SERVICE.search(
                 new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
@@ -715,13 +679,7 @@ public class SearchITCase extends AbstractITCase {
                         plainAttrs(attr("ctype", "otherchildctype")).
                         build()).build());
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         matching = ANY_OBJECT_SERVICE.search(
                 new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
@@ -783,13 +741,7 @@ public class SearchITCase extends AbstractITCase {
                     build();
             updateAnyObject(anyObjectUR);
 
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             PagedResult<AnyObjectTO> matching = ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getAnyObjectSearchConditionBuilder(service.getKey()).
@@ -822,13 +774,7 @@ public class SearchITCase extends AbstractITCase {
         req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "ou=sample,o=isp")).build());
         USER_SERVICE.update(req);
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         try {
             PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
@@ -908,13 +854,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(rossini);
         assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().getFirst());
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> total = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
@@ -975,13 +915,7 @@ public class SearchITCase extends AbstractITCase {
         UserTO user = createUser(userCR).getEntity();
 
         // 3. search for user
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
@@ -1013,13 +947,7 @@ public class SearchITCase extends AbstractITCase {
                 new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, "_syncope1779").build()).getEntity();
 
         // 4. search
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         try {
             // Search by username
@@ -1073,13 +1001,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. search again
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("verdi@syncope.org").query()).
@@ -1103,13 +1025,7 @@ public class SearchITCase extends AbstractITCase {
         assertEquals("D'Amico", user.getPlainAttr("surname").orElseThrow().getValues().getFirst());
 
         // 2. search for user
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("surname=~D'*").build());
@@ -1135,13 +1051,7 @@ public class SearchITCase extends AbstractITCase {
         userCR.setUsername("user test 182");
         createUser(userCR);
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         try {
             assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)

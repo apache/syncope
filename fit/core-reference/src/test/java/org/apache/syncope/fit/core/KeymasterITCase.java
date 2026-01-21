@@ -277,13 +277,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(user);
         assertEquals("monteverdi", user.getUsername());
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         users = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
