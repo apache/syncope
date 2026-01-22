@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -399,8 +398,6 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         } catch (JobExecutionException e) {
             LOG.error("Could not perform single push", e);
             sce.getElements().add(e.getMessage());
-
-            ExceptionUtils.getStackTrace(e).lines().forEach(line -> sce.getElements().add(line));
         }
 
         if (!sce.isEmpty()) {
@@ -507,8 +504,6 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         } catch (JobExecutionException e) {
             LOG.error("Could not perform single pull", e);
             sce.getElements().add(e.getMessage());
-
-            ExceptionUtils.getStackTrace(e).lines().forEach(line -> sce.getElements().add(line));
         }
 
         if (!sce.isEmpty()) {

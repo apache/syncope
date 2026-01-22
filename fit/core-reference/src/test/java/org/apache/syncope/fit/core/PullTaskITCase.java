@@ -287,7 +287,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(usersPre);
 
             ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, PULL_TASK_KEY, MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+            assertSuccessful(exec);
 
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
@@ -381,7 +381,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             userTO = USER_SERVICE.read("testuser1");
             assertNotNull(userTO);
@@ -396,7 +396,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // re-execute the same PullTask: now user must be active
             execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             userTO = USER_SERVICE.read("testuser1");
             assertNotNull(userTO);
@@ -420,10 +420,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
-        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
-            fail("LDAP PullTask failed:\n" + execution.getMessage());
-        }
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+        assertSuccessful(execution);
 
         // SYNCOPE-898
         PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, LDAP_PULL_TASK, false);
@@ -668,9 +665,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(reconFilterBuilder.getKey(), task.getReconFilterBuilder());
 
             // 3. exec task
-            ExecTO execution = execSchedTask(
-                    TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+            assertSuccessful(execution);
 
             // 4. verify that only enabled user was pulled
             userTO = USER_SERVICE.read("user2");
@@ -752,7 +748,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "false, 'syncTokenWithErrors1@syncope.apache.org', 'true', '2015-05-23 13:53:24.293')");
 
             ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+            assertSuccessful(exec);
 
             resForTest = RESOURCE_SERVICE.read(resForTest.getKey());
             assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).orElseThrow().
@@ -763,7 +759,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "WHERE ID=1041");
 
             exec = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+            assertSuccessful(exec);
 
             resForTest = RESOURCE_SERVICE.read(resForTest.getKey());
             assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).orElseThrow().
@@ -817,7 +813,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 3. execute the pull task and verify that:
             ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // 3a. user was not pulled
             try {
@@ -979,7 +975,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     TASK_SERVICE, TaskType.PULL, pullTaskKey, 2 * MAX_WAIT_SECONDS, false);
 
             // 3. verify execution status
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // 4. verify that the given number of users was effectively pulled
             result = USER_SERVICE.search(new AnyQuery.Builder().fiql(
@@ -1051,7 +1047,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, actual.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             userTO = USER_SERVICE.read("testuser2");
             assertNotNull(userTO);
@@ -1193,7 +1189,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     TASK_SERVICE, TaskType.PULL, "986867e2-993b-430e-8feb-aa9abb4c1dcd", MAX_WAIT_SECONDS, false);
 
             assertNotNull(taskExecTO.getStatus());
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(taskExecTO.getStatus()));
+            assertSuccessful(taskExecTO);
 
             userTO = USER_SERVICE.read(userTO.getKey());
             assertNotNull(userTO);
@@ -1246,7 +1242,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         ExecTO execution = execSchedTask(
                 TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+        assertSuccessful(execution);
 
         // 5. Test the pulled user
         SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();
@@ -1331,7 +1327,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // 7. Test the pulled user
             self = CLIENT_FACTORY.create(user.getUsername(), oldCleanPassword).self();
@@ -1394,7 +1390,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 3. exec the pull task
             ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // the user is successfully pulled...
             user = USER_SERVICE.read("pullFromLDAP");
@@ -1434,7 +1430,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. exec the pull task again
             execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // the internal is updated...
             user = USER_SERVICE.read("pullFromLDAP");
@@ -1495,7 +1491,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(pullTask);
 
             ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             pullFromLDAP4issue1656 = USER_SERVICE.read("pullFromLDAP_issue1656");
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
@@ -1512,7 +1508,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             updateLdapRemoteObject(userDn.getValues().getFirst(), Map.of("mail", "pullFromLDAP_issue1656@"));
             // 3. Pull again from resource-ldap
             execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
             assertTrue(execution.getMessage().contains("UPDATE FAILURE"));
             pullFromLDAP4issue1656 = USER_SERVICE.read("pullFromLDAP_issue1656");
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
@@ -1587,7 +1583,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(pullTask);
 
             ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            assertSuccessful(execution);
 
             // 3. Test if password is not present in the propagation task for DB
             PagedResult<PropagationTaskTO> propagationTasks = TASK_SERVICE.search(

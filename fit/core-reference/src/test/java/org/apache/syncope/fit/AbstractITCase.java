@@ -804,6 +804,21 @@ public abstract class AbstractITCase {
         return result.getEntity();
     }
 
+    protected static void assertSuccessful(final ExecTO execution) {
+        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
+            if (execution.getMessage().contains(
+                    "Simple authentication with a non-empty DN and an empty password is not allowed")) {
+
+                ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+
+                fail("LDAP " + connInstance.getConf("principal").orElseThrow().getValues().getFirst().toString()
+                        + " " + connInstance.getConf("credentials").orElseThrow().getValues().getFirst().toString());
+            }
+
+            fail(execution.getRefDesc() + " failed:\n" + execution.getMessage());
+        }
+    }
+
     private static <T> T execOnLDAP(
             final String bindDn,
             final String bindPassword,

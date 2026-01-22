@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -126,12 +125,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
 
-        ExecTO execution = execSchedTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
-        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
-            fail("LDAP PushTask failed:\n" + execution.getMessage());
-        }
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         assertNotNull(RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
@@ -350,7 +345,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertNotNull(pushTask);
 
         ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PUSH, pushTask.getKey(), MAX_WAIT_SECONDS, false);
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+        assertSuccessful(exec);
 
         // 2. check
         assertNotNull(getLdapRemoteObject("ou=odd,o=isp"));
@@ -379,7 +374,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PUSH, pushTaskKey, MAX_WAIT_SECONDS, false);
 
         // 3. verify execution status
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+        assertSuccessful(execution);
     }
 
     @Test
@@ -462,7 +457,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // execute the new task
             ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PUSH, push.getKey(), MAX_WAIT_SECONDS, false);
-            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+            assertSuccessful(exec);
         } finally {
             GROUP_SERVICE.delete(groupTO.getKey());
             if (newResourceTO != null) {
