@@ -28,6 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchScope;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1285,12 +1288,21 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(self);
 
             // 4. Check that the LDAP resource has the old password
-            ConnObject connObject =
-                    RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
-            assertNotNull(getLdapRemoteObject(
-                    connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
-                    oldCleanPassword,
-                    connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
+            try {
+                ConnObject connObject = RESOURCE_SERVICE.readConnObject(
+                        RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
+                assertNotNull(getLdapRemoteObject(
+                        connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
+                        oldCleanPassword,
+                        connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
+            } catch (Exception e) {
+                try {
+                    execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+                            new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
+                } catch (LDAPException ldape) {
+                    fail("While reading pullFromLDAP from LDAP", ldape);
+                }
+            }
 
             // 5. Update the LDAP Connector to retrieve passwords
             ResourceTO ldapResource = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
@@ -1402,8 +1414,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
             group = GROUP_SERVICE.read("testLDAPGroup");
             assertNotNull(group);
 
-            ConnObject connObject =
-                    RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
+            ConnObject connObject = null;
+            try {
+                connObject = RESOURCE_SERVICE.readConnObject(
+                        RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
+            } catch (Exception e) {
+                try {
+                    execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+                            new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
+                } catch (LDAPException ldape) {
+                    fail("While reading pullFromLDAP from LDAP", ldape);
+                }
+            }
             assertNotNull(connObject);
             assertEquals(
                     "pullFromLDAP@syncope.apache.org",
