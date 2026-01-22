@@ -1655,13 +1655,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         ProvisioningReport result = null;
         try {
-            List<ProvisioningReport> results =
-                    RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.GROUP.name(),
-                            RESOURCE_NAME_LDAP).fiql(
-                            SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder()
-                                    .is(Uid.NAME)
-                                    .equalToIgnoreCase("testLDAPGroup")
-                                    .query()).build(), pullTaskTO);
+            List<ProvisioningReport> results = RECONCILIATION_SERVICE.pull(
+                    new ReconQuery.Builder(AnyTypeKind.GROUP.name(), RESOURCE_NAME_LDAP).fiql(
+                            SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
+                                    is(Uid.NAME).equalToIgnoreCase("testLDAPGroup").query()).
+                            build(),
+                    pullTaskTO);
 
             assertNotNull(results.getFirst());
             result = results.getFirst();
