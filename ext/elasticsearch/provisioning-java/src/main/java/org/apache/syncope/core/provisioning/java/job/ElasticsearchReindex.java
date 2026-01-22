@@ -263,7 +263,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
         return Pair.of(index, count);
     }
 
-    protected String reindexAudit(final JobExecutionContext context) throws IOException {
+    protected String reindexAudit() throws IOException {
         indexManager.createAuditIndex(AuthContextUtils.getDomain(), auditSettings(), auditMapping());
         return ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain());
     }
@@ -282,7 +282,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
 
                 Pair<String, Long> aindex = reindexAnyObjects();
 
-                String audit = reindexAudit(context);
+                String audit = reindexAudit();
 
                 setStatus("Rebuild indexes for domain " + AuthContextUtils.getDomain() + " successfully completed");
 

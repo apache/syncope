@@ -18,11 +18,19 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface RoleRepo
         extends ListCrudRepository<JPARole, String>, RoleRepoExt, RoleDAO {
 
+    @Query("SELECT e FROM #{#entityName} e WHERE :realm MEMBER OF e.realms")
+    @Override
+    List<Role> findByRealms(@Param("realm") Realm realm);
 }
