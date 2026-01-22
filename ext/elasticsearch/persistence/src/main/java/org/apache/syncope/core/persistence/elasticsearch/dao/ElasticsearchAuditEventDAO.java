@@ -35,13 +35,11 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
@@ -50,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
-import tools.jackson.databind.node.ObjectNode;
 
 public class ElasticsearchAuditEventDAO implements AuditEventDAO {
 
@@ -183,17 +180,15 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                 build();
         LOG.debug("Search request: {}", request);
 
-        List<Hit<ObjectNode>> esResult = null;
+        List<Hit<AuditEventTO>> esResult = null;
         try {
-            esResult = client.search(request, ObjectNode.class).hits().hits();
+            esResult = client.search(request, AuditEventTO.class).hits().hits();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch with request {}", request, e);
+            LOG.error("While searching in OpenSearch with request {}", request, e);
         }
 
         return CollectionUtils.isEmpty(esResult)
                 ? List.of()
-                : esResult.stream().
-                        map(hit -> POJOHelper.convertValue(hit.source(), AuditEventTO.class)).
-                        filter(Objects::nonNull).toList();
+                : esResult.stream().map(Hit::source).toList();
     }
 }

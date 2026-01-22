@@ -112,18 +112,6 @@ public final class POJOHelper {
         return result;
     }
 
-    public static <T extends Object> T convertValue(final Object value, final Class<T> reference) {
-        T result = null;
-
-        try {
-            result = MAPPER.convertValue(value, reference);
-        } catch (Exception e) {
-            LOG.error("During conversion", e);
-        }
-
-        return result;
-    }
-
     private POJOHelper() {
     }
 }
