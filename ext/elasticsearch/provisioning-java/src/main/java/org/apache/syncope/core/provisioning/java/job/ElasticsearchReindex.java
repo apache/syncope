@@ -158,7 +158,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
         return indexManager.defaultAuditMapping();
     }
 
-    protected Pair<String, Long> reindexRealms(final JobExecutionContext context) throws IOException {
+    protected Pair<String, Long> reindexRealms() throws IOException {
         indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
 
         long count = realmDAO.count();
@@ -184,7 +184,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
         return Pair.of(index, count);
     }
 
-    protected Pair<String, Long> reindexUsers(final JobExecutionContext context) throws IOException {
+    protected Pair<String, Long> reindexUsers() throws IOException {
         indexManager.createAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
         long count = userDAO.count();
@@ -210,7 +210,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
         return Pair.of(index, count);
     }
 
-    protected Pair<String, Long> reindexGroups(final JobExecutionContext context) throws IOException {
+    protected Pair<String, Long> reindexGroups() throws IOException {
         indexManager.createAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
         long count = groupDAO.count();
@@ -236,7 +236,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
         return Pair.of(index, count);
     }
 
-    protected Pair<String, Long> reindexAnyObjects(final JobExecutionContext context) throws IOException {
+    protected Pair<String, Long> reindexAnyObjects() throws IOException {
         indexManager.createAnyIndex(
                 AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
@@ -274,13 +274,13 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             setStatus("Start rebuilding indexes");
 
             try {
-                Pair<String, Long> rindex = reindexRealms(context);
+                Pair<String, Long> rindex = reindexRealms();
 
-                Pair<String, Long> uindex = reindexUsers(context);
+                Pair<String, Long> uindex = reindexUsers();
 
-                Pair<String, Long> gindex = reindexGroups(context);
+                Pair<String, Long> gindex = reindexGroups();
 
-                Pair<String, Long> aindex = reindexAnyObjects(context);
+                Pair<String, Long> aindex = reindexAnyObjects();
 
                 String audit = reindexAudit(context);
 
