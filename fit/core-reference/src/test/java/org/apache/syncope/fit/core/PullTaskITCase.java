@@ -420,6 +420,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
+        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
+            fail("LDAP PullTask failed:\n" + execution.getMessage());
+        }
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // SYNCOPE-898
@@ -1269,7 +1272,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserCR userCR = UserITCase.getUniqueSample("syncope313-ldap@syncope.apache.org");
             userCR.setPassword(oldCleanPassword);
             userCR.getResources().add(RESOURCE_NAME_LDAP);
-            user = createUser(userCR).getEntity();
+            user = getEntity(createUser(userCR));
             assertNotNull(user);
             assertFalse(user.getResources().isEmpty());
 
@@ -1278,7 +1281,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
             userUR.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
-            user = updateUser(userUR).getEntity();
+            user = getEntity(updateUser(userUR));
 
             // 3. Check that the Syncope user now has the changed password
             SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), newCleanPassword).self();

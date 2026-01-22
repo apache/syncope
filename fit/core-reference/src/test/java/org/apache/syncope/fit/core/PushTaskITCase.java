@@ -126,8 +126,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
 
-        execSchedTask(
+        ExecTO execution = execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
+        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
+            fail("LDAP PushTask failed:\n" + execution.getMessage());
+        }
+        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         assertNotNull(RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));

@@ -21,6 +21,7 @@ package org.apache.syncope.fit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.unboundid.ldap.sdk.AddRequest;
@@ -92,6 +93,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -789,6 +791,17 @@ public abstract class AbstractITCase {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         return BatchPayloadParser.parse(
                 (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
+    }
+
+    protected static <E extends EntityTO> E getEntity(final ProvisioningResult<E> result) {
+        List<String> failures = result.getPropagationStatuses().stream().
+                filter(status -> status.getStatus() != ExecStatus.SUCCESS).
+                map(status -> "Propagation to " + status.getResource()
+                + " was not successful: " + status.getFailureReason()).toList();
+        if (!failures.isEmpty()) {
+            fail(String.join("\n", failures));
+        }
+        return result.getEntity();
     }
 
     private static <T> T execOnLDAP(

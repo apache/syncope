@@ -399,6 +399,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         } catch (JobExecutionException e) {
             LOG.error("Could not perform single push", e);
             sce.getElements().add(e.getMessage());
+
+            ExceptionUtils.getStackTrace(e).lines().forEach(line -> sce.getElements().add(line));
         }
 
         if (!sce.isEmpty()) {
