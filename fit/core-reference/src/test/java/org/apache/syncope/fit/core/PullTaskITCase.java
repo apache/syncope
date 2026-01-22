@@ -475,12 +475,22 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(matchingUsers.getResult().getFirst().getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());
         // SYNCOPE-1343, set value title to null on LDAP
-        ConnObject userConnObject = RESOURCE_SERVICE.readConnObject(
-                RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().getFirst().getKey());
-        assertNotNull(userConnObject);
-        assertEquals("odd", userConnObject.getAttr("title").orElseThrow().getValues().getFirst());
-        Attr userDn = userConnObject.getAttr(Name.NAME).orElseThrow();
-        updateLdapRemoteObject(userDn.getValues().getFirst(), Collections.singletonMap("title", null));
+        try {
+            ConnObject userConnObject = RESOURCE_SERVICE.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().getFirst().getKey());
+            assertNotNull(userConnObject);
+            assertEquals("odd", userConnObject.getAttr("title").orElseThrow().getValues().getFirst());
+            Attr userDn = userConnObject.getAttr(Name.NAME).orElseThrow();
+            updateLdapRemoteObject(userDn.getValues().getFirst(), Collections.singletonMap("title", null));
+        } catch (Exception e) {
+            try {
+                execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+                        new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
+            } catch (LDAPException ldape) {
+                fail("While reading pullFromLDAP from LDAP", ldape);
+            }
+            throw e;
+        }
 
         // SYNCOPE-317
         execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
