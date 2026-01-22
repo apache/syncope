@@ -817,7 +817,7 @@ public abstract class AbstractITCase {
         return execOnLDAP(bindDn, bindPassword, connInstance, function);
     }
 
-    protected static <T> T execOnLDAP(final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
+    private static <T> T execOnLDAP(final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
         ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
 
         return execOnLDAP(

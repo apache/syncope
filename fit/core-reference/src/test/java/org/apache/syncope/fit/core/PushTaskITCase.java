@@ -25,9 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchScope;
 import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -132,18 +129,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
 
-        try {
-            assertNotNull(RESOURCE_SERVICE.readConnObject(
-                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
-        } catch (Exception e) {
-            try {
-                execOnLDAP(ldapConn -> ldapConn.searchForEntry(
-                        new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
-            } catch (LDAPException ldape) {
-                fail("While reading pullFromLDAP from LDAP", ldape);
-            }
-            throw e;
-        }
+        assertNotNull(RESOURCE_SERVICE.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
         assertTrue(GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
     }

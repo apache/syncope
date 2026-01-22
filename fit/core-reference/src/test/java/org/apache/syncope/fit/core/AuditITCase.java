@@ -27,9 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.SearchRequest;
-import com.unboundid.ldap.sdk.SearchScope;
 import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
@@ -579,18 +576,8 @@ public class AuditITCase extends AbstractITCase {
             pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
             pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
             pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
-            try {
-                RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
-                        fiql("uid==pullFromLDAP").build(), pullTaskTO);
-            } catch (Exception e) {
-                try {
-                    execOnLDAP(ldapConn -> ldapConn.searchForEntry(
-                            new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
-                } catch (LDAPException ldape) {
-                    fail("While reading pullFromLDAP from LDAP", ldape);
-                }
-                throw e;
-            }
+            RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                    fiql("uid==pullFromLDAP").build(), pullTaskTO);
 
             // update pullTaskTO -> another audit entry
             pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey()).
