@@ -589,6 +589,7 @@ public class AuditITCase extends AbstractITCase {
                 } catch (LDAPException ldape) {
                     fail("While reading pullFromLDAP from LDAP", ldape);
                 }
+                throw e;
             }
 
             // update pullTaskTO -> another audit entry

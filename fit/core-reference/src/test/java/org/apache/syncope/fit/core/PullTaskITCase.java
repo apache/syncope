@@ -1302,6 +1302,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 } catch (LDAPException ldape) {
                     fail("While reading pullFromLDAP from LDAP", ldape);
                 }
+                throw e;
             }
 
             // 5. Update the LDAP Connector to retrieve passwords
@@ -1425,6 +1426,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 } catch (LDAPException ldape) {
                     fail("While reading pullFromLDAP from LDAP", ldape);
                 }
+                throw e;
             }
             assertNotNull(connObject);
             assertEquals(
@@ -1666,6 +1668,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             assertEquals(ProvisioningReport.Status.SUCCESS, result.getStatus());
             assertEquals("testLDAPGroup", results.getFirst().getName());
+        } catch (Exception e) {
+            try {
+                execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+                        new SearchRequest("uid=pullFromLDAP,ou=people,o=isp", SearchScope.BASE, "objectClass=*")));
+            } catch (LDAPException ldape) {
+                fail("While reading pullFromLDAP from LDAP", ldape);
+            }
+            throw e;
         } finally {
             Optional.ofNullable(result).ifPresent(r -> deleteGroup(r.getKey()));
         }

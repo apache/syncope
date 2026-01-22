@@ -142,6 +142,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             } catch (LDAPException ldape) {
                 fail("While reading pullFromLDAP from LDAP", ldape);
             }
+            throw e;
         }
         assertTrue(GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
