@@ -420,15 +420,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
-        if (!ExecStatus.SUCCESS.equals(ExecStatus.valueOf(execution.getStatus()))) {
-            List<ConnConfProperty> conf = CONNECTOR_SERVICE.read(
-                    "74141a3b-0762-4720-a4aa-fc3e374ef3ef", null).getConf();
-            List<Object> principal = conf.stream().
-                    filter(p -> "principal".equals(p.getSchema().getName())).findFirst().orElseThrow().getValues();
-            List<Object> credentials = conf.stream().
-                    filter(p -> "credentials".equals(p.getSchema().getName())).findFirst().orElseThrow().getValues();
-            fail("LDAP PRINCIPAL / CREDENTIALS: " + principal + " / " + credentials);
-        }
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // SYNCOPE-898

@@ -396,6 +396,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                 sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
+            LOG.error("Could not perform single push", e);
             sce.getElements().add(e.getMessage());
         }
 
@@ -457,6 +458,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                                 }
                             }
                         } catch (JobExecutionException e) {
+                            LOG.error("Could not perform single push", e);
                             sce.getElements().add(e.getMessage());
                         }
                     });
@@ -476,8 +478,9 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        if (pullTask.getDestinationRealm() == null || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm())
-                == null) {
+        if (pullTask.getDestinationRealm() == null
+                || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm()).isEmpty()) {
+
             throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
         }
 
@@ -499,6 +502,7 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                 sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
+            LOG.error("Could not perform single pull", e);
             sce.getElements().add(e.getMessage());
         }
 

@@ -297,11 +297,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public ConnObject readConnObjectByAnyKey(
-            final String key,
+            final String resource,
             final String anyTypeKey,
             final String anyKey) {
 
-        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
+        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, resource);
 
         // 1. find any
         Any any = Optional.ofNullable(anyUtilsFactory.getInstance(info.anyType().getKind()).
@@ -317,7 +317,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 Optional.empty());
         if (connObjs.isEmpty()) {
             throw new NotFoundException(
-                    "Object " + any + " with class " + info.provision().getObjectClass()
+                    "Object " + anyTypeKey + " " + anyKey + " with class " + info.provision().getObjectClass()
                     + " not found on resource " + info.resource().getKey());
         }
 
@@ -333,16 +333,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public ConnObject readConnObjectByConnObjectKeyValue(
-            final String key,
+            final String resource,
             final String anyTypeKey,
             final String connObjectKeyValue) {
 
-        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, key);
+        ProvisioningInfo info = getProvisioningInfo(anyTypeKey, resource);
 
         Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(info.provision()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey mapping for " + info.anyType().getKey()
-                + " on resource '" + info.resource().getKey() + "'"));
+                "ConnObjectKey mapping for " + anyTypeKey + " on resource " + resource));
 
         return outboundMatcher.matchByConnObjectKeyValue(
                 connectorManager.getConnector(info.resource()),
@@ -355,7 +354,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connectorObject.getAttributes())).
                 orElseThrow(() -> new NotFoundException(
                 "Object " + connObjectKeyValue + " with class " + info.provision().getObjectClass()
-                + " not found on resource " + info.resource().getKey()));
+                + " not found on resource " + resource));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
