@@ -238,11 +238,6 @@ Add
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-transports-http</artifactId>
-      <version>${cxf.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-ws-policy</artifactId>
       <version>${cxf.version}</version>
     </dependency>
@@ -253,7 +248,7 @@ Add
     </dependency>
 ....
 
-as additional dependencies in `core/pom.xml`, `console/pom.xml`, `enduser/pom.xml` and `wa/pom.xml`,
+as additional dependencies in `core/pom.xml` and `wa/pom.xml`,
 
 then replace
 
@@ -285,9 +280,7 @@ with
     </dependency>
 ....
 
-in `core/pom.xml`.
-
-Finally, create
+in `core/pom.xml` and create
 
 [source]
 ....
@@ -298,6 +291,86 @@ javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-java
 
 as `core/src/main/resources/core-wildfly.properties`.
 
+In addition, replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.client.idm</groupId>
+      <artifactId>syncope-client-idm-console</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-console</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.client.idm</groupId>
+      <artifactId>syncope-client-idm-console</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-console</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+....
+
+in `console/pom.xml` and
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-enduser</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-enduser</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+....
+
+in `enduser/pom.xml`.
+
 Do not forget to include `widlfly` as 
 https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
@@ -307,7 +380,7 @@ for the Core application.
 Do not forget to include the following system properties:
 
 * `-Dsyncope.conf.dir=/opt/syncope/conf` +
-(required by Core and WA)
+(required by all components)
 * `-Dsyncope.connid.location=file:/opt/syncope/bundles` +
 (required by Core)
 * `-Dsyncope.log.dir=/opt/syncope/log` +

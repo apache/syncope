@@ -23,6 +23,7 @@ under the License.
       <subsystem name="webservices"/>
       <subsystem name="jaxrs"/>
       <subsystem name="bean-validation"/>
+      <subsystem name="logging"/>
     </exclude-subsystems>
     <dependencies>
       <module name="org.jboss.vfs"/>
