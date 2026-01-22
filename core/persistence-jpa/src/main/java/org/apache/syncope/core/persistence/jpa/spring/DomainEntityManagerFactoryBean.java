@@ -62,19 +62,21 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
     protected void postProcessEntityManagerFactory(final EntityManagerFactory emf, final PersistenceUnitInfo pui) {
         super.postProcessEntityManagerFactory(emf, pui);
 
-        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
-                getCache(RegionNameQualifier.INSTANCE.qualify(
-                        pui.getPersistenceUnitName(), JPAConnInstance.class.getName()))).
-                ifPresent(cache -> cache.registerCacheEntryListener(
-                new MutableCacheEntryListenerConfiguration<Object, Object>(
-                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
-                        null, false, false)));
-        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
-                getCache(RegionNameQualifier.INSTANCE.qualify(
-                        pui.getPersistenceUnitName(), JPAExternalResource.class.getName()))).
-                ifPresent(cache -> cache.registerCacheEntryListener(
-                new MutableCacheEntryListenerConfiguration<Object, Object>(
-                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
-                        null, false, false)));
+        if (false) {
+            Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                    getCache(RegionNameQualifier.INSTANCE.qualify(
+                            pui.getPersistenceUnitName(), JPAConnInstance.class.getName()))).
+                    ifPresent(cache -> cache.registerCacheEntryListener(
+                    new MutableCacheEntryListenerConfiguration<Object, Object>(
+                            FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                            null, false, false)));
+            Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                    getCache(RegionNameQualifier.INSTANCE.qualify(
+                            pui.getPersistenceUnitName(), JPAExternalResource.class.getName()))).
+                    ifPresent(cache -> cache.registerCacheEntryListener(
+                    new MutableCacheEntryListenerConfiguration<Object, Object>(
+                            FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                            null, false, false)));
+        }
     }
 }
