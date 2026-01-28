@@ -80,7 +80,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
-                + "actionsPanel:actions:actionRepeater:3:action:action");
+                + "actionsPanel:actions:actionRepeater:4:action:action");
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
