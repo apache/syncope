@@ -98,7 +98,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
                     multiMatch(QueryBuilders.multiMatch().
                             fields("before", "inputs", "output", "throwable").
                             type(TextQueryType.Phrase).
-                            query(entityKey).build()).build());
+                            query("\"key\":\"" + entityKey + "\"").build()).build());
         }
 
         queries.add(new Query.Builder().regexp(QueryBuilders.regexp().
