@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.task.AbstractTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jFormPropertyDef;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jLiveSyncTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommand;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jNotificationTask;
@@ -98,6 +99,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
             case PULL:
                 result = Neo4jPullTask.PULL_TASK_EXEC_REL;
+                break;
+
+            case LIVE_SYNC:
+                result = Neo4jLiveSyncTask.LIVE_SYNC_TASK_EXEC_REL;
                 break;
 
             case MACRO:
@@ -167,6 +172,9 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     @Override
     public Optional<? extends Task<?>> findById(final String key) {
         Optional<? extends Task<?>> task = findById(TaskType.SCHEDULED, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.LIVE_SYNC, key);
+        }
         if (task.isEmpty()) {
             task = findById(TaskType.PULL, key);
         }
