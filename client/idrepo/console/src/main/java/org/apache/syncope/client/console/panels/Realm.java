@@ -234,6 +234,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected abstract void onClickEdit(AjaxRequestTarget target, RealmTO realmTO);
 
+    protected abstract void onClickAudit(AjaxRequestTarget target, RealmTO realmTO);
+
     protected abstract void onClickDelete(AjaxRequestTarget target, RealmTO realmTO);
 
     protected static class RemoteRealmPanel extends RemoteObjectPanel {
@@ -304,6 +306,18 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         onClickTemplate(target);
                     }
                 }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+            }
+
+            if (securityCheck(Set.of(IdRepoEntitlement.AUDIT_LIST))) {
+                actionPanel.add(new ActionLink<>(realmTO) {
+
+                    private static final long serialVersionUID = 2802988981431379827L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickAudit(target, realmTO);
+                    }
+                }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, IdRepoEntitlement.AUDIT_LIST).hideLabel();
             }
 
             if (securityCheck(Set.of(IdRepoEntitlement.REALM_DELETE))) {

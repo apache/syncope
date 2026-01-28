@@ -18,15 +18,18 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmChoicePanel;
 import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -40,6 +43,8 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -56,6 +61,8 @@ public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+
     public static final String SELECTED_INDEX = "selectedIndex";
 
     public static final String INITIAL_REALM = "initialRealm";
@@ -65,6 +72,9 @@ public class Realms extends BasePage {
 
     @SpringBean
     protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AuditRestClient auditRestClient;
 
     protected final TemplatesTogglePanel templates;
 
@@ -119,7 +129,7 @@ public class Realms extends BasePage {
                 setFooterVisible(false);
             }
         };
-        templateModal.size(Modal.Size.Large);
+        templateModal.size(Modal.Size.Extra_large);
         content.add(templateModal);
 
         modal.setWindowClosedCallback(target -> {
@@ -192,12 +202,6 @@ public class Realms extends BasePage {
         }
 
         @Override
-        protected void onClickTemplate(final AjaxRequestTarget target) {
-            templates.setTargetObject(realmTO);
-            templates.toggle(target, true);
-        }
-
-        @Override
         protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
             modal.setWindowClosedCallback(target -> {
                 if (modal.getContent() instanceof ResultPanel<?, ?> rp) {
@@ -212,6 +216,12 @@ public class Realms extends BasePage {
                 target.add(content);
                 modal.show(false);
             });
+        }
+
+        @Override
+        protected void onClickTemplate(final AjaxRequestTarget target) {
+            templates.setTargetObject(realmTO);
+            templates.toggle(target, true);
         }
 
         @Override
@@ -235,6 +245,38 @@ public class Realms extends BasePage {
                     return "realm.edit";
                 }
             });
+        }
+
+        @Override
+        protected void onClickAudit(final AjaxRequestTarget target, final RealmTO realmTO) {
+            target.add(templateModal.setContent(new AuditHistoryModal<>(
+                    OpEvent.CategoryType.LOGIC,
+                    "RealmLogic",
+                    realmTO,
+                    IdRepoEntitlement.REALM_UPDATE,
+                    auditRestClient) {
+
+                private static final long serialVersionUID = -5819724478921691835L;
+
+                @Override
+                protected void restore(final String json, final AjaxRequestTarget target) {
+                    try {
+                        RealmTO updated = MAPPER.readValue(json, RealmTO.class);
+                        realmRestClient.update(updated);
+
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        target.add(realmChoicePanel.reloadRealmTree(target));
+                    } catch (Exception e) {
+                        LOG.error("While restoring realm {}", realmTO.getKey(), e);
+                        SyncopeConsoleSession.get().onException(e);
+                    }
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                }
+            }));
+
+            templateModal.header(new Model<>(getString("realm.auditHistory.title", new Model<>(realmTO))));
+
+            templateModal.show(true);
         }
 
         @Override
