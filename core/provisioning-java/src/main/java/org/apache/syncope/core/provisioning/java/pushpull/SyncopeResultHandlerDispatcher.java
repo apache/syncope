@@ -49,7 +49,7 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     private static final String PLACEHOLDER_PWD = "PLACEHOLDER_PWD";
 
-    protected final Optional<VirtualThreadPoolTaskExecutor> tpte;
+    protected Optional<VirtualThreadPoolTaskExecutor> tpte;
 
     protected final Map<String, Supplier<RA>> suppliers = new ConcurrentHashMap<>();
 
@@ -57,7 +57,7 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     protected final List<Future<?>> futures = new ArrayList<>();
 
-    protected SyncopeResultHandlerDispatcher(final ProvisioningProfile<T, A> profile) {
+    protected void init(final ProvisioningProfile<T, A> profile) {
         if (profile.getTask().getConcurrentSettings() == null) {
             tpte = Optional.empty();
         } else {

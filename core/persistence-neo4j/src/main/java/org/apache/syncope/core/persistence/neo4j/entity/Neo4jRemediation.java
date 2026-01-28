@@ -40,7 +40,7 @@ public class Neo4jRemediation extends AbstractGeneratedKeyNode implements Remedi
 
     public static final String NODE = "Remediation";
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     @NotNull
@@ -55,7 +55,7 @@ public class Neo4jRemediation extends AbstractGeneratedKeyNode implements Remedi
     @NotNull
     private OffsetDateTime instant;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPullTask pullTask;
 
     @NotNull

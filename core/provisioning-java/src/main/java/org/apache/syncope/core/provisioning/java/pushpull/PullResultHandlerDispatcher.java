@@ -31,14 +31,16 @@ public class PullResultHandlerDispatcher
         extends SyncopeResultHandlerDispatcher<PullTask, InboundActions, SyncopePullResultHandler>
         implements SyncResultsHandler {
 
-    protected final SyncopePullExecutor executor;
+    protected SyncopePullExecutor executor;
 
-    public PullResultHandlerDispatcher(
+    public PullResultHandlerDispatcher init(
             final ProvisioningProfile<PullTask, InboundActions> profile,
             final SyncopePullExecutor executor) {
 
-        super(profile);
+        init(profile);
         this.executor = executor;
+
+        return this;
     }
 
     @Override

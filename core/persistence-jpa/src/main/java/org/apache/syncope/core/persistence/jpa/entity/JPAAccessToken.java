@@ -24,7 +24,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 @Entity
@@ -45,7 +44,7 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     private String owner;
 
     @Lob
-    private byte[] authorities;
+    private String authorities;
 
     @Override
     public String getBody() {
@@ -78,12 +77,12 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     }
 
     @Override
-    public byte[] getAuthorities() {
+    public String getAuthorities() {
         return authorities;
     }
 
     @Override
-    public void setAuthorities(final byte[] authorities) {
-        this.authorities = ArrayUtils.clone(authorities);
+    public void setAuthorities(final String authorities) {
+        this.authorities = authorities;
     }
 }

@@ -79,7 +79,7 @@ public class Neo4jPropagationTask extends AbstractTask<PropagationTask> implemen
      * ExternalResource to which the propagation happens.
      */
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jExternalResource resource;
 
     @Relationship(type = PROPAGATION_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)

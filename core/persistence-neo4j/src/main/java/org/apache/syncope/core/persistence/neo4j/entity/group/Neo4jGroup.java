@@ -77,19 +77,19 @@ public class Neo4jGroup
     @CompositeProperty(converterRef = "plainAttrsConverter")
     protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
-    @Relationship(type = USER_OWNER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_OWNER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected Neo4jUser userOwner;
 
-    @Relationship(type = GROUP_OWNER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = GROUP_OWNER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected Neo4jGroup groupOwner;
 
     /**
      * Provisioning external resources.
      */
-    @Relationship(type = GROUP_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = GROUP_RESOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(type = GROUP_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = GROUP_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(direction = Relationship.Direction.INCOMING)

@@ -40,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
@@ -180,24 +179,24 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    public Map<AnyType, Long> countByType() {
+    public Map<String, Long> countByType() {
         Collection<Map<String, Object>> result = neo4jClient.query(
                 "MATCH (n:" + Neo4jAnyObject.NODE + ")-[]-(a:" + Neo4jAnyType.NODE + ") "
                 + "RETURN a.id, COUNT(n) AS counted").fetch().all();
 
         return result.stream().collect(Collectors.toMap(
-                r -> neo4jTemplate.findById(r.get("a.id"), Neo4jAnyType.class).orElseThrow(),
+                r -> (String) r.get("a.id"),
                 r -> (Long) r.get("counted")));
     }
 
     @Override
-    public Map<String, Long> countByRealm(final AnyType anyType) {
+    public Map<String, Long> countByRealm(final String anyType) {
         Collection<Map<String, Object>> result = neo4jClient.query(
                 "MATCH (r:" + Neo4jRealm.NODE + ")-[]-"
                 + "(n:" + Neo4jAnyObject.NODE + ")-[]-"
                 + "(a:" + Neo4jAnyType.NODE + " {id: $aid}) "
                 + "RETURN r.fullPath AS realm, COUNT(n) AS counted").
-                bindAll(Map.of("aid", anyType.getKey())).fetch().all();
+                bindAll(Map.of("aid", anyType)).fetch().all();
 
         return result.stream().collect(Collectors.toMap(r -> r.get("realm").toString(), r -> (Long) r.get("counted")));
     }

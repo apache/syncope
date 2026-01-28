@@ -33,4 +33,10 @@ public interface AccessTokenRepo
             + "RETURN count(*)")
     @Override
     int deleteExpired(@Param("now") OffsetDateTime now);
+
+    @Query("MATCH (n:" + Neo4jAccessToken.NODE + " WHERE n.owner = $username) "
+            + "DETACH DELETE n "
+            + "RETURN count(*)")
+    @Override
+    int deleteByOwner(@Param("username") String username);
 }

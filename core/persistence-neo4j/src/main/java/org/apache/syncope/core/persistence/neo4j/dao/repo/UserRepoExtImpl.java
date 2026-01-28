@@ -265,7 +265,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                         Neo4jSecurityQuestion.NODE,
                         user.getKey(),
                         before.getSecurityQuestion().getKey(),
-                        Neo4jUser.USER_SECURITY_QUESTION_REL);
+                        Neo4jUser.USER_SECURITYQUESTION_REL);
             }
 
             Set<String> beforeMembs = before.getMemberships().stream().map(UMembership::getKey).

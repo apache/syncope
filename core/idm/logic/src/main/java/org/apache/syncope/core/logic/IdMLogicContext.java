@@ -38,6 +38,7 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -85,7 +86,8 @@ public class IdMLogicContext {
             final ConnectorManager connectorManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
-            final MappingManager mappingManager) {
+            final MappingManager mappingManager,
+            final ConfigurableApplicationContext ctx) {
 
         return new ReconciliationLogic(
                 anyUtilsFactory,
@@ -98,7 +100,8 @@ public class IdMLogicContext {
                 mappingManager,
                 inboundMatcher,
                 outboundMatcher,
-                connectorManager);
+                connectorManager,
+                ctx);
     }
 
     @ConditionalOnMissingBean

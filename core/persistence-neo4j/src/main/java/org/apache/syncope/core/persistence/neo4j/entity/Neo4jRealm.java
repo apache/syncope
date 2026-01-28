@@ -87,7 +87,7 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
     @Size(min = 1)
     private String name;
 
-    @Relationship(type = PARENT_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PARENT_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm parent;
 
     @NotNull
@@ -96,28 +96,30 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
     @CompositeProperty(converterRef = "plainAttrsConverter")
     protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
-    @Relationship(type = REALM_ANYTYPECLASSES_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_ANYTYPECLASSES_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Set<Neo4jAnyTypeClass> anyTypeClasses = new HashSet<>();
 
-    @Relationship(type = REALM_PASSWORD_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_PASSWORD_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPasswordPolicy passwordPolicy;
 
-    @Relationship(type = REALM_ACCOUNT_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_ACCOUNT_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAccountPolicy accountPolicy;
 
-    @Relationship(type = REALM_AUTH_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_AUTH_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAuthPolicy authPolicy;
 
-    @Relationship(type = REALM_ACCESS_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_ACCESS_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAccessPolicy accessPolicy;
 
-    @Relationship(type = REALM_ATTR_RELEASE_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_ATTR_RELEASE_POLICY_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAttrReleasePolicy attrReleasePolicy;
 
-    @Relationship(type = REALM_TICKET_EXPIRATION_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_TICKET_EXPIRATION_POLICY_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jTicketExpirationPolicy ticketExpirationPolicy;
 
-    @Relationship(type = REALM_LOGIC_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_LOGIC_ACTIONS_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient
@@ -127,7 +129,7 @@ public class Neo4jRealm extends AbstractAttributable implements Realm {
     @Relationship(type = Neo4jAnyTemplateRealm.REALM_ANY_TEMPLATE_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyTemplateRealm> templates = new ArrayList<>();
 
-    @Relationship(type = REALM_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_RESOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jExternalResource> resources = new ArrayList<>();
 
     @Override

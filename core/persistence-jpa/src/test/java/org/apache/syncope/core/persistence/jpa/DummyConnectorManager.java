@@ -32,7 +32,8 @@ import org.apache.syncope.core.provisioning.api.ConnectorManager;
 public class DummyConnectorManager implements ConnectorManager {
 
     @Override
-    public void registerConnector(final ExternalResource resource) {
+    public Connector registerConnector(final ExternalResource resource) {
+        return null;
     }
 
     @Override
@@ -56,11 +57,6 @@ public class DummyConnectorManager implements ConnectorManager {
     @Override
     public Connector getConnector(final ExternalResource resource) {
         return null;
-    }
-
-    @Override
-    public Optional<Connector> readConnector(final ExternalResource resource) {
-        return Optional.empty();
     }
 
     @Override

@@ -30,10 +30,10 @@ abstract class AbstractCorrelationRuleEntity extends AbstractGeneratedKeyNode im
 
     private static final long serialVersionUID = 4017405130146577834L;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation implementation;
 
     @Override

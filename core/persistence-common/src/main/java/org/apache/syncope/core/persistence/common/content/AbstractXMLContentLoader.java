@@ -26,17 +26,17 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.xml.sax.SAXException;
 
 public abstract class AbstractXMLContentLoader implements ContentLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ContentLoader.class);
 
-    protected final Environment env;
+    protected final ConfigurableApplicationContext ctx;
 
-    protected AbstractXMLContentLoader(final Environment env) {
-        this.env = env;
+    protected AbstractXMLContentLoader(final ConfigurableApplicationContext ctx) {
+        this.ctx = ctx;
     }
 
     @Override
@@ -89,5 +89,4 @@ public abstract class AbstractXMLContentLoader implements ContentLoader {
             }
         }
     }
-
 }

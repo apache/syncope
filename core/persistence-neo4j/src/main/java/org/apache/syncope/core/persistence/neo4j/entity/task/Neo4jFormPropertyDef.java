@@ -53,7 +53,8 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     };
 
     @NotNull
-    @Relationship(type = Neo4jMacroTask.MACRO_TASK_FORM_PROPERTY_DEF_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jMacroTask.MACRO_TASK_FORM_PROPERTY_DEF_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jMacroTask macroTask;
 
     @NotNull

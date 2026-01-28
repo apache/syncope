@@ -40,7 +40,7 @@ public class Neo4jReport extends AbstractGeneratedKeyNode implements Report {
     public static final String REPORT_EXEC_REL = "REPORT_EXEC";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation jobDelegate;
 
     @NotNull

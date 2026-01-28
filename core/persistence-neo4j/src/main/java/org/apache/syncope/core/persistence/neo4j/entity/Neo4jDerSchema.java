@@ -35,7 +35,8 @@ public class Neo4jDerSchema extends Neo4jSchema implements DerSchema {
     @NotNull
     private String expression;
 
-    @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_DER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_DER_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyTypeClass anyTypeClass;
 
     @Override

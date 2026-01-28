@@ -18,5 +18,5 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-public interface AnyObjectPushResultHandler extends SyncopePushResultHandler {
+public interface AnyObjectPushResultHandler extends SyncopeAnyPushResultHandler {
 }

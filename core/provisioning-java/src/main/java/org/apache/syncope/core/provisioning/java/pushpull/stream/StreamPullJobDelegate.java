@@ -49,7 +49,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PullResultHandlerDispatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -191,7 +190,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     executor,
                     false);
 
-            dispatcher = new PullResultHandlerDispatcher(profile, this);
+            dispatcher = buildDispatcher();
 
             for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);

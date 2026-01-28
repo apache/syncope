@@ -40,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
@@ -85,25 +84,29 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public Map<AnyType, Long> countByType() {
-        Query query = entityManager.createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "GROUP BY e.type ORDER BY countByType DESC");
+    public Map<String, Long> countByType() {
+        Query query = entityManager.createNativeQuery(
+                "SELECT e.type_id, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e "
+                + "GROUP BY e.type_id");
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
 
-        Map<AnyType, Long> countByRealm = new LinkedHashMap<>(results.size());
-        results.forEach(result -> countByRealm.put((AnyType) result[0], ((Number) result[1]).longValue()));
+        Map<String, Long> countByRealm = new LinkedHashMap<>(results.size());
+        results.forEach(result -> countByRealm.put(result[0].toString(), ((Number) result[1]).longValue()));
 
         return Collections.unmodifiableMap(countByRealm);
     }
 
     @Override
-    public Map<String, Long> countByRealm(final AnyType anyType) {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm.fullPath, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "WHERE e.type=:type GROUP BY e.realm.fullPath");
-        query.setParameter("type", anyType);
+    public Map<String, Long> countByRealm(final String anyType) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT r.fullPath, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
+                + "WHERE e.type_id=? "
+                + "GROUP BY r.fullPath");
+        query.setParameter(1, anyType);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();

@@ -32,7 +32,7 @@ public class Neo4jRelationshipTypeExtension extends AbstractTypeExtension implem
 
     @Relationship(
             type = Neo4jRelationshipType.RELATIONSHIP_TYPE_EXTENSION_REL,
-            direction = Relationship.Direction.OUTGOING)
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRelationshipType group;
 
     @Override
