@@ -106,8 +106,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
         if (accessToken.getAuthorities() != null) {
             try {
                 authorities.addAll(POJOHelper.deserialize(
-                        encryptorManager.getInstance().decode(
-                                new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<>() {
                 }));
             } catch (Throwable t) {
