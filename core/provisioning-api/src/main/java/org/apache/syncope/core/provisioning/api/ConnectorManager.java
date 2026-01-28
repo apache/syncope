@@ -63,13 +63,20 @@ public interface ConnectorManager {
      */
     Connector getConnector(ExternalResource resource);
 
-    /*
-     * Get existing connector bean for the given resource if found.
+    /**
+     * Create and register into Spring context a bean for the given resource.
      *
-     * @param resource the resource.
+     * @param resource external resource
      * @return live connector bean for given resource
      */
-    Optional<Connector> readConnector(ExternalResource resource);
+    Connector registerConnector(ExternalResource resource);
+
+    /**
+     * Removes the Spring bean for the given resource from the context.
+     *
+     * @param resource external resource
+     */
+    void unregisterConnector(ExternalResource resource);
 
     /**
      * Load connectors for all existing resources.
@@ -84,18 +91,4 @@ public interface ConnectorManager {
      * @see ExternalResource
      */
     void unload();
-
-    /**
-     * Create and register into Spring context a bean for the given resource.
-     *
-     * @param resource external resource
-     */
-    void registerConnector(ExternalResource resource);
-
-    /**
-     * Removes the Spring bean for the given resource from the context.
-     *
-     * @param resource external resource
-     */
-    void unregisterConnector(ExternalResource resource);
 }

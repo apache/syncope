@@ -51,11 +51,11 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     private String connObjectKeyValue;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser owner;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jExternalResource resource;
 
     private String username;

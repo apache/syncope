@@ -254,12 +254,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                     auxClass.getKey(),
                     Neo4jUser.USER_AUX_CLASSES_REL));
             if (before.getSecurityQuestion() != null && user.getSecurityQuestion() == null) {
-                deleteRelationship(
-                        Neo4jUser.NODE,
+                deleteRelationship(Neo4jUser.NODE,
                         Neo4jSecurityQuestion.NODE,
                         user.getKey(),
                         before.getSecurityQuestion().getKey(),
-                        Neo4jUser.USER_SECURITY_QUESTION_REL);
+                        Neo4jUser.USER_SECURITYQUESTION_REL);
             }
 
             Set<String> beforeMembs = before.getMemberships().stream().map(UMembership::getKey).

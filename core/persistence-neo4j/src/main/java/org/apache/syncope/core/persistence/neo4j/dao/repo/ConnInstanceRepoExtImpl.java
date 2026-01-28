@@ -19,41 +19,54 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
+public class ConnInstanceRepoExtImpl extends AbstractDAO implements ConnInstanceRepoExt {
 
     protected final ExternalResourceDAO resourceDAO;
 
     protected final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache;
 
-    protected final Neo4jTemplate neo4jTemplate;
+    protected final Cache<EntityCacheKey, Neo4jConnInstance> cache;
 
     protected final NodeValidator nodeValidator;
 
     public ConnInstanceRepoExtImpl(
             final ExternalResourceDAO resourceDAO,
             final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
+        super(neo4jTemplate, neo4jClient);
         this.resourceDAO = resourceDAO;
-        this.resourceCache = resourceCache;
-        this.neo4jTemplate = neo4jTemplate;
         this.nodeValidator = nodeValidator;
+        this.resourceCache = resourceCache;
+        this.cache = connInstanceCache;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends Neo4jConnInstance> findById(final String key) {
+        return findById(key, Neo4jConnInstance.class, cache);
     }
 
     @Transactional(readOnly = true)
@@ -80,12 +93,17 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
     @Override
     public List<? extends ConnInstance> findAll() {
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
-        if (authRealms == null || authRealms.isEmpty()) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
+        if (CollectionUtils.isEmpty(authRealms)) {
             return List.of();
         }
 
-        return neo4jTemplate.findAll(Neo4jConnInstance.class).stream().filter(connInstance -> authRealms.stream().
+        List<Neo4jConnInstance> all = toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jConnInstance.NODE + ") RETURN n.id").fetch().all(),
+                "n.id",
+                Neo4jConnInstance.class,
+                cache);
+        return all.stream().filter(connInstance -> authRealms.stream().
                 anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
                 toList();
     }
@@ -99,6 +117,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         resourceDAO.findByConnInstance(saved.getKey()).
                 forEach(resource -> resourceCache.remove(EntityCacheKey.of(resource.getKey())));
 
+        cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jConnInstance) saved);
+
         return saved;
     }
 
@@ -107,6 +127,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         neo4jTemplate.findById(key, Neo4jConnInstance.class).ifPresent(connInstance -> {
             resourceDAO.findByConnInstance(connInstance.getKey()).stream().
                     map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
+
+            cache.remove(EntityCacheKey.of(key));
 
             neo4jTemplate.deleteById(key, Neo4jConnInstance.class);
         });

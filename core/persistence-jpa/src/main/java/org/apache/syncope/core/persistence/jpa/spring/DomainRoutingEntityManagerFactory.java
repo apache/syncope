@@ -40,12 +40,10 @@ import java.util.function.Function;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -56,14 +54,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected final CommonEntityManagerFactoryConf commonEMFConf;
 
-    protected final ConfigurableApplicationContext ctx;
-
-    public DomainRoutingEntityManagerFactory(
-            final CommonEntityManagerFactoryConf commonEMFConf,
-            final ConfigurableApplicationContext ctx) {
-
+    public DomainRoutingEntityManagerFactory(final CommonEntityManagerFactoryConf commonEMFConf) {
         this.commonEMFConf = commonEMFConf;
-        this.ctx = ctx;
     }
 
     protected final Map<String, EntityManagerFactory> delegates = new ConcurrentHashMap<>();
@@ -97,8 +89,6 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(this, ctx, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -126,8 +116,6 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(this, ctx, domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getKey());
 

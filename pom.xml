@@ -438,7 +438,7 @@ under the License.
     <spring-boot.version>4.0.2</spring-boot.version>
     <spring-cloud-version>5.0.0</spring-cloud-version>
 
-    <hibernate.version>7.2.1.Final</hibernate.version>
+    <hibernate.version>7.2.2.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -523,7 +523,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>11.0.15</tomcat.version>
+    <tomcat.version>11.0.18</tomcat.version>
     <wildfly.version>39.0.0.Final</wildfly.version>
     <payara.version>7.2026.1</payara.version>
     <jakarta.faces.version>4.1.6</jakarta.faces.version>

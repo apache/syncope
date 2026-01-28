@@ -94,18 +94,14 @@ public class DefaultConnectorManager implements ConnectorManager {
         this.ctx = ctx;
     }
 
-    @Override
-    public Optional<Connector> readConnector(final ExternalResource resource) {
+    protected Optional<Connector> findConnector(final ExternalResource resource) {
         return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource)));
     }
 
     @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        return readConnector(resource).orElseGet(() -> {
-            registerConnector(resource);
-            return (Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource));
-        });
+        return findConnector(resource).orElseGet(() -> registerConnector(resource));
     }
 
     @Override
@@ -172,7 +168,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     }
 
     @Override
-    public void registerConnector(final ExternalResource resource) {
+    public Connector registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
         synchronized (this) {
@@ -189,6 +185,8 @@ public class DefaultConnectorManager implements ConnectorManager {
 
             ctx.getBeanFactory().registerSingleton(beanName, connector);
             LOG.debug("Successfully registered bean {}", beanName);
+
+            return connector;
         }
     }
 

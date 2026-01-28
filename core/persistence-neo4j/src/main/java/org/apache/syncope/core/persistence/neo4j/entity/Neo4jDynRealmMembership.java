@@ -35,10 +35,11 @@ public class Neo4jDynRealmMembership extends AbstractGeneratedKeyNode implements
     @NotNull
     private String fiql;
 
-    @Relationship(type = Neo4jDynRealm.DYNREALM_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jDynRealm.DYNREALM_MEMBERSHIP_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jDynRealm dynRealm;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     @Override

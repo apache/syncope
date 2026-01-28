@@ -259,10 +259,9 @@ public class PersistenceContext {
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf,
-            final ConfigurableApplicationContext ctx) {
+            final CommonEntityManagerFactoryConf commonEMFConf) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf, ctx);
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf);
         emf.master(props, masterDataSource);
         return emf;
     }

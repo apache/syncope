@@ -270,7 +270,12 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
 
     @Override
     public void deleteMapping(final String schemaKey) {
-        findAll().forEach(resource -> {
+        List<Neo4jExternalResource> resources = toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jExternalResource.NODE + ") RETURN n.id").fetch().all(),
+                "n.id",
+                Neo4jExternalResource.class,
+                cache);
+        resources.forEach(resource -> {
             Mutable<Boolean> removed = new MutableObject<>(false);
 
             resource.getProvisions().forEach(provision -> removed.setValue(
@@ -279,10 +284,10 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                     && provision.getMapping().getItems().removeIf(item -> schemaKey.equals(item.getIntAttrName())))));
 
             if (removed.get()) {
-                ((Neo4jExternalResource) resource).list2json();
-                ExternalResource saved = neo4jTemplate.save(resource);
-                ((Neo4jExternalResource) saved).postSave();
-                cache.put(EntityCacheKey.of(resource.getKey()), (Neo4jExternalResource) saved);
+                resource.list2json();
+                Neo4jExternalResource saved = neo4jTemplate.save(resource);
+                saved.postSave();
+                cache.put(EntityCacheKey.of(resource.getKey()), saved);
             }
         });
     }

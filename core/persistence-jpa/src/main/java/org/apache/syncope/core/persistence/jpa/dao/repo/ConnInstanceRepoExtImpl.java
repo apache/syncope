@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
@@ -66,8 +67,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
     @Override
     public List<? extends ConnInstance> findAll() {
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
-        if (authRealms == null || authRealms.isEmpty()) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
+        if (CollectionUtils.isEmpty(authRealms)) {
             return List.of();
         }
 

@@ -201,6 +201,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDelegation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jEntityFactory;
@@ -310,6 +311,7 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
             final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
             final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
             final Cache<EntityCacheKey, Neo4jGroup> groupCache,
             final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
@@ -323,6 +325,7 @@ public class PersistenceContext {
                 anyObjectCache,
                 delegationCache,
                 derSchemaCache,
+                connInstanceCache,
                 externalResourceCache,
                 groupCache,
                 implementationCache,
@@ -762,15 +765,34 @@ public class PersistenceContext {
         return neo4jRepositoryFactory.getRepository(CASSPClientAppRepo.class, casSPClientAppRepoExt);
     }
 
+    @ConditionalOnMissingBean(name = ConnInstanceRepoExt.CACHE)
+    @Bean(name = ConnInstanceRepoExt.CACHE)
+    public Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache(final CacheManager cacheManager) {
+        return cacheManager.createCache(ConnInstanceRepoExt.CACHE,
+                new MutableConfiguration<EntityCacheKey, Neo4jConnInstance>().
+                        setTypes(EntityCacheKey.class, Neo4jConnInstance.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public ConnInstanceRepoExt connInstanceRepoExt(
             final @Lazy ExternalResourceDAO resourceDAO,
-            final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache,
+            final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
-        return new ConnInstanceRepoExtImpl(resourceDAO, resourceCache, neo4jTemplate, nodeValidator);
+        return new ConnInstanceRepoExtImpl(
+                resourceDAO,
+                externalResourceCache,
+                connInstanceCache,
+                neo4jTemplate,
+                neo4jClient,
+                nodeValidator);
     }
 
     @ConditionalOnMissingBean

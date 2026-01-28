@@ -58,10 +58,12 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
     @NotNull
     private Integer delaySecondsAcrossInvocations = 5;
 
-    @Relationship(type = LIVE_SYNC_MAPPER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = LIVE_SYNC_MAPPER_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation liveSyncDeltaMapper;
 
-    @Relationship(type = LIVE_SYNC_TASK_LIVE_SYNC_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = LIVE_SYNC_TASK_LIVE_SYNC_ACTIONS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient

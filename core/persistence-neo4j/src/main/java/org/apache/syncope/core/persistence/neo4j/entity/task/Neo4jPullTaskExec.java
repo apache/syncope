@@ -31,7 +31,8 @@ public class Neo4jPullTaskExec extends AbstractTaskExec<SchedTask> implements Ta
 
     public static final String NODE = "PullTaskExec";
 
-    @Relationship(type = Neo4jPullTask.PULL_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jPullTask.PULL_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPullTask task;
 
     @Override

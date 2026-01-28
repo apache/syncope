@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.spring;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.spi.PersistenceUnitInfo;
 import java.util.Optional;
-import javax.cache.Caching;
-import javax.cache.configuration.FactoryBuilder;
-import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
-import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
-import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
-import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.hibernate.cache.spi.support.RegionNameQualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -37,8 +28,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
     private static final long serialVersionUID = 49152547930966545L;
-
-    protected ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener;
 
     public void setCommonEntityManagerFactoryConf(final CommonEntityManagerFactoryConf commonEMFConf) {
         super.setJpaPropertyMap(commonEMFConf.getJpaPropertyMap());
@@ -50,33 +39,5 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
 
         Optional.ofNullable(commonEMFConf.getPersistenceUnitPostProcessors()).
                 ifPresent(super::setPersistenceUnitPostProcessors);
-    }
-
-    public void setConnectorManagerRemoteCommitListener(
-            final ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener) {
-
-        this.connectorManagerRemoteCommitListener = connectorManagerRemoteCommitListener;
-    }
-
-    @Override
-    protected void postProcessEntityManagerFactory(final EntityManagerFactory emf, final PersistenceUnitInfo pui) {
-        super.postProcessEntityManagerFactory(emf, pui);
-
-        if (false) {
-            Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
-                    getCache(RegionNameQualifier.INSTANCE.qualify(
-                            pui.getPersistenceUnitName(), JPAConnInstance.class.getName()))).
-                    ifPresent(cache -> cache.registerCacheEntryListener(
-                    new MutableCacheEntryListenerConfiguration<Object, Object>(
-                            FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
-                            null, false, false)));
-            Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
-                    getCache(RegionNameQualifier.INSTANCE.qualify(
-                            pui.getPersistenceUnitName(), JPAExternalResource.class.getName()))).
-                    ifPresent(cache -> cache.registerCacheEntryListener(
-                    new MutableCacheEntryListenerConfiguration<Object, Object>(
-                            FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
-                            null, false, false)));
-        }
     }
 }

@@ -61,6 +61,7 @@ import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationR
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
@@ -254,7 +255,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         provision(any, enabled, result);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final Any any) {
         try {

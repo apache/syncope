@@ -33,10 +33,10 @@ public class Neo4jDynGroupMembership extends AbstractGeneratedKeyNode implements
 
     public static final String NODE = "DynGroupMembership";
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup group;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     @NotNull

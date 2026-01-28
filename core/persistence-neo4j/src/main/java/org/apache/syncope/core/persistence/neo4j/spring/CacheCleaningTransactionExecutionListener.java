@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.spring;
 import javax.cache.Cache;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDelegation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
@@ -44,6 +45,8 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
 
     protected final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache;
 
+    protected final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache;
+
     protected final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache;
 
     protected final Cache<EntityCacheKey, Neo4jGroup> groupCache;
@@ -63,6 +66,7 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
             final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
             final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
             final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
             final Cache<EntityCacheKey, Neo4jGroup> groupCache,
             final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
@@ -75,6 +79,7 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
         this.anyObjectCache = anyObjectCache;
         this.delegationCache = delegationCache;
         this.derSchemaCache = derSchemaCache;
+        this.connInstanceCache = connInstanceCache;
         this.externalResourceCache = externalResourceCache;
         this.groupCache = groupCache;
         this.implementationCache = implementationCache;

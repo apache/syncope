@@ -56,7 +56,7 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     private String lastChangeContext;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm realm;
 
     private String status;

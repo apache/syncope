@@ -74,7 +74,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -464,7 +463,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 null);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
+    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task<?>> T save(final T task) {
         task.getExecs().forEach(exec -> neo4jTemplate.save(nodeValidator.validate(exec)));

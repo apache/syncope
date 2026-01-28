@@ -190,8 +190,7 @@ public class TaskTest extends AbstractTest {
 
         taskDAO.save(task);
 
-        task = (PullTask) taskDAO.findById(
-                TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
+        task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
         assertEquals(execs + 1, task.getExecs().size());
     }
 

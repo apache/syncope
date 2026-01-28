@@ -70,7 +70,8 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Transient
     private Map<String, String> enumValuesMap = new HashMap<>();
 
-    @Relationship(type = PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation dropdownValueProvider;
 
     private String secretKey;
@@ -79,10 +80,12 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
 
     private String mimeType;
 
-    @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_PLAIN_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_PLAIN_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyTypeClass anyTypeClass;
 
-    @Relationship(type = PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation validator;
 
     @Override
