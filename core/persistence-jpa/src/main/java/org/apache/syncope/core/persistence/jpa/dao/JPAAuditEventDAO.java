@@ -51,10 +51,10 @@ public class JPAAuditEventDAO implements AuditEventDAO {
         protected AuditEventCriteriaBuilder entityKey(final String entityKey) {
             if (entityKey != null) {
                 query.append(andIfNeeded()).
-                        append("(beforeValue LIKE '%key%").append(entityKey).append("%' OR ").
-                        append("inputs LIKE '%key%").append(entityKey).append("%' OR ").
-                        append("output LIKE '%key%").append(entityKey).append("%' OR ").
-                        append("throwable LIKE '%key%").append(entityKey).append("%')");
+                        append("(beforeValue LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
+                        append("inputs LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
+                        append("output LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
+                        append("throwable LIKE '%\"key\":\"").append(entityKey).append("\"%')");
             }
             return this;
         }

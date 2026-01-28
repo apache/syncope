@@ -326,16 +326,19 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         }
 
         try {
-            String content;
+            String content = null;
             if (auditEvent.getBefore() == null) {
                 JsonNode output = MAPPER.readTree(auditEvent.getOutput());
                 if (output.has("entity")) {
                     content = output.get("entity").toPrettyString();
-                } else {
+                } else if ((!output.has("content") && output.get("content").isArray())) {
                     content = output.toPrettyString();
                 }
             } else {
                 content = auditEvent.getBefore();
+            }
+            if (content == null || "null".equals(content)) {
+                return Model.of();
             }
 
             T entity = MAPPER.reader().
