@@ -54,7 +54,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
     protected static String getBeanName(final ExternalResource resource) {
-        return String.format("connInstance-%s-%S-%s",
+        return String.format("%s-ConnInstance-%s-%s",
                 AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
     }
 
@@ -174,19 +174,21 @@ public class DefaultConnectorManager implements ConnectorManager {
     public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        if (ctx.getBeanFactory().containsSingleton(beanName)) {
-            unregisterConnector(beanName);
+        synchronized (ctx) {
+            if (ctx.getBeanFactory().containsSingleton(beanName)) {
+                unregisterConnector(beanName);
+            }
+
+            ConnInstance connInstance = buildConnInstanceOverride(
+                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                    resource.getConfOverride(),
+                    resource.getCapabilitiesOverride());
+            Connector connector = createConnector(connInstance);
+            LOG.debug("Connector to be registered: {}", connector);
+
+            ctx.getBeanFactory().registerSingleton(beanName, connector);
+            LOG.debug("Successfully registered bean {}", beanName);
         }
-
-        ConnInstance connInstance = buildConnInstanceOverride(
-                connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
-                resource.getConfOverride(),
-                resource.getCapabilitiesOverride());
-        Connector connector = createConnector(connInstance);
-        LOG.debug("Connector to be registered: {}", connector);
-
-        ctx.getBeanFactory().registerSingleton(beanName, connector);
-        LOG.debug("Successfully registered bean {}", beanName);
     }
 
     protected void unregisterConnector(final String beanName) {
