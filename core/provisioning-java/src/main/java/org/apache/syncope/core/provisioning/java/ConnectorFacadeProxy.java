@@ -27,6 +27,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -77,14 +78,22 @@ public class ConnectorFacadeProxy implements Connector {
 
     private final AsyncConnectorFacade asyncFacade;
 
-    public ConnectorFacadeProxy(
-            final ConnInstance connInstance,
-            final AsyncConnectorFacade asyncFacade,
-            final ConnIdBundleManager connIdBundleManager) {
-
+    /**
+     * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
+     *
+     * @param connInstance the connector instance
+     * @param asyncFacade the async connectot facade
+     * @see ConnectorInfo
+     * @see APIConfiguration
+     * @see ConfigurationProperties
+     * @see ConnectorFacade
+     */
+    public ConnectorFacadeProxy(final ConnInstance connInstance, final AsyncConnectorFacade asyncFacade) {
         this.connInstance = connInstance;
         this.asyncFacade = asyncFacade;
 
+        ConnIdBundleManager connIdBundleManager =
+                ApplicationContextProvider.getBeanFactory().getBean(ConnIdBundleManager.class);
         ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance).getRight();
 
         // create default configuration

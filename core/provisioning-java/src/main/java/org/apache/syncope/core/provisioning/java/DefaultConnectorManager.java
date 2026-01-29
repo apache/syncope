@@ -94,14 +94,14 @@ public class DefaultConnectorManager implements ConnectorManager {
         this.ctx = ctx;
     }
 
-    protected Optional<Connector> findConnector(final ExternalResource resource) {
-        return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource)));
-    }
-
     @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        return findConnector(resource).orElseGet(() -> registerConnector(resource));
+        return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource))).
+                orElseGet(() -> {
+                    registerConnector(resource);
+                    return (Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource));
+                });
     }
 
     @Override
@@ -121,7 +121,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         override.setBundleName(connInstance.getBundleName());
         override.setVersion(connInstance.getVersion());
         override.setLocation(connInstance.getLocation());
-        override.getConf().addAll(connInstance.getConf());
+        override.setConf(connInstance.getConf());
         override.getCapabilities().addAll(connInstance.getCapabilities());
         override.setConnRequestTimeout(connInstance.getConnRequestTimeout());
 
@@ -147,8 +147,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         // add override properties not substituted
         conf.addAll(overridable.values());
 
-        override.getConf().clear();
-        override.getConf().addAll(conf);
+        override.setConf(conf);
 
         // replace capabilities
         capabilitiesOverride.ifPresent(capabilities -> {
@@ -164,30 +163,26 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     @Override
     public Connector createConnector(final ConnInstance connInstance) {
-        return new ConnectorFacadeProxy(connInstance, asyncFacade, connIdBundleManager);
+        return new ConnectorFacadeProxy(connInstance, asyncFacade);
     }
 
     @Override
-    public Connector registerConnector(final ExternalResource resource) {
+    public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        synchronized (this) {
-            if (ctx.getBeanFactory().containsSingleton(beanName)) {
-                unregisterConnector(beanName);
-            }
-
-            ConnInstance connInstance = buildConnInstanceOverride(
-                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
-                    resource.getConfOverride(),
-                    resource.getCapabilitiesOverride());
-            Connector connector = createConnector(connInstance);
-            LOG.debug("Connector to be registered: {}", connector);
-
-            ctx.getBeanFactory().registerSingleton(beanName, connector);
-            LOG.debug("Successfully registered bean {}", beanName);
-
-            return connector;
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
         }
+
+        ConnInstance connInstance = buildConnInstanceOverride(
+                connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                resource.getConfOverride(),
+                resource.getCapabilitiesOverride());
+        Connector connector = createConnector(connInstance);
+        LOG.debug("Connector to be registered: {}", connector);
+
+        ctx.getBeanFactory().registerSingleton(beanName, connector);
+        LOG.debug("Successfully registered bean {}", beanName);
     }
 
     protected void unregisterConnector(final String beanName) {
@@ -197,11 +192,8 @@ public class DefaultConnectorManager implements ConnectorManager {
     @Override
     public void unregisterConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
-
-        synchronized (this) {
-            if (ctx.getBeanFactory().containsSingleton(beanName)) {
-                unregisterConnector(beanName);
-            }
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
         }
     }
 

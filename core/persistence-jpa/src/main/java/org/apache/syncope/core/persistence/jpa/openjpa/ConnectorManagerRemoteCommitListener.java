@@ -60,18 +60,15 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
     }
 
     protected void registerForExternalResource(final String resourceKey) {
-        AuthContextUtils.runAsAdmin(domain, () -> {
-            ExternalResource resource = resourceDAO.findById(resourceKey).orElse(null);
-            if (resource == null) {
-                LOG.debug("No resource found for '{}', ignoring", resourceKey);
-            } else {
-                try {
-                    connectorManager.registerConnector(resource);
-                } catch (Exception e) {
-                    LOG.error("While registering connector for resource {}", resourceKey, e);
-                }
-            }
-        });
+        AuthContextUtils.runAsAdmin(domain, () -> resourceDAO.findById(resourceKey).ifPresentOrElse(
+                resource -> {
+                    try {
+                        connectorManager.registerConnector(resource);
+                    } catch (Exception e) {
+                        LOG.error("While registering connector for resource {}", resourceKey, e);
+                    }
+                },
+                () -> LOG.debug("No resource found for '{}', ignoring", resourceKey)));
     }
 
     protected void registerForConnInstance(final String connInstanceKey) {
@@ -92,18 +89,15 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
     }
 
     protected void unregister(final String resourceKey) {
-        AuthContextUtils.runAsAdmin(domain, () -> {
-            ExternalResource resource = resourceDAO.findById(resourceKey).orElse(null);
-            if (resource == null) {
-                LOG.debug("No resource found for '{}', ignoring", resourceKey);
-            } else {
-                try {
-                    connectorManager.unregisterConnector(resource);
-                } catch (Exception e) {
-                    LOG.error("While unregistering connector for resource {}", resourceKey, e);
-                }
-            }
-        });
+        AuthContextUtils.runAsAdmin(domain, () -> resourceDAO.findById(resourceKey).ifPresentOrElse(
+                resource -> {
+                    try {
+                        connectorManager.unregisterConnector(resource);
+                    } catch (Exception e) {
+                        LOG.error("While unregistering connector for resource {}", resourceKey, e);
+                    }
+                },
+                () -> LOG.debug("No resource found for '{}', ignoring", resourceKey)));
     }
 
     @SuppressWarnings("unchecked")
