@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
@@ -176,7 +177,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
     }
 
     @Override
-    public Map<URI, ConnectorInfoManager> getConnManagers() {
+    public Map<URI, ConnectorInfoManager> getConnectorInfoManagers() {
         if (connInfoManagers.isEmpty()) {
             locations.forEach(location -> {
                 try {
@@ -193,13 +194,13 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                     LOG.error("Could not process {}", location, e);
                 }
             });
-        }
 
-        if (LOG.isDebugEnabled()) {
-            connInfoManagers.entrySet().stream().peek(
-                entry -> LOG.debug("Connector bundles found at {}", entry.getKey())).
+            if (LOG.isDebugEnabled()) {
+                connInfoManagers.entrySet().stream().peek(
+                        entry -> LOG.debug("Connector bundles found at {}", entry.getKey())).
                         forEach(entry -> entry.getValue().getConnectorInfos().forEach(
                         connInfo -> LOG.debug("\t{}", connInfo.getConnectorDisplayName())));
+            }
         }
 
         return connInfoManagers;
@@ -219,26 +220,16 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
         ConnectorKey key = new ConnectorKey(
                 connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: {}\nBundle version: {}\nBundle class: {}",
-                    key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
-        }
+        LOG.debug("Bundle name: {}\nBundle version: {}\nBundle class: {}",
+                key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
 
         // get the specified connector
-        ConnectorInfo info = null;
-        if (getConnManagers().containsKey(uriLocation)) {
-            info = getConnManagers().get(uriLocation).findConnectorInfo(key);
-        }
-        if (info == null) {
-            throw new NotFoundException("ConnectorInfo for location " + connInstance.getLocation() + " and key " + key);
-        }
+        ConnectorInfo info = Optional.ofNullable(
+                getConnectorInfoManagers().get(uriLocation)).map(cim -> cim.findConnectorInfo(key)).
+                orElseThrow(() -> new NotFoundException(
+                "ConnectorInfo for location " + connInstance.getLocation() + " and key " + key));
 
         return Pair.of(uriLocation, info);
-    }
-
-    @Override
-    public Map<URI, ConnectorInfoManager> getConnInfoManagers() {
-        return connInfoManagers;
     }
 
     @Override
@@ -257,8 +248,8 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
         }
 
         if (LOG.isDebugEnabled()) {
-            properties.getPropertyNames().forEach(propName -> LOG.debug("Property Name: {}"
-                    + "\nProperty Type: {}",
+            properties.getPropertyNames().forEach(propName -> LOG.debug(
+                    "Property Name: {}\nProperty Type: {}",
                     properties.getProperty(propName).getName(),
                     properties.getProperty(propName).getType()));
         }

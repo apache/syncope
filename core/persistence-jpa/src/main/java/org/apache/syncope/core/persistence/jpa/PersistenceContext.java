@@ -195,6 +195,7 @@ import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactory
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -259,9 +260,12 @@ public class PersistenceContext {
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf) {
+            final CommonEntityManagerFactoryConf commonEMFConf,
+            final @Lazy ConnectorManager connectorManager,
+            final @Lazy ExternalResourceDAO resourceDAO) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf);
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
+                commonEMFConf, connectorManager, resourceDAO);
         emf.master(props, masterDataSource);
         return emf;
     }

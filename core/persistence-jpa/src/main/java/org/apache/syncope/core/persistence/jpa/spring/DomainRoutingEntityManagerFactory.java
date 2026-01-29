@@ -40,7 +40,10 @@ import java.util.function.Function;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +57,18 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected final CommonEntityManagerFactoryConf commonEMFConf;
 
-    public DomainRoutingEntityManagerFactory(final CommonEntityManagerFactoryConf commonEMFConf) {
+    protected final ConnectorManager connectorManager;
+
+    protected final ExternalResourceDAO resourceDAO;
+
+    public DomainRoutingEntityManagerFactory(
+            final CommonEntityManagerFactoryConf commonEMFConf,
+            final ConnectorManager connectorManager,
+            final ExternalResourceDAO resourceDAO) {
+
         this.commonEMFConf = commonEMFConf;
+        this.connectorManager = connectorManager;
+        this.resourceDAO = resourceDAO;
     }
 
     protected final Map<String, EntityManagerFactory> delegates = new ConcurrentHashMap<>();
@@ -89,6 +102,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
+        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+                connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -116,6 +131,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
+        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+                connectorManager, resourceDAO, domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getKey());
 

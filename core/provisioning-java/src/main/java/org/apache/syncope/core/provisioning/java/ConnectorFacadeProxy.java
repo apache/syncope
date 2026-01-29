@@ -29,7 +29,6 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
-import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -80,15 +79,13 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorFacadeProxy(
             final ConnInstance connInstance,
             final AsyncConnectorFacade asyncFacade,
-            final ConnIdBundleManager connIdBundleManager) {
+            final ConnectorInfo connectorInfo) {
 
         this.connInstance = connInstance;
         this.asyncFacade = asyncFacade;
 
-        ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance).getRight();
-
         // create default configuration
-        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+        APIConfiguration apiConfig = connectorInfo.createDefaultAPIConfiguration();
         if (connInstance.getDisplayName() != null) {
             apiConfig.setInstanceName(connInstance.getDisplayName());
         }
@@ -109,7 +106,7 @@ public class ConnectorFacadeProxy implements Connector {
                 ConnPoolConfUtils.updateObjectPoolConfiguration(
                         apiConfig.getConnectorPoolConfiguration(), connInstance.getPoolConf());
             } else {
-                LOG.warn("Connector pooling not supported for {}", info);
+                LOG.warn("Connector pooling not supported for {}", connectorInfo);
             }
         }
 

@@ -132,7 +132,8 @@ public class PersistenceTestContext {
             final @Lazy ConnectorManager connectorManager,
             final @Lazy ExternalResourceDAO resourceDAO) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf) {
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
+                commonEMFConf, connectorManager, resourceDAO) {
 
             @Override
             protected EntityManagerFactory delegate() {

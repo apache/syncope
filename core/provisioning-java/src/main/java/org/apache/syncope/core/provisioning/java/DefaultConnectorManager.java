@@ -94,14 +94,14 @@ public class DefaultConnectorManager implements ConnectorManager {
         this.ctx = ctx;
     }
 
-    protected Optional<Connector> findConnector(final ExternalResource resource) {
-        return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource)));
-    }
-
     @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        return findConnector(resource).orElseGet(() -> registerConnector(resource));
+        return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource))).
+                orElseGet(() -> {
+                    registerConnector(resource);
+                    return (Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource));
+                });
     }
 
     @Override
@@ -164,30 +164,29 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     @Override
     public Connector createConnector(final ConnInstance connInstance) {
-        return new ConnectorFacadeProxy(connInstance, asyncFacade, connIdBundleManager);
+        return new ConnectorFacadeProxy(
+                connInstance,
+                asyncFacade,
+                connIdBundleManager.getConnectorInfo(connInstance).getRight());
     }
 
     @Override
-    public Connector registerConnector(final ExternalResource resource) {
+    public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        synchronized (this) {
-            if (ctx.getBeanFactory().containsSingleton(beanName)) {
-                unregisterConnector(beanName);
-            }
-
-            ConnInstance connInstance = buildConnInstanceOverride(
-                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
-                    resource.getConfOverride(),
-                    resource.getCapabilitiesOverride());
-            Connector connector = createConnector(connInstance);
-            LOG.debug("Connector to be registered: {}", connector);
-
-            ctx.getBeanFactory().registerSingleton(beanName, connector);
-            LOG.debug("Successfully registered bean {}", beanName);
-
-            return connector;
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
         }
+
+        ConnInstance connInstance = buildConnInstanceOverride(
+                connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                resource.getConfOverride(),
+                resource.getCapabilitiesOverride());
+        Connector connector = createConnector(connInstance);
+        LOG.debug("Connector to be registered: {}", connector);
+
+        ctx.getBeanFactory().registerSingleton(beanName, connector);
+        LOG.debug("Successfully registered bean {}", beanName);
     }
 
     protected void unregisterConnector(final String beanName) {
@@ -197,11 +196,8 @@ public class DefaultConnectorManager implements ConnectorManager {
     @Override
     public void unregisterConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
-
-        synchronized (this) {
-            if (ctx.getBeanFactory().containsSingleton(beanName)) {
-                unregisterConnector(beanName);
-            }
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
         }
     }
 
@@ -211,8 +207,8 @@ public class DefaultConnectorManager implements ConnectorManager {
         // This is needed in order to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
-        // Load all connector bundles
-        connIdBundleManager.getConnManagers();
+        // Ensure all connector bundles are loaded at this point
+        connIdBundleManager.getConnectorInfoManagers();
 
         // Load all resource-specific connectors
         int connectors = 0;
