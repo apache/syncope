@@ -56,7 +56,7 @@ public class InvalidEntityException extends ValidationException {
 
         this.entityClassSimpleName = entityClass.getSimpleName();
 
-        entityViolationType.setMessage(Optional.ofNullable(message).map(String::trim).orElse(StringUtils.EMPTY));
+        entityViolationType.message(Optional.ofNullable(message).map(String::trim).orElse(StringUtils.EMPTY));
 
         this.violations.put(entityClass, EnumSet.noneOf(EntityViolationType.class));
         this.violations.get(entityClass).add(entityViolationType);
@@ -86,9 +86,10 @@ public class InvalidEntityException extends ValidationException {
             } catch (IllegalArgumentException e) {
                 entityViolationType = EntityViolationType.Standard;
             }
-            entityViolationType.setMessage(message);
-            entityViolationType.setPropertyPath(violation.getPropertyPath().toString());
-            entityViolationType.setInvalidValue(violation.getInvalidValue());
+            entityViolationType.
+                    message(message).
+                    propertyPath(violation.getPropertyPath().toString()).
+                    invalidValue(violation.getInvalidValue());
 
             if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
                 this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));

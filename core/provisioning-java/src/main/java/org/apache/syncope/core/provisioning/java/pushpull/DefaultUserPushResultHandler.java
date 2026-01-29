@@ -51,13 +51,12 @@ import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultUserPushResultHandler extends AbstractPushResultHandler implements UserPushResultHandler {
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
@@ -106,7 +105,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
 
-        List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
+        List<String> ownedResources = anyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).toList();
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
@@ -177,7 +176,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true)
     @Override
     public boolean handle(final LinkedAccount account, final Provision provision) {
         try {

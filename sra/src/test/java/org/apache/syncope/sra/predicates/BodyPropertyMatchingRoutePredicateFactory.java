@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.sra.predicates;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import org.springframework.cloud.gateway.handler.AsyncPredicate;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -27,9 +26,10 @@ import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.JsonNode;
 
 /**
- * Inspired by {@link org.springframework.cloud.gateway.handler.predicate.ReadBodyPredicateFactory}.
+ * Inspired by {@link org.springframework.cloud.gateway.handler.predicate.ReadBodyRoutePredicateFactory}.
  */
 public class BodyPropertyMatchingRoutePredicateFactory extends CustomRoutePredicateFactory {
 

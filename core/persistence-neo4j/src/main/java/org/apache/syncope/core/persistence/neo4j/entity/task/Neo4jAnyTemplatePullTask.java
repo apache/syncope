@@ -33,7 +33,8 @@ public class Neo4jAnyTemplatePullTask extends AbstractAnyTemplate implements Any
     public static final String NODE = "AnyTemplatePullTask";
 
     @NotNull
-    @Relationship(type = Neo4jPullTask.PULL_TASK_TEMPLATE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jPullTask.PULL_TASK_TEMPLATE_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPullTask pullTask;
 
     @Override

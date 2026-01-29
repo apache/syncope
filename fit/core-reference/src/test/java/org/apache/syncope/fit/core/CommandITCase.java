@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
+import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandOutput;
 import org.apache.syncope.common.lib.command.CommandTO;
@@ -112,9 +113,10 @@ public class CommandITCase extends AbstractITCase {
             assertFalse(REALM_SERVICE.search(
                     new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
         } finally {
-            if (printer != null) {
-                ANY_OBJECT_SERVICE.delete(printer.getKey());
-            }
+            Optional.ofNullable(printer).ifPresent(p -> ANY_OBJECT_SERVICE.delete(p.getKey()));
+
+            awaitIfExtSearchEnabled();
+
             REALM_SERVICE.delete(args.getParentRealm() + "/" + args.getRealmName());
         }
     }

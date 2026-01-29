@@ -29,10 +29,10 @@ public abstract class AbstractTypeExtension extends AbstractGeneratedKeyNode imp
 
     private static final long serialVersionUID = 6614200749937020514L;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Override

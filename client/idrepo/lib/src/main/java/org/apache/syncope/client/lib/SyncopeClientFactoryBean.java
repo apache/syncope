@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +30,7 @@ import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 /**
  * Factory bean for creating instances of {@link SyncopeClient}.

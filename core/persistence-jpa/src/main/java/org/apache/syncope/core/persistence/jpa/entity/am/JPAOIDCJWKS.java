@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
@@ -33,13 +33,13 @@ public class JPAOIDCJWKS extends AbstractGeneratedKeyEntity implements OIDCJWKS 
 
     private static final long serialVersionUID = 47352617217394093L;
 
-    @Column(nullable = false)
+    @NotNull
     @Lob
     private String json;
 
     @Override
     public String getJson() {
-        return this.json;
+        return json;
     }
 
     @Override

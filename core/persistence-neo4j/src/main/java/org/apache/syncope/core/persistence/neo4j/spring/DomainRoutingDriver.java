@@ -26,9 +26,7 @@ import org.neo4j.driver.BaseSession;
 import org.neo4j.driver.BookmarkManager;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.ExecutableQuery;
-import org.neo4j.driver.Metrics;
 import org.neo4j.driver.SessionConfig;
-import org.neo4j.driver.types.TypeSystem;
 
 public class DomainRoutingDriver implements Driver {
 
@@ -76,22 +74,6 @@ public class DomainRoutingDriver implements Driver {
     @Override
     public CompletionStage<Void> closeAsync() {
         return delegate().closeAsync();
-    }
-
-    @Override
-    public Metrics metrics() {
-        return delegate().metrics();
-    }
-
-    @Override
-    public boolean isMetricsEnabled() {
-        return delegate().isMetricsEnabled();
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public TypeSystem defaultTypeSystem() {
-        return delegate().defaultTypeSystem();
     }
 
     @Override

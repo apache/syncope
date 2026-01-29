@@ -42,10 +42,11 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject> implements A
 
     public static final String NODE = "AMembership";
 
-    @Relationship(type = Neo4jAnyObject.ANY_OBJECT_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jAnyObject.ANY_OBJECT_GROUP_MEMBERSHIP_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyObject leftEnd;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup rightEnd;
 
     @CompositeProperty(converterRef = "plainAttrsConverter")

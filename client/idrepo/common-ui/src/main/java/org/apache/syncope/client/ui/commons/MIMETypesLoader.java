@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +27,8 @@ import java.util.Map;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class MIMETypesLoader implements Serializable {
 
@@ -50,7 +50,7 @@ public class MIMETypesLoader implements Serializable {
                 JsonNode type = node.path("name");
                 JsonNode ext = node.path("extension");
                 if (!type.isMissingNode()) {
-                    mimeTypesMap.put(type.asText(), ext.isMissingNode() ? "" : ext.asText());
+                    mimeTypesMap.put(type.asString(), ext.isMissingNode() ? "" : ext.asString());
                 }
             }
 

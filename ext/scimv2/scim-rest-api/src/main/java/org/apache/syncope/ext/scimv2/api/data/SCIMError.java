@@ -21,6 +21,7 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.ws.rs.core.Response;
@@ -34,6 +35,7 @@ public class SCIMError extends SCIMBean {
 
     private static final long serialVersionUID = -8836902509266522394L;
 
+    @JsonIgnore
     private final List<String> schemas = List.of(Resource.Error.schema());
 
     private ErrorType scimType;

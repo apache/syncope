@@ -21,12 +21,11 @@ package org.apache.syncope.core.persistence.neo4j.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentLoader;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
@@ -43,9 +42,9 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
             final DomainHolder<Driver> domainHolder,
             final Neo4jMappingContext mappingContext,
             final Resource indexesXML,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
-        super(env);
+        super(ctx);
         this.domainHolder = domainHolder;
         this.mappingContext = mappingContext;
         this.indexesXML = indexesXML;
@@ -90,10 +89,10 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
 
     @Override
     protected void loadDefaultContent(final String domain, final String contentXML) throws Exception {
-        InputStream in = ApplicationContextProvider.getBeanFactory().getBean(contentXML, InputStream.class);
+        InputStream in = ctx.getBeanFactory().getBean(contentXML, InputStream.class);
         try (in) {
             saxParser().parse(in, new ContentLoaderHandler(
-                    domainHolder.getDomains().get(domain), mappingContext, ROOT_ELEMENT, true, env));
+                    domainHolder.getDomains().get(domain), mappingContext, ROOT_ELEMENT, true, ctx.getEnvironment()));
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }

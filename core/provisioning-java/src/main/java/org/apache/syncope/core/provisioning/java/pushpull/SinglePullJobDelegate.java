@@ -118,7 +118,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     executor,
                     false);
 
-            dispatcher = new PullResultHandlerDispatcher(profile, this);
+            dispatcher = buildDispatcher();
 
             for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);

@@ -38,6 +38,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     @JsonProperty
     private final String entitlement;
 
+    @JsonProperty
     private final Set<String> realms = new TreeSet<>();
 
     @JsonCreator

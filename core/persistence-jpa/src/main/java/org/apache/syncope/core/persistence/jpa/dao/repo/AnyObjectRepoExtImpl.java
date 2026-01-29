@@ -19,13 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,12 +33,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
@@ -56,7 +53,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implements AnyObjectRepoExt {
@@ -68,16 +64,16 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
                 dynRealmDAO,
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
@@ -85,31 +81,36 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public Map<AnyType, Long> countByType() {
-        Query query = entityManager.createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "GROUP BY e.type ORDER BY countByType DESC");
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
+    public Map<String, Long> countByType() {
+        return query(
+                "SELECT e.type_id, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e "
+                + "GROUP BY e.type_id",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
 
-        Map<AnyType, Long> countByRealm = new LinkedHashMap<>(results.size());
-        results.forEach(result -> countByRealm.put((AnyType) result[0], ((Number) result[1]).longValue()));
-
-        return Collections.unmodifiableMap(countByRealm);
     }
 
     @Override
-    public Map<String, Long> countByRealm(final AnyType anyType) {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm.fullPath, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "WHERE e.type=:type GROUP BY e.realm.fullPath");
-        query.setParameter("type", anyType);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> result[0].toString(),
-                result -> ((Number) result[1]).longValue()));
+    public Map<String, Long> countByRealm(final String anyType) {
+        return query(
+                "SELECT r.fullPath, COUNT(e.id) "
+                + "FROM " + JPAAnyObject.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
+                + "WHERE e.type_id=? "
+                + "GROUP BY r.fullPath",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                },
+                anyType);
     }
 
     @Transactional(readOnly = true)
@@ -180,9 +181,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     protected Pair<AnyObject, GroupDAO.DynMembershipInfo> doSave(final AnyObject anyObject) {
         AnyObject merged = entityManager.merge(anyObject);
 
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
-
         GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
@@ -192,13 +190,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
         return (S) doSave(anyObject).getLeft();
     }
 
     @Override
     public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
         return doSave(anyObject).getRight();
     }
 
@@ -220,23 +218,29 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return query.getResultList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
+    protected List<String> findDynGroupKeys(final String key) {
+        return query(
+                "SELECT DISTINCT group_id FROM " + GroupRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
+                rs -> {
+                    List<String> result = new ArrayList<>();
+                    while (rs.next()) {
+                        result.add(rs.getString(1));
+                    }
+                    return result;
+                },
+                key);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
+    @Override
+    public List<? extends Group> findDynGroups(final String key) {
+        return findDynGroupKeys(key).stream().
+                map(groupDAO::findById).
+                flatMap(Optional::stream).
+                toList();
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
@@ -247,13 +251,17 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return findAllGroups(anyObject).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(anyObject.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+        result.addAll(findDynGroupKeys(anyObject.getKey()));
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final AnyObject anyObject) {
         Set<ExternalResource> result = new HashSet<>();

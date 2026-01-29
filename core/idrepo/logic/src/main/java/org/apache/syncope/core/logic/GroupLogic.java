@@ -299,8 +299,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
+                dynMembershipConds(groupTO.getDynMembershipConds()).
                 build();
 
         return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -315,8 +314,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
+                dynMembershipConds(groupTO.getDynMembershipConds()).
                 build();
 
         return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -333,8 +331,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
+                dynMembershipConds(groupTO.getDynMembershipConds()).
                 build();
 
         return update(req, nullPriorityAsync);
@@ -355,8 +352,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
+                dynMembershipConds(groupTO.getDynMembershipConds()).
                 build();
 
         return update(req, nullPriorityAsync);

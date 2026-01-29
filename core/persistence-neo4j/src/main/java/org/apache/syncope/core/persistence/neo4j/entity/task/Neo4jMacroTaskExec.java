@@ -33,7 +33,8 @@ public class Neo4jMacroTaskExec extends AbstractTaskExec<SchedTask> implements T
     public static final String NODE = "MacroTaskExec";
 
     @NotNull
-    @Relationship(type = Neo4jMacroTask.MACRO_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jMacroTask.MACRO_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jMacroTask task;
 
     @Override

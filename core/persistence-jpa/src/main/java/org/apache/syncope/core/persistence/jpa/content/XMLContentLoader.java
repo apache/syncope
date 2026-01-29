@@ -22,11 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.sql.DataSource;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
@@ -47,9 +46,9 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
             final DomainHolder<DataSource> domainHolder,
             final Resource viewsXML,
             final Resource indexesXML,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
-        super(env);
+        super(ctx);
         this.domainHolder = domainHolder;
         this.viewsXML = viewsXML;
         this.indexesXML = indexesXML;
@@ -108,10 +107,10 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
 
     @Override
     protected void loadDefaultContent(final String domain, final String contentXML) throws Exception {
-        InputStream in = ApplicationContextProvider.getBeanFactory().getBean(contentXML, InputStream.class);
+        InputStream in = ctx.getBeanFactory().getBean(contentXML, InputStream.class);
         try (in) {
             saxParser().parse(in, new ContentLoaderHandler(
-                    domainHolder.getDomains().get(domain), ROOT_ELEMENT, true, env));
+                    domainHolder.getDomains().get(domain), ROOT_ELEMENT, true, ctx.getEnvironment()));
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }

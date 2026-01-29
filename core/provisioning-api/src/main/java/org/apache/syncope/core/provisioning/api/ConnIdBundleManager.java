@@ -34,11 +34,9 @@ public interface ConnIdBundleManager {
 
     ConfigurationProperties getConfigurationProperties(ConnectorInfo info);
 
-    Map<URI, ConnectorInfoManager> getConnManagers();
-
     Pair<URI, ConnectorInfo> getConnectorInfo(ConnInstance connInstance);
 
-    Map<URI, ConnectorInfoManager> getConnInfoManagers();
+    Map<URI, ConnectorInfoManager> getConnectorInfoManagers();
 
     void resetConnManagers();
 

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -61,6 +60,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ArrayNode;
 
 public class DynRealmITCase extends AbstractITCase {
 
@@ -122,32 +122,30 @@ public class DynRealmITCase extends AbstractITCase {
 
     @Test
     public void delegatedAdmin() {
-        DynRealmTO dynRealm = null;
-        RoleTO role = null;
+        // 1. create dynamic realm for all users and groups having resource-ldap assigned
+        DynRealmTO dynRealm = new DynRealmTO();
+        dynRealm.setKey("LDAPLovers" + getUUIDString());
+        dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "$resources==resource-ldap");
+        dynRealm.getDynMembershipConds().put(AnyTypeKind.GROUP.name(), "$resources==resource-ldap");
+
+        Response response = DYN_REALM_SERVICE.create(dynRealm);
+        dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);
+        assertNotNull(dynRealm);
+
+        // 2. create role for such dynamic realm
+        RoleTO role = new RoleTO();
+        role.setKey("Administer LDAP" + getUUIDString());
+        role.getEntitlements().add(IdRepoEntitlement.USER_SEARCH);
+        role.getEntitlements().add(IdRepoEntitlement.USER_READ);
+        role.getEntitlements().add(IdRepoEntitlement.USER_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.GROUP_READ);
+        role.getEntitlements().add(IdRepoEntitlement.GROUP_UPDATE);
+        role.getDynRealms().add(dynRealm.getKey());
+
+        role = createRole(role);
+        assertNotNull(role);
+
         try {
-            // 1. create dynamic realm for all users and groups having resource-ldap assigned
-            dynRealm = new DynRealmTO();
-            dynRealm.setKey("LDAPLovers" + getUUIDString());
-            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "$resources==resource-ldap");
-            dynRealm.getDynMembershipConds().put(AnyTypeKind.GROUP.name(), "$resources==resource-ldap");
-
-            Response response = DYN_REALM_SERVICE.create(dynRealm);
-            dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);
-            assertNotNull(dynRealm);
-
-            // 2. create role for such dynamic realm
-            role = new RoleTO();
-            role.setKey("Administer LDAP" + getUUIDString());
-            role.getEntitlements().add(IdRepoEntitlement.USER_SEARCH);
-            role.getEntitlements().add(IdRepoEntitlement.USER_READ);
-            role.getEntitlements().add(IdRepoEntitlement.USER_UPDATE);
-            role.getEntitlements().add(IdRepoEntitlement.GROUP_READ);
-            role.getEntitlements().add(IdRepoEntitlement.GROUP_UPDATE);
-            role.getDynRealms().add(dynRealm.getKey());
-
-            role = createRole(role);
-            assertNotNull(role);
-
             // 3. create new user and assign the new role
             UserCR dynRealmAdmin = UserITCase.getUniqueSample("dynRealmAdmin@apache.org");
             dynRealmAdmin.setPassword("password123");
@@ -171,13 +169,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(group);
             final String groupKey = group.getKey();
 
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             // 5. verify that the new user and group are found when searching by dynamic realm
             PagedResult<UserTO> matchingUsers = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
@@ -234,12 +226,8 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(group);
             assertEquals("modified", group.getPlainAttr("icon").get().getValues().getFirst());
         } finally {
-            if (role != null) {
-                ROLE_SERVICE.delete(role.getKey());
-            }
-            if (dynRealm != null) {
-                DYN_REALM_SERVICE.delete(dynRealm.getKey());
-            }
+            ROLE_SERVICE.delete(role.getKey());
+            DYN_REALM_SERVICE.delete(dynRealm.getKey());
         }
     }
 
@@ -271,15 +259,11 @@ public class DynRealmITCase extends AbstractITCase {
 
             // 4a. check that Elasticsearch index was updated correctly
             if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
+                awaitIfExtSearchEnabled();
 
                 ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
                 assertEquals(1, dynRealms.size());
-                assertEquals(dynRealm.getKey(), dynRealms.get(0).asText());
+                assertEquals(dynRealm.getKey(), dynRealms.get(0).asString());
             }
 
             // 4b. now there is 1 realm member
@@ -293,11 +277,7 @@ public class DynRealmITCase extends AbstractITCase {
 
             // 6a. check that Elasticsearch index was updated correctly
             if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
+                awaitIfExtSearchEnabled();
 
                 ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
                 assertTrue(dynRealms.isEmpty());
@@ -333,13 +313,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(realm2);
 
             // 2. verify that dynamic members are the same
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
@@ -358,13 +332,7 @@ public class DynRealmITCase extends AbstractITCase {
             updateUser(userUR);
 
             // 4. verify that dynamic members are still the same
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
 
             matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());

@@ -41,7 +41,7 @@ services:
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
+       HIBERNATE_JCACHE_PROVIDER: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
@@ -63,7 +63,7 @@ services:
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
+       HIBERNATE_JCACHE_PROVIDER: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}

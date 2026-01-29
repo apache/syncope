@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
@@ -56,14 +55,6 @@ abstract class AbstractPlainSchemaRepoExt extends AbstractSchemaRepoExt implemen
     @Override
     public List<? extends PlainSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
         return findByAnyTypeClasses(anyTypeClasses, JPAPlainSchema.class.getSimpleName(), PlainSchema.class);
-    }
-
-    @Override
-    public PlainSchema save(final PlainSchema schema) {
-        ((AbstractSchema) schema).map2json();
-        PlainSchema merged = entityManager.merge(schema);
-        ((AbstractSchema) merged).postSave();
-        return merged;
     }
 
     @Override

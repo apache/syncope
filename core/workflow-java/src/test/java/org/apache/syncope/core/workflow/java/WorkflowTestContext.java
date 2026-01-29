@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.jpa.OraclePersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PGPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -121,5 +122,10 @@ public class WorkflowTestContext {
     @Bean
     public NotificationManager notificationManager() {
         return mock(NotificationManager.class);
+    }
+
+    @Bean
+    public ConnectorManager connectorManager() {
+        return mock(ConnectorManager.class);
     }
 }

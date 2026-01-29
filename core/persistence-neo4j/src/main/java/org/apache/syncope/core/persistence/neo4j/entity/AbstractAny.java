@@ -22,10 +22,8 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.common.validation.AnyCheck;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@AnyCheck
 public abstract class AbstractAny extends AbstractAttributable implements Any {
 
     private static final long serialVersionUID = -2666540708092702810L;
@@ -58,7 +56,7 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     private String lastChangeContext;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm realm;
 
     private String status;

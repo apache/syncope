@@ -27,10 +27,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
-import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -78,26 +76,16 @@ public class ConnectorFacadeProxy implements Connector {
 
     private final AsyncConnectorFacade asyncFacade;
 
-    /**
-     * Use the passed connector instance to build a ConnectorFacade that will be used to make all wrapped calls.
-     *
-     * @param connInstance the connector instance
-     * @param asyncFacade the async connectot facade
-     * @see ConnectorInfo
-     * @see APIConfiguration
-     * @see ConfigurationProperties
-     * @see ConnectorFacade
-     */
-    public ConnectorFacadeProxy(final ConnInstance connInstance, final AsyncConnectorFacade asyncFacade) {
+    public ConnectorFacadeProxy(
+            final ConnInstance connInstance,
+            final AsyncConnectorFacade asyncFacade,
+            final ConnectorInfo connectorInfo) {
+
         this.connInstance = connInstance;
         this.asyncFacade = asyncFacade;
 
-        ConnIdBundleManager connIdBundleManager =
-                ApplicationContextProvider.getBeanFactory().getBean(ConnIdBundleManager.class);
-        ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance).getRight();
-
         // create default configuration
-        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+        APIConfiguration apiConfig = connectorInfo.createDefaultAPIConfiguration();
         if (connInstance.getDisplayName() != null) {
             apiConfig.setInstanceName(connInstance.getDisplayName());
         }
@@ -118,7 +106,7 @@ public class ConnectorFacadeProxy implements Connector {
                 ConnPoolConfUtils.updateObjectPoolConfiguration(
                         apiConfig.getConnectorPoolConfiguration(), connInstance.getPoolConf());
             } else {
-                LOG.warn("Connector pooling not supported for {}", info);
+                LOG.warn("Connector pooling not supported for {}", connectorInfo);
             }
         }
 

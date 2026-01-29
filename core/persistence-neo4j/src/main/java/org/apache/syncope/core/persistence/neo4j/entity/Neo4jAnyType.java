@@ -39,7 +39,7 @@ public class Neo4jAnyType extends AbstractProvidedKeyNode implements AnyType {
     @NotNull
     private AnyTypeKind kind;
 
-    @Relationship(type = "CLASS_OF", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "CLASS_OF", direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Set<Neo4jAnyTypeClass> classes = new HashSet<>();
 
     @Override

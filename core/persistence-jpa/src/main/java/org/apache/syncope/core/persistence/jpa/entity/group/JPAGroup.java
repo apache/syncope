@@ -21,17 +21,15 @@ package org.apache.syncope.core.persistence.jpa.entity.group;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -43,26 +41,24 @@ import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
+import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
-@EntityListeners({ JSONGroupListener.class })
 @Cacheable
 @GroupCheck
 public class JPAGroup
@@ -83,10 +79,8 @@ public class JPAGroup
     @ManyToOne
     private JPAGroup groupOwner;
 
-    private String plainAttrs;
-
-    @Transient
-    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
+    @Convert(converter = PlainAttrListConverter.class)
+    private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
@@ -106,12 +100,8 @@ public class JPAGroup
             @UniqueConstraint(columnNames = { "group_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
-    @Valid
-    private JPAUDynGroupMembership uDynMembership;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
-    private List<JPAADynGroupMembership> aDynMemberships = new ArrayList<>();
+    private List<JPADynGroupMembership> dynMemberships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
     private List<JPAGroupTypeExtension> typeExtensions = new ArrayList<>();
@@ -174,54 +164,33 @@ public class JPAGroup
     }
 
     @Override
-    public List<PlainAttr> getPlainAttrsList() {
-        return plainAttrsList;
-    }
-
-    @Override
-    public String getPlainAttrsJSON() {
+    protected List<PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public void setPlainAttrsJSON(final String plainAttrs) {
-        this.plainAttrs = plainAttrs;
-    }
-
-    @Override
     public boolean add(final PlainAttr attr) {
-        return plainAttrsList.add(attr);
+        return plainAttrs.add(attr);
     }
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+        return plainAttrs.removeIf(a -> a.getSchema().equals(attr.getSchema())
                 && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> attr.getRelationship() == null && plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
     public List<PlainAttr> getPlainAttrs() {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> attr.getRelationship() == null).
                 toList();
-    }
-
-    @Override
-    public UDynGroupMembership getUDynMembership() {
-        return uDynMembership;
-    }
-
-    @Override
-    public void setUDynMembership(final UDynGroupMembership uDynMembership) {
-        checkType(uDynMembership, JPAUDynGroupMembership.class);
-        this.uDynMembership = (JPAUDynGroupMembership) uDynMembership;
     }
 
     @Override
@@ -236,21 +205,21 @@ public class JPAGroup
     }
 
     @Override
-    public boolean add(final ADynGroupMembership dynGroupMembership) {
-        checkType(dynGroupMembership, JPAADynGroupMembership.class);
-        return aDynMemberships.add((JPAADynGroupMembership) dynGroupMembership);
+    public boolean add(final DynGroupMembership dynGroupMembership) {
+        checkType(dynGroupMembership, JPADynGroupMembership.class);
+        return this.dynMemberships.add((JPADynGroupMembership) dynGroupMembership);
     }
 
     @Override
-    public Optional<? extends ADynGroupMembership> getADynMembership(final AnyType anyType) {
-        return aDynMemberships.stream().
+    public Optional<? extends DynGroupMembership> getDynMembership(final AnyType anyType) {
+        return dynMemberships.stream().
                 filter(dynGroupMembership -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).
                 findFirst();
     }
 
     @Override
-    public List<? extends ADynGroupMembership> getADynMemberships() {
-        return aDynMemberships;
+    public List<? extends DynGroupMembership> getDynMemberships() {
+        return dynMemberships;
     }
 
     @Override
@@ -280,7 +249,7 @@ public class JPAGroup
     @Override
     public boolean remove(final Relationship<?, ?> relationship) {
         checkType(relationship, JPAGRelationship.class);
-        plainAttrsList.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        plainAttrs.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
         return relationships.remove((JPAGRelationship) relationship);
     }
 

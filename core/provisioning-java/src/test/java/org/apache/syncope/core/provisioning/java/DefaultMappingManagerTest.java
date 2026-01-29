@@ -31,16 +31,17 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -57,6 +58,9 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private MappingManager mappingManager;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -254,10 +258,11 @@ public class DefaultMappingManagerTest extends AbstractTest {
         Group group = groupDAO.findByName("root").orElseThrow();
         assertNotNull(group);
 
-        UDynGroupMembership dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
+        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
+        dynMembership.setAnyType(anyTypeDAO.getUser());
         dynMembership.setFIQLCond("cool==true");
         dynMembership.setGroup(group);
-        group.setUDynMembership(dynMembership);
+        group.add(dynMembership);
 
         group = groupDAO.saveAndRefreshDynMemberships(group);
         assertNotNull(group);

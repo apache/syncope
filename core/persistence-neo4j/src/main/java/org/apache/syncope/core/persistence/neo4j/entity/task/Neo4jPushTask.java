@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +41,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jPushTask.NODE)
 public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements PushTask {
@@ -59,7 +59,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     };
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm sourceRealm;
 
     private String filters;
@@ -67,7 +67,8 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     @Transient
     private Map<String, String> filterMap = new HashMap<>();
 
-    @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient

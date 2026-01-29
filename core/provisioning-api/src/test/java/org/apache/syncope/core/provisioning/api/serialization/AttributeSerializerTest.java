@@ -28,15 +28,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.util.List;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class AttributeSerializerTest extends AbstractTest {
 
@@ -44,42 +43,41 @@ public class AttributeSerializerTest extends AbstractTest {
     public void serialize(
             final @Mock Attribute source,
             final @Mock JsonGenerator jgen,
-            final @Mock SerializerProvider sp)
-            throws IOException {
+            final @Mock SerializationContext ctx) {
 
         AttributeSerializer serializer = new AttributeSerializer();
         when(source.getValue()).thenReturn(null);
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeStartObject();
-        verify(jgen).writeFieldName("value");
+        verify(jgen).writeName("value");
         verify(jgen).writeNull();
 
         when(source.getValue()).thenAnswer(ic -> List.of(new GuardedString()));
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeObject(any(GuardedString.class));
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writePOJO(any(GuardedString.class));
 
         when(source.getValue()).thenAnswer(ic -> List.of(9000));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeNumber(anyInt());
 
         when(source.getValue()).thenAnswer(ic -> List.of(9000L));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeNumber(anyLong());
 
         when(source.getValue()).thenAnswer(ic -> List.of(9000.1));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeNumber(anyDouble());
 
         when(source.getValue()).thenAnswer(ic -> List.of(Boolean.TRUE));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeBoolean(anyBoolean());
 
         when(source.getValue()).thenAnswer(ic -> List.of(new byte[] { 9, 0, 0, 0 }));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeString(anyString());
 
         when(source.getValue()).thenAnswer(ic -> List.of("test"));
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeString(eq("test"));
     }
 }

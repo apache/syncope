@@ -33,7 +33,8 @@ public class Neo4jPushTaskExec extends AbstractTaskExec<SchedTask> implements Ta
     public static final String NODE = "PushTaskExec";
 
     @NotNull
-    @Relationship(type = Neo4jPushTask.PUSH_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jPushTask.PUSH_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPushTask task;
 
     @Override

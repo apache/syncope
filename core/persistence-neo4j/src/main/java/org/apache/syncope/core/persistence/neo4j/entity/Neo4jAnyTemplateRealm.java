@@ -32,7 +32,7 @@ public class Neo4jAnyTemplateRealm extends AbstractAnyTemplate implements AnyTem
 
     public static final String REALM_ANY_TEMPLATE_REL = "REALM_ANY_TEMPLATE";
 
-    @Relationship(type = REALM_ANY_TEMPLATE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = REALM_ANY_TEMPLATE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm realm;
 
     @Override

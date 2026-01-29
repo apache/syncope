@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
 import java.util.HashMap;
@@ -129,11 +128,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)
@@ -447,9 +448,10 @@ public class IdRepoRESTCXFContext {
             @Qualifier("batchExecutor")
             final AsyncTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ConfigurableApplicationContext ctx) {
 
-        return new SyncopeServiceImpl(syncopeLogic, batchExecutor, bus, batchDAO, entityFactory);
+        return new SyncopeServiceImpl(syncopeLogic, batchExecutor, bus, batchDAO, entityFactory, ctx);
     }
 
     @ConditionalOnMissingBean

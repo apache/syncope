@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -63,6 +64,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmChecker;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -91,6 +93,7 @@ import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentLoader;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyChecker;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyMatchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAuditEventDAO;
@@ -122,6 +125,8 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthModuleRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepo;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepoExt;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExtImpl;
@@ -196,6 +201,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDelegation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jEntityFactory;
@@ -225,7 +231,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.neo4j.config.Neo4jEntityScanner;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -306,6 +311,7 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
             final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
             final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
             final Cache<EntityCacheKey, Neo4jGroup> groupCache,
             final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
@@ -319,6 +325,7 @@ public class PersistenceContext {
                 anyObjectCache,
                 delegationCache,
                 derSchemaCache,
+                connInstanceCache,
                 externalResourceCache,
                 groupCache,
                 implementationCache,
@@ -371,13 +378,13 @@ public class PersistenceContext {
             final Neo4jMappingContext mappingContext,
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
         return new XMLContentLoader(
                 domainHolder,
                 mappingContext,
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
-                env);
+                ctx);
     }
 
     @ConditionalOnMissingBean
@@ -441,14 +448,19 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
-        return new AnyFinder(plainSchemaDAO, anySearchDAO);
+    public AccessTokenDAO accessTokenDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
+        return neo4jRepositoryFactory.getRepository(AccessTokenRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenDAO accessTokenDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
-        return neo4jRepositoryFactory.getRepository(AccessTokenRepo.class);
+    public AnyChecker anyChecker(
+            final @Lazy AnyTypeDAO anyTypeDAO,
+            final @Lazy AnyTypeClassDAO anyTypeClassDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy DerSchemaDAO derSchemaDAO) {
+
+        return new Neo4jAnyChecker(anyTypeDAO, anyTypeClassDAO, plainSchemaDAO, derSchemaDAO);
     }
 
     @ConditionalOnMissingBean
@@ -491,12 +503,12 @@ public class PersistenceContext {
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy AnyTypeDAO anyTypeDAO,
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyFinder anyFinder,
+            final AnyChecker anyChecker,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -506,11 +518,11 @@ public class PersistenceContext {
                 anyUtilsFactory,
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
+                anyChecker,
                 anyFinder,
                 neo4jTemplate,
                 neo4jClient,
@@ -709,8 +721,20 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileDAO authProfileDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
-        return neo4jRepositoryFactory.getRepository(AuthProfileRepo.class);
+    public AuthProfileRepoExt authProfileRepoExt(
+            final Neo4jTemplate neo4jTemplate,
+            final NodeValidator nodeValidator) {
+
+        return new AuthProfileRepoExtImpl(neo4jTemplate, nodeValidator);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AuthProfileDAO authProfileDAO(
+            final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
+            final AuthProfileRepoExt authProfileRepoExt) {
+
+        return neo4jRepositoryFactory.getRepository(AuthProfileRepo.class, authProfileRepoExt);
     }
 
     @ConditionalOnMissingBean
@@ -741,14 +765,34 @@ public class PersistenceContext {
         return neo4jRepositoryFactory.getRepository(CASSPClientAppRepo.class, casSPClientAppRepoExt);
     }
 
+    @ConditionalOnMissingBean(name = ConnInstanceRepoExt.CACHE)
+    @Bean(name = ConnInstanceRepoExt.CACHE)
+    public Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache(final CacheManager cacheManager) {
+        return cacheManager.createCache(ConnInstanceRepoExt.CACHE,
+                new MutableConfiguration<EntityCacheKey, Neo4jConnInstance>().
+                        setTypes(EntityCacheKey.class, Neo4jConnInstance.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public ConnInstanceRepoExt connInstanceRepoExt(
             final @Lazy ExternalResourceDAO resourceDAO,
+            final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache,
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
-        return new ConnInstanceRepoExtImpl(resourceDAO, neo4jTemplate, nodeValidator);
+        return new ConnInstanceRepoExtImpl(
+                resourceDAO,
+                externalResourceCache,
+                connInstanceCache,
+                neo4jTemplate,
+                neo4jClient,
+                nodeValidator);
     }
 
     @ConditionalOnMissingBean
@@ -929,7 +973,6 @@ public class PersistenceContext {
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy AnyTypeDAO anyTypeDAO,
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy RealmDAO realmDAO,
@@ -937,6 +980,7 @@ public class PersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
+            final AnyChecker anyChecker,
             final @Lazy AnyFinder anyFinder,
             final SearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
@@ -949,7 +993,6 @@ public class PersistenceContext {
                 publisher,
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 realmDAO,
@@ -957,6 +1000,7 @@ public class PersistenceContext {
                 userDAO,
                 anyObjectDAO,
                 anySearchDAO,
+                anyChecker,
                 anyFinder,
                 searchCondVisitor,
                 neo4jTemplate,
@@ -1171,6 +1215,7 @@ public class PersistenceContext {
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
+            final RealmChecker realmChecker,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache) {
 
         return new Neo4jRealmDAO(
@@ -1180,6 +1225,7 @@ public class PersistenceContext {
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator,
+                realmChecker,
                 realmCache);
     }
 
@@ -1435,7 +1481,6 @@ public class PersistenceContext {
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy AnyTypeDAO anyTypeDAO,
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
@@ -1443,6 +1488,7 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
+            final AnyChecker anyChecker,
             final @Lazy AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -1453,7 +1499,6 @@ public class PersistenceContext {
                 anyUtilsFactory,
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 roleDAO,
@@ -1461,6 +1506,7 @@ public class PersistenceContext {
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,
+                anyChecker,
                 anyFinder,
                 securityProperties,
                 neo4jTemplate,

@@ -39,10 +39,11 @@ public class Neo4jUMembership extends AbstractMembership<User> implements UMembe
 
     public static final String NODE = "UMembership";
 
-    @Relationship(type = Neo4jUser.USER_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jUser.USER_GROUP_MEMBERSHIP_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser leftEnd;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup rightEnd;
 
     @CompositeProperty(converterRef = "plainAttrsConverter")

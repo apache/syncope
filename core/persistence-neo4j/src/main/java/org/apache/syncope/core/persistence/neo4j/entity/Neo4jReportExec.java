@@ -36,7 +36,8 @@ public class Neo4jReportExec extends AbstractExec implements ReportExec {
      * The referred report.
      */
     @NotNull
-    @Relationship(type = Neo4jReport.REPORT_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jReport.REPORT_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jReport report;
 
     /**

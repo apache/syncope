@@ -123,7 +123,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 username.setValue(authResult.user().getUsername());
 
                 if (!authenticated) {
-                    AuthContextUtils.runAsAdmin(domainKey, () -> provisioningManager.internalSuspend(
+                    AuthContextUtils.runAsAdmin(domainKey, () -> provisioningManager.suspendOnAuthFailures(
                             authResult.user().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
                 }
             }

@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
@@ -66,8 +67,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
     @Override
     public List<? extends ConnInstance> findAll() {
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
-        if (authRealms == null || authRealms.isEmpty()) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_LIST);
+        if (CollectionUtils.isEmpty(authRealms)) {
             return List.of();
         }
 
@@ -80,19 +81,14 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
     }
 
     @Override
-    public ConnInstance save(final ConnInstance connector) {
-        ((JPAConnInstance) connector).list2json();
-        return entityManager.merge(connector);
-    }
-
-    @Override
     public void deleteById(final String key) {
         ConnInstance connInstance = entityManager.find(JPAConnInstance.class, key);
         if (connInstance == null) {
             return;
         }
 
-        connInstance.getResources().stream().map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
+        resourceDAO.findByConnInstance(connInstance.getKey()).stream().
+                map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
 
         entityManager.remove(connInstance);
     }

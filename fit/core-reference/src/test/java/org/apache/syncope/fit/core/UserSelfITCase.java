@@ -352,13 +352,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
         ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String email = user.getPlainAttr("email").orElseThrow().getValues().getFirst();

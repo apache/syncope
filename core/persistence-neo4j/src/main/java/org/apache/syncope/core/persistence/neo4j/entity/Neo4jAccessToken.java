@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import java.time.OffsetDateTime;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.springframework.data.neo4j.core.schema.Node;
 
@@ -36,7 +35,7 @@ public class Neo4jAccessToken extends AbstractProvidedKeyNode implements AccessT
 
     private String owner;
 
-    private byte[] authorities;
+    private String authorities;
 
     @Override
     public String getBody() {
@@ -69,12 +68,12 @@ public class Neo4jAccessToken extends AbstractProvidedKeyNode implements AccessT
     }
 
     @Override
-    public byte[] getAuthorities() {
+    public String getAuthorities() {
         return authorities;
     }
 
     @Override
-    public void setAuthorities(final byte[] authorities) {
-        this.authorities = ArrayUtils.clone(authorities);
+    public void setAuthorities(final String authorities) {
+        this.authorities = authorities;
     }
 }

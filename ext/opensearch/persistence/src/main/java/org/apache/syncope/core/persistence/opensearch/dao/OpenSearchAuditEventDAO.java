@@ -18,18 +18,15 @@
  */
 package org.apache.syncope.core.persistence.opensearch.dao;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.opensearch.client.OpenSearchIndexManager;
 import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
@@ -182,17 +179,15 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
                 build();
         LOG.debug("Search request: {}", request);
 
-        List<Hit<ObjectNode>> esResult = null;
+        List<Hit<AuditEventTO>> osResult = null;
         try {
-            esResult = client.search(request, ObjectNode.class).hits().hits();
+            osResult = client.search(request, AuditEventTO.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch with request {}", request, e);
         }
 
-        return CollectionUtils.isEmpty(esResult)
+        return CollectionUtils.isEmpty(osResult)
                 ? List.of()
-                : esResult.stream().
-                        map(hit -> POJOHelper.convertValue(hit.source(), AuditEventTO.class)).
-                        filter(Objects::nonNull).toList();
+                : osResult.stream().map(Hit::source).toList();
     }
 }

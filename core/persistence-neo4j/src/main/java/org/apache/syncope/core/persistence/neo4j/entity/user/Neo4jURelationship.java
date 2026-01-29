@@ -49,13 +49,13 @@ public class Neo4jURelationship extends AbstractRelationship<User, AnyObject> im
     public static final String DEST_REL = "URELATIONSHIP_DEST";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRelationshipType type;
 
-    @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser leftEnd;
 
-    @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyObject rightEnd;
 
     @CompositeProperty(converterRef = "plainAttrsConverter")

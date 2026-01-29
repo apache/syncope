@@ -18,21 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,8 +37,8 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.jpa.converters.StringSetConverter;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPANotificationTask.TABLE)
@@ -53,9 +47,6 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
     private static final long serialVersionUID = 95731573485279180L;
 
     public static final String TABLE = "NotificationTask";
-
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
 
     @NotNull
     @ManyToOne
@@ -66,11 +57,9 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
 
     private String entityKey;
 
+    @Convert(converter = StringSetConverter.class)
     @Lob
-    private String recipients;
-
-    @Transient
-    private Set<String> recipientsSet = new HashSet<>();
+    private Set<String> recipients = new HashSet<>();
 
     @OneToMany(targetEntity = JPANotificationTaskExec.class,
             cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
@@ -130,7 +119,7 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
 
     @Override
     public Set<String> getRecipients() {
-        return recipientsSet;
+        return recipients;
     }
 
     @Override
@@ -201,31 +190,5 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
     @Override
     protected List<TaskExec<NotificationTask>> executions() {
         return executions;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getRecipients().clear();
-        }
-        if (recipients != null) {
-            getRecipients().addAll(POJOHelper.deserialize(recipients, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        recipients = POJOHelper.serialize(getRecipients());
     }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -104,12 +105,9 @@ public class AnyTypeITCase extends AbstractITCase {
         AnyTypeTO newType = new AnyTypeTO();
         newType.setKey("new type");
         newType.setKind(AnyTypeKind.USER);
-        try {
-            ANY_TYPE_SERVICE.create(newType);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
-        }
+
+        SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> ANY_TYPE_SERVICE.create(newType));
+        assertEquals(ClientExceptionType.InvalidAnyType, e.getType());
     }
 
     @Test
@@ -117,12 +115,9 @@ public class AnyTypeITCase extends AbstractITCase {
         AnyTypeTO newType = new AnyTypeTO();
         newType.setKey("GROUP");
         newType.setKind(AnyTypeKind.GROUP);
-        try {
-            ANY_TYPE_SERVICE.create(newType);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.EntityExists, e.getType());
-        }
+
+        SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> ANY_TYPE_SERVICE.create(newType));
+        assertEquals(ClientExceptionType.EntityExists, e.getType());
     }
 
     @Test
@@ -194,7 +189,7 @@ public class AnyTypeITCase extends AbstractITCase {
         anyTypeTO.getClasses().remove("csv");
         ANY_TYPE_SERVICE.update(anyTypeTO);
 
-        assertFalse(ANY_TYPE_SERVICE.read(PRINTER).getClasses().contains("csv"), 
+        assertFalse(ANY_TYPE_SERVICE.read(PRINTER).getClasses().contains("csv"),
                 "Should not contain removed any type classes");
     }
 }

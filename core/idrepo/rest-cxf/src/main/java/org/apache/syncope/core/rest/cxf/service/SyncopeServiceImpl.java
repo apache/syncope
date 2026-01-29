@@ -45,12 +45,12 @@ import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.logic.SyncopeLogic;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -69,18 +69,22 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
     protected final EntityFactory entityFactory;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public SyncopeServiceImpl(
             final SyncopeLogic logic,
             final AsyncTaskExecutor batchExecutor,
             final Bus bus,
             final BatchDAO batchDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ConfigurableApplicationContext ctx) {
 
         this.logic = logic;
         this.batchExecutor = batchExecutor;
         this.bus = bus;
         this.batchDAO = batchDAO;
         this.entityFactory = entityFactory;
+        this.ctx = ctx;
     }
 
     @Override
@@ -145,7 +149,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         batch.setExpiryTime(OffsetDateTime.now().plusMinutes(5));
         batchDAO.save(batch);
 
-        BatchProcess batchProcess = ApplicationContextProvider.getBeanFactory().createBean(BatchProcess.class);
+        BatchProcess batchProcess = ctx.getBeanFactory().createBean(BatchProcess.class);
         batchProcess.setBoundary(boundary);
         batchProcess.setScheme(messageContext.getHttpServletRequest().getScheme());
         batchProcess.setServerName(messageContext.getHttpServletRequest().getServerName());

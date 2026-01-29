@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.jexl;
 
 import java.io.StringWriter;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.JexlEngine;
@@ -26,10 +27,13 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
@@ -101,6 +105,16 @@ public class JexlTools {
         return Optional.ofNullable(result).orElse(template);
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, String> derAttrs(final Attributable attributable, final DerAttrHandler derAttrHandler) {
+        return attributable instanceof Realm realm
+                ? derAttrHandler.getValues(realm)
+                : attributable instanceof Any any
+                        ? derAttrHandler.getValues(any)
+                        : Map.of();
+    }
+
+    @Transactional(readOnly = true)
     public boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
             final Attributable attributable,
@@ -108,7 +122,7 @@ public class JexlTools {
 
         JexlContext jexlContext = new JexlContextBuilder().
                 plainAttrs(attributable.getPlainAttrs()).
-                derAttrs(attributable, derAttrHandler).
+                derAttrs(derAttrs(attributable, derAttrHandler)).
                 build();
 
         return Boolean.parseBoolean(evaluateExpression(mandatoryCondition, jexlContext).toString());

@@ -30,8 +30,6 @@ public interface ExternalResourceRepoExt {
 
     List<? extends ExternalResource> findAll();
 
-    ExternalResource save(ExternalResource resource);
-
     void deleteById(String key);
 
     void deleteMapping(String schemaKey);

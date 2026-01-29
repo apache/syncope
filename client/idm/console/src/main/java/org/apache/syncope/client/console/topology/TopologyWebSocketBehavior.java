@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +34,7 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
@@ -44,6 +42,9 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
@@ -51,7 +52,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
 
@@ -140,9 +141,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
         try {
             JsonNode obj = MAPPER.readTree(message.getText());
-            switch (Topology.SupportedOperation.valueOf(obj.get("kind").asText())) {
+            switch (Topology.SupportedOperation.valueOf(obj.get("kind").asString())) {
                 case CHECK_CONNECTOR:
-                    String ckey = obj.get("target").asText();
+                    String ckey = obj.get("target").asString();
 
                     if (connectors.containsKey(ckey)) {
                         handler.push(connectors.get(ckey));
@@ -166,7 +167,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                     break;
 
                 case CHECK_RESOURCE:
-                    String rkey = obj.get("target").asText();
+                    String rkey = obj.get("target").asString();
 
                     if (resources.containsKey(rkey)) {
                         handler.push(resources.get(rkey));
@@ -191,14 +192,14 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
                 case ADD_ENDPOINT:
                     handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
-                            obj.get("source").asText(),
-                            obj.get("target").asText(),
-                            obj.get("scope").asText()));
+                            obj.get("source").asString(),
+                            obj.get("target").asString(),
+                            obj.get("scope").asString()));
                     break;
 
                 default:
             }
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.error("Error managing websocket message", e);
         }
     }

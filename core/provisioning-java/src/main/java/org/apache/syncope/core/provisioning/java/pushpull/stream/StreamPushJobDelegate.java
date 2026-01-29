@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushResultHandlerDispatcher;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -57,17 +55,17 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
     @Override
     protected AnyObjectPushResultHandler buildAnyObjectHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
     }
 
     @Override
     protected UserPushResultHandler buildUserHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamUserPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamUserPushResultHandler.class);
     }
 
     @Override
     protected GroupPushResultHandler buildGroupHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
+        return ctx.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
     }
 
     private ExternalResource externalResource(
@@ -149,7 +147,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
                     executor,
                     false);
 
-            dispatcher = new PushResultHandlerDispatcher(profile, this);
+            dispatcher = buildDispatcher();
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);
