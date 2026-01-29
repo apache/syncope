@@ -114,7 +114,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         AnyType anyType = anyTypeDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("AnyType " + key));
 
-        Long anyObjects = anyObjectDAO.countByType().get(anyType);
+        Long anyObjects = anyObjectDAO.countByType().get(anyType.getKey());
         if (anyObjects != null && anyObjects > 0) {
             LOG.error("{} AnyObject instances found for {}, aborting", anyObjects, anyType);
 

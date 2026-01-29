@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+<<<<<<< HEAD
+=======
+@FunctionalInterface
+>>>>>>> upstream/master
 public interface AccessTokenRepoExt {
 
     int deleteByOwner(String username);
