@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-<<<<<<<< HEAD:core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/converters/GoogleMfaAuthAccountListConverter.java
 package org.apache.syncope.core.persistence.jpa.converters;
 
 import jakarta.persistence.Converter;
@@ -35,13 +34,4 @@ public class GoogleMfaAuthAccountListConverter extends SerializableListConverter
     protected TypeReference<List<GoogleMfaAuthAccount>> typeRef() {
         return TYPEREF;
     }
-========
-package org.apache.syncope.core.provisioning.api.pushpull;
-
-import org.apache.syncope.core.persistence.api.entity.Any;
-
-public interface SyncopeAnyPushResultHandler extends SyncopePushResultHandler {
-
-    boolean handle(Any any);
->>>>>>>> upstream/master:core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/SyncopeAnyPushResultHandler.java
 }
