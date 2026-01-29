@@ -31,7 +31,8 @@ public class Neo4jLiveSyncTaskExec extends AbstractTaskExec<SchedTask> implement
 
     public static final String NODE = "LiveSyncTaskExec";
 
-    @Relationship(type = Neo4jLiveSyncTask.LIVE_SYNC_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jLiveSyncTask.LIVE_SYNC_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jLiveSyncTask task;
 
     @Override

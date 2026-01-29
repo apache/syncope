@@ -57,10 +57,12 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
     @NotNull
     private PullMode pullMode;
 
-    @Relationship(type = PULL_TASK_RECON_FILTER_BUIDER_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PULL_TASK_RECON_FILTER_BUIDER_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation reconFilterBuilder;
 
-    @Relationship(type = PULL_TASK_INBOUND_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PULL_TASK_INBOUND_ACTIONS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient

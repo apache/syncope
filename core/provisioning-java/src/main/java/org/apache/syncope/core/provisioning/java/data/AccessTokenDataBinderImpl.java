@@ -107,7 +107,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     protected AccessToken replace(
             final String subject,
             final Map<String, Object> claims,
-            final byte[] authorities,
+            final String authorities,
             final AccessToken accessToken) {
 
         AccessTokenInfo generated = generateJWT(
@@ -132,7 +132,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final Optional<String> key,
             final String subject,
             final Map<String, Object> claims,
-            final byte[] authorities,
+            final String authorities,
             final boolean replace) {
 
         AccessToken accessToken = accessTokenDAO.findByOwner(subject).
@@ -158,7 +158,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public AccessTokenInfo update(final AccessToken accessToken, final byte[] authorities) {
+    public AccessTokenInfo update(final AccessToken accessToken, final String authorities) {
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
         long duration = confParamOps.get(AuthContextUtils.getDomain(), "jwt.lifetime.minutes", 120L, Long.class);

@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.openjpa.event.RemoteCommitEvent;
 import org.apache.openjpa.event.RemoteCommitListener;
 import org.apache.openjpa.util.StringId;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
@@ -44,41 +43,44 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManagerRemoteCommitListener.class);
 
+    protected final ConnectorManager connectorManager;
+
+    protected final ExternalResourceDAO resourceDAO;
+
     protected final String domain;
 
-    public ConnectorManagerRemoteCommitListener(final String domain) {
+    public ConnectorManagerRemoteCommitListener(
+            final ConnectorManager connectorManager,
+            final ExternalResourceDAO resourceDAO,
+            final String domain) {
+
+        this.connectorManager = connectorManager;
+        this.resourceDAO = resourceDAO;
         this.domain = domain;
     }
 
     protected void registerForExternalResource(final String resourceKey) {
-        AuthContextUtils.runAsAdmin(domain, () -> {
-            ExternalResource resource = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findById(resourceKey).orElse(null);
-            if (resource == null) {
-                LOG.debug("No resource found for '{}', ignoring", resourceKey);
-            } else {
-                try {
-                    ApplicationContextProvider.getApplicationContext().
-                            getBean(ConnectorManager.class).registerConnector(resource);
-                } catch (Exception e) {
-                    LOG.error("While registering connector for resource {}", resourceKey, e);
-                }
-            }
-        });
+        AuthContextUtils.runAsAdmin(domain, () -> resourceDAO.findById(resourceKey).ifPresentOrElse(
+                resource -> {
+                    try {
+                        connectorManager.registerConnector(resource);
+                    } catch (Exception e) {
+                        LOG.error("While registering connector for resource {}", resourceKey, e);
+                    }
+                },
+                () -> LOG.debug("No resource found for '{}', ignoring", resourceKey)));
     }
 
     protected void registerForConnInstance(final String connInstanceKey) {
         AuthContextUtils.runAsAdmin(domain, () -> {
-            List<ExternalResource> resources = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findByConnInstance(connInstanceKey);
+            List<ExternalResource> resources = resourceDAO.findByConnInstance(connInstanceKey);
             if (resources.isEmpty()) {
                 LOG.debug("No resources found for connInstance '{}', ignoring", connInstanceKey);
             }
 
             resources.forEach(resource -> {
                 try {
-                    ApplicationContextProvider.getApplicationContext().
-                            getBean(ConnectorManager.class).registerConnector(resource);
+                    connectorManager.registerConnector(resource);
                 } catch (Exception e) {
                     LOG.error("While registering connector {} for resource {}", connInstanceKey, resource, e);
                 }
@@ -87,20 +89,15 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
     }
 
     protected void unregister(final String resourceKey) {
-        AuthContextUtils.runAsAdmin(domain, () -> {
-            ExternalResource resource = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).findById(resourceKey).orElse(null);
-            if (resource == null) {
-                LOG.debug("No resource found for '{}', ignoring", resourceKey);
-            } else {
-                try {
-                    ApplicationContextProvider.getApplicationContext().
-                            getBean(ConnectorManager.class).unregisterConnector(resource);
-                } catch (Exception e) {
-                    LOG.error("While unregistering connector for resource {}", resourceKey, e);
-                }
-            }
-        });
+        AuthContextUtils.runAsAdmin(domain, () -> resourceDAO.findById(resourceKey).ifPresentOrElse(
+                resource -> {
+                    try {
+                        connectorManager.unregisterConnector(resource);
+                    } catch (Exception e) {
+                        LOG.error("While unregistering connector for resource {}", resourceKey, e);
+                    }
+                },
+                () -> LOG.debug("No resource found for '{}', ignoring", resourceKey)));
     }
 
     @SuppressWarnings("unchecked")

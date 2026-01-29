@@ -42,7 +42,7 @@ public class Neo4jPasswordPolicy extends Neo4jPolicy implements PasswordPolicy {
 
     private int historyLength;
 
-    @Relationship(type = PASSWORD_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PASSWORD_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jImplementation> rules = new ArrayList<>();
 
     @Override

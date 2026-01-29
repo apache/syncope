@@ -39,11 +39,12 @@ public class Neo4jMacroTaskCommand extends AbstractGeneratedKeyNode implements M
     public static final String NODE = "MacroTaskCommand";
 
     @NotNull
-    @Relationship(type = Neo4jMacroTask.MACRO_TASK_COMMANDS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jMacroTask.MACRO_TASK_COMMANDS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jMacroTask macroTask;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation command;
 
     private String args;

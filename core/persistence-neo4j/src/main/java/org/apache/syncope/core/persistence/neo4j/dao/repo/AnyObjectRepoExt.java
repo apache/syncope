@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -42,9 +41,9 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 
-    Map<AnyType, Long> countByType();
+    Map<String, Long> countByType();
 
-    Map<String, Long> countByRealm(AnyType anyType);
+    Map<String, Long> countByRealm(String anyType);
 
     void deleteMembership(AMembership membership);
 

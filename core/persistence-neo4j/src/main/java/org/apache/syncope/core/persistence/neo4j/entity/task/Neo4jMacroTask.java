@@ -56,7 +56,7 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     public static final String MACRO_TASK_COMMANDS_REL = "MACRO_TASK_COMMANDS";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm realm;
 
     @NotNull
@@ -65,7 +65,8 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     @NotNull
     private Boolean saveExecs = true;
 
-    @Relationship(type = MACRO_TASK_COMMANDS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = MACRO_TASK_COMMANDS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jMacroTaskCommandRelationship> commands = new TreeSet<>();
 
     @Transient
@@ -80,7 +81,8 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     private List<Neo4jFormPropertyDef> sortedFormPropertyDefs = new SortedSetList<>(
             formPropertyDefs, Neo4jFormPropertyDefRelationship.builder());
 
-    @Relationship(type = MACRO_TASK_MACRO_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = MACRO_TASK_MACRO_ACTIONS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation macroActions;
 
     @Relationship(type = MACRO_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)

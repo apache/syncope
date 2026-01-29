@@ -63,14 +63,6 @@ public interface ConnectorManager {
      */
     Connector getConnector(ExternalResource resource);
 
-    /*
-     * Get existing connector bean for the given resource if found.
-     *
-     * @param resource the resource.
-     * @return live connector bean for given resource
-     */
-    Optional<Connector> readConnector(ExternalResource resource);
-
     /**
      * Load connectors for all existing resources.
      *

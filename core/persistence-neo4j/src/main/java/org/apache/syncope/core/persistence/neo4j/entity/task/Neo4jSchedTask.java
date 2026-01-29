@@ -43,7 +43,8 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
     public static final String SCHED_TASK_EXEC_REL = "SCHED_TASK_EXEC";
 
     @NotNull
-    @Relationship(type = SCHED_TASK_JOB_DELEGATE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = SCHED_TASK_JOB_DELEGATE_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation jobDelegate;
 
     private String cronExpression;

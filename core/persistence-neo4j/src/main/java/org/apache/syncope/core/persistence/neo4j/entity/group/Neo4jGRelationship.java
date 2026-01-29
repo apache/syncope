@@ -49,13 +49,13 @@ public class Neo4jGRelationship extends AbstractRelationship<Group, AnyObject> i
     public static final String DEST_REL = "GRELATIONSHIP_DEST";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRelationshipType type;
 
-    @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup leftEnd;
 
-    @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyObject rightEnd;
 
     @CompositeProperty(converterRef = "plainAttrsConverter")

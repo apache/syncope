@@ -19,8 +19,11 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.Map;
+import org.apache.syncope.common.lib.request.GroupUR;
 
 public interface GroupPullResultHandler extends SyncopePullResultHandler {
 
     Map<String, String> getGroupOwnerMap();
+
+    void updateOwner(GroupUR req);
 }

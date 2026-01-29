@@ -253,7 +253,7 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
     }
 
     @Override
-    public <T extends Task<T>> void delete(final TaskType taskType, final String key) {
+    public void delete(final TaskType taskType, final String key) {
         findById(taskType, key).ifPresent(this::delete);
     }
 

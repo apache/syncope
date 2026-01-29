@@ -59,11 +59,6 @@ public class DummyConnectorManager implements ConnectorManager {
     }
 
     @Override
-    public Optional<Connector> readConnector(final ExternalResource resource) {
-        return Optional.empty();
-    }
-
-    @Override
     public void load() {
     }
 

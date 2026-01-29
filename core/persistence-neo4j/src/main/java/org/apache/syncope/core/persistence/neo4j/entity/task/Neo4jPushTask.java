@@ -59,7 +59,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     };
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm sourceRealm;
 
     private String filters;
@@ -67,7 +67,8 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     @Transient
     private Map<String, String> filterMap = new HashMap<>();
 
-    @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient

@@ -31,4 +31,6 @@ public interface AccessTokenDAO extends DAO<AccessToken> {
     Page<? extends AccessToken> findAll(Pageable pageable);
 
     int deleteExpired(OffsetDateTime now);
+
+    int deleteByOwner(String username);
 }

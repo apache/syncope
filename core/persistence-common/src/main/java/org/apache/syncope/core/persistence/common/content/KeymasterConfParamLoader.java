@@ -24,11 +24,12 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.content.ConfParamLoader;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,12 +39,15 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(KeymasterConfParamLoader.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final ConfParamOps confParamOps;
 
-    public KeymasterConfParamLoader(final ConfParamOps confParamOps) {
+    protected final ConfigurableApplicationContext ctx;
+
+    public KeymasterConfParamLoader(final ConfParamOps confParamOps, final ConfigurableApplicationContext ctx) {
         this.confParamOps = confParamOps;
+        this.ctx = ctx;
     }
 
     @Override
@@ -71,7 +75,7 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
                 } else {
                     LOG.info("[{}] Empty Keymaster found, loading default content", domain);
 
-                    try (InputStream contentJSON = ApplicationContextProvider.getBeanFactory().
+                    try (InputStream contentJSON = ctx.getBeanFactory().
                             getBean(domain + "KeymasterConfParamsJSON", InputStream.class)) {
 
                         JsonNode content = MAPPER.readTree(contentJSON);

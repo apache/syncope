@@ -55,7 +55,7 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
 
     private String anyLayout;
 
-    @Relationship(type = ROLE_REALM_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ROLE_REALM_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jRealm> realms = new ArrayList<>();
 
     @Relationship(direction = Relationship.Direction.INCOMING)

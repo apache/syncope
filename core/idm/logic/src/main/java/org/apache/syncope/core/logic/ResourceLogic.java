@@ -132,12 +132,13 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw sce;
         }
 
-        ConnInstance connInstance = connInstanceDAO.authFind(resourceTO.getConnector());
-        if (connInstance == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidExternalResource);
-            sce.getElements().add("Connector " + resourceTO.getConnector());
-            throw sce;
-        }
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.authFind(resourceTO.getConnector())).
+                orElseThrow(() -> {
+                    SyncopeClientException sce = SyncopeClientException.build(
+                            ClientExceptionType.InvalidExternalResource);
+                    sce.getElements().add("Connector " + resourceTO.getConnector());
+                    return sce;
+                });
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_CREATE),
@@ -169,14 +170,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(key)).
                 orElseThrow(() -> new NotFoundException("Resource '" + key + '\''));
 
-        Connector connector;
-        try {
-            connector = connectorManager.getConnector(resource);
-        } catch (Exception e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            sce.getElements().add(e.getMessage());
-            throw sce;
-        }
+        Connector connector = connectorManager.getConnector(resource);
 
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
             if (resource.getOrgUnit() == null) {

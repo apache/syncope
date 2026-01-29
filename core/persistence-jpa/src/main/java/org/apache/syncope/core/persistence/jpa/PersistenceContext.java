@@ -101,6 +101,8 @@ import org.apache.syncope.core.persistence.jpa.dao.JPARealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExtImpl;
@@ -190,6 +192,7 @@ import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactory
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,7 +206,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
@@ -266,9 +268,12 @@ public class PersistenceContext {
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf) {
+            final CommonEntityManagerFactoryConf commonEMFConf,
+            final @Lazy ConnectorManager connectorManager,
+            final @Lazy ExternalResourceDAO resourceDAO) {
 
-        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf);
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
+                commonEMFConf, connectorManager, resourceDAO);
         emf.master(props, masterDataSource);
         return emf;
     }
@@ -292,13 +297,13 @@ public class PersistenceContext {
             final DomainHolder<DataSource> domainHolder,
             final PersistenceProperties props,
             final ResourceLoader resourceLoader,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
         return new XMLContentLoader(
                 domainHolder,
                 resourceLoader.getResource(props.getViewsXML()),
                 resourceLoader.getResource(props.getIndexesXML()),
-                env);
+                ctx);
     }
 
     @ConditionalOnMissingBean
@@ -306,9 +311,10 @@ public class PersistenceContext {
     public XMLContentExporter xmlContentExporter(
             final DomainHolder<DataSource> domainHolder,
             final RealmSearchDAO realmSearchDAO,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManagerFactory entityManagerFactory,
+            final ConfigurableApplicationContext ctx) {
 
-        return new XMLContentExporter(domainHolder, realmSearchDAO, entityManagerFactory);
+        return new XMLContentExporter(domainHolder, realmSearchDAO, entityManagerFactory, ctx);
     }
 
     @ConditionalOnMissingBean
@@ -373,8 +379,17 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenDAO accessTokenDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
-        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class);
+    public AccessTokenRepoExt accessTokenRepoExt(final EntityManager entityManager) {
+        return new AccessTokenRepoExtImpl(entityManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AccessTokenDAO accessTokenDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final AccessTokenRepoExt accessTokenRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class, accessTokenRepoExt);
     }
 
     @ConditionalOnMissingBean
@@ -493,12 +508,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoRepoExt attrRepoRepoExt(final EntityManager entityManager) {
-        return new AttrRepoRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleRepoExt authModuleRepoExt(final PolicyDAO policyDAO, final EntityManager entityManager) {
         return new AuthModuleRepoExtImpl(policyDAO, entityManager);
     }
@@ -510,6 +519,12 @@ public class PersistenceContext {
             final AuthModuleRepoExt authModuleRepoExt) {
 
         return jpaRepositoryFactory.getRepository(AuthModuleRepo.class, authModuleRepoExt);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrRepoRepoExt attrRepoRepoExt(final EntityManager entityManager) {
+        return new AttrRepoRepoExtImpl(entityManager);
     }
 
     @ConditionalOnMissingBean
