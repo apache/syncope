@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.io.Serializable;
 import java.util.List;
 import javax.cache.event.CacheEntryCreatedListener;
@@ -31,6 +32,8 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.hibernate.cache.spi.CacheImplementor;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,8 @@ public class ConnectorManagerRemoteCommitListener
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManagerRemoteCommitListener.class);
 
+    protected final EntityManagerFactory entityManagerFactory;
+
     protected final ConnectorManager connectorManager;
 
     protected final ExternalResourceDAO resourceDAO;
@@ -55,10 +60,12 @@ public class ConnectorManagerRemoteCommitListener
     protected final String domain;
 
     public ConnectorManagerRemoteCommitListener(
+            final EntityManagerFactory entityManagerFactory,
             final ConnectorManager connectorManager,
             final ExternalResourceDAO resourceDAO,
             final String domain) {
 
+        this.entityManagerFactory = entityManagerFactory;
         this.connectorManager = connectorManager;
         this.resourceDAO = resourceDAO;
         this.domain = domain;
@@ -77,20 +84,13 @@ public class ConnectorManagerRemoteCommitListener
     }
 
     protected void registerForConnInstance(final String connInstanceKey) {
-        AuthContextUtils.runAsAdmin(domain, () -> {
-            List<ExternalResource> resources = resourceDAO.findByConnInstance(connInstanceKey);
-            if (resources.isEmpty()) {
-                LOG.debug("No resources found for connInstance '{}', ignoring", connInstanceKey);
+        AuthContextUtils.runAsAdmin(domain, () -> resourceDAO.findByConnInstance(connInstanceKey).forEach(resource -> {
+            try {
+                connectorManager.registerConnector(resource);
+            } catch (Exception e) {
+                LOG.error("While registering connector {} for resource {}", connInstanceKey, resource, e);
             }
-
-            resources.forEach(resource -> {
-                try {
-                    connectorManager.registerConnector(resource);
-                } catch (Exception e) {
-                    LOG.error("While registering connector {} for resource {}", connInstanceKey, resource, e);
-                }
-            });
-        });
+        }));
     }
 
     protected void unregister(final String resourceKey) {
@@ -109,12 +109,18 @@ public class ConnectorManagerRemoteCommitListener
     public void onCreated(final Iterable<CacheEntryEvent<? extends Object, ? extends Object>> events)
             throws CacheEntryListenerException {
 
+        CacheImplementor l1Cache = entityManagerFactory.unwrap(SessionFactoryImpl.class).getCache();
+
         for (CacheEntryEvent<? extends Object, ? extends Object> event : events) {
             String[] split = event.getKey().toString().split("#");
             if (split.length > 1) {
-                if (JPAExternalResource.class.getName().equals(split[0])) {
+                if (JPAExternalResource.class.getName().equals(split[0])
+                        && !l1Cache.contains(JPAExternalResource.class, split[1])) {
+
                     registerForExternalResource(split[1]);
-                } else if (JPAConnInstance.class.getName().equals(split[0])) {
+                } else if (JPAConnInstance.class.getName().equals(split[0])
+                        && !l1Cache.contains(JPAConnInstance.class, split[1])) {
+
                     registerForConnInstance(split[1]);
                 }
             }
