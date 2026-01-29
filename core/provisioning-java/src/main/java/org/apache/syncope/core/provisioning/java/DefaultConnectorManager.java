@@ -54,7 +54,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
     protected static String getBeanName(final ExternalResource resource) {
-        return String.format("connInstance-%s-%S-%s",
+        return String.format("%s-ConnInstance-%s-%s",
                 AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
     }
 
@@ -163,26 +163,31 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     @Override
     public Connector createConnector(final ConnInstance connInstance) {
-        return new ConnectorFacadeProxy(connInstance, asyncFacade);
+        return new ConnectorFacadeProxy(
+                connInstance,
+                asyncFacade,
+                connIdBundleManager.getConnectorInfo(connInstance).getRight());
     }
 
     @Override
     public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        if (ctx.getBeanFactory().containsSingleton(beanName)) {
-            unregisterConnector(beanName);
+        synchronized (ctx) {
+            if (ctx.getBeanFactory().containsSingleton(beanName)) {
+                unregisterConnector(beanName);
+            }
+
+            ConnInstance connInstance = buildConnInstanceOverride(
+                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                    resource.getConfOverride(),
+                    resource.getCapabilitiesOverride());
+            Connector connector = createConnector(connInstance);
+            LOG.debug("Connector to be registered: {}", connector);
+
+            ctx.getBeanFactory().registerSingleton(beanName, connector);
+            LOG.debug("Successfully registered bean {}", beanName);
         }
-
-        ConnInstance connInstance = buildConnInstanceOverride(
-                connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
-                resource.getConfOverride(),
-                resource.getCapabilitiesOverride());
-        Connector connector = createConnector(connInstance);
-        LOG.debug("Connector to be registered: {}", connector);
-
-        ctx.getBeanFactory().registerSingleton(beanName, connector);
-        LOG.debug("Successfully registered bean {}", beanName);
     }
 
     protected void unregisterConnector(final String beanName) {
@@ -203,8 +208,8 @@ public class DefaultConnectorManager implements ConnectorManager {
         // This is needed in order to avoid encoding problems when sending error messages via REST
         CurrentLocale.set(Locale.ENGLISH);
 
-        // Load all connector bundles
-        connIdBundleManager.getConnManagers();
+        // Ensure all connector bundles are loaded at this point
+        connIdBundleManager.getConnectorInfoManagers();
 
         // Load all resource-specific connectors
         int connectors = 0;

@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -80,13 +81,9 @@ public class MembershipITCase extends AbstractITCase {
         userCR.getMemberships().add(membership);
 
         // user creation fails because of fullname
-        try {
-            createUser(userCR);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidEntity, e.getType());
-            assertTrue(e.getMessage().contains("InvalidPlainAttr: fullname not allowed for membership of group"));
-        }
+        SyncopeClientException sce = assertThrows(SyncopeClientException.class, () -> createUser(userCR));
+        assertEquals(ClientExceptionType.InvalidEntity, sce.getType());
+        assertTrue(sce.getMessage().contains("InvalidPlainAttr: fullname not allowed for membership of group"));
 
         // remove fullname and try again
         membership.getPlainAttrs().remove(membership.getPlainAttr("fullname").orElseThrow());

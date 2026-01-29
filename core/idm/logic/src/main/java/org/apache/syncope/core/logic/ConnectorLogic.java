@@ -181,7 +181,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         List<ConnIdBundle> connectorBundleTOs = new ArrayList<>();
-        connIdBundleManager.getConnInfoManagers().forEach((uri, cim) -> connectorBundleTOs.addAll(
+        connIdBundleManager.getConnectorInfoManagers().forEach((uri, cim) -> connectorBundleTOs.addAll(
                 cim.getConnectorInfos().stream().map(bundle -> {
                     ConnIdBundle connBundleTO = new ConnIdBundle();
                     connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
