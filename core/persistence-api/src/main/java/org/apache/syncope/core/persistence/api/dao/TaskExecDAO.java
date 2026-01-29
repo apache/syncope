@@ -46,5 +46,5 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
     <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
 
-    <T extends Task<T>> void delete(TaskType type, String key);
+    void delete(TaskType type, String key);
 }

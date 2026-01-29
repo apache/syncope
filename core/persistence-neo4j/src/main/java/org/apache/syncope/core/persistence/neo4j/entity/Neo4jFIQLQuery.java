@@ -33,7 +33,7 @@ public class Neo4jFIQLQuery extends AbstractGeneratedKeyNode implements FIQLQuer
     public static final String NODE = "FIQLQuery";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser owner;
 
     @NotNull

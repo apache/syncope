@@ -21,6 +21,4 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 
 public interface SyncopePushResultHandler extends SyncopeResultHandler<PushTask, PushActions> {
-
-    boolean handle(String anyKey);
 }

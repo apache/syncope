@@ -27,6 +27,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -38,11 +39,14 @@ public class ConnectorManagerTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
+    @Autowired
+    private ConfigurableApplicationContext ctx;
+
     private DefaultConnectorManager connManager;
 
     @BeforeEach
     public void before() {
-        connManager = new DefaultConnectorManager(connIdBundleManager, null, null, resourceDAO, null, null, null);
+        connManager = new DefaultConnectorManager(connIdBundleManager, null, null, resourceDAO, null, null, null, ctx);
 
         // Remove any other connector instance bean set up by standard ConnectorManager.load()
         connManager.unload();

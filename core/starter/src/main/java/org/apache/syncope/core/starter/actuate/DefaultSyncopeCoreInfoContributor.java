@@ -248,18 +248,18 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             numbersInfo.setTotalGroups(groupDAO.count());
             numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
 
-            Map<AnyType, Long> anyObjectNumbers = anyObjectDAO.countByType();
+            Map<String, Long> anyObjectNumbers = anyObjectDAO.countByType();
             int i = 0;
-            for (Iterator<Map.Entry<AnyType, Long>> itor = anyObjectNumbers.entrySet().iterator();
+            for (Iterator<Map.Entry<String, Long>> itor = anyObjectNumbers.entrySet().iterator();
                     i < 2 && itor.hasNext(); i++) {
 
-                Map.Entry<AnyType, Long> entry = itor.next();
+                Map.Entry<String, Long> entry = itor.next();
                 if (i == 0) {
-                    numbersInfo.setAnyType1(entry.getKey().getKey());
+                    numbersInfo.setAnyType1(entry.getKey());
                     numbersInfo.setTotalAny1(entry.getValue());
                     numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
                 } else {
-                    numbersInfo.setAnyType2(entry.getKey().getKey());
+                    numbersInfo.setAnyType2(entry.getKey());
                     numbersInfo.setTotalAny2(entry.getValue());
                     numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
                 }

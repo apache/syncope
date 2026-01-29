@@ -33,7 +33,8 @@ public class Neo4jAnyTemplateLiveSyncTask extends AbstractAnyTemplate implements
     public static final String NODE = "AnyTemplateLiveSyncTask";
 
     @NotNull
-    @Relationship(type = Neo4jLiveSyncTask.LIVE_SYNC_TASK_TEMPLATE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jLiveSyncTask.LIVE_SYNC_TASK_TEMPLATE_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jLiveSyncTask liveSyncTask;
 
     @Override

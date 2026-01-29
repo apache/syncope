@@ -32,7 +32,8 @@ public class Neo4jPropagationTaskExec extends AbstractTaskExec<PropagationTask> 
     public static final String NODE = "PropagationTaskExec";
 
     @NotNull
-    @Relationship(type = Neo4jPropagationTask.PROPAGATION_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jPropagationTask.PROPAGATION_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPropagationTask task;
 
     @Override

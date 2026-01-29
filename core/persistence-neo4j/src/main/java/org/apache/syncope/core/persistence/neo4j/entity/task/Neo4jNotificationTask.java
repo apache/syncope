@@ -49,7 +49,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
     };
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jNotification notification;
 
     private AnyTypeKind anyTypeKind;

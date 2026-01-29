@@ -100,10 +100,8 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
         LOG.debug("Search request: {}", request);
 
         try {
-            String result = client.search(request, Void.class).hits().hits().stream().findFirst().
-                    map(Hit::id).
-                    orElse(null);
-            return realmDAO.findById(result).map(Realm.class::cast);
+            return client.search(request, Void.class).hits().hits().stream().findFirst().map(Hit::id).
+                    flatMap(realmDAO::findById).map(Realm.class::cast);
         } catch (Exception e) {
             LOG.error("While searching OpenSearch for Realm path {} with request {}", fullPath, request, e);
         }

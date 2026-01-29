@@ -43,11 +43,11 @@ public class Neo4jDelegation extends AbstractGeneratedKeyNode implements Delegat
     public static final String DELEGATED_REL = "DELEGATED";
 
     @NotNull
-    @Relationship(type = DELEGATING_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = DELEGATING_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser delegating;
 
     @NotNull
-    @Relationship(type = DELEGATED_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = DELEGATED_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jUser delegated;
 
     @NotNull
@@ -55,7 +55,7 @@ public class Neo4jDelegation extends AbstractGeneratedKeyNode implements Delegat
 
     private OffsetDateTime endDate;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Set<Neo4jRole> roles = new HashSet<>();
 
     @Override

@@ -74,7 +74,7 @@ public class Neo4jUser
 
     public static final String USER_GROUP_MEMBERSHIP_REL = "USER_GROUP_MEMBERSHIP";
 
-    public static final String USER_SECURITY_QUESTION_REL = "USER_SECURITY_QUESTION";
+    public static final String USER_SECURITYQUESTION_REL = "USER_SECURITY_QUESTION";
 
     protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
     };
@@ -120,10 +120,10 @@ public class Neo4jUser
     /**
      * Provisioning external resources.
      */
-    @Relationship(type = USER_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_RESOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(type = USER_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(type = Neo4jURelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)
@@ -132,10 +132,10 @@ public class Neo4jUser
     @Relationship(type = USER_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jUMembership> memberships = new ArrayList<>();
 
-    @Relationship(type = ROLE_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ROLE_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jRole> roles = new ArrayList<>();
 
-    @Relationship(type = USER_SECURITY_QUESTION_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_SECURITYQUESTION_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected Neo4jSecurityQuestion securityQuestion;
 
     protected String securityAnswer;

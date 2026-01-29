@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.logic.AbstractTransactionalLogic.ProvisioningInfo;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -101,12 +101,13 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
+public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
@@ -130,6 +131,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final ConnectorManager connectorManager;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public ReconciliationLogic(
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
@@ -141,7 +144,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final MappingManager mappingManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
-            final ConnectorManager connectorManager) {
+            final ConnectorManager connectorManager,
+            final ConfigurableApplicationContext ctx) {
 
         this.anyUtilsFactory = anyUtilsFactory;
         this.anyTypeDAO = anyTypeDAO;
@@ -154,6 +158,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.inboundMatcher = inboundMatcher;
         this.outboundMatcher = outboundMatcher;
         this.connectorManager = connectorManager;
+        this.ctx = ctx;
     }
 
     protected ProvisioningInfo getProvisioningInfo(final String anyTypeKey, final String resourceKey) {
@@ -240,6 +245,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
     public ReconStatus status(
             final String anyTypeKey,
             final String resourceKey,
@@ -314,6 +320,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
     public ReconStatus status(
             final String anyTypeKey,
             final String resourceKey,
@@ -362,10 +369,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected SyncopeSinglePushExecutor singlePushExecutor() {
-        return ApplicationContextProvider.getBeanFactory().createBean(SinglePushJobDelegate.class);
+        return ctx.getBeanFactory().createBean(SinglePushJobDelegate.class);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final String anyTypeKey,
             final String resourceKey,
@@ -388,6 +396,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
+            LOG.error("Could not perform single push", e);
             sce.getElements().add(e.getMessage());
         }
 
@@ -399,6 +408,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final String anyTypeKey,
             final String resourceKey,
@@ -448,6 +458,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                 }
                             }
                         } catch (JobExecutionException e) {
+                            LOG.error("Could not perform single push", e);
                             sce.getElements().add(e.getMessage());
                         }
                     });
@@ -467,8 +478,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        if (pullTask.getDestinationRealm() == null || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm())
-                == null) {
+        if (pullTask.getDestinationRealm() == null
+                || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm()).isEmpty()) {
+
             throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
         }
 
@@ -476,7 +488,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         List<ProvisioningReport> results = new ArrayList<>();
         try {
             SyncopeSinglePullExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(SinglePullJobDelegate.class);
+                    ctx.getBeanFactory().createBean(SinglePullJobDelegate.class);
 
             results.addAll(executor.pull(
                     resource,
@@ -490,6 +502,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
+            LOG.error("Could not perform single pull", e);
             sce.getElements().add(e.getMessage());
         }
 
@@ -501,7 +514,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -534,7 +546,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(
             final String anyTypeKey,
             final String resourceKey,
@@ -567,6 +578,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
             final SearchCond searchCond,
             final Pageable pageable,
@@ -650,7 +662,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 columns.toArray(String[]::new))) {
 
             SyncopeStreamPushExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(StreamPushJobDelegate.class);
+                    ctx.getBeanFactory().createBean(StreamPushJobDelegate.class);
             return executor.push(
                     anyType,
                     matching,
@@ -668,7 +680,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
         AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
                 orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
@@ -697,8 +708,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             }
 
             SyncopeStreamPullExecutor executor =
-                    ApplicationContextProvider.getBeanFactory().createBean(StreamPullJobDelegate.class);
-            return executor.pull(anyType,
+                    ctx.getBeanFactory().createBean(StreamPullJobDelegate.class);
+            return executor.pull(
+                    anyType,
                     spec.getKeyColumn(),
                     columns,
                     spec.getConflictResolutionAction(),

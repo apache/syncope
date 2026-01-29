@@ -26,6 +26,8 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 public interface ConnInstance extends Entity {
 
+    int DEFAULT_TIMEOUT = 10;
+
     Realm getAdminRealm();
 
     void setAdminRealm(Realm adminRealm);

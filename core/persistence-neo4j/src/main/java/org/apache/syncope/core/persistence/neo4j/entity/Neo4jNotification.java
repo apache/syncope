@@ -66,7 +66,7 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
     @NotNull
     private String recipientAttrName;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jImplementation recipientsProvider;
 
     @NotNull
@@ -79,7 +79,7 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
     private String subject;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jMailTemplate template;
 
     @NotNull

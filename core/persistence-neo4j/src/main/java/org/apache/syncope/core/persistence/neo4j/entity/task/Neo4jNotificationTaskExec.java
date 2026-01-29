@@ -34,7 +34,8 @@ public class Neo4jNotificationTaskExec
     public static final String NODE = "NotificationTaskExec";
 
     @NotNull
-    @Relationship(type = Neo4jNotificationTask.NOTIFICATION_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jNotificationTask.NOTIFICATION_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jNotificationTask task;
 
     @Override

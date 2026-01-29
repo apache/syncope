@@ -35,10 +35,10 @@ public class Neo4jADynGroupMembership extends AbstractDynMembership<AnyObject> i
 
     public static final String NODE = "ADynGroupMembership";
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup group;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     @Override

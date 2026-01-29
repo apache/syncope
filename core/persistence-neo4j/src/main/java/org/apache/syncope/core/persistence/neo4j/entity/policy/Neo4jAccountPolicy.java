@@ -42,7 +42,7 @@ public class Neo4jAccountPolicy extends Neo4jPolicy implements AccountPolicy {
 
     private int maxAuthenticationAttempts;
 
-    @Relationship(type = ACCOUNT_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ACCOUNT_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jImplementation> rules = new ArrayList<>();
 
     @Override

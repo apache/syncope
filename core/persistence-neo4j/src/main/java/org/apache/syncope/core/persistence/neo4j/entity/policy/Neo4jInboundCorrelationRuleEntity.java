@@ -33,7 +33,7 @@ public class Neo4jInboundCorrelationRuleEntity
 
     public static final String NODE = "InboundCorrelationRuleEntity";
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jInboundPolicy inboundPolicy;
 
     @Override

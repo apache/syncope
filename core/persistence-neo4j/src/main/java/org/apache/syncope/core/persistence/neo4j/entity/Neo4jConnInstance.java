@@ -55,8 +55,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
             new TypeReference<List<ConnConfProperty>>() {
     };
 
-    private static final int DEFAULT_TIMEOUT = 10;
-
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
      */
@@ -105,7 +103,7 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     private String poolConf;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm adminRealm;
 
     /**

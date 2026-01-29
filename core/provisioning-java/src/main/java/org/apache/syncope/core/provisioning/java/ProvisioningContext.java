@@ -178,6 +178,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -336,7 +337,8 @@ public class ProvisioningContext {
             final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDataBinder connInstanceDataBinder,
-            final AsyncConnectorFacade asyncConnectorFacade) {
+            final AsyncConnectorFacade asyncConnectorFacade,
+            final ConfigurableApplicationContext ctx) {
 
         return new DefaultConnectorManager(
                 connIdBundleManager,
@@ -345,7 +347,8 @@ public class ProvisioningContext {
                 resourceDAO,
                 connInstanceDataBinder,
                 asyncConnectorFacade,
-                entityFactory);
+                entityFactory,
+                ctx);
     }
 
     @ConditionalOnMissingBean

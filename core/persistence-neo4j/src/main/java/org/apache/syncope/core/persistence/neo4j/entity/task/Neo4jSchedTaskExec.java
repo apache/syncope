@@ -32,7 +32,8 @@ public class Neo4jSchedTaskExec extends AbstractTaskExec<SchedTask> implements T
     public static final String NODE = "SchedTaskExec";
 
     @NotNull
-    @Relationship(type = Neo4jSchedTask.SCHED_TASK_EXEC_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jSchedTask.SCHED_TASK_EXEC_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jSchedTask task;
 
     @Override

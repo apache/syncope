@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.SCIMConfPanel;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
@@ -32,8 +31,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class SCIMConfPage extends BaseExtPage {
 
     private static final long serialVersionUID = -8156063343062111770L;
-
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
     protected SCIMConfRestClient scimConfRestClient;

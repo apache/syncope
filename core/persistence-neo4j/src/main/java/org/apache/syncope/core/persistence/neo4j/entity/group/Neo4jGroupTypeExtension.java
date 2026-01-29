@@ -31,7 +31,8 @@ public class Neo4jGroupTypeExtension extends AbstractTypeExtension implements Gr
 
     public static final String NODE = "GroupTypeExtension";
 
-    @Relationship(type = Neo4jGroup.GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jGroup.GROUP_TYPE_EXTENSION_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jGroup group;
 
     @Override

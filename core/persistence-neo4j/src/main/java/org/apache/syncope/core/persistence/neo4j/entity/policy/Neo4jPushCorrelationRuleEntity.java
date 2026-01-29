@@ -31,7 +31,7 @@ public class Neo4jPushCorrelationRuleEntity extends AbstractCorrelationRuleEntit
 
     public static final String NODE = "PushCorrelationRuleEntity";
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPushPolicy pushPolicy;
 
     @Override

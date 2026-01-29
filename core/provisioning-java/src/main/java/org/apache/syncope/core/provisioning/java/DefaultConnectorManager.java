@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -46,6 +45,8 @@ import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultConnectorManager implements ConnectorManager {
@@ -71,6 +72,8 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     protected final EntityFactory entityFactory;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public DefaultConnectorManager(
             final ConnIdBundleManager connIdBundleManager,
             final RealmDAO realmDAO,
@@ -78,7 +81,8 @@ public class DefaultConnectorManager implements ConnectorManager {
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDataBinder connInstanceDataBinder,
             final AsyncConnectorFacade asyncFacade,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ConfigurableApplicationContext ctx) {
 
         this.connIdBundleManager = connIdBundleManager;
         this.realmDAO = realmDAO;
@@ -87,21 +91,17 @@ public class DefaultConnectorManager implements ConnectorManager {
         this.connInstanceDataBinder = connInstanceDataBinder;
         this.asyncFacade = asyncFacade;
         this.entityFactory = entityFactory;
-    }
-
-    @Override
-    public Optional<Connector> readConnector(final ExternalResource resource) {
-        return Optional.ofNullable((Connector) ApplicationContextProvider.getBeanFactory().
-                getSingleton(getBeanName(resource)));
+        this.ctx = ctx;
     }
 
     @Override
     public Connector getConnector(final ExternalResource resource) {
         // Try to re-create connector bean from underlying resource (useful for managing failover scenarios)
-        return readConnector(resource).orElseGet(() -> {
-            registerConnector(resource);
-            return (Connector) ApplicationContextProvider.getBeanFactory().getSingleton(getBeanName(resource));
-        });
+        return Optional.ofNullable((Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource))).
+                orElseGet(() -> {
+                    registerConnector(resource);
+                    return (Connector) ctx.getBeanFactory().getSingleton(getBeanName(resource));
+                });
     }
 
     @Override
@@ -170,7 +170,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     public void registerConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
 
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
             unregisterConnector(beanName);
         }
 
@@ -181,18 +181,18 @@ public class DefaultConnectorManager implements ConnectorManager {
         Connector connector = createConnector(connInstance);
         LOG.debug("Connector to be registered: {}", connector);
 
-        ApplicationContextProvider.getBeanFactory().registerSingleton(beanName, connector);
+        ctx.getBeanFactory().registerSingleton(beanName, connector);
         LOG.debug("Successfully registered bean {}", beanName);
     }
 
-    protected void unregisterConnector(final String id) {
-        ApplicationContextProvider.getBeanFactory().destroySingleton(id);
+    protected void unregisterConnector(final String beanName) {
+        ((DefaultSingletonBeanRegistry) ctx.getBeanFactory()).destroySingleton(beanName);
     }
 
     @Override
     public void unregisterConnector(final ExternalResource resource) {
         String beanName = getBeanName(resource);
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+        if (ctx.getBeanFactory().containsSingleton(beanName)) {
             unregisterConnector(beanName);
         }
     }
@@ -228,7 +228,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         int connectors = 0;
         for (ExternalResource resource : resourceDAO.findAll()) {
             String beanName = getBeanName(resource);
-            if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+            if (ctx.getBeanFactory().containsSingleton(beanName)) {
                 LOG.info("Unregistering resource-connector pair {}-{}", resource, resource.getConnector());
 
                 getConnector(resource).dispose();

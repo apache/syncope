@@ -31,7 +31,7 @@ public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyNode imple
 
     private static final long serialVersionUID = -5280310945358790780L;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     private String template;

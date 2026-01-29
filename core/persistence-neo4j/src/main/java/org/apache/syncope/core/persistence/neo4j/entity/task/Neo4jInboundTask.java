@@ -34,7 +34,7 @@ public abstract class Neo4jInboundTask<T extends InboundTask<T>>
     public static final String NODE = "InboundTask";
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm destinationRealm;
 
     @NotNull

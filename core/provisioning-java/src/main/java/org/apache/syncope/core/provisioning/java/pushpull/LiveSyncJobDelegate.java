@@ -150,7 +150,7 @@ public class LiveSyncJobDelegate
             }
         };
 
-        dispatcher = new PullResultHandlerDispatcher(profile, this);
+        dispatcher = buildDispatcher();
 
         infos = new ArrayList<>();
 

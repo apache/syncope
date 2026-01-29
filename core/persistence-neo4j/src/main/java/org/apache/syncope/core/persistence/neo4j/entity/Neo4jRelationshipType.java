@@ -46,11 +46,11 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
     private String description;
 
     @NotNull
-    @Relationship(type = LEFT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = LEFT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType leftEndAnyType;
 
     @NotNull
-    @Relationship(type = RIGHT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = RIGHT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType rightEndAnyType;
 
     @Relationship(type = RELATIONSHIP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)

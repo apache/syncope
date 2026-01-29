@@ -65,16 +65,17 @@ public class Neo4jAnyObject
     protected String name;
 
     @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected Neo4jAnyType type;
 
     /**
      * Provisioning external resources.
      */
-    @Relationship(type = ANY_OBJECT_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ANY_OBJECT_RESOURCE_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(type = ANY_OBJECT_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ANY_OBJECT_AUX_CLASSES_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(type = Neo4jARelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)

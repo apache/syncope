@@ -225,7 +225,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.neo4j.config.Neo4jEntityScanner;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -371,13 +370,13 @@ public class PersistenceContext {
             final Neo4jMappingContext mappingContext,
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
-            final Environment env) {
+            final ConfigurableApplicationContext ctx) {
 
         return new XMLContentLoader(
                 domainHolder,
                 mappingContext,
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
-                env);
+                ctx);
     }
 
     @ConditionalOnMissingBean

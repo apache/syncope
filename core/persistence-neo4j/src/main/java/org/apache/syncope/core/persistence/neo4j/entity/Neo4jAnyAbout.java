@@ -33,10 +33,11 @@ public class Neo4jAnyAbout extends AbstractGeneratedKeyNode implements AnyAbout 
     public static final String NODE = "AnyAbout";
 
     @NotNull
-    @Relationship(type = Neo4jNotification.NOTIFICATION_ABOUT_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jNotification.NOTIFICATION_ABOUT_REL,
+            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jNotification notification;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jAnyType anyType;
 
     private String filter;

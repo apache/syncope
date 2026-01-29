@@ -65,8 +65,6 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
             new TypeReference<List<ConnConfProperty>>() {
     };
 
-    private static final int DEFAULT_TIMEOUT = 10;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm adminRealm;
 

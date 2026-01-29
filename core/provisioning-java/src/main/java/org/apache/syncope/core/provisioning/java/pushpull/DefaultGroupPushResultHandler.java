@@ -31,7 +31,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 public class DefaultGroupPushResultHandler extends AbstractPushResultHandler implements GroupPushResultHandler {
 
     @Override
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 

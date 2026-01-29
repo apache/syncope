@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
@@ -98,15 +97,15 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void countByType() {
-        Map<AnyType, Long> byType = anyObjectDAO.countByType();
+        Map<String, Long> byType = anyObjectDAO.countByType();
         assertEquals(1, byType.size());
-        Long count = byType.get(anyTypeDAO.findById("PRINTER").orElseThrow());
+        Long count = byType.get("PRINTER");
         assertEquals(3, count);
     }
 
     @Test
     public void countByRealm() {
-        Map<String, Long> byRealm = anyObjectDAO.countByRealm(anyTypeDAO.findById("PRINTER").orElseThrow());
+        Map<String, Long> byRealm = anyObjectDAO.countByRealm("PRINTER");
         assertEquals(2, byRealm.size());
         Long count = byRealm.get(SyncopeConstants.ROOT_REALM);
         assertEquals(2, count);
