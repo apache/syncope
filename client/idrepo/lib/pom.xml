@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.client</groupId>
     <artifactId>syncope-client-idrepo</artifactId>
-    <version>3.0.16-SNAPSHOT</version>
+    <version>3.0.16</version>
   </parent>
 
   <name>Apache Syncope Client IdRepo Lib</name>

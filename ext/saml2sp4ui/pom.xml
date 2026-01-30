@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-ext</artifactId>
-    <version>3.0.16-SNAPSHOT</version>
+    <version>3.0.16</version>
   </parent>
 
   <name>Apache Syncope Ext: SAML2 SP4UI</name>
