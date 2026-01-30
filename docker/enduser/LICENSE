@@ -257,27 +257,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Error Prone (https://errorprone.info/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Guava (https://github.com/google/guava):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For OWASP Java HTML Sanitizer (https://owasp.org/www-project-java-html-sanitizer/):
+For java-html-sanitizer (https://github.com/OWASP/java-html-sanitizer):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -343,11 +323,6 @@ This is licensed under the MIT license, see above.
 ==
 
 For Micrometer Application Metrics (https://micrometer.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Netty (https://netty.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -633,11 +608,6 @@ This is licensed under the MIT license, see above.
 
 For Byte Buddy (https://bytebuddy.net/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For The Checker Framework (https://checkerframework.org/):
-This is licensed under the MIT license, see above.
 
 ==
 

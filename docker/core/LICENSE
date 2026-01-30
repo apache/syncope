@@ -228,11 +228,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
@@ -1062,6 +1057,11 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
+For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
 This is licensed under the MIT license, see above.
 
@@ -1277,6 +1277,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For JSpecify (https://jspecify.dev/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
 This is licensed under the CC0 1.0, see above.
 
@@ -1322,9 +1327,10 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For SnakeYAML (http://www.snakeyaml.org/):
-This is licensed under the AL 2.0, see above.
+For XZ for Java (https://github.com/tukaani-project/xz-java):
+This is licensed under the BSD license, see above.
 
 ==
-For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+
+For SnakeYAML (http://www.snakeyaml.org/):
 This is licensed under the AL 2.0, see above.

@@ -263,6 +263,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For org.json compatible Android implementation extracted from the Android SDK:
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0:
 
@@ -591,11 +596,6 @@ This is licensed under the MIT license:
 
 ==
 
-For The Checker Framework (https://checkerframework.org/):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license:
 
@@ -798,6 +798,11 @@ This is licensed under the AL 2.0, see above.
 
 For jsoup (https://jsoup.org/):
 This is licensed under the MIT license, see above.
+
+==
+
+For JSpecify (https://jspecify.dev/):
+This is licensed under the AL 2.0, see above.
 
 ==
 

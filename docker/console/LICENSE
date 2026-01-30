@@ -267,12 +267,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Open JSON (https://github.com/openjson/openjson):
+For Caffeine (https://github.com/ben-manes/caffeine):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
+For Open JSON (https://github.com/openjson/openjson):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -282,17 +282,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Guava (https://github.com/google/guava):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For OWASP Java HTML Sanitizer (https://owasp.org/www-project-java-html-sanitizer/):
+For java-html-sanitizer (https://github.com/OWASP/java-html-sanitizer):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -303,6 +293,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Configuration library for JVM languages (https://github.com/lightbend/config):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -368,11 +363,6 @@ This is licensed under the MIT license, see above.
 ==
 
 For Micrometer Application Metrics (https://micrometer.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Netty (https://netty.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -611,6 +601,11 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
+For JSR107 (JCache) (https://github.com/jsr107/jsr107spec):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Bean Validation API (http://beanvalidation.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -662,11 +657,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
-This is licensed under the MIT license, see above.
-
-==
-
-For The Checker Framework (https://checkerframework.org/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -856,12 +846,22 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
+For JSpecify (https://jspecify.dev/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
 This is licensed under the CC0 1.0, see above.
 
 ==
 
 For Objenesis (http://objenesis.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OSGi (https://www.osgi.org/):
 This is licensed under the AL 2.0, see above.
 
 ==

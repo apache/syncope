@@ -99,6 +99,11 @@ Copyright 2016 SmartBear Software
 
 ==
 
+This product includes software developed by Embedded Postgres.
+Copyright (C) 2017-2024 OpenTable, Inc
+
+==
+
 This product includes software produced and maintained by Jakarta Annotations
 All content is the property of the respective authors or their employers.
 
@@ -179,6 +184,11 @@ Software Foundation.
 
 ==
 
+This product includes software developed by jose.4.j
+Copyright 2012-2015 Brian Campbell
+
+==
+
 This product includes software developed by the Legion of the Bouncy Castle.
 Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)
 
@@ -227,7 +237,7 @@ All content is the property of the respective authors or their employers.
 ==
 
 This product includes software developed by Hibernate Validator
-Copyright 2022, The Hibernate Validator project
+Copyright: Red Hat Inc. and Hibernate Authors
 
 ==
 
@@ -243,6 +253,11 @@ Copyright (C) 1999- by Shigeru Chiba, All rights reserved.
 
 This product includes software developed by JBoss Logging
 Copyright 2020 Red Hat, Inc.
+
+==
+
+This product includes software developed by JSpecify
+Copyright 2022 The JSpecify Authors.
 
 ==
 
@@ -278,6 +293,11 @@ Copyright (c) 2004-2016 QOS.ch.
 This product includes software developed by SpringSource.
 Copyright (c) 2004-2022 SpringSource
 All rights reserved.
+
+==
+
+This product includes software developed by XZ for Java.
+Copyright (C) The XZ for Java authors and contributors
 
 ==
 

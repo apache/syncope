@@ -132,11 +132,6 @@ Copyright 2012-2015 Brian Campbell
 
 ==
 
-This product includes software developed by The Checker Framework.
-Copyright (c) 2004-present by the Checker Framework developers
-
-==
-
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
@@ -166,12 +161,17 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 ==
 
 This product includes software developed by Hibernate Validator
-Copyright 2022, The Hibernate Validator project
+Copyright: Red Hat Inc. and Hibernate Authors
 
 ==
 
 This product includes software developed by JBoss Logging
 Copyright 2020 Red Hat, Inc.
+
+==
+
+This product includes software developed by JSpecify
+Copyright 2022 The JSpecify Authors.
 
 ==
 

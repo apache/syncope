@@ -37,27 +37,8 @@ This product includes software developed by the Open JSON project.
 
 ==
 
-This product includes software developed by Error Prone.
-
-==
-
-This product includes software developed by the Google Guava project.
-Copyright (c) 2016 The Guava Authors.
-
-==
-
-This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
-
-==
-
-This product includes software developed by OWASP Java HTML Sanitizer.
-Copyright (c) 2011, Mike Samuel
-All rights reserved.
-
-==
-
-This product includes software developed by the Wicket - jQuery UI project.
-Copyright 2012-2013 Sebastien Briquet
+This product includes software developed by java-html-sanitizer
+Copyright (c) 2011, Mike Samuel. All rights reserved.
 
 ==
 
@@ -88,11 +69,6 @@ Copyright (c) 2010 - 2018 Robin Herbots
 
 This product includes software developed by Micrometer Application Metrics.
 Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
-
-==
-
-This product includes software developed by Netty
-Copyright 2014 The Netty Project
 
 ==
 
@@ -169,11 +145,6 @@ Copyright (c) 2011-2016 Tim Wood, Iskren Chernev, Moment.js contributors
 
 This product includes software developed by Byte Buddy
 Copyright 2014 - Present Rafael Winterhalter
-
-==
-
-This product includes software developed by The Checker Framework.
-Copyright (c) 2004-present by the Checker Framework developers
 
 ==
 

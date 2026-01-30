@@ -227,11 +227,6 @@ This is licensed under the MIT license:
 
 ==
 
-For balanced-match (https://github.com/juliangruber/balanced-match):
-This is licensed under the MIT license, see above.
-
-==
-
 For base64-js (https://github.com/beatgammit/base64-js):
 This is licensed under the MIT license, see above.
 
@@ -273,6 +268,11 @@ This is licensed under the MIT license, see above.
 ==
 
 For Auth0 Java JWT (https://github.com/auth0/java-jwt):
+This is licensed under the MIT license, see above.
+
+==
+
+For Microsoft Azure Java JSON Library (https://github.com/Azure/azure-sdk-for-java):
 This is licensed under the MIT license, see above.
 
 ==
@@ -572,7 +572,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For OWASP Java HTML Sanitizer (https://owasp.org/www-project-java-html-sanitizer/):
+For java-html-sanitizer (https://github.com/OWASP/java-html-sanitizer):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -796,11 +796,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For mchange-commons-java (https://github.com/swaldman/mchange-commons-java):
-This is licensed under the EPL 1.0, see above.
-
-==
-
 For Microsoft Authentication Library (MSAL) for Java (https://github.com/AzureAD/microsoft-authentication-library-for-java):
 This is licensed under the MIT license, see above.
 
@@ -843,11 +838,6 @@ This is licensed under the AL 2.0, see above.
 
 For Java implementation of the Mustache template language (https://github.com/samskivert/jmustache):
 This is licensed under the BSD license, see above.
-
-==
-
-For SignalFx client libraries (https://github.com/signalfx/signalfx-java):
-This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1352,11 +1342,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
-This is licensed under the MIT license, see above.
-
-==
-
 For DataTables (https://datatables.net/):
 This is licensed under the MIT license, see above.
 
@@ -1407,17 +1392,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For es5-shim (https://github.com/es-shims/es5-shim):
-This is licensed under the MIT license, see above.
-
-==
-
 For Font Awesome (http://fontawesome.io/):
-This is licensed under the MIT license, see above.
-
-==
-
-For get-css-data (https://github.com/jhildenbiddle/get-css-data):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1447,6 +1422,11 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For Hypersistence Utils (https://github.com/vladmihalcea/hypersistence-utils):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For gmetric4j (https://github.com/ganglia/gmetric4j):
 This is licensed under the BSD license, see above.
 
@@ -1468,6 +1448,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For ClassGraph (https://github.com/classgraph/classgraph):
+This is licensed under the MIT license, see above.
+
+==
+
+For TSID Generator (https://github.com/vladmihalcea/hypersistence-tsid):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1498,6 +1483,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Prometheus Java Metrics Library (http://prometheus.github.io/client_java/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jandex (https://github.com/smallrye/jandex/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1642,6 +1632,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Java Native Access (JNA) (https://github.com/java-native-access/jna):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For TypeTools (https://github.com/jhalterman/typetools/):
 This is licensed under the AL 2.0, see above.
 
@@ -1762,6 +1757,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For dom4j (https://dom4j.github.io/):
+This is licensed under the BSD license, see above.
+
+==
+
 For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
 This is licensed under the EDL 1.0, see above.
 
@@ -1794,6 +1794,16 @@ This is licensed under the EPL 1.0, see above.
 
 For HdrHistogram (https://hdrhistogram.github.io/HdrHistogram/):
 This is licensed under the CC0 1.0, see above.
+
+==
+
+For Hibernate Commons Annotations (https://github.com/hibernate/hibernate-commons-annotations):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Hibernate ORM (https://hibernate.org/orm/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1832,8 +1842,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For JetBrains Java Annotations (https://github.com/JetBrains/java-annotations):
-This is licensed under the AL 2.0, see above.
+For JLine (https://jline.org/):
+This is licensed under the BSD license, see above.
 
 ==
 
