@@ -2,6 +2,23 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.4
+================================================================================
+
+** Bug
+    * [SYNCOPE-1933] - Console: only first dynamic group is shown
+    * [SYNCOPE-1936] - WA: only SIGNATURE and CURRENT keys generated for OIDC
+    * [SYNCOPE-1937] - User password history length is not correctly trimmed
+    * [SYNCOPE-1942] - Menu localization doesn't work properly on admin console
+    * [SYNCOPE-1943] - French Canadian GUI failed with Groups contextual menu
+    * [SYNCOPE-1944] - Membership derived attributes are not computed from membership plain attributes
+
+** Improvement
+    * [SYNCOPE-1934] - Allow to select multiple AnyTypeClasses for Realm
+
+** Task
+    * [SYNCOPE-1946] - Console: access audit history for Realms
+
 Release Notes - Syncope - Version 4.0.3
 ================================================================================
 
