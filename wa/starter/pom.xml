@@ -430,6 +430,12 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-pm-jdbc</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apereo.cas</groupId>
+          <artifactId>cas-server-support-jdbc-drivers</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>

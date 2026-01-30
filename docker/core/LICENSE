@@ -228,11 +228,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
@@ -581,11 +576,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Jakarta Messaging (https://projects.eclipse.org/projects/ee4j.messaging):
-This is licensed under the EPL 1.0, see above.
-
-==
-
 For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
 This is licensed under the EPL 1.0, see above.
 
@@ -617,6 +607,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Byte Buddy (https://bytebuddy.net/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1062,6 +1057,11 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
+For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
 This is licensed under the MIT license, see above.
 
@@ -1093,11 +1093,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
 This is licensed under the EDL 1.0, see above.
 
 ==
@@ -1257,6 +1252,16 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
+For Hibernate models (https://github.com/hibernate/hibernate-models):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Hibernate ORM (https://hibernate.org/orm/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Hibernate Validator (https://hibernate.org/validator/):
 This is licensed under the AL 2.0, see above.
 
@@ -1273,6 +1278,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For JBoss Logging (http://www.jboss.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JSpecify (https://jspecify.dev/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1322,9 +1332,10 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For SnakeYAML (http://www.snakeyaml.org/):
-This is licensed under the AL 2.0, see above.
+For XZ for Java (https://github.com/tukaani-project/xz-java):
+This is licensed under the BSD license, see above.
 
 ==
-For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+
+For SnakeYAML (http://www.snakeyaml.org/):
 This is licensed under the AL 2.0, see above.

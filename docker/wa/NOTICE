@@ -14,11 +14,6 @@ Copyright (c) 2016 Daniel Eden
 
 ==
 
-This product includes software developed by balanced-match
-Copyright (c) 2013 Julian Gruber <julian@juliangruber.com>
-
-==
-
 This product includes software developed by base64-js
 Copyright (c) 2014 Jameson Little
 
@@ -152,11 +147,6 @@ All rights reserved.
 
 ==
 
-This product includes software developed by SignalFx client libraries
-Copyright © 2014-2023 SignalFx | Splunk
-
-==
-
 This product includes software developed by Moshi
 Copyright (C) 2020 Square, Inc.
 
@@ -192,11 +182,6 @@ Copyright (c) 2018, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by t-digest
-The code for the t-digest was originally authored by Ted Dunning
-
-==
-
 This product includes software developed by Semver4j
 Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
 
@@ -205,11 +190,6 @@ Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
 This product includes software developed by GoogleAuth
 Copyright (c) 2013 Warren Strange
 Copyright (c) 2014-2017 Enrico M. Crisostomo
-
-==
-
-This product includes software developed by Wavefront's Java SDK
-Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
 
@@ -222,23 +202,8 @@ This product includes software developed by the HikariCP project.
 
 ==
 
-This product includes software developed by css-vars-ponyfill
-Copyright (c) 2018 John Hildenbiddle
-
-==
-
 This product includes software developed by DataTables
 Copyright (c) 2008-present, SpryMedia Limited
-
-==
-
-This product includes software developed by define-data-property
-Copyright (c) 2023 Jordan Harband
-
-==
-
-This product includes software developed by define-properties
-Copyright (C) 2015 Jordan Harband
 
 ==
 
@@ -257,38 +222,8 @@ All content is the property of the respective authors or their employers.
 
 ==
 
-This product includes software developed by es-define-property
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by es-errors
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by es5-shim
-Copyright (C) 2009-2016 Kristopher Michael Kowal and contributors
-
-==
-
-This product includes software developed by get-css-data
-Copyright (c) 2018 John Hildenbiddle
-
-==
-
-This product includes software developed by globalThis
-Copyright (c) 2016 Jordan Harband
-
-==
-
-This product includes software developed by gopd
-Copyright (c) 2022 Jordan Harband
-
-==
-
-This product includes software developed by has-property-descriptors
-Copyright (c) 2022 Inspect JS
+This product includes software developed by FingerprintJS
+Copyright (c) 2025 FingerprintJS, Inc
 
 ==
 
@@ -303,11 +238,6 @@ Copyright (c) 2008-2011 Jasper Humphrey <jasper521@gmail.com>
 
 ==
 
-This product includes software developed by inherits
-Copyright (c) 2011-2023 Isaac Z. Schlueter
-
-==
-
 This product includes software developed by the Metrics project.
 Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
@@ -315,6 +245,11 @@ Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
 This product includes software developed by the ClassGraph project.
 Copyright (c) 2020 Luke Hutchison
+
+==
+
+This product includes software developed by TSID Generator
+Copyright (c) 2020-2022 Fabio Lima
 
 ==
 
@@ -358,6 +293,11 @@ Copyright (c) 1997, 2023 Oracle and/or its affiliates and others. All rights res
 
 ==
 
+This product includes software developed by the Eclipse Project for Jakarta Contexts and Dependency Injection.
+Copyright (c) 2018,2020 Eclipse Foundation
+
+==
+
 This product includes software developed by the Eclipse Project for Jakarta Messaging.
 Copyright (c) 2017, 2020 Oracle and/or its affiliates. All rights reserved.
 Copyright 2021 Contributors to the Eclipse Foundation
@@ -377,11 +317,6 @@ All content is the property of the respective authors or their employers.
 This product includes software developed by the Eclipse Project for Jakarta Standard Tag Library.
 Copyright (c) 1997, 2020 Oracle and/or its affiliates. All rights reserved.
 Copyright (c) 2021-2024 Contributors to the Eclipse Foundation
-
-==
-
-This product includes software developed by the Eclipse Project for Jakarta Servlet.
-Copyright (c) 1997, 2024 Oracle and/or its affiliates and others. All rights reserved.
 
 ==
 
@@ -411,11 +346,6 @@ Copyright 2018 Google Inc.
 
 ==
 
-This product includes software developed by murmurhash-js
-Copyright (c) 2011 Gary Court
-
-==
-
 This product includes software developed by Byte Buddy
 Copyright 2014 - Present Rafael Winterhalter
 
@@ -428,11 +358,6 @@ Copyright Jonathan Halterman and friends.
 
 This product includes software developed by normalize.css
 Copyright © Nicolas Gallagher and Jonathan Neal
-
-==
-
-This product includes software developed by object-keys
-Copyright (C) 2013 Jordan Harband
 
 ==
 
@@ -484,6 +409,11 @@ This product includes software developed by the Woodstox Project.
 
 ==
 
+This product includes software developed by dom4j
+Copyright 2001-2005 (C) MetaStuff, Ltd. All Rights Reserved.
+
+==
+
 This product includes software developed by the Eclipse Angus Project.
 Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 
@@ -509,8 +439,18 @@ All content is the property of the respective authors or their employers.
 
 ==
 
+This product includes software developed by Hibernate models
+Copyright: Red Hat Inc. and Hibernate Authors
+
+==
+
+This product includes software developed by Hibernate ORM
+Copyright Red Hat Inc. and Hibernate Authors
+
+==
+
 This product includes software developed by Hibernate Validator
-Copyright 2022, The Hibernate Validator project
+Copyright: Red Hat Inc. and Hibernate Authors
 
 ==
 
@@ -541,8 +481,8 @@ This product includes software developed by the JDOM project.
 
 ==
 
-This product includes software developed by JetBrains Java Annotations
-Copyright 2000-2021 JetBrains s.r.o.
+This product includes software developed by JLine
+Copyright (c) 2002-2023, the original author or authors. All rights reserved.
 
 ==
 
@@ -553,11 +493,6 @@ Copyright (c), Data Geekery GmbH, contact@datageekery.com
 
 This product includes software developed by JSON in Java
 Copyright (c) 2002 JSON.org
-
-==
-
-This product includes software developed by jsoup
-Copyright (c) 2009-2022 Jonathan Hedley
 
 ==
 
@@ -641,11 +576,6 @@ Copyright (c) 2014 Tristan Edwards & Limon Monte
 
 This product includes software developed by tslib
 Copyright (c) Microsoft Corporation.
-
-==
-
-This product includes software developed by UAParser.js
-Copyright (c) 2012-2025 Faisal Salman <f@faisalman.com>
 
 ==
 

@@ -591,11 +591,6 @@ This is licensed under the MIT license:
 
 ==
 
-For The Checker Framework (https://checkerframework.org/):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license:
 
@@ -798,6 +793,11 @@ This is licensed under the AL 2.0, see above.
 
 For jsoup (https://jsoup.org/):
 This is licensed under the MIT license, see above.
+
+==
+
+For JSpecify (https://jspecify.dev/):
+This is licensed under the AL 2.0, see above.
 
 ==
 

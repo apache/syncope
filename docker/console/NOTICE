@@ -50,6 +50,11 @@ This product includes software developed by the Jackson project.
 
 ==
 
+This product includes software developed by the Caffeine project.
+Copyright (c) 2021 Ben Manes. All Rights Reserved.
+
+==
+
 This product includes software developed by the Open JSON project.
 
 ==
@@ -58,23 +63,8 @@ This product includes software developed by Error Prone.
 
 ==
 
-This product includes software developed by the Google Guava project.
-Copyright (c) 2016 The Guava Authors.
-
-==
-
-This product includes software developed by J2ObjC: Java to Objective-C Translator and Runtime.
-
-==
-
-This product includes software developed by OWASP Java HTML Sanitizer.
-Copyright (c) 2011, Mike Samuel
-All rights reserved.
-
-==
-
-This product includes software developed by the Wicket - jQuery UI project.
-Copyright 2012-2013 Sebastien Briquet
+This product includes software developed by java-html-sanitizer
+Copyright (c) 2011, Mike Samuel. All rights reserved.
 
 ==
 
@@ -118,11 +108,6 @@ Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
 
-This product includes software developed by Netty
-Copyright 2014 The Netty Project
-
-==
-
 This product includes software developed by the Swagger project.
 Copyright 2016 SmartBear Software
 
@@ -151,6 +136,11 @@ Copyright (c) 2018,2020 Eclipse Foundation
 This product includes software developed by the Eclipse Project for JAX-RS.
 Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
 All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
+
+==
+
+This product includes software developed by JSR107 (JCache).
+Copyright (c) JSR107 Expert Group
 
 ==
 
@@ -204,11 +194,6 @@ Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncyc
 
 ==
 
-This product includes software developed by The Checker Framework.
-Copyright (c) 2004-present by the Checker Framework developers
-
-==
-
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
@@ -227,8 +212,18 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
+This product includes software developed by JSpecify
+Copyright 2022 The JSpecify Authors.
+
+==
+
 This product includes software developed by Objenesis
 Copyright 2006-2022 the original author or authors.
+
+==
+
+This product includes software developed by Okta.
+Copyright 2017 Okta
 
 ==
 
