@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-flowable</artifactId>
-    <version>4.0.4</version>
+    <version>4.0.5-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: Flowable Common Lib</name>
