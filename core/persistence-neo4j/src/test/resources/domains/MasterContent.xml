@@ -92,7 +92,7 @@ under the License.
 
   <!-- Password management -->
   <PasswordManagement id="DefaultSyncopePasswordManagement" description="Syncope password management module"
-                      jsonConf='{"_class":"org.apache.syncope.common.lib.password.SyncopePasswordManagementConf","domain":"Master","searchFilter":"username={user}","basicAuthUsername":"admin","basicAuthPassword":"password", "headers":{}}'
+                      jsonConf='{"_class":"org.apache.syncope.common.lib.password.SyncopePasswordManagementConf","domain":"Master","searchFilter":"username=={user}","basicAuthUsername":"admin","basicAuthPassword":"password", "headers":{}}'
                       enabled="1"/>
   <PasswordManagement description="LDAP password module" id="DefaultLDAPPasswordManagement"
                       jsonConf='{ "_class": "org.apache.syncope.common.lib.password.LDAPPasswordManagementConf","usernameAttribute":"uid","bindDn": "${testds.bindDn}","bindCredential":"${testds.password}","ldapUrl":"ldap://localhost:${testds.port}","searchFilter":"cn={user}","baseDn":"ou=People,${testds.rootDn}","subtreeSearch":true}'
