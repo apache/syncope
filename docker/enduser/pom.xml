@@ -22,7 +22,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-docker</artifactId>
-    <version>3.0.16</version>
+    <version>3.0.17-SNAPSHOT</version>
   </parent>
   <name>Apache Syncope Docker Enduser</name>
   <description>Apache Syncope Docker Enduser</description>
