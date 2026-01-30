@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.client</groupId>
     <artifactId>syncope-client-am</artifactId>
-    <version>4.0.4-SNAPSHOT</version>
+    <version>4.0.4</version>
   </parent>
 
   <name>Apache Syncope Client AM Lib</name>
