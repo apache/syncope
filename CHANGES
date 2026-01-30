@@ -2,6 +2,15 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.16
+================================================================================
+
+** Bug
+    * [SYNCOPE-1933] - Console: only first dynamic group is shown
+    * [SYNCOPE-1936] - WA: only SIGNATURE and CURRENT keys generated for OIDC
+    * [SYNCOPE-1937] - User password history length is not correctly trimmed
+    * [SYNCOPE-1943] - French Canadian GUI failed with Groups contextual menu
+
 Release Notes - Syncope - Version 3.0.15
 ================================================================================
 
