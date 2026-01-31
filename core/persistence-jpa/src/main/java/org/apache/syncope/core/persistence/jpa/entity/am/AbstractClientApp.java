@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -28,7 +28,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 import org.apache.syncope.common.lib.types.LogoutType;
@@ -38,21 +37,19 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
+import org.apache.syncope.core.persistence.jpa.converters.AttrListConverter;
+import org.apache.syncope.core.persistence.jpa.converters.UsernameAttributeProviderConfConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @MappedSuperclass
 public class AbstractClientApp extends AbstractGeneratedKeyEntity implements ClientApp {
 
     private static final long serialVersionUID = 7422422526695279794L;
-
-    protected static final TypeReference<List<Attr>> ATTR_TYPEREF = new TypeReference<List<Attr>>() {
-    };
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -66,8 +63,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     private String logo;
 
+    @Convert(converter = UsernameAttributeProviderConfConverter.class)
     @Lob
-    private String usernameAttributeProviderConf;
+    private UsernameAttributeProviderConf usernameAttributeProviderConf;
 
     private String theme;
 
@@ -90,8 +88,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @ManyToOne(fetch = FetchType.EAGER)
     private JPATicketExpirationPolicy ticketExpirationPolicy;
 
+    @Convert(converter = AttrListConverter.class)
     @Lob
-    private String properties;
+    private List<Attr> properties = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private LogoutType logoutType;
@@ -178,13 +177,12 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @Override
     public UsernameAttributeProviderConf getUsernameAttributeProviderConf() {
-        return Optional.ofNullable(usernameAttributeProviderConf).
-                map(conf -> POJOHelper.deserialize(conf, UsernameAttributeProviderConf.class)).orElse(null);
+        return usernameAttributeProviderConf;
     }
 
     @Override
     public void setUsernameAttributeProviderConf(final UsernameAttributeProviderConf conf) {
-        this.usernameAttributeProviderConf = conf == null ? null : POJOHelper.serialize(conf);
+        usernameAttributeProviderConf = conf;
     }
 
     @Override
@@ -244,14 +242,12 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @Override
     public List<Attr> getProperties() {
-        return properties == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(properties, ATTR_TYPEREF);
+        return properties;
     }
 
     @Override
     public void setProperties(final List<Attr> properties) {
-        this.properties = POJOHelper.serialize(properties);
+        this.properties = properties;
     }
 
     @Override

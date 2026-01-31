@@ -28,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.ws.rs.core.Form;
@@ -70,6 +68,8 @@ import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
@@ -255,7 +255,7 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
         response = httpclient.execute(get, context);
 
         headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
-        assertTrue(headers.get(HttpHeaders.COOKIE).asText().contains("SESSION"));
+        assertTrue(headers.get(HttpHeaders.COOKIE).asString().contains("SESSION"));
 
         // 3. logout
         get = new HttpGet(SRA_ADDRESS + "/protected/logout");
@@ -311,13 +311,13 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
         if (checkIdToken()) {
             // 1a. take and verify id_token
-            String idToken = json.get("id_token").asText();
+            String idToken = json.get("id_token").asString();
             assertNotNull(idToken);
             checkJWT(idToken, true);
         }
 
         // 1b. take and verify access_token
-        String accessToken = json.get("access_token").asText();
+        String accessToken = json.get("access_token").asString();
         checkJWT(accessToken, false);
 
         // 2. access protected route
@@ -331,12 +331,12 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
         json = MAPPER.readTree(response.readEntity(String.class));
 
         ObjectNode headers = (ObjectNode) json.get("headers");
-        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asText());
-        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.CONTENT_TYPE).asText());
-        assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
+        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asString());
+        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.CONTENT_TYPE).asString());
+        assertThat(headers.get("X-Forwarded-Host").asString(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
 
         String withHost = client.getBaseURI().toASCIIString().replace("/protected", "");
         String withIP = withHost.replace("localhost", "127.0.0.1");
-        assertThat(json.get("url").asText(), is(oneOf(withHost, withIP)));
+        assertThat(json.get("url").asString(), is(oneOf(withHost, withIP)));
     }
 }

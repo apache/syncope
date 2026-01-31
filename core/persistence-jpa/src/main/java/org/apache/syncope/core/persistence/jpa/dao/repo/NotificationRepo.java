@@ -24,5 +24,4 @@ import org.springframework.data.repository.ListCrudRepository;
 
 public interface NotificationRepo
         extends ListCrudRepository<JPANotification, String>, NotificationRepoExt, NotificationDAO {
-
 }

@@ -179,13 +179,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> matchingUsers = userService2.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
@@ -481,13 +475,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(2, member.getMemberships().size());
         String memberKey = member.getKey();
 
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
+        awaitIfExtSearchEnabled();
 
         PagedResult<UserTO> matching = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

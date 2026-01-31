@@ -155,7 +155,7 @@ endif::[]
 ===== Extending configuration
 Apache Syncope <<architecture,components>> are built on https://spring.io/projects/spring-boot[Spring Boot^],
 hence designing and extending Syncope configuration very much comes down to
-https://docs.spring.io/spring-boot/3.5/index.html[their guide^], some aspects of which are briefly
+https://docs.spring.io/spring-boot/4.0/index.html[their guide^], some aspects of which are briefly
 highlighted here.
 
 To design your own configuration class, take inspiration from the following sample:
@@ -236,7 +236,7 @@ $ mkdir /opt/syncope/conf
 [TIP]
 ====
 The `conf` directory must be configured for deployment, following Spring Boot's
-https://docs.spring.io/spring-boot/3.5/reference/features/external-config.html[Externalized Configuration^]
+https://docs.spring.io/spring-boot/4.0/reference/features/external-config.html[Externalized Configuration^]
 settings; with above reference:
 
 * <<standalone>>: `--spring.config.additional-location=/opt/syncope/conf/`
@@ -273,10 +273,10 @@ components:
 * <<audit-event-processors, audit event processors>>
 
 [discrete]
-===== Customize OpenJPA settings
+===== Customize Hibernate ORM settings
 
-Apache OpenJPA is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
-aspects - including https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html[caching^] for
+Hibernate ORM is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
+aspects - including https://docs.hibernate.org/orm/7.2/userguide/html_single/#caching[caching^] for
 example, to best suit the various environments.
 
 The main configuration classes are:
@@ -383,7 +383,7 @@ elasticsearch.numberOfReplicas=1
 as `core/src/main/resources/core-elasticsearch.properties`.
 
 Do not forget to include `elasticsearch` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -436,7 +436,7 @@ opensearch.numberOfReplicas=1
 as `core/src/main/resources/core-opensearch.properties`.
 
 Do not forget to include `opensearch` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -508,7 +508,7 @@ endif::[]
 .
 
 Do not forget to include `openfga` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from

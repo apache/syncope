@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
@@ -142,8 +141,7 @@ public class JexlUtilsTest extends AbstractTest {
     @Test
     public void addDerAttrsToContext(
             final @Mock DerAttrHandler derAttrHandler,
-            final @Mock Any any,
-            final @Mock DerSchema derSchema) {
+            final @Mock Any any) {
 
         String expression = null;
 
@@ -155,7 +153,7 @@ public class JexlUtilsTest extends AbstractTest {
         JexlContextBuilder builder = new JexlContextBuilder();
         ReflectionTestUtils.setField(builder, "jexlContext", context);
 
-        builder.derAttrs(any, derAttrHandler);
+        builder.derAttrs(derAttrHandler.getValues(any));
         verify(context).set("derSchema", expression);
     }
 
@@ -163,7 +161,6 @@ public class JexlUtilsTest extends AbstractTest {
     void evaluateMandatoryCondition(
             final @Mock DerAttrHandler derAttrHandler,
             final @Mock Any any,
-            final @Mock DerSchema derSchema,
             final @Mock Collection<PlainAttr> plainAttrs) {
 
         String expression = null;

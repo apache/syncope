@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -36,6 +35,7 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
@@ -50,12 +50,13 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
+import tools.jackson.databind.json.JsonMapper;
 
 public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<UserTO> implements IEventSink {
 
     private static final long serialVersionUID = -9142332740863374891L;
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final UserDirectoryPanel parentPanel;
 

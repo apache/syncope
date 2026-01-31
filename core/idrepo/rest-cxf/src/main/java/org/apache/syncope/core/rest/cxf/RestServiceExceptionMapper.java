@@ -64,15 +64,15 @@ import org.springframework.transaction.TransactionSystemException;
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
-    private final ValidationExceptionMapper validationEM = new ValidationExceptionMapper();
+    protected final ValidationExceptionMapper validationEM = new ValidationExceptionMapper();
 
-    private static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
+    protected static final String UNIQUE_MSG_KEY = "UniqueConstraintViolation";
 
-    private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<>() {
+    protected static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<>() {
 
-        private static final long serialVersionUID = -7688359318035249200L;
+        protected static final long serialVersionUID = -7688359318035249200L;
 
         {
             put("23000", UNIQUE_MSG_KEY);
@@ -84,6 +84,26 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
     public RestServiceExceptionMapper(final Environment env) {
         this.env = env;
+    }
+
+    protected String getPersistenceErrorMessage(final Throwable ex) {
+        Throwable throwable = ExceptionUtils.getRootCause(ex);
+
+        String message = null;
+        if (throwable instanceof SQLException sqlException) {
+            String messageKey = EXCEPTION_CODE_MAP.get(sqlException.getSQLState());
+            if (messageKey != null) {
+                message = env.getProperty("errMessage." + messageKey);
+            }
+        } else if (isExtityExists(ex)) {
+
+            message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
+        }
+
+        return Optional.ofNullable(message).
+                orElseGet(() -> Optional.ofNullable(ex.getCause()).
+                map(Throwable::getMessage).
+                orElseGet(ex::getMessage));
     }
 
     @Override
@@ -111,10 +131,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 || ExceptionUtils.getRootCause(ex) instanceof DelegatedAdministrationException) {
 
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
-                || ((ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException)
-                && (ex.getCause() instanceof EntityExistsException || ex.getMessage().contains("already exists")))) {
-
+        } else if (isExtityExists(ex)) {
             builder = builder(ClientExceptionType.EntityExists, getPersistenceErrorMessage(
                     ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException
                             ? ex.getCause() : ex));
@@ -162,7 +179,16 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
-    private static ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
+    protected static boolean isExtityExists(final Throwable ex) {
+        return ex instanceof EntityExistsException
+                || ex instanceof DuplicateException
+                || ex.getCause() instanceof EntityExistsException
+                || ex.getMessage().contains("already exists")
+                || ex.getMessage().contains("UNIQUE")
+                || ex.getMessage().contains("Duplicate");
+    }
+
+    protected static ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder builder = Response.status(ex.getType().getResponseStatus());
         builder.header(RESTHeaders.ERROR_CODE, ex.getType().name());
 
@@ -178,7 +204,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return builder.entity(error);
     }
 
-    private static ResponseBuilder getSyncopeClientCompositeExceptionResponse(
+    protected static ResponseBuilder getSyncopeClientCompositeExceptionResponse(
             final SyncopeClientCompositeException ex) {
         if (ex.getExceptions().size() == 1) {
             return getSyncopeClientExceptionResponse(ex.getExceptions().iterator().next());
@@ -204,7 +230,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return builder.entity(errors);
     }
 
-    private static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
+    protected static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
         if (ex instanceof InvalidEntityException invalidEntityException) {
@@ -252,7 +278,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private static ResponseBuilder processBadRequestExceptions(final Exception ex) {
+    protected static ResponseBuilder processBadRequestExceptions(final Exception ex) {
         // This exception might be raised by Flowable (if enabled)
         Class<?> ibatisPersistenceException = null;
         try {
@@ -286,7 +312,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private static ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
+    protected static ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus()).
                 header(RESTHeaders.ERROR_CODE, hType.name()).
                 header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
@@ -306,7 +332,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
      * @param response model to construct {@link ResponseBuilder} from
      * @return new {@link ResponseBuilder} instance initialized from given response
      */
-    private static ResponseBuilder builder(final Response response) {
+    protected static ResponseBuilder builder(final Response response) {
         ResponseBuilder builder = JAXRSUtils.toResponseBuilder(response.getStatus());
         builder.entity(response.getEntity());
         response.getMetadata().forEach((key, value) -> {
@@ -316,27 +342,5 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         });
 
         return builder;
-    }
-
-    private String getPersistenceErrorMessage(final Throwable ex) {
-        Throwable throwable = ExceptionUtils.getRootCause(ex);
-
-        String message = null;
-        if (throwable instanceof SQLException sqlException) {
-            String messageKey = EXCEPTION_CODE_MAP.get(sqlException.getSQLState());
-            if (messageKey != null) {
-                message = env.getProperty("errMessage." + messageKey);
-            }
-        } else if (throwable instanceof EntityExistsException
-                || throwable instanceof DuplicateException
-                || ex.getMessage().contains("already exists")) {
-
-            message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
-        }
-
-        return Optional.ofNullable(message).
-                orElseGet(() -> Optional.ofNullable(ex.getCause()).
-                map(Throwable::getMessage).
-                orElseGet(ex::getMessage));
     }
 }

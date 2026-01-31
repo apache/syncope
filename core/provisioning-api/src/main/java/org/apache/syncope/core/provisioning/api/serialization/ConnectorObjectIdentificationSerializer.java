@@ -18,34 +18,34 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import org.identityconnectors.framework.common.objects.ConnectorObjectIdentification;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class ConnectorObjectIdentificationSerializer extends AbstractValueSerializer<ConnectorObjectIdentification> {
 
     @Override
-    public void serialize(final ConnectorObjectIdentification value, final JsonGenerator jgen,
-            final SerializerProvider serializerProvider) throws IOException {
+    public void serialize(
+            final ConnectorObjectIdentification value,
+            final JsonGenerator jgen,
+            final SerializationContext ctx) throws JacksonException {
+
         jgen.writeStartObject();
 
-        jgen.writeStringField("objectClass", value.getObjectClass().getObjectClassValue());
+        jgen.writeStringProperty("objectClass", value.getObjectClass().getObjectClassValue());
 
-        jgen.writeFieldName("attributes");
+        jgen.writeName("attributes");
 
         jgen.writeStartArray();
         value.getAttributes().forEach(attr -> {
-            try {
-                jgen.writeStartObject();
+            jgen.writeStartObject();
 
-                jgen.writeStringField("name", attr.getName());
+            jgen.writeStringProperty("name", attr.getName());
 
-                jgen.writeFieldName("value");
-                doSerialize(attr.getValue(), jgen);
-                jgen.writeEndObject();
-            } catch (IOException e) {
-            }
+            jgen.writeName("value");
+            doSerialize(attr.getValue(), jgen);
+            jgen.writeEndObject();
         });
         jgen.writeEndArray();
 

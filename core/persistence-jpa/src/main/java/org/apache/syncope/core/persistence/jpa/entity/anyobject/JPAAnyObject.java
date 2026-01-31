@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -29,7 +29,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
@@ -45,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
+import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 @Entity
 @Table(name = JPAAnyObject.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "name", "type_id" }))
-@EntityListeners({ JSONAnyObjectListener.class })
 @Cacheable
 @AnyObjectCheck
 public class JPAAnyObject
@@ -70,12 +69,10 @@ public class JPAAnyObject
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPAAnyType type;
 
-    private String plainAttrs;
+    @Convert(converter = PlainAttrListConverter.class)
+    private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
-    @Transient
-    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =
@@ -134,28 +131,25 @@ public class JPAAnyObject
     }
 
     @Override
-    public List<PlainAttr> getPlainAttrsList() {
-        return plainAttrsList;
-    }
-
-    @Override
-    public String getPlainAttrsJSON() {
+    protected List<PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public void setPlainAttrsJSON(final String plainAttrs) {
-        this.plainAttrs = plainAttrs;
+    public List<PlainAttr> getPlainAttrs() {
+        return plainAttrs.stream().
+                filter(attr -> attr.getMembership() == null && attr.getRelationship() == null).
+                toList();
     }
 
     @Override
     public boolean add(final PlainAttr attr) {
-        return plainAttrsList.add(attr);
+        return plainAttrs.add(attr);
     }
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+        return plainAttrs.removeIf(a -> a.getSchema().equals(attr.getSchema())
                 && Objects.equals(a.getMembership(), attr.getMembership())
                 && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
@@ -180,7 +174,7 @@ public class JPAAnyObject
     @Override
     public boolean remove(final Relationship<?, ?> relationship) {
         checkType(relationship, JPAARelationship.class);
-        plainAttrsList.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        plainAttrs.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
         return relationships.remove((JPAARelationship) relationship);
     }
 
@@ -198,7 +192,7 @@ public class JPAAnyObject
     @Override
     public boolean remove(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
-        plainAttrsList.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
+        plainAttrs.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
         return memberships.remove((JPAAMembership) membership);
     }
 

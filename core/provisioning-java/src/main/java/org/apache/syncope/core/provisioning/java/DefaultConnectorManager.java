@@ -121,7 +121,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         override.setBundleName(connInstance.getBundleName());
         override.setVersion(connInstance.getVersion());
         override.setLocation(connInstance.getLocation());
-        override.setConf(connInstance.getConf());
+        override.getConf().addAll(connInstance.getConf());
         override.getCapabilities().addAll(connInstance.getCapabilities());
         override.setConnRequestTimeout(connInstance.getConnRequestTimeout());
 
@@ -147,7 +147,8 @@ public class DefaultConnectorManager implements ConnectorManager {
         // add override properties not substituted
         conf.addAll(overridable.values());
 
-        override.setConf(conf);
+        override.getConf().clear();
+        override.getConf().addAll(conf);
 
         // replace capabilities
         capabilitiesOverride.ifPresent(capabilities -> {

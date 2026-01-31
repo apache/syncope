@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.keymaster;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
 import org.springframework.data.neo4j.core.schema.Node;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 @Node(Neo4jConfParam.NODE)
 public class Neo4jConfParam extends AbstractProvidedKeyNode implements ConfParam {

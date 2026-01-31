@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,6 +50,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.databind.JsonNode;
 
 public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainProvider, SyncopeRestClient> {
 
@@ -87,7 +87,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         try {
             JsonNode info = SyncopeConsoleSession.get().getAnonymousClient().info();
             if (info.has("persistence") && info.get("persistence").has("vendor")
-                    && "OpenJPA".equals(info.get("persistence").get("vendor").asText())) {
+                    && "Hibernate.org".equals(info.get("persistence").get("vendor").asString())) {
 
                 domainClass = JPADomain.class;
             } else {

@@ -37,12 +37,14 @@ import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.common.validation.SchedTaskCheck;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
 @Table(name = JPAMacroTask.TABLE)
-public class JPAMacroTask extends JPASchedTask implements MacroTask {
+@SchedTaskCheck
+public class JPAMacroTask extends AbstractSchedTask implements MacroTask {
 
     private static final long serialVersionUID = 8261850094316787406L;
 

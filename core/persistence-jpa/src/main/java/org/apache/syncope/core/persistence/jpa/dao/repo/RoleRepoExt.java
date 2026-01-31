@@ -26,8 +26,6 @@ public interface RoleRepoExt {
 
     String DYNMEMB_TABLE = "DynRoleMembers";
 
-    Role save(Role role);
-
     void delete(Role role);
 
     Role saveAndRefreshDynMemberships(Role role);

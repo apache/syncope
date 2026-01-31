@@ -219,7 +219,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     break;
 
                 case DELETE:
-                    end(AnyTypeKind.USER.name(),
+                    end(Optional.empty(),
+                            AnyTypeKind.USER.name(),
                             ResourceOperation.DELETE.name().toLowerCase(),
                             OpEvent.Outcome.SUCCESS,
                             null,
@@ -242,7 +243,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER.name(),
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -313,7 +315,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = OpEvent.Outcome.FAILURE;
             }
 
-            end(AnyTypeKind.USER.name(),
+            end(Optional.of(account.getOwner().getKey()),
+                    AnyTypeKind.USER.name(),
                     MatchingRule.toOp(matchingRule),
                     resultStatus,
                     before,
@@ -335,7 +338,9 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(AnyTypeKind.USER.name(),
+            end(
+                    Optional.empty(),
+                    AnyTypeKind.USER.name(),
                     UnmatchingRule.toOp(rule),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -355,7 +360,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (profile.isDryRun()) {
             result.setKey(null);
-            end(AnyTypeKind.USER.name(),
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
                     UnmatchingRule.toOp(rule),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -451,7 +457,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             }
         }
 
-        end(AnyTypeKind.USER.name(),
+        end(Optional.of(user.getKey()),
+                AnyTypeKind.USER.name(),
                 UnmatchingRule.toOp(rule),
                 resultStatus,
                 null,
@@ -470,7 +477,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(AnyTypeKind.USER.name(),
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -579,7 +587,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 }
             }
 
-            end(AnyTypeKind.USER.name(),
+            end(Optional.of(account.getOwner().getKey()),
+                    AnyTypeKind.USER.name(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     resultStatus,
                     before,
@@ -598,7 +607,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
-            end(AnyTypeKind.USER.name(),
+            end(Optional.empty(),
+                    AnyTypeKind.USER.name(),
                     ResourceOperation.DELETE.name().toLowerCase(),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -663,7 +673,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     }
                 }
 
-                end(AnyTypeKind.USER.name(),
+                end(Optional.of(account.getOwner().getKey()),
+                        AnyTypeKind.USER.name(),
                         ResourceOperation.DELETE.name().toLowerCase(),
                         resultStatus,
                         before,
@@ -697,7 +708,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             result.setMessage(message[0]);
         }
 
-        end(AnyTypeKind.USER.name(),
+        end(Optional.ofNullable(result.getKey()),
+                AnyTypeKind.USER.name(),
                 matching ? MatchingRule.toOp(MatchingRule.IGNORE) : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
                 OpEvent.Outcome.SUCCESS,
                 null,

@@ -33,7 +33,6 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -166,12 +165,6 @@ public class DefaultNotificationManager implements NotificationManager {
         this.jexlTools = jexlTools;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public long getMaxRetries() {
-        return confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", 0L, Long.class);
-    }
-
     /**
      * Create a notification task.
      *
@@ -185,7 +178,7 @@ public class DefaultNotificationManager implements NotificationManager {
             final Any any,
             final Map<String, Object> jexlVars) {
 
-        jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
+        jexlVars.put("syncopeConf", confParamOps.list(AuthContextUtils.getDomain()));
         jexlVars.put("events", notification.getEvents());
 
         List<User> recipients = new ArrayList<>();
@@ -248,6 +241,7 @@ public class DefaultNotificationManager implements NotificationManager {
         return task;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean notificationsAvailable(
             final String domain,

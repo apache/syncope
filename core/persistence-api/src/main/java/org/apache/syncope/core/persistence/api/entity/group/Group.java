@@ -21,9 +21,8 @@ package org.apache.syncope.core.persistence.api.entity.group;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface Group extends Relatable<Group, GRelationship> {
@@ -40,15 +39,11 @@ public interface Group extends Relatable<Group, GRelationship> {
 
     void setUserOwner(User userOwner);
 
-    UDynGroupMembership getUDynMembership();
+    boolean add(DynGroupMembership dynGroupMembership);
 
-    void setUDynMembership(UDynGroupMembership uDynMembership);
+    Optional<? extends DynGroupMembership> getDynMembership(AnyType anyType);
 
-    boolean add(ADynGroupMembership dynGroupMembership);
-
-    Optional<? extends ADynGroupMembership> getADynMembership(AnyType anyType);
-
-    List<? extends ADynGroupMembership> getADynMemberships();
+    List<? extends DynGroupMembership> getDynMemberships();
 
     boolean add(GroupTypeExtension typeExtension);
 

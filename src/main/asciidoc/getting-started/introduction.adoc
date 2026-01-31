@@ -129,7 +129,7 @@ for delegated administration.
 *_Secure Remote Access_* or *_SRA_* is a security-enabled API gateway with HTTP reverse proxying capabilities.
 
 *_Core_* is the component providing IdM services and acting as central repository for other components' configuration. +
-It exposes a fully-compliant https://en.wikipedia.org/wiki/Jakarta_RESTful_Web_Services[Jakarta RESTful Web Services 3.1^] 
+It exposes a fully-compliant https://jakarta.ee/specifications/restful-ws/4.0/[Jakarta RESTful Web Services 4.0^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
 written in any programming language, to consume IdM services.
 
@@ -144,7 +144,7 @@ all-Java implementation can be extended for this purpose.
 from a provided list - including one based on https://www.flowable.org/[Flowable^], the reference open source
 http://www.bpmn.org/[BPMN 2.0^] implementations - or define new, custom ones. 
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
-using a standard https://en.wikipedia.org/wiki/Jakarta_Persistence[Jakarta Persistence 3.2] approach. The data is persisted to an underlying 
+using a standard https://jakarta.ee/specifications/persistence/3.2/[Jakarta Persistence 3.2] approach. The data is persisted to an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
 https://docs.spring.io/spring-framework/reference/7.0/data-access/transaction.html[transaction management^] 
 provided by the Spring Framework. +

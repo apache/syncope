@@ -22,9 +22,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -37,12 +34,15 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class PropagationTaskInfoSerializerTest extends AbstractTest {
 
     @Test
-    public void propagationTaskInfoSerializer(final @Mock JsonGenerator jgen, final @Mock SerializerProvider sp)
-            throws IOException {
+    public void propagationTaskInfoSerializer(
+            final @Mock JsonGenerator jgen,
+            final @Mock SerializationContext ctx) {
 
         PropagationTaskInfoSerializer serializer = new PropagationTaskInfoSerializer();
         ExternalResource resource = mock(ExternalResource.class);
@@ -63,15 +63,17 @@ public class PropagationTaskInfoSerializerTest extends AbstractTest {
         when(connInstance.getKey()).thenReturn(UUID.randomUUID().toString());
         when(connector.getConnInstance()).thenReturn(connInstance);
         source.setConnector(connector);
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeStartObject();
-        verify(jgen).writeStringField("key", source.getKey());
-        verify(jgen).writeStringField("anyType", source.getAnyType());
-        verify(jgen).writeStringField("entityKey", source.getEntityKey());
-        verify(jgen).writeStringField("connObjectKey", source.getConnObjectKey());
-        verify(jgen).writeStringField("oldConnObjectKey", source.getOldConnObjectKey());
-        verify(jgen).writeObjectField("propagationData", source.getPropagationData());
-        verify(jgen).writeObjectField("connector", source.getConnector().getConnInstance().getKey());
+        verify(jgen).writeStringProperty("key", source.getKey());
+        verify(jgen).writeStringProperty("anyType", source.getAnyType());
+        verify(jgen).writeStringProperty("entityKey", source.getEntityKey());
+        verify(jgen).writeStringProperty("connObjectKey", source.getConnObjectKey());
+        verify(jgen).writeStringProperty("oldConnObjectKey", source.getOldConnObjectKey());
+        verify(jgen).writeName("propagationData");
+        verify(jgen).writePOJO(source.getPropagationData());
+        verify(jgen).writeName("connector");
+        verify(jgen).writePOJO(source.getConnector().getConnInstance().getKey());
         verify(jgen).writeEndObject();
     }
 }

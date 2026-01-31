@@ -29,6 +29,8 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserCR, UserUR> {
 
+    boolean checkSecurityAnswer(String key, String value);
+
     ProvisioningResult<String> create(
             UserCR userCR,
             boolean disablePwdPolicyCheck,
@@ -59,7 +61,7 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
 
     ProvisioningResult<String> suspend(StatusR statusR, boolean nullPriorityAsync, String updater, String context);
 
-    void internalSuspend(String key, String updater, String context);
+    void suspendOnAuthFailures(String key, String updater, String context);
 
     void requestPasswordReset(String key, String updater, String context);
 

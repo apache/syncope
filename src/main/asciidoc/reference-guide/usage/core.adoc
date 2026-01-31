@@ -98,7 +98,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
 <<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
 `anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
-https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/anonymous.html#page-title[Anonymous Authentication^];
+https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/anonymous.html#page-title[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
 . endpoints for administrative operations, requiring user authentication with authorization granted by the related
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.

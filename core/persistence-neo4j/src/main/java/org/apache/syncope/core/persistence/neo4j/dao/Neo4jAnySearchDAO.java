@@ -297,13 +297,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 + "MATCH (n)-[]-(:" + Neo4jUMembership.NODE + ")-[]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
                 + "MATCH (n)-[]-(:" + Neo4jAMembership.NODE + ")-[]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } ";
     }
 
@@ -320,13 +320,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 + "MATCH (n)-[]-(:" + Neo4jUMembership.NODE + ")-[]-"
                 + "(m:" + Neo4jUser.NODE + ") WHERE m.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(m:" + Neo4jUser.NODE + ") WHERE m.id IN $" + param + " }  "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
                 + "MATCH (n)-[]-(:" + Neo4jAMembership.NODE + ")-[]-"
                 + "(m:" + Neo4jAnyObject.NODE + ") WHERE m.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
                 + "(m:" + Neo4jAnyObject.NODE + ") WHERE m.id IN $" + param + " } ";
     }
 

@@ -22,6 +22,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.entity.Delegation;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPADelegation;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.ListCrudRepository;
@@ -29,6 +31,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface DelegationRepo
         extends ListCrudRepository<JPADelegation, String>, DelegationDAO {
+
+    @Query("SELECT e FROM #{#entityName} e WHERE :role MEMBER OF e.roles")
+    @Override
+    List<Delegation> findByRoles(@Param("role") Role role);
 
     @Query("SELECT e.id FROM #{#entityName} e "
             + "WHERE e.delegating.id = :delegating "

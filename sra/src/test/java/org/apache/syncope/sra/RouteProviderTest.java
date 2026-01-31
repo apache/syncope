@@ -33,8 +33,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import org.apache.syncope.common.lib.to.SRARouteTO;
@@ -64,6 +62,7 @@ import org.springframework.session.Session;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import tools.jackson.databind.JsonNode;
 
 public class RouteProviderTest extends AbstractTest {
 
@@ -676,7 +675,7 @@ public class RouteProviderTest extends AbstractTest {
                         JsonNode body = MAPPER.readTree(response.getResponseBody());
                         assertTrue(body.has("customized"));
                         assertTrue(body.get("customized").asBoolean());
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         fail(e.getMessage(), e);
                     }
                 });

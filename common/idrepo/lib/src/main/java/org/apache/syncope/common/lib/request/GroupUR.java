@@ -62,18 +62,13 @@ public class GroupUR extends AnyUR {
             return this;
         }
 
-        public Builder udynMembershipCond(final String udynMembershipCond) {
-            getInstance().setUDynMembershipCond(udynMembershipCond);
+        public Builder dynMembershipCond(final String type, final String fiql) {
+            getInstance().getDynMembershipConds().put(type, fiql);
             return this;
         }
 
-        public Builder adynMembershipCond(final String type, final String fiql) {
-            getInstance().getADynMembershipConds().put(type, fiql);
-            return this;
-        }
-
-        public Builder adynMembershipConds(final Map<String, String> conds) {
-            getInstance().getADynMembershipConds().putAll(conds);
+        public Builder dynMembershipConds(final Map<String, String> conds) {
+            getInstance().getDynMembershipConds().putAll(conds);
             return this;
         }
 
@@ -99,9 +94,7 @@ public class GroupUR extends AnyUR {
 
     private StringReplacePatchItem groupOwner;
 
-    private String udynMembershipCond;
-
-    private final Map<String, String> adynMembershipConds = new HashMap<>();
+    private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -137,16 +130,8 @@ public class GroupUR extends AnyUR {
         this.groupOwner = groupOwner;
     }
 
-    public String getUDynMembershipCond() {
-        return udynMembershipCond;
-    }
-
-    public void setUDynMembershipCond(final String udynMembershipCond) {
-        this.udynMembershipCond = udynMembershipCond;
-    }
-
-    public Map<String, String> getADynMembershipConds() {
-        return adynMembershipConds;
+    public Map<String, String> getDynMembershipConds() {
+        return dynMembershipConds;
     }
 
     @JsonIgnore
@@ -162,8 +147,8 @@ public class GroupUR extends AnyUR {
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null && udynMembershipCond == null
-                && adynMembershipConds.isEmpty() && typeExtensions.isEmpty();
+                && name == null && userOwner == null && groupOwner == null
+                && dynMembershipConds.isEmpty() && typeExtensions.isEmpty();
     }
 
     @Override
@@ -173,8 +158,7 @@ public class GroupUR extends AnyUR {
                 append(name).
                 append(userOwner).
                 append(groupOwner).
-                append(udynMembershipCond).
-                append(adynMembershipConds).
+                append(dynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -196,8 +180,7 @@ public class GroupUR extends AnyUR {
                 append(name, other.name).
                 append(userOwner, other.userOwner).
                 append(groupOwner, other.groupOwner).
-                append(udynMembershipCond, other.udynMembershipCond).
-                append(adynMembershipConds, other.adynMembershipConds).
+                append(dynMembershipConds, other.dynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

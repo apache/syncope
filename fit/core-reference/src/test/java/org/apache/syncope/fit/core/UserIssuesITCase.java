@@ -1376,7 +1376,7 @@ public class UserIssuesITCase extends AbstractITCase {
         GroupCR groupCR = GroupITCase.getSample("syncope1099G");
         groupCR.getResources().clear();
         groupCR.getResources().add(RESOURCE_NAME_TESTDB);
-        groupCR.setUDynMembershipCond("firstname==issueSYNCOPE1099");
+        groupCR.getDynMembershipConds().put("USER", "firstname==issueSYNCOPE1099");
 
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
@@ -1429,7 +1429,8 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE1206() {
         // 1. create group with dynamic user condition 'cool==true'
         GroupCR dynGroupCR = GroupITCase.getSample("syncope1206");
-        dynGroupCR.setUDynMembershipCond(
+        dynGroupCR.getDynMembershipConds().put(
+                "USER",
                 SyncopeClient.getUserSearchConditionBuilder().is("cool").equalTo("true").query());
         GroupTO dynGroup = createGroup(dynGroupCR).getEntity();
         assertNotNull(dynGroup);

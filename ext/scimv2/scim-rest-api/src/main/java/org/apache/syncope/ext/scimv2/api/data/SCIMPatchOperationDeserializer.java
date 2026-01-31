@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -30,10 +25,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOperation> {
-
-    private static final long serialVersionUID = -7401353969242788372L;
 
     private static final Pattern PATH_PATTERN = Pattern.compile(
             "^(?<schema>[A-Za-z0-9:.]+:)?(?<attribute>\\w+)(?<filter>\\[.*\\])?(?<sub>\\.\\w+)?");
@@ -61,11 +60,11 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
             return v.longValue();
         }
 
-        return v.asText();
+        return v.asString();
     }
 
     public SCIMPatchOperationDeserializer() {
-        this(null);
+        this(SCIMPatchOperation.class);
     }
 
     public SCIMPatchOperationDeserializer(final Class<?> vc) {
@@ -74,18 +73,18 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
 
     @Override
     public SCIMPatchOperation deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException {
+            throws JacksonException {
 
-        JsonNode node = jp.getCodec().readTree(jp);
+        JsonNode node = jp.readValueAsTree();
 
         SCIMPatchOperation scimPatchOperation = new SCIMPatchOperation();
 
         if (node.has("op")) {
-            scimPatchOperation.setOp(PatchOp.valueOf(node.get("op").asText().toLowerCase()));
+            scimPatchOperation.setOp(PatchOp.valueOf(node.get("op").asString().toLowerCase()));
         }
 
         if (node.has("path")) {
-            Matcher matcher = PATH_PATTERN.matcher(node.get("path").asText());
+            Matcher matcher = PATH_PATTERN.matcher(node.get("path").asString());
             if (matcher.matches()) {
                 SCIMPatchPath path = new SCIMPatchPath();
                 scimPatchOperation.setPath(path);
@@ -107,116 +106,103 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
             JsonNode value = node.get("value");
 
             if (scimPatchOperation.getPath() == null) {
-                scimPatchOperation.setValue(List.of(jp.getCodec().treeToValue(value, SCIMUser.class)));
+                scimPatchOperation.getValue().add(
+                        jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMUser.class));
             } else {
                 if ("members".equals(scimPatchOperation.getPath().getAttribute())) {
-                    scimPatchOperation.setValue(List.of(
-                            (Serializable[]) jp.getCodec().treeToValue(value, Member[].class)));
+                    scimPatchOperation.getValue().addAll(
+                            jp.objectReadContext().treeAsTokens(value).readValueAs(new TypeReference<List<Member>>() {
+                            }));
                 } else if (value.isObject()) {
                     SCIMUser user = new SCIMUser(
                             null,
                             List.of(),
                             null,
-                            "userName".equals(scimPatchOperation.getPath().getAttribute()) ? value.asText() : null,
+                            "userName".equals(scimPatchOperation.getPath().getAttribute()) ? value.asString() : null,
                             "active".equals(scimPatchOperation.getPath().getAttribute()) ? value.asBoolean() : null);
                     user.setEnterpriseInfo(new SCIMEnterpriseInfo());
 
                     switch (scimPatchOperation.getPath().getAttribute()) {
-                        case "externalId":
-                            user.setExternalId(value.asText());
-                            break;
+                        case "externalId" ->
+                            user.setExternalId(value.asString());
 
-                        case "name":
-                            user.setName(jp.getCodec().treeToValue(value, SCIMUserName.class));
-                            break;
+                        case "name" ->
+                            user.setName(jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMUserName.class));
 
-                        case "displayName":
-                            user.setDisplayName(value.asText());
-                            break;
+                        case "displayName" ->
+                            user.setDisplayName(value.asString());
 
-                        case "nickName":
-                            user.setNickName(value.asText());
-                            break;
+                        case "nickName" ->
+                            user.setNickName(value.asString());
 
-                        case "profileUrl":
-                            user.setProfileUrl(value.asText());
-                            break;
+                        case "profileUrl" ->
+                            user.setProfileUrl(value.asString());
 
-                        case "title":
-                            user.setTitle(value.asText());
-                            break;
+                        case "title" ->
+                            user.setTitle(value.asString());
 
-                        case "userType":
-                            user.setUserType(value.asText());
-                            break;
+                        case "userType" ->
+                            user.setUserType(value.asString());
 
-                        case "preferredLanguage":
-                            user.setPreferredLanguage(value.asText());
-                            break;
+                        case "preferredLanguage" ->
+                            user.setPreferredLanguage(value.asString());
 
-                        case "locale":
-                            user.setLocale(value.asText());
-                            break;
+                        case "locale" ->
+                            user.setLocale(value.asString());
 
-                        case "timezone":
-                            user.setTimezone(value.asText());
-                            break;
+                        case "timezone" ->
+                            user.setTimezone(value.asString());
 
-                        case "emails":
-                            user.getEmails().add(jp.getCodec().treeToValue(value, SCIMComplexValue.class));
-                            break;
+                        case "emails" ->
+                            user.getEmails().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMComplexValue.class));
 
-                        case "phoneNumbers":
-                            user.getPhoneNumbers().add(jp.getCodec().treeToValue(value, SCIMComplexValue.class));
-                            break;
+                        case "phoneNumbers" ->
+                            user.getPhoneNumbers().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMComplexValue.class));
 
-                        case "ims":
-                            user.getIms().add(jp.getCodec().treeToValue(value, SCIMComplexValue.class));
-                            break;
+                        case "ims" ->
+                            user.getIms().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMComplexValue.class));
 
-                        case "photos":
-                            user.getPhotos().add(jp.getCodec().treeToValue(value, SCIMComplexValue.class));
-                            break;
+                        case "photos" ->
+                            user.getPhotos().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMComplexValue.class));
 
-                        case "addresses":
-                            user.getAddresses().add(jp.getCodec().treeToValue(value, SCIMUserAddress.class));
-                            break;
+                        case "addresses" ->
+                            user.getAddresses().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMUserAddress.class));
 
-                        case "x509Certificates":
-                            user.getX509Certificates().add(jp.getCodec().treeToValue(value, Value.class));
-                            break;
+                        case "x509Certificates" ->
+                            user.getX509Certificates().add(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(Value.class));
 
-                        case "employeeNumber":
-                            user.getEnterpriseInfo().setEmployeeNumber(value.asText());
-                            break;
+                        case "employeeNumber" ->
+                            user.getEnterpriseInfo().setEmployeeNumber(value.asString());
 
-                        case "costCenter":
-                            user.getEnterpriseInfo().setCostCenter(value.asText());
-                            break;
+                        case "costCenter" ->
+                            user.getEnterpriseInfo().setCostCenter(value.asString());
 
-                        case "organization":
-                            user.getEnterpriseInfo().setOrganization(value.asText());
-                            break;
+                        case "organization" ->
+                            user.getEnterpriseInfo().setOrganization(value.asString());
 
-                        case "division":
-                            user.getEnterpriseInfo().setDivision(value.asText());
-                            break;
+                        case "division" ->
+                            user.getEnterpriseInfo().setDivision(value.asString());
 
-                        case "department":
-                            user.getEnterpriseInfo().setDepartment(value.asText());
-                            break;
+                        case "department" ->
+                            user.getEnterpriseInfo().setDepartment(value.asString());
 
-                        case "manager":
-                            user.getEnterpriseInfo().
-                                    setManager(jp.getCodec().treeToValue(value, SCIMUserManager.class));
-                            break;
+                        case "manager" ->
+                            user.getEnterpriseInfo().setManager(
+                                    jp.objectReadContext().treeAsTokens(value).readValueAs(SCIMUserManager.class));
 
-                        default:
+                        default -> {
+                        }
                     }
 
-                    scimPatchOperation.setValue(List.of(user));
-                } else if (!value.isContainerNode()) {
-                    scimPatchOperation.setValue(List.of(scalar(value)));
+                    scimPatchOperation.getValue().add(user);
+                } else if (!value.isContainer()) {
+                    scimPatchOperation.getValue().add(scalar(value));
                 }
             }
         }

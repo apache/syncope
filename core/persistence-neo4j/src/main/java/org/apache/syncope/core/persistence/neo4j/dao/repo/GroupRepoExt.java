@@ -35,9 +35,7 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     String CACHE = "groupCache";
 
-    String DYN_GROUP_USER_MEMBERSHIP_REL = "DYN_GROUP_USER_MEMBERSHIP";
-
-    String DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL = "DYN_GROUP_ANY_OBJECT_MEMBERSHIP";
+    String DYN_GROUP_MEMBERSHIP_REL = "DYN_GROUP_MEMBERSHIP_REL";
 
     void securityChecks(Set<String> authRealms, String key, String realm);
 
@@ -63,9 +61,7 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     List<String> findUDynMembers(Group group);
 
-    void clearADynMembers(Group group);
-
-    void clearUDynMembers(Group group);
+    void clearDynMembers(Group group);
 
     GroupDAO.DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
 

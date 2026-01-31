@@ -24,7 +24,6 @@ import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
-import org.neo4j.driver.Logging;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -41,11 +40,10 @@ public class MasterDomain {
         return GraphDatabase.driver(
                 props.getDomain().getFirst().getUri(),
                 AuthTokens.basic(props.getDomain().getFirst().getUsername(),
-                    props.getDomain().getFirst().getPassword()),
+                        props.getDomain().getFirst().getPassword()),
                 Config.builder().
                         withMaxConnectionPoolSize(props.getDomain().getFirst().getMaxConnectionPoolSize()).
-                        withDriverMetrics().
-                        withLogging(Logging.slf4j()).build());
+                        build());
     }
 
     @Bean(name = "MasterContentXML")
