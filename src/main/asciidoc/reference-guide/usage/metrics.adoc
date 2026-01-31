@@ -52,4 +52,4 @@ This can be enabled by adding the following dependency to `wa/pom.xml`:
 </dependency>
 ----
 
-For further options and configuration, refer to https://apereo.github.io/cas/7.2.x/monitoring/Configuring-Metrics.html[CAS documentation^].
+For further options and configuration, refer to https://apereo.github.io/cas/7.3.x/monitoring/Configuring-Metrics.html[CAS documentation^].
