@@ -18,13 +18,12 @@
 //
 === High-Availability
 
-[discrete]
-===== OpenJPA
+==== Core HA
 
 When deploying multiple Syncope <<core>> instances with a single database or database cluster, it is of
-fundamental importance that the contained OpenJPA instances are correctly configured for
-https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_event.html[remote event notification^]. +
-Such configuration, in fact, allows the OpenJPA data cache to remain synchronized when deployed in multiple JVMs, thus
+fundamental importance that the https://docs.hibernate.org/orm/7.2/userguide/html_single/#caching[second-level cache^]
+is correctly configured for Hibernate ORM.
+Such configuration, in fact, allows the Hibernate ORM cache to remain synchronized across multiple JVMs, thus
 enforcing data consistency across all Syncope Core instances.
 
 The default configuration in `core.properties` is
@@ -34,23 +33,19 @@ The default configuration in `core.properties` is
 persistence.cacheProvider=com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
 ....
 
-which is suited for single JVM installations; with multiple instances, more options like as TCP, JMS or Kubernetes
-are available; see the OpenJPA documentation for reference.
+which is suited for single JVM installations; with multiple instances, more options are available depending on the
+configured https://github.com/jsr107/jsr107spec[JCache^] implementation, such as, for example,
+https://docs.hazelcast.com/hazelcast/5.6/jcache/overview[Hazelcast^],
+https://www.ehcache.org/documentation/3.0/107.html[Ehcache],
+https://infinispan.org/docs/stable/titles/hibernate/hibernate.html[Infinispan^] or
+https://ignite.apache.org/[Apache Ignite^].
 
-[WARNING]
-====
-The https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_event.html[OpenJPA documentation^]'s XML
-snippets refer to a different configuration style; for example, when used in `core.properties`, this:
+Additional, implementation-specific configuration files can be set up via `persistence.cacheURI`.
 
-[source,xml]
-....
-<property name="openjpa.RemoteCommitProvider" value="tcp(Addresses=10.0.1.10;10.0.1.11,TransmitPersistedObjectIds=true)"/>
-....
+==== WA HA
 
-becomes:
-
-[source]
-....
-persistence.remoteCommitProvider=tcp(Addresses=10.0.1.10;10.0.1.11,TransmitPersistedObjectIds=true)
-....
-====
+When multiple Syncope <<web-access>> instances are needed to support authentication and authorization requirements, 
+a distributed https://apereo.github.io/cas/7.3.x/ticketing/Configuring-Ticketing-Components.html#ticket-registry[Ticket Registry^]
+is required, such has the ones based on
+https://apereo.github.io/cas/7.3.x/ticketing/Hazelcast-Ticket-Registry.html[Hazelcast^]
+or https://apereo.github.io/cas/7.3.x/ticketing/Ignite-Ticket-Registry.html[Apache Ignite^].
