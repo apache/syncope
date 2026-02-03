@@ -85,6 +85,6 @@ a|
 * `DELETE {id}` - removes the session with given `id`
 
 | `gateway`
-| https://docs.spring.io/spring-cloud-gateway/reference/4.3/spring-cloud-gateway-server-webflux/actuator-api.html[More details^]
+| https://docs.spring.io/spring-cloud-gateway/reference/5.0/spring-cloud-gateway-server-webflux/actuator-api.html[More details^]
 
 |===

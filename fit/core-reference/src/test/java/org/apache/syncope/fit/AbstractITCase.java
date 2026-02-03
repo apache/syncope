@@ -60,7 +60,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.https.InsecureTrustManager;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -403,6 +406,8 @@ public abstract class AbstractITCase {
 
     private static int POP3_PORT;
 
+    protected static boolean IS_DEPLOYED_IN_PAYARA = false;
+
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
@@ -450,6 +455,25 @@ public abstract class AbstractITCase {
                 taskService, TaskType.SCHEDULED, response.getHeaderString(RESTHeaders.RESOURCE_KEY),
                 MAX_WAIT_SECONDS, false);
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+    }
+
+    @BeforeAll
+    public static void jakartaEEContainerCheck() throws IOException {
+        TLSClientParameters tlsParams = new TLSClientParameters();
+        tlsParams.setTrustManagers(InsecureTrustManager.getNoOpX509TrustManagers());
+        tlsParams.setDisableCNCheck(true);
+
+        WebClient webClient = WebClient.create("https://localhost:8181/");
+        HTTPConduit conduit = WebClient.getConfig(webClient).getHttpConduit();
+        conduit.getClient().setConnectionTimeout(2000);
+        conduit.getClient().setReceiveTimeout(2000);
+        conduit.setTlsClientParameters(tlsParams);
+
+        try {
+            IS_DEPLOYED_IN_PAYARA = webClient.get().readEntity(String.class).contains("Payara");
+        } catch (Exception e) {
+            LOG.debug("While checking if Syncope Core is deployed in Payara", e);
+        }
     }
 
     @BeforeAll
