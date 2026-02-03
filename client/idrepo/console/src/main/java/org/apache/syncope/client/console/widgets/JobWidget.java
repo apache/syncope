@@ -213,10 +213,7 @@ public class JobWidget extends BaseWidget {
         List<JobTO> updatedAvailable = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.NOTIFICATION_LIST)) {
-            JobTO notificationJob = notificationRestClient.getJob();
-            if (notificationJob != null) {
-                updatedAvailable.add(notificationJob);
-            }
+            Optional.ofNullable(notificationRestClient.getJob()).ifPresent(updatedAvailable::add);
         }
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
             updatedAvailable.addAll(taskRestClient.listJobs());
@@ -425,6 +422,8 @@ public class JobWidget extends BaseWidget {
                                 taskType = TaskType.SCHEDULED;
                             } else if (jobTO.getRefDesc().startsWith("PULL")) {
                                 taskType = TaskType.PULL;
+                            } else if (jobTO.getRefDesc().startsWith("LIVE_SYNC")) {
+                                taskType = TaskType.LIVE_SYNC;
                             } else if (jobTO.getRefDesc().startsWith("PUSH")) {
                                 taskType = TaskType.PUSH;
                             } else if (jobTO.getRefDesc().startsWith("MACRO")) {
