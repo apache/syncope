@@ -102,8 +102,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             final ClassPathScanImplementationLookup lookup,
             final ServiceOps serviceOps,
             final List<IResource> resources,
-            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader
-    ) {
+            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader) {
 
         this.resourceLoader = resourceLoader;
         this.props = props;

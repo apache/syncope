@@ -42,10 +42,12 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.EntityCacheEndpoint;
 import org.apache.syncope.core.starter.actuate.ExternalResourcesHealthIndicator;
+import org.apache.syncope.core.starter.actuate.JobEndpoint;
 import org.apache.syncope.core.starter.actuate.SyncopeCoreInfoContributor;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -179,6 +181,12 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
     @Bean
     public EntityCacheEndpoint entityCacheEndpoint(final EntityCacheDAO entityCacheDAO) {
         return new EntityCacheEndpoint(entityCacheDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public JobEndpoint jobEndpoint(final SyncopeTaskScheduler syncopeTaskScheduler) {
+        return new JobEndpoint(syncopeTaskScheduler);
     }
 
     @Bean

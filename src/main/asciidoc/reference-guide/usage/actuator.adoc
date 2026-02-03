@@ -45,6 +45,11 @@ a| Allows to work with https://docs.hibernate.org/orm/7.2/userguide/html_single/
 * `GET` - shows JPA cache statistics
 * `POST {ENABLE,DISABLE,RESET}` - performs the requested operation onto JPA cache
 * `DELETE` - clears JPA cache's current content
+| `job`
+a| Allows to work with the various jobs defined after <<tasks>> and <<reports>>.
+
+* `GET` - shows the existing job data
+* `POST {START,STOP,DELETE}` - performs the requested action on a given Job
 
 |===
 
@@ -80,6 +85,6 @@ a|
 * `DELETE {id}` - removes the session with given `id`
 
 | `gateway`
-| https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway/actuator-api.html[More details^]
+| https://docs.spring.io/spring-cloud-gateway/reference/4.3/spring-cloud-gateway-server-webflux/actuator-api.html[More details^]
 
 |===
