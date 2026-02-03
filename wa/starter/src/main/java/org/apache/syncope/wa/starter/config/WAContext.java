@@ -469,7 +469,6 @@ public class WAContext {
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public PasswordManagementService passwordChangeService(
-            final ConfigurableApplicationContext ctx,
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
