@@ -39,15 +39,13 @@ import org.springframework.scheduling.support.CronTrigger;
 
 public class SyncopeTaskScheduler {
 
-    protected record Key(String domain, String job) {
+    public record Key(String domain, String job) {
 
     }
 
-    protected record Value(Job job, Optional<ScheduledFuture<?>> instant, Optional<ScheduledFuture<?>> cron) {
+    public record Value(Job job, Optional<ScheduledFuture<?>> instant, Optional<ScheduledFuture<?>> cron) {
 
     }
-
-    public static final String CACHE = "jobCache";
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeTaskScheduler.class);
 
@@ -151,5 +149,9 @@ public class SyncopeTaskScheduler {
 
     public List<String> getJobNames(final String domain) {
         return jobs.keySet().stream().filter(key -> domain.equals(key.domain())).map(Key::job).toList();
+    }
+
+    public Map<Key, Value> getJobs() {
+        return Map.copyOf(jobs);
     }
 }

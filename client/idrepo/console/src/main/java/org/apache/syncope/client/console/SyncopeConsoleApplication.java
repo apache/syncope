@@ -89,8 +89,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final Cache<String, OffsetDateTime> loggedoutSessionIdCache,
             @Qualifier(SyncopeWebApplication.DESTROYED_SESSIONID_CACHE)
             final Cache<String, OffsetDateTime> destroyedSessionIdCache,
-            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader
-    ) {
+            final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader) {
 
         return new SyncopeWebApplication(
                 props,
