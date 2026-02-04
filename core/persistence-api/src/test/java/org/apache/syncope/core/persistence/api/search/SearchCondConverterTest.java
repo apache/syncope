@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.UUID;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
@@ -29,7 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -196,19 +194,6 @@ public class SearchCondConverterTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("User reviewer");
         SearchCond leaf = SearchCond.of(roleCond);
-
-        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
-    }
-
-    @Test
-    public void dynRealms() {
-        String dynRealm = UUID.randomUUID().toString();
-        String fiql = new UserFiqlSearchConditionBuilder().inDynRealms(dynRealm).query();
-        assertEquals(SpecialAttr.DYNREALMS + "==" + dynRealm, fiql);
-
-        DynRealmCond dynRealmCond = new DynRealmCond();
-        dynRealmCond.setDynRealm(dynRealm);
-        SearchCond leaf = SearchCond.of(dynRealmCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }

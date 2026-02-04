@@ -22,7 +22,6 @@ public enum EntityViolationType {
 
     Standard,
     InvalidAnyType,
-    InvalidADynMemberships,
     InvalidConnInstanceLocation,
     InvalidConnPoolConf,
     InvalidFormPropertyDef,
@@ -33,7 +32,6 @@ public enum EntityViolationType {
     InvalidPolicy,
     InvalidPropagationTask,
     InvalidRealm,
-    InvalidDynRealm,
     InvalidReport,
     InvalidResource,
     InvalidGroupOwner,

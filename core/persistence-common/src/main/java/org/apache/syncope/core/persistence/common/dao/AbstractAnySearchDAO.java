@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -43,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -81,21 +79,11 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     protected static SearchCond buildEffectiveCond(
             final SearchCond cond,
-            final Set<String> dynRealmKeys,
             final Set<String> groupOwners,
             final AnyTypeKind kind) {
 
         List<SearchCond> result = new ArrayList<>();
         result.add(cond);
-
-        List<SearchCond> dynRealmConds = dynRealmKeys.stream().map(key -> {
-            DynRealmCond dynRealmCond = new DynRealmCond();
-            dynRealmCond.setDynRealm(key);
-            return SearchCond.of(dynRealmCond);
-        }).toList();
-        if (!dynRealmConds.isEmpty()) {
-            result.add(SearchCond.or(dynRealmConds));
-        }
 
         List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
             AbstractSearchCond asc;
@@ -150,8 +138,6 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     protected final RealmSearchDAO realmSearchDAO;
 
-    protected final DynRealmDAO dynRealmDAO;
-
     protected final UserDAO userDAO;
 
     protected final GroupDAO groupDAO;
@@ -168,7 +154,6 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     public AbstractAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -178,7 +163,6 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             final PlainAttrValidationManager validator) {
 
         this.realmSearchDAO = realmSearchDAO;
-        this.dynRealmDAO = dynRealmDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;

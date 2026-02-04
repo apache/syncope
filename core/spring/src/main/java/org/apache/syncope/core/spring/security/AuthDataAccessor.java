@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -363,9 +362,6 @@ public class AuthDataAccessor {
             });
 
             realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
-            }
         }));
 
         // Give group entitlements for owned groups
@@ -397,9 +393,6 @@ public class AuthDataAccessor {
             });
 
             realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
-            }
         }));
 
         return buildAuthorities(entForRealms);

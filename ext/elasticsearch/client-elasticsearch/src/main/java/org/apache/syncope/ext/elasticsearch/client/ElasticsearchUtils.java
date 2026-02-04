@@ -120,7 +120,6 @@ public class ElasticsearchUtils {
                 relationships(anyObjectDAO.findAllRelationships(anyObject), builder);
 
                 builder.put("resources", anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
-                builder.put("dynRealms", anyObjectDAO.findDynRealms(anyObject.getKey()));
 
                 customizeDocument(builder, anyObject);
             }
@@ -132,16 +131,13 @@ public class ElasticsearchUtils {
                 Set<String> members = new HashSet<>();
                 members.addAll(groupDAO.findUMemberships(group, Pageable.unpaged()).stream().
                         map(membership -> membership.getLeftEnd().getKey()).toList());
-                members.addAll(groupDAO.findUDynMembers(group));
                 members.addAll(groupDAO.findAMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).toList());
-                members.addAll(groupDAO.findADynMembers(group));
                 builder.put("members", members);
 
                 relationships(group.getRelationships(), builder);
 
                 builder.put("resources", groupDAO.findAllResourceKeys(group.getKey()));
-                builder.put("dynRealms", groupDAO.findDynRealms(group.getKey()));
 
                 customizeDocument(builder, group);
             }
@@ -162,7 +158,6 @@ public class ElasticsearchUtils {
                 relationships(user.getRelationships(), builder);
 
                 builder.put("resources", userDAO.findAllResourceKeys(user.getKey()));
-                builder.put("dynRealms", userDAO.findDynRealms(user.getKey()));
 
                 customizeDocument(builder, user);
             }

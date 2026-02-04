@@ -51,7 +51,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupCR);
         metadata(group, creator, context);
-        group = groupDAO.saveAndRefreshDynMemberships(group);
+        group = groupDAO.save(group);
 
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.CREATE, group, AuthContextUtils.getDomain()));

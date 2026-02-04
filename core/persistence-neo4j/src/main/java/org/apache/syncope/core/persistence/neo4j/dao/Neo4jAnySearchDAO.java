@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -49,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -67,12 +65,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyRepoExt;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.DynRealmRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.GroupRepoExt;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.RoleRepoExt;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
@@ -93,7 +88,7 @@ import org.springframework.data.util.Streamable;
 
 public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected record AdminRealmsFilter(String filter, Set<String> dynRealmKeys, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(String filter, Set<String> groupOwners) {
 
     }
 
@@ -143,7 +138,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     public Neo4jAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -156,7 +150,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         super(
                 realmSearchDAO,
-                dynRealmDAO,
                 userDAO,
                 groupDAO,
                 anyObjectDAO,
@@ -191,38 +184,28 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Map<String, Object> parameters) {
 
         Set<String> realmKeys = new HashSet<>();
-        Set<String> dynRealmKeys = new HashSet<>();
         Set<String> groupOwners = new HashSet<>();
 
         if (recursive) {
             adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
                     goRealm -> groupOwners.add(goRealm.groupKey()),
                     () -> {
-                        if (realmPath.startsWith("/")) {
-                            Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
-                                SyncopeClientException noRealm =
-                                        SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                                noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                                return noRealm;
-                            });
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
-                            realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
-                        } else {
-                            dynRealmDAO.findById(realmPath).ifPresentOrElse(
-                                    dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
-                                    () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
-                        }
+                        realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
                     }));
-            if (!dynRealmKeys.isEmpty()) {
-                realmKeys.clear();
-            }
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 realmKeys.add(base.getKey());
             }
         }
 
-        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, parameters), dynRealmKeys, groupOwners);
+        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, parameters), groupOwners);
     }
 
     protected String getQuery(
@@ -339,21 +322,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "")
                 + "(n)-[:" + Neo4jUser.ROLE_MEMBERSHIP_REL + "]-"
-                + "(:" + Neo4jRole.NODE + " {id: $" + param + "}) "
-                + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + RoleRepoExt.DYN_ROLE_MEMBERSHIP_REL + "]-"
-                + "(:" + Neo4jRole.NODE + " {id: $" + param + "}) } ";
-    }
-
-    protected String getQuery(
-            final DynRealmCond cond,
-            final boolean not,
-            final Map<String, Object> parameters) {
-
-        return "MATCH (n) "
-                + "WHERE " + (not ? "NOT " : "") + "(n)-"
-                + "[:" + DynRealmRepoExt.DYN_REALM_MEMBERSHIP_REL + "]-"
-                + "(:" + Neo4jDynRealm.NODE + " {id: $" + setParameter(parameters, cond.getDynRealm()) + "}) ";
+                + "(:" + Neo4jRole.NODE + " {id: $" + param + "}) ";
     }
 
     protected String getQuery(
@@ -766,9 +735,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.asLeaf(DynRealmCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
-
                 cond.asLeaf(ResourceCond.class).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
@@ -958,7 +924,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         // 1. get the query string from the search condition
         QueryInfo queryInfo = getQuery(
-                kind, buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters);
+                kind, buildEffectiveCond(cond, filter.groupOwners(), kind), parameters);
 
         // 2. wrap query
         wrapQuery(queryInfo, Streamable.empty(), kind, filter.filter());
@@ -1025,7 +991,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         // 1. get the query string from the search condition
         QueryInfo queryInfo = getQuery(
-                kind, buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters);
+                kind, buildEffectiveCond(cond, filter.groupOwners(), kind), parameters);
 
         // 2. wrap query
         wrapQuery(queryInfo, pageable.getSort(), kind, filter.filter());

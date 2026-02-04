@@ -26,6 +26,4 @@ public interface GroupableRelatableTO extends RelatableTO {
     Optional<MembershipTO> getMembership(String groupKey);
 
     List<MembershipTO> getMemberships();
-
-    List<MembershipTO> getDynMemberships();
 }

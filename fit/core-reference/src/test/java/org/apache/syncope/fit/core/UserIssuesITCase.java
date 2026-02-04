@@ -1371,35 +1371,6 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE1099() {
-        // 1. create group with dynamic condition and resource
-        GroupCR groupCR = GroupITCase.getSample("syncope1099G");
-        groupCR.getResources().clear();
-        groupCR.getResources().add(RESOURCE_NAME_TESTDB);
-        groupCR.setUDynMembershipCond("firstname==issueSYNCOPE1099");
-
-        GroupTO group = createGroup(groupCR).getEntity();
-        assertNotNull(group);
-
-        // 2. create user matching the condition above
-        UserCR userCR = UserITCase.getUniqueSample("syncope1099U@apache.org");
-        userCR.getPlainAttr("firstname").orElseThrow().getValues().set(0, "issueSYNCOPE1099");
-
-        ProvisioningResult<UserTO> created = createUser(userCR);
-        assertNotNull(created);
-
-        // 3. verify that dynamic membership is set and that resource is consequently assigned
-        UserTO user = created.getEntity();
-        String groupKey = group.getKey();
-        assertTrue(user.getDynMemberships().stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB));
-
-        // 4. verify that propagation happened towards the resource of the dynamic group
-        assertFalse(created.getPropagationStatuses().isEmpty());
-        assertEquals(RESOURCE_NAME_TESTDB, created.getPropagationStatuses().getFirst().getResource());
-    }
-
-    @Test
     public void issueSYNCOPE1166() {
         assumeFalse(IS_NEO4J_PERSISTENCE);
 
@@ -1423,42 +1394,6 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
-    }
-
-    @Test
-    public void issueSYNCOPE1206() {
-        // 1. create group with dynamic user condition 'cool==true'
-        GroupCR dynGroupCR = GroupITCase.getSample("syncope1206");
-        dynGroupCR.setUDynMembershipCond(
-                SyncopeClient.getUserSearchConditionBuilder().is("cool").equalTo("true").query());
-        GroupTO dynGroup = createGroup(dynGroupCR).getEntity();
-        assertNotNull(dynGroup);
-        assertTrue(dynGroup.getResources().contains(RESOURCE_NAME_LDAP));
-
-        // 2. create user (no value for cool, no dynamic membership, no propagation to LDAP)
-        UserCR userCR = UserITCase.getUniqueSample("syncope1206@apache.org");
-        userCR.getResources().clear();
-
-        ProvisioningResult<UserTO> result = createUser(userCR);
-        assertTrue(result.getPropagationStatuses().isEmpty());
-
-        // 3. update user to match the dynamic condition: expect propagation to LDAP
-        UserUR userUR = new UserUR();
-        userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("cool", "true")).build());
-
-        result = updateUser(userUR);
-        assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
-
-        // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
-        userUR = new UserUR();
-        userUR.setKey(result.getEntity().getKey());
-        userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("cool", "false")).build());
-
-        result = updateUser(userUR);
-        assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
     }
 
     @Test

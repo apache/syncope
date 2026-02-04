@@ -36,10 +36,6 @@ public class RoleTO implements EntityTO {
 
     private final List<String> realms = new ArrayList<>();
 
-    private final List<String> dynRealms = new ArrayList<>();
-
-    private String dynMembershipCond;
-
     @Override
     public String getKey() {
         return key;
@@ -59,18 +55,6 @@ public class RoleTO implements EntityTO {
         return realms;
     }
 
-    public List<String> getDynRealms() {
-        return dynRealms;
-    }
-
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -87,8 +71,6 @@ public class RoleTO implements EntityTO {
                 append(key, other.key).
                 append(entitlements, other.entitlements).
                 append(realms, other.realms).
-                append(dynRealms, other.dynRealms).
-                append(dynMembershipCond, other.dynMembershipCond).
                 build();
     }
 
@@ -98,8 +80,6 @@ public class RoleTO implements EntityTO {
                 append(key).
                 append(entitlements).
                 append(realms).
-                append(dynRealms).
-                append(dynMembershipCond).
                 build();
     }
 }

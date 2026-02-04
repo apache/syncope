@@ -24,7 +24,6 @@ public class ExecutorProperties {
 
     private int awaitTerminationSeconds = 5;
 
-
     public int getPoolSize() {
         return poolSize;
     }

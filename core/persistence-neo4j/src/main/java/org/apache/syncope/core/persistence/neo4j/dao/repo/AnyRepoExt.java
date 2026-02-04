@@ -81,8 +81,6 @@ public interface AnyRepoExt<A extends Any> {
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
-    List<String> findDynRealms(String key);
-
     Collection<String> findAllResourceKeys(String key);
 
     List<A> findByResourcesContaining(ExternalResource resource);

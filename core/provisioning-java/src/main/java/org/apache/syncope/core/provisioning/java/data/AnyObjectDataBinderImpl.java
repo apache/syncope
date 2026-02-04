@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -130,9 +129,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                 derAttrHandler.getValues(anyObject),
                 anyObjectDAO.findAllResources(anyObject));
 
-        // dynamic realms
-        anyObjectTO.getDynRealms().addAll(anyObjectDAO.findDynRealms(anyObject.getKey()));
-
         if (details) {
             // relationships
             anyObjectTO.getRelationships().addAll(
@@ -154,12 +150,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                     anyObject.getPlainAttrs(membership),
                     derAttrHandler.getValues((Groupable<?, ?, ?>) anyObject, membership),
                     membership)).toList());
-
-            // dynamic memberships
-            anyObjectTO.getDynMemberships().addAll(
-                    anyObjectDAO.findDynGroups(anyObject.getKey()).stream().
-                            map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                            toList());
         }
 
         return anyObjectTO;

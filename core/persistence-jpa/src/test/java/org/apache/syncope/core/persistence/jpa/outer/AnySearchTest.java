@@ -30,21 +30,16 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -77,39 +72,7 @@ public class AnySearchTest extends AbstractTest {
     private RealmDAO realmDAO;
 
     @Autowired
-    private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private RoleDAO roleDAO;
-
-    @Autowired
     private PlainAttrValidationManager validator;
-
-    @Test
-    public void searchByDynMembership() {
-        // 1. create role with dynamic membership
-        Role role = entityFactory.newEntity(Role.class);
-        role.setKey("new");
-        role.add(realmDAO.getRoot());
-        role.add(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
-        role.setDynMembershipCond("cool==true");
-
-        role = roleDAO.saveAndRefreshDynMemberships(role);
-        assertNotNull(role);
-
-        entityManager.flush();
-
-        // 2. search user by this dynamic role
-        RoleCond roleCond = new RoleCond();
-        roleCond.setRole(role.getKey());
-
-        List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
-    }
 
     @Test
     public void searchAsGroupOwner() {

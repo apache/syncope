@@ -173,26 +173,6 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void inDynRealms() {
-        try {
-            FilterConverter.convert(SpecialAttr.DYNREALMS + "==realm");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
-    }
-
-    @Test
-    public void notInDynRealms() {
-        try {
-            FilterConverter.convert(SpecialAttr.DYNREALMS + "!=realm");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
-    }
-
-    @Test
     public void hasAuxClasses() {
         try {
             FilterConverter.convert(SpecialAttr.AUX_CLASSES + "==clazz1");

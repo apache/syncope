@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.role;
 
-import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.panels.search.SearchUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.to.RoleTO;
 
@@ -30,34 +25,7 @@ public class RoleWrapper extends EntityWrapper<RoleTO> {
 
     private static final long serialVersionUID = 8058288034211558376L;
 
-    private List<SearchClause> dynClauses;
-
     public RoleWrapper(final RoleTO roleTO) {
         super(roleTO);
-        getDynClauses();
-    }
-
-    public final List<SearchClause> getDynClauses() {
-        if (this.dynClauses == null) {
-            this.dynClauses = SearchUtils.getSearchClauses(getInnerObject().getDynMembershipCond());
-        }
-        return this.dynClauses;
-    }
-
-    public void setDynClauses(final List<SearchClause> dynClauses) {
-        this.dynClauses = dynClauses;
-    }
-
-    public String getDynMembershipCond() {
-        if (CollectionUtils.isEmpty(this.dynClauses)) {
-            return null;
-        }
-
-        return SearchUtils.buildFIQL(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
-    }
-
-    public RoleTO fillDynamicConditions() {
-        getInnerObject().setDynMembershipCond(this.getDynMembershipCond());
-        return getInnerObject();
     }
 }

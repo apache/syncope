@@ -295,12 +295,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO unlink(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR.Builder(key).
+        GroupUR req = new GroupUR.Builder(groupTO.getKey()).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
 
         return binder.getGroupTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -311,12 +309,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public GroupTO link(final String key, final Collection<String> resources) {
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR.Builder(key).
+        GroupUR req = new GroupUR.Builder(groupTO.getKey()).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
 
         return binder.getGroupTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -329,12 +325,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR.Builder(key).
+        GroupUR req = new GroupUR.Builder(groupTO.getKey()).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
 
         return update(req, nullPriorityAsync);
@@ -351,12 +345,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         GroupTO groupTO = updateChecks(key);
 
-        GroupUR req = new GroupUR.Builder(key).
+        GroupUR req = new GroupUR.Builder(groupTO.getKey()).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                         toList()).
-                udynMembershipCond(groupTO.getUDynMembershipCond()).
-                adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
 
         return update(req, nullPriorityAsync);

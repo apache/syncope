@@ -19,9 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -92,21 +89,8 @@ public class SearchSupport {
         return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "membership");
     }
 
-    public SearchView dyngroupmembership() {
-        return new SearchView("sv" + anyTypeKind.name() + "dgm",
-                anyTypeKind == AnyTypeKind.USER ? GroupRepoExt.UDYNMEMB_TABLE : GroupRepoExt.ADYNMEMB_TABLE);
-    }
-
     public SearchView role() {
         return new SearchView("svr", field().name + "_role");
-    }
-
-    public static SearchView dynrolemembership() {
-        return new SearchView("svdr", RoleRepoExt.DYNMEMB_TABLE);
-    }
-
-    public static SearchView dynrealmmembership() {
-        return new SearchView("svdrealm", DynRealmRepoExt.DYNMEMB_TABLE);
     }
 
     public SearchView auxClass() {

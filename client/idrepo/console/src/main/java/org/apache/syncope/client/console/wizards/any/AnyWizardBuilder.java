@@ -113,9 +113,6 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
             if (groupFormLayoutInfo.isOwnership()) {
                 wizardModel.add(new Ownership(gw, pageRef));
             }
-            if (groupFormLayoutInfo.isDynamicMemberships()) {
-                wizardModel.add(new DynamicMemberships(gw, pageRef));
-            }
         }
 
         if (formLayoutInfo.isAuxClasses()) {

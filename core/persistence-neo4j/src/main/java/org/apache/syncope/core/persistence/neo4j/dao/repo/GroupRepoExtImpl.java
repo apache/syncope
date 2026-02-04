@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,50 +28,34 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroupTypeExtension;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
@@ -81,7 +64,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -93,15 +75,9 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     protected final RealmDAO realmDAO;
 
-    protected final AnyMatchDAO anyMatchDAO;
-
     protected final UserDAO userDAO;
 
     protected final AnyObjectDAO anyObjectDAO;
-
-    protected final AnySearchDAO anySearchDAO;
-
-    protected final SearchCondVisitor searchCondVisitor;
 
     protected final NodeValidator nodeValidator;
 
@@ -114,14 +90,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final DynRealmDAO dynRealmDAO,
             final RealmDAO realmDAO,
-            final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO anySearchDAO,
             final AnyFinder anyFinder,
-            final SearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -132,18 +104,14 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP),
                 neo4jTemplate,
                 neo4jClient);
         this.publisher = publisher;
         this.realmDAO = realmDAO;
-        this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
-        this.anySearchDAO = anySearchDAO;
-        this.searchCondVisitor = searchCondVisitor;
         this.nodeValidator = nodeValidator;
         this.groupCache = groupCache;
     }
@@ -170,11 +138,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
                 || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
-
-        // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
-        }
 
         if (authRealms.isEmpty() || !authorized) {
             Optional.ofNullable(key).map(EntityCacheKey::of).ifPresent(groupCache::remove);
@@ -321,14 +284,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                         Neo4jGroup.GROUP_OWNER_REL);
             }
 
-            if (before.getUDynMembership() != null && group.getUDynMembership() == null) {
-                neo4jTemplate.deleteById(before.getUDynMembership().getKey(), Neo4jUDynGroupMembership.class);
-            }
-            Set<String> beforeADynMembs = before.getADynMemberships().stream().map(ADynGroupMembership::getKey).
-                    collect(Collectors.toSet());
-            beforeADynMembs.removeAll(group.getADynMemberships().stream().map(ADynGroupMembership::getKey).toList());
-            beforeADynMembs.forEach(m -> neo4jTemplate.deleteById(m, Neo4jADynGroupMembership.class));
-
             Set<String> beforeTypeExts = before.getTypeExtensions().stream().map(GroupTypeExtension::getKey).
                     collect(Collectors.toSet());
             beforeTypeExts.removeAll(group.getTypeExtensions().stream().map(GroupTypeExtension::getKey).toList());
@@ -343,70 +298,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     }
 
     @Override
-    public Group saveAndRefreshDynMemberships(final Group group) {
-        Group merged = save(group);
-
-        // refresh dynamic memberships
-        clearUDynMembers(merged);
-        if (merged.getUDynMembership() != null) {
-            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, merged.getUDynMembership().getFIQLCond());
-            long count = anySearchDAO.count(
-                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.USER);
-            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                List<User> matching = anySearchDAO.search(
-                        realmDAO.getRoot(),
-                        true,
-                        Set.of(SyncopeConstants.ROOT_REALM),
-                        cond,
-                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        AnyTypeKind.USER);
-
-                matching.forEach(user -> {
-                    neo4jClient.query(
-                            "MATCH (a:" + Neo4jUser.NODE + " {id: $aid}), (b:" + Neo4jGroup.NODE + "{id: $gid}) "
-                            + "CREATE (a)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]->(b)").
-                            bindAll(Map.of("aid", user.getKey(), "gid", merged.getKey())).run();
-
-                    publisher.publishEvent(
-                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
-                });
-            }
-        }
-        clearADynMembers(merged);
-        merged.getADynMemberships().forEach(memb -> {
-            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond());
-            long count = anySearchDAO.count(
-                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, AnyTypeKind.ANY_OBJECT);
-            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                List<AnyObject> matching = anySearchDAO.search(
-                        realmDAO.getRoot(),
-                        true,
-                        Set.of(SyncopeConstants.ROOT_REALM),
-                        cond,
-                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        AnyTypeKind.ANY_OBJECT);
-
-                matching.forEach(any -> {
-                    neo4jClient.query(
-                            "MATCH (a:" + Neo4jAnyObject.NODE + " {id: $aid}), (b:" + Neo4jGroup.NODE + "{id: $gid}) "
-                            + "CREATE (a)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]->(b)").
-                            bindAll(Map.of("aid", any.getKey(), "gid", merged.getKey())).run();
-
-                    publisher.publishEvent(
-                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
-                });
-            }
-        });
-
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return merged;
-    }
-
-    @Override
     public void delete(final Group group) {
-        dynRealmDAO.removeDynMemberships(group.getKey());
-
         findAMemberships(group).forEach(membership -> {
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
@@ -431,18 +323,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
-        clearUDynMembers(group);
-        clearADynMembers(group);
-
-        Optional.ofNullable(group.getUDynMembership()).
-                ifPresent(r -> neo4jTemplate.deleteById(r.getKey(), Neo4jUDynGroupMembership.class));
-
         groupCache.remove(EntityCacheKey.of(group.getKey()));
-
-        cascadeDelete(
-                Neo4jADynGroupMembership.NODE,
-                Neo4jGroup.NODE,
-                group.getKey());
 
         cascadeDelete(
                 Neo4jGroupTypeExtension.NODE,
@@ -460,193 +341,5 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 anyTypeClass.getKey(),
                 Neo4jGroupTypeExtension.class,
                 null);
-    }
-
-    @Override
-    public long countADynMembers(final Group group) {
-        return neo4jTemplate.count(
-                "MATCH (n)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN COUNT(DISTINCT n.id)", Map.of("id", group.getKey()));
-    }
-
-    @Override
-    public long countUDynMembers(final Group group) {
-        return neo4jTemplate.count(
-                "MATCH (n)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN COUNT(DISTINCT n.id)", Map.of("id", group.getKey()));
-    }
-
-    @Override
-    public List<String> findADynMembers(final Group group) {
-        return neo4jClient.query(
-                "MATCH (n)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN DISTINCT n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
-                map(found -> found.get("n.id").toString()).toList();
-    }
-
-    @Override
-    public List<String> findUDynMembers(final Group group) {
-        return neo4jClient.query(
-                "MATCH (n)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN DISTINCT n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
-                map(found -> found.get("n.id").toString()).toList();
-    }
-
-    @Override
-    public void clearADynMembers(final Group group) {
-        neo4jClient.query(
-                "MATCH (n)-[r:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-(p:" + Neo4jGroup.NODE + " {id: $id})"
-                + "DETACH DELETE r").
-                bindAll(Map.of("id", group.getKey())).run();
-    }
-
-    @Override
-    public void clearUDynMembers(final Group group) {
-        neo4jClient.query(
-                "MATCH (n)-[r:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "DETACH DELETE r").
-                bindAll(Map.of("id", group.getKey())).run();
-    }
-
-    protected List<ADynGroupMembership> findWithADynMemberships(final AnyType anyType) {
-        return findByRelationship(
-                Neo4jADynGroupMembership.NODE,
-                Neo4jAnyType.NODE,
-                anyType.getKey(),
-                Neo4jADynGroupMembership.class,
-                null);
-    }
-
-    @Transactional
-    @Override
-    public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
-        Set<String> before = new HashSet<>();
-        Set<String> after = new HashSet<>();
-        findWithADynMemberships(anyObject.getType()).forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    anyObject, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
-            if (matches) {
-                after.add(memb.getGroup().getKey());
-            }
-
-            boolean existing = neo4jTemplate.count(
-                    "MATCH (n:" + Neo4jAnyObject.NODE + " {id: $aid})-"
-                    + "[r:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
-                    + "(p:" + Neo4jGroup.NODE + "{id: $gid}) "
-                    + "RETURN COUNT(n)",
-                    Map.of("aid", anyObject.getKey(), "gid", memb.getGroup().getKey())) > 0;
-            if (existing) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (matches && !existing) {
-                neo4jClient.query(
-                        "MATCH (a:" + Neo4jAnyObject.NODE + " {id: $aid}), (b:" + Neo4jGroup.NODE + "{id: $gid}) "
-                        + "CREATE (a)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]->(b)").
-                        bindAll(Map.of("aid", anyObject.getKey(), "gid", memb.getGroup().getKey())).run();
-            } else if (!matches && existing) {
-                neo4jClient.query(
-                        "MATCH (n {id: $aid})-"
-                        + "[r:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
-                        + "(p:" + Neo4jGroup.NODE + " {id: $gid}) "
-                        + "DETACH DELETE r").
-                        bindAll(Map.of("aid", anyObject.getKey(), "gid", memb.getGroup().getKey())).run();
-            }
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
-        });
-
-        return new GroupDAO.DynMembershipInfo(before, after);
-    }
-
-    @Override
-    public Set<String> removeDynMemberships(final AnyObject anyObject) {
-        List<Group> dynGroups = anyObjectDAO.findDynGroups(anyObject.getKey());
-
-        neo4jClient.query(
-                "MATCH (n {id: $id})-[r:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-(p:" + Neo4jGroup.NODE + ") "
-                + "DETACH DELETE r").bindAll(Map.of("id", anyObject.getKey())).run();
-
-        Set<String> before = new HashSet<>();
-        dynGroups.forEach(group -> {
-            before.add(group.getKey());
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
-        });
-
-        return before;
-    }
-
-    protected List<UDynGroupMembership> findWithUDynMemberships() {
-        return neo4jTemplate.findAll(Neo4jUDynGroupMembership.class).stream().
-                map(UDynGroupMembership.class::cast).toList();
-    }
-
-    @Transactional
-    @Override
-    public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
-        Set<String> before = new HashSet<>();
-        Set<String> after = new HashSet<>();
-        findWithUDynMemberships().forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    user, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
-            if (matches) {
-                after.add(memb.getGroup().getKey());
-            }
-
-            boolean existing = neo4jTemplate.count(
-                    "MATCH (n:" + Neo4jUser.NODE + " {id: $aid})-"
-                    + "[r:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                    + "(p:" + Neo4jGroup.NODE + "{id: $gid}) "
-                    + "RETURN COUNT(n)",
-                    Map.of("aid", user.getKey(), "gid", memb.getGroup().getKey())) > 0;
-            if (existing) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (matches && !existing) {
-                neo4jClient.query(
-                        "MATCH (a:" + Neo4jUser.NODE + " {id: $aid}), (b:" + Neo4jGroup.NODE + "{id: $gid}) "
-                        + "CREATE (a)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]->(b)").
-                        bindAll(Map.of("aid", user.getKey(), "gid", memb.getGroup().getKey())).run();
-            } else if (!matches && existing) {
-                neo4jClient.query(
-                        "MATCH (n {id: $aid})-"
-                        + "[r:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                        + "(p:" + Neo4jGroup.NODE + " {id: $gid}) "
-                        + "DETACH DELETE r").
-                        bindAll(Map.of("aid", user.getKey(), "gid", memb.getGroup().getKey())).run();
-            }
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
-        });
-
-        return new GroupDAO.DynMembershipInfo(before, after);
-    }
-
-    @Override
-    public Set<String> removeDynMemberships(final User user) {
-        List<Group> dynGroups = userDAO.findDynGroups(user.getKey());
-
-        neo4jClient.query(
-                "MATCH (n {id: $id})-[r:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-(p:" + Neo4jGroup.NODE + ") "
-                + "DETACH DELETE r").bindAll(Map.of("id", user.getKey())).run();
-
-        Set<String> before = new HashSet<>();
-        dynGroups.forEach(group -> {
-            before.add(group.getKey());
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
-        });
-
-        return before;
     }
 }

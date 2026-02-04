@@ -22,13 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleRepoExt {
 
     String CACHE = "roleCache";
-
-    String DYN_ROLE_MEMBERSHIP_REL = "DYN_ROLE_MEMBERSHIP";
 
     Optional<? extends Role> findById(String key);
 
@@ -39,14 +36,4 @@ public interface RoleRepoExt {
     void deleteById(String key);
 
     void delete(Role role);
-
-    Role saveAndRefreshDynMemberships(Role role);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
 }

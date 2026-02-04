@@ -28,8 +28,6 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
 
     private boolean ownership = true;
 
-    private boolean dynamicMemberships = true;
-
     private boolean typeExtensions = true;
 
     @Override
@@ -45,14 +43,6 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
         this.ownership = ownership;
     }
 
-    public boolean isDynamicMemberships() {
-        return dynamicMemberships;
-    }
-
-    public void setDynamicMemberships(final boolean dynamicMemberships) {
-        this.dynamicMemberships = dynamicMemberships;
-    }
-
     public boolean isTypeExtensions() {
         return typeExtensions;
     }
@@ -60,5 +50,4 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
     public void setTypeExtensions(final boolean typeExtensions) {
         this.typeExtensions = typeExtensions;
     }
-
 }

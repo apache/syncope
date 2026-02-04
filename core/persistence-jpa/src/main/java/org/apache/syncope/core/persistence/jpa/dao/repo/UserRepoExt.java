@@ -19,10 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -39,11 +37,7 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     void deleteMembership(UMembership membership);
 
-    List<Role> findDynRoles(String key);
-
     Collection<Role> findAllRoles(User user);
-
-    List<Group> findDynGroups(String key);
 
     Collection<Group> findAllGroups(User user);
 
@@ -52,8 +46,6 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     Collection<String> findAllGroupNames(User user);
 
     Collection<ExternalResource> findAllResources(User user);
-
-    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(User user);
 
     boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 

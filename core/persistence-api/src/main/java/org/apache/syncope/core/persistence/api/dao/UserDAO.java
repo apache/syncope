@@ -60,11 +60,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     void deleteMembership(UMembership membership);
 
-    List<Role> findDynRoles(String key);
-
     Collection<Role> findAllRoles(User user);
-
-    List<Group> findDynGroups(String key);
 
     Collection<Group> findAllGroups(User user);
 
@@ -81,6 +77,4 @@ public interface UserDAO extends AnyDAO<User> {
     List<LinkedAccount> findLinkedAccounts(String userKey);
 
     List<LinkedAccount> findLinkedAccountsByResource(ExternalResource resource);
-
-    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(User user);
 }

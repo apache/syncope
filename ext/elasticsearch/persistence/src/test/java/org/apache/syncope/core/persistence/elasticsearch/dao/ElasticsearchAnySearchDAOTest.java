@@ -41,7 +41,6 @@ import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -79,9 +77,6 @@ public class ElasticsearchAnySearchDAOTest {
     private RealmSearchDAO realmSearchDAO;
 
     @Mock
-    private DynRealmDAO dynRealmDAO;
-
-    @Mock
     private GroupDAO groupDAO;
 
     @Mock
@@ -99,7 +94,6 @@ public class ElasticsearchAnySearchDAOTest {
     protected void setupSearchDAO() {
         searchDAO = new ElasticsearchAnySearchDAO(
                 realmSearchDAO,
-                dynRealmDAO,
                 null,
                 groupDAO,
                 null,
@@ -131,24 +125,6 @@ public class ElasticsearchAnySearchDAOTest {
                         field("realm").value("rootKey").caseInsensitive(false).build()).
                         build()).build()).build()).
                 usingRecursiveComparison().isEqualTo(filter.query().get());
-        assertEquals(Set.of(), filter.dynRealmKeys());
-        assertEquals(Set.of(), filter.groupOwners());
-    }
-
-    @Test
-    public void getAdminRealmsFilter4dynRealm() {
-        // 1. mock
-        DynRealm dyn = mock(DynRealm.class);
-        when(dyn.getKey()).thenReturn("dyn");
-
-        when(dynRealmDAO.findById("dyn")).thenAnswer(ic -> Optional.of(dyn));
-
-        // 2. test
-        Set<String> adminRealms = Set.of("dyn");
-        ElasticsearchAnySearchDAO.AdminRealmsFilter filter =
-                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
-        assertFalse(filter.query().isPresent());
-        assertEquals(Set.of("dyn"), filter.dynRealmKeys());
         assertEquals(Set.of(), filter.groupOwners());
     }
 
@@ -158,7 +134,6 @@ public class ElasticsearchAnySearchDAOTest {
         ElasticsearchAnySearchDAO.AdminRealmsFilter filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
         assertFalse(filter.query().isPresent());
-        assertEquals(Set.of(), filter.dynRealmKeys());
         assertEquals(Set.of("groupKey"), filter.groupOwners());
     }
 

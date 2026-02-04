@@ -21,14 +21,11 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.data.domain.Pageable;
 
 public interface GroupRepoExt extends AnyRepoExt<Group> {
@@ -51,29 +48,7 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     List<UMembership> findUMemberships(Group group, Pageable pageable);
 
-    Group saveAndRefreshDynMemberships(Group group);
-
     List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
-
-    long countADynMembers(Group group);
-
-    long countUDynMembers(Group group);
-
-    List<String> findADynMembers(Group group);
-
-    List<String> findUDynMembers(Group group);
-
-    void clearADynMembers(Group group);
-
-    void clearUDynMembers(Group group);
-
-    GroupDAO.DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
-
-    Set<String> removeDynMemberships(AnyObject anyObject);
-
-    GroupDAO.DynMembershipInfo refreshDynMemberships(User user);
-
-    Set<String> removeDynMemberships(User user);
 
     @Override
     <S extends Group> S save(S group);

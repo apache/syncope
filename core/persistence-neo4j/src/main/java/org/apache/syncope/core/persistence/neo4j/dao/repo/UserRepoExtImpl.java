@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -36,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -58,7 +56,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jSecurityQuestion;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
@@ -97,7 +94,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -115,7 +111,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
@@ -173,12 +168,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 filter(Objects::nonNull).
                 anyMatch(pair -> groups.contains(pair.groupKey()));
 
-        // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
-        }
-
-        // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -232,7 +222,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
     }
 
-    protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <S extends User> S save(final S user) {
         checkBeforeSave(user);
 
         // unlink any role, resource, aux class or security question that was unlinked from user
@@ -288,30 +280,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
         userCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jUser) merged);
 
-        roleDAO.refreshDynMemberships(merged);
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <S extends User> S save(final S user) {
-        return (S) doSave(user).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final User user) {
-        return doSave(user).getRight();
+        return (S) merged;
     }
 
     @Override
     public void delete(final User user) {
-        roleDAO.removeDynMemberships(user.getKey());
-        groupDAO.removeDynMemberships(user);
-        dynRealmDAO.removeDynMemberships(user.getKey());
-
         delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
         delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
@@ -344,35 +317,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
         result.addAll(user.getRoles());
-        result.addAll(findDynRoles(user.getKey()));
 
         return result;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
-                + "[:" + RoleRepoExt.DYN_ROLE_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jRole.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jRole.class,
-                null);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
-                + "[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jGroup.class,
-                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -381,7 +327,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         Set<Group> result = new HashSet<>();
         result.addAll(user.getMemberships().stream().
                 map(UMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(user.getKey()));
 
         return result;
     }

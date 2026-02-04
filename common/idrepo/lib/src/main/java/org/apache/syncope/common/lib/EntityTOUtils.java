@@ -82,8 +82,6 @@ public final class EntityTOUtils {
             groupCR.setName(groupTO.getName());
             groupCR.setUserOwner(groupTO.getUserOwner());
             groupCR.setGroupOwner(groupTO.getGroupOwner());
-            groupCR.setUDynMembershipCond(groupTO.getUDynMembershipCond());
-            groupCR.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
             groupCR.getTypeExtensions().addAll(groupTO.getTypeExtensions());
         } else if (anyCR instanceof final AnyObjectCR anyObjectCR && anyTO instanceof final AnyObjectTO anyObjectTO) {
             anyObjectCR.setType(anyObjectTO.getType());
@@ -112,8 +110,6 @@ public final class EntityTOUtils {
             groupTO.setName(groupCR.getName());
             groupTO.setUserOwner(groupCR.getUserOwner());
             groupTO.setGroupOwner(groupCR.getGroupOwner());
-            groupTO.setUDynMembershipCond(groupCR.getUDynMembershipCond());
-            groupTO.getADynMembershipConds().putAll(groupCR.getADynMembershipConds());
             groupTO.getTypeExtensions().addAll(groupCR.getTypeExtensions());
         } else if (anyTO instanceof final AnyObjectTO anyObjectTO && anyCR instanceof final AnyObjectCR anyObjectCR) {
             anyObjectTO.setType(anyObjectCR.getType());

@@ -58,7 +58,6 @@ public enum ClientExceptionType {
     InvalidMapping(Response.Status.BAD_REQUEST),
     InvalidMembership(Response.Status.BAD_REQUEST),
     InvalidRealm(Response.Status.BAD_REQUEST),
-    InvalidDynRealm(Response.Status.BAD_REQUEST),
     InvalidRole(Response.Status.BAD_REQUEST),
     InvalidUser(Response.Status.BAD_REQUEST),
     InvalidExternalResource(Response.Status.BAD_REQUEST),

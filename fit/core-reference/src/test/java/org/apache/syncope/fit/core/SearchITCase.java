@@ -53,7 +53,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -62,7 +61,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
-import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Assertions;
@@ -205,39 +203,6 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchByDynGroup() {
-        GroupCR groupCR = GroupITCase.getBasicSample("dynMembership");
-        groupCR.setUDynMembershipCond("cool==true");
-        GroupTO group = createGroup(groupCR).getEntity();
-        assertNotNull(group);
-
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
-
-        PagedResult<GroupTO> matchingGroups = GROUP_SERVICE.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                                is("creationContext").equalTo("REST").query()).
-                        build());
-        assertNotNull(matchingGroups);
-        assertTrue(matchingGroups.getTotalCount() > 0);
-
-        PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
-                        build());
-        assertNotNull(matchingUsers);
-        assertFalse(matchingUsers.getResult().isEmpty());
-        assertTrue(matchingUsers.getResult().stream().
-                anyMatch(user -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey())));
-    }
-
-    @Test
     public void searchByRole() {
         PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -247,33 +212,6 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(matchingUsers.getResult().isEmpty());
 
         assertTrue(matchingUsers.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
-    }
-
-    @Test
-    public void searchByDynRole() {
-        RoleTO role = RoleITCase.getSampleRoleTO("dynMembership");
-        role.setDynMembershipCond("cool==true");
-        Response response = ROLE_SERVICE.create(role);
-        role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
-        assertNotNull(role);
-
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
-
-        PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role.getKey()).query()).
-                        build());
-        assertNotNull(matchingUsers);
-        assertFalse(matchingUsers.getResult().isEmpty());
-
-        assertTrue(matchingUsers.getResult().stream().
-                anyMatch(user -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey())));
     }
 
     @Test

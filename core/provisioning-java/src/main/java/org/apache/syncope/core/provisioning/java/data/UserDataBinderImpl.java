@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -577,16 +576,9 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 derAttrHandler.getValues(user),
                 userDAO.findAllResources(user));
 
-        // dynamic realms
-        userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));
-
         if (details) {
             // roles
             userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).toList());
-
-            // dynamic roles
-            userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).toList());
 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
@@ -601,11 +593,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                     map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues((Groupable<?, ?, ?>) user, membership),
                     membership)).toList());
-
-            // dynamic memberships
-            userTO.getDynMemberships().addAll(userDAO.findDynGroups(user.getKey()).stream().
-                    map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                    toList());
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().

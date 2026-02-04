@@ -275,27 +275,6 @@ public class TemplateUtils {
                     }
                 });
 
-                Optional.ofNullable(groupTO.getUDynMembershipCond()).ifPresent(udynMembershipCond -> {
-                    switch (realmMember) {
-                        case GroupTO grm ->
-                            grm.setUDynMembershipCond(udynMembershipCond);
-                        case GroupCR grm ->
-                            grm.setUDynMembershipCond(udynMembershipCond);
-                        default -> {
-                        }
-                    }
-                });
-
-                groupTO.getADynMembershipConds().forEach((anyType, cond) -> {
-                    if (realmMember instanceof GroupTO grm && grm.getADynMembershipConds().containsKey(anyType)) {
-                        grm.getADynMembershipConds().put(anyType, cond);
-                    } else if (realmMember instanceof GroupCR grm
-                            && !grm.getADynMembershipConds().containsKey(anyType)) {
-
-                        grm.getADynMembershipConds().put(anyType, cond);
-                    }
-                });
-
                 groupTO.getTypeExtensions().forEach(typeExt -> {
                     if (realmMember instanceof GroupTO grm && !grm.getTypeExtensions().contains(typeExt)) {
                         grm.getTypeExtensions().add(typeExt);

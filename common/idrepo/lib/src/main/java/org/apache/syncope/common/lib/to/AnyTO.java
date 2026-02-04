@@ -75,8 +75,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private String realm;
 
-    private final List<String> dynRealms = new ArrayList<>();
-
     private String status;
 
     private final Set<String> auxClasses = new TreeSet<>();
@@ -181,10 +179,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         this.realm = realm;
     }
 
-    public List<String> getDynRealms() {
-        return dynRealms;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -250,7 +244,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
                 append(key).
                 append(type).
                 append(realm).
-                append(dynRealms).
                 append(status).
                 append(auxClasses).
                 append(plainAttrs).
@@ -282,7 +275,6 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
                 append(key, other.key).
                 append(type, other.type).
                 append(realm, other.realm).
-                append(dynRealms, other.dynRealms).
                 append(status, other.status).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).

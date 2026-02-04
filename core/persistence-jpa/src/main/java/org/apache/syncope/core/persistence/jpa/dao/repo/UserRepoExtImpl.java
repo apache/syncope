@@ -25,15 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -71,7 +68,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -83,7 +79,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final AnyFinder anyFinder) {
 
         super(
-                dynRealmDAO,
                 plainSchemaDAO,
                 entityManager,
                 anyFinder,
@@ -134,12 +129,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 filter(Objects::nonNull).
                 anyMatch(pair -> groups.contains(pair.groupKey()));
 
-        // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
-        }
-
-        // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -182,37 +172,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return merged;
     }
 
-    protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
-        entityManager.flush();
+    @SuppressWarnings("unchecked")
+    @Override
+    public <S extends User> S save(final S user) {
+        checkBeforeSave(user);
+
         User merged = entityManager.merge(user);
 
         // ensure that entity listeners are invoked at this point
         entityManager.flush();
 
-        roleDAO.refreshDynMemberships(merged);
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <S extends User> S save(final S user) {
-        return (S) doSave(checkBeforeSave(user)).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final User user) {
-        return doSave(checkBeforeSave(user)).getRight();
+        return (S) merged;
     }
 
     @Override
     public void delete(final User user) {
-        roleDAO.removeDynMemberships(user.getKey());
-        groupDAO.removeDynMemberships(user);
-        dynRealmDAO.removeDynMemberships(user.getKey());
-
         delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
         delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
@@ -228,52 +202,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
         result.addAll(user.getRoles());
-        result.addAll(findDynRoles(user.getKey()));
 
         return result;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(roleKey -> roleDAO.findById(roleKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
-        Set<Group> result = new HashSet<>();
-        result.addAll(user.getMemberships().stream().
-                map(UMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(user.getKey()));
-
-        return result;
+        return user.getMemberships().stream().map(UMembership::getRightEnd).collect(Collectors.toSet());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

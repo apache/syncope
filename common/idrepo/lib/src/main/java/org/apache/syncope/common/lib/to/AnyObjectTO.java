@@ -36,8 +36,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    private final List<MembershipTO> dynMemberships = new ArrayList<>();
-
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
             example = "org.apache.syncope.common.lib.to.AnyObjectTO")
@@ -66,17 +64,11 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
     }
 
     @Override
-    public List<MembershipTO> getDynMemberships() {
-        return dynMemberships;
-    }
-
-    @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
                 append(memberships).
-                append(dynMemberships).
                 build();
     }
 
@@ -96,7 +88,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
                 append(memberships, other.memberships).
-                append(dynMemberships, other.dynMemberships).
                 build();
     }
 }

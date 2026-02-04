@@ -23,9 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -62,21 +60,6 @@ public class GroupUR extends AnyUR {
             return this;
         }
 
-        public Builder udynMembershipCond(final String udynMembershipCond) {
-            getInstance().setUDynMembershipCond(udynMembershipCond);
-            return this;
-        }
-
-        public Builder adynMembershipCond(final String type, final String fiql) {
-            getInstance().getADynMembershipConds().put(type, fiql);
-            return this;
-        }
-
-        public Builder adynMembershipConds(final Map<String, String> conds) {
-            getInstance().getADynMembershipConds().putAll(conds);
-            return this;
-        }
-
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;
@@ -98,10 +81,6 @@ public class GroupUR extends AnyUR {
     private StringReplacePatchItem userOwner;
 
     private StringReplacePatchItem groupOwner;
-
-    private String udynMembershipCond;
-
-    private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -137,18 +116,6 @@ public class GroupUR extends AnyUR {
         this.groupOwner = groupOwner;
     }
 
-    public String getUDynMembershipCond() {
-        return udynMembershipCond;
-    }
-
-    public void setUDynMembershipCond(final String udynMembershipCond) {
-        this.udynMembershipCond = udynMembershipCond;
-    }
-
-    public Map<String, String> getADynMembershipConds() {
-        return adynMembershipConds;
-    }
-
     @JsonIgnore
     public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
         return typeExtensions.stream().filter(
@@ -162,8 +129,7 @@ public class GroupUR extends AnyUR {
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null && udynMembershipCond == null
-                && adynMembershipConds.isEmpty() && typeExtensions.isEmpty();
+                && name == null && userOwner == null && groupOwner == null && typeExtensions.isEmpty();
     }
 
     @Override
@@ -173,8 +139,6 @@ public class GroupUR extends AnyUR {
                 append(name).
                 append(userOwner).
                 append(groupOwner).
-                append(udynMembershipCond).
-                append(adynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -196,8 +160,6 @@ public class GroupUR extends AnyUR {
                 append(name, other.name).
                 append(userOwner, other.userOwner).
                 append(groupOwner, other.groupOwner).
-                append(udynMembershipCond, other.udynMembershipCond).
-                append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

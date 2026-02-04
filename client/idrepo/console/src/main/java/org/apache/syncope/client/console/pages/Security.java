@@ -24,11 +24,9 @@ import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.DelegationDirectoryPanel;
-import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
-import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
@@ -58,9 +56,6 @@ public class Security extends BasePage {
 
     @SpringBean
     protected DelegationRestClient delegationRestClient;
-
-    @SpringBean
-    protected DynRealmRestClient dynRealmRestClient;
 
     @SpringBean
     protected SecurityQuestionRestClient securityQuestionRestClient;
@@ -98,7 +93,6 @@ public class Security extends BasePage {
                             new RoleTO(),
                             roleRestClient,
                             realmRestClient,
-                            dynRealmRestClient,
                             getPageReference()), true).build(panelId);
                 }
             });
@@ -120,20 +114,6 @@ public class Security extends BasePage {
                         delegationRestClient,
                         getPageReference()),
                         true).build(panelId);
-            }
-        });
-
-        tabs.add(new AbstractTab(new ResourceModel("dynRealms")) {
-
-            private static final long serialVersionUID = -6815067322125799251L;
-
-            @Override
-            public Panel getPanel(final String panelId) {
-                return new DynRealmDirectoryPanel.Builder(dynRealmRestClient, getPageReference()) {
-
-                    private static final long serialVersionUID = -5960765294082359003L;
-
-                }.build(panelId);
             }
         });
 
