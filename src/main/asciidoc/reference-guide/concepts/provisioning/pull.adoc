@@ -174,8 +174,7 @@ https://connid.atlassian.net/wiki/display/BASE/Kafka[Apache Kafka connector bund
 ===== Remediation
 
 Errors during pull might arise for various reasons: values might not be provided for all mandatory attributes or 
-fail the configured validation, delete User as consequence of an incremental change's processing might be blocked
-because such User is configured as Group owner, and so on.
+fail the configured validation, and so on.
 
 When Remediation is enabled for a certain <<tasks-pull,Pull Task>>, execution errors are reported to administrators,
 which are given the chance to examine and possibly fix, or just discard.

@@ -18,36 +18,13 @@
 //
 === Roles
 
-Roles map a set of <<entitlements,entitlements>> to a set of <<realms,realms>> and / or
-<<dynamic-realms, dynamic realms>>.
-
-[TIP]
-.Static and Dynamic Memberships
-====
-Users are _statically_ assigned to roles when assignments are explicitly set.
-
-However, a condition can be expressed in the role definition so that all matching Users are _dynamic_ members of the
-role.
-====
+Roles map a set of <<entitlements,entitlements>> to a set of <<realms,realms>>.
 
 ==== Delegated Administration
 
 The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~m~, can 
 exercise E~i~ on entities (Users, Groups, Any Objects of given types - depending on E~i~ - or Connector Instances and 
 External Resources) under any Re~j~ or related sub-realms.
-
-Moreover, any user U assigned to a role R, which provides entitlements E~1~...E~n~ for dynamic realms DR~1~..DR~n~, can
-exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) matching the conditions defined
-for any DR~k~.
-
-[WARNING]
-.Dynamic Realms limitations
-====
-Users to whom administration rights were granted via Dynamic Realms can only *update* Users, Groups and Any Objects,
-not create nor delete. +
-Moreover, the only accepted changes on a given entity are the ones that do not change any Dynamic Realm's matching
-condition for such entity.
-====
 
 .Authorization
 ====
@@ -95,38 +72,26 @@ For example, the following entitlements are normally required to be granted for 
 . `GROUP_SEARCH`
 ====
 
-===== Group Ownership
+===== Any Managers
 
-Groups can designate a User or another Group as _owner_.
+Users, Groups and Any Objects can designate a User or a Group as their _manager_.
 
-The practical consequence of this setting is that Users owning a Group (either because they are directly set as owners
-or members of the owning Group) is that they are entitled to
+The practical consequence of this setting is that Users managing either Groups or other Users and Any Objects (either
+because they are directly set as managers or are members of their managing Group) are entitled to perform all operations
+(create, update, delete, ...) on the managed entities, regardless of the Realm where such entities are actually placed.
 
-* perform all operations (create, update, delete, ...) on the owned Group
-* perform all operations (create, update, delete, ...) on all User and Any Object members of the owner Group, with
-exception of removing members from the Group itself
+[TIP]
+Working with Any Managers allows to dynamically identify sets of entities to enforce delegated administration on.
 
-regardless of the Realm.
+.Delegated Administration with Managers
+====
+Let's suppose there are Group G, User U and User M.
 
-The actual Entitlements are assigned through the predefined `GROUP_OWNER` Role:
-
-. `USER_SEARCH`
-. `USER_READ`
-. `USER_CREATE`
-. `USER_UPDATE`
-. `USER_DELETE`
-. `ANYTYPECLASS_READ`
-. `ANYTYPE_LIST`
-. `ANYTYPECLASS_LIST`
-. `RELATIONSHIPTYPE_LIST`
-. `ANYTYPE_READ`
-. `REALM_SEARCH`
-. `GROUP_SEARCH`
-. `GROUP_READ`
-. `GROUP_UPDATE`
-. `GROUP_DELETE`
-
-The `GROUP_OWNER` Role can be updated to adjust the set of assigned Entitlements.
+* Case 1: G sets M as its manager, U is member of G. +
+⇒ M can administer both G and U.
+* Case 2: M is member of G, U sets G as its manager. +
+⇒ M can administer U.
+====
 
 ==== Delegation
 
