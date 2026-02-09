@@ -463,7 +463,7 @@ under the License.
 
     <pac4j.version>6.3.1</pac4j.version>
 
-    <cas.version>8.0.0-RC1</cas.version>
+    <cas.version>8.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.42</swagger-core.version>
@@ -537,7 +537,7 @@ under the License.
     <jdbc.postgresql.version>42.7.9</jdbc.postgresql.version>
     <jdbc.mysql.version>9.6.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.7</jdbc.mariadb.version>
-    <jdbc.oracle.version>23.26.0.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>23.26.1.0.0</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 
@@ -1841,7 +1841,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.48.0</version>
+          <version>0.48.1</version>
         </plugin>
 
         <plugin>

@@ -51,6 +51,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
+import org.apereo.cas.configuration.model.core.web.session.SessionStorageTypes;
 import org.apereo.cas.configuration.model.support.azuread.AzureActiveDirectoryAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
@@ -467,6 +468,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDuoApiHost(conf.getApiHost());
         props.setDuoIntegrationKey(conf.getIntegrationKey());
         props.setDuoSecretKey(conf.getSecretKey());
+        props.setSessionStorageType(SessionStorageTypes.HTTP);
 
         return prefix("cas.authn.mfa.duo[].", WAConfUtils.asMap(props));
     }
