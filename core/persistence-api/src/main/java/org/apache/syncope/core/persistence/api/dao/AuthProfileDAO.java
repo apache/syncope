@@ -28,4 +28,6 @@ public interface AuthProfileDAO extends DAO<AuthProfile> {
     Optional<? extends AuthProfile> findByOwner(String owner);
 
     Page<? extends AuthProfile> findAll(Pageable pageable);
+
+    Page<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
 }

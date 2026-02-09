@@ -39,6 +39,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -192,4 +193,16 @@ public class AuthProfileTest extends AbstractTest {
         profile.setGoogleMfaAuthAccounts(List.of(account));
         return authProfileDAO.save(profile);
     }
+
+    @Test
+    public void findByOwnerLike() {
+        createAuthProfileWithAccount("owner1");
+        createAuthProfileWithAccount("owner2");
+
+        entityManager.flush();
+
+        Page<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
+        assertEquals(2, result.get().count());
+    }
+
 }
