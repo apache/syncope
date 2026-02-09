@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -54,7 +53,6 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -138,20 +136,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         }
         group.setRealm(realm);
 
-        // attributes, resources and relationships
+        // manager, attributes, resources and relationships
         fill(anyTO, group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
-
-        // owner
-        if (groupCR.getUserOwner() != null) {
-            userDAO.findById(groupCR.getUserOwner()).ifPresentOrElse(
-                    group::setUserOwner,
-                    () -> LOG.warn("Ignoring invalid user specified as owner: {}", groupCR.getUserOwner()));
-        }
-        if (groupCR.getGroupOwner() != null) {
-            groupDAO.findById(groupCR.getGroupOwner()).ifPresentOrElse(
-                    group::setGroupOwner,
-                    () -> LOG.warn("Ignoring invalid group specified as owner: {}", groupCR.getGroupOwner()));
-        }
 
         // type extensions
         groupCR.getTypeExtensions().forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(
@@ -201,46 +187,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             group.setName(groupUR.getName().getValue());
         }
 
-        // owner
-        PropagationByResource<String> ownerPropByRes = new PropagationByResource<>();
-        if (groupUR.getUserOwner() != null) {
-            if (groupUR.getUserOwner().getValue() == null) {
-                if (group.getUserOwner() != null) {
-                    group.setUserOwner(null);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            } else {
-                User userOwner = userDAO.findById(groupUR.getUserOwner().getValue()).orElse(null);
-                if (userOwner == null) {
-                    LOG.debug("Unable to find user owner for group {} by key {}",
-                            group.getKey(), groupUR.getUserOwner().getValue());
-                    group.setUserOwner(null);
-                } else {
-                    group.setUserOwner(userOwner);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            }
-        }
-        if (groupUR.getGroupOwner() != null) {
-            if (groupUR.getGroupOwner().getValue() == null) {
-                if (group.getGroupOwner() != null) {
-                    group.setGroupOwner(null);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            } else {
-                Group groupOwner = groupDAO.findById(groupUR.getGroupOwner().getValue()).orElse(null);
-                if (groupOwner == null) {
-                    LOG.debug("Unable to find group owner for group {} by key {}",
-                            group.getKey(), groupUR.getGroupOwner().getValue());
-                    group.setGroupOwner(null);
-                } else {
-                    group.setGroupOwner(groupOwner);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            }
-        }
-
-        // attributes, resources and relationships
+        // manager, attributes, resources and relationships
         fill(anyTO, group, groupUR, propByRes, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
@@ -294,7 +241,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         // Build final information for next stage (propagation)
         propByRes.merge(propByRes(
                 beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of())));
-        propByRes.merge(ownerPropByRes);
         return propByRes;
     }
 
@@ -322,15 +268,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         groupTO.setLastChangeDate(group.getLastChangeDate());
         groupTO.setLastChangeContext(group.getLastChangeContext());
 
-        Optional.ofNullable(group.getUserOwner()).map(User::getKey).ifPresent(groupTO::setUserOwner);
-        Optional.ofNullable(group.getGroupOwner()).map(Group::getKey).ifPresent(groupTO::setGroupOwner);
-
-        fillTO(groupTO,
-                group.getRealm().getFullPath(),
-                group.getAuxClasses(),
-                group.getPlainAttrs(),
-                derAttrHandler.getValues(group),
-                group.getResources());
+        fillTO(group, groupTO, derAttrHandler.getValues(group), group.getResources());
 
         // User and AnyType membership counts
         groupTO.setUserMembershipCount(groupDAO.countUMembers(group.getKey()));

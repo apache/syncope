@@ -25,23 +25,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.junit.jupiter.api.Test;
 
 public class RealmUtilsTest extends AbstractTest {
 
     @Test
-    public void getGroupOwnerRealm() {
+    public void getManagerRealm() {
         String realmPath = "realmPath";
         String groupKey = "groupKey";
-        assertEquals(realmPath + "@" + groupKey, new RealmUtils.GroupOwnerRealm(realmPath, groupKey).output());
+        assertEquals(
+                realmPath + "@GROUP@" + groupKey,
+                new RealmUtils.ManagerRealm(realmPath, AnyTypeKind.GROUP, groupKey).output());
     }
 
     @Test
     public void parseGroupOwnerRealm() {
         assertEquals(
-                Optional.of(new RealmUtils.GroupOwnerRealm("realmPath", "groupKey")),
-                RealmUtils.GroupOwnerRealm.of("realmPath@groupKey"));
-        assertFalse(RealmUtils.GroupOwnerRealm.of("realmPath").isPresent());
+                Optional.of(new RealmUtils.ManagerRealm("realmPath", AnyTypeKind.GROUP, "groupKey")),
+                RealmUtils.ManagerRealm.of("realmPath@GROUP@groupKey"));
+        assertFalse(RealmUtils.ManagerRealm.of("realmPath").isPresent());
     }
 
     @Test
@@ -63,13 +66,12 @@ public class RealmUtilsTest extends AbstractTest {
 
     @Test
     public void getEffective() {
-        Set<String> allowedRealms = new HashSet<>();
-        String requestedRealm = "requestedRealm";
-        allowedRealms.add("testRealm1");
-        allowedRealms.add("testRealm2");
-        allowedRealms.add("testRealm3");
-        allowedRealms.add("requestedRealm");
-        Set<String> effective = RealmUtils.getEffective(allowedRealms, requestedRealm);
+        Set<String> allowedRealms = Set.of(
+                "testRealm1@k1",
+                "testRealm2@k2",
+                "testRealm3@k3",
+                "requestedRealm");
+        Set<String> effective = RealmUtils.getEffective(allowedRealms, "requestedRealm");
         assertEquals(allowedRealms, effective);
     }
 }

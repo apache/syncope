@@ -69,7 +69,7 @@ public enum ClientExceptionType {
     RealmContains(Response.Status.BAD_REQUEST),
     RequiredValuesMissing(Response.Status.BAD_REQUEST),
     RESTValidation(Response.Status.BAD_REQUEST),
-    GroupOwnership(Response.Status.BAD_REQUEST),
+    Management(Response.Status.BAD_REQUEST),
     InUse(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),

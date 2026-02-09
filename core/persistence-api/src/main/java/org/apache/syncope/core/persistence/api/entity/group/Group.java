@@ -22,21 +22,12 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface Group extends Relatable<Group, GRelationship> {
 
     String getName();
 
     void setName(String name);
-
-    Group getGroupOwner();
-
-    User getUserOwner();
-
-    void setGroupOwner(Group groupOwner);
-
-    void setUserOwner(User userOwner);
 
     boolean add(GroupTypeExtension typeExtension);
 

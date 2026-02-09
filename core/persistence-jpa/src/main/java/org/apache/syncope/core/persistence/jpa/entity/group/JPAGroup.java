@@ -27,7 +27,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -48,12 +47,10 @@ import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
@@ -71,12 +68,6 @@ public class JPAGroup
     @Column(unique = true)
     @NotNull
     private String name;
-
-    @ManyToOne
-    private JPAUser userOwner;
-
-    @ManyToOne
-    private JPAGroup groupOwner;
 
     private String plainAttrs;
 
@@ -137,28 +128,6 @@ public class JPAGroup
     @Override
     public List<? extends ExternalResource> getResources() {
         return resources;
-    }
-
-    @Override
-    public User getUserOwner() {
-        return userOwner;
-    }
-
-    @Override
-    public void setUserOwner(final User userOwner) {
-        checkType(userOwner, JPAUser.class);
-        this.userOwner = (JPAUser) userOwner;
-    }
-
-    @Override
-    public Group getGroupOwner() {
-        return groupOwner;
-    }
-
-    @Override
-    public void setGroupOwner(final Group group) {
-        checkType(group, JPAGroup.class);
-        this.groupOwner = (JPAGroup) group;
     }
 
     @Override

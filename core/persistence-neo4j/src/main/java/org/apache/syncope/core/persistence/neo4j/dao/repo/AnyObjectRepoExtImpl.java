@@ -56,7 +56,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -143,11 +145,19 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given anyObject
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
+
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which anyObject is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
+        }
 
         // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
@@ -238,6 +248,22 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                     anyObject.getKey(),
                     auxClass.getKey(),
                     Neo4jAnyObject.ANY_OBJECT_AUX_CLASSES_REL));
+            if (before.getUManager() != null && anyObject.getUManager() == null) {
+                deleteRelationship(
+                        Neo4jAnyObject.NODE,
+                        Neo4jUser.NODE,
+                        anyObject.getKey(),
+                        before.getUManager().getKey(),
+                        Neo4jGroup.USER_MANAGER_REL);
+            }
+            if (before.getGManager() != null && anyObject.getGManager() == null) {
+                deleteRelationship(
+                        Neo4jAnyObject.NODE,
+                        Neo4jGroup.NODE,
+                        anyObject.getKey(),
+                        before.getGManager().getKey(),
+                        Neo4jGroup.GROUP_MANAGER_REL);
+            }
 
             Set<String> beforeMembs = before.getMemberships().stream().map(AMembership::getKey).
                     collect(Collectors.toSet());

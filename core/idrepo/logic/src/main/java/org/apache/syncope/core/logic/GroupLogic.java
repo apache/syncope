@@ -254,12 +254,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 before.key().getKey(),
                 before.key().getRealm());
 
-        List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.key().getKey());
-        if (!ownedGroups.isEmpty()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(ownedGroups.stream().
-                    map(g -> g.getKey() + ' ' + g.getName()).toList());
-            throw sce;
+        if (groupDAO.isManager(before.key().getKey())) {
+            throw SyncopeClientException.build(ClientExceptionType.Management);
         }
 
         List<PropagationStatus> statuses = provisioningManager.delete(

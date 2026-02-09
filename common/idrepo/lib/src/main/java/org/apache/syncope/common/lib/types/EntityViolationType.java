@@ -34,7 +34,7 @@ public enum EntityViolationType {
     InvalidRealm,
     InvalidReport,
     InvalidResource,
-    InvalidGroupOwner,
+    InvalidManager,
     InvalidSchema,
     InvalidSchedTask,
     InvalidProvisioningTask,

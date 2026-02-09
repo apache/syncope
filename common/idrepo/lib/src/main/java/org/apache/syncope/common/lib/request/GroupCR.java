@@ -46,16 +46,6 @@ public class GroupCR extends AnyCR {
             return new GroupCR();
         }
 
-        public Builder userOwner(final String userOwner) {
-            getInstance().setUserOwner(userOwner);
-            return this;
-        }
-
-        public Builder groupOwner(final String groupOwner) {
-            getInstance().setGroupOwner(groupOwner);
-            return this;
-        }
-
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;
@@ -73,10 +63,6 @@ public class GroupCR extends AnyCR {
     }
 
     private String name;
-
-    private String userOwner;
-
-    private String groupOwner;
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -97,22 +83,6 @@ public class GroupCR extends AnyCR {
         this.name = name;
     }
 
-    public String getUserOwner() {
-        return userOwner;
-    }
-
-    public void setUserOwner(final String userOwner) {
-        this.userOwner = userOwner;
-    }
-
-    public String getGroupOwner() {
-        return groupOwner;
-    }
-
-    public void setGroupOwner(final String groupOwner) {
-        this.groupOwner = groupOwner;
-    }
-
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }
@@ -122,8 +92,6 @@ public class GroupCR extends AnyCR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
                 append(typeExtensions).
                 build();
     }
@@ -143,8 +111,6 @@ public class GroupCR extends AnyCR {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

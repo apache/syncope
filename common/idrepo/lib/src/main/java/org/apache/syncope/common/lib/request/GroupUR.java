@@ -50,16 +50,6 @@ public class GroupUR extends AnyUR {
             return this;
         }
 
-        public Builder userOwner(final StringReplacePatchItem userOwner) {
-            getInstance().setUserOwner(userOwner);
-            return this;
-        }
-
-        public Builder groupOwner(final StringReplacePatchItem groupOwner) {
-            getInstance().setGroupOwner(groupOwner);
-            return this;
-        }
-
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;
@@ -77,10 +67,6 @@ public class GroupUR extends AnyUR {
     }
 
     private StringReplacePatchItem name;
-
-    private StringReplacePatchItem userOwner;
-
-    private StringReplacePatchItem groupOwner;
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -100,22 +86,6 @@ public class GroupUR extends AnyUR {
         this.name = name;
     }
 
-    public StringReplacePatchItem getUserOwner() {
-        return userOwner;
-    }
-
-    public void setUserOwner(final StringReplacePatchItem userOwner) {
-        this.userOwner = userOwner;
-    }
-
-    public StringReplacePatchItem getGroupOwner() {
-        return groupOwner;
-    }
-
-    public void setGroupOwner(final StringReplacePatchItem groupOwner) {
-        this.groupOwner = groupOwner;
-    }
-
     @JsonIgnore
     public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
         return typeExtensions.stream().filter(
@@ -129,7 +99,7 @@ public class GroupUR extends AnyUR {
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null && typeExtensions.isEmpty();
+                && name == null && typeExtensions.isEmpty();
     }
 
     @Override
@@ -137,8 +107,6 @@ public class GroupUR extends AnyUR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
                 append(typeExtensions).
                 build();
     }
@@ -158,8 +126,6 @@ public class GroupUR extends AnyUR {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

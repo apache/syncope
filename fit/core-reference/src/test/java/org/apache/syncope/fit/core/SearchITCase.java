@@ -319,13 +319,14 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchByRelationshipAnyCond() {
+    public void searchByUManager() {
         PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                        is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
+                        is("uManager").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
-        assertEquals(1, groups.getResult().size());
-        assertEquals("ebf97068-aa4b-4a85-9f01-680e8c4cf227", groups.getResult().getFirst().getKey());
+        assertFalse(groups.getResult().isEmpty());
+        assertTrue(groups.getResult().stream().
+                anyMatch(g -> "ebf97068-aa4b-4a85-9f01-680e8c4cf227".equals(g.getKey())));
     }
 
     @Test
@@ -784,7 +785,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1304() {
         PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                orderBy("userOwner DESC").build());
+                orderBy("uManager DESC").build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
     }

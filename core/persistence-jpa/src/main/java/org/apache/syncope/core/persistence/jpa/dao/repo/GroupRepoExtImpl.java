@@ -24,6 +24,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -46,9 +47,11 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -95,12 +98,18 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final String key,
             final String realm) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of the group, or
-        // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
-        boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
+        // 0. check if AuthContextUtils.getUsername() is manager of the given group
+        boolean authorized = authRealms.stream().
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                filter(Objects::nonNull).
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        if (authRealms.isEmpty() || !authorized) {
+        // 1. check if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = authRealms.stream().anyMatch(realm::startsWith);
+        }
+
+        if (!authorized) {
             throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
         }
     }
@@ -114,6 +123,49 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
+    public boolean isManager(final String key) {
+        Query user = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?");
+        user.setParameter(1, key);
+
+        Query group = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE gManager_id=?");
+        group.setParameter(1, key);
+
+        Query anyObject = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE gManager_id=?");
+        anyObject.setParameter(1, key);
+
+        return ((Number) user.getSingleResult()).longValue()
+                + ((Number) group.getSingleResult()).longValue()
+                + ((Number) anyObject.getSingleResult()).longValue() > 0;
+    }
+
+    @Override
+    public List<User> findManagedUsers(final String key) {
+        TypedQuery<User> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.gManager.id=:key", User.class);
+        query.setParameter("key", key);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        TypedQuery<Group> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.gManager.id=:key", Group.class);
+        query.setParameter("key", key);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<AnyObject> findManagedAnyObjects(final String key) {
+        TypedQuery<AnyObject> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.gManager.id=:key", AnyObject.class);
+        query.setParameter("key", key);
+        return query.getResultList();
+    }
+
+    @Override
     public Map<String, Long> countByRealm() {
         Query query = entityManager.createQuery(
                 "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
@@ -123,25 +175,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return results.stream().collect(Collectors.toMap(
                 result -> ((Realm) result[0]).getFullPath(),
                 result -> ((Number) result[1]).longValue()));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Group> findOwnedByUser(final String userKey) {
-        User owner = userDAO.findById(userKey).orElse(null);
-        if (owner == null) {
-            return List.of();
-        }
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils.anyClass().getSimpleName())
-                .append(" e WHERE e.userOwner=:owner ");
-        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString.
-                append("OR e.groupOwner.id='").append(groupKey).append("' "));
-
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
-        query.setParameter("owner", owner);
-
-        return query.getResultList();
     }
 
     @Transactional(readOnly = true)

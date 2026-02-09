@@ -105,7 +105,8 @@ public class AnySearchTest extends AbstractTest {
         // 3. search all users with director owner's entitlements: only rossini is returned
         users = searchDAO.search(
                 group.getRealm(), true,
-                Set.of(new RealmUtils.GroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()).output()),
+                Set.of(new RealmUtils.ManagerRealm(
+                        group.getRealm().getFullPath(), AnyTypeKind.GROUP, group.getKey()).output()),
                 SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());

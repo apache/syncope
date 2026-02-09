@@ -75,6 +75,10 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private String realm;
 
+    private String uManager;
+
+    private String gManager;
+
     private String status;
 
     private final Set<String> auxClasses = new TreeSet<>();
@@ -179,6 +183,22 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         this.realm = realm;
     }
 
+    public String getUManager() {
+        return uManager;
+    }
+
+    public void setUManager(final String uManager) {
+        this.uManager = uManager;
+    }
+
+    public String getGManager() {
+        return gManager;
+    }
+
+    public void setGManager(final String gManager) {
+        this.gManager = gManager;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -244,6 +264,8 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
                 append(key).
                 append(type).
                 append(realm).
+                append(uManager).
+                append(gManager).
                 append(status).
                 append(auxClasses).
                 append(plainAttrs).
@@ -275,6 +297,8 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
                 append(key, other.key).
                 append(type, other.type).
                 append(realm, other.realm).
+                append(uManager, other.uManager).
+                append(gManager, other.gManager).
                 append(status, other.status).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).

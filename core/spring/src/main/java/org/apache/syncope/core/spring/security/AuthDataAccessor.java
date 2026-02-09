@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.security.auth.login.AccountNotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -91,6 +94,50 @@ public class AuthDataAccessor {
 
     protected static final Set<SyncopeGrantedAuthority> MUST_CHANGE_PASSWORD_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
+
+    protected static final Set<String> BASE_MANAGER_ENTITLEMENTS = Set.of(
+            IdRepoEntitlement.ANYTYPE_READ,
+            IdRepoEntitlement.ANYTYPE_LIST,
+            IdRepoEntitlement.ANYTYPECLASS_READ,
+            IdRepoEntitlement.ANYTYPECLASS_LIST,
+            IdRepoEntitlement.RELATIONSHIPTYPE_LIST,
+            IdRepoEntitlement.REALM_SEARCH);
+
+    protected static final Set<String> USER_MANAGER_ENTITLEMENTS = Set.of(
+            IdRepoEntitlement.USER_READ,
+            IdRepoEntitlement.USER_UPDATE,
+            IdRepoEntitlement.USER_DELETE,
+            IdRepoEntitlement.USER_SEARCH);
+
+    protected static final Set<String> GROUP_MANAGER_ENTITLEMENTS = Set.of(
+            IdRepoEntitlement.GROUP_READ,
+            IdRepoEntitlement.GROUP_UPDATE,
+            IdRepoEntitlement.GROUP_DELETE,
+            IdRepoEntitlement.GROUP_SEARCH);
+
+    protected static final Function<String, Set<String>> ANYOBJECT_MANAGER_ENTITLEMENTS = anyType -> {
+        Set<String> entitlements = new HashSet<>();
+        for (AnyEntitlement anyEntitlement : AnyEntitlement.values()) {
+            if (AnyEntitlement.CREATE != anyEntitlement) {
+                entitlements.add(anyEntitlement.getFor(anyType));
+            }
+        }
+        return entitlements;
+    };
+
+    protected static void populate(
+            final Map<String, Set<String>> entForRealms,
+            final String entitlement,
+            final Collection<String> toAdd) {
+
+        Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+            Set<String> r = new HashSet<>();
+            entForRealms.put(entitlement, r);
+            return r;
+        });
+
+        realms.addAll(toAdd);
+    }
 
     protected final SecurityProperties securityProperties;
 
@@ -336,7 +383,7 @@ public class AuthDataAccessor {
 
             SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
             authority.addRealms(normalized.realms());
-            authority.addRealms(normalized.groupOwnerRealms());
+            authority.addRealms(normalized.managerRealms());
             authorities.add(authority);
         });
 
@@ -350,33 +397,33 @@ public class AuthDataAccessor {
 
         Map<String, Set<String>> entForRealms = new HashMap<>();
 
-        // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
-        // either statically and dynamically
-        userDAO.findAllRoles(user).stream().
-                filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
-                forEach(role -> role.getEntitlements().forEach(entitlement -> {
-            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                Set<String> r = new HashSet<>();
-                entForRealms.put(entitlement, r);
-                return r;
-            });
+        // Give role entitlements
+        userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().
+                forEach(e -> populate(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).toList())));
 
-            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-        }));
+        // Give manager entitlements
+        if (userDAO.isManager(user.getKey())) {
+            BASE_MANAGER_ENTITLEMENTS.forEach(e -> populate(entForRealms, e, SyncopeConstants.FULL_ADMIN_REALMS));
+        }
 
-        // Give group entitlements for owned groups
-        groupDAO.findOwnedByUser(user.getKey()).
-                forEach(g -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
-                groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
-                    Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                        HashSet<String> r = new HashSet<>();
-                        entForRealms.put(entitlement, r);
-                        return r;
-                    });
+        userDAO.findManagedUsers(user.getKey()).forEach(managedUser -> USER_MANAGER_ENTITLEMENTS.
+                forEach(e -> populate(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                managedUser.getRealm().getFullPath(),
+                AnyTypeKind.USER,
+                managedUser.getKey()).output()))));
 
-                    realms.add(new RealmUtils.GroupOwnerRealm(g.getRealm().getFullPath(), g.getKey()).output());
-                }),
-                () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
+        userDAO.findManagedGroups(user.getKey()).forEach(group -> GROUP_MANAGER_ENTITLEMENTS.
+                forEach(e -> populate(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                group.getRealm().getFullPath(),
+                AnyTypeKind.GROUP,
+                group.getKey()).output()))));
+
+        userDAO.findManagedAnyObjects(user.getKey()).forEach(anyObject -> ANYOBJECT_MANAGER_ENTITLEMENTS.
+                apply(anyObject.getType().getKey()).forEach(e -> populate(entForRealms, e, Set.of(
+                new RealmUtils.ManagerRealm(
+                        anyObject.getRealm().getFullPath(),
+                        AnyTypeKind.ANY_OBJECT,
+                        anyObject.getKey()).output()))));
 
         return buildAuthorities(entForRealms);
     }
@@ -384,16 +431,8 @@ public class AuthDataAccessor {
     protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
         Map<String, Set<String>> entForRealms = new HashMap<>();
 
-        delegation.getRoles().stream().filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
-                forEach(role -> role.getEntitlements().forEach(entitlement -> {
-            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                HashSet<String> r = new HashSet<>();
-                entForRealms.put(entitlement, r);
-                return r;
-            });
-
-            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-        }));
+        delegation.getRoles().forEach(role -> role.getEntitlements().
+                forEach(e -> populate(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).toList())));
 
         return buildAuthorities(entForRealms);
     }

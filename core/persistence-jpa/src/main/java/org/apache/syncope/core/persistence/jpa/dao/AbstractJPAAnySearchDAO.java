@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.sql.OracleDictionary;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
@@ -77,7 +78,7 @@ import org.springframework.data.domain.Sort;
  */
 abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<Pair<AnyTypeKind, String>> managed) {
 
     }
 
@@ -733,11 +734,11 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             final SearchSupport svs) {
 
         Set<String> realmKeys = new HashSet<>();
-        Set<String> groupOwners = new HashSet<>();
+        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
-                    goRealm -> groupOwners.add(goRealm.groupKey()),
+            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
+                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
                     () -> {
                         Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
                             SyncopeClientException noRealm =
@@ -754,7 +755,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), groupOwners);
+        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), managed);
     }
 
     protected void visitNode(
@@ -865,7 +866,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.groupOwners(), kind), parameters, svs).
+                buildEffectiveCond(cond, filter.managed(), kind), parameters, svs).
                 orElse(null);
         if (queryInfo == null) {
             LOG.error("Invalid search condition: {}", cond);
@@ -1057,7 +1058,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.groupOwners(), kind), parameters, svs).
+                buildEffectiveCond(cond, filter.managed(), kind), parameters, svs).
                 orElse(null);
         if (queryInfo == null) {
             LOG.error("Invalid search condition: {}", cond);

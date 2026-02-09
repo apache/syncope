@@ -893,7 +893,9 @@ public class PersistenceContext {
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
-            final Cache<EntityCacheKey, Neo4jGroup> groupCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache) {
 
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
@@ -909,7 +911,9 @@ public class PersistenceContext {
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator,
-                groupCache);
+                userCache,
+                groupCache,
+                anyObjectCache);
     }
 
     @ConditionalOnMissingBean
@@ -1393,7 +1397,9 @@ public class PersistenceContext {
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
-            final Cache<EntityCacheKey, Neo4jUser> userCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache) {
 
         return new UserRepoExtImpl(
                 anyUtilsFactory,
@@ -1411,7 +1417,9 @@ public class PersistenceContext {
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator,
-                userCache);
+                userCache,
+                groupCache,
+                anyObjectCache);
     }
 
     @ConditionalOnMissingBean

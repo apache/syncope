@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.RealmMember;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -116,13 +117,7 @@ public class TemplateUtils {
         return result;
     }
 
-    protected void fill(final RealmMember realmMember, final RealmMember template) {
-        JexlContext jexlContext = new JexlContextBuilder().
-                fields(realmMember).
-                attrs(realmMember.getPlainAttrs()).
-                attrs(realmMember.getDerAttrs()).
-                build();
-
+    protected void fill(final RealmMember realmMember, final AnyTO template, final JexlContext jexlContext) {
         if (template.getRealm() != null) {
             String evaluated = jexlTools.evaluateExpression(template.getRealm(), jexlContext).toString();
             if (StringUtils.isNotBlank(evaluated)) {
@@ -158,13 +153,34 @@ public class TemplateUtils {
 
     @Transactional(readOnly = true)
     public void apply(final RealmMember realmMember, final AnyTO template) {
-        fill(realmMember, template);
-
         JexlContext jexlContext = new JexlContextBuilder().
                 fields(realmMember).
                 attrs(realmMember.getPlainAttrs()).
                 attrs(realmMember.getDerAttrs()).
                 build();
+
+        fill(realmMember, template, jexlContext);
+
+        Optional.ofNullable(template.getUManager()).flatMap(userDAO::findById).ifPresent(uManager -> {
+            switch (realmMember) {
+                case AnyTO arm ->
+                    arm.setUManager(uManager.getKey());
+                case AnyCR arm ->
+                    arm.setGManager(uManager.getKey());
+                default -> {
+                }
+            }
+        });
+        Optional.ofNullable(template.getGManager()).flatMap(groupDAO::findById).ifPresent(gManager -> {
+            switch (realmMember) {
+                case AnyTO arm ->
+                    arm.setUManager(gManager.getKey());
+                case AnyCR arm ->
+                    arm.setGManager(gManager.getKey());
+                default -> {
+                }
+            }
+        });
 
         switch (template) {
             case AnyObjectTO anyObjectTO -> {
@@ -217,10 +233,13 @@ public class TemplateUtils {
 
                 userTO.getRoles().
                         forEach(role -> {
-                            if (realmMember instanceof UserTO urm) {
-                                urm.getRoles().add(role);
-                            } else if (realmMember instanceof UserCR urm) {
-                                urm.getRoles().add(role);
+                            switch (realmMember) {
+                                case UserTO urm ->
+                                    urm.getRoles().add(role);
+                                case UserCR urm ->
+                                    urm.getRoles().add(role);
+                                default -> {
+                                }
                             }
                         });
 
@@ -253,27 +272,6 @@ public class TemplateUtils {
                         }
                     }
                 }
-
-                Optional.ofNullable(groupTO.getUserOwner()).flatMap(userDAO::findById).ifPresent(userOwner -> {
-                    switch (realmMember) {
-                        case GroupTO grm ->
-                            grm.setUserOwner(userOwner.getKey());
-                        case GroupCR grm ->
-                            grm.setUserOwner(userOwner.getKey());
-                        default -> {
-                        }
-                    }
-                });
-                Optional.ofNullable(groupTO.getGroupOwner()).flatMap(groupDAO::findById).ifPresent(groupOwner -> {
-                    switch (realmMember) {
-                        case GroupTO grm ->
-                            grm.setGroupOwner(groupOwner.getKey());
-                        case GroupCR grm ->
-                            grm.setGroupOwner(groupOwner.getKey());
-                        default -> {
-                        }
-                    }
-                });
 
                 groupTO.getTypeExtensions().forEach(typeExt -> {
                     if (realmMember instanceof GroupTO grm && !grm.getTypeExtensions().contains(typeExt)) {

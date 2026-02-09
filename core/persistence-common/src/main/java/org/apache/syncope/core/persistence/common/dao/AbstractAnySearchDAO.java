@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -39,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
@@ -75,32 +75,31 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
 
-    protected static final String[] RELATIONSHIP_FIELDS = { "realm", "userOwner", "groupOwner" };
+    protected static final String[] RELATIONSHIP_FIELDS = { "realm", "uManager", "gManager" };
 
     protected static SearchCond buildEffectiveCond(
             final SearchCond cond,
-            final Set<String> groupOwners,
+            final Set<Pair<AnyTypeKind, String>> managed,
             final AnyTypeKind kind) {
 
         List<SearchCond> result = new ArrayList<>();
         result.add(cond);
 
-        List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
-            AbstractSearchCond asc;
-            if (kind == AnyTypeKind.GROUP) {
+        List<SearchCond> managerConds = new ArrayList<>();
+        managed.forEach(pair -> {
+            if (kind == pair.getLeft()) {
                 AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
                 anyCond.setSchema("id");
-                anyCond.setExpression(key);
-                asc = anyCond;
-            } else {
+                anyCond.setExpression(pair.getRight());
+                managerConds.add(SearchCond.of(anyCond));
+            } else if (pair.getLeft() == AnyTypeKind.GROUP) {
                 MembershipCond membershipCond = new MembershipCond();
-                membershipCond.setGroup(key);
-                asc = membershipCond;
+                membershipCond.setGroup(pair.getRight());
+                managerConds.add(SearchCond.of(membershipCond));
             }
-            return SearchCond.of(asc);
-        }).toList();
-        if (!groupOwnerConds.isEmpty()) {
-            result.add(SearchCond.or(groupOwnerConds));
+        });
+        if (!managerConds.isEmpty()) {
+            result.add(SearchCond.or(managerConds));
         }
 
         return SearchCond.and(result);

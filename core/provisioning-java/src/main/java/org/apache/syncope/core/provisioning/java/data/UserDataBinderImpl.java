@@ -569,12 +569,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
 
-        fillTO(userTO,
-                user.getRealm().getFullPath(),
-                user.getAuxClasses(),
-                user.getPlainAttrs(),
-                derAttrHandler.getValues(user),
-                userDAO.findAllResources(user));
+        fillTO(user, userTO, derAttrHandler.getValues(user), userDAO.findAllResources(user));
 
         if (details) {
             // roles

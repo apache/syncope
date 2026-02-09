@@ -110,6 +110,8 @@ public class OpenSearchUtils {
         builder.put("lastChangeContext", any.getLastChangeContext());
         builder.put("status", any.getStatus());
         builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
+        Optional.ofNullable(any.getUManager()).ifPresent(um -> builder.put("uManager", um.getKey()));
+        Optional.ofNullable(any.getGManager()).ifPresent(gm -> builder.put("gManager", gm.getKey()));
 
         switch (any) {
             case AnyObject anyObject -> {
@@ -125,8 +127,6 @@ public class OpenSearchUtils {
             }
             case Group group -> {
                 builder.put("name", group.getName());
-                Optional.ofNullable(group.getUserOwner()).ifPresent(uo -> builder.put("userOwner", uo.getKey()));
-                Optional.ofNullable(group.getGroupOwner()).ifPresent(go -> builder.put("groupOwner", go.getKey()));
 
                 Set<String> members = new HashSet<>();
                 members.addAll(groupDAO.findUMemberships(group, Pageable.unpaged()).stream().

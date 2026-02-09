@@ -35,10 +35,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private String name;
 
-    private String userOwner;
-
-    private String groupOwner;
-
     private long userMembershipCount;
 
     private long anyObjectMembershipCount;
@@ -69,22 +65,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    public String getUserOwner() {
-        return userOwner;
-    }
-
-    public void setUserOwner(final String userOwner) {
-        this.userOwner = userOwner;
-    }
-
-    public String getGroupOwner() {
-        return groupOwner;
-    }
-
-    public void setGroupOwner(final String groupOwner) {
-        this.groupOwner = groupOwner;
     }
 
     public long getUserMembershipCount() {
@@ -121,8 +101,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
                 append(typeExtensions).
                 build();
     }
@@ -142,8 +120,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

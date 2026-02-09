@@ -42,9 +42,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -84,7 +87,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected record AdminRealmsFilter(Optional<Query> query, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(Optional<Query> query, Set<Pair<AnyTypeKind, String>> managed) {
 
     }
 
@@ -126,25 +129,26 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final Set<String> adminRealms,
             final AnyTypeKind kind) {
 
-        Set<String> groupOwners = new HashSet<>();
+        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
         List<Query> queries = new ArrayList<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> {
-                Optional<RealmUtils.GroupOwnerRealm> goRealm = RealmUtils.GroupOwnerRealm.of(realmPath);
-                if (goRealm.isPresent()) {
-                    groupOwners.add(goRealm.get().groupKey());
-                } else {
-                    Realm realm = realmSearchDAO.findByFullPath(realmPath).
-                            orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
+            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
+                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
+                    () -> {
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
-                    realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
-                            forEach(descendant -> queries.add(
-                            new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(descendant).caseInsensitive(false).build()).
-                                    build()));
-                }
-            });
+                        realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                                forEach(descendant -> queries.add(
+                                new Query.Builder().term(QueryBuilders.term().
+                                        field("realm").value(descendant).caseInsensitive(false).build()).
+                                        build()));
+                    }));
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
@@ -154,10 +158,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return new AdminRealmsFilter(
-                groupOwners.isEmpty()
+                managed.isEmpty()
                 ? Optional.of(new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build())
                 : Optional.empty(),
-                groupOwners);
+                managed);
     }
 
     protected Query getQuery(
@@ -182,7 +186,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             }
         } else {
             AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, kind);
-            query = getQuery(buildEffectiveCond(cond, filter.groupOwners(), kind), kind);
+            query = getQuery(buildEffectiveCond(cond, filter.managed(), kind), kind);
 
             if (filter.query().isPresent()) {
                 query = new Query.Builder().bool(

@@ -22,13 +22,21 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AnyCheck;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @AnyCheck
 public abstract class AbstractAny extends AbstractAttributable implements Any {
 
     private static final long serialVersionUID = -2666540708092702810L;
+
+    public static final String USER_MANAGER_REL = "USER_MANAGER";
+
+    public static final String GROUP_MANAGER_REL = "GROUP_MANAGER";
 
     /**
      * Username of the user that has created the related instance.
@@ -60,6 +68,12 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm realm;
+
+    @Relationship(type = USER_MANAGER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    protected Neo4jUser uManager;
+
+    @Relationship(type = GROUP_MANAGER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    protected Neo4jGroup gManager;
 
     private String status;
 
@@ -138,6 +152,28 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     public void setRealm(final Realm realm) {
         checkType(realm, Neo4jRealm.class);
         this.realm = (Neo4jRealm) realm;
+    }
+
+    @Override
+    public User getUManager() {
+        return uManager;
+    }
+
+    @Override
+    public void setUManager(final User uManager) {
+        checkType(uManager, Neo4jUser.class);
+        this.uManager = (Neo4jUser) uManager;
+    }
+
+    @Override
+    public Group getGManager() {
+        return gManager;
+    }
+
+    @Override
+    public void setGManager(final Group gManager) {
+        checkType(gManager, Neo4jGroup.class);
+        this.gManager = (Neo4jGroup) gManager;
     }
 
     @Override

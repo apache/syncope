@@ -118,11 +118,19 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given anyObject
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
+
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which anyObject is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
+        }
 
         // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {

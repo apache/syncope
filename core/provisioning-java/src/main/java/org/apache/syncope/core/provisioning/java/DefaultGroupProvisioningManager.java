@@ -21,9 +21,7 @@ package org.apache.syncope.core.provisioning.java;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -72,34 +70,19 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public ProvisioningResult<String> create(
             final GroupCR groupCR, final boolean nullPriorityAsync, final String creator, final String context) {
 
-        WorkflowResult<String> created = gwfAdapter.create(groupCR, creator, context);
-
-        List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
-                AnyTypeKind.GROUP,
-                created.getResult(),
-                null,
-                created.getPropByRes(),
-                Set.of());
-        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
-
-        return new ProvisioningResult<>(created.getResult(), propagationReporter.getStatuses());
+        return create(groupCR, Set.of(), nullPriorityAsync, creator, context);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public ProvisioningResult<String> create(
             final GroupCR groupCR,
-            final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync,
             final String creator,
             final String context) {
 
         WorkflowResult<String> created = gwfAdapter.create(groupCR, creator, context);
-
-        // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        groupCR.getPlainAttr(StringUtils.EMPTY).
-                ifPresent(groupOwner -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().getFirst()));
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,

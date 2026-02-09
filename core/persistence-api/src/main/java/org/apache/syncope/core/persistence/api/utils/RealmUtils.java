@@ -30,22 +30,22 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
 public class RealmUtils {
 
-    public record GroupOwnerRealm(String realmPath, String groupKey) {
+    public record ManagerRealm(String realmPath, AnyTypeKind kind, String anyKey) {
 
-        public static Optional<GroupOwnerRealm> of(final String input) {
+        public static Optional<ManagerRealm> of(final String input) {
             String[] split = input.split("@");
-            return split == null || split.length < 2
+            return split == null || split.length < 3
                     ? Optional.empty()
-                    : Optional.of(new GroupOwnerRealm(split[0], split[1]));
+                    : Optional.of(new ManagerRealm(split[0], AnyTypeKind.valueOf(split[1]), split[2]));
         }
 
         public String output() {
-            return realmPath + '@' + groupKey;
+            return realmPath + '@' + kind + '@' + anyKey;
         }
     }
 
@@ -67,22 +67,22 @@ public class RealmUtils {
         return !dontAdd;
     }
 
-    public record NormalizedRealms(Set<String> realms, Set<String> groupOwnerRealms) {
+    public record NormalizedRealms(Set<String> realms, Set<String> managerRealms) {
 
         public static NormalizedRealms of(final Collection<String> input) {
             Set<String> realms = new HashSet<>();
-            Set<String> groupOwnerRealms = new HashSet<>();
+            Set<String> managerRealms = new HashSet<>();
             if (input != null) {
                 input.forEach(realm -> {
                     if (realm.indexOf('@') == -1) {
                         normalizingAddTo(realms, realm);
                     } else {
-                        groupOwnerRealms.add(realm);
+                        managerRealms.add(realm);
                     }
                 });
             }
 
-            return new NormalizedRealms(realms, groupOwnerRealms);
+            return new NormalizedRealms(realms, managerRealms);
         }
     }
 
@@ -100,8 +100,6 @@ public class RealmUtils {
         }
     }
 
-    private static final Predicate<String> DYN_REALMS_PREDICATE = r -> !r.startsWith(SyncopeConstants.ROOT_REALM);
-
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
         NormalizedRealms normalized = NormalizedRealms.of(allowedRealms);
 
@@ -114,13 +112,8 @@ public class RealmUtils {
         effective.addAll(requested.stream().filter(normalizedFilter).collect(Collectors.toSet()));
         effective.addAll(normalized.realms().stream().filter(requestedFilter).collect(Collectors.toSet()));
 
-        // includes group ownership
-        effective.addAll(normalized.groupOwnerRealms());
-
-        // includes dynamic realms
-        if (allowedRealms != null) {
-            effective.addAll(allowedRealms.stream().filter(DYN_REALMS_PREDICATE).collect(Collectors.toSet()));
-        }
+        // includes manager
+        effective.addAll(normalized.managerRealms());
 
         return effective;
     }

@@ -18,19 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -45,18 +41,6 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
     @Autowired
     private GroupProvisioningManager groupProvisioningManager;
-
-    private final Map<String, String> groupOwnerMap = new HashMap<>();
-
-    @Override
-    public Map<String, String> getGroupOwnerMap() {
-        return this.groupOwnerMap;
-    }
-
-    @Override
-    public void updateOwner(final GroupUR req) {
-        gwfAdapter.update(req, profile.getExecutor(), profile.getContext());
-    }
 
     @Override
     protected AnyUtils anyUtils() {
@@ -92,7 +76,6 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     protected AnyTO doCreate(final AnyCR anyCR, final SyncDelta delta) {
         ProvisioningManager.ProvisioningResult<String> created = groupProvisioningManager.create(
                 GroupCR.class.cast(anyCR),
-                groupOwnerMap,
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
@@ -117,18 +100,6 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
         createRemediationIfNeeded(req, delta, result);
 
-        String groupOwner = null;
-        for (AttrPatch attrPatch : req.getPlainAttrs()) {
-            if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttr() != null
-                    && attrPatch.getAttr().getSchema().isEmpty() && !attrPatch.getAttr().getValues().isEmpty()) {
-
-                groupOwner = attrPatch.getAttr().getValues().getFirst();
-            }
-        }
-        if (groupOwner != null) {
-            groupOwnerMap.put(updated.key().getKey(), groupOwner);
-        }
-
-        return req;
+        return updated.key();
     }
 }

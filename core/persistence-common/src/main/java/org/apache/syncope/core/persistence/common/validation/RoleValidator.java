@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Role;
 
@@ -30,10 +29,7 @@ public class RoleValidator extends AbstractValidator<RoleCheck, Role> {
     public boolean isValid(final Role role, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (role.getKey() == null
-                || (!RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())
-                && !Entity.ID_PATTERN.matcher(role.getKey()).matches())) {
-
+        if (role.getKey() == null || !Entity.ID_PATTERN.matcher(role.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, role.getKey())).
                     addPropertyNode("key").addConstraintViolation();

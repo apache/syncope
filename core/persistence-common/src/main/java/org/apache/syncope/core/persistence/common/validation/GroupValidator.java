@@ -31,15 +31,6 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
 
         boolean isValid = true;
 
-        if (group.getUserOwner() != null && group.getGroupOwner() != null) {
-            isValid = false;
-
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidGroupOwner,
-                            "A group must either be owned by an user or a group, not both")).
-                    addPropertyNode("owner").addConstraintViolation();
-        }
-
         if (isValid && (group.getName() == null || !Entity.ID_PATTERN.matcher(group.getName()).matches())) {
             isValid = false;
 

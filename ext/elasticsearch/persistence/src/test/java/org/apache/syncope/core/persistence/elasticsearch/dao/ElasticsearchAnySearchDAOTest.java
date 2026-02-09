@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -125,20 +126,20 @@ public class ElasticsearchAnySearchDAOTest {
                         field("realm").value("rootKey").caseInsensitive(false).build()).
                         build()).build()).build()).
                 usingRecursiveComparison().isEqualTo(filter.query().get());
-        assertEquals(Set.of(), filter.groupOwners());
+        assertEquals(Set.of(), filter.managed());
     }
 
     @Test
-    public void getAdminRealmsFilter4groupOwner() {
-        Set<String> adminRealms = Set.of(new RealmUtils.GroupOwnerRealm("/any", "groupKey").output());
+    public void getAdminRealmsFilter4manager() {
+        Set<String> adminRealms = Set.of(new RealmUtils.ManagerRealm("/any", AnyTypeKind.GROUP, "groupKey").output());
         ElasticsearchAnySearchDAO.AdminRealmsFilter filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
         assertFalse(filter.query().isPresent());
-        assertEquals(Set.of("groupKey"), filter.groupOwners());
+        assertEquals(Set.of(Pair.of(AnyTypeKind.GROUP, "groupKey")), filter.managed());
     }
 
     @Test
-    public void searchRequest4groupOwner() throws IOException {
+    public void searchRequest4manager() throws IOException {
         // 1. mock
         AnyUtils anyUtils = mock(AnyUtils.class);
         when(anyUtils.getField("key")).thenReturn(Optional.of(ReflectionUtils.findField(JPAUser.class, "id")));
@@ -154,7 +155,8 @@ public class ElasticsearchAnySearchDAOTest {
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
             // 2. test
-            Set<String> adminRealms = Set.of(new RealmUtils.GroupOwnerRealm("/any", "groupKey").output());
+            Set<String> adminRealms = Set.of(
+                    new RealmUtils.ManagerRealm("/any", AnyTypeKind.GROUP, "groupKey").output());
 
             AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
             anyCond.setSchema("key");

@@ -125,7 +125,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithTwoOwners() {
+    public void saveWithTwoManagers() {
         assertThrows(InvalidEntityException.class, () -> {
             Group root = groupDAO.findByName("root").orElseThrow();
 
@@ -134,38 +134,38 @@ public class GroupTest extends AbstractTest {
             Group group = entityFactory.newEntity(Group.class);
             group.setRealm(realmDAO.getRoot());
             group.setName("error");
-            group.setUserOwner(user);
-            group.setGroupOwner(root);
+            group.setUManager(user);
+            group.setGManager(root);
 
             groupDAO.save(group);
         });
     }
 
     @Test
-    public void findOwnedByUser() {
+    public void findByUManager() {
         Group group = groupDAO.findById("ebf97068-aa4b-4a85-9f01-680e8c4cf227").orElseThrow();
 
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
 
-        assertEquals(user, group.getUserOwner());
+        assertEquals(user, group.getUManager());
 
-        List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
-        assertFalse(ownedGroups.isEmpty());
-        assertEquals(1, ownedGroups.size());
-        assertTrue(ownedGroups.contains(group));
+        List<Group> managed = userDAO.findManagedGroups(user.getKey());
+        assertFalse(managed.isEmpty());
+        assertEquals(1, managed.size());
+        assertTrue(managed.contains(group));
     }
 
     @Test
-    public void findOwnedByGroup() {
+    public void findByGManager() {
         Group root = groupDAO.findByName("root").orElseThrow();
         Group group = entityFactory.newEntity(Group.class);
         group.setRealm(realmDAO.getRoot());
         group.setName("error");
-        group.setGroupOwner(root);
+        group.setGManager(root);
         group = groupDAO.save(group);
 
-        List<Group> owned = groupDAO.findOwnedByGroup(root.getKey());
-        assertEquals(List.of(group), owned);
+        List<Group> managed = groupDAO.findManagedGroups(root.getKey());
+        assertEquals(List.of(group), managed);
     }
 
     @Test

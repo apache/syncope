@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -109,8 +110,9 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void create() {
+        // create group managed by f779c0d4-633b-4be5-8f57-32eb478a3ca5
         GroupCR groupCR = getSample("lastGroup");
-        groupCR.setGroupOwner("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
+        groupCR.setGManager("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
@@ -121,12 +123,17 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("owner"));
 
-        // SYNCOPE-515: remove ownership
+        // attempt to delete f779c0d4-633b-4be5-8f57-32eb478a3ca5 -> fail
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class, () -> GROUP_SERVICE.delete("f779c0d4-633b-4be5-8f57-32eb478a3ca5"));
+        assertEquals(ClientExceptionType.Management, e.getType());
+
+        // remove group manager
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(groupTO.getKey());
-        groupUR.setGroupOwner(new StringReplacePatchItem());
+        groupUR.setGManager(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
 
-        assertNull(updateGroup(groupUR).getEntity().getGroupOwner());
+        assertNull(updateGroup(groupUR).getEntity().getGManager());
     }
 
     @Test

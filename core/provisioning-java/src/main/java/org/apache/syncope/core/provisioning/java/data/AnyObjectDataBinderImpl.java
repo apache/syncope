@@ -122,12 +122,7 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
         anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
         anyObjectTO.setLastChangeContext(anyObject.getLastChangeContext());
 
-        fillTO(anyObjectTO,
-                anyObject.getRealm().getFullPath(),
-                anyObject.getAuxClasses(),
-                anyObject.getPlainAttrs(),
-                derAttrHandler.getValues(anyObject),
-                anyObjectDAO.findAllResources(anyObject));
+        fillTO(anyObject, anyObjectTO, derAttrHandler.getValues(anyObject), anyObjectDAO.findAllResources(anyObject));
 
         if (details) {
             // relationships

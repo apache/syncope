@@ -23,26 +23,28 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.data.domain.Pageable;
 
 public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     String CACHE = "groupCache";
 
-    String DYN_GROUP_USER_MEMBERSHIP_REL = "DYN_GROUP_USER_MEMBERSHIP";
-
-    String DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL = "DYN_GROUP_ANY_OBJECT_MEMBERSHIP";
-
     void securityChecks(Set<String> authRealms, String key, String realm);
 
+    boolean isManager(String key);
+
+    List<User> findManagedUsers(String key);
+
+    List<Group> findManagedGroups(String key);
+
+    List<AnyObject> findManagedAnyObjects(String key);
+
     Map<String, Long> countByRealm();
-
-    List<Group> findOwnedByUser(String userKey);
-
-    List<Group> findOwnedByGroup(String groupKey);
 
     List<AMembership> findAMemberships(Group group);
 
