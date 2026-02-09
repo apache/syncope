@@ -617,7 +617,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     return new AnyCondQuery(
                             "MATCH (n)-[:" + AbstractAny.USER_MANAGER_REL + "]-"
                             + "(:" + Neo4jUser.NODE + " "
-                            + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
+                            + "{id: $" + setParameter(parameters, checked.cond().getExpression()) + "})",
                             null);
                 }
 
@@ -625,7 +625,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     return new AnyCondQuery(
                             "MATCH (n)-[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
                             + "(:" + Neo4jGroup.NODE + " "
-                            + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
+                            + "{id: $" + setParameter(parameters, checked.cond().getExpression()) + "})",
                             null);
                 }
 

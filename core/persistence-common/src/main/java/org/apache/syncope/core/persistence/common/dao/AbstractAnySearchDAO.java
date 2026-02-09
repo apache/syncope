@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -293,6 +294,19 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         if (ArrayUtils.contains(RELATIONSHIP_FIELDS, computed.getSchema())) {
             computed.setSchema(computed.getSchema() + "_id");
             schema.setType(AttrSchemaType.String);
+
+            if (!SyncopeConstants.UUID_PATTERN.matcher(computed.getExpression()).matches()) {
+                switch (StringUtils.substringBefore(computed.getSchema(), "_id")) {
+                    case "uManager" ->
+                        userDAO.findKey(computed.getExpression()).ifPresent(computed::setExpression);
+
+                    case "gManager" ->
+                        groupDAO.findKey(computed.getExpression()).ifPresent(computed::setExpression);
+
+                    default -> {
+                    }
+                }
+            }
         }
 
         PlainAttrValue attrValue = new PlainAttrValue();

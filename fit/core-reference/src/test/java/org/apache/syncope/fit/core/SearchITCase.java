@@ -322,7 +322,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByUManager() {
         PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                        is("uManager").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
+                        is("uManager").equalTo("puccini").query()).build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
         assertTrue(groups.getResult().stream().

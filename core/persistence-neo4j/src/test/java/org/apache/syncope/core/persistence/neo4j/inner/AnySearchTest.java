@@ -345,6 +345,24 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchByUManager() {
+        AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+        anyCond.setSchema("uManager");
+        anyCond.setExpression("823074dc-d280-436d-a7dd-07399fae48ec");
+
+        List<Group> groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
+
+        anyCond.setExpression("puccini");
+        groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
+    }
+
+    @Test
     public void searchByPageAndSize() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");

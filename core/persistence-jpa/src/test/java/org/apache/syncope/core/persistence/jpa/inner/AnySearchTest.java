@@ -43,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -104,9 +103,6 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private RoleDAO roleDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -317,6 +313,24 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("rossini", users.getFirst().getUsername());
+    }
+
+    @Test
+    public void searchByUManager() {
+        AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+        anyCond.setSchema("uManager");
+        anyCond.setExpression("823074dc-d280-436d-a7dd-07399fae48ec");
+
+        List<Group> groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
+
+        anyCond.setExpression("puccini");
+        groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
     }
 
     @Test
