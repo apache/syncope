@@ -40,6 +40,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -66,7 +67,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class Ownership extends WizardStep implements ICondition {
+public class Management extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
 
@@ -82,11 +83,11 @@ public class Ownership extends WizardStep implements ICondition {
     @SpringBean
     private GroupRestClient groupRestClient;
 
-    private final Pattern owner = Pattern.compile("\\[\\(\\d+\\)\\] .*");
+    private final Pattern manager = Pattern.compile("\\[\\(\\d+\\)\\] .*");
 
-    private final GroupWrapper wrapper;
+    private final AnyWrapper<? extends AnyTO> wrapper;
 
-    private final WebMarkupContainer ownerContainer;
+    private final WebMarkupContainer managerContainer;
 
     private final GroupSearchPanel groupSearchPanel;
 
@@ -100,9 +101,9 @@ public class Ownership extends WizardStep implements ICondition {
 
     private final UserSelectionDirectoryPanel userDirectoryPanel;
 
-    private final Model<Boolean> isGroupOwnership;
+    private final Model<Boolean> isGManager;
 
-    public Ownership(final GroupWrapper groupWrapper, final PageReference pageRef) {
+    public Management(final AnyWrapper<? extends AnyTO> anyWrapper, final PageReference pageRef) {
         super();
 
         // -----------------------------------------------------------------
@@ -113,23 +114,23 @@ public class Ownership extends WizardStep implements ICondition {
         permissions.authorize(RENDER, new Roles(IdRepoEntitlement.USER_SEARCH));
         // -----------------------------------------------------------------
 
-        setTitleModel(new ResourceModel("group.ownership"));
-        this.wrapper = groupWrapper;
+        setTitleModel(new ResourceModel("manager"));
+        this.wrapper = anyWrapper;
 
-        isGroupOwnership = Model.of(groupWrapper.getInnerObject().getGroupOwner() != null);
+        isGManager = Model.of(anyWrapper.getInnerObject().getGManager() != null);
 
         BootstrapToggleConfig config = new BootstrapToggleConfig().
                 withOnStyle(BootstrapToggleConfig.Style.info).
                 withOffStyle(BootstrapToggleConfig.Style.warning).
                 withSize(BootstrapToggleConfig.Size.mini);
 
-        add(new BootstrapToggle("ownership", new Model<>() {
+        add(new BootstrapToggle("management", new Model<>() {
 
             private static final long serialVersionUID = 6062041315055645807L;
 
             @Override
             public Boolean getObject() {
-                return isGroupOwnership.getObject();
+                return isGManager.getObject();
             }
         }, config) {
 
@@ -137,12 +138,12 @@ public class Ownership extends WizardStep implements ICondition {
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of("USER Owner");
+                return Model.of(AnyTypeKind.USER.name());
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of("GROUP Owner");
+                return Model.of(AnyTypeKind.GROUP.name());
             }
 
             @Override
@@ -154,28 +155,28 @@ public class Ownership extends WizardStep implements ICondition {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        isGroupOwnership.setObject(!isGroupOwnership.getObject());
-                        if (isGroupOwnership.getObject()) {
-                            ownerContainer.addOrReplace(groupSearchFragment);
+                        isGManager.setObject(!isGManager.getObject());
+                        if (isGManager.getObject()) {
+                            managerContainer.addOrReplace(groupSearchFragment);
                             groupDirectoryPanel.search(null, target);
                         } else {
-                            ownerContainer.addOrReplace(userSearchFragment);
+                            managerContainer.addOrReplace(userSearchFragment);
                             userDirectoryPanel.search(null, target);
                         }
-                        target.add(ownerContainer);
+                        target.add(managerContainer);
                     }
                 });
                 return checkBox;
             }
         });
 
-        ownerContainer = new WebMarkupContainer("ownerContainer");
-        ownerContainer.setOutputMarkupId(true);
-        add(ownerContainer);
+        managerContainer = new WebMarkupContainer("managerContainer");
+        managerContainer.setOutputMarkupId(true);
+        add(managerContainer);
 
         groupSearchFragment = new Fragment("search", "groupSearchFragment", this);
         groupSearchPanel = new GroupSearchPanel.Builder(
-                new ListModel<>(new ArrayList<>()), pageRef).required(false).enableSearch(Ownership.this).
+                new ListModel<>(new ArrayList<>()), pageRef).required(false).enableSearch(Management.this).
                 build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
@@ -189,7 +190,7 @@ public class Ownership extends WizardStep implements ICondition {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                new ListModel<>(new ArrayList<>()), pageRef).required(false).enableSearch(Ownership.this).
+                new ListModel<>(new ArrayList<>()), pageRef).required(false).enableSearch(Management.this).
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
@@ -199,24 +200,24 @@ public class Ownership extends WizardStep implements ICondition {
                 build("searchResult"));
         userSearchFragment.add(userDirectoryPanel);
 
-        if (isGroupOwnership.getObject()) {
-            ownerContainer.add(groupSearchFragment);
+        if (isGManager.getObject()) {
+            managerContainer.add(groupSearchFragment);
         } else {
-            ownerContainer.add(userSearchFragment);
+            managerContainer.add(userSearchFragment);
         }
 
-        AjaxTextFieldPanel userOwner = new AjaxTextFieldPanel(
-                "userOwner", "userOwner", new PropertyModel<>(groupWrapper.getInnerObject(), "userOwner") {
+        AjaxTextFieldPanel uManager = new AjaxTextFieldPanel(
+                "uManager", "uManager", new PropertyModel<>(anyWrapper.getInnerObject(), "uManager") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
             @Override
             public String getObject() {
-                if (groupWrapper.getInnerObject().getUserOwner() == null) {
+                if (anyWrapper.getInnerObject().getUManager() == null) {
                     return StringUtils.EMPTY;
                 }
 
-                UserTO userTO = userRestClient.read(groupWrapper.getInnerObject().getUserOwner());
+                UserTO userTO = userRestClient.read(anyWrapper.getInnerObject().getUManager());
                 if (userTO == null) {
                     return StringUtils.EMPTY;
                 }
@@ -227,27 +228,27 @@ public class Ownership extends WizardStep implements ICondition {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    groupWrapper.getInnerObject().setUserOwner(null);
+                    anyWrapper.getInnerObject().setUManager(null);
                 } else {
-                    Matcher matcher = owner.matcher(object);
+                    Matcher matcher = manager.matcher(object);
                     if (matcher.matches()) {
-                        groupWrapper.getInnerObject().setUserOwner(matcher.group(1));
+                        anyWrapper.getInnerObject().setUManager(matcher.group(1));
                     }
                 }
             }
         }, false);
-        userOwner.setPlaceholder("userOwner");
-        userOwner.hideLabel();
-        userOwner.setReadOnly(true).setOutputMarkupId(true);
-        userSearchFragment.add(userOwner);
+        uManager.setPlaceholder("uManager");
+        uManager.hideLabel();
+        uManager.setReadOnly(true).setOutputMarkupId(true);
+        userSearchFragment.add(uManager);
 
-        IndicatingAjaxLink<Void> userOwnerReset = new IndicatingAjaxLink<>("userOwnerReset") {
+        IndicatingAjaxLink<Void> uManagerReset = new IndicatingAjaxLink<>("uManagerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(Ownership.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
+                send(Management.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
             }
 
             @Override
@@ -256,19 +257,19 @@ public class Ownership extends WizardStep implements ICondition {
             }
 
         };
-        userSearchFragment.add(userOwnerReset);
+        userSearchFragment.add(uManagerReset);
 
-        AjaxTextFieldPanel groupOwner = new AjaxTextFieldPanel(
-                "groupOwner", "groupOwner", new PropertyModel<>(groupWrapper.getInnerObject(), "groupOwner") {
+        AjaxTextFieldPanel gManager = new AjaxTextFieldPanel(
+                "gManager", "gManager", new PropertyModel<>(anyWrapper.getInnerObject(), "gManager") {
 
             private static final long serialVersionUID = -3743432456095828573L;
 
             @Override
             public String getObject() {
-                if (groupWrapper.getInnerObject().getGroupOwner() == null) {
+                if (anyWrapper.getInnerObject().getGManager() == null) {
                     return StringUtils.EMPTY;
                 } else {
-                    GroupTO groupTO = groupRestClient.read(groupWrapper.getInnerObject().getGroupOwner());
+                    GroupTO groupTO = groupRestClient.read(anyWrapper.getInnerObject().getGManager());
                     if (groupTO == null) {
                         return StringUtils.EMPTY;
                     } else {
@@ -280,27 +281,27 @@ public class Ownership extends WizardStep implements ICondition {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    groupWrapper.getInnerObject().setGroupOwner(null);
+                    anyWrapper.getInnerObject().setGManager(null);
                 } else {
-                    final Matcher matcher = owner.matcher(object);
+                    final Matcher matcher = manager.matcher(object);
                     if (matcher.matches()) {
-                        groupWrapper.getInnerObject().setGroupOwner(matcher.group(1));
+                        anyWrapper.getInnerObject().setGManager(matcher.group(1));
                     }
                 }
             }
         }, false);
-        groupOwner.setPlaceholder("groupOwner");
-        groupOwner.hideLabel();
-        groupOwner.setReadOnly(true).setOutputMarkupId(true);
-        groupSearchFragment.add(groupOwner);
+        gManager.setPlaceholder("gManager");
+        gManager.hideLabel();
+        gManager.setReadOnly(true).setOutputMarkupId(true);
+        groupSearchFragment.add(gManager);
 
-        IndicatingAjaxLink<Void> groupOwnerReset = new IndicatingAjaxLink<>("groupOwnerReset") {
+        IndicatingAjaxLink<Void> gManagerReset = new IndicatingAjaxLink<>("gManagerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(Ownership.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
+                send(Management.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
             }
 
             @Override
@@ -309,14 +310,14 @@ public class Ownership extends WizardStep implements ICondition {
             }
 
         };
-        groupSearchFragment.add(groupOwnerReset);
+        groupSearchFragment.add(gManagerReset);
     }
 
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent payload) {
             AjaxRequestTarget target = payload.getTarget();
-            if (Ownership.this.isGroupOwnership.getObject()) {
+            if (Management.this.isGManager.getObject()) {
                 String fiql = SearchUtils.buildFIQL(
                         groupSearchPanel.getModel().getObject(), SyncopeClient.getGroupSearchConditionBuilder());
                 groupDirectoryPanel.search(fiql, target);
@@ -328,16 +329,16 @@ public class Ownership extends WizardStep implements ICondition {
         } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection<?> itemSelection) {
             AnyTO sel = itemSelection.getSelection();
             if (sel == null) {
-                wrapper.getInnerObject().setUserOwner(null);
-                wrapper.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUManager(null);
+                wrapper.getInnerObject().setGManager(null);
             } else if (sel instanceof UserTO) {
-                wrapper.getInnerObject().setUserOwner(sel.getKey());
-                wrapper.getInnerObject().setGroupOwner(null);
+                wrapper.getInnerObject().setUManager(sel.getKey());
+                wrapper.getInnerObject().setGManager(null);
             } else if (sel instanceof GroupTO) {
-                wrapper.getInnerObject().setGroupOwner(sel.getKey());
-                wrapper.getInnerObject().setUserOwner(null);
+                wrapper.getInnerObject().setUManager(null);
+                wrapper.getInnerObject().setGManager(sel.getKey());
             }
-            itemSelection.getTarget().add(ownerContainer);
+            itemSelection.getTarget().add(managerContainer);
         } else {
             super.onEvent(event);
         }

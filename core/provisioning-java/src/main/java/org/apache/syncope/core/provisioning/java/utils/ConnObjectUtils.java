@@ -291,10 +291,6 @@ public class ConnObjectUtils {
                 if (StringUtils.isBlank(updatedGroup.getName())) {
                     updatedGroup.setName(originalGroup.getName());
                 }
-                updatedGroup.setUserOwner(originalGroup.getUserOwner());
-                updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
-                updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
-                updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
                 updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
                 anyUR = (U) AnyOperations.diff(updatedGroup, originalGroup, true);

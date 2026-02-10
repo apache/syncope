@@ -196,7 +196,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 action.beforeAll(profile);
             }
 
-            ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {
@@ -205,7 +204,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                         break;
 
                     case GROUP:
-                        handler = ghandler;
+                        handler = buildGroupHandler();
                         break;
 
                     case ANY_OBJECT:
@@ -226,12 +225,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     MappingUtils.buildOperationOptions(
                             MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
                             moreAttrsToGet.toArray(String[]::new)));
-
-            try {
-                setGroupOwners();
-            } catch (Exception e) {
-                LOG.error("While setting group owners", e);
-            }
 
             for (InboundActions action : profile.getActions()) {
                 action.afterAll(profile);

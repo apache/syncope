@@ -32,7 +32,6 @@ import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
-import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -510,37 +509,5 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);
-    }
-
-    @Test
-    void issueSYNCOPE1918() throws Exception {
-        // update group citizen
-        GroupUR groupUR = new GroupUR.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").
-                udynMembershipCond("username=~ros*").
-                adynMembershipCond(PRINTER, "name=~hp*").
-                build();
-        GroupTO citizen = updateGroup(groupUR).getEntity();
-        assertNotNull(citizen.getUDynMembershipCond());
-        assertFalse(citizen.getADynMembershipConds().isEmpty());
-
-        try {
-            execProvisioningTasks(
-                    TASK_SERVICE,
-                    TaskType.PUSH,
-                    Set.of("fd905ba5-9d56-4f51-83e2-859096a67b75"),
-                    MAX_WAIT_SECONDS, false);
-
-            citizen = GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
-            assertNotNull(citizen.getUDynMembershipCond());
-            assertFalse(citizen.getADynMembershipConds().isEmpty());
-        } finally {
-            // restore group citizen
-            groupUR.setUDynMembershipCond(null);
-            groupUR.getADynMembershipConds().clear();
-            citizen = updateGroup(groupUR).getEntity();
-
-            assertNull(citizen.getUDynMembershipCond());
-            assertTrue(citizen.getADynMembershipConds().isEmpty());
-        }
     }
 }

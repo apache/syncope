@@ -110,6 +110,8 @@ public class OpenSearchUtils {
         builder.put("lastChangeContext", any.getLastChangeContext());
         builder.put("status", any.getStatus());
         builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
+        Optional.ofNullable(any.getUManager()).ifPresent(um -> builder.put("uManager", um.getKey()));
+        Optional.ofNullable(any.getGManager()).ifPresent(gm -> builder.put("gManager", gm.getKey()));
 
         switch (any) {
             case AnyObject anyObject -> {
@@ -120,28 +122,22 @@ public class OpenSearchUtils {
                 relationships(anyObjectDAO.findAllRelationships(anyObject), builder);
 
                 builder.put("resources", anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
-                builder.put("dynRealms", anyObjectDAO.findDynRealms(anyObject.getKey()));
 
                 customizeDocument(builder, anyObject);
             }
             case Group group -> {
                 builder.put("name", group.getName());
-                Optional.ofNullable(group.getUserOwner()).ifPresent(uo -> builder.put("userOwner", uo.getKey()));
-                Optional.ofNullable(group.getGroupOwner()).ifPresent(go -> builder.put("groupOwner", go.getKey()));
 
                 Set<String> members = new HashSet<>();
                 members.addAll(groupDAO.findUMemberships(group, Pageable.unpaged()).stream().
                         map(membership -> membership.getLeftEnd().getKey()).toList());
-                members.addAll(groupDAO.findUDynMembers(group));
                 members.addAll(groupDAO.findAMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).toList());
-                members.addAll(groupDAO.findADynMembers(group));
                 builder.put("members", members);
 
                 relationships(group.getRelationships(), builder);
 
                 builder.put("resources", groupDAO.findAllResourceKeys(group.getKey()));
-                builder.put("dynRealms", groupDAO.findDynRealms(group.getKey()));
 
                 customizeDocument(builder, group);
             }
@@ -162,7 +158,6 @@ public class OpenSearchUtils {
                 relationships(user.getRelationships(), builder);
 
                 builder.put("resources", userDAO.findAllResourceKeys(user.getKey()));
-                builder.put("dynRealms", userDAO.findDynRealms(user.getKey()));
 
                 customizeDocument(builder, user);
             }

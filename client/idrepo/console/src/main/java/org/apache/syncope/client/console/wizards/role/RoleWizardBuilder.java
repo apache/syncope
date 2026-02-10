@@ -22,12 +22,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
-import org.apache.syncope.client.console.panels.search.UserSearchPanel;
-import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
@@ -38,17 +35,13 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -62,20 +55,16 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     protected final RealmRestClient realmRestClient;
 
-    protected final DynRealmRestClient dynRealmRestClient;
-
     public RoleWizardBuilder(
             final RoleTO roleTO,
             final RoleRestClient roleRestClient,
             final RealmRestClient realmRestClient,
-            final DynRealmRestClient dynRealmRestClient,
             final PageReference pageRef) {
 
         super(new RoleWrapper(roleTO), pageRef);
 
         this.roleRestClient = roleRestClient;
         this.realmRestClient = realmRestClient;
-        this.dynRealmRestClient = dynRealmRestClient;
     }
 
     /**
@@ -94,7 +83,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     @Override
     protected Serializable onApplyInternal(final RoleWrapper modelObject) {
-        modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
             roleRestClient.create(modelObject.getInnerObject());
@@ -109,7 +97,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         wizardModel.add(new Details(modelObject));
         wizardModel.add(new Entitlements(modelObject.getInnerObject()));
         wizardModel.add(new Realms(modelObject.getInnerObject()));
-        wizardModel.add(new DynRealms(modelObject.getInnerObject()));
         return wizardModel;
     }
 
@@ -123,23 +110,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     Constants.KEY_FIELD_NAME,
                     new PropertyModel<>(modelObject.getInnerObject(), Constants.KEY_FIELD_NAME), false).
                     setEnabled(StringUtils.isEmpty(modelObject.getInnerObject().getKey())));
-
-            // ------------------------
-            // dynMembershipCond
-            // ------------------------
-            add(new Accordion("dynMembershipCond", List.of(
-                    new AbstractTab(new ResourceModel("dynMembershipCond", "Dynamic USER Membership Conditions")) {
-
-                private static final long serialVersionUID = 1037272333056449378L;
-
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new UserSearchPanel.Builder(
-                            new PropertyModel<>(modelObject, "dynClauses"), pageRef).
-                            required(true).build(panelId);
-                }
-            }), Model.of(StringUtils.isBlank(modelObject.getDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
-            // ------------------------
         }
     }
 
@@ -199,20 +169,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     "realms",
                     "realms",
                     (FieldPanel) realm).hideLabel());
-        }
-    }
-
-    protected class DynRealms extends WizardStep {
-
-        private static final long serialVersionUID = 6846234574424462255L;
-
-        public DynRealms(final RoleTO modelObject) {
-            setTitleModel(new ResourceModel("dynRealms"));
-            add(new AjaxPalettePanel.Builder<>().build("dynRealms",
-                    new PropertyModel<>(modelObject, "dynRealms"),
-                    new ListModel<>(dynRealmRestClient.list().stream().
-                            map(DynRealmTO::getKey).collect(Collectors.toList()))).
-                    hideLabel().setOutputMarkupId(true));
         }
     }
 }

@@ -29,14 +29,6 @@ public interface Role extends ProvidedKeyEntity {
 
     List<? extends Realm> getRealms();
 
-    boolean add(DynRealm dynRealm);
-
-    List<? extends DynRealm> getDynRealms();
-
-    String getDynMembershipCond();
-
-    void setDynMembershipCond(String dynMembershipCond);
-
     String getAnyLayout();
 
     void setAnyLayout(String anyLayout);

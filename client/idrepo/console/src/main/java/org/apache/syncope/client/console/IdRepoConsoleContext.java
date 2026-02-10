@@ -52,7 +52,6 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.CommandRestClient;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
-import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -236,12 +235,6 @@ public class IdRepoConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DynRealmRestClient dynRealmRestClient() {
-        return new DynRealmRestClient();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public FIQLQueryRestClient fiqlQueryRestClient() {
         return new FIQLQueryRestClient();
     }
@@ -335,7 +328,7 @@ public class IdRepoConsoleContext {
     public UserSelfRestClient userSelfRestClient() {
         return new UserSelfRestClient();
     }
-    
+
     @ConditionalOnMissingBean
     @Bean
     public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {

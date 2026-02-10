@@ -41,18 +41,6 @@ This partition allows fine-grained control over policy enforcement and, alongsid
 <<entitlements,entitlements>> and <<roles,roles>>, helps to implement 
 <<delegated-administration,delegated administration>>.
 
-[[dynamic-realms]]
-.Dynamic Realms
-****
-Realms provide a means to model static containment hierarchies. +
-This might not be the ideal fit for situations where the set of Users, Groups and Any Objects to administer
-cannot be statically defined by containment.
-
-Dynamic Realms can be used to identify Users, Groups and Any Objects according to some attributes' value, resource
-assignment, group membership or any other condition available, with purpose of granting
-<<delegated-administration,delegated administration>> rights.
-****
-
 [[logic-templates]]
 [TIP]
 .Logic Templates

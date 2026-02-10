@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,12 +30,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -42,12 +42,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -71,7 +75,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -83,7 +86,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final AnyFinder anyFinder) {
 
         super(
-                dynRealmDAO,
                 plainSchemaDAO,
                 entityManager,
                 anyFinder,
@@ -94,6 +96,96 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.delegationDAO = delegationDAO;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
+    }
+
+    @Override
+    public boolean isManager(final String key) {
+        Query user = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE uManager_id=?");
+        user.setParameter(1, key);
+
+        Query group = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE uManager_id=?");
+        group.setParameter(1, key);
+
+        Query anyObject = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE uManager_id=?");
+        anyObject.setParameter(1, key);
+
+        return ((Number) user.getSingleResult()).longValue()
+                + ((Number) group.getSingleResult()).longValue()
+                + ((Number) anyObject.getSingleResult()).longValue() > 0;
+    }
+
+    @Override
+    public List<User> findManagedUsers(final String key) {
+        List<User> result = new ArrayList<>();
+
+        // 1. users having uManager set to the requested user
+        TypedQuery<User> users = entityManager.createQuery(
+                "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.uManager.id=:key", User.class);
+        users.setParameter("key", key);
+        result.addAll(users.getResultList());
+
+        // 2. user members of groups having uManager set to the requested user
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
+                forEach(member -> Optional.ofNullable(entityManager.find(JPAUser.class, member)).
+                ifPresent(result::add)));
+
+        // 3. users managed by groups the requested user is member of
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT group_id FROM " + JPAUMembership.TABLE + " WHERE user_id=?");
+        query.setParameter(1, key);
+        @SuppressWarnings("unchecked")
+        List<Object> groups = query.getResultList();
+        groups.stream().map(String.class::cast).forEach(group -> result.addAll(groupDAO.findManagedUsers(group)));
+
+        return result.stream().distinct().toList();
+    }
+
+    protected List<String> findManagedGroupKeys(final String key) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT id FROM " + JPAGroup.TABLE + " WHERE uManager_id=?");
+        query.setParameter(1, key);
+
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().map(String.class::cast).toList();
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        return findManagedGroupKeys(key).stream().
+                map(group -> Optional.ofNullable(entityManager.find(JPAGroup.class, group))).
+                flatMap(Optional::stream).
+                map(Group.class::cast).
+                toList();
+    }
+
+    @Override
+    public List<AnyObject> findManagedAnyObjects(final String key) {
+        List<AnyObject> result = new ArrayList<>();
+
+        // 1. anyObjects having uManager set to the requested user
+        TypedQuery<AnyObject> anyObjects = entityManager.createQuery(
+                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.uManager.id=:key", AnyObject.class);
+        anyObjects.setParameter("key", key);
+        result.addAll(anyObjects.getResultList());
+
+        // 2. anyObject members of groups having uManager set to the requested user
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
+                forEach(member -> Optional.ofNullable(entityManager.find(JPAAnyObject.class, member)).
+                ifPresent(result::add)));
+
+        // 3. anyObject managed by groups the requested user is member of
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT group_id FROM " + JPAUMembership.TABLE + " WHERE user_id=?");
+        query.setParameter(1, key);
+        @SuppressWarnings("unchecked")
+        List<Object> groups = query.getResultList();
+        groups.stream().map(String.class::cast).forEach(group -> result.addAll(groupDAO.findManagedAnyObjects(group)));
+
+        return result.stream().distinct().toList();
     }
 
     @Override
@@ -128,18 +220,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given user
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which user is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
         }
 
-        // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -182,37 +277,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return merged;
     }
 
-    protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
-        entityManager.flush();
+    @SuppressWarnings("unchecked")
+    @Override
+    public <S extends User> S save(final S user) {
+        checkBeforeSave(user);
+
         User merged = entityManager.merge(user);
 
         // ensure that entity listeners are invoked at this point
         entityManager.flush();
 
-        roleDAO.refreshDynMemberships(merged);
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <S extends User> S save(final S user) {
-        return (S) doSave(checkBeforeSave(user)).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final User user) {
-        return doSave(checkBeforeSave(user)).getRight();
+        return (S) merged;
     }
 
     @Override
     public void delete(final User user) {
-        roleDAO.removeDynMemberships(user.getKey());
-        groupDAO.removeDynMemberships(user);
-        dynRealmDAO.removeDynMemberships(user.getKey());
-
         delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
         delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
@@ -228,52 +307,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
         result.addAll(user.getRoles());
-        result.addAll(findDynRoles(user.getKey()));
 
         return result;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(roleKey -> roleDAO.findById(roleKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
-        Set<Group> result = new HashSet<>();
-        result.addAll(user.getMemberships().stream().
-                map(UMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(user.getKey()));
-
-        return result;
+        return user.getMemberships().stream().map(UMembership::getRightEnd).collect(Collectors.toSet());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

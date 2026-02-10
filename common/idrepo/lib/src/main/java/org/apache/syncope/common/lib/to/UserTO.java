@@ -58,8 +58,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    private final List<MembershipTO> dynMemberships = new ArrayList<>();
-
     private final List<String> roles = new ArrayList<>();
 
     private final List<String> dynRoles = new ArrayList<>();
@@ -188,11 +186,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
-    @Override
-    public List<MembershipTO> getDynMemberships() {
-        return dynMemberships;
-    }
-
     public List<String> getRoles() {
         return roles;
     }
@@ -232,7 +225,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(suspended).
                 append(mustChangePassword).
                 append(memberships).
-                append(dynMemberships).
                 append(linkedAccounts).
                 append(delegatingDelegations).
                 append(delegatedDelegations).
@@ -266,7 +258,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(suspended, other.suspended).
                 append(mustChangePassword, other.mustChangePassword).
                 append(memberships, other.memberships).
-                append(dynMemberships, other.dynMemberships).
                 append(linkedAccounts, other.linkedAccounts).
                 append(delegatingDelegations, other.delegatingDelegations).
                 append(delegatedDelegations, other.delegatedDelegations).

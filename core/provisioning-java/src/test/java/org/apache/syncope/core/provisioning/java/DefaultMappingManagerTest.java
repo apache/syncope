@@ -20,11 +20,9 @@ package org.apache.syncope.core.provisioning.java;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -37,10 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -231,54 +226,5 @@ public class DefaultMappingManagerTest extends AbstractTest {
                 true,
                 provision);
         assertNull(AttributeUtil.getPasswordValue(attrs));
-    }
-
-    @Test
-    public void issueSYNCOPE1583() {
-        // 0. create user matching the condition below
-        User user = entityFactory.newEntity(User.class);
-        user.setUsername("username");
-        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
-        user.add(anyTypeClassDAO.findById("other").orElseThrow());
-
-        PlainAttr cool = new PlainAttr();
-        cool.setSchema("cool");
-        cool.add(validator, "true");
-        user.add(cool);
-
-        user = userDAO.save(user);
-        String newUserKey = user.getKey();
-        assertNotNull(newUserKey);
-
-        // 1. update group with dynamic membership
-        Group group = groupDAO.findByName("root").orElseThrow();
-        assertNotNull(group);
-
-        UDynGroupMembership dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
-        dynMembership.setFIQLCond("cool==true");
-        dynMembership.setGroup(group);
-        group.setUDynMembership(dynMembership);
-
-        group = groupDAO.saveAndRefreshDynMemberships(group);
-        assertNotNull(group);
-
-        entityManager.flush();
-
-        // 2. verify that dynamic membership is effective
-        assertTrue(userDAO.findAllGroupKeys(user).contains(group.getKey()));
-
-        // 3. check propagation attrs
-        ExternalResource csv = resourceDAO.findById("resource-csv").orElseThrow();
-        Provision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();
-
-        MappingManager.PreparedAttrs attrs = mappingManager.prepareAttrsFromAny(
-                user,
-                null,
-                false,
-                Boolean.TRUE,
-                csv,
-                provision);
-        assertTrue(attrs.attributes().stream().anyMatch(
-                attr -> "theirgroup".equals(attr.getName()) && List.of("sx-dx").equals(attr.getValue())));
     }
 }

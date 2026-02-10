@@ -38,6 +38,14 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
     public boolean isValid(final Any any, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
+        if (any.getUManager() != null && any.getGManager() != null) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidManager,
+                            "Must either be managed by an user or by a group, not both")).
+                    addPropertyNode("manager").addConstraintViolation();
+            return false;
+        }
+
         AllowedSchemas<PlainSchema> allowedPlainSchemas =
                 ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
                         getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);

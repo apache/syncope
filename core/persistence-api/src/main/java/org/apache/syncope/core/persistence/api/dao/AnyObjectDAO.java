@@ -61,8 +61,6 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     void deleteMembership(AMembership membership);
 
-    List<Group> findDynGroups(String key);
-
     List<Relationship<Any, AnyObject>> findAllRelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
@@ -70,6 +68,4 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
     Collection<String> findAllGroupKeys(AnyObject anyObject);
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
-
-    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(AnyObject anyObject);
 }

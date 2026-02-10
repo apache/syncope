@@ -70,18 +70,6 @@ public abstract class AbstractFiqlSearchConditionBuilder<
         return newBuilderInstance().is(property).notNullValue();
     }
 
-    public C inDynRealms(final String dynRealm, final String... moreDynRealms) {
-        return newBuilderInstance().
-                is(SpecialAttr.DYNREALMS.toString()).
-                inDynRealms(dynRealm, moreDynRealms);
-    }
-
-    public C notInDynRealms(final String dynRealm, final String... moreDynRealms) {
-        return newBuilderInstance().
-                is(SpecialAttr.DYNREALMS.toString()).
-                notInDynRealms(dynRealm, moreDynRealms);
-    }
-
     public C hasAuxClasses(final String auxClass, final String... moreAuxClasses) {
         return newBuilderInstance().is(SpecialAttr.AUX_CLASSES.toString()).hasAuxClasses(auxClass, moreAuxClasses);
     }
@@ -171,18 +159,6 @@ public abstract class AbstractFiqlSearchConditionBuilder<
         public C hasNotResources(final String resource, final String... moreResources) {
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
-        }
-
-        @Override
-        public C inDynRealms(final String dynRealm, final String... moreDynRealms) {
-            this.result = SpecialAttr.DYNREALMS.toString();
-            return condition(FiqlParser.EQ, dynRealm, (Object[]) moreDynRealms);
-        }
-
-        @Override
-        public C notInDynRealms(final String dynRealm, final String... moreDynRealms) {
-            this.result = SpecialAttr.DYNREALMS.toString();
-            return condition(FiqlParser.NEQ, dynRealm, (Object[]) moreDynRealms);
         }
 
         @Override

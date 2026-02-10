@@ -19,9 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -47,21 +45,14 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Relatable;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -119,37 +110,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         this.searchCondVisitor = searchCondVisitor;
     }
 
-    protected void setDynMembership(final Group group, final AnyType anyType, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
-        if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-            sce.getElements().add(dynMembershipFIQL);
-            throw sce;
-        }
-        if (anyType.getKind() == AnyTypeKind.GROUP) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
-            sce.getElements().add(anyType.getKind().name());
-            throw sce;
-        }
-
-        DynGroupMembership<?> dynMembership;
-        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType).isEmpty()) {
-            dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
-            dynMembership.setGroup(group);
-            ((ADynGroupMembership) dynMembership).setAnyType(anyType);
-            group.add((ADynGroupMembership) dynMembership);
-        } else if (anyType.getKind() == AnyTypeKind.USER && group.getUDynMembership() == null) {
-            dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
-            dynMembership.setGroup(group);
-            group.setUDynMembership((UDynGroupMembership) dynMembership);
-        } else {
-            dynMembership = anyType.getKind() == AnyTypeKind.ANY_OBJECT
-                    ? group.getADynMembership(anyType).get()
-                    : group.getUDynMembership();
-        }
-        dynMembership.setFIQLCond(dynMembershipFIQL);
-    }
-
     @Override
     public void create(final Group group, final GroupCR groupCR) {
         GroupTO anyTO = new GroupTO();
@@ -176,28 +136,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         }
         group.setRealm(realm);
 
-        // attributes, resources and relationships
+        // manager, attributes, resources and relationships
         fill(anyTO, group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
-
-        // owner
-        if (groupCR.getUserOwner() != null) {
-            userDAO.findById(groupCR.getUserOwner()).ifPresentOrElse(
-                    group::setUserOwner,
-                    () -> LOG.warn("Ignoring invalid user specified as owner: {}", groupCR.getUserOwner()));
-        }
-        if (groupCR.getGroupOwner() != null) {
-            groupDAO.findById(groupCR.getGroupOwner()).ifPresentOrElse(
-                    group::setGroupOwner,
-                    () -> LOG.warn("Ignoring invalid group specified as owner: {}", groupCR.getGroupOwner()));
-        }
-
-        // dynamic membership
-        if (groupCR.getUDynMembershipCond() != null) {
-            setDynMembership(group, anyTypeDAO.getUser(), groupCR.getUDynMembershipCond());
-        }
-        groupCR.getADynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
-                anyType -> setDynMembership(group, anyType, fiql),
-                () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type)));
 
         // type extensions
         groupCR.getTypeExtensions().forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(
@@ -247,76 +187,10 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             group.setName(groupUR.getName().getValue());
         }
 
-        // owner
-        PropagationByResource<String> ownerPropByRes = new PropagationByResource<>();
-        if (groupUR.getUserOwner() != null) {
-            if (groupUR.getUserOwner().getValue() == null) {
-                if (group.getUserOwner() != null) {
-                    group.setUserOwner(null);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            } else {
-                User userOwner = userDAO.findById(groupUR.getUserOwner().getValue()).orElse(null);
-                if (userOwner == null) {
-                    LOG.debug("Unable to find user owner for group {} by key {}",
-                            group.getKey(), groupUR.getUserOwner().getValue());
-                    group.setUserOwner(null);
-                } else {
-                    group.setUserOwner(userOwner);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            }
-        }
-        if (groupUR.getGroupOwner() != null) {
-            if (groupUR.getGroupOwner().getValue() == null) {
-                if (group.getGroupOwner() != null) {
-                    group.setGroupOwner(null);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            } else {
-                Group groupOwner = groupDAO.findById(groupUR.getGroupOwner().getValue()).orElse(null);
-                if (groupOwner == null) {
-                    LOG.debug("Unable to find group owner for group {} by key {}",
-                            group.getKey(), groupUR.getGroupOwner().getValue());
-                    group.setGroupOwner(null);
-                } else {
-                    group.setGroupOwner(groupOwner);
-                    ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                }
-            }
-        }
-
-        // attributes, resources and relationships
+        // manager, attributes, resources and relationships
         fill(anyTO, group, groupUR, propByRes, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
-
-        // dynamic membership
-        if (groupUR.getUDynMembershipCond() == null) {
-            if (group.getUDynMembership() != null) {
-                group.getUDynMembership().setGroup(null);
-                group.setUDynMembership(null);
-                groupDAO.clearUDynMembers(group);
-            }
-        } else {
-            setDynMembership(group, anyTypeDAO.getUser(), groupUR.getUDynMembershipCond());
-        }
-        for (Iterator<? extends ADynGroupMembership> itor = group.getADynMemberships().iterator(); itor.hasNext();) {
-            ADynGroupMembership memb = itor.next();
-            memb.setGroup(null);
-            itor.remove();
-        }
-        groupDAO.clearADynMembers(group);
-        for (Map.Entry<String, String> entry : groupUR.getADynMembershipConds().entrySet()) {
-            AnyType anyType = anyTypeDAO.findById(entry.getKey()).orElse(null);
-            if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
-            } else {
-                setDynMembership(group, anyType, entry.getValue());
-            }
-        }
-
-        group = groupDAO.saveAndRefreshDynMemberships(group);
 
         // type extensions
         for (TypeExtensionTO typeExtTO : groupUR.getTypeExtensions()) {
@@ -367,7 +241,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         // Build final information for next stage (propagation)
         propByRes.merge(propByRes(
                 beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of())));
-        propByRes.merge(ownerPropByRes);
         return propByRes;
     }
 
@@ -395,32 +268,11 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         groupTO.setLastChangeDate(group.getLastChangeDate());
         groupTO.setLastChangeContext(group.getLastChangeContext());
 
-        Optional.ofNullable(group.getUserOwner()).map(User::getKey).ifPresent(groupTO::setUserOwner);
-        Optional.ofNullable(group.getGroupOwner()).map(Group::getKey).ifPresent(groupTO::setGroupOwner);
+        fillTO(group, groupTO, derAttrHandler.getValues(group), group.getResources());
 
-        fillTO(groupTO,
-                group.getRealm().getFullPath(),
-                group.getAuxClasses(),
-                group.getPlainAttrs(),
-                derAttrHandler.getValues(group),
-                group.getResources());
-
-        // dynamic realms
-        groupTO.getDynRealms().addAll(groupDAO.findDynRealms(group.getKey()));
-
-        // Static user and AnyType membership counts
-        groupTO.setStaticUserMembershipCount(groupDAO.countUMembers(group.getKey()));
-        groupTO.setStaticAnyObjectMembershipCount(groupDAO.countAMembers(group.getKey()));
-
-        // Dynamic user and AnyType membership counts
-        groupTO.setDynamicUserMembershipCount(groupDAO.countUDynMembers(group));
-        groupTO.setDynamicAnyObjectMembershipCount(groupDAO.countADynMembers(group));
-
-        Optional.ofNullable(group.getUDynMembership()).
-                map(UDynGroupMembership::getFIQLCond).
-                ifPresent(groupTO::setUDynMembershipCond);
-        group.getADynMemberships().
-                forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
+        // User and AnyType membership counts
+        groupTO.setUserMembershipCount(groupDAO.countUMembers(group.getKey()));
+        groupTO.setAnyObjectMembershipCount(groupDAO.countAMembers(group.getKey()));
 
         group.getTypeExtensions().forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
@@ -428,7 +280,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             // relationships
             groupTO.getRelationships().addAll(group.getRelationships().stream().
                     map(relationship -> getRelationshipTO(group.getPlainAttrs(relationship),
-                    derAttrHandler.getValues((Relatable<?, ?>) group, relationship),
+                    derAttrHandler.getValues(group, relationship),
                     relationship.getType().getKey(),
                     RelationshipTO.End.LEFT,
                     relationship.getRightEnd())).toList());

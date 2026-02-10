@@ -21,21 +21,8 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleDAO extends DAO<Role> {
 
-    String GROUP_OWNER_ROLE = "GROUP_OWNER";
-
     List<Role> findByRealms(Realm realm);
-
-    Role saveAndRefreshDynMemberships(Role role);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
 }

@@ -28,11 +28,21 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
 
     private static final long serialVersionUID = -6061683026789976508L;
 
+    private boolean manager = true;
+
     private boolean relationships = true;
 
     private final List<String> whichPlainAttrs = new ArrayList<>();
 
     private final List<String> whichDerAttrs = new ArrayList<>();
+
+    public boolean isManager() {
+        return manager;
+    }
+
+    public void setManager(final boolean manager) {
+        this.manager = manager;
+    }
 
     public boolean isRelationships() {
         return relationships;

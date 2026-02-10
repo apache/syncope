@@ -95,18 +95,19 @@ import org.identityconnectors.framework.common.objects.Uid;
 abstract class AnyDataBinder extends AttributableDataBinder {
 
     protected static void fillTO(
+            final Any any,
             final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<PlainAttr> plainAttrs,
             final Map<String, String> derAttrs,
             final Collection<? extends ExternalResource> resources) {
 
-        anyTO.setRealm(realmFullPath);
+        anyTO.setRealm(any.getRealm().getFullPath());
 
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).toList());
+        Optional.ofNullable(any.getUManager()).map(User::getKey).ifPresent(anyTO::setUManager);
+        Optional.ofNullable(any.getGManager()).map(Group::getKey).ifPresent(anyTO::setGManager);
 
-        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().
+        anyTO.getAuxClasses().addAll(any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
+
+        any.getPlainAttrs().forEach(plainAttr -> anyTO.getPlainAttrs().
                 add(new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
@@ -398,6 +399,46 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
+        // 0. manager
+        PropagationByResource<String> managerPropByRes = new PropagationByResource<>();
+        if (anyUR.getUManager() != null) {
+            if (anyUR.getUManager().getValue() == null) {
+                if (any.getUManager() != null) {
+                    any.setUManager(null);
+                    managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+                }
+            } else {
+                User manager = userDAO.findById(anyUR.getUManager().getValue()).orElse(null);
+                if (manager == null) {
+                    LOG.debug("Unable to find user manager for {} {} by key {}",
+                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getUManager().getValue());
+                    any.setUManager(null);
+                } else {
+                    any.setUManager(manager);
+                    managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+                }
+            }
+        }
+        if (anyUR.getGManager() != null) {
+            if (anyUR.getGManager().getValue() == null) {
+                if (any.getGManager() != null) {
+                    any.setGManager(null);
+                    managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+                }
+            } else {
+                Group manager = groupDAO.findById(anyUR.getGManager().getValue()).orElse(null);
+                if (manager == null) {
+                    LOG.debug("Unable to find group manager for {} {} by key {}",
+                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getGManager().getValue());
+                    any.setGManager(null);
+                } else {
+                    any.setGManager(manager);
+                    managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+                }
+            }
+        }
+        propByRes.merge(managerPropByRes);
+
         // 1. anyTypeClasses
         for (StringPatchItem patch : anyUR.getAuxClasses()) {
             anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
@@ -599,7 +640,20 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
-        // 0. aux classes
+        // 0. manager
+        // owner
+        if (anyCR.getUManager() != null) {
+            userDAO.findById(anyCR.getUManager()).ifPresentOrElse(
+                    any::setUManager,
+                    () -> LOG.warn("Ignoring invalid user specified as manager: {}", anyCR.getUManager()));
+        }
+        if (anyCR.getGManager() != null) {
+            groupDAO.findById(anyCR.getGManager()).ifPresentOrElse(
+                    any::setGManager,
+                    () -> LOG.warn("Ignoring invalid group specified as manager: {}", anyCR.getGManager()));
+        }
+
+        // 1. aux classes
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
                 map(anyTypeClassDAO::findById).
@@ -612,7 +666,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                     }
                 });
 
-        // 1. relationships
+        // 2. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         anyCR.getRelationships().forEach(relationshipTO -> {
             RelationshipType relationshipType = relationshipTypeDAO.findById(relationshipTO.getType()).orElse(null);
@@ -645,7 +699,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             }
         });
 
-        // 2. attributes
+        // 3. attributes
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         anyCR.getPlainAttrs().stream().
@@ -673,7 +727,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        // 3. resources
+        // 4. resources
         anyCR.getResources().forEach(resource -> resourceDAO.findById(resource).ifPresentOrElse(
                 any::add,
                 () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), resource)));

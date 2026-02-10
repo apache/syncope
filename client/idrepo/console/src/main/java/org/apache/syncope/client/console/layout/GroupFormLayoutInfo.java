@@ -26,10 +26,6 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
 
     private static final long serialVersionUID = -5573691733739618500L;
 
-    private boolean ownership = true;
-
-    private boolean dynamicMemberships = true;
-
     private boolean typeExtensions = true;
 
     @Override
@@ -37,20 +33,9 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
         return GroupWizardBuilder.class;
     }
 
-    public boolean isOwnership() {
-        return ownership;
-    }
-
-    public void setOwnership(final boolean ownership) {
-        this.ownership = ownership;
-    }
-
-    public boolean isDynamicMemberships() {
-        return dynamicMemberships;
-    }
-
-    public void setDynamicMemberships(final boolean dynamicMemberships) {
-        this.dynamicMemberships = dynamicMemberships;
+    @Override
+    public boolean isGroups() {
+        return false;
     }
 
     public boolean isTypeExtensions() {
@@ -60,5 +45,4 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
     public void setTypeExtensions(final boolean typeExtensions) {
         this.typeExtensions = typeExtensions;
     }
-
 }

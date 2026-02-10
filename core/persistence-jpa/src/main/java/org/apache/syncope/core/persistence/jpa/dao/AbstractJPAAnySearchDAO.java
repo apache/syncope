@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.sql.OracleDictionary;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
@@ -44,7 +45,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -79,7 +78,7 @@ import org.springframework.data.domain.Sort;
  */
 abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<String> dynRealmKeys, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<Pair<AnyTypeKind, String>> managed) {
 
     }
 
@@ -127,7 +126,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected AbstractJPAAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -140,7 +138,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         super(
                 realmSearchDAO,
-                dynRealmDAO,
                 userDAO,
                 groupDAO,
                 anyObjectDAO,
@@ -230,11 +227,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                 if (node.isEmpty()) {
                     node = cond.asLeaf(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                            map(leaf -> getQuery(leaf, not, parameters, svs));
-                }
-
-                if (node.isEmpty()) {
-                    node = cond.asLeaf(DynRealmCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
@@ -412,18 +404,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         clause.append("SELECT DISTINCT any_id FROM ").
                 append(svs.membership().name()).append(" WHERE ").
                 append(subwhere).
-                append(") ");
-
-        if (not) {
-            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
-        } else {
-            clause.append("OR ").append(anyId(svs)).append(" IN (");
-        }
-
-        clause.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dyngroupmembership().name()).append(" WHERE ").
-                append(subwhere).
-                append("))");
+                append(")) ");
 
         return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
@@ -445,40 +426,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         clause.append("SELECT DISTINCT any_id FROM ").
                 append(svs.role().name()).append(" WHERE ").
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append(") ");
-
-        if (not) {
-            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
-        } else {
-            clause.append("OR ").append(anyId(svs)).append(" IN (");
-        }
-
-        clause.append("SELECT DISTINCT any_id FROM ").
-                append(SearchSupport.dynrolemembership().name()).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append("))");
-
-        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
-    }
-
-    protected AnySearchNode getQuery(
-            final DynRealmCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder clause = new StringBuilder("(");
-
-        if (not) {
-            clause.append(anyId(svs)).append(" NOT IN (");
-        } else {
-            clause.append(anyId(svs)).append(" IN (");
-        }
-
-        clause.append("SELECT DISTINCT any_id FROM ").
-                append(SearchSupport.dynrealmmembership().name()).append(" WHERE ").
-                append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
-                append("))");
+                append(")) ");
 
         return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
@@ -786,38 +734,28 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             final SearchSupport svs) {
 
         Set<String> realmKeys = new HashSet<>();
-        Set<String> dynRealmKeys = new HashSet<>();
-        Set<String> groupOwners = new HashSet<>();
+        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
-                    goRealm -> groupOwners.add(goRealm.groupKey()),
+            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
+                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
                     () -> {
-                        if (realmPath.startsWith("/")) {
-                            Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
-                                SyncopeClientException noRealm =
-                                        SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                                noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                                return noRealm;
-                            });
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
-                            realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
-                        } else {
-                            dynRealmDAO.findById(realmPath).ifPresentOrElse(
-                                    dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
-                                    () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
-                        }
+                        realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
                     }));
-            if (!dynRealmKeys.isEmpty()) {
-                realmKeys.clear();
-            }
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 realmKeys.add(base.getKey());
             }
         }
 
-        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
+        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), managed);
     }
 
     protected void visitNode(
@@ -928,7 +866,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters, svs).
+                buildEffectiveCond(cond, filter.managed(), kind), parameters, svs).
                 orElse(null);
         if (queryInfo == null) {
             LOG.error("Invalid search condition: {}", cond);
@@ -1120,7 +1058,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters, svs).
+                buildEffectiveCond(cond, filter.managed(), kind), parameters, svs).
                 orElse(null);
         if (queryInfo == null) {
             LOG.error("Invalid search condition: {}", cond);

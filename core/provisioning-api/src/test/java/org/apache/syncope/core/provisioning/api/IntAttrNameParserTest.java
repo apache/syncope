@@ -53,9 +53,9 @@ import org.mockito.Mock;
 public class IntAttrNameParserTest extends AbstractTest {
 
     private static final Map<AnyTypeKind, List<String>> ANY_FIELDS = Map.of(
-            AnyTypeKind.USER, List.of("key", "username"),
-            AnyTypeKind.GROUP, List.of("key", "name", "userOwner"),
-            AnyTypeKind.ANY_OBJECT, List.of("key", "name"));
+            AnyTypeKind.USER, List.of("key", "username", "uManager", "gManager"),
+            AnyTypeKind.GROUP, List.of("key", "name", "uManager", "gManager"),
+            AnyTypeKind.ANY_OBJECT, List.of("key", "name", "uManager", "gManager"));
 
     private static final List<String> REALM_FIELDS = List.of("key", "name");
 
@@ -158,10 +158,10 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getRelationshipInfo());
         assertNull(intAttrName.getExternalUser());
 
-        intAttrName = intAttrNameParser.parse("userOwner", AnyTypeKind.GROUP);
+        intAttrName = intAttrNameParser.parse("uManager", AnyTypeKind.GROUP);
         assertNotNull(intAttrName);
         assertNotNull(intAttrName.getField());
-        assertEquals("userOwner", intAttrName.getField());
+        assertEquals("uManager", intAttrName.getField());
         assertNull(intAttrName.getSchemaInfo());
         assertNull(intAttrName.getExternalGroup());
         assertNull(intAttrName.getMembership());

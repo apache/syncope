@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,14 +32,12 @@ import javax.sql.DataSource;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -64,8 +61,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
-    protected final DynRealmDAO dynRealmDAO;
-
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final EntityManager entityManager;
@@ -77,13 +72,11 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     protected final String table;
 
     protected AbstractAnyRepoExt(
-            final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
-        this.dynRealmDAO = dynRealmDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.entityManager = entityManager;
         this.anyFinder = anyFinder;
@@ -219,23 +212,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
         }));
 
         return result;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findDynRealms(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT dynRealm_id FROM " + DynRealmRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(dynRealm -> dynRealmDAO.findById(dynRealm.toString())).
-                flatMap(Optional::stream).
-                map(DynRealm::getKey).
-                distinct().
-                toList();
     }
 
     @Override

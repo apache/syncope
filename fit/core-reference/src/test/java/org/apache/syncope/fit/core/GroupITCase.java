@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -34,7 +35,6 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -42,14 +42,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
-import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -114,8 +110,9 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void create() {
+        // create group managed by f779c0d4-633b-4be5-8f57-32eb478a3ca5
         GroupCR groupCR = getSample("lastGroup");
-        groupCR.setGroupOwner("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
+        groupCR.setGManager("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
@@ -126,12 +123,17 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("owner"));
 
-        // SYNCOPE-515: remove ownership
+        // attempt to delete f779c0d4-633b-4be5-8f57-32eb478a3ca5 -> fail
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class, () -> GROUP_SERVICE.delete("f779c0d4-633b-4be5-8f57-32eb478a3ca5"));
+        assertEquals(ClientExceptionType.Management, e.getType());
+
+        // remove group manager
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(groupTO.getKey());
-        groupUR.setGroupOwner(new StringReplacePatchItem());
+        groupUR.setGManager(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
 
-        assertNull(updateGroup(groupUR).getEntity().getGroupOwner());
+        assertNull(updateGroup(groupUR).getEntity().getGManager());
     }
 
     @Test
@@ -185,7 +187,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertNotNull(groupTO.getPlainAttrs());
         assertFalse(groupTO.getPlainAttrs().isEmpty());
-        assertEquals(2, groupTO.getStaticUserMembershipCount());
+        assertEquals(2, groupTO.getUserMembershipCount());
     }
 
     @Test
@@ -235,37 +237,6 @@ public class GroupITCase extends AbstractITCase {
         groupTO = updateGroup(groupUR).getEntity();
 
         assertFalse(groupTO.getPlainAttr("show").isPresent());
-    }
-
-    @Test
-    public void patch() {
-        GroupCR createReq = getBasicSample("patch");
-        createReq.setUDynMembershipCond(
-                "(($groups==ebf97068-aa4b-4a85-9f01-680e8c4cf227;$resources!=ws-target-resource-1);aLong==1)");
-        createReq.getADynMembershipConds().put(
-                PRINTER,
-                "(($groups==ece66293-8f31-4a84-8e8d-23da36e70846;cool==ss);$resources==ws-target-resource-2);"
-                + "$type==PRINTER");
-
-        GroupTO created = createGroup(createReq).getEntity();
-
-        created.getPlainAttrs().add(new Attr.Builder("icon").build());
-        created.getPlainAttrs().add(new Attr.Builder("show").build());
-        created.getPlainAttrs().add(new Attr.Builder("rderived_sx").value("sx").build());
-        created.getPlainAttrs().add(new Attr.Builder("rderived_dx").value("dx").build());
-        created.getPlainAttrs().add(new Attr.Builder("title").value("mr").build());
-
-        GroupTO original = GROUP_SERVICE.read(created.getKey());
-
-        GroupUR groupUR = AnyOperations.diff(created, original, true);
-        GroupTO updated = updateGroup(groupUR).getEntity();
-
-        Map<String, Attr> attrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
-        assertFalse(attrs.containsKey("icon"));
-        assertFalse(attrs.containsKey("show"));
-        assertEquals(List.of("sx"), attrs.get("rderived_sx").getValues());
-        assertEquals(List.of("dx"), attrs.get("rderived_dx").getValues());
-        assertEquals(List.of("mr"), attrs.get("title").getValues());
     }
 
     @Test
@@ -685,128 +656,7 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void uDynMembership() {
-        assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
-
-        GroupCR groupCR = getBasicSample("uDynMembership");
-        groupCR.setUDynMembershipCond("cool==true");
-        GroupTO group = null;
-        try {
-            group = createGroup(groupCR).getEntity();
-            assertNotNull(group);
-            String groupKey = group.getKey();
-
-            List<MembershipTO> memberships =
-                    USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
-            assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-            assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
-
-            GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).udynMembershipCond("cool==false").build());
-
-            assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
-            assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
-        } finally {
-            if (group != null) {
-                GROUP_SERVICE.delete(group.getKey());
-            }
-        }
-    }
-
-    @Test
-    public void aDynMembership() {
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").notNullValue().query();
-
-        // 1. create group with a given aDynMembership condition
-        GroupCR groupCR = getBasicSample("aDynMembership");
-        groupCR.getADynMembershipConds().put(PRINTER, fiql);
-        GroupTO group = createGroup(groupCR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
-
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
-
-        group = GROUP_SERVICE.read(group.getKey());
-        String groupKey = group.getKey();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
-
-        // verify that the condition is dynamically applied
-        AnyObjectCR newAnyCR = AnyObjectITCase.getSample("aDynMembership");
-        newAnyCR.getResources().clear();
-        AnyObjectTO newAny = createAnyObject(newAnyCR).getEntity();
-        assertNotNull(newAny.getPlainAttr("location"));
-        List<MembershipTO> memberships = ANY_OBJECT_SERVICE.read(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-
-        memberships = ANY_OBJECT_SERVICE.read(
-                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-
-        memberships = ANY_OBJECT_SERVICE.read(newAny.getKey()).getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-
-        // 2. update group and change aDynMembership condition
-        fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").nullValue().query();
-
-        GroupUR groupUR = new GroupUR();
-        groupUR.setKey(group.getKey());
-        groupUR.getADynMembershipConds().put(PRINTER, fiql);
-
-        group = updateGroup(groupUR).getEntity();
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
-
-        group = GROUP_SERVICE.read(group.getKey());
-        assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
-
-        // verify that the condition is dynamically applied
-        AnyObjectUR anyObjectUR = new AnyObjectUR();
-        anyObjectUR.setKey(newAny.getKey());
-        anyObjectUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("location").build()).
-                operation(PatchOperation.DELETE).
-                build());
-        newAny = updateAnyObject(anyObjectUR).getEntity();
-        assertFalse(newAny.getPlainAttr("location").isPresent());
-
-        memberships = ANY_OBJECT_SERVICE.read(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
-        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        memberships = ANY_OBJECT_SERVICE.read(
-                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
-        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-        memberships = ANY_OBJECT_SERVICE.read(newAny.getKey()).getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
-    }
-
-    @Test
-    public void aDynMembershipCount() {
-        // Create a new printer as a dynamic member of a new group
-        GroupCR groupCR = getBasicSample("aDynamicMembership");
-        String fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("location").equalTo("home").query();
-        groupCR.getADynMembershipConds().put(PRINTER, fiql);
-        GroupTO group = createGroup(groupCR).getEntity();
-
-        AnyObjectCR printerCR = new AnyObjectCR();
-        printerCR.setRealm(SyncopeConstants.ROOT_REALM);
-        printerCR.setName("Printer_" + getUUIDString());
-        printerCR.setType(PRINTER);
-        printerCR.getPlainAttrs().add(new Attr.Builder("location").value("home").build());
-        AnyObjectTO printer = createAnyObject(printerCR).getEntity();
-
-        group = GROUP_SERVICE.read(group.getKey());
-        assertEquals(0, group.getStaticAnyObjectMembershipCount());
-        assertEquals(1, group.getDynamicAnyObjectMembershipCount());
-
-        ANY_OBJECT_SERVICE.delete(printer.getKey());
-        GROUP_SERVICE.delete(group.getKey());
-    }
-
-    @Test
-    public void aStaticMembershipCount() {
+    public void membershipCount() {
         // Create a new printer as a static member of a new group
         GroupCR groupCR = getBasicSample("aStaticMembership");
         GroupTO group = createGroup(groupCR).getEntity();
@@ -819,8 +669,7 @@ public class GroupITCase extends AbstractITCase {
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
 
         group = GROUP_SERVICE.read(group.getKey());
-        assertEquals(0, group.getDynamicAnyObjectMembershipCount());
-        assertEquals(1, group.getStaticAnyObjectMembershipCount());
+        assertEquals(1, group.getAnyObjectMembershipCount());
 
         ANY_OBJECT_SERVICE.delete(printer.getKey());
         GROUP_SERVICE.delete(group.getKey());
