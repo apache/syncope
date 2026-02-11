@@ -62,6 +62,8 @@ public class AuthProfileDirectoryPanel
 
     private static final long serialVersionUID = 2018518567549153364L;
 
+    private String keyword;
+
     private final BaseModal<AuthProfileTO> authProfileModal;
 
     public AuthProfileDirectoryPanel(
@@ -443,12 +445,12 @@ public class AuthProfileDirectoryPanel
         @Override
         public Iterator<AuthProfileTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list((page < 0 ? 0 : page) + 1, paginatorRows).iterator();
+            return restClient.search((page < 0 ? 0 : page) + 1, paginatorRows, keyword).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.count();
+            return restClient.count(keyword);
         }
 
         @Override

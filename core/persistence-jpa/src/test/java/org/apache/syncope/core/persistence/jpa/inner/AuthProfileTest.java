@@ -198,11 +198,11 @@ public class AuthProfileTest extends AbstractTest {
     public void findByOwnerLike() {
         createAuthProfileWithAccount("owner1");
         createAuthProfileWithAccount("owner2");
+        createAuthProfileWithAccount("test");
 
         entityManager.flush();
 
         Page<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
         assertEquals(2, result.get().count());
     }
-
 }
