@@ -84,6 +84,18 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String jwksUri;
 
+    private String accessTokenMaxTimeToLive;
+
+    private String accessTokenTimeToKill;
+
+    private Long accessTokenMaxActiveTokens;
+
+    private String refreshTokenTimeToKill;
+
+    private Long refreshTokenMaxActiveTokens;
+
+    private String deviceTokenTimeToKill;
+
     private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod =
             OIDCClientAuthenticationMethod.client_secret_basic;
 
@@ -283,6 +295,54 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.logoutUri = logoutUri;
     }
 
+    public String getAccessTokenMaxTimeToLive() {
+        return accessTokenMaxTimeToLive;
+    }
+
+    public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
+        this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
+    }
+
+    public String getAccessTokenTimeToKill() {
+        return accessTokenTimeToKill;
+    }
+
+    public void setAccessTokenTimeToKill(final String accessTokenTimeToKill) {
+        this.accessTokenTimeToKill = accessTokenTimeToKill;
+    }
+
+    public Long getAccessTokenMaxActiveTokens() {
+        return accessTokenMaxActiveTokens;
+    }
+
+    public void setAccessTokenMaxActiveTokens(final Long accessTokenMaxActiveTokens) {
+        this.accessTokenMaxActiveTokens = accessTokenMaxActiveTokens;
+    }
+
+    public String getRefreshTokenTimeToKill() {
+        return refreshTokenTimeToKill;
+    }
+
+    public void setRefreshTokenTimeToKill(final String refreshTokenTimeToKill) {
+        this.refreshTokenTimeToKill = refreshTokenTimeToKill;
+    }
+
+    public Long getRefreshTokenMaxActiveTokens() {
+        return refreshTokenMaxActiveTokens;
+    }
+
+    public void setRefreshTokenMaxActiveTokens(final Long refreshTokenMaxActiveTokens) {
+        this.refreshTokenMaxActiveTokens = refreshTokenMaxActiveTokens;
+    }
+
+    public String getDeviceTokenTimeToKill() {
+        return deviceTokenTimeToKill;
+    }
+
+    public void setDeviceTokenTimeToKill(final String deviceTokenTimeToKill) {
+        this.deviceTokenTimeToKill = deviceTokenTimeToKill;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -321,6 +381,12 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.jwksUri, rhs.jwksUri)
                 .append(this.tokenEndpointAuthenticationMethod, rhs.tokenEndpointAuthenticationMethod)
                 .append(this.logoutUri, rhs.logoutUri)
+                .append(this.accessTokenMaxTimeToLive, rhs.accessTokenMaxTimeToLive)
+                .append(this.accessTokenTimeToKill, rhs.accessTokenTimeToKill)
+                .append(this.accessTokenMaxActiveTokens, rhs.accessTokenMaxActiveTokens)
+                .append(this.refreshTokenTimeToKill, rhs.accessTokenTimeToKill)
+                .append(this.refreshTokenMaxActiveTokens, rhs.refreshTokenMaxActiveTokens)
+                .append(this.deviceTokenTimeToKill, rhs.deviceTokenTimeToKill)
                 .isEquals();
     }
 
@@ -352,6 +418,12 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(jwksUri)
                 .append(tokenEndpointAuthenticationMethod)
                 .append(logoutUri)
+                .append(accessTokenMaxTimeToLive)
+                .append(accessTokenTimeToKill)
+                .append(accessTokenMaxActiveTokens)
+                .append(refreshTokenTimeToKill)
+                .append(refreshTokenMaxActiveTokens)
+                .append(deviceTokenTimeToKill)
                 .toHashCode();
     }
 }
