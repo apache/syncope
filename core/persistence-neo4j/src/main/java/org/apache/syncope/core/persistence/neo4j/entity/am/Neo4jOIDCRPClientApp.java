@@ -119,6 +119,19 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private String logoutUri;
 
+
+    private String accessTokenMaxTimeToLive;
+
+    private String accessTokenTimeToKill;
+
+    private Long accessTokenMaxActiveTokens;
+
+    private String refreshTokenTimeToKill;
+
+    private Long refreshTokenMaxActiveTokens;
+
+    private String deviceTokenTimeToKill;
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUrisSet;
@@ -341,6 +354,55 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
         this.logoutUri = logoutUri;
     }
 
+
+    public String getDeviceTokenTimeToKill() {
+        return deviceTokenTimeToKill;
+    }
+
+    public void setDeviceTokenTimeToKill(final String deviceTokenTimeToKill) {
+        this.deviceTokenTimeToKill = deviceTokenTimeToKill;
+    }
+
+    public Long getRefreshTokenMaxActiveTokens() {
+        return refreshTokenMaxActiveTokens;
+    }
+
+    public void setRefreshTokenMaxActiveTokens(final Long refreshTokenMaxActiveTokens) {
+        this.refreshTokenMaxActiveTokens = refreshTokenMaxActiveTokens;
+    }
+
+    public String getRefreshTokenTimeToKill() {
+        return refreshTokenTimeToKill;
+    }
+
+    public void setRefreshTokenTimeToKill(final String refreshTokenTimeToKill) {
+        this.refreshTokenTimeToKill = refreshTokenTimeToKill;
+    }
+
+    public Long getAccessTokenMaxActiveTokens() {
+        return accessTokenMaxActiveTokens;
+    }
+
+    public void setAccessTokenMaxActiveTokens(final Long accessTokenMaxActiveTokens) {
+        this.accessTokenMaxActiveTokens = accessTokenMaxActiveTokens;
+    }
+
+    public String getAccessTokenTimeToKill() {
+        return accessTokenTimeToKill;
+    }
+
+    public void setAccessTokenTimeToKill(final String accessTokenTimeToKill) {
+        this.accessTokenTimeToKill = accessTokenTimeToKill;
+    }
+
+    public String getAccessTokenMaxTimeToLive() {
+        return accessTokenMaxTimeToLive;
+    }
+
+    public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
+        this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
+    }
+    
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getRedirectUris().clear();

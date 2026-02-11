@@ -118,4 +118,27 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setLogoutUri(String logoutUri);
 
+    String getDeviceTokenTimeToKill();
+
+    void setDeviceTokenTimeToKill(String deviceTokenTimeToKill);
+
+    Long getRefreshTokenMaxActiveTokens();
+
+    void setRefreshTokenMaxActiveTokens(Long refreshTokenMaxActiveTokens);
+
+    String getRefreshTokenTimeToKill();
+
+    void setRefreshTokenTimeToKill(String refreshTokenTimeToKill);
+
+    Long getAccessTokenMaxActiveTokens();
+
+    void setAccessTokenMaxActiveTokens(Long accessTokenMaxActiveTokens);
+
+    String getAccessTokenTimeToKill();
+
+    void setAccessTokenTimeToKill(String accessTokenTimeToKill);
+
+    String getAccessTokenMaxTimeToLive();
+
+    void setAccessTokenMaxTimeToLive(String accessTokenMaxTimeToLive);
 }
