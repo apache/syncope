@@ -33,7 +33,7 @@ public class AuthProfileRestClient extends BaseRestClient {
                 getTotalCount();
     }
 
-    public List<AuthProfileTO> search(final int page, final int size, final String keyword) {
+    public List<AuthProfileTO> search(final String keyword, final int page, final int size) {
         return getService(AuthProfileService.class).
                 search(new AuthProfileQuery.Builder().page(page).size(size).keyword(keyword).build()).
                 getResult();

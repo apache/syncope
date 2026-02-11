@@ -445,7 +445,7 @@ public class AuthProfileDirectoryPanel
         @Override
         public Iterator<AuthProfileTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.search((page < 0 ? 0 : page) + 1, paginatorRows, keyword).iterator();
+            return restClient.search(keyword, (page < 0 ? 0 : page) + 1, paginatorRows).iterator();
         }
 
         @Override

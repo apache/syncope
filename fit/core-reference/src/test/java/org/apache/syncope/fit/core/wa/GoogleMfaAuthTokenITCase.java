@@ -91,19 +91,19 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
             assertEquals(2, results.getResult().size());
         } finally {
             AuthProfileTO profileTO = results.getResult().stream().
-                    filter(p -> owner.equals(p.getOwner())).findFirst().get();
+                    filter(p -> owner.equals(p.getOwner())).findFirst().orElseThrow();
             assertEquals(profileTO, AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
             AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
             assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
 
             AuthProfileTO profileTO1 = results.getResult().stream().
-                    filter(p -> owner1.equals(p.getOwner())).findFirst().get();
+                    filter(p -> owner1.equals(p.getOwner())).findFirst().orElseThrow();
             assertEquals(profileTO1, AUTH_PROFILE_SERVICE.read(profileTO1.getKey()));
             AUTH_PROFILE_SERVICE.delete(profileTO1.getKey());
             assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO1.getKey()));
 
             AuthProfileTO profileTO2 = resultsTest.getResult().stream().
-                    filter(p -> test.equals(p.getOwner())).findFirst().get();
+                    filter(p -> test.equals(p.getOwner())).findFirst().orElseThrow();
             assertEquals(profileTO2, AUTH_PROFILE_SERVICE.read(profileTO2.getKey()));
             AUTH_PROFILE_SERVICE.delete(profileTO2.getKey());
             assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO2.getKey()));
