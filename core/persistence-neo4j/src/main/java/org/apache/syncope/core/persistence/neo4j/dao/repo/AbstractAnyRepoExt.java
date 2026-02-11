@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -57,7 +56,6 @@ import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGRelationship;
@@ -102,8 +100,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final DynRealmDAO dynRealmDAO;
-
     protected final AnyFinder anyFinder;
 
     protected final AnyUtils anyUtils;
@@ -113,7 +109,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final DynRealmDAO dynRealmDAO,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils,
             final Neo4jTemplate neo4jTemplate,
@@ -124,7 +119,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.dynRealmDAO = dynRealmDAO;
         this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
     }
@@ -305,18 +299,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         }));
 
         return result;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findDynRealms(final String key) {
-        return neo4jClient.query(
-                "MATCH (n {id: $id})-"
-                + "[:" + DynRealmRepoExt.DYN_REALM_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jDynRealm.NODE + ") "
-                + "RETURN p.id").
-                bindAll(Map.of("id", key)).fetch().all().stream().
-                map(found -> found.get("p.id").toString()).distinct().toList();
     }
 
     @Override

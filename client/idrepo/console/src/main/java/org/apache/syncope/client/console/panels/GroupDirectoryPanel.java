@@ -251,7 +251,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         actions.add(new ActionLink<>() {
 
@@ -288,7 +288,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 typeExtensionsModal.show(true);
             }
         }, ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.GROUP_UPDATE).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         actions.add(new ActionLink<>() {
 
@@ -307,7 +307,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         ActionLink<GroupTO> provisionMembers = new ActionLink<GroupTO>() {
 
@@ -432,7 +432,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.VIEW_AUDIT_HISTORY,
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         actions.add(new ActionLink<>() {
 

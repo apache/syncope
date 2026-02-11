@@ -26,13 +26,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -41,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -85,7 +86,7 @@ import org.springframework.util.CollectionUtils;
  */
 public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected record AdminRealmsFilter(Optional<Query> query, Set<String> dynRealmKeys, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(Optional<Query> query, Set<Pair<AnyTypeKind, String>> managed) {
 
     }
 
@@ -97,7 +98,6 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     public OpenSearchAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -110,7 +110,6 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
         super(
                 realmSearchDAO,
-                dynRealmDAO,
                 userDAO,
                 groupDAO,
                 anyObjectDAO,
@@ -126,38 +125,28 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     protected AdminRealmsFilter getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
-            final Set<String> adminRealms,
-            final AnyTypeKind kind) {
+            final Set<String> adminRealms) {
 
-        Set<String> dynRealmKeys = new HashSet<>();
-        Set<String> groupOwners = new HashSet<>();
+        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
         List<Query> queries = new ArrayList<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> {
-                Optional<RealmUtils.GroupOwnerRealm> goRealm = RealmUtils.GroupOwnerRealm.of(realmPath);
-                if (goRealm.isPresent()) {
-                    groupOwners.add(goRealm.get().groupKey());
-                } else if (realmPath.startsWith("/")) {
-                    Realm realm = realmSearchDAO.findByFullPath(realmPath).
-                            orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
+            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
+                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
+                    () -> {
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
-                    realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
-                            forEach(descendant -> queries.add(
-                            new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(FieldValue.of(descendant)).caseInsensitive(false).build()).
-                                    build()));
-                } else {
-                    dynRealmDAO.findById(realmPath).ifPresentOrElse(
-                            dynRealm -> {
-                                dynRealmKeys.add(dynRealm.getKey());
-                                queries.add(new Query.Builder().term(QueryBuilders.term().
-                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).
-                                        caseInsensitive(false).build()).build());
-                            },
-                            () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
-                }
-            });
+                        realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                                forEach(descendant -> queries.add(
+                                new Query.Builder().term(QueryBuilders.term().
+                                        field("realm").value(FieldValue.of(descendant)).caseInsensitive(false).build()).
+                                        build()));
+                    }));
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
@@ -167,11 +156,10 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return new AdminRealmsFilter(
-                dynRealmKeys.isEmpty() && groupOwners.isEmpty()
+                managed.isEmpty()
                 ? Optional.of(new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build())
                 : Optional.empty(),
-                dynRealmKeys,
-                groupOwners);
+                managed);
     }
 
     protected Query getQuery(
@@ -195,8 +183,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                         build();
             }
         } else {
-            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, kind);
-            query = getQuery(buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), kind);
+            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms);
+            query = getQuery(buildEffectiveCond(cond, filter.managed(), kind), kind);
 
             if (filter.query().isPresent()) {
                 query = new Query.Builder().bool(
@@ -344,12 +332,6 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (query == null) {
-                    query = cond.asLeaf(DynRealmCond.class).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
                     query = cond.asLeaf(AuxClassCond.class).
                             map(this::getQuery).
                             orElse(null);
@@ -464,12 +446,6 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
                 field("roles").value(FieldValue.of(cond.getRole())).caseInsensitive(false).build()).
-                build();
-    }
-
-    protected Query getQuery(final DynRealmCond cond) {
-        return new Query.Builder().term(QueryBuilders.term().
-                field("dynRealms").value(FieldValue.of(cond.getDynRealm())).caseInsensitive(false).build()).
                 build();
     }
 

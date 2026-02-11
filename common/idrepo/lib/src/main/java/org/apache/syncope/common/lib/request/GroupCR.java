@@ -23,9 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -48,26 +46,6 @@ public class GroupCR extends AnyCR {
             return new GroupCR();
         }
 
-        public Builder userOwner(final String userOwner) {
-            getInstance().setUserOwner(userOwner);
-            return this;
-        }
-
-        public Builder groupOwner(final String groupOwner) {
-            getInstance().setGroupOwner(groupOwner);
-            return this;
-        }
-
-        public Builder udynMembershipCond(final String udynMembershipCond) {
-            getInstance().setUDynMembershipCond(udynMembershipCond);
-            return this;
-        }
-
-        public Builder adynMembershipCond(final String type, final String fiql) {
-            getInstance().getADynMembershipConds().put(type, fiql);
-            return this;
-        }
-
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;
@@ -85,14 +63,6 @@ public class GroupCR extends AnyCR {
     }
 
     private String name;
-
-    private String userOwner;
-
-    private String groupOwner;
-
-    private String udynMembershipCond;
-
-    private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -113,34 +83,6 @@ public class GroupCR extends AnyCR {
         this.name = name;
     }
 
-    public String getUserOwner() {
-        return userOwner;
-    }
-
-    public void setUserOwner(final String userOwner) {
-        this.userOwner = userOwner;
-    }
-
-    public String getGroupOwner() {
-        return groupOwner;
-    }
-
-    public void setGroupOwner(final String groupOwner) {
-        this.groupOwner = groupOwner;
-    }
-
-    public String getUDynMembershipCond() {
-        return udynMembershipCond;
-    }
-
-    public void setUDynMembershipCond(final String uDynMembershipCond) {
-        this.udynMembershipCond = uDynMembershipCond;
-    }
-
-    public Map<String, String> getADynMembershipConds() {
-        return adynMembershipConds;
-    }
-
     public List<TypeExtensionTO> getTypeExtensions() {
         return typeExtensions;
     }
@@ -150,10 +92,6 @@ public class GroupCR extends AnyCR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
-                append(udynMembershipCond).
-                append(adynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -173,10 +111,6 @@ public class GroupCR extends AnyCR {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
-                append(udynMembershipCond, other.udynMembershipCond).
-                append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

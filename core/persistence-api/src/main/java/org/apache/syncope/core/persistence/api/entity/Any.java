@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface Any extends Attributable, Entity {
 
@@ -54,6 +56,14 @@ public interface Any extends Attributable, Entity {
     Realm getRealm();
 
     void setRealm(Realm realm);
+
+    User getUManager();
+
+    void setUManager(User manager);
+
+    Group getGManager();
+
+    void setGManager(Group manager);
 
     String getStatus();
 

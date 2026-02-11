@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -62,8 +61,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Transient
     private Set<String> entitlementsSet = new HashSet<>();
 
-    private String dynMembershipCond;
-
     @Lob
     private String anyLayout;
 
@@ -77,29 +74,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "role_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "dynamicRealm_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "role_id", "dynamicRealm_id" }))
-    @Valid
-    private List<JPADynRealm> dynRealms = new ArrayList<>();
-
     @Override
     public Set<String> getEntitlements() {
         return entitlementsSet;
-    }
-
-    @Override
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    @Override
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
     }
 
     @Override
@@ -111,17 +88,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public List<? extends Realm> getRealms() {
         return realms;
-    }
-
-    @Override
-    public boolean add(final DynRealm dynamicRealm) {
-        checkType(dynamicRealm, JPADynRealm.class);
-        return dynRealms.contains((JPADynRealm) dynamicRealm) || dynRealms.add((JPADynRealm) dynamicRealm);
-    }
-
-    @Override
-    public List<? extends DynRealm> getDynRealms() {
-        return dynRealms;
     }
 
     @Override

@@ -35,10 +35,6 @@ public abstract class AbstractGroups extends WizardStep implements ICondition {
 
     protected final AnyTO anyTO;
 
-    protected WebMarkupContainer dyngroupsContainer;
-
-    protected WebMarkupContainer dynrealmsContainer;
-
     protected WebMarkupContainer groupsContainer;
 
     public <T extends AnyTO> AbstractGroups(final AnyWrapper<T> modelObject) {
@@ -69,10 +65,6 @@ public abstract class AbstractGroups extends WizardStep implements ICondition {
     }
 
     protected abstract void addGroupsPanel();
-
-    protected abstract void addDynamicRealmsContainer();
-
-    protected abstract void addDynamicGroupsContainer();
 
     @Override
     public boolean evaluate() {

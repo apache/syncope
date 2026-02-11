@@ -18,13 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.panels.search.SearchUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.GroupTO;
 
@@ -34,10 +27,6 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
 
     private GroupTO previousGroupTO;
 
-    private List<SearchClause> uDynClauses;
-
-    private Map<String, List<SearchClause>> aDynClauses;
-
     public GroupWrapper(final GroupTO groupTO) {
         this(null, groupTO);
     }
@@ -45,63 +34,9 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
     public GroupWrapper(final GroupTO previousGroupTO, final GroupTO groupTO) {
         super(groupTO);
         this.previousGroupTO = previousGroupTO;
-        getUDynClauses();
-        getADynClauses();
     }
 
     public GroupTO getPreviousGroupTO() {
         return previousGroupTO;
-    }
-
-    public final List<SearchClause> getUDynClauses() {
-        if (this.uDynClauses == null) {
-            this.uDynClauses = SearchUtils.getSearchClauses(this.anyTO.getUDynMembershipCond());
-        }
-        return this.uDynClauses;
-    }
-
-    public void setUDynClauses(final List<SearchClause> uDynClauses) {
-        this.uDynClauses = uDynClauses;
-    }
-
-    public final Map<String, List<SearchClause>> getADynClauses() {
-        if (this.aDynClauses == null) {
-            this.aDynClauses = SearchUtils.getSearchClauses(this.anyTO.getADynMembershipConds());
-        }
-        return this.aDynClauses;
-    }
-
-    public void setADynClauses(final Map<String, List<SearchClause>> aDynClauses) {
-        this.aDynClauses = aDynClauses;
-    }
-
-    public String getUDynMembershipCond() {
-        return CollectionUtils.isEmpty(this.uDynClauses)
-                ? null
-                : SearchUtils.buildFIQL(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
-    }
-
-    public Map<String, String> getADynMembershipConds() {
-        Map<String, String> res = new HashMap<>();
-        if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
-            this.aDynClauses.entrySet().stream().
-                    filter(entry -> CollectionUtils.isNotEmpty(entry.getValue())).
-                    forEach(entry -> {
-                        String fiql = SearchUtils.buildFIQL(entry.getValue(),
-                                SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey()));
-                        if (fiql != null) {
-                            res.put(entry.getKey(), fiql);
-                        }
-                    });
-        }
-
-        return res;
-    }
-
-    public GroupTO fillDynamicConditions() {
-        this.anyTO.setUDynMembershipCond(this.getUDynMembershipCond());
-        this.anyTO.getADynMembershipConds().clear();
-        this.anyTO.getADynMembershipConds().putAll(this.getADynMembershipConds());
-        return this.anyTO;
     }
 }

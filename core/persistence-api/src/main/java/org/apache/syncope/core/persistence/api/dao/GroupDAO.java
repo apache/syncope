@@ -34,10 +34,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
-    record DynMembershipInfo(Set<String> before, Set<String> after) {
-
-    }
-
     Optional<String> findKey(String name);
 
     Optional<? extends Group> findByName(String name);
@@ -55,13 +51,17 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     void securityChecks(Set<String> authRealms, String key, String realm);
 
+    boolean isManager(String key);
+
+    List<User> findManagedUsers(String key);
+
+    List<Group> findManagedGroups(String key);
+
+    List<AnyObject> findManagedAnyObjects(String key);
+
     Map<String, Long> countByRealm();
 
     List<String> findKeysByNamePattern(String pattern);
-
-    List<Group> findOwnedByUser(String userKey);
-
-    List<Group> findOwnedByGroup(String groupKey);
 
     List<AMembership> findAMemberships(Group group);
 
@@ -75,61 +75,9 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     boolean existsUMembership(String userKey, String groupKey);
 
-    List<String> findADynMembers(Group group);
-
-    List<String> findUDynMembers(Group group);
-
     long countAMembers(String groupKey);
 
     long countUMembers(String groupKey);
-
-    long countADynMembers(Group group);
-
-    long countUDynMembers(Group group);
-
-    void clearADynMembers(Group group);
-
-    void clearUDynMembers(Group group);
-
-    /**
-     * Evaluates all the dynamic group membership conditions against the given anyObject (invoked during save).
-     *
-     * @param anyObject anyObject being saved
-     * @return pair of groups dynamically assigned before and after refresh
-     */
-    DynMembershipInfo refreshDynMemberships(AnyObject anyObject);
-
-    /**
-     * Evaluates all the dynamic group membership conditions against the given user (invoked during save).
-     *
-     * @param user user being saved
-     * @return pair of groups dynamically assigned before and after refresh
-     */
-    DynMembershipInfo refreshDynMemberships(User user);
-
-    /**
-     * Removes the dynamic group memberships of the given anyObject (invoked during delete).
-     *
-     * @param anyObject anyObject being deleted
-     * @return groups dynamically assigned before refresh
-     */
-    Set<String> removeDynMemberships(AnyObject anyObject);
-
-    /**
-     * Removes the dynamic group memberships of the given user (invoked during delete).
-     *
-     * @param user user being deleted
-     * @return groups dynamically assigned before refresh
-     */
-    Set<String> removeDynMemberships(User user);
-
-    /**
-     * Saves the provided group and refreshes all User and AnyObject members.
-     *
-     * @param group group to save
-     * @return merged group
-     */
-    Group saveAndRefreshDynMemberships(Group group);
 
     List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 }

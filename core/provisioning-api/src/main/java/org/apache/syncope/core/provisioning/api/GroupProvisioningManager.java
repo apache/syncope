@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -30,7 +29,6 @@ public interface GroupProvisioningManager extends ProvisioningManager<GroupCR, G
 
     ProvisioningResult<String> create(
             GroupCR groupCR,
-            Map<String, String> groupOwnerMap,
             Set<String> excludedResources,
             boolean nullPriorityAsync,
             String creator,

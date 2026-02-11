@@ -30,8 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -59,7 +57,6 @@ import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -92,7 +89,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -106,7 +102,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCRPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jWAConfigEntry;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
@@ -139,7 +134,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPushTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jSchedTask;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jSecurityQuestion;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -154,10 +148,6 @@ public class Neo4jEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (E) new Neo4jRealm();
-        } else if (reference.equals(DynRealm.class)) {
-            result = (E) new Neo4jDynRealm();
-        } else if (reference.equals(DynRealmMembership.class)) {
-            result = (E) new Neo4jDynRealmMembership();
         } else if (reference.equals(AnyTemplateRealm.class)) {
             result = (E) new Neo4jAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
@@ -246,10 +236,6 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {
             result = (E) new Neo4jAuditConf();
-        } else if (reference.equals(ADynGroupMembership.class)) {
-            result = (E) new Neo4jADynGroupMembership();
-        } else if (reference.equals(UDynGroupMembership.class)) {
-            result = (E) new Neo4jUDynGroupMembership();
         } else if (reference.equals(AccessToken.class)) {
             result = (E) new Neo4jAccessToken();
         } else if (reference.equals(Implementation.class)) {

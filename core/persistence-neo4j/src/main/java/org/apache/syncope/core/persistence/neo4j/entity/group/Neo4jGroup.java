@@ -30,22 +30,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -61,10 +55,6 @@ public class Neo4jGroup
 
     public static final String NODE = "SyncopeGroup";
 
-    public static final String USER_OWNER_REL = "USER_OWNER";
-
-    public static final String GROUP_OWNER_REL = "GROUP_OWNER";
-
     public static final String GROUP_RESOURCE_REL = "GROUP_RESOURCE";
 
     public static final String GROUP_AUX_CLASSES_REL = "GROUP_AUX_CLASSES";
@@ -77,12 +67,6 @@ public class Neo4jGroup
     @CompositeProperty(converterRef = "plainAttrsConverter")
     protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
-    @Relationship(type = USER_OWNER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
-    protected Neo4jUser userOwner;
-
-    @Relationship(type = GROUP_OWNER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
-    protected Neo4jGroup groupOwner;
-
     /**
      * Provisioning external resources.
      */
@@ -91,12 +75,6 @@ public class Neo4jGroup
 
     @Relationship(type = GROUP_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
-
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private Neo4jUDynGroupMembership uDynMembership;
-
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private List<Neo4jADynGroupMembership> aDynMemberships = new ArrayList<>();
 
     @Relationship(type = GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jGroupTypeExtension> typeExtensions = new ArrayList<>();
@@ -141,39 +119,6 @@ public class Neo4jGroup
     }
 
     @Override
-    public User getUserOwner() {
-        return userOwner;
-    }
-
-    @Override
-    public void setUserOwner(final User userOwner) {
-        checkType(userOwner, Neo4jUser.class);
-        this.userOwner = (Neo4jUser) userOwner;
-    }
-
-    @Override
-    public Group getGroupOwner() {
-        return groupOwner;
-    }
-
-    @Override
-    public void setGroupOwner(final Group group) {
-        checkType(group, Neo4jGroup.class);
-        this.groupOwner = (Neo4jGroup) group;
-    }
-
-    @Override
-    public UDynGroupMembership getUDynMembership() {
-        return uDynMembership;
-    }
-
-    @Override
-    public void setUDynMembership(final UDynGroupMembership uDynMembership) {
-        checkType(uDynMembership, Neo4jUDynGroupMembership.class);
-        this.uDynMembership = (Neo4jUDynGroupMembership) uDynMembership;
-    }
-
-    @Override
     public boolean add(final AnyTypeClass auxClass) {
         checkType(auxClass, Neo4jAnyTypeClass.class);
         return auxClasses.contains((Neo4jAnyTypeClass) auxClass) || auxClasses.add((Neo4jAnyTypeClass) auxClass);
@@ -182,24 +127,6 @@ public class Neo4jGroup
     @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
-    }
-
-    @Override
-    public boolean add(final ADynGroupMembership dynGroupMembership) {
-        checkType(dynGroupMembership, Neo4jADynGroupMembership.class);
-        return aDynMemberships.add((Neo4jADynGroupMembership) dynGroupMembership);
-    }
-
-    @Override
-    public Optional<? extends ADynGroupMembership> getADynMembership(final AnyType anyType) {
-        return aDynMemberships.stream().
-                filter(dynGroupMembership -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).
-                findFirst();
-    }
-
-    @Override
-    public List<? extends ADynGroupMembership> getADynMemberships() {
-        return aDynMemberships;
     }
 
     @Override

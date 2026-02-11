@@ -21,8 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
@@ -43,7 +41,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.LabelPanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -215,23 +212,12 @@ public class AnyPanel extends Panel implements ModalPanel {
             Panel panel;
             String fiql;
 
-            String realm;
-            String dynRealm;
-            if (Strings.CS.startsWith(r.getFullPath(), SyncopeConstants.ROOT_REALM)) {
-                realm = RealmsUtils.getFullPath(r.getFullPath());
-                dynRealm = null;
-            } else {
-                realm = SyncopeConstants.ROOT_REALM;
-                dynRealm = r.getKey();
-            }
+            String realm = RealmsUtils.getFullPath(r.getFullPath());
 
             switch (anyType.getKind()) {
                 case USER:
-                    fiql = dynRealm == null
-                            ? SyncopeClient.getUserSearchConditionBuilder().
-                                    is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                            : SyncopeClient.getUserSearchConditionBuilder().
-                                    inDynRealms(dynRealm).query();
+                    fiql = SyncopeClient.getUserSearchConditionBuilder().
+                            is(Constants.KEY_FIELD_NAME).notNullValue().query();
 
                     UserTO user = new UserTO();
                     user.setRealm(RealmsUtils.getFullPath(r.getFullPath()));
@@ -239,7 +225,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                             anyTypeClassRestClient.list(anyType.getClasses()),
                             userRestClient,
                             anyType.getKey(),
-                            pr).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                            pr).setRealm(realm).setFiltered(true).
                             setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                             AnyLayoutUtils.newLayoutInfo(
                                     user, anyType.getClasses(), layout.getUser(), userRestClient, pr)).
@@ -249,11 +235,8 @@ public class AnyPanel extends Panel implements ModalPanel {
                     break;
 
                 case GROUP:
-                    fiql = dynRealm == null
-                            ? SyncopeClient.getGroupSearchConditionBuilder().
-                                    is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                            : SyncopeClient.getGroupSearchConditionBuilder().
-                                    inDynRealms(dynRealm).query();
+                    fiql = SyncopeClient.getGroupSearchConditionBuilder().
+                            is(Constants.KEY_FIELD_NAME).notNullValue().query();
 
                     GroupTO group = new GroupTO();
                     group.setRealm(RealmsUtils.getFullPath(r.getFullPath()));
@@ -261,7 +244,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                             anyTypeClassRestClient.list(anyType.getClasses()),
                             groupRestClient,
                             anyType.getKey(),
-                            pr).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                            pr).setRealm(realm).setFiltered(true).
                             setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                             AnyLayoutUtils.newLayoutInfo(
                                     group, anyType.getClasses(), layout.getGroup(), groupRestClient, pr)).
@@ -270,11 +253,8 @@ public class AnyPanel extends Panel implements ModalPanel {
                     break;
 
                 case ANY_OBJECT:
-                    fiql = dynRealm == null
-                            ? SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                    is(Constants.KEY_FIELD_NAME).notNullValue().query()
-                            : SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
-                                    inDynRealms(dynRealm).query();
+                    fiql = SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
+                            is(Constants.KEY_FIELD_NAME).notNullValue().query();
 
                     AnyObjectTO anyObject = new AnyObjectTO();
                     anyObject.setRealm(RealmsUtils.getFullPath(r.getFullPath()));
@@ -283,7 +263,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                             anyTypeClassRestClient.list(anyType.getClasses()),
                             anyObjectRestClient,
                             anyType.getKey(),
-                            pr).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
+                            pr).setRealm(realm).setFiltered(true).
                             setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                             AnyLayoutUtils.newLayoutInfo(anyObject, anyType.getClasses(),
                                     layout.getAnyObjects().get(anyType.getKey()),
@@ -317,14 +297,10 @@ public class AnyPanel extends Panel implements ModalPanel {
             send(AnyPanel.this.directoryPanel, Broadcast.BREADTH,
                     new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
 
-            String precond = realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)
-                    ? StringUtils.EMPTY
-                    : String.format("$dynRealms=~%s;", realmTO.getKey());
-
             switch (anyTypeTO.getKind()) {
                 case USER ->
                     UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
-                            precond + SearchUtils.buildFIQL(
+                            SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
                                     SyncopeClient.getUserSearchConditionBuilder(),
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
@@ -333,7 +309,7 @@ public class AnyPanel extends Panel implements ModalPanel {
 
                 case GROUP ->
                     GroupDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
-                            precond + SearchUtils.buildFIQL(
+                            SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
                                     SyncopeClient.getGroupSearchConditionBuilder(),
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),
@@ -342,7 +318,7 @@ public class AnyPanel extends Panel implements ModalPanel {
 
                 case ANY_OBJECT ->
                     AnyObjectDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
-                            precond + SearchUtils.buildFIQL(
+                            SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
                                     SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()),
                                     AnyPanel.this.searchPanel.getAvailableSchemaTypes(),

@@ -25,11 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.syncope.common.lib.request.GroupUR;
-import org.apache.syncope.common.lib.request.StringReplacePatchItem;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -80,8 +76,6 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
     protected PullResultHandlerDispatcher dispatcher;
 
-    protected GroupPullResultHandler ghandler;
-
     protected PullResultHandlerDispatcher buildDispatcher() {
         return ctx.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
                 init(profile, this);
@@ -131,39 +125,6 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
         provisionSorter = getProvisionSorter(task);
 
         latestSyncTokens.clear();
-    }
-
-    protected void setGroupOwners() {
-        ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
-            GroupUR req = new GroupUR();
-            req.setKey(groupKey);
-
-            if (StringUtils.isBlank(ownerKey)) {
-                req.setUserOwner(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
-                req.setGroupOwner(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
-            } else {
-                inboundMatcher.match(
-                        anyTypeDAO.getUser(),
-                        ownerKey,
-                        profile.getTask().getResource(),
-                        profile.getConnector()).ifPresentOrElse(
-                        userMatch -> req.setUserOwner(new StringReplacePatchItem.Builder().
-                                value(userMatch.getAny().getKey()).build()),
-                        () -> inboundMatcher.match(
-                                anyTypeDAO.getGroup(),
-                                ownerKey,
-                                profile.getTask().getResource(),
-                                profile.getConnector()).
-                                ifPresent(groupMatch -> req.setGroupOwner(new StringReplacePatchItem.Builder().
-                                value(groupMatch.getAny().getKey()).build())));
-            }
-
-            if (req.isEmpty()) {
-                LOG.warn("Unable to set owner {} for group {}", ownerKey, groupKey);
-            } else {
-                ghandler.updateOwner(req);
-            }
-        });
     }
 
     @Override

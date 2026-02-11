@@ -198,7 +198,6 @@ public class LiveSyncJobDelegate
                         orElseThrow(() -> new NotFoundException("PlainSchema " + provision.getUidOnCreate()));
             }
 
-            ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {
@@ -207,7 +206,7 @@ public class LiveSyncJobDelegate
                         break;
 
                     case GROUP:
-                        handler = ghandler;
+                        handler = buildGroupHandler();
                         break;
 
                     case ANY_OBJECT:
@@ -322,14 +321,6 @@ public class LiveSyncJobDelegate
                             r.getKey(),
                             info.uidOnCreate(),
                             r.getUidValue()));
-                }
-
-                if (info.anyTypeKind() == AnyTypeKind.GROUP) {
-                    try {
-                        setGroupOwners();
-                    } catch (Exception e) {
-                        LOG.error("While setting group owners", e);
-                    }
                 }
             });
 

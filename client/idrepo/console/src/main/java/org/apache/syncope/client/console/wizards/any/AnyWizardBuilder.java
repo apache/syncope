@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -106,18 +105,6 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         // optional details panel step
         addOptionalDetailsPanel(modelObject).ifPresent(wizardModel::add);
 
-        if (this instanceof GroupWizardBuilder
-                && modelObject instanceof final GroupWrapper gw
-                && formLayoutInfo instanceof final GroupFormLayoutInfo groupFormLayoutInfo) {
-
-            if (groupFormLayoutInfo.isOwnership()) {
-                wizardModel.add(new Ownership(gw, pageRef));
-            }
-            if (groupFormLayoutInfo.isDynamicMemberships()) {
-                wizardModel.add(new DynamicMemberships(gw, pageRef));
-            }
-        }
-
         if (formLayoutInfo.isAuxClasses()) {
             wizardModel.add(new ConsoleAuxClasses(modelObject, anyTypeClasses));
         }
@@ -144,6 +131,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
         if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
             wizardModel.add(new DerAttrs(modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
+        }
+
+        if (formLayoutInfo.isManager()) {
+            wizardModel.add(new Management(modelObject, pageRef));
         }
 
         // role panel step (just available for users)

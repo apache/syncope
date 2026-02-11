@@ -63,6 +63,18 @@ public abstract class AnyUR implements BaseBean {
         }
 
         @SuppressWarnings("unchecked")
+        public B uManager(final StringReplacePatchItem uManager) {
+            getInstance().setUManager(uManager);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B gManager(final StringReplacePatchItem gManager) {
+            getInstance().setGManager(gManager);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
         public B auxClass(final StringPatchItem auxClass) {
             getInstance().getAuxClasses().add(auxClass);
             return (B) this;
@@ -146,6 +158,10 @@ public abstract class AnyUR implements BaseBean {
 
     private StringReplacePatchItem realm;
 
+    private StringReplacePatchItem uManager;
+
+    private StringReplacePatchItem gManager;
+
     private final Set<StringPatchItem> auxClasses = new HashSet<>();
 
     private final Set<AttrPatch> plainAttrs = new HashSet<>();
@@ -179,6 +195,22 @@ public abstract class AnyUR implements BaseBean {
         this.realm = realm;
     }
 
+    public StringReplacePatchItem getUManager() {
+        return uManager;
+    }
+
+    public void setUManager(final StringReplacePatchItem uManager) {
+        this.uManager = uManager;
+    }
+
+    public StringReplacePatchItem getGManager() {
+        return gManager;
+    }
+
+    public void setGManager(final StringReplacePatchItem gManager) {
+        this.gManager = gManager;
+    }
+
     public Set<StringPatchItem> getAuxClasses() {
         return auxClasses;
     }
@@ -201,6 +233,8 @@ public abstract class AnyUR implements BaseBean {
     @JsonIgnore
     public boolean isEmpty() {
         return realm == null
+                && uManager == null
+                && gManager == null
                 && auxClasses.isEmpty()
                 && plainAttrs.isEmpty()
                 && resources.isEmpty()
@@ -213,6 +247,8 @@ public abstract class AnyUR implements BaseBean {
                 append(discriminator).
                 append(key).
                 append(realm).
+                append(uManager).
+                append(gManager).
                 append(auxClasses).
                 append(plainAttrs).
                 append(resources).
@@ -236,6 +272,8 @@ public abstract class AnyUR implements BaseBean {
                 append(discriminator, other.discriminator).
                 append(key, other.key).
                 append(realm, other.realm).
+                append(uManager, other.uManager).
+                append(gManager, other.gManager).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
                 append(resources, other.resources).

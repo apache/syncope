@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.common.validation.RoleCheck;
@@ -51,29 +50,14 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
     @Transient
     private Set<String> entitlementsSet = new HashSet<>();
 
-    private String dynMembershipCond;
-
     private String anyLayout;
 
     @Relationship(type = ROLE_REALM_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private List<Neo4jRealm> realms = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private List<Neo4jDynRealm> dynRealms = new ArrayList<>();
-
     @Override
     public Set<String> getEntitlements() {
         return entitlementsSet;
-    }
-
-    @Override
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    @Override
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
     }
 
     @Override
@@ -85,17 +69,6 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
     @Override
     public List<? extends Realm> getRealms() {
         return realms;
-    }
-
-    @Override
-    public boolean add(final DynRealm dynamicRealm) {
-        checkType(dynamicRealm, Neo4jDynRealm.class);
-        return dynRealms.contains((Neo4jDynRealm) dynamicRealm) || dynRealms.add((Neo4jDynRealm) dynamicRealm);
-    }
-
-    @Override
-    public List<? extends DynRealm> getDynRealms() {
-        return dynRealms;
     }
 
     @Override

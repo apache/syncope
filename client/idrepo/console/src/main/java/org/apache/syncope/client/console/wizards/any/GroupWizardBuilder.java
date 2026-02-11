@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.any;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
@@ -90,9 +89,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     @Override
     protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
-        GroupTO updated = modelObject instanceof GroupWrapper gw
-                ? gw.fillDynamicConditions()
-                : modelObject.getInnerObject();
+        GroupTO updated = modelObject.getInnerObject();
 
         ProvisioningResult<GroupTO> result;
         if (updated.getKey() == null) {
@@ -103,16 +100,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             GroupTO original = getOriginalItem().getInnerObject();
             fixPlainAttrs(updated, original);
 
-            // SYNCOPE-1170
             boolean othersNotEqualsOrBlanks =
-                    !updated.getADynMembershipConds().equals(original.getADynMembershipConds())
-                    || (StringUtils.isNotBlank(original.getUDynMembershipCond())
-                    && StringUtils.isBlank(updated.getUDynMembershipCond()))
-                    || (StringUtils.isBlank(original.getUDynMembershipCond())
-                    && StringUtils.isNotBlank(updated.getUDynMembershipCond()))
-                    || StringUtils.isAllBlank(original.getUDynMembershipCond(), updated.getUDynMembershipCond())
-                    || !updated.getUDynMembershipCond().equals(original.getUDynMembershipCond())
-                    || !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
+                    !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
 
             GroupUR groupUR = AnyOperations.diff(updated, original, false);
 

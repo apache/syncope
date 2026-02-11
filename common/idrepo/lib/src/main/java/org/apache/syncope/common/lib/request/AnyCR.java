@@ -62,6 +62,18 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         }
 
         @SuppressWarnings("unchecked")
+        public B uManager(final String uManager) {
+            getInstance().setUManager(uManager);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B gManager(final String gManager) {
+            getInstance().setGManager(gManager);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
         public B auxClass(final String auxClass) {
             getInstance().getAuxClasses().add(auxClass);
             return (B) this;
@@ -143,6 +155,10 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
 
     private String realm;
 
+    private String uManager;
+
+    private String gManager;
+
     private final Set<String> auxClasses = new HashSet<>();
 
     private final Set<Attr> plainAttrs = new HashSet<>();
@@ -167,6 +183,22 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
     @Override
     public void setRealm(final String realm) {
         this.realm = realm;
+    }
+
+    public String getUManager() {
+        return uManager;
+    }
+
+    public void setUManager(final String uManager) {
+        this.uManager = uManager;
+    }
+
+    public String getGManager() {
+        return gManager;
+    }
+
+    public void setGManager(final String gManager) {
+        this.gManager = gManager;
     }
 
     @Override
@@ -220,6 +252,8 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return new HashCodeBuilder().
                 append(discriminator).
                 append(realm).
+                append(uManager).
+                append(gManager).
                 append(auxClasses).
                 append(plainAttrs).
                 append(resources).
@@ -242,6 +276,8 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         return new EqualsBuilder().
                 append(discriminator, other.discriminator).
                 append(realm, other.realm).
+                append(uManager, other.uManager).
+                append(gManager, other.gManager).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
                 append(resources, other.resources).

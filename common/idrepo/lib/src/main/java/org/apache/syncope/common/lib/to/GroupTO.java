@@ -22,9 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -37,21 +35,9 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
 
     private String name;
 
-    private String userOwner;
+    private long userMembershipCount;
 
-    private String groupOwner;
-
-    private String udynMembershipCond;
-
-    private long staticUserMembershipCount;
-
-    private long dynamicUserMembershipCount;
-
-    private long staticAnyObjectMembershipCount;
-
-    private long dynamicAnyObjectMembershipCount;
-
-    private final Map<String, String> adynMembershipConds = new HashMap<>();
+    private long anyObjectMembershipCount;
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -81,64 +67,20 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         this.name = name;
     }
 
-    public String getUserOwner() {
-        return userOwner;
+    public long getUserMembershipCount() {
+        return userMembershipCount;
     }
 
-    public void setUserOwner(final String userOwner) {
-        this.userOwner = userOwner;
+    public void setUserMembershipCount(final long userMembershipCount) {
+        this.userMembershipCount = userMembershipCount;
     }
 
-    public String getGroupOwner() {
-        return groupOwner;
+    public long getAnyObjectMembershipCount() {
+        return anyObjectMembershipCount;
     }
 
-    public void setGroupOwner(final String groupOwner) {
-        this.groupOwner = groupOwner;
-    }
-
-    public String getUDynMembershipCond() {
-        return udynMembershipCond;
-    }
-
-    public void setUDynMembershipCond(final String uDynMembershipCond) {
-        this.udynMembershipCond = uDynMembershipCond;
-    }
-
-    public long getStaticUserMembershipCount() {
-        return staticUserMembershipCount;
-    }
-
-    public void setStaticUserMembershipCount(final long staticUserMembershipCount) {
-        this.staticUserMembershipCount = staticUserMembershipCount;
-    }
-
-    public long getDynamicUserMembershipCount() {
-        return dynamicUserMembershipCount;
-    }
-
-    public void setDynamicUserMembershipCount(final long dynamicUserMembershipCount) {
-        this.dynamicUserMembershipCount = dynamicUserMembershipCount;
-    }
-
-    public long getStaticAnyObjectMembershipCount() {
-        return staticAnyObjectMembershipCount;
-    }
-
-    public void setStaticAnyObjectMembershipCount(final long staticAnyObjectMembershipCount) {
-        this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
-    }
-
-    public long getDynamicAnyObjectMembershipCount() {
-        return dynamicAnyObjectMembershipCount;
-    }
-
-    public void setDynamicAnyObjectMembershipCount(final long dynamicAnyObjectMembershipCount) {
-        this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
-    }
-
-    public Map<String, String> getADynMembershipConds() {
-        return adynMembershipConds;
+    public void setAnyObjectMembershipCount(final long anyObjectMembershipCount) {
+        this.anyObjectMembershipCount = anyObjectMembershipCount;
     }
 
     @JsonIgnore
@@ -159,10 +101,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
-                append(udynMembershipCond).
-                append(adynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -182,10 +120,6 @@ public class GroupTO extends AnyTO implements TypeExtensionHolderTO {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
-                append(udynMembershipCond, other.udynMembershipCond).
-                append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

@@ -109,12 +109,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         return memberships;
     }
 
-    @JsonIgnore
-    @Override
-    public List<MembershipTO> getDynMemberships() {
-        return List.of();
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().

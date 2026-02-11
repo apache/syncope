@@ -39,7 +39,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.assertRenderedPage(Security.class);
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
     }
 
     private static void createSecurityQuestion(final String name) {
@@ -50,8 +50,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
-                name);
+        formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField", name);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -60,7 +59,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:2:link");
     }
 
     @Test

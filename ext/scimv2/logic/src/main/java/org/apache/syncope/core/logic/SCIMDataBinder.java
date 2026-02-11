@@ -482,11 +482,6 @@ public class SCIMDataBinder {
                     StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
                     membership.getGroupName(),
                     Function.direct)));
-            userTO.getDynMemberships().forEach(membership -> user.getGroups().add(new Group(
-                    membership.getGroupKey(),
-                    StringUtils.substringBefore(location, "/Users") + "/Groups/" + membership.getGroupKey(),
-                    membership.getGroupName(),
-                    Function.indirect)));
         }
 
         if (output(attributes, excludedAttributes, "entitlements")) {

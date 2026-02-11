@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -45,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -53,11 +53,13 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jSecurityQuestion;
@@ -91,13 +93,16 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
     protected final Cache<EntityCacheKey, Neo4jUser> userCache;
 
+    protected final Cache<EntityCacheKey, Neo4jGroup> groupCache;
+
+    protected final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache;
+
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -108,14 +113,15 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
-            final Cache<EntityCacheKey, Neo4jUser> userCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache) {
 
         super(
                 anyTypeDAO,
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
@@ -128,6 +134,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         this.securityProperties = securityProperties;
         this.nodeValidator = nodeValidator;
         this.userCache = userCache;
+        this.groupCache = groupCache;
+        this.anyObjectCache = anyObjectCache;
     }
 
     @Override
@@ -159,6 +167,77 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         return findLastChange(key, Neo4jUser.NODE);
     }
 
+    @Override
+    public boolean isManager(final String key) {
+        return !findManagedUsers(key).isEmpty()
+                || !findManagedGroups(key).isEmpty()
+                || !findManagedAnyObjects(key).isEmpty();
+    }
+
+    @Override
+    public List<User> findManagedUsers(final String key) {
+        List<User> result = new ArrayList<>();
+
+        // 1. users having uManager set to the requested user
+        result.addAll(toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jUser.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
+                "p.id",
+                Neo4jUser.class,
+                userCache));
+
+        // 2. user members of groups having uManager set to the requested user
+        findManagedGroups(key).forEach(group -> groupDAO.findUMembers(group.getKey()).
+                forEach(member -> findById(member).
+                ifPresent(result::add)));
+
+        // 3. users managed by groups the requested user is member of
+        findById(key).ifPresent(user -> user.getMemberships().
+                forEach(m -> result.addAll(groupDAO.findManagedUsers(m.getRightEnd().getKey()))));
+
+        return result.stream().distinct().toList();
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        return toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jGroup.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
+                "p.id",
+                Neo4jGroup.class,
+                groupCache);
+    }
+
+    @Override
+    public List<AnyObject> findManagedAnyObjects(final String key) {
+        List<AnyObject> result = new ArrayList<>();
+
+        // 1. anyObjects having uManager set to the requested user
+        result.addAll(toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jAnyObject.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
+                "p.id",
+                Neo4jAnyObject.class,
+                anyObjectCache));
+
+        // 2. anyObject members of groups having uManager set to the requested user
+        findManagedGroups(key).forEach(group -> groupDAO.findAMembers(group.getKey()).
+                forEach(member -> findById(member, Neo4jAnyObject.class, anyObjectCache).
+                ifPresent(result::add)));
+
+        // 3. anyObject managed by groups the requested user is member of
+        findById(key).ifPresent(user -> user.getMemberships().
+                forEach(m -> result.addAll(groupDAO.findManagedAnyObjects(m.getRightEnd().getKey()))));
+
+        return result.stream().distinct().toList();
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void securityChecks(
@@ -167,18 +246,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given user
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which user is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
         }
 
-        // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -232,7 +314,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
     }
 
-    protected Pair<User, GroupDAO.DynMembershipInfo> doSave(final User user) {
+    @SuppressWarnings("unchecked")
+    @Override
+    public <S extends User> S save(final S user) {
         checkBeforeSave(user);
 
         // unlink any role, resource, aux class or security question that was unlinked from user
@@ -259,6 +343,22 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                     user.getKey(),
                     auxClass.getKey(),
                     Neo4jUser.USER_AUX_CLASSES_REL));
+            if (before.getUManager() != null && user.getUManager() == null) {
+                deleteRelationship(
+                        Neo4jUser.NODE,
+                        Neo4jUser.NODE,
+                        user.getKey(),
+                        before.getUManager().getKey(),
+                        AbstractAny.USER_MANAGER_REL);
+            }
+            if (before.getGManager() != null && user.getGManager() == null) {
+                deleteRelationship(
+                        Neo4jUser.NODE,
+                        Neo4jGroup.NODE,
+                        user.getKey(),
+                        before.getGManager().getKey(),
+                        AbstractAny.GROUP_MANAGER_REL);
+            }
             if (before.getSecurityQuestion() != null && user.getSecurityQuestion() == null) {
                 deleteRelationship(
                         Neo4jUser.NODE,
@@ -288,30 +388,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
         userCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jUser) merged);
 
-        roleDAO.refreshDynMemberships(merged);
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <S extends User> S save(final S user) {
-        return (S) doSave(user).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final User user) {
-        return doSave(user).getRight();
+        return (S) merged;
     }
 
     @Override
     public void delete(final User user) {
-        roleDAO.removeDynMemberships(user.getKey());
-        groupDAO.removeDynMemberships(user);
-        dynRealmDAO.removeDynMemberships(user.getKey());
-
         delegationDAO.findByDelegating(user).forEach(delegationDAO::delete);
         delegationDAO.findByDelegated(user).forEach(delegationDAO::delete);
 
@@ -344,35 +425,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
         result.addAll(user.getRoles());
-        result.addAll(findDynRoles(user.getKey()));
 
         return result;
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Role> findDynRoles(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
-                + "[:" + RoleRepoExt.DYN_ROLE_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jRole.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jRole.class,
-                null);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public List<Group> findDynGroups(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
-                + "[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jGroup.class,
-                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -381,7 +435,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         Set<Group> result = new HashSet<>();
         result.addAll(user.getMemberships().stream().
                 map(UMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(user.getKey()));
 
         return result;
     }

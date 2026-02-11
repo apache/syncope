@@ -25,7 +25,11 @@ import jakarta.persistence.MappedSuperclass;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AnyCheck;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @AnyCheck
 @MappedSuperclass
@@ -62,6 +66,12 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm realm;
+
+    @ManyToOne
+    private JPAUser uManager;
+
+    @ManyToOne
+    private JPAGroup gManager;
 
     @Column(nullable = true)
     private String status;
@@ -141,6 +151,28 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     public void setRealm(final Realm realm) {
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
+    }
+
+    @Override
+    public User getUManager() {
+        return uManager;
+    }
+
+    @Override
+    public void setUManager(final User manager) {
+        checkType(manager, JPAUser.class);
+        this.uManager = (JPAUser) manager;
+    }
+
+    @Override
+    public Group getGManager() {
+        return gManager;
+    }
+
+    @Override
+    public void setGManager(final Group manager) {
+        checkType(manager, JPAGroup.class);
+        this.gManager = (JPAGroup) manager;
     }
 
     @Override

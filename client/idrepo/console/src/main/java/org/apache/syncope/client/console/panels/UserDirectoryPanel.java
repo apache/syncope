@@ -142,7 +142,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         panel.add(new ActionLink<>() {
 
@@ -166,7 +166,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }, ActionType.MUSTCHANGEPASSWORD, IdRepoEntitlement.USER_UPDATE).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         if (wizardInModal) {
             panel.add(new ActionLink<>() {
@@ -192,7 +192,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     displayAttributeModal.show(true);
                 }
             }, ActionType.PASSWORD_MANAGEMENT, IdRepoEntitlement.USER_UPDATE).
-                    setRealms(realm, model.getObject().getDynRealms());
+                    setRealm(realm);
 
             PlatformInfo platformInfo = SyncopeConsoleSession.get().getAnonymousClient().platform();
             if (platformInfo.isPwdResetAllowed() && !platformInfo.isPwdResetRequiringSecurityQuestions()) {
@@ -215,7 +215,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionType.REQUEST_PASSWORD_RESET, IdRepoEntitlement.USER_UPDATE).
-                        setRealms(realm, model.getObject().getDynRealms());
+                        setRealm(realm);
             }
 
             SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
@@ -309,7 +309,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
             }, ActionType.VIEW_AUDIT_HISTORY,
                     String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
-                    setRealms(realm, model.getObject().getDynRealms());
+                    setRealm(realm);
         }
 
         panel.add(new ActionLink<>() {

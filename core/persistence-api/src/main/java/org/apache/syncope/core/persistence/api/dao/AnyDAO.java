@@ -71,8 +71,6 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
-    List<String> findDynRealms(String key);
-
     Collection<String> findAllResourceKeys(String key);
 
     void deleteRelationship(Relationship<? extends A, AnyObject> relationship);

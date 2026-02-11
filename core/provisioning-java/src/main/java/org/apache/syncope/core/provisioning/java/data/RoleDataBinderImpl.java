@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.slf4j.Logger;
@@ -40,8 +35,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     protected final RealmSearchDAO realmSearchDAO;
 
-    protected final DynRealmDAO dynRealmDAO;
-
     protected final RoleDAO roleDAO;
 
     protected final EntityFactory entityFactory;
@@ -50,13 +43,11 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     public RoleDataBinderImpl(
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor) {
 
         this.realmSearchDAO = realmSearchDAO;
-        this.dynRealmDAO = dynRealmDAO;
         this.roleDAO = roleDAO;
         this.entityFactory = entityFactory;
         this.searchCondVisitor = searchCondVisitor;
@@ -82,30 +73,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
                     () -> LOG.debug("Invalid realm full path {}, ignoring", realmFullPath));
         }
 
-        role.getDynRealms().clear();
-        for (String key : roleTO.getDynRealms()) {
-            dynRealmDAO.findById(key).ifPresentOrElse(
-                    role::add,
-                    () -> LOG.debug("Invalid dynamic ream {}, ignoring", key));
-        }
-
-        role = roleDAO.save(role);
-
-        // dynamic membership
-        roleDAO.clearDynMembers(role);
-        if (roleTO.getDynMembershipCond() == null) {
-            role.setDynMembershipCond(null);
-        } else {
-            if (!SearchCondConverter.convert(searchCondVisitor, roleTO.getDynMembershipCond()).isValid()) {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-                sce.getElements().add(roleTO.getDynMembershipCond());
-                throw sce;
-            }
-
-            role.setDynMembershipCond(roleTO.getDynMembershipCond());
-        }
-
-        return roleDAO.saveAndRefreshDynMemberships(role);
+        return roleDAO.save(role);
     }
 
     @Override
@@ -116,10 +84,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         roleTO.getRealms().addAll(role.getRealms().stream().map(Realm::getFullPath).toList());
-
-        roleTO.getDynRealms().addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
-
-        roleTO.setDynMembershipCond(role.getDynMembershipCond());
 
         return roleTO;
     }

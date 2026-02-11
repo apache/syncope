@@ -29,8 +29,6 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -58,7 +56,6 @@ import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -91,7 +88,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -105,7 +101,6 @@ import org.apache.syncope.core.persistence.jpa.entity.am.JPAPasswordManagement;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAWAConfigEntry;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
@@ -138,7 +133,6 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPASecurityQuestion;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -153,10 +147,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (E) new JPARealm();
-        } else if (reference.equals(DynRealm.class)) {
-            result = (E) new JPADynRealm();
-        } else if (reference.equals(DynRealmMembership.class)) {
-            result = (E) new JPADynRealmMembership();
         } else if (reference.equals(AnyTemplateRealm.class)) {
             result = (E) new JPAAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
@@ -245,10 +235,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPASecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {
             result = (E) new JPAAuditConf();
-        } else if (reference.equals(ADynGroupMembership.class)) {
-            result = (E) new JPAADynGroupMembership();
-        } else if (reference.equals(UDynGroupMembership.class)) {
-            result = (E) new JPAUDynGroupMembership();
         } else if (reference.equals(AccessToken.class)) {
             result = (E) new JPAAccessToken();
         } else if (reference.equals(Implementation.class)) {

@@ -164,44 +164,30 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:form:view:name:textField",
                 TextField.class);
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
+        FormTester formTester;
+        for (int i = 0; i < 5; i++) {
+            formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+            assertNotNull(formTester);
+            formTester.submit("buttons:next");
+        }
 
         // -------------------------
         // SYNCOPE-1026
         // -------------------------
         assertEquals(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:"
-                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:userOwner:"
+                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:managerContainer:search:uManager:"
                 + "textField").getDefaultModelObjectAsString(), "[823074dc-d280-436d-a7dd-07399fae48ec] puccini");
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:0:"
-                + "outer:form:content:form:view:ownerContainer:search:userOwnerReset");
+                + "outer:form:content:form:view:managerContainer:search:uManagerReset");
 
         assertEquals(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:"
-                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:userOwner:"
+                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:managerContainer:search:uManager:"
                 + "textField").getDefaultModelObjectAsString(), StringUtils.EMPTY);
         // -------------------------
-
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);

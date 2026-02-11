@@ -18,25 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleRepoExt {
-
-    String DYNMEMB_TABLE = "DynRoleMembers";
 
     Role save(Role role);
 
     void delete(Role role);
-
-    Role saveAndRefreshDynMemberships(Role role);
-
-    List<String> findDynMembers(Role role);
-
-    void clearDynMembers(Role role);
-
-    void refreshDynMemberships(User user);
-
-    void removeDynMemberships(String key);
 }

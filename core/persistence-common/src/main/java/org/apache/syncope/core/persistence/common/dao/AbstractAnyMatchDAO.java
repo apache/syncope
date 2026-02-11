@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -158,12 +157,6 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 }
 
                 if (match == null) {
-                    match = cond.asLeaf(DynRealmCond.class).
-                            map(leaf -> matches(any, leaf, not)).
-                            orElse(null);
-                }
-
-                if (match == null) {
                     match = cond.asLeaf(MemberCond.class).
                             filter(leaf -> any instanceof Group).
                             map(leaf -> matches((Group) any, leaf, not)).
@@ -244,22 +237,12 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 : groupDAO.findKey(cond.getGroup()).
                         orElseThrow(() -> new NotFoundException("Group " + cond.getGroup()));
 
-        boolean found = any.getMembership(group).isPresent()
-                || (any instanceof User
-                        ? userDAO.findDynGroups(any.getKey())
-                        : anyObjectDAO.findDynGroups(any.getKey())).stream().
-                        anyMatch(item -> item.getKey().equals(group));
+        boolean found = any.getMembership(group).isPresent();
         return not ? !found : found;
     }
 
     protected boolean matches(final User user, final RoleCond cond, final boolean not) {
         boolean found = userDAO.findAllRoles(user).stream().anyMatch(role -> role.getKey().equals(cond.getRole()));
-        return not ? !found : found;
-    }
-
-    protected boolean matches(final Any any, final DynRealmCond cond, final boolean not) {
-        boolean found = anyUtilsFactory.getInstance(any).dao().findDynRealms(any.getKey()).stream().
-                anyMatch(dynRealm -> dynRealm.equals(cond.getDynRealm()));
         return not ? !found : found;
     }
 
@@ -271,13 +254,11 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
             any = anyObjectDAO.findById(cond.getMember()).orElse(null);
             if (any != null) {
                 found = groupDAO.findAMemberships(group).stream().
-                        anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()))
-                        || groupDAO.findADynMembers(group).contains(cond.getMember());
+                        anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()));
             }
         } else {
             found = groupDAO.findUMemberships(group, Pageable.unpaged()).stream().
-                    anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()))
-                    || groupDAO.findUDynMembers(group).contains(cond.getMember());
+                    anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()));
         }
 
         return not ? !found : found;

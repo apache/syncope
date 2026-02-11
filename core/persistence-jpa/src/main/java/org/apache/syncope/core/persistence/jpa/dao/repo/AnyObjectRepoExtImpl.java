@@ -29,13 +29,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -66,7 +63,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -74,7 +70,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final AnyFinder anyFinder) {
 
         super(
-                dynRealmDAO,
                 plainSchemaDAO,
                 entityManager,
                 anyFinder,
@@ -123,18 +118,21 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given anyObject
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which anyObject is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
         }
 
-        // 3. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -180,29 +178,17 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return result;
     }
 
-    protected Pair<AnyObject, GroupDAO.DynMembershipInfo> doSave(final AnyObject anyObject) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public <S extends AnyObject> S save(final S anyObject) {
+        checkBeforeSave((JPAAnyObject) anyObject);
+
         AnyObject merged = entityManager.merge(anyObject);
 
         // ensure that entity listeners are invoked at this point
         entityManager.flush();
 
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
-        return (S) doSave(anyObject).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
-        return doSave(anyObject).getRight();
+        return (S) merged;
     }
 
     protected List<ARelationship> findARelationships(final AnyObject anyObject) {
@@ -225,29 +211,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroups(final String key) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, key);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(groupKey -> groupDAO.findById(groupKey.toString())).
-                flatMap(Optional::stream).
-                distinct().
-                collect(Collectors.toList());
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
-        Set<Group> result = new HashSet<>();
-        result.addAll(anyObject.getMemberships().stream().
-                map(AMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(anyObject.getKey()));
-
-        return result;
+        return anyObject.getMemberships().stream().map(AMembership::getRightEnd).collect(Collectors.toSet());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -274,9 +239,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Override
     public void delete(final AnyObject anyObject) {
-        groupDAO.removeDynMemberships(anyObject);
-        dynRealmDAO.removeDynMemberships(anyObject.getKey());
-
         findARelationships(anyObject).forEach(relationship -> {
             relationship.getLeftEnd().remove(relationship);
             save(relationship.getLeftEnd());
