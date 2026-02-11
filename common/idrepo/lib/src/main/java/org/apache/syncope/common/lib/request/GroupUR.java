@@ -23,9 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -52,26 +50,6 @@ public class GroupUR extends AnyUR {
             return this;
         }
 
-        public Builder userOwner(final StringReplacePatchItem userOwner) {
-            getInstance().setUserOwner(userOwner);
-            return this;
-        }
-
-        public Builder groupOwner(final StringReplacePatchItem groupOwner) {
-            getInstance().setGroupOwner(groupOwner);
-            return this;
-        }
-
-        public Builder dynMembershipCond(final String type, final String fiql) {
-            getInstance().getDynMembershipConds().put(type, fiql);
-            return this;
-        }
-
-        public Builder dynMembershipConds(final Map<String, String> conds) {
-            getInstance().getDynMembershipConds().putAll(conds);
-            return this;
-        }
-
         public Builder typeExtension(final TypeExtensionTO typeExtension) {
             getInstance().getTypeExtensions().add(typeExtension);
             return this;
@@ -89,12 +67,6 @@ public class GroupUR extends AnyUR {
     }
 
     private StringReplacePatchItem name;
-
-    private StringReplacePatchItem userOwner;
-
-    private StringReplacePatchItem groupOwner;
-
-    private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
@@ -114,26 +86,6 @@ public class GroupUR extends AnyUR {
         this.name = name;
     }
 
-    public StringReplacePatchItem getUserOwner() {
-        return userOwner;
-    }
-
-    public void setUserOwner(final StringReplacePatchItem userOwner) {
-        this.userOwner = userOwner;
-    }
-
-    public StringReplacePatchItem getGroupOwner() {
-        return groupOwner;
-    }
-
-    public void setGroupOwner(final StringReplacePatchItem groupOwner) {
-        this.groupOwner = groupOwner;
-    }
-
-    public Map<String, String> getDynMembershipConds() {
-        return dynMembershipConds;
-    }
-
     @JsonIgnore
     public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
         return typeExtensions.stream().filter(
@@ -147,8 +99,7 @@ public class GroupUR extends AnyUR {
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null
-                && dynMembershipConds.isEmpty() && typeExtensions.isEmpty();
+                && name == null && typeExtensions.isEmpty();
     }
 
     @Override
@@ -156,9 +107,6 @@ public class GroupUR extends AnyUR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(userOwner).
-                append(groupOwner).
-                append(dynMembershipConds).
                 append(typeExtensions).
                 build();
     }
@@ -178,9 +126,6 @@ public class GroupUR extends AnyUR {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(userOwner, other.userOwner).
-                append(groupOwner, other.groupOwner).
-                append(dynMembershipConds, other.dynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
                 build();
     }

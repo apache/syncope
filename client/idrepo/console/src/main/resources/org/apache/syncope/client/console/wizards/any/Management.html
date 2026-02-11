@@ -19,18 +19,18 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <div id="ownership">
-      <span wicket:id="ownership">[OWNERSHIP]</span>
+      <span wicket:id="management">[OWNERSHIP]</span>
     </div>
 
-    <div wicket:id="ownerContainer">
+    <div wicket:id="managerContainer">
       <span wicket:id="search">[SEARCH]</span>
     </div>
 
     <wicket:fragment wicket:id="userSearchFragment">
       <div class="input-group">
-        <span wicket:id="userOwner"/>
+        <span wicket:id="uManager"/>
         <div class="input-group-addon">
-          <a href="#" wicket:id="userOwnerReset"><i class="fas fa-minus-circle" alt="reset user owner" title="Reset"></i></a>
+          <a href="#" wicket:id="uManagerReset"><i class="fas fa-minus-circle" alt="reset user manager" title="Reset"></i></a>
         </div>
       </div>
       <span wicket:id="usersearch">[USER SEARCH]</span>
@@ -41,9 +41,9 @@ under the License.
 
     <wicket:fragment wicket:id="groupSearchFragment">
       <div class="input-group">
-        <span wicket:id="groupOwner"/>
+        <span wicket:id="gManager"/>
         <div class="input-group-addon">
-          <a href="#" wicket:id="groupOwnerReset"><i class="fas fa-minus-circle" alt="reset group owner" title="Reset"></i></a>
+          <a href="#" wicket:id="gManagerReset"><i class="fas fa-minus-circle" alt="reset group manager" title="Reset"></i></a>
         </div>
       </div>
       <span wicket:id="groupsearch">[GROUP SEARCH]</span>

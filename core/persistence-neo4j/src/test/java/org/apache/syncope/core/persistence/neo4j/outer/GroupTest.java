@@ -20,14 +20,12 @@ package org.apache.syncope.core.persistence.neo4j.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
@@ -42,21 +40,17 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynGroupMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -95,9 +89,6 @@ public class GroupTest extends AbstractTest {
     @Autowired
     private PlainAttrValidationManager validator;
 
-    @Autowired
-    private Neo4jTemplate neo4jTemplate;
-
     @Test
     public void findByResourcesContaining() {
         List<Group> found = groupDAO.findByResourcesContaining(resourceDAO.findById("resource-csv").orElseThrow());
@@ -134,7 +125,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithTwoOwners() {
+    public void saveWithTwoManagers() {
         assertThrows(InvalidEntityException.class, () -> {
             Group root = groupDAO.findByName("root").orElseThrow();
 
@@ -143,38 +134,38 @@ public class GroupTest extends AbstractTest {
             Group group = entityFactory.newEntity(Group.class);
             group.setRealm(realmDAO.getRoot());
             group.setName("error");
-            group.setUserOwner(user);
-            group.setGroupOwner(root);
+            group.setUManager(user);
+            group.setGManager(root);
 
             groupDAO.save(group);
         });
     }
 
     @Test
-    public void findOwnedByUser() {
+    public void findByUManager() {
         Group group = groupDAO.findById("ebf97068-aa4b-4a85-9f01-680e8c4cf227").orElseThrow();
 
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
 
-        assertEquals(user, group.getUserOwner());
+        assertEquals(user, group.getUManager());
 
-        List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
-        assertFalse(ownedGroups.isEmpty());
-        assertEquals(1, ownedGroups.size());
-        assertTrue(ownedGroups.contains(group));
+        List<Group> managed = userDAO.findManagedGroups(user.getKey());
+        assertFalse(managed.isEmpty());
+        assertEquals(1, managed.size());
+        assertTrue(managed.contains(group));
     }
 
     @Test
-    public void findOwnedByGroup() {
+    public void findByGManager() {
         Group root = groupDAO.findByName("root").orElseThrow();
         Group group = entityFactory.newEntity(Group.class);
         group.setRealm(realmDAO.getRoot());
         group.setName("error");
-        group.setGroupOwner(root);
+        group.setGManager(root);
         group = groupDAO.save(group);
 
-        List<Group> owned = groupDAO.findOwnedByGroup(root.getKey());
-        assertEquals(List.of(group), owned);
+        List<Group> managed = groupDAO.findManagedGroups(root.getKey());
+        assertEquals(List.of(group), managed);
     }
 
     @Test
@@ -218,150 +209,6 @@ public class GroupTest extends AbstractTest {
         assertTrue(groupDAO.findById("b1f7c12d-ec83-441f-a50e-1691daaedf3b").isEmpty());
         assertEquals(before - 1, userDAO.findAllGroups(userDAO.findByUsername("verdi").orElseThrow()).size());
         assertTrue(plainSchemaDAO.findById("icon").isPresent());
-    }
-
-    @Test
-    public void udynMembership() {
-        // 0. create user matching the condition below
-        User user = entityFactory.newEntity(User.class);
-        user.setUsername("username");
-        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
-        user.add(anyTypeClassDAO.findById("other").orElseThrow());
-
-        PlainAttr attr = new PlainAttr();
-        attr.setSchema("cool");
-        attr.add(validator, "true");
-        user.add(attr);
-
-        user = userDAO.save(user);
-        String newUserKey = user.getKey();
-        assertNotNull(newUserKey);
-
-        // 1. create group with dynamic membership
-        Group group = entityFactory.newEntity(Group.class);
-        group.setRealm(realmDAO.getRoot());
-        group.setName("new");
-
-        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
-        dynMembership.setAnyType(anyTypeDAO.getUser());
-        dynMembership.setFIQLCond("cool==true");
-        dynMembership.setGroup(group);
-
-        group.add(dynMembership);
-
-        Group actual = groupDAO.saveAndRefreshDynMemberships(group);
-        assertNotNull(actual);
-
-        // 2. verify that dynamic membership is there
-        actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow());
-        assertNotNull(actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getKey());
-        assertEquals(actual, actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getGroup());
-
-        // 3. verify that expected users have the created group dynamically assigned
-        List<String> members = groupDAO.findUDynMembers(actual);
-        assertEquals(2, members.size());
-        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey), new HashSet<>(members));
-
-        user = userDAO.findByUsername("bellini").orElseThrow();
-        List<Group> dynGroupMemberships = userDAO.findDynGroups(user.getKey());
-        assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(
-                actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getGroup()));
-
-        // 4. delete the new user and verify that dynamic membership was updated
-        userDAO.deleteById(newUserKey);
-
-        actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        members = groupDAO.findUDynMembers(actual);
-        assertEquals(1, members.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
-
-        // 5. delete group and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getDynMembership(anyTypeDAO.getUser()).orElseThrow().getKey();
-
-        groupDAO.delete(actual);
-
-        assertTrue(neo4jTemplate.findById(dynMembershipKey, Neo4jDynGroupMembership.class).isEmpty());
-
-        dynGroupMemberships = userDAO.findDynGroups(user.getKey());
-        assertTrue(dynGroupMemberships.isEmpty());
-    }
-
-    @Test
-    public void adynMembership() {
-        // 0. create any object matching the condition below
-        AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
-        anyObject.setName("name");
-        anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
-        anyObject.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
-
-        PlainAttr attr = new PlainAttr();
-        attr.setSchema("model");
-        attr.add(validator, "Canon MFC8030");
-        anyObject.add(attr);
-
-        anyObject = anyObjectDAO.save(anyObject);
-        String newAnyObjectKey = anyObject.getKey();
-        assertNotNull(newAnyObjectKey);
-
-        // 1. create group with dynamic membership
-        Group group = entityFactory.newEntity(Group.class);
-        group.setRealm(realmDAO.getRoot());
-        group.setName("new");
-
-        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
-        dynMembership.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
-        dynMembership.setFIQLCond("model==Canon MFC8030");
-        dynMembership.setGroup(group);
-
-        group.add(dynMembership);
-
-        Group actual = groupDAO.saveAndRefreshDynMemberships(group);
-        assertNotNull(actual);
-
-        // 2. verify that dynamic membership is there
-        actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).orElseThrow());
-        assertNotNull(actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).orElseThrow().getKey());
-        assertEquals(actual, actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).
-                orElseThrow().getGroup());
-
-        // 3. verify that expected any objects have the created group dynamically assigned
-        List<String> members = groupDAO.findADynMembers(actual).stream().filter(
-                object -> "PRINTER".equals(anyObjectDAO.findById(object).
-                        orElseThrow().getType().getKey())).toList();
-        assertEquals(2, members.size());
-        assertEquals(
-                Set.of("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey),
-                new HashSet<>(members));
-
-        anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
-        Collection<Group> dynGroupMemberships = anyObjectDAO.findDynGroups(anyObject.getKey());
-        assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getDynMembership(anyTypeDAO.findById("PRINTER").
-                orElseThrow()).orElseThrow().getGroup()));
-
-        // 4. delete the new any object and verify that dynamic membership was updated
-        anyObjectDAO.deleteById(newAnyObjectKey);
-
-        actual = groupDAO.findById(actual.getKey()).orElseThrow();
-        members = groupDAO.findADynMembers(actual).stream().filter(
-                object -> "PRINTER".equals(anyObjectDAO.findById(object).
-                        orElseThrow().getType().getKey())).toList();
-        assertEquals(1, members.size());
-        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.getFirst());
-
-        // 5. delete group and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getDynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).
-                orElseThrow().getKey();
-
-        groupDAO.delete(actual);
-
-        assertTrue(neo4jTemplate.findById(dynMembershipKey, Neo4jDynGroupMembership.class).isEmpty());
-
-        dynGroupMemberships = anyObjectDAO.findDynGroups(anyObject.getKey());
-        assertTrue(dynGroupMemberships.isEmpty());
     }
 
     @Test

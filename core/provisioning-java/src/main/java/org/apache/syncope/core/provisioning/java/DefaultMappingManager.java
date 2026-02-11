@@ -750,7 +750,7 @@ public class DefaultMappingManager implements MappingManager {
                     case "password" -> {
                     }
 
-                    case "userOwner", "groupOwner" -> {
+                    case "uManager", "gManager" -> {
                         Mapping uMappingTO = provision.getAnyType().equals(AnyTypeKind.USER.name())
                                 ? provision.getMapping()
                                 : null;
@@ -758,19 +758,17 @@ public class DefaultMappingManager implements MappingManager {
                                 ? provision.getMapping()
                                 : null;
 
-                        if (ref instanceof Group group) {
-                            String groupOwnerValue = null;
-                            if (group.getUserOwner() != null && uMappingTO != null) {
-                                groupOwnerValue = getGroupOwnerValue(resource, provision, group.getUserOwner());
-                            }
-                            if (group.getGroupOwner() != null && gMappingTO != null) {
-                                groupOwnerValue = getGroupOwnerValue(resource, provision, group.getGroupOwner());
-                            }
+                        String managerValue = null;
+                        if (ref.getUManager() != null && uMappingTO != null) {
+                            managerValue = getManagerValue(resource, provision, ref.getUManager());
+                        }
+                        if (ref.getGManager() != null && gMappingTO != null) {
+                            managerValue = getManagerValue(resource, provision, ref.getGManager());
+                        }
 
-                            if (StringUtils.isNotBlank(groupOwnerValue)) {
-                                attrValue.setStringValue(groupOwnerValue);
-                                values.add(attrValue);
-                            }
+                        if (StringUtils.isNotBlank(managerValue)) {
+                            attrValue.setStringValue(managerValue);
+                            values.add(attrValue);
                         }
                     }
                     case "suspended" -> {
@@ -944,7 +942,7 @@ public class DefaultMappingManager implements MappingManager {
         return transformed;
     }
 
-    protected String getGroupOwnerValue(
+    protected String getManagerValue(
             final ExternalResource resource,
             final Provision provision,
             final Any any) {
@@ -1054,58 +1052,45 @@ public class DefaultMappingManager implements MappingManager {
             return;
         }
 
-        if (intAttrName.getField() != null) {
+        if (intAttrName.getField() != null && !values.isEmpty() && values.getFirst() != null) {
             switch (intAttrName.getField()) {
                 case "password" -> {
-                    if (anyTO instanceof UserTO && !values.isEmpty()) {
-                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.getFirst()));
+                    if (anyTO instanceof UserTO userTO) {
+                        userTO.setPassword(ConnObjectUtils.getPassword(values.getFirst()));
                     }
                 }
 
                 case "username" -> {
                     if (anyTO instanceof UserTO userTO) {
-                        userTO.setUsername(values.isEmpty() || values.getFirst() == null
-                                ? null
-                                : values.getFirst().toString());
+                        userTO.setUsername(values.getFirst().toString());
                     }
                 }
 
                 case "name" -> {
                     switch (anyTO) {
                         case GroupTO groupTO ->
-                            groupTO.setName(values.isEmpty() || values.getFirst() == null
-                                    ? null
-                                    : values.getFirst().toString());
+                            groupTO.setName(values.getFirst().toString());
                         case AnyObjectTO anyObjectTO ->
-                            anyObjectTO.setName(values.isEmpty() || values.getFirst() == null
-                                    ? null
-                                    : values.getFirst().toString());
+                            anyObjectTO.setName(values.getFirst().toString());
                         default -> {
                         }
                     }
                 }
 
                 case "mustChangePassword" -> {
-                    if (anyTO instanceof UserTO && !values.isEmpty() && values.getFirst() != null) {
-                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.getFirst().toString()));
+                    if (anyTO instanceof UserTO userTO) {
+                        userTO.setMustChangePassword(BooleanUtils.toBoolean(values.getFirst().toString()));
                     }
                 }
 
-                case "userOwner", "groupOwner" -> {
-                    if (anyTO instanceof final GroupTO groupTO && attr != null) {
-                        // using a special attribute (with schema "", that will be ignored) for carrying the
-                        // GroupOwnerSchema value
-                        Attr attrTO = new Attr();
-                        attrTO.setSchema(StringUtils.EMPTY);
-                        if (values.isEmpty() || values.getFirst() == null) {
-                            attrTO.getValues().add(StringUtils.EMPTY);
-                        } else {
-                            attrTO.getValues().add(values.getFirst().toString());
-                        }
-
-                        groupTO.getPlainAttrs().add(attrTO);
-                    }
+                case "uManager" -> {
+                    anyTO.setUManager(values.getFirst().toString());
                 }
+
+                case "gManager" -> {
+                    anyTO.setGManager(values.getFirst().toString());
+                }
+
                 default -> {
                 }
             }

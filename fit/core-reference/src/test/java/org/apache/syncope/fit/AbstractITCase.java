@@ -144,7 +144,6 @@ import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
-import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
@@ -319,8 +318,6 @@ public abstract class AbstractITCase {
     protected static AnyObjectService ANY_OBJECT_SERVICE;
 
     protected static RoleService ROLE_SERVICE;
-
-    protected static DynRealmService DYN_REALM_SERVICE;
 
     protected static UserService USER_SERVICE;
 
@@ -575,7 +572,6 @@ public abstract class AbstractITCase {
         REALM_SERVICE = ADMIN_CLIENT.getService(RealmService.class);
         ANY_OBJECT_SERVICE = ADMIN_CLIENT.getService(AnyObjectService.class);
         ROLE_SERVICE = ADMIN_CLIENT.getService(RoleService.class);
-        DYN_REALM_SERVICE = ADMIN_CLIENT.getService(DynRealmService.class);
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
         USER_SELF_SERVICE = ADMIN_CLIENT.getService(UserSelfService.class);
         USER_REQUEST_SERVICE = ADMIN_CLIENT.getService(UserRequestService.class);

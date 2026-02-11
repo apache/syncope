@@ -132,6 +132,13 @@ public class AnyChecker {
     @Transactional(readOnly = true)
     public <T extends Attributable> void checkBeforeSave(final T attributable, final AnyUtils anyUtils) {
         if (attributable instanceof Any any) {
+            if (any.getUManager() != null && any.getGManager() != null) {
+                throw new InvalidEntityException(
+                        anyUtils.anyClass(),
+                        EntityViolationType.InvalidManager.propertyPath("manager"),
+                        "Must either be managed by an user or by a group, not both");
+            }
+
             AllowedSchemas<PlainSchema> allowed = findAllowedSchemas(any, PlainSchema.class);
 
             for (PlainAttr attr : any.getPlainAttrs()) {

@@ -80,14 +80,6 @@ public final class Action<T extends Serializable> implements Serializable {
         }
     }
 
-    public void setRealms(final String realm, final List<String> dynRealms) {
-        setRealm(realm);
-
-        if (dynRealms != null) {
-            this.realms.addAll(dynRealms);
-        }
-    }
-
     public ActionLink<T> getLink() {
         return link;
     }

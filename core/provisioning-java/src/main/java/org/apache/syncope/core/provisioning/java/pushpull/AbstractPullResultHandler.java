@@ -230,6 +230,17 @@ public abstract class AbstractPullResultHandler
             }
             result.setName(getName(anyCR));
 
+            Optional.ofNullable(anyCR.getUManager()).ifPresent(uManager -> inboundMatcher.match(
+                    anyTypeDAO.getUser(),
+                    uManager,
+                    profile.getTask().getResource(),
+                    profile.getConnector()).ifPresent(match -> anyCR.setUManager(match.getAny().getKey())));
+            Optional.ofNullable(anyCR.getGManager()).ifPresent(gManager -> inboundMatcher.match(
+                    anyTypeDAO.getGroup(),
+                    gManager,
+                    profile.getTask().getResource(),
+                    profile.getConnector()).ifPresent(match -> anyCR.setGManager(match.getAny().getKey())));
+
             AnyTO created = doCreate(anyCR, delta);
             output = created;
             result.setKey(created.getKey());
@@ -332,6 +343,21 @@ public abstract class AbstractPullResultHandler
                     for (InboundActions action : profile.getActions()) {
                         action.beforeUpdate(profile, delta, before, anyUR);
                     }
+
+                    Optional.ofNullable(anyUR.getUManager()).
+                            filter(patch -> patch.getOperation() == PatchOperation.ADD_REPLACE).
+                            ifPresent(patch -> inboundMatcher.match(
+                            anyTypeDAO.getUser(),
+                            patch.getValue(),
+                            profile.getTask().getResource(),
+                            profile.getConnector()).ifPresent(m -> patch.setValue(m.getAny().getKey())));
+                    Optional.ofNullable(anyUR.getGManager()).
+                            filter(patch -> patch.getOperation() == PatchOperation.ADD_REPLACE).
+                            ifPresent(patch -> inboundMatcher.match(
+                            anyTypeDAO.getGroup(),
+                            patch.getValue(),
+                            profile.getTask().getResource(),
+                            profile.getConnector()).ifPresent(m -> patch.setValue(m.getAny().getKey())));
 
                     req = doUpdate(before, anyUR, delta, result);
                     AnyTO updated = AnyOperations.patch(before, req);
@@ -452,17 +478,14 @@ public abstract class AbstractPullResultHandler
                             false,
                             securityProperties.getAdminUser());
 
-                    AnyUR req = null;
                     if (matchingRule == MatchingRule.UNASSIGN) {
-                        req = anyUtils().newAnyUR(match.getAny().getKey());
+                        AnyUR req = anyUtils().newAnyUR(match.getAny().getKey());
                         req.getResources().add(new StringPatchItem.Builder().
                                 operation(PatchOperation.DELETE).
                                 value(profile.getTask().getResource().getKey()).build());
-                    }
-                    if (req == null) {
-                        output = getAnyTO(match.getAny());
-                    } else {
                         output = doUpdate(before, req, delta, result);
+                    } else {
+                        output = getAnyTO(match.getAny());
                     }
 
                     for (InboundActions action : profile.getActions()) {

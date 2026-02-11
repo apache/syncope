@@ -32,15 +32,6 @@ under the License.
   <entry key="AnyObject_realm_id">CREATE INDEX AnyObject_realm_id ON AnyObject(realm_id)</entry>
   <entry key="AnyObject_name">CREATE UNIQUE INDEX AnyObject_name ON AnyObject(type_id,name)</entry>
 
-  <entry key="DynGroupMembers_any_id">CREATE INDEX DynGroupMembers_any_id ON DynGroupMembers(any_id)</entry>
-  <entry key="DynGroupMembers_group_id">CREATE INDEX DynGroupMembers_group_id ON DynGroupMembers(group_id)</entry>
-
-  <entry key="DynRoleMembers_any_id">CREATE INDEX DynRoleMembers_any_id ON DynRoleMembers(any_id)</entry>
-  <entry key="DynRoleMembers_role_id">CREATE INDEX DynRoleMembers_role_id ON DynRoleMembers(role_id)</entry>
-
-  <entry key="DynRealmMembers_any_id">CREATE INDEX DynRealmMembers_any_id ON DynRealmMembers(any_id)</entry>
-  <entry key="DynRealmMembers_realm_id">CREATE INDEX DynRealmMembers_dynRealm_id ON DynRealmMembers(dynRealm_id)</entry>
-
   <entry key="UMembership_GroupIndex">CREATE INDEX UMembership_GroupIndex ON UMembership(group_id)</entry>
   <entry key="UMembership_UserIndex">CREATE INDEX UMembership_UserIndex ON UMembership(user_id)</entry>
   <entry key="AMembership_GroupIndex">CREATE INDEX AMembership_GroupIndex ON AMembership(group_id)</entry>

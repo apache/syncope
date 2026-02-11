@@ -27,7 +27,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -41,21 +40,17 @@ import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
-import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
@@ -72,12 +67,6 @@ public class JPAGroup
     @Column(unique = true)
     @NotNull
     private String name;
-
-    @ManyToOne
-    private JPAUser userOwner;
-
-    @ManyToOne
-    private JPAGroup groupOwner;
 
     @Convert(converter = PlainAttrListConverter.class)
     private final List<PlainAttr> plainAttrs = new ArrayList<>();
@@ -99,9 +88,6 @@ public class JPAGroup
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "group_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
-    private List<JPADynGroupMembership> dynMemberships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
     private List<JPAGroupTypeExtension> typeExtensions = new ArrayList<>();
@@ -139,28 +125,6 @@ public class JPAGroup
     @Override
     public List<? extends ExternalResource> getResources() {
         return resources;
-    }
-
-    @Override
-    public User getUserOwner() {
-        return userOwner;
-    }
-
-    @Override
-    public void setUserOwner(final User userOwner) {
-        checkType(userOwner, JPAUser.class);
-        this.userOwner = (JPAUser) userOwner;
-    }
-
-    @Override
-    public Group getGroupOwner() {
-        return groupOwner;
-    }
-
-    @Override
-    public void setGroupOwner(final Group group) {
-        checkType(group, JPAGroup.class);
-        this.groupOwner = (JPAGroup) group;
     }
 
     @Override
@@ -202,24 +166,6 @@ public class JPAGroup
     @Override
     public List<? extends AnyTypeClass> getAuxClasses() {
         return auxClasses;
-    }
-
-    @Override
-    public boolean add(final DynGroupMembership dynGroupMembership) {
-        checkType(dynGroupMembership, JPADynGroupMembership.class);
-        return this.dynMemberships.add((JPADynGroupMembership) dynGroupMembership);
-    }
-
-    @Override
-    public Optional<? extends DynGroupMembership> getDynMembership(final AnyType anyType) {
-        return dynMemberships.stream().
-                filter(dynGroupMembership -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).
-                findFirst();
-    }
-
-    @Override
-    public List<? extends DynGroupMembership> getDynMemberships() {
-        return dynMemberships;
     }
 
     @Override

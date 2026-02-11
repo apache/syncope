@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.commons.IdMConstants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -78,7 +78,7 @@ public class ConnidLocations extends
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_DYNREALM_PAGINATOR_ROWS;
+        return IdMConstants.PREF_CONNID_LOCATIONS_PAGINATOR_ROWS;
     }
 
     @Override

@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.commons;
 
 public final class IdMConstants {
 
+    public static final String PREF_CONNID_LOCATIONS_PAGINATOR_ROWS = "connid.locations.paginator.rows";
+
     public static final String PREF_RECONCILIATION_PAGINATOR_ROWS = "reconciliation.paginator.rows";
 
     public static final String PREF_RESOURCE_STATUS_PAGINATOR_ROWS = "resource.status.paginator.rows";

@@ -77,8 +77,6 @@ public interface AnyRepoExt<A extends Any> {
 
     List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
 
-    List<String> findDynRealms(String key);
-
     Collection<String> findAllResourceKeys(String key);
 
     List<A> findByResourcesContaining(ExternalResource resource);

@@ -42,10 +42,6 @@ public interface GroupRepo
     @Override
     List<Group> findByKeys(@Param("keys") List<String> keys);
 
-    @Query("SELECT e FROM #{#entityName} e WHERE e.groupOwner.id = :groupKey")
-    @Override
-    List<Group> findOwnedByGroup(@Param("groupKey") String groupKey);
-
     @Query("SELECT DISTINCT e.leftEnd.id FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
     @Override
     List<String> findAMembers(@Param("groupKey") String groupKey);

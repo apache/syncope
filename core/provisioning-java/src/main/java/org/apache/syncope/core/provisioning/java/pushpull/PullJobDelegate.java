@@ -157,7 +157,6 @@ public class PullJobDelegate
         }
 
         // ...then provisions for any types
-        ghandler = buildGroupHandler();
         for (Provision provision : task.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 toList()) {
@@ -175,7 +174,7 @@ public class PullJobDelegate
                         break;
 
                     case GROUP:
-                        handler = ghandler;
+                        handler = buildGroupHandler();
                         break;
 
                     case ANY_OBJECT:
@@ -266,12 +265,6 @@ public class PullJobDelegate
             } catch (Throwable t) {
                 LOG.error("While setting UID on create", t);
             }
-        }
-
-        try {
-            setGroupOwners();
-        } catch (Exception e) {
-            LOG.error("While setting group owners", e);
         }
 
         if (!profile.isDryRun()) {

@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -88,7 +87,6 @@ import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
-import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
@@ -131,7 +129,6 @@ import org.apache.syncope.core.provisioning.java.data.AuthProfileDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ClientAppDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ConnInstanceDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.DelegationDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.data.DynRealmDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.FIQLQueryDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.GroupDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ImplementationDataBinderImpl;
@@ -869,17 +866,6 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DynRealmDataBinder dynRealmDataBinder(
-            final AnyTypeDAO anyTypeDAO,
-            final DynRealmDAO dynRealmDAO,
-            final SearchCondVisitor searchCondVisitor,
-            final EntityFactory entityFactory) {
-
-        return new DynRealmDataBinderImpl(anyTypeDAO, dynRealmDAO, entityFactory, searchCondVisitor);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public GroupDataBinder groupDataBinder(
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor,
@@ -1060,12 +1046,10 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor,
             final RealmSearchDAO realmSearchDAO,
-            final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO) {
 
         return new RoleDataBinderImpl(
                 realmSearchDAO,
-                dynRealmDAO,
                 roleDAO,
                 entityFactory,
                 searchCondVisitor);

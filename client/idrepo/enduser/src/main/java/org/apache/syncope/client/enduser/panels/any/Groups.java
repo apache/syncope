@@ -58,10 +58,6 @@ public class Groups extends Panel {
 
     protected final AnyTO anyTO;
 
-    protected WebMarkupContainer dyngroupsContainer;
-
-    protected WebMarkupContainer dynrealmsContainer;
-
     protected WebMarkupContainer groupsContainer;
 
     public <T extends AnyTO> Groups(final String id, final AnyWrapper<T> modelObject) {
@@ -94,9 +90,7 @@ public class Groups extends Panel {
 
         setOutputMarkupId(true);
 
-        addDynamicGroupsContainer();
         addGroupsPanel();
-        addDynamicRealmsContainer();
     }
 
     protected SerializableFunction<AjaxRequestTarget, Boolean> getEventFunction() {
@@ -166,12 +160,6 @@ public class Groups extends Panel {
         }
     }
 
-    protected void addDynamicRealmsContainer() {
-    }
-
-    protected void addDynamicGroupsContainer() {
-    }
-
     protected class EnduserGroupsModel extends AbstractGroupsModel {
 
         private static final long serialVersionUID = -4541954630939063927L;
@@ -194,11 +182,6 @@ public class Groups extends Panel {
         @Override
         protected void reloadMemberships() {
             memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
-        }
-
-        @Override
-        public List<String> getDynMemberships() {
-            return List.of();
         }
     }
 }

@@ -19,33 +19,22 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -53,21 +42,19 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
-import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroupTypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,43 +64,29 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final RealmDAO realmDAO;
 
-    protected final AnyMatchDAO anyMatchDAO;
-
     protected final UserDAO userDAO;
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected final AnySearchDAO anySearchDAO;
-
-    protected final SearchCondVisitor searchCondVisitor;
-
     public GroupRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
-            final DynRealmDAO dynRealmDAO,
             final RealmDAO realmDAO,
-            final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO searchDAO,
-            final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
             final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
-                dynRealmDAO,
                 entityManager,
                 anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
         this.realmDAO = realmDAO;
-        this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
-        this.anySearchDAO = searchDAO;
-        this.searchCondVisitor = searchCondVisitor;
     }
 
     @Transactional(readOnly = true)
@@ -123,17 +96,18 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final String key,
             final String realm) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of the group, or
-        // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
-        boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
-                || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
+        // 0. check if AuthContextUtils.getUsername() is manager of the given group
+        boolean authorized = authRealms.stream().
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                filter(Objects::nonNull).
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        // 1. check if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        if (!authorized) {
+            authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
 
-        if (authRealms.isEmpty() || !authorized) {
+        if (!authorized) {
             throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
         }
     }
@@ -144,6 +118,60 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 getOrDefault(IdRepoEntitlement.GROUP_READ, Set.of());
 
         securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean isManager(final String key) {
+        long users = query(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
+
+        long groups = query(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
+
+        long anyObjects = query(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
+
+        return users + groups + anyObjects > 0;
+    }
+
+    @Override
+    public List<User> findManagedUsers(final String key) {
+        TypedQuery<User> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.gManager.id=:key", User.class);
+        query.setParameter("key", key);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        TypedQuery<Group> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.gManager.id=:key", Group.class);
+        query.setParameter("key", key);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<AnyObject> findManagedAnyObjects(final String key) {
+        TypedQuery<AnyObject> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.gManager.id=:key", AnyObject.class);
+        query.setParameter("key", key);
+        return query.getResultList();
     }
 
     @Override
@@ -159,25 +187,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     }
                     return result;
                 });
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Group> findOwnedByUser(final String userKey) {
-        User owner = userDAO.findById(userKey).orElse(null);
-        if (owner == null) {
-            return List.of();
-        }
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils.anyClass().getSimpleName())
-                .append(" e WHERE e.userOwner=:owner ");
-        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString.
-                append("OR e.groupOwner.id='").append(groupKey).append("' "));
-
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
-        query.setParameter("owner", owner);
-
-        return query.getResultList();
     }
 
     @Transactional(readOnly = true)
@@ -244,47 +253,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
-    public Group saveAndRefreshDynMemberships(final Group group) {
-        Group merged = save(group);
-
-        // refresh dynamic memberships
-        clearDynMembers(merged);
-        merged.getDynMemberships().forEach(memb -> {
-            SearchCond cond = SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond());
-            long count = anySearchDAO.count(
-                    realmDAO.getRoot(), true, Set.of(SyncopeConstants.ROOT_REALM), cond, memb.getAnyType().getKind());
-            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                List<? extends Any> matching = anySearchDAO.search(
-                        realmDAO.getRoot(),
-                        true,
-                        Set.of(SyncopeConstants.ROOT_REALM),
-                        cond,
-                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        memb.getAnyType().getKind());
-
-                matching.forEach(any -> {
-                    Query insert = entityManager.createNativeQuery(
-                            "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                    insert.setParameter(1, any.getType().getKey());
-                    insert.setParameter(2, any.getKey());
-                    insert.setParameter(3, merged.getKey());
-                    insert.executeUpdate();
-
-                    publisher.publishEvent(
-                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
-                });
-            }
-        });
-
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return merged;
-    }
-
-    @Override
     public void delete(final Group group) {
-        dynRealmDAO.removeDynMemberships(group.getKey());
-
         findAMemberships(group).forEach(membership -> {
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
@@ -307,8 +276,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
-        clearDynMembers(group);
-
         entityManager.remove(group);
     }
 
@@ -320,206 +287,5 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();
-    }
-
-    @Override
-    public long countADynMembers(final Group group) {
-        return query(
-                "SELECT COUNT(any_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=?",
-                rs -> {
-                    rs.next();
-                    return rs.getLong(1);
-                },
-                group.getKey());
-    }
-
-    @Override
-    public long countUDynMembers(final Group group) {
-        return query(
-                "SELECT COUNT(any_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=?",
-                rs -> {
-                    rs.next();
-                    return rs.getLong(1);
-                },
-                group.getKey());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findADynMembers(final Group group) {
-        List<String> result = new ArrayList<>();
-
-        group.getDynMemberships().forEach(memb -> query(
-                "SELECT DISTINCT any_id FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
-                rs -> {
-                    List<String> list = new ArrayList<>();
-                    while (rs.next()) {
-                        String anyObject = rs.getString(1);
-                        if (!result.contains(anyObject)) {
-                            result.add(anyObject);
-                        }
-                    }
-                    return list;
-                },
-                group.getKey(), memb.getAnyType().getKey()));
-
-        return result;
-    }
-
-    @Override
-    public List<String> findUDynMembers(final Group group) {
-        return query(
-                "SELECT DISTINCT any_id FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?",
-                rs -> {
-                    List<String> result = new ArrayList<>();
-                    while (rs.next()) {
-                        result.add(rs.getString(1));
-                    }
-                    return result;
-                },
-                group.getKey(), AnyTypeKind.USER.name());
-    }
-
-    @Override
-    public void clearDynMembers(final Group group) {
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=?");
-        delete.setParameter(1, group.getKey());
-        delete.executeUpdate();
-    }
-
-    protected List<DynGroupMembership> findWithDynMemberships(final AnyType anyType) {
-        TypedQuery<DynGroupMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPADynGroupMembership.class.getSimpleName() + " e  WHERE e.anyType=:anyType",
-                DynGroupMembership.class);
-        query.setParameter("anyType", anyType);
-        return query.getResultList();
-    }
-
-    @Transactional
-    @Override
-    public GroupDAO.DynMembershipInfo refreshDynMemberships(final AnyObject anyObject) {
-        Set<String> before = new HashSet<>();
-        Set<String> after = new HashSet<>();
-        findWithDynMemberships(anyObject.getType()).forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    anyObject, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
-            if (matches) {
-                after.add(memb.getGroup().getKey());
-            }
-
-            boolean existing = query(
-                    "SELECT COUNT(group_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
-                    rs -> {
-                        rs.next();
-                        return rs.getLong(1);
-                    },
-                    memb.getGroup().getKey(), anyObject.getKey()) > 0;
-            if (existing) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (matches && !existing) {
-                Query insert = entityManager.createNativeQuery(
-                        "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                insert.setParameter(1, anyObject.getType().getKey());
-                insert.setParameter(2, anyObject.getKey());
-                insert.setParameter(3, memb.getGroup().getKey());
-                insert.executeUpdate();
-            } else if (!matches && existing) {
-                Query delete = entityManager.createNativeQuery(
-                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-                delete.setParameter(1, memb.getGroup().getKey());
-                delete.setParameter(2, anyObject.getKey());
-                delete.executeUpdate();
-            }
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
-        });
-
-        return new GroupDAO.DynMembershipInfo(before, after);
-    }
-
-    @Override
-    public Set<String> removeDynMemberships(final AnyObject anyObject) {
-        List<Group> dynGroups = anyObjectDAO.findDynGroups(anyObject.getKey());
-
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
-        delete.setParameter(1, anyObject.getKey());
-        delete.executeUpdate();
-
-        Set<String> before = new HashSet<>();
-        dynGroups.forEach(group -> {
-            before.add(group.getKey());
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
-        });
-
-        return before;
-    }
-
-    @Transactional
-    @Override
-    public GroupDAO.DynMembershipInfo refreshDynMemberships(final User user) {
-        Set<String> before = new HashSet<>();
-        Set<String> after = new HashSet<>();
-        findWithDynMemberships(user.getType()).forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    user, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
-            if (matches) {
-                after.add(memb.getGroup().getKey());
-            }
-
-            boolean existing = query(
-                    "SELECT COUNT(group_id) FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?",
-                    rs -> {
-                        rs.next();
-                        return rs.getLong(1);
-                    },
-                    memb.getGroup().getKey(), user.getKey()) > 0;
-            if (existing) {
-                before.add(memb.getGroup().getKey());
-            }
-
-            if (matches && !existing) {
-                Query insert = entityManager.createNativeQuery(
-                        "INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?, ?)");
-                insert.setParameter(1, user.getType().getKey());
-                insert.setParameter(2, user.getKey());
-                insert.setParameter(3, memb.getGroup().getKey());
-                insert.executeUpdate();
-            } else if (!matches && existing) {
-                Query delete = entityManager.createNativeQuery(
-                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-                delete.setParameter(1, memb.getGroup().getKey());
-                delete.setParameter(2, user.getKey());
-                delete.executeUpdate();
-            }
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
-        });
-
-        return new GroupDAO.DynMembershipInfo(before, after);
-    }
-
-    @Override
-    public Set<String> removeDynMemberships(final User user) {
-        List<Group> dynGroups = userDAO.findDynGroups(user.getKey());
-
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
-        delete.setParameter(1, user.getKey());
-        delete.executeUpdate();
-
-        Set<String> before = new HashSet<>();
-        dynGroups.forEach(group -> {
-            before.add(group.getKey());
-
-            publisher.publishEvent(new EntityLifecycleEvent<>(
-                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
-        });
-
-        return before;
     }
 }

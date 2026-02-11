@@ -459,7 +459,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PagedResult<UserTO> matchByLastChangeContext = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("lastChangeContext").
-                                equalTo("PULL Task " + task.getKey() + "*").query()).
+                                equalTo("*Task " + task.getKey() + "*").query()).
                         build());
         assertNotNull(matchByLastChangeContext);
         assertNotEquals(0, matchByLastChangeContext.getTotalCount());
@@ -469,8 +469,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("testLDAPGroup", groupTO.getName());
         assertTrue(groupTO.getLastChangeContext().contains("Task " + task.getKey()));
         assertEquals("true", groupTO.getPlainAttr("show").orElseThrow().getValues().getFirst());
-        assertEquals(matchingUsers.getResult().getFirst().getKey(), groupTO.getUserOwner());
-        assertNull(groupTO.getGroupOwner());
+        assertEquals(matchingUsers.getResult().getFirst().getKey(), groupTO.getUManager());
+        assertNull(groupTO.getGManager());
         // SYNCOPE-1343, set value title to null on LDAP
         ConnObject userConnObject = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().getFirst().getKey());
@@ -504,7 +504,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
                                 query()).
                         build());
-        assertNull(matchingUsers.getResult().getFirst().getPlainAttr("title").orElse(null));
+        assertTrue(matchingUsers.getResult().getFirst().getPlainAttr("title").isEmpty());
 
         // SYNCOPE-1356 remove group membership from LDAP, pull and check in Syncope
         ConnObject groupConnObject = RESOURCE_SERVICE.readConnObject(

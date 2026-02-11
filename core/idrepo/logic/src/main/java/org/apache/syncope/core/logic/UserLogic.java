@@ -62,7 +62,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -486,12 +485,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                     groups(before.key()));
         }
 
-        List<Group> ownedGroups = groupDAO.findOwnedByUser(before.key().getKey());
-        if (!ownedGroups.isEmpty()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(ownedGroups.stream().
-                    map(group -> group.getKey() + ' ' + group.getName()).toList());
-            throw sce;
+        if (userDAO.isManager(before.key().getKey())) {
+            throw SyncopeClientException.build(ClientExceptionType.Management);
         }
 
         List<PropagationStatus> statuses = provisioningManager.delete(

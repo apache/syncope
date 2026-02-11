@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -36,17 +36,21 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 
+    boolean isManager(String key);
+
+    List<User> findManagedUsers(String key);
+
+    List<Group> findManagedGroups(String key);
+
+    List<AnyObject> findManagedAnyObjects(String key);
+
     Map<String, Long> countByRealm();
 
     Map<String, Long> countByStatus();
 
     void deleteMembership(UMembership membership);
 
-    List<Role> findDynRoles(String key);
-
     Collection<Role> findAllRoles(User user);
-
-    List<Group> findDynGroups(String key);
 
     Collection<Group> findAllGroups(User user);
 
@@ -55,8 +59,6 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     Collection<String> findAllGroupNames(User user);
 
     Collection<ExternalResource> findAllResources(User user);
-
-    GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(User user);
 
     boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 

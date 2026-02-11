@@ -94,22 +94,4 @@ public interface SyncopeProperty<C extends SyncopeCompleteCondition<?, ?>> exten
      * @return updated condition
      */
     C hasNotResources(String resource, String... moreResources);
-
-    /**
-     * Is user, group or any object in the given dynamic realm(s)?
-     *
-     * @param dynRealm first dynamic realm
-     * @param moreDynRealms more dynamic realms
-     * @return updated condition
-     */
-    C inDynRealms(String dynRealm, String... moreDynRealms);
-
-    /**
-     * Is user, group or any object not in the given dynamic realm(s)?
-     *
-     * @param dynRealm first dynamic realm
-     * @param moreDynRealms more dynamic realms
-     * @return updated condition
-     */
-    C notInDynRealms(String dynRealm, String... moreDynRealms);
 }

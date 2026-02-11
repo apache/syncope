@@ -29,9 +29,6 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -150,10 +147,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (E) new JPARealm();
-        } else if (reference.equals(DynRealm.class)) {
-            result = (E) new JPADynRealm();
-        } else if (reference.equals(DynRealmMembership.class)) {
-            result = (E) new JPADynRealmMembership();
         } else if (reference.equals(AnyTemplateRealm.class)) {
             result = (E) new JPAAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
@@ -242,8 +235,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPASecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {
             result = (E) new JPAAuditConf();
-        } else if (reference.equals(DynGroupMembership.class)) {
-            result = (E) new JPADynGroupMembership();
         } else if (reference.equals(AccessToken.class)) {
             result = (E) new JPAAccessToken();
         } else if (reference.equals(Implementation.class)) {

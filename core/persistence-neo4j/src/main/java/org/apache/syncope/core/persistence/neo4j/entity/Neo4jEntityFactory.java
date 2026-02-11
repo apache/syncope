@@ -30,9 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -151,10 +148,6 @@ public class Neo4jEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (E) new Neo4jRealm();
-        } else if (reference.equals(DynRealm.class)) {
-            result = (E) new Neo4jDynRealm();
-        } else if (reference.equals(DynRealmMembership.class)) {
-            result = (E) new Neo4jDynRealmMembership();
         } else if (reference.equals(AnyTemplateRealm.class)) {
             result = (E) new Neo4jAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
@@ -243,8 +236,6 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {
             result = (E) new Neo4jAuditConf();
-        } else if (reference.equals(DynGroupMembership.class)) {
-            result = (E) new Neo4jDynGroupMembership();
         } else if (reference.equals(AccessToken.class)) {
             result = (E) new Neo4jAccessToken();
         } else if (reference.equals(Implementation.class)) {

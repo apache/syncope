@@ -29,14 +29,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -60,6 +58,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelation
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -83,7 +82,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final DerSchemaDAO derSchemaDAO,
-            final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyChecker anyChecker,
@@ -97,12 +95,12 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                 anyTypeDAO,
                 anyTypeClassDAO,
                 derSchemaDAO,
-                dynRealmDAO,
                 anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),
                 neo4jTemplate,
                 neo4jClient);
+
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.nodeValidator = nodeValidator;
@@ -148,18 +146,21 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final String realm,
             final Collection<String> groups) {
 
-        // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
+        // 0. check if AuthContextUtils.getUsername() is manager of the given anyObject
         boolean authorized = authRealms.stream().
-                map(authRealm -> RealmUtils.GroupOwnerRealm.of(authRealm).orElse(null)).
+                map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
                 filter(Objects::nonNull).
-                anyMatch(pair -> groups.contains(pair.groupKey()));
+                anyMatch(managerRealm -> key.equals(managerRealm.anyKey()));
 
-        // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized && key != null) {
-            authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
+        // 1. check if AuthContextUtils.getUsername() is manager of at least one group of which anyObject is member
+        if (!authorized) {
+            authorized = authRealms.stream().
+                    map(authRealm -> RealmUtils.ManagerRealm.of(authRealm).orElse(null)).
+                    filter(Objects::nonNull).
+                    anyMatch(managerRealm -> groups.contains(managerRealm.anyKey()));
         }
 
-        // 3. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
+        // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
             authorized = authRealms.stream().anyMatch(realm::startsWith);
         }
@@ -227,7 +228,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         return result;
     }
 
-    protected <S extends AnyObject> Pair<S, GroupDAO.DynMembershipInfo> doSave(final S anyObject) {
+    @Override
+    public <S extends AnyObject> S save(final S anyObject) {
         anyChecker.checkBeforeSave(anyObject, anyUtils);
 
         // unlink any resource or aux class that was unlinked from anyObject
@@ -247,6 +249,22 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                     anyObject.getKey(),
                     auxClass.getKey(),
                     Neo4jAnyObject.ANY_OBJECT_AUX_CLASSES_REL));
+            if (before.getUManager() != null && anyObject.getUManager() == null) {
+                deleteRelationship(
+                        Neo4jAnyObject.NODE,
+                        Neo4jUser.NODE,
+                        anyObject.getKey(),
+                        before.getUManager().getKey(),
+                        Neo4jGroup.USER_MANAGER_REL);
+            }
+            if (before.getGManager() != null && anyObject.getGManager() == null) {
+                deleteRelationship(
+                        Neo4jAnyObject.NODE,
+                        Neo4jGroup.NODE,
+                        anyObject.getKey(),
+                        before.getGManager().getKey(),
+                        Neo4jGroup.GROUP_MANAGER_REL);
+            }
 
             Set<String> beforeMembs = before.getMemberships().stream().map(AMembership::getKey).
                     collect(Collectors.toSet());
@@ -263,20 +281,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
         anyObjectCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jAnyObject) merged);
 
-        GroupDAO.DynMembershipInfo dynGroupMembs = groupDAO.refreshDynMemberships(merged);
-        dynRealmDAO.refreshDynMemberships(merged);
-
-        return Pair.of(merged, dynGroupMembs);
-    }
-
-    @Override
-    public <S extends AnyObject> S save(final S anyObject) {
-        return doSave(anyObject).getLeft();
-    }
-
-    @Override
-    public GroupDAO.DynMembershipInfo saveAndGetDynGroupMembs(final AnyObject anyObject) {
-        return doSave(anyObject).getRight();
+        return merged;
     }
 
     protected List<ARelationship> findARelationships(final AnyObject anyObject) {
@@ -301,24 +306,10 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroups(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jAnyObject.NODE + " {id: $id})-"
-                + "[:" + GroupRepoExt.DYN_GROUP_MEMBERSHIP_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jGroup.class,
-                null);
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
         result.addAll(anyObject.getMemberships().stream().
                 map(AMembership::getRightEnd).collect(Collectors.toSet()));
-        result.addAll(findDynGroups(anyObject.getKey()));
 
         return result;
     }
@@ -347,9 +338,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
     @Override
     public void delete(final AnyObject anyObject) {
-        groupDAO.removeDynMemberships(anyObject);
-        dynRealmDAO.removeDynMemberships(anyObject.getKey());
-
         findARelationships(anyObject).forEach(relationship -> {
             findById(relationship.getLeftEnd().getKey()).ifPresent(le -> {
                 le.remove(relationship);

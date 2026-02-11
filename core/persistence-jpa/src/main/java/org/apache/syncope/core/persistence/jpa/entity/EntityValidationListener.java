@@ -27,7 +27,6 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DynMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
@@ -61,7 +60,6 @@ public class EntityValidationListener {
                         && !Policy.class.equals(interf)
                         && !Groupable.class.equals(interf)
                         && !Any.class.equals(interf)
-                        && !DynMembership.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {
 
                     entityInt = interf;

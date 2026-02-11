@@ -26,11 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -106,9 +103,6 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private RoleDAO roleDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -319,6 +313,24 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("rossini", users.getFirst().getUsername());
+    }
+
+    @Test
+    public void searchByUManager() {
+        AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
+        anyCond.setSchema("uManager");
+        anyCond.setExpression("823074dc-d280-436d-a7dd-07399fae48ec");
+
+        List<Group> groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
+
+        anyCond.setExpression("puccini");
+        groups = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.GROUP);
+        assertNotNull(groups);
+        assertEquals(1, groups.size());
+        assertEquals("director", groups.getFirst().getName());
     }
 
     @Test
@@ -687,19 +699,14 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void asGroupOwner() {
+    public void asGroupManager() {
         // prepare authentication
-        Map<String, Set<String>> entForRealms = new HashMap<>();
-        roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).orElseThrow().getEntitlements().forEach(entitlement -> {
-            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                Set<String> r = new HashSet<>();
-                entForRealms.put(entitlement, r);
-                return r;
-            });
-
-            realms.add(new RealmUtils.GroupOwnerRealm(
-                    SyncopeConstants.ROOT_REALM, "37d15e4c-cdc1-460b-a591-8505c8133806").output());
-        });
+        Map<String, Set<String>> entForRealms = Map.of(
+                IdRepoEntitlement.GROUP_SEARCH,
+                Set.of(new RealmUtils.ManagerRealm(
+                        SyncopeConstants.ROOT_REALM,
+                        AnyTypeKind.GROUP,
+                        "37d15e4c-cdc1-460b-a591-8505c8133806").output()));
 
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         entForRealms.forEach((key, value) -> {

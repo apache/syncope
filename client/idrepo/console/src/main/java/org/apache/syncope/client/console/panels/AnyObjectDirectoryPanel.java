@@ -122,7 +122,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         if (wizardInModal) {
             SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
@@ -204,7 +204,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }
         }, ActionType.VIEW_AUDIT_HISTORY,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), IdRepoEntitlement.AUDIT_LIST)).
-                setRealms(realm, model.getObject().getDynRealms());
+                setRealm(realm);
 
         panel.add(new ActionLink<>() {
 

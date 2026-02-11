@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
@@ -39,19 +37,15 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -64,8 +58,6 @@ public class Groups extends AbstractGroups {
 
     @SpringBean
     protected SyncopeRestClient syncopeRestClient;
-
-    protected final List<DynRealmTO> allDynRealms = new ArrayList<>();
 
     protected final boolean templateMode;
 
@@ -86,9 +78,7 @@ public class Groups extends AbstractGroups {
         permissions.authorizeAll(RENDER);
         // -----------------------------------------------------------------
 
-        addDynamicGroupsContainer();
         addGroupsPanel();
-        addDynamicRealmsContainer();
     }
 
     protected List<GroupTO> searchAssignable(final String term) {
@@ -97,24 +87,10 @@ public class Groups extends AbstractGroups {
     }
 
     @Override
-    protected void addDynamicRealmsContainer() {
-        dynrealmsContainer = new WebMarkupContainer("dynrealmsContainer");
-        dynrealmsContainer.setOutputMarkupId(true);
-        dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
-        dynrealmsContainer.add(new AjaxPalettePanel.Builder<>().build("dynrealms",
-                new PropertyModel<>(anyTO, "dynRealms"),
-                new ListModel<>(allDynRealms.stream().map(DynRealmTO::getKey).collect(Collectors.toList()))).
-                hideLabel().setEnabled(false).setOutputMarkupId(true));
-        add(dynrealmsContainer);
-    }
-
-    @Override
     protected void addGroupsPanel() {
         if (anyTO instanceof GroupTO) {
             groupsContainer.add(new Label("groups").setVisible(false));
             groupsContainer.setVisible(false);
-            dyngroupsContainer.add(new Label("dyngroups").setVisible(false));
-            dyngroupsContainer.setVisible(false);
         } else {
             groups = new AjaxPalettePanel.Builder<MembershipTO>().setRenderer(new IChoiceRenderer<>() {
 
@@ -163,35 +139,12 @@ public class Groups extends AbstractGroups {
                                     collect(Collectors.toList());
                 }
             }).hideLabel().setOutputMarkupId(true));
-
-            dyngroupsContainer.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
-                    new ListModel<>() {
-
-                private static final long serialVersionUID = -2583290457773357445L;
-
-                @Override
-                public List<String> getObject() {
-                    return Groups.this.groupsModel.getDynMemberships();
-                }
-            }, new ListModel<>(groupsModel.getObject().stream().
-                            map(GroupTO::getName).collect(Collectors.toList()))).
-                    hideLabel().setEnabled(false).setOutputMarkupId(true));
         }
     }
 
     @Override
-    protected void addDynamicGroupsContainer() {
-        dyngroupsContainer = new WebMarkupContainer("dyngroupsContainer");
-        dyngroupsContainer.setOutputMarkupId(true);
-        dyngroupsContainer.setOutputMarkupPlaceholderTag(true);
-        add(dyngroupsContainer);
-    }
-
-    @Override
     public boolean evaluate() {
-        return (anyTO instanceof GroupTO
-                ? !allDynRealms.isEmpty()
-                : !allDynRealms.isEmpty() || !groupsModel.getObject().isEmpty())
+        return (!(anyTO instanceof GroupTO) || !groupsModel.getObject().isEmpty())
                 && SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                         isActionAuthorized(this, RENDER);
     }
@@ -199,8 +152,6 @@ public class Groups extends AbstractGroups {
     public class ConsoleGroupsModel extends AbstractGroupsModel {
 
         private static final long serialVersionUID = -4541954630939063927L;
-
-        protected List<String> dynMemberships;
 
         /**
          * Retrieve the first MAX_GROUP_LIST_SIZE assignable.
@@ -249,35 +200,6 @@ public class Groups extends AbstractGroups {
 
             memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
             memberships.sort(Comparator.comparing(MembershipTO::getGroupName));
-        }
-
-        protected void reloadDynMemberships() {
-            GroupFiqlSearchConditionBuilder builder = SyncopeClient.getGroupSearchConditionBuilder();
-
-            List<CompleteCondition> conditions = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
-                    stream().map(membership -> builder.is(Constants.KEY_FIELD_NAME).
-                    equalTo(membership.getGroupKey()).wrap()).toList();
-
-            if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
-                dynMemberships = groupRestClient.search(
-                        SyncopeConstants.ROOT_REALM,
-                        builder.or(conditions).query(),
-                        1,
-                        Constants.MAX_GROUP_LIST_SIZE,
-                        new SortParam<>(Constants.NAME_FIELD_NAME, true)).
-                        stream().map(GroupTO::getName).toList();
-            } else {
-                dynMemberships = GroupableRelatableTO.class.cast(anyTO).getDynMemberships().
-                        stream().map(MembershipTO::getGroupName).toList();
-            }
-        }
-
-        @Override
-        public List<String> getDynMemberships() {
-            if (dynMemberships == null) {
-                reloadDynMemberships();
-            }
-            return dynMemberships;
         }
     }
 }

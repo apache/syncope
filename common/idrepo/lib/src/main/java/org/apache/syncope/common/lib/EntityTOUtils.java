@@ -65,6 +65,8 @@ public final class EntityTOUtils {
 
     public static <A extends AnyTO, C extends AnyCR> void toAnyCR(final A anyTO, final C anyCR) {
         anyCR.setRealm(anyTO.getRealm());
+        anyCR.setUManager(anyTO.getUManager());
+        anyCR.setGManager(anyTO.getGManager());
         anyCR.getAuxClasses().addAll(anyTO.getAuxClasses());
         anyCR.getPlainAttrs().addAll(anyTO.getPlainAttrs());
         anyCR.getResources().addAll(anyTO.getResources());
@@ -80,9 +82,6 @@ public final class EntityTOUtils {
             userCR.getRoles().addAll(userTO.getRoles());
         } else if (anyCR instanceof final GroupCR groupCR && anyTO instanceof final GroupTO groupTO) {
             groupCR.setName(groupTO.getName());
-            groupCR.setUserOwner(groupTO.getUserOwner());
-            groupCR.setGroupOwner(groupTO.getGroupOwner());
-            groupCR.getDynMembershipConds().putAll(groupTO.getDynMembershipConds());
             groupCR.getTypeExtensions().addAll(groupTO.getTypeExtensions());
         } else if (anyCR instanceof final AnyObjectCR anyObjectCR && anyTO instanceof final AnyObjectTO anyObjectTO) {
             anyObjectCR.setType(anyObjectTO.getType());
@@ -93,6 +92,8 @@ public final class EntityTOUtils {
 
     public static <C extends AnyCR, A extends AnyTO> void toAnyTO(final C anyCR, final A anyTO) {
         anyTO.setRealm(anyCR.getRealm());
+        anyTO.setUManager(anyCR.getUManager());
+        anyTO.setGManager(anyCR.getGManager());
         anyTO.getAuxClasses().addAll(anyCR.getAuxClasses());
         anyTO.getPlainAttrs().addAll(anyCR.getPlainAttrs());
         anyTO.getResources().addAll(anyCR.getResources());
@@ -109,9 +110,6 @@ public final class EntityTOUtils {
         } else if (anyTO instanceof final GroupTO groupTO && anyCR instanceof final GroupCR groupCR) {
 
             groupTO.setName(groupCR.getName());
-            groupTO.setUserOwner(groupCR.getUserOwner());
-            groupTO.setGroupOwner(groupCR.getGroupOwner());
-            groupTO.getDynMembershipConds().putAll(groupCR.getDynMembershipConds());
             groupTO.getTypeExtensions().addAll(groupCR.getTypeExtensions());
         } else if (anyTO instanceof final AnyObjectTO anyObjectTO && anyCR instanceof final AnyObjectCR anyObjectCR) {
             anyObjectTO.setType(anyObjectCR.getType());

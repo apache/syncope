@@ -127,7 +127,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
                     orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
-            ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {
@@ -136,7 +135,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                         break;
 
                     case GROUP:
-                        handler = ghandler;
+                        handler = buildGroupHandler();
                         break;
 
                     case ANY_OBJECT:
@@ -158,12 +157,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     MappingUtils.buildOperationOptions(
                             MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
                             matg.toArray(String[]::new)));
-
-            try {
-                setGroupOwners();
-            } catch (Exception e) {
-                LOG.error("While setting group owners", e);
-            }
 
             for (InboundActions action : profile.getActions()) {
                 action.afterAll(profile);

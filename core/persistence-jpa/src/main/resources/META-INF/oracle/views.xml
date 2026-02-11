@@ -19,26 +19,6 @@ under the License.
 -->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  
-  <entry key="DynGroupMembers">
-    CREATE TABLE DynGroupMembers(
-    anyType_id VARCHAR(255),
-    any_id CHAR(36),
-    group_id CHAR(36),
-    UNIQUE(anyType_id, any_id, group_id))
-  </entry>
-  <entry key="DynRoleMembers">
-    CREATE TABLE DynRoleMembers(
-    any_id CHAR(36),
-    role_id VARCHAR(255),
-    UNIQUE(any_id, role_id))
-  </entry>
-  <entry key="DynRealmMembers">
-    CREATE TABLE DynRealmMembers(
-    any_id CHAR(36),
-    dynRealm_id VARCHAR(255),
-    UNIQUE(any_id, dynRealm_id))
-  </entry>
 
   <!-- user -->
   <entry key="user_search_urelationship">

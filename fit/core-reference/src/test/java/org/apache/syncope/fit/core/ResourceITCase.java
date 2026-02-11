@@ -597,7 +597,7 @@ public class ResourceITCase extends AbstractITCase {
         mapping.setConnObjectKeyItem(item);
 
         item = new Item();
-        item.setIntAttrName("userOwner");
+        item.setIntAttrName("uManager");
         item.setExtAttrName("owner");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);

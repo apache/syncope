@@ -68,8 +68,6 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
         return SearchCond.of(idCond);
     }
 
-    List<String> findDynRealms(String key);
-
     Collection<String> findAllResourceKeys(String key);
 
     void deleteRelationship(Relationship<? extends A, AnyObject> relationship);

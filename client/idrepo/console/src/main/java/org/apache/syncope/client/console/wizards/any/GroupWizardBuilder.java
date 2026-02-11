@@ -89,9 +89,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     @Override
     protected Serializable onApplyInternal(final AnyWrapper<GroupTO> modelObject) {
-        GroupTO updated = modelObject instanceof GroupWrapper gw
-                ? gw.fillDynamicConditions()
-                : modelObject.getInnerObject();
+        GroupTO updated = modelObject.getInnerObject();
 
         ProvisioningResult<GroupTO> result;
         if (updated.getKey() == null) {
@@ -102,10 +100,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             GroupTO original = getOriginalItem().getInnerObject();
             fixPlainAttrs(updated, original);
 
-            // SYNCOPE-1170
             boolean othersNotEqualsOrBlanks =
-                    !updated.getDynMembershipConds().equals(original.getDynMembershipConds())
-                    || !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
+                    !CollectionUtils.diff(updated.getTypeExtensions(), original.getTypeExtensions()).isEmpty();
 
             GroupUR groupUR = AnyOperations.diff(updated, original, false);
 

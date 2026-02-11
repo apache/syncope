@@ -131,6 +131,10 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
+        if (StringUtils.isBlank(connObjectLinkValue)) {
+            return Optional.empty();
+        }
+
         Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
         if (provision == null) {
             return Optional.empty();
@@ -316,7 +320,7 @@ public class InboundMatcher {
 
         List<InboundMatch> result = anys.stream().
                 map(any -> new InboundMatch(MatchType.ANY, any)).
-                toList();
+                collect(Collectors.toList());
 
         if (resource != null) {
             userDAO.findLinkedAccount(resource, finalConnObjectKeyValue).

@@ -111,6 +111,4 @@ we are happy to inform you that the password request was successfully executed f
                 sender="admin@syncope.apache.org" subject="Password Reset successful"
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
   <Notification_MailTemplate left="bef0c250-e8a7-4848-bb63-2564fc409ce2" right="confirmPasswordReset"/>
-
-  <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_SEARCH","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

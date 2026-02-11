@@ -22,11 +22,9 @@ import jakarta.persistence.EntityManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -46,8 +44,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
-    protected final DynRealmDAO dynRealmDAO;
-
     protected final EntityManager entityManager;
 
     protected final AnyChecker anyChecker;
@@ -59,13 +55,11 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     protected final String table;
 
     protected AbstractAnyRepoExt(
-            final DynRealmDAO dynRealmDAO,
             final EntityManager entityManager,
             final AnyChecker anyChecker,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
-        this.dynRealmDAO = dynRealmDAO;
         this.entityManager = entityManager;
         this.anyChecker = anyChecker;
         this.anyFinder = anyFinder;
@@ -142,21 +136,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     @Override
     public List<A> findByDerAttrValue(final String expression, final String value, final boolean ignoreCaseMatch) {
         return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), expression, value, ignoreCaseMatch);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findDynRealms(final String key) {
-        return query(
-                "SELECT DISTINCT dynRealm_id FROM " + DynRealmRepoExt.DYNMEMB_TABLE + " WHERE any_id=?",
-                rs -> {
-                    List<String> result = new ArrayList<>();
-                    while (rs.next()) {
-                        result.add(rs.getString(1));
-                    }
-                    return result;
-                },
-                key);
     }
 
     @Override

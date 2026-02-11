@@ -66,17 +66,6 @@ When an user or an any object is associated to another any object, a *_relations
 <<relationshiptype,relationship types>>.
 ====
 
-[TIP]
-.Static and Dynamic Memberships
-====
-Users and Any Objects are _statically_ assigned to Groups when memberships are explicitly set.
-
-With group definition, however, a condition can be expressed so that all matching Users and Any Objects are
-_dynamic_ members of the group. +
-Dynamic memberships have some limitations: for example, <<type-extensions,type extensions>> do not apply;
-group-based provisioning is still effective.
-====
-
 [[security-questions]]
 [NOTE]
 .Security Questions

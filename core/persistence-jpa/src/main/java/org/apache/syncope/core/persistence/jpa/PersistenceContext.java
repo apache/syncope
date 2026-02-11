@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
@@ -48,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
@@ -85,7 +83,6 @@ import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
@@ -133,9 +130,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DomainRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ExternalResourceRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ExternalResourceRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ExternalResourceRepoExtImpl;
@@ -411,7 +405,6 @@ public class PersistenceContext {
     @Bean
     public AnyObjectRepoExt anyObjectRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final EntityManager entityManager,
@@ -420,7 +413,6 @@ public class PersistenceContext {
 
         return new AnyObjectRepoExtImpl(
                 anyUtilsFactory,
-                dynRealmDAO,
                 userDAO,
                 groupDAO,
                 entityManager,
@@ -605,38 +597,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DynRealmRepoExt dynRealmRepoExt(
-            final ApplicationEventPublisher publisher,
-            final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO,
-            final @Lazy AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO anySearchDAO,
-            final AnyMatchDAO anyMatchDAO,
-            final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager) {
-
-        return new DynRealmRepoExtImpl(
-                publisher,
-                userDAO,
-                groupDAO,
-                anyObjectDAO,
-                anySearchDAO,
-                anyMatchDAO,
-                searchCondVisitor,
-                entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public DynRealmDAO dynRealmDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final DynRealmRepoExt dynRealmRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(DynRealmRepo.class, dynRealmRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public EntityCacheDAO entityCacheDAO(final EntityManagerFactory entityManagerFactory) {
         return new JPAEntityCacheDAO(entityManagerFactory);
     }
@@ -661,13 +621,9 @@ public class PersistenceContext {
     public GroupRepoExt groupRepoExt(
             final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy RealmDAO realmDAO,
-            final AnyMatchDAO anyMatchDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO anySearchDAO,
-            final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
             final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
@@ -675,13 +631,9 @@ public class PersistenceContext {
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
                 publisher,
-                dynRealmDAO,
                 realmDAO,
-                anyMatchDAO,
                 userDAO,
                 anyObjectDAO,
-                anySearchDAO,
-                searchCondVisitor,
                 entityManager,
                 anyChecker,
                 anyFinder);
@@ -904,18 +856,12 @@ public class PersistenceContext {
     @Bean
     public RoleRepoExt roleRepoExt(
             final ApplicationEventPublisher publisher,
-            final @Lazy AnyMatchDAO anyMatchDAO,
-            final @Lazy AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
-            final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager) {
 
         return new RoleRepoExtImpl(
                 publisher,
-                anyMatchDAO,
-                anySearchDAO,
                 delegationDAO,
-                searchCondVisitor,
                 entityManager);
     }
 
@@ -1000,7 +946,6 @@ public class PersistenceContext {
     public UserRepoExt userRepoExt(
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final @Lazy GroupDAO groupDAO,
@@ -1012,7 +957,6 @@ public class PersistenceContext {
 
         return new UserRepoExtImpl(
                 anyUtilsFactory,
-                dynRealmDAO,
                 roleDAO,
                 accessTokenDAO,
                 groupDAO,

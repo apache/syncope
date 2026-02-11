@@ -56,10 +56,6 @@ public class RolesITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.submit("content:form:buttons:next");
-
-        formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         assertSuccessMessage();

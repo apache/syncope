@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -72,7 +71,6 @@ import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
-import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
@@ -240,15 +238,6 @@ public class IdRepoLogicContext {
             final DelegationDAO delegationDAO) {
 
         return new DelegationLogic(binder, delegationDAO, userDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public DynRealmLogic dynRealmLogic(
-            final DynRealmDataBinder binder,
-            final DynRealmDAO dynRealmDAO) {
-
-        return new DynRealmLogic(binder, dynRealmDAO);
     }
 
     @ConditionalOnMissingBean
