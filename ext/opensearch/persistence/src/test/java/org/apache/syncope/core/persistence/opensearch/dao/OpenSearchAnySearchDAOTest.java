@@ -120,7 +120,7 @@ public class OpenSearchAnySearchDAOTest {
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
         OpenSearchAnySearchDAO.AdminRealmsFilter filter =
-                searchDAO.getAdminRealmsFilter(root, true, adminRealms, AnyTypeKind.USER);
+                searchDAO.getAdminRealmsFilter(root, true, adminRealms);
 
         assertThat(new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().caseInsensitive(false).
@@ -134,7 +134,7 @@ public class OpenSearchAnySearchDAOTest {
     public void getAdminRealmsFilter4manager() {
         Set<String> adminRealms = Set.of(new RealmUtils.ManagerRealm("/any", AnyTypeKind.GROUP, "groupKey").output());
         OpenSearchAnySearchDAO.AdminRealmsFilter filter =
-                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
+                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms);
         assertFalse(filter.query().isPresent());
         assertEquals(Set.of(Pair.of(AnyTypeKind.GROUP, "groupKey")), filter.managed());
     }

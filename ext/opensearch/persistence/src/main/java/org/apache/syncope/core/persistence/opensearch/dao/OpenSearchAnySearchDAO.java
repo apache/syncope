@@ -125,8 +125,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     protected AdminRealmsFilter getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
-            final Set<String> adminRealms,
-            final AnyTypeKind kind) {
+            final Set<String> adminRealms) {
 
         Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
         List<Query> queries = new ArrayList<>();
@@ -184,7 +183,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                         build();
             }
         } else {
-            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, kind);
+            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms);
             query = getQuery(buildEffectiveCond(cond, filter.managed(), kind), kind);
 
             if (filter.query().isPresent()) {

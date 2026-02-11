@@ -139,9 +139,9 @@ public class AnyFinder {
         for (int i = 0; i < identifiers.size() && !used.contains(identifiers.get(i)); i++) {
             used.add(identifiers.get(i));
 
-            AttrCond cond = plainSchemaDAO.findById(identifiers.get(i)).
-                    map(schema -> new AttrCond()).
-                    orElseGet(() -> new AnyCond());
+            AttrCond cond = plainSchemaDAO.existsById(identifiers.get(i))
+                    ? new AttrCond()
+                    : new AnyCond();
             cond.setType(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
             cond.setSchema(identifiers.get(i));
             cond.setExpression(attrValues.get(i));
@@ -150,6 +150,6 @@ public class AnyFinder {
 
         LOG.debug("Generated search {} conditions: {}", anyTypeKind, andConditions);
 
-        return anySearchDAO.search(SearchCond.and(andConditions), anyTypeKind);
+        return andConditions.isEmpty() ? List.of() : anySearchDAO.search(SearchCond.and(andConditions), anyTypeKind);
     }
 }

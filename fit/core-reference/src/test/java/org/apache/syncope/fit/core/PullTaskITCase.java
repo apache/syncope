@@ -510,7 +510,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                         fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
                                 query()).
                         build());
-        assertNull(matchingUsers.getResult().getFirst().getPlainAttr("title").orElse(null));
+        assertTrue(matchingUsers.getResult().getFirst().getPlainAttr("title").isEmpty());
 
         // SYNCOPE-1356 remove group membership from LDAP, pull and check in Syncope
         ConnObject groupConnObject = RESOURCE_SERVICE.readConnObject(

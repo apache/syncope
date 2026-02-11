@@ -612,8 +612,8 @@ public class DefaultPropagationManager implements PropagationManager {
                             enable,
                             resource,
                             provision);
-                    attrs.add(new PropagationAttrs(resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.
-                            attributes()));
+                    attrs.add(new PropagationAttrs(
+                            resource.getKey(), preparedAttrs.connObjectLink(), preparedAttrs.attributes()));
                 }));
 
         if (any instanceof User user) {
