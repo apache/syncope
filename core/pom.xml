@@ -92,5 +92,6 @@ under the License.
     <module>starter</module>
     <module>self-keymaster-starter</module>
     <module>metrics-starter</module>
+    <module>persistence-jpa-upgrader</module>
   </modules>
 </project>

@@ -524,7 +524,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>11.0.18</tomcat.version>
-    <wildfly.version>39.0.0.Final</wildfly.version>
+    <wildfly.version>39.0.1.Final</wildfly.version>
     <payara.version>7.2026.1</payara.version>
     <jakarta.faces.version>4.1.6</jakarta.faces.version>
 
