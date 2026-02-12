@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
@@ -158,8 +159,7 @@ public class PullJobDelegate
 
         // ...then provisions for any types
         for (Provision provision : task.getResource().getProvisions().stream().
-                filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
-                toList()) {
+                filter(provision -> provision.getMapping() != null).sorted(provisionSorter).toList()) {
 
             setStatus("Pulling " + provision.getObjectClass());
 
@@ -245,25 +245,34 @@ public class PullJobDelegate
         dispatcher.shutdown();
 
         for (Provision provision : task.getResource().getProvisions().stream().
-                filter(provision -> provision.getMapping() != null && provision.getUidOnCreate() != null).
-                sorted(provisionSorter).toList()) {
+                filter(provision -> provision.getMapping() != null).sorted(provisionSorter).toList()) {
 
+            if (provision.getUidOnCreate() != null) {
+                try {
+                    AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                            orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
+                    profile.getResults().stream().
+                            filter(result -> result.getUidValue() != null && result.getKey() != null
+                            && result.getOperation() == ResourceOperation.CREATE
+                            && result.getAnyType().equals(provision.getAnyType())).
+                            forEach(result -> anyUtils.addAttr(
+                            validator,
+                            result.getKey(),
+                            plainSchemaDAO.findById(provision.getUidOnCreate()).orElseThrow(
+                                    () -> new NotFoundException("PlainSchema " + provision.getUidOnCreate())),
+                            result.getUidValue()));
+                } catch (Throwable t) {
+                    LOG.error("While setting UID on create", t);
+                }
+            }
+
+            AnyPullResultHandler handler =
+                    (AnyPullResultHandler) dispatcher.nonConcurrentHandler(provision.getObjectClass());
             try {
-                AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
-                        orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
-                AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
-                profile.getResults().stream().
-                        filter(result -> result.getUidValue() != null && result.getKey() != null
-                        && result.getOperation() == ResourceOperation.CREATE
-                        && result.getAnyType().equals(provision.getAnyType())).
-                        forEach(result -> anyUtils.addAttr(
-                        validator,
-                        result.getKey(),
-                        plainSchemaDAO.findById(provision.getUidOnCreate()).
-                                orElseThrow(() -> new NotFoundException("PlainSchema " + provision.getUidOnCreate())),
-                        result.getUidValue()));
-            } catch (Throwable t) {
-                LOG.error("While setting UID on create", t);
+                handler.setManagers();
+            } catch (Exception e) {
+                LOG.error("While setting managers", e);
             }
         }
 

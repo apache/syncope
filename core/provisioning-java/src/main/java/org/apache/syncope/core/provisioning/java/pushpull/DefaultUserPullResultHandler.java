@@ -53,14 +53,14 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
-import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultUserPullResultHandler extends AbstractPullResultHandler implements UserPullResultHandler {
+public class DefaultUserPullResultHandler extends AbstractPullResultHandler implements AnyPullResultHandler {
 
     @Autowired
     protected UserProvisioningManager userProvisioningManager;
@@ -446,9 +446,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             output = e;
             resultStatus = OpEvent.Outcome.FAILURE;
 
-            if (profile.getTask().isRemediation()) {
-                createRemediation(provision.getAnyType(), null, null, req, result, delta);
-            }
+            createRemediationIfNeeded(req, delta, result);
         }
 
         end(AnyTypeKind.USER.name(),
@@ -574,9 +572,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 output = e;
                 resultStatus = OpEvent.Outcome.FAILURE;
 
-                if (profile.getTask().isRemediation()) {
-                    createRemediation(provision.getAnyType(), null, null, req, result, delta);
-                }
+                createRemediationIfNeeded(req, delta, result);
             }
 
             end(AnyTypeKind.USER.name(),
@@ -658,9 +654,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     LOG.error("Could not delete linked account {}", account, e);
                     output = e;
 
-                    if (profile.getTask().isRemediation()) {
-                        createRemediation(provision.getAnyType(), null, null, req, result, delta);
-                    }
+                    createRemediationIfNeeded(req, delta, result);
                 }
 
                 end(AnyTypeKind.USER.name(),

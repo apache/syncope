@@ -18,5 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-public interface RealmPushResultHandler extends SyncopeRealmPushResultHandler {
+import org.apache.syncope.core.persistence.api.entity.Realm;
+
+public interface RealmPushResultHandler extends SyncopePushResultHandler {
+
+    boolean handle(Realm realm);
 }

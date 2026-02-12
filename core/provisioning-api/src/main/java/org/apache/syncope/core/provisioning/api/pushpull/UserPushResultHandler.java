@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
-public interface UserPushResultHandler extends SyncopeAnyPushResultHandler {
+public interface UserPushResultHandler extends AnyPushResultHandler {
 
     boolean handle(LinkedAccount account, Provision provision);
 }

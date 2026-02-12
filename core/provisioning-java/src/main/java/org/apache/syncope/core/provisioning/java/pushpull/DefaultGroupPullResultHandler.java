@@ -33,11 +33,11 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultGroupPullResultHandler extends AbstractPullResultHandler implements GroupPullResultHandler {
+public class DefaultGroupPullResultHandler extends AbstractPullResultHandler implements AnyPullResultHandler {
 
     @Autowired
     private GroupProvisioningManager groupProvisioningManager;

@@ -37,8 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
@@ -54,7 +53,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     private ImplementationDAO implementationDAO;
 
     @Override
-    protected AnyObjectPushResultHandler buildAnyObjectHandler() {
+    protected AnyPushResultHandler buildAnyObjectHandler() {
         return ctx.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
     }
 
@@ -64,7 +63,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     }
 
     @Override
-    protected GroupPushResultHandler buildGroupHandler() {
+    protected AnyPushResultHandler buildGroupHandler() {
         return ctx.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
     }
 
