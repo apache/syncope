@@ -327,7 +327,7 @@ public abstract class AbstractPullResultHandler
         }
 
         if (profile.isDryRun()) {
-            end(Optional.ofNullable(result.getKey()),
+            end(Optional.of(result.getKey()),
                     provision.getAnyType(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     OpEvent.Outcome.SUCCESS,

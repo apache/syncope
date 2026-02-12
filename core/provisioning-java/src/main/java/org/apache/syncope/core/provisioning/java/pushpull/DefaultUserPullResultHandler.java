@@ -188,7 +188,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     break;
 
                 case DELETE:
-                    resultStatus = delete(delta, account, provision);
+                    resultStatus = delete(delta, account);
                     break;
 
                 default:
@@ -596,11 +596,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         return resultStatus;
     }
 
-    protected OpEvent.Outcome delete(
-            final SyncDelta delta,
-            final LinkedAccount account,
-            final Provision provision) {
-
+    protected OpEvent.Outcome delete(final SyncDelta delta, final LinkedAccount account) {
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
             end(Optional.empty(),
