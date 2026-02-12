@@ -202,7 +202,7 @@ public class AuthProfileTest extends AbstractTest {
 
         entityManager.flush();
 
-        Page<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
-        assertEquals(2, result.get().count());
+        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
+        assertEquals(2, result.size());
     }
 }
