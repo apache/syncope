@@ -115,6 +115,18 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private String logoutUri;
 
+    private String accessTokenMaxTimeToLive;
+
+    private String accessTokenTimeToKill;
+
+    private Long accessTokenMaxActiveTokens;
+
+    private String refreshTokenTimeToKill;
+
+    private Long refreshTokenMaxActiveTokens;
+
+    private String deviceTokenTimeToKill;
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUris;
@@ -335,5 +347,65 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setLogoutUri(final String logoutUri) {
         this.logoutUri = logoutUri;
+    }
+
+    @Override
+    public String getDeviceTokenTimeToKill() {
+        return deviceTokenTimeToKill;
+    }
+
+    @Override
+    public void setDeviceTokenTimeToKill(final String deviceTokenTimeToKill) {
+        this.deviceTokenTimeToKill = deviceTokenTimeToKill;
+    }
+
+    @Override
+    public Long getRefreshTokenMaxActiveTokens() {
+        return refreshTokenMaxActiveTokens;
+    }
+
+    @Override
+    public void setRefreshTokenMaxActiveTokens(final Long refreshTokenMaxActiveTokens) {
+        this.refreshTokenMaxActiveTokens = refreshTokenMaxActiveTokens;
+    }
+
+    @Override
+    public String getRefreshTokenTimeToKill() {
+        return refreshTokenTimeToKill;
+    }
+
+    @Override
+    public void setRefreshTokenTimeToKill(final String refreshTokenTimeToKill) {
+        this.refreshTokenTimeToKill = refreshTokenTimeToKill;
+    }
+
+    @Override
+    public Long getAccessTokenMaxActiveTokens() {
+        return accessTokenMaxActiveTokens;
+    }
+
+    @Override
+    public void setAccessTokenMaxActiveTokens(final Long accessTokenMaxActiveTokens) {
+        this.accessTokenMaxActiveTokens = accessTokenMaxActiveTokens;
+    }
+
+    @Override
+    public String getAccessTokenTimeToKill() {
+        return accessTokenTimeToKill;
+    }
+
+    @Override
+    public void setAccessTokenTimeToKill(final String accessTokenTimeToKill) {
+        this.accessTokenTimeToKill = accessTokenTimeToKill;
+    }
+
+    @Override
+    public String getAccessTokenMaxTimeToLive() {
+        return accessTokenMaxTimeToLive;
+    }
+
+    @Override
+    public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
+        this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
     }
 }

@@ -23,12 +23,12 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopeAnyPushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopeRealmPushResultHandler;
 import org.springframework.transaction.annotation.Transactional;
 
 public class PushResultHandlerDispatcher
@@ -49,7 +49,7 @@ public class PushResultHandlerDispatcher
     @Transactional(readOnly = true)
     public boolean handle(final Any any) {
         if (tpte.isEmpty()) {
-            boolean result = ((SyncopeAnyPushResultHandler) nonConcurrentHandler(any.getType().getKey())).handle(any);
+            boolean result = ((AnyPushResultHandler) nonConcurrentHandler(any.getType().getKey())).handle(any);
 
             executor.reportHandled(any.getType().getKey(), any.getKey());
 
@@ -58,7 +58,7 @@ public class PushResultHandlerDispatcher
 
         try {
             submit(() -> {
-                ((SyncopeAnyPushResultHandler) suppliers.get(any.getType().getKey()).get()).handle(any);
+                ((AnyPushResultHandler) suppliers.get(any.getType().getKey()).get()).handle(any);
 
                 executor.reportHandled(any.getType().getKey(), any.getKey());
             });
@@ -72,7 +72,7 @@ public class PushResultHandlerDispatcher
     @Transactional(readOnly = true)
     public boolean handle(final Realm realm) {
         if (tpte.isEmpty()) {
-            boolean result = ((SyncopeRealmPushResultHandler) nonConcurrentHandler(SyncopeConstants.REALM_ANYTYPE)).
+            boolean result = ((RealmPushResultHandler) nonConcurrentHandler(SyncopeConstants.REALM_ANYTYPE)).
                     handle(realm);
 
             executor.reportHandled(SyncopeConstants.REALM_ANYTYPE, realm.getKey());
@@ -82,7 +82,7 @@ public class PushResultHandlerDispatcher
 
         try {
             submit(() -> {
-                ((SyncopeRealmPushResultHandler) suppliers.get(SyncopeConstants.REALM_ANYTYPE).get()).handle(realm);
+                ((RealmPushResultHandler) suppliers.get(SyncopeConstants.REALM_ANYTYPE).get()).handle(realm);
 
                 executor.reportHandled(SyncopeConstants.REALM_ANYTYPE, realm.getKey());
             });

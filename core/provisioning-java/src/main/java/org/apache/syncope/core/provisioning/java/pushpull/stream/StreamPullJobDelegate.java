@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
@@ -225,6 +226,14 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     MappingUtils.buildOperationOptions(
                             MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
                             moreAttrsToGet.toArray(String[]::new)));
+
+            AnyPullResultHandler handler =
+                    (AnyPullResultHandler) dispatcher.nonConcurrentHandler(provision.getObjectClass());
+            try {
+                handler.setManagers();
+            } catch (Exception e) {
+                LOG.error("While setting managers", e);
+            }
 
             for (InboundActions action : profile.getActions()) {
                 action.afterAll(profile);

@@ -90,7 +90,7 @@ public abstract class SyncopeResultHandlerDispatcher<
         suppliers.put(key, supplier);
     }
 
-    protected RA nonConcurrentHandler(final String key) {
+    public RA nonConcurrentHandler(final String key) {
         return handlers.computeIfAbsent(key, k -> suppliers.get(k).get());
     }
 

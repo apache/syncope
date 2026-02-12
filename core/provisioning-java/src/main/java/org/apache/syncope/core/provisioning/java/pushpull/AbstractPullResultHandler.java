@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -47,16 +49,18 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -68,7 +72,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPullResultHandler
         extends AbstractSyncopeResultHandler<PullTask, InboundActions>
-        implements SyncopePullResultHandler {
+        implements AnyPullResultHandler {
 
     @Autowired
     protected InboundMatcher inboundMatcher;
@@ -93,6 +97,10 @@ public abstract class AbstractPullResultHandler
 
     @Autowired
     protected EntityFactory entityFactory;
+
+    protected final Map<String, Optional<String>> uManagers = new HashMap<>();
+
+    protected final Map<String, Optional<String>> gManagers = new HashMap<>();
 
     protected abstract String getName(AnyTO anyTO);
 
@@ -189,21 +197,21 @@ public abstract class AbstractPullResultHandler
             return OpEvent.Outcome.SUCCESS;
         }
 
-        AnyCR anyCR = connObjectUtils.getAnyCR(
+        AnyCR req = connObjectUtils.getAnyCR(
                 delta.getObject(),
                 profile.getTask(),
                 anyTypeKind,
                 provision,
                 true);
         if (rule == UnmatchingRule.ASSIGN) {
-            anyCR.getResources().add(profile.getTask().getResource().getKey());
+            req.getResources().add(profile.getTask().getResource().getKey());
         }
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        result.setName(getName(anyCR));
+        result.setName(getName(req));
         result.setUidValue(delta.getUid().getUidValue());
 
         if (profile.isDryRun()) {
@@ -223,29 +231,26 @@ public abstract class AbstractPullResultHandler
         try {
             for (InboundActions action : profile.getActions()) {
                 if (rule == UnmatchingRule.ASSIGN) {
-                    action.beforeAssign(profile, delta, anyCR);
+                    action.beforeAssign(profile, delta, req);
                 } else if (rule == UnmatchingRule.PROVISION) {
-                    action.beforeProvision(profile, delta, anyCR);
+                    action.beforeProvision(profile, delta, req);
                 }
             }
-            result.setName(getName(anyCR));
+            result.setName(getName(req));
 
-            Optional.ofNullable(anyCR.getUManager()).ifPresent(uManager -> inboundMatcher.match(
-                    anyTypeDAO.getUser(),
-                    uManager,
-                    profile.getTask().getResource(),
-                    profile.getConnector()).ifPresent(match -> anyCR.setUManager(match.getAny().getKey())));
-            Optional.ofNullable(anyCR.getGManager()).ifPresent(gManager -> inboundMatcher.match(
-                    anyTypeDAO.getGroup(),
-                    gManager,
-                    profile.getTask().getResource(),
-                    profile.getConnector()).ifPresent(match -> anyCR.setGManager(match.getAny().getKey())));
+            Optional<String> uManager = Optional.ofNullable(req.getUManager());
+            req.setUManager(null);
+            Optional<String> gManager = Optional.ofNullable(req.getGManager());
+            req.setGManager(null);
 
-            AnyTO created = doCreate(anyCR, delta);
+            AnyTO created = doCreate(req, delta);
             output = created;
             result.setKey(created.getKey());
             result.setName(getName(created));
             resultStatus = OpEvent.Outcome.SUCCESS;
+
+            uManager.ifPresent(v -> uManagers.put(created.getKey(), Optional.of(v)));
+            gManager.ifPresent(v -> gManagers.put(created.getKey(), Optional.of(v)));
 
             for (InboundActions action : profile.getActions()) {
                 action.after(profile, delta, created, result);
@@ -270,7 +275,7 @@ public abstract class AbstractPullResultHandler
             if (profile.getTask().isRemediation()) {
                 // set to SUCCESS to let the incremental flow go on in case of errors
                 resultStatus = OpEvent.Outcome.SUCCESS;
-                createRemediation(provision.getAnyType(), null, anyCR, null, result, delta);
+                createRemediation(null, req, null, result, delta);
             } else {
                 resultStatus = OpEvent.Outcome.FAILURE;
             }
@@ -321,90 +326,96 @@ public abstract class AbstractPullResultHandler
             result.setName(getName(before));
         }
 
-        OpEvent.Outcome resultStatus = OpEvent.Outcome.SUCCESS;
-        if (!profile.isDryRun()) {
-            Object output;
-            AnyUR req = null;
-
-            if (before == null) {
-                resultStatus = OpEvent.Outcome.FAILURE;
-                output = null;
-            } else {
-                AnyUR anyUR = null;
-                try {
-                    anyUR = connObjectUtils.getAnyUR(
-                            before.getKey(),
-                            delta.getObject(),
-                            before,
-                            profile.getTask(),
-                            match.getAny().getType().getKind(),
-                            provision);
-
-                    for (InboundActions action : profile.getActions()) {
-                        action.beforeUpdate(profile, delta, before, anyUR);
-                    }
-
-                    Optional.ofNullable(anyUR.getUManager()).
-                            filter(patch -> patch.getOperation() == PatchOperation.ADD_REPLACE).
-                            ifPresent(patch -> inboundMatcher.match(
-                            anyTypeDAO.getUser(),
-                            patch.getValue(),
-                            profile.getTask().getResource(),
-                            profile.getConnector()).ifPresent(m -> patch.setValue(m.getAny().getKey())));
-                    Optional.ofNullable(anyUR.getGManager()).
-                            filter(patch -> patch.getOperation() == PatchOperation.ADD_REPLACE).
-                            ifPresent(patch -> inboundMatcher.match(
-                            anyTypeDAO.getGroup(),
-                            patch.getValue(),
-                            profile.getTask().getResource(),
-                            profile.getConnector()).ifPresent(m -> patch.setValue(m.getAny().getKey())));
-
-                    req = doUpdate(before, anyUR, delta, result);
-                    AnyTO updated = AnyOperations.patch(before, req);
-
-                    for (InboundActions action : profile.getActions()) {
-                        action.after(profile, delta, updated, result);
-                    }
-
-                    output = updated;
-                    resultStatus = OpEvent.Outcome.SUCCESS;
-                    result.setName(getName(updated));
-
-                    LOG.debug("{} {} successfully updated", provision.getAnyType(), match);
-                } catch (PropagationException e) {
-                    // A propagation failure doesn't imply a pull failure.
-                    // The propagation exception status will be reported into the propagation task execution.
-                    LOG.error("Could not propagate {} {}",
-                            provision.getAnyType(), delta.getUid().getUidValue(), e);
-                    output = e;
-                    resultStatus = OpEvent.Outcome.FAILURE;
-                } catch (Exception e) {
-                    throwIgnoreProvisionException(delta, e);
-
-                    result.setStatus(ProvisioningReport.Status.FAILURE);
-                    result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                    LOG.error("Could not update {} {}",
-                            provision.getAnyType(), delta.getUid().getUidValue(), e);
-                    output = e;
-
-                    if (profile.getTask().isRemediation()) {
-                        // set to SUCCESS to let the incremental flow go on in case of errors
-                        resultStatus = OpEvent.Outcome.SUCCESS;
-                        createRemediation(provision.getAnyType(), null, null, anyUR, result, delta);
-                    } else {
-                        resultStatus = OpEvent.Outcome.FAILURE;
-                    }
-                }
-            }
-            end(Optional.of(result.getKey()),
+        if (profile.isDryRun()) {
+            end(Optional.ofNullable(result.getKey()),
                     provision.getAnyType(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
-                    resultStatus,
+                    OpEvent.Outcome.SUCCESS,
                     before,
-                    output,
-                    delta,
-                    req);
+                    null,
+                    delta);
+            return OpEvent.Outcome.SUCCESS;
         }
+
+        OpEvent.Outcome resultStatus;
+        Object output;
+        AnyUR req = null;
+
+        if (before == null) {
+            resultStatus = OpEvent.Outcome.FAILURE;
+            output = null;
+        } else {
+            try {
+                req = connObjectUtils.getAnyUR(
+                        before.getKey(),
+                        delta.getObject(),
+                        before,
+                        profile.getTask(),
+                        match.getAny().getType().getKind(),
+                        provision);
+
+                for (InboundActions action : profile.getActions()) {
+                    action.beforeUpdate(profile, delta, before, req);
+                }
+
+                Optional.ofNullable(req.getUManager()).ifPresent(patch -> uManagers.put(
+                        before.getKey(),
+                        patch.getOperation() == PatchOperation.ADD_REPLACE
+                        ? Optional.of(patch.getValue())
+                        : Optional.empty()));
+                req.setUManager(null);
+                Optional.ofNullable(req.getGManager()).ifPresent(patch -> gManagers.put(
+                        before.getKey(),
+                        patch.getOperation() == PatchOperation.ADD_REPLACE
+                        ? Optional.of(patch.getValue())
+                        : Optional.empty()));
+                req.setGManager(null);
+
+                req = doUpdate(before, req, delta, result);
+                AnyTO updated = AnyOperations.patch(before, req);
+
+                for (InboundActions action : profile.getActions()) {
+                    action.after(profile, delta, updated, result);
+                }
+
+                output = updated;
+                resultStatus = OpEvent.Outcome.SUCCESS;
+                result.setName(getName(updated));
+
+                LOG.debug("{} {} successfully updated", provision.getAnyType(), match);
+            } catch (PropagationException e) {
+                // A propagation failure doesn't imply a pull failure.
+                // The propagation exception status will be reported into the propagation task execution.
+                LOG.error("Could not propagate {} {}",
+                        provision.getAnyType(), delta.getUid().getUidValue(), e);
+                output = e;
+                resultStatus = OpEvent.Outcome.FAILURE;
+            } catch (Exception e) {
+                throwIgnoreProvisionException(delta, e);
+
+                result.setStatus(ProvisioningReport.Status.FAILURE);
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                LOG.error("Could not update {} {}",
+                        provision.getAnyType(), delta.getUid().getUidValue(), e);
+                output = e;
+
+                if (profile.getTask().isRemediation()) {
+                    // set to SUCCESS to let the incremental flow go on in case of errors
+                    resultStatus = OpEvent.Outcome.SUCCESS;
+                    createRemediation(null, null, req, result, delta);
+                } else {
+                    resultStatus = OpEvent.Outcome.FAILURE;
+                }
+            }
+        }
+        end(Optional.of(result.getKey()),
+                provision.getAnyType(),
+                MatchingRule.toOp(MatchingRule.UPDATE),
+                resultStatus,
+                before,
+                output,
+                delta,
+                req);
 
         profile.getResults().add(result);
 
@@ -694,8 +705,7 @@ public abstract class AbstractPullResultHandler
                     if (profile.getTask().isRemediation()) {
                         // set to SUCCESS to let the incremental flow go on in case of errors
                         resultStatus = OpEvent.Outcome.SUCCESS;
-                        createRemediation(
-                                provision.getAnyType(), match.getAny().getKey(), null, null, result, delta);
+                        createRemediation(match.getAny().getKey(), null, null, result, delta);
                     }
                 }
 
@@ -953,12 +963,11 @@ public abstract class AbstractPullResultHandler
             final ProvisioningReport result) {
 
         if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
-            createRemediation(result.getAnyType(), null, null, anyUR, result, delta);
+            createRemediation(null, null, anyUR, result, delta);
         }
     }
 
-    protected void createRemediation(
-            final String anyType,
+    private void createRemediation(
             final String anyKey,
             final AnyCR anyCR,
             final AnyUR anyUR,
@@ -967,8 +976,8 @@ public abstract class AbstractPullResultHandler
 
         Remediation remediation = entityFactory.newEntity(Remediation.class);
 
-        remediation.setAnyType(anyTypeDAO.findById(anyType).
-                orElseThrow(() -> new NotFoundException("AnyType " + anyType)));
+        remediation.setAnyType(anyTypeDAO.findById(result.getAnyType()).
+                orElseThrow(() -> new NotFoundException("AnyType " + result.getAnyType())));
         remediation.setOperation(anyUR == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
         if (StringUtils.isNotBlank(anyKey)) {
             remediation.setPayload(anyKey);
@@ -980,14 +989,14 @@ public abstract class AbstractPullResultHandler
         remediation.setError(result.getMessage());
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName(delta.getObject().getName().getNameValue());
-        remediation.setPullTask(taskDAO.findById(TaskType.PULL, profile.getTask().getKey()).
-                map(PullTask.class::cast).orElse(null));
+        taskDAO.findById(TaskType.PULL, profile.getTask().getKey()).
+                map(PullTask.class::cast).ifPresent(remediation::setPullTask);
 
         remediation = remediationDAO.save(remediation);
 
         ProvisioningReport remediationResult = new ProvisioningReport();
         remediationResult.setOperation(remediation.getOperation());
-        remediationResult.setAnyType(anyType);
+        remediationResult.setAnyType(result.getAnyType());
         remediationResult.setStatus(ProvisioningReport.Status.FAILURE);
         remediationResult.setMessage(remediation.getError());
         if (StringUtils.isNotBlank(anyKey)) {
@@ -998,5 +1007,40 @@ public abstract class AbstractPullResultHandler
         remediationResult.setUidValue(delta.getUid().getUidValue());
         remediationResult.setName(remediation.getRemoteName());
         profile.getResults().add(remediationResult);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void setManagers() {
+        uManagers.forEach((anyKey, uManager) -> {
+            Any any = anyUtils().dao().findById(anyKey).
+                    orElseThrow(() -> new NotFoundException(anyUtils().anyTypeKind() + " " + anyKey));
+
+            uManager.ifPresentOrElse(
+                    manager -> inboundMatcher.match(
+                            anyTypeDAO.getUser(),
+                            manager,
+                            profile.getTask().getResource(),
+                            profile.getConnector()).
+                            ifPresent(match -> any.setUManager((User) match.getAny())),
+                    () -> any.setUManager(null));
+
+            anyUtils().dao().save(any);
+        });
+        gManagers.forEach((anyKey, gManager) -> {
+            Any any = anyUtils().dao().findById(anyKey).
+                    orElseThrow(() -> new NotFoundException(anyUtils().anyTypeKind() + " " + anyKey));
+
+            gManager.ifPresentOrElse(
+                    manager -> inboundMatcher.match(
+                            anyTypeDAO.getGroup(),
+                            manager,
+                            profile.getTask().getResource(),
+                            profile.getConnector()).
+                            ifPresent(match -> any.setGManager((Group) match.getAny())),
+                    () -> any.setGManager(null));
+
+            anyUtils().dao().save(any);
+        });
     }
 }

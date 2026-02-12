@@ -26,9 +26,9 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 
-public class DefaultGroupPushResultHandler extends AbstractPushResultHandler implements GroupPushResultHandler {
+public class DefaultGroupPushResultHandler extends AbstractPushResultHandler implements AnyPushResultHandler {
 
     @Override
     protected AnyUtils anyUtils() {

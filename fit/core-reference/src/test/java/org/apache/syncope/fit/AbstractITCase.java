@@ -1006,6 +1006,13 @@ public abstract class AbstractITCase {
 
         oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
+        
+        oidcrpTO.setAccessTokenMaxActiveTokens(0L);
+        oidcrpTO.setAccessTokenMaxTimeToLive("PT8H");
+        oidcrpTO.setAccessTokenTimeToKill("PT2H");
+        oidcrpTO.setRefreshTokenMaxActiveTokens(0L);
+        oidcrpTO.setRefreshTokenTimeToKill("P14D");
+        oidcrpTO.setDeviceTokenTimeToKill("PT5M");
 
         return oidcrpTO;
     }

@@ -48,8 +48,7 @@ import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
@@ -128,7 +127,7 @@ public class PushJobDelegate
         return ctx.getBeanFactory().createBean(DefaultRealmPushResultHandler.class);
     }
 
-    protected AnyObjectPushResultHandler buildAnyObjectHandler() {
+    protected AnyPushResultHandler buildAnyObjectHandler() {
         return ctx.getBeanFactory().createBean(DefaultAnyObjectPushResultHandler.class);
     }
 
@@ -136,7 +135,7 @@ public class PushJobDelegate
         return ctx.getBeanFactory().createBean(DefaultUserPushResultHandler.class);
     }
 
-    protected GroupPushResultHandler buildGroupHandler() {
+    protected AnyPushResultHandler buildGroupHandler() {
         return ctx.getBeanFactory().createBean(DefaultGroupPushResultHandler.class);
     }
 

@@ -43,6 +43,9 @@ import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPol
 import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -129,6 +132,37 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
+        if (rp.getAccessTokenMaxTimeToLive() != null
+                || rp.getAccessTokenTimeToKill() != null
+                || rp.getAccessTokenMaxActiveTokens() != null) {
+            DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy accessTokenExpirationPolicy =
+                    new DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy();
+            Optional.ofNullable(rp.getAccessTokenMaxTimeToLive())
+                    .ifPresent(accessTokenExpirationPolicy::setMaxTimeToLive);
+            Optional.ofNullable(rp.getAccessTokenTimeToKill())
+                    .ifPresent(accessTokenExpirationPolicy::setTimeToKill);
+            Optional.ofNullable(rp.getAccessTokenMaxActiveTokens())
+                    .ifPresent(accessTokenExpirationPolicy::setMaxActiveTokens);
+            service.setAccessTokenExpirationPolicy(accessTokenExpirationPolicy);
+        }
+
+        if (rp.getRefreshTokenTimeToKill() != null || rp.getRefreshTokenMaxActiveTokens() != null) {
+            DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy refreshTokenExpirationPolicy =
+                    new DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy();
+            Optional.ofNullable(rp.getRefreshTokenTimeToKill())
+                    .ifPresent(refreshTokenExpirationPolicy::setTimeToKill);
+            Optional.ofNullable(rp.getRefreshTokenMaxActiveTokens())
+                    .ifPresent(refreshTokenExpirationPolicy::setMaxActiveTokens);
+            service.setRefreshTokenExpirationPolicy(refreshTokenExpirationPolicy);
+        }
+
+        if (rp.getDeviceTokenTimeToKill() != null) {
+            DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy deviceTokenExpirationPolicy =
+                    new DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy();
+            Optional.ofNullable(rp.getAccessTokenTimeToKill())
+                    .ifPresent(deviceTokenExpirationPolicy::setTimeToKill);
+            service.setDeviceTokenExpirationPolicy(deviceTokenExpirationPolicy);
+        }
         return service;
     }
 }

@@ -18,5 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-public interface AnyObjectPushResultHandler extends SyncopeAnyPushResultHandler {
+import org.apache.syncope.core.persistence.api.entity.Any;
+
+public interface AnyPushResultHandler extends SyncopePushResultHandler {
+
+    boolean handle(Any any);
 }
