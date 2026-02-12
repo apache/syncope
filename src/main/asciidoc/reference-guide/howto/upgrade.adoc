@@ -24,6 +24,100 @@ indications below.
 ==== Preparation
 
 First of all, update the existing Syncope 3.0 deployment's code / Docker images to the latest
-https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore[3.0 release^] available.
+https://cwiki.apache.org/confluence/display/SYNCOPE/Notturno[4.0 release^] available.
 
 Also, ensure to have a full backup of the existing database used as <<persistence,internal storage>>.
+
+==== Persistence Storage upgrade
+
+[CAUTION]
+Ensure to <<dbms,check the compatibility>> of the existing DBMS and upgrade, if needed.
+
+Download https://syncope.apache.org/downloads[`syncope-core-persistence-jpa-upgrader-{docVersion}.jar`^]:
+this tool will generate the full set of SQL statements required to upgrade the internal storage to Syncope 4.1.
+
+Run the tool depending on your actual DBMS by using the latest JDK 21 available; the generated SQL statements will be
+sent to a new `upgrade.sql` file.
+
+[discrete]
+===== PostgreSQL
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/postgresql.jar
+ -Ddb.jdbcURL="jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/postgresql.jar` is the full path to the latest JDBC driver available for PostgreSQL
+ * you have a PostgreSQL instance running on `localhost`, listening on its default port `5432` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== MySQL
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/mysql.jar
+ -Dspring.profiles.active=mysql
+ -Ddb.jdbcURL="jdbc:mysql://localhost:3306/syncope?useSSL=false&allowPublicKeyRetrieval=true" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/mysql.jar` is the full path to the latest JDBC driver available for MySQL
+ * you have a MySQL instance running on `localhost`, listening on its default port `3306` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== MariaDB
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/mariadb.jar
+ -Dspring.profiles.active=mariadb
+ -Ddb.jdbcURL="jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/mariadb.jar` is the full path to the latest JDBC driver available for MariaDB
+ * you have a MariaDB instance running on `localhost`, listening on its default port `3306` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== Oracle Database
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/ojdbc11.jar
+ -Dspring.profiles.active=oracle
+ -Ddb.jdbcURL="jdbc:oracle:thin:@localhost}:1521/FREEPDB1" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/ojdbc11.jar` is the full path to the latest JDBC driver available for Oracle Database
+ * you have an Oracle instance running on `localhost`, listening on its default port `1521` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+==== Finalization
+
+. shutdown the standalone process or the Jakarta EE container running Apache Syncope 4.0 Core, to ensure no changes
+are pushed to the internal storage
+
+. execute the SQL statements as generated above against the internal storage: in case of errors, apply manual
+corrections until everything runs clear; consider to restore from the backup taken above if needed, before executing
+the updated SQL statements again
+
+. start the standalone process or the Jakarta EE container of Apache Syncope 1.0 Core, and watch the log files
+to check for any error
