@@ -27,24 +27,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AuthProfileQuery;
 
 /**
  * REST operations for Auth profiles.
@@ -57,17 +56,14 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 public interface AuthProfileService extends JAXRSService {
 
     /**
-     * Returns the paginated list of existing auth profiles.
+     * Returns a paged list of all AuthProfiles.
      *
-     * @param page search page
-     * @param size search page size
-     * @return the paginated list of existing auth profiles
+     * @param query query conditions
+     * @return list of all AuthProfiles.
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    PagedResult<AuthProfileTO> list(
-            @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue("1") int page,
-            @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue("25") int size);
+    PagedResult<AuthProfileTO> search(@BeanParam AuthProfileQuery query);
 
     /**
      * Returns the auth profile matching the provided if key, if found.

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.springframework.data.domain.Pageable;
 
-public interface AuthProfileRepo
-        extends PagingAndSortingRepository<Neo4jAuthProfile, String>, AuthProfileRepoExt, AuthProfileDAO {
+public interface AuthProfileRepoExt {
 
+    List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
 }
