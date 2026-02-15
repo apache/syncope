@@ -45,22 +45,16 @@ public class EntityCacheEndpoint {
     @WriteOperation
     public void statistics(final @Selector String operation) {
         switch (operation) {
-            case "enable":
-            case "ENABLE":
+            case "enable", "ENABLE" ->
                 entityCacheDAO.enableStatistics();
-                break;
 
-            case "disable":
-            case "DISABLE":
+            case "disable", "DISABLE" ->
                 entityCacheDAO.disableStatistics();
-                break;
 
-            case "reset":
-            case "RESET":
+            case "reset", "RESET" ->
                 entityCacheDAO.resetStatistics();
-                break;
 
-            default:
+            default ->
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unsupported Operation: " + operation);
         }
     }

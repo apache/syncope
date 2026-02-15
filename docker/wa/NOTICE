@@ -182,11 +182,6 @@ Copyright (c) 2018, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by t-digest
-The code for the t-digest was originally authored by Ted Dunning
-
-==
-
 This product includes software developed by Semver4j
 Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
 
@@ -195,11 +190,6 @@ Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
 This product includes software developed by GoogleAuth
 Copyright (c) 2013 Warren Strange
 Copyright (c) 2014-2017 Enrico M. Crisostomo
-
-==
-
-This product includes software developed by Wavefront's Java SDK
-Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
 
@@ -214,16 +204,6 @@ This product includes software developed by the HikariCP project.
 
 This product includes software developed by DataTables
 Copyright (c) 2008-present, SpryMedia Limited
-
-==
-
-This product includes software developed by define-data-property
-Copyright (c) 2023 Jordan Harband
-
-==
-
-This product includes software developed by define-properties
-Copyright (C) 2015 Jordan Harband
 
 ==
 
@@ -242,28 +222,8 @@ All content is the property of the respective authors or their employers.
 
 ==
 
-This product includes software developed by es-define-property
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by es-errors
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by globalThis
-Copyright (c) 2016 Jordan Harband
-
-==
-
-This product includes software developed by gopd
-Copyright (c) 2022 Jordan Harband
-
-==
-
-This product includes software developed by has-property-descriptors
-Copyright (c) 2022 Inspect JS
+This product includes software developed by FingerprintJS
+Copyright (c) 2025 FingerprintJS, Inc
 
 ==
 
@@ -275,11 +235,6 @@ Copyright (c) 2006, Ivan Sagalaev
 This product includes software developed by gmetric4j
 Copyright (C) 2010-2015 Daniel Pocock <daniel@pocock.com.au>
 Copyright (c) 2008-2011 Jasper Humphrey <jasper521@gmail.com>
-
-==
-
-This product includes software developed by inherits
-Copyright (c) 2011-2023 Isaac Z. Schlueter
 
 ==
 
@@ -391,11 +346,6 @@ Copyright 2018 Google Inc.
 
 ==
 
-This product includes software developed by murmurhash-js
-Copyright (c) 2011 Gary Court
-
-==
-
 This product includes software developed by Byte Buddy
 Copyright 2014 - Present Rafael Winterhalter
 
@@ -408,11 +358,6 @@ Copyright Jonathan Halterman and friends.
 
 This product includes software developed by normalize.css
 Copyright © Nicolas Gallagher and Jonathan Neal
-
-==
-
-This product includes software developed by object-keys
-Copyright (C) 2013 Jordan Harband
 
 ==
 
@@ -491,6 +436,11 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates and others. All rights res
 
 This product includes software produced and maintained by Jakarta JSON Processing
 All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by Hibernate models
+Copyright: Red Hat Inc. and Hibernate Authors
 
 ==
 
@@ -626,11 +576,6 @@ Copyright (c) 2014 Tristan Edwards & Limon Monte
 
 This product includes software developed by tslib
 Copyright (c) Microsoft Corporation.
-
-==
-
-This product includes software developed by UAParser.js
-Copyright (c) 2012-2025 Faisal Salman <f@faisalman.com>
 
 ==
 

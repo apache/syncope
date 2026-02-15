@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -106,6 +105,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.dataformat.csv.CsvSchema;
 
 public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 

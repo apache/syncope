@@ -102,10 +102,10 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
                 || ExceptionUtils.getRootCause(ex) instanceof DelegatedAdministrationException) {
 
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ENTITYEXISTS_EXCLASS.isAssignableFrom(ex.getClass())
-                || ex instanceof DuplicateException
-                || PERSISTENCE_EXCLASS.isAssignableFrom(ex.getClass())
-                && ENTITYEXISTS_EXCLASS.isAssignableFrom(ex.getCause().getClass())) {
+        } else if (ENTITYEXISTS_EXCLASS.isAssignableFrom(ex.getClass()) || ex instanceof DuplicateException
+                || (ex.getCause() != null && ENTITYEXISTS_EXCLASS.isAssignableFrom(ex.getCause().getClass()))
+                || ex.getMessage().contains("already exists")
+                || ex.getMessage().contains("UNIQUE") || ex.getMessage().contains("Duplicate")) {
 
             builder = builder(ClientExceptionType.EntityExists, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException || JPASYSTEM_EXCLASS.isAssignableFrom(ex.getClass())) {

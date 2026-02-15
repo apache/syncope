@@ -28,7 +28,6 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -54,6 +53,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +79,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected final SecurityProperties securityProperties;
 
+    protected final ConfigurableApplicationContext ctx;
+
     public DefaultJobManager(
             final DomainHolder<?> domainHolder,
             final SyncopeTaskScheduler scheduler,
@@ -88,7 +90,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             final ImplementationDAO implementationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final ConfParamOps confParamOps,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.scheduler = scheduler;
@@ -99,6 +102,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         this.taskUtilsFactory = taskUtilsFactory;
         this.confParamOps = confParamOps;
         this.securityProperties = securityProperties;
+        this.ctx = ctx;
     }
 
     @Override
@@ -124,7 +128,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         }
 
         // 1. prepare job
-        Job job = ApplicationContextProvider.getBeanFactory().createBean(jobClass);
+        Job job = ctx.getBeanFactory().createBean(jobClass);
         job.setContext(context);
 
         // 2. schedule

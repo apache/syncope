@@ -23,11 +23,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
@@ -79,8 +77,6 @@ public interface AnyRepoExt<A extends Any> {
 
     List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
 
-    <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
-
     Collection<String> findAllResourceKeys(String key);
 
     List<A> findByResourcesContaining(ExternalResource resource);
@@ -92,4 +88,6 @@ public interface AnyRepoExt<A extends Any> {
     void deleteById(String key);
 
     void delete(A any);
+
+    void evict(Class<A> entityClass, String key);
 }

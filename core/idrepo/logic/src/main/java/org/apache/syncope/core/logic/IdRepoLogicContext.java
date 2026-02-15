@@ -493,8 +493,7 @@ public class IdRepoLogicContext {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleProvider,
-            final EncryptorManager encryptorManager) {
+            final RuleProvider ruleProvider) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -510,7 +509,6 @@ public class IdRepoLogicContext {
                 binder,
                 provisioningManager,
                 syncopeLogic,
-                ruleProvider,
-                encryptorManager);
+                ruleProvider);
     }
 }

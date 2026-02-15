@@ -136,13 +136,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
                 toList();
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
-    @Override
-    public ExternalResource save(final ExternalResource resource) {
-        ((JPAExternalResource) resource).list2json();
-        return entityManager.merge(resource);
-    }
-
     @Override
     public void deleteMapping(final String schemaKey) {
         findAll().forEach(resource -> {
@@ -184,12 +177,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
 
-        if (resource.getConnector() != null
-                && resource.getConnector().getResources() != null
-                && !resource.getConnector().getResources().isEmpty()) {
-
-            resource.getConnector().getResources().remove(resource);
-        }
         resource.setConnector(null);
 
         entityManager.remove(resource);

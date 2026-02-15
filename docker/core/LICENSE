@@ -576,11 +576,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Jakarta Messaging (https://projects.eclipse.org/projects/ee4j.messaging):
-This is licensed under the EPL 1.0, see above.
-
-==
-
 For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
 This is licensed under the EPL 1.0, see above.
 
@@ -612,6 +607,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Byte Buddy (https://bytebuddy.net/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1102,11 +1102,6 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
-For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
-This is licensed under the EDL 1.0, see above.
-
-==
-
 For Flowable (http://www.flowable.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1254,6 +1249,16 @@ iv. Affirmer understands and acknowledges that Creative
 Commons is not a party to this document and has no duty or
 obligation with respect to this CC0 or use of the Work.
 
+
+==
+
+For Hibernate models (https://github.com/hibernate/hibernate-models):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Hibernate ORM (https://hibernate.org/orm/):
+This is licensed under the AL 2.0, see above.
 
 ==
 

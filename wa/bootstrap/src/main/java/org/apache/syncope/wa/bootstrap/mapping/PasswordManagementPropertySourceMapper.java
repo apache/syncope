@@ -53,6 +53,9 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
             LOG.warn("Application context is not ready to bootstrap WA configuration");
             return Map.of();
         }
+        if (!passwordManagementTO.isEnabled()) {
+            return Map.of();
+        }
 
         SyncopePasswordManagementProperties props = new SyncopePasswordManagementProperties();
         props.setDomain(conf.getDomain());
@@ -62,15 +65,17 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
         props.setSearchFilter(conf.getSearchFilter());
         props.setHeaders(conf.getHeaders());
 
-        Map<String, Object> mapped = prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(props));
-        mapped.put("cas.authn.pm.syncope.enabled", passwordManagementTO.isEnabled());
-        return mapped;
+        return prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(
             final PasswordManagementTO passwordManagementTO,
             final LDAPPasswordManagementConf conf) {
+
+        if (!passwordManagementTO.isEnabled()) {
+            return Map.of();
+        }
 
         LdapPasswordManagementProperties props = new LdapPasswordManagementProperties();
         props.setName(passwordManagementTO.getKey());
@@ -79,15 +84,17 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
 
         fill(props, conf);
 
-        Map<String, Object> mapped = prefix("cas.authn.pm.ldap[].", WAConfUtils.asMap(props));
-        mapped.put("cas.authn.pm.ldap.enabled", passwordManagementTO.isEnabled());
-        return mapped;
+        return prefix("cas.authn.pm.ldap[].", WAConfUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(
             final PasswordManagementTO passwordManagementTO,
             final JDBCPasswordManagementConf conf) {
+
+        if (!passwordManagementTO.isEnabled()) {
+            return Map.of();
+        }
 
         JdbcPasswordManagementProperties props = new JdbcPasswordManagementProperties();
         props.setSqlChangePassword(conf.getSqlChangePassword());
@@ -100,15 +107,17 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
         props.setSqlUnlockAccount(conf.getSqlUnlockAccount());
         fill(props, conf);
 
-        Map<String, Object> mapped = prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
-        mapped.put("cas.authn.pm.jdbc.enabled", passwordManagementTO.isEnabled());
-        return mapped;
+        return prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
     }
 
     @Override
     public Map<String, Object> map(
             final PasswordManagementTO passwordManagementTO,
             final RESTPasswordManagementConf conf) {
+
+        if (!passwordManagementTO.isEnabled()) {
+            return Map.of();
+        }
 
         RestfulPasswordManagementProperties props = new RestfulPasswordManagementProperties();
         props.setEndpointPassword(conf.getEndpointPassword());
@@ -124,8 +133,6 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
         props.setFieldNameUser(conf.getFieldNameUser());
         props.setHeaders(conf.getHeaders());
 
-        Map<String, Object> mapped = prefix("cas.authn.pm.rest.", WAConfUtils.asMap(props));
-        mapped.put("cas.authn.pm.rest.enabled", passwordManagementTO.isEnabled());
-        return mapped;
+        return prefix("cas.authn.pm.rest.", WAConfUtils.asMap(props));
     }
 }

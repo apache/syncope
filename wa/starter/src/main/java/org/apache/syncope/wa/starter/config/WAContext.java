@@ -119,7 +119,6 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.web.client.RestTemplate;
@@ -432,14 +431,13 @@ public class WAContext {
 
         PasswordManagementProperties pm = casProperties.getAuthn().getPm();
         if (pm.getCore().isEnabled() && StringUtils.isNotBlank(pm.getJdbc().getUrl())) {
-            PasswordEncoder encoder = PasswordEncoderUtils.newPasswordEncoder(
-                    pm.getJdbc().getPasswordEncoder(), ctx);
             return new JdbcPasswordManagementService(
                     passwordManagementCipherExecutor,
                     casProperties,
                     jdbcPasswordManagementDataSource,
                     jdbcPasswordManagementTransactionTemplate,
-                    passwordHistoryService, encoder);
+                    passwordHistoryService,
+                    PasswordEncoderUtils.newPasswordEncoder(pm.getJdbc().getPasswordEncoder(), ctx));
         }
 
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
@@ -456,7 +454,8 @@ public class WAContext {
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
 
-        if (casProperties.getAuthn().getPm().getCore().isEnabled()) {
+        PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+        if (pm.getCore().isEnabled() && StringUtils.isNotBlank(pm.getRest().getEndpointUrlChange())) {
             return new RestPasswordManagementService(
                     passwordManagementCipherExecutor,
                     casProperties,
@@ -470,7 +469,6 @@ public class WAContext {
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public PasswordManagementService passwordChangeService(
-            final ConfigurableApplicationContext ctx,
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
@@ -483,19 +481,19 @@ public class WAContext {
             @Qualifier("restPasswordChangeService")
             final PasswordManagementService restPasswordManagementService) {
 
-        if (ctx.getEnvironment().getProperty("cas.authn.pm.syncope.enabled", Boolean.class, Boolean.FALSE)) {
+        if (!(syncopePasswordManagementService instanceof NoOpPasswordManagementService)) {
             return syncopePasswordManagementService;
         }
 
-        if (ctx.getEnvironment().getProperty("cas.authn.pm.ldap.enabled", Boolean.class, Boolean.FALSE)) {
+        if (!(ldapPasswordManagementService instanceof NoOpPasswordManagementService)) {
             return ldapPasswordManagementService;
         }
 
-        if (ctx.getEnvironment().getProperty("cas.authn.pm.jdbc.enabled", Boolean.class, Boolean.FALSE)) {
+        if (!(jdbcPasswordManagementService instanceof NoOpPasswordManagementService)) {
             return jdbcPasswordManagementService;
         }
 
-        if (ctx.getEnvironment().getProperty("cas.authn.pm.rest.enabled", Boolean.class, Boolean.FALSE)) {
+        if (!(restPasswordManagementService instanceof NoOpPasswordManagementService)) {
             return restPasswordManagementService;
         }
 

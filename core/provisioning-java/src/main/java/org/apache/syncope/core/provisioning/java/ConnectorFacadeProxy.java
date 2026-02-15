@@ -506,7 +506,7 @@ public class ConnectorFacadeProxy implements Connector {
         Object value = null;
 
         try {
-            Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
+            Class<?> propertySchemaClass = ClassUtils.forName(propType, ConnectorFacadeProxy.class.getClassLoader());
 
             if (GuardedString.class.equals(propertySchemaClass)) {
                 value = new GuardedString(values.getFirst().toString().toCharArray());

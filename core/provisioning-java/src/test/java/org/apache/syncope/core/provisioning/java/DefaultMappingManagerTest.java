@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -52,6 +53,9 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private MappingManager mappingManager;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;

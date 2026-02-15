@@ -29,19 +29,11 @@ under the License.
       <module name="org.jboss.vfs"/>
     </dependencies>
     <exclusions>
-      <module name="org.hibernate.validator"/> 
+      <module name="io.micrometer"/>
       <module name="org.hibernate.validator.cdi"/>
-      <module name="jakarta.ws.rs.api"/>
-      <module name="org.apache.cxf"/>
-      <module name="org.apache.cxf.impl"/>
-      <module name="org.hibernate"/>
       <module name="org.slf4j"/>
       <module name="org.slf4j.impl"/>
-      <module name="org.apache.log4j"/>
       <module name="org.apache.logging.log4j.api"/>
-      <module name="org.jboss.log4j.logmanager"/>
-      <module name="org.jboss.logmanager.log4j2"/>
-      <module name="com.h2database.h2"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>

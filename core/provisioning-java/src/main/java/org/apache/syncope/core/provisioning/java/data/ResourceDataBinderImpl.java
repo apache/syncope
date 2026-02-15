@@ -127,10 +127,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             ConnInstance connector = connInstanceDAO.findById(resourceTO.getConnector()).
                     orElseThrow(() -> new NotFoundException("ConnInstance " + resourceTO.getConnector()));
             resource.setConnector(connector);
-
-            if (!connector.getResources().contains(resource)) {
-                connector.add(resource);
-            }
         }
 
         resource.setEnforceMandatoryCondition(resourceTO.isEnforceMandatoryCondition());

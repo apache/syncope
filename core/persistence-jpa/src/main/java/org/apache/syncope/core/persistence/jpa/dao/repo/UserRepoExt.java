@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -30,6 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserRepoExt extends AnyRepoExt<User> {
+
+    Optional<String> findByToken(String token);
 
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 

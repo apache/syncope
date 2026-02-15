@@ -202,13 +202,8 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(status));
 
             // verify that pulled user is found
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
+
             PagedResult<UserTO> matchingUsers = ADMIN_CLIENT.getService(UserService.class).
                     search(new AnyQuery.Builder().
                             realm(SyncopeConstants.ROOT_REALM).

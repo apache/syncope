@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
@@ -64,7 +63,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class MembershipITCase extends AbstractITCase {
 
     @Test
-    public void misc() throws JsonProcessingException {
+    public void misc() {
         UserCR userCR = UserITCase.getUniqueSample("memb@apache.org");
         userCR.setRealm("/even/two");
         userCR.getPlainAttrs().add(new Attr.Builder("aLong").value("1976").build());
@@ -276,13 +275,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
+            awaitIfExtSearchEnabled();
             PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().
                     realm("/").
                     fiql(SyncopeClient.getUserSearchConditionBuilder().

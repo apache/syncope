@@ -33,7 +33,7 @@ The rich pre-defined set of endpoints can be <<extensions,extended>> by adding n
 given Apache Syncope deployment to complement the native features with domain-specific operations.
 
 At a technical level, the RESTful interface is a fully-compliant 
-https://en.wikipedia.org/wiki/Jakarta_RESTful_Web_Services[Jakarta RESTful Web Services 4.0^] implementation based on 
+https://jakarta.ee/specifications/restful-ws/4.0/[Jakarta RESTful Web Services 4.0^] implementation based on 
 http://cxf.apache.org[Apache CXF^], natively dealing with JSON payloads.
 
 More details are available in the dedicated <<core-usage,usage>> section.
@@ -75,12 +75,13 @@ management and new statuses definitions; a web-based GUI editor to model workflo
 image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
 
 Besides Flowable, new workflow engines - possibly integrating with third-party tools as 
-https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written and plugged into specific deployments.
+https://camunda.org/[Camunda^] or https://kie.apache.org/[Apache KIE^], can be written and plugged into specific
+deployments.
 
 ==== Persistence
 
 All data (users, groups, attributes, resources, ...) is internally managed at a high level using a standard 
-https://en.wikipedia.org/wiki/Jakarta_Persistence[Jakarta Persistence 3.1] approach based on
+using a standard https://jakarta.ee/specifications/persistence/3.2/[Jakarta Persistence 3.2] approach based on
 https://hibernate.org/orm/[Hibernate ORM^].
 The data is persisted into an underlying database, referred to as *_Internal Storage_*. Consistency is ensured via the
 comprehensive

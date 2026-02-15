@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.AccessPolicyConfConverter;
 
 @Entity
 @Table(name = JPAAccessPolicy.TABLE)
@@ -34,16 +34,17 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     public static final String TABLE = "AccessPolicy";
 
+    @Convert(converter = AccessPolicyConfConverter.class)
     @Lob
-    private String jsonConf;
+    private AccessPolicyConf jsonConf;
 
     @Override
     public AccessPolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).map(c -> POJOHelper.deserialize(c, AccessPolicyConf.class)).orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AccessPolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

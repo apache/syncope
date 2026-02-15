@@ -21,15 +21,14 @@ package org.apache.syncope.core.persistence.jpa.entity.group;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -48,13 +47,13 @@ import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.GroupTypeExtension;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
+import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
-@EntityListeners({ JSONGroupListener.class })
 @Cacheable
 @GroupCheck
 public class JPAGroup
@@ -69,10 +68,8 @@ public class JPAGroup
     @NotNull
     private String name;
 
-    private String plainAttrs;
-
-    @Transient
-    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
+    @Convert(converter = PlainAttrListConverter.class)
+    private final List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
@@ -131,41 +128,31 @@ public class JPAGroup
     }
 
     @Override
-    public List<PlainAttr> getPlainAttrsList() {
-        return plainAttrsList;
-    }
-
-    @Override
-    public String getPlainAttrsJSON() {
+    protected List<PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public void setPlainAttrsJSON(final String plainAttrs) {
-        this.plainAttrs = plainAttrs;
-    }
-
-    @Override
     public boolean add(final PlainAttr attr) {
-        return plainAttrsList.add(attr);
+        return plainAttrs.add(attr);
     }
 
     @Override
     public boolean remove(final PlainAttr attr) {
-        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+        return plainAttrs.removeIf(a -> a.getSchema().equals(attr.getSchema())
                 && Objects.equals(a.getRelationship(), attr.getRelationship()));
     }
 
     @Override
     public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> attr.getRelationship() == null && plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
     public List<PlainAttr> getPlainAttrs() {
-        return plainAttrsList.stream().
+        return plainAttrs.stream().
                 filter(attr -> attr.getRelationship() == null).
                 toList();
     }
@@ -208,7 +195,7 @@ public class JPAGroup
     @Override
     public boolean remove(final Relationship<?, ?> relationship) {
         checkType(relationship, JPAGRelationship.class);
-        plainAttrsList.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
+        plainAttrs.removeIf(attr -> Objects.equals(attr.getRelationship(), relationship.getKey()));
         return relationships.remove((JPAGRelationship) relationship);
     }
 

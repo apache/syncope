@@ -20,8 +20,14 @@ package org.apache.syncope.core.persistence.jpa.spring;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitInfo;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
+import java.util.Optional;
+import javax.cache.Caching;
+import javax.cache.configuration.FactoryBuilder;
+import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
+import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
+import org.hibernate.cache.spi.support.RegionNameQualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
@@ -37,15 +43,13 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
     public void setCommonEntityManagerFactoryConf(final CommonEntityManagerFactoryConf commonEMFConf) {
         super.setJpaPropertyMap(commonEMFConf.getJpaPropertyMap());
 
-        if (commonEMFConf.getPackagesToScan() != null) {
-            super.setPackagesToScan(commonEMFConf.getPackagesToScan());
-        }
+        Optional.ofNullable(commonEMFConf.getPackagesToScan()).
+                ifPresent(super::setPackagesToScan);
 
         super.setValidationMode(commonEMFConf.getValidationMode());
 
-        if (commonEMFConf.getPersistenceUnitPostProcessors() != null) {
-            super.setPersistenceUnitPostProcessors(commonEMFConf.getPersistenceUnitPostProcessors());
-        }
+        Optional.ofNullable(commonEMFConf.getPersistenceUnitPostProcessors()).
+                ifPresent(super::setPersistenceUnitPostProcessors);
     }
 
     public void setConnectorManagerRemoteCommitListener(
@@ -58,7 +62,19 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
     protected void postProcessEntityManagerFactory(final EntityManagerFactory emf, final PersistenceUnitInfo pui) {
         super.postProcessEntityManagerFactory(emf, pui);
 
-        OpenJPAEntityManagerFactorySPI emfspi = emf.unwrap(OpenJPAEntityManagerFactorySPI.class);
-        emfspi.getConfiguration().getRemoteCommitEventManager().addListener(connectorManagerRemoteCommitListener);
+        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                getCache(RegionNameQualifier.INSTANCE.qualify(
+                        pui.getPersistenceUnitName(), JPAConnInstance.class.getName()))).
+                ifPresent(cache -> cache.registerCacheEntryListener(
+                new MutableCacheEntryListenerConfiguration<Object, Object>(
+                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                        null, false, false)));
+        Optional.ofNullable(Caching.getCachingProvider().getCacheManager().
+                getCache(RegionNameQualifier.INSTANCE.qualify(
+                        pui.getPersistenceUnitName(), JPAExternalResource.class.getName()))).
+                ifPresent(cache -> cache.registerCacheEntryListener(
+                new MutableCacheEntryListenerConfiguration<Object, Object>(
+                        FactoryBuilder.factoryOf(connectorManagerRemoteCommitListener),
+                        null, false, false)));
     }
 }

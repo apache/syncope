@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
@@ -32,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFTestContext {

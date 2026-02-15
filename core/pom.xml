@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core</name>
@@ -92,6 +92,5 @@ under the License.
     <module>starter</module>
     <module>self-keymaster-starter</module>
     <module>metrics-starter</module>
-    <module>persistence-jpa-upgrader</module>
   </modules>
 </project>

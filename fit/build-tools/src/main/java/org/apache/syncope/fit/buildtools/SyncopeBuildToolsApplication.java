@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRegistration;
@@ -32,19 +31,21 @@ import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.Spring
 import org.apache.cxf.jaxws.EndpointImpl;
 import org.apache.syncope.fit.buildtools.cxf.DateParamConverterProvider;
 import org.apache.syncope.fit.buildtools.cxf.GreenMailService;
+import org.apache.syncope.fit.buildtools.cxf.KafkaService;
 import org.apache.syncope.fit.buildtools.cxf.ProvisioningImpl;
 import org.apache.syncope.fit.buildtools.cxf.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
@@ -94,6 +95,11 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
+    public KafkaService kafkaService() {
+        return new KafkaService();
+    }
+
+    @Bean
     public UserService userService() {
         return new UserService();
     }
@@ -101,6 +107,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     @Bean
     public Server restProvisioning(
             final GreenMailService greenMailService,
+            final KafkaService kafkaService,
             final UserService userService,
             final Bus bus,
             final ApplicationContext ctx) {
@@ -110,7 +117,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         restProvisioning.setBus(bus);
         restProvisioning.setAddress("/rest");
         restProvisioning.setStaticSubresourceResolution(true);
-        restProvisioning.setServiceBeans(List.of(greenMailService, userService));
+        restProvisioning.setServiceBeans(List.of(greenMailService, kafkaService, userService));
         restProvisioning.setProviders(List.of(new JacksonJsonProvider(), new DateParamConverterProvider()));
         return restProvisioning.create();
     }

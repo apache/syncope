@@ -28,26 +28,26 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     public static final String DB_TYPE = "db-type";
 
-    private String remoteCommitProvider = "sjvm";
+    private String cacheProvider = "com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider";
 
-    private String metaDataFactory;
+    private String cacheURI;
 
     private String viewsXML = "classpath:META-INF/views.xml";
 
-    public String getRemoteCommitProvider() {
-        return remoteCommitProvider;
+    public String getCacheProvider() {
+        return cacheProvider;
     }
 
-    public void setRemoteCommitProvider(final String remoteCommitProvider) {
-        this.remoteCommitProvider = remoteCommitProvider;
+    public void setCacheProvider(final String cacheProvider) {
+        this.cacheProvider = cacheProvider;
     }
 
-    public String getMetaDataFactory() {
-        return metaDataFactory;
+    public String getCacheURI() {
+        return cacheURI;
     }
 
-    public void setMetaDataFactory(final String metaDataFactory) {
-        this.metaDataFactory = metaDataFactory;
+    public void setCacheURI(final String cacheURI) {
+        this.cacheURI = cacheURI;
     }
 
     public String getViewsXML() {

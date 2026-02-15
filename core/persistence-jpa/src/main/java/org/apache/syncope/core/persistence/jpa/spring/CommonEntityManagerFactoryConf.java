@@ -22,6 +22,7 @@ import jakarta.persistence.ValidationMode;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -98,8 +99,6 @@ public class CommonEntityManagerFactoryConf implements DomainHolder<DataSource> 
     }
 
     public void setJpaPropertyMap(final Map<String, ?> jpaProperties) {
-        if (jpaProperties != null) {
-            this.jpaPropertyMap.putAll(jpaProperties);
-        }
+        Optional.ofNullable(jpaProperties).ifPresent(jpaPropertyMap::putAll);
     }
 }

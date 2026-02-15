@@ -18,27 +18,26 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.identityconnectors.common.security.GuardedString;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
 
-public abstract class AbstractValueDeserializer<T extends Object> extends JsonDeserializer<T> {
+public abstract class AbstractValueDeserializer<T extends Object> extends ValueDeserializer<T> {
 
-    protected List<Object> doDeserialize(final JsonNode value, final JsonParser jp) throws IOException {
+    protected List<Object> doDeserialize(final JsonNode value, final JsonParser jp) throws JacksonException {
         List<Object> values = new ArrayList<>();
 
         for (JsonNode node : value) {
             if (node.isNull()) {
                 values.add(null);
             } else if (node.isObject()) {
-                values.add(((ObjectNode) node).traverse(jp.getCodec()).readValueAs(GuardedString.class));
+                values.add(node.traverse(jp.objectReadContext()).readValueAs(GuardedString.class));
             } else if (node.isBoolean()) {
                 values.add(node.asBoolean());
             } else if (node.isDouble()) {
@@ -48,7 +47,7 @@ public abstract class AbstractValueDeserializer<T extends Object> extends JsonDe
             } else if (node.isInt()) {
                 values.add(node.asInt());
             } else {
-                String text = node.asText();
+                String text = node.asString();
                 if (text.startsWith(AbstractValueSerializer.BYTE_ARRAY_PREFIX)
                         && text.endsWith(AbstractValueSerializer.BYTE_ARRAY_SUFFIX)) {
 

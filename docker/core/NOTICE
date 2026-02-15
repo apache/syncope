@@ -114,12 +114,6 @@ Copyright (c) 2018,2020 Eclipse Foundation
 
 ==
 
-This product includes software developed by the Eclipse Project for Jakarta Messaging.
-Copyright (c) 2017, 2020 Oracle and/or its affiliates. All rights reserved.
-Copyright 2021 Contributors to the Eclipse Foundation
-
-==
-
 This product includes software developed by the Eclipse Project for Jakarta Mail.
 Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 
@@ -153,6 +147,11 @@ Copyright (c) Red Hat, Inc., Emmanuel Bernard
 
 This product includes software developed by the Joda Time project.
 Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
+
+==
+
+This product includes software developed by Byte Buddy
+Copyright 2014 - Present Rafael Winterhalter
 
 ==
 
@@ -222,17 +221,22 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by the Eclipse Angus Project.
-Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
-
-==
-
 This product includes software developed by the Flowable project.
 
 ==
 
 This product includes software produced and maintained by Jakarta JSON Processing
 All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by Hibernate models
+Copyright: Red Hat Inc. and Hibernate Authors
+
+==
+
+This product includes software developed by Hibernate ORM
+Copyright Red Hat Inc. and Hibernate Authors
 
 ==
 

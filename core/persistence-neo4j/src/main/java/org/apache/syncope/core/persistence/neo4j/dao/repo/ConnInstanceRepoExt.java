@@ -19,9 +19,14 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 
 public interface ConnInstanceRepoExt {
+
+    String CACHE = "connInstanceCache";
+
+    Optional<? extends ConnInstance> findById(String key);
 
     ConnInstance authFind(String key);
 

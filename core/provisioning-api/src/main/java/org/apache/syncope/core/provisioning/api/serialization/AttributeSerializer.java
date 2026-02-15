@@ -18,22 +18,22 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 class AttributeSerializer extends AbstractValueSerializer<Attribute> {
 
     @Override
-    public void serialize(final Attribute source, final JsonGenerator jgen, final SerializerProvider sp)
-            throws IOException {
+    public void serialize(final Attribute source, final JsonGenerator jgen, final SerializationContext ctx)
+            throws JacksonException {
 
         jgen.writeStartObject();
 
-        jgen.writeStringField("name", source.getName());
+        jgen.writeStringProperty("name", source.getName());
 
-        jgen.writeFieldName("value");
+        jgen.writeName("value");
         doSerialize(source.getValue(), jgen);
 
         jgen.writeEndObject();

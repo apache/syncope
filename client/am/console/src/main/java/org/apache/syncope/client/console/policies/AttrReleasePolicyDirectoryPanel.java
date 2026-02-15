@@ -77,6 +77,12 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
                 if (model.getObject().getConf() == null) {
                     model.getObject().setConf(new DefaultAttrReleasePolicyConf());
                 }
+                if (model.getObject().getConf() instanceof DefaultAttrReleasePolicyConf defaultAttrReleasePolicyConf
+                        && defaultAttrReleasePolicyConf.getPrincipalAttrRepoConf() == null) {
+
+                    defaultAttrReleasePolicyConf.setPrincipalAttrRepoConf(
+                            new DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf());
+                }
                 target.add(policySpecModal.setContent(
                         new AttrReleasePolicyModalPanel(policySpecModal, model, pageRef)));
                 policySpecModal.header(new Model<>(getString("attrReleasePolicyConf.title", model)));

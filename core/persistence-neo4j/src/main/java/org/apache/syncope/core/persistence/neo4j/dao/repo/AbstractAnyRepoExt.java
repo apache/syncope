@@ -21,37 +21,23 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import javax.cache.Cache;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
@@ -60,10 +46,8 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
@@ -96,9 +80,9 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     protected final DerSchemaDAO derSchemaDAO;
+
+    protected final AnyChecker anyChecker;
 
     protected final AnyFinder anyFinder;
 
@@ -107,8 +91,8 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
     protected AbstractAnyRepoExt(
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils,
             final Neo4jTemplate neo4jTemplate,
@@ -117,8 +101,8 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         super(neo4jTemplate, neo4jClient);
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
-        this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
+        this.anyChecker = anyChecker;
         this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
     }
@@ -171,136 +155,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), expression, value, ignoreCaseMatch);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    @SuppressWarnings("unchecked")
-    public <S extends Schema> AllowedSchemas<S> findAllowedSchemas(final A any, final Class<S> reference) {
-        AllowedSchemas<S> result = new AllowedSchemas<>();
-
-        // schemas given by type and aux classes
-        Set<AnyTypeClass> anyTypeOwnClasses = new HashSet<>();
-        AnyType anyType = anyTypeDAO.findById(any.getType().getKey()).
-                orElseThrow(() -> new NotFoundException("AnyType " + any.getType().getKey()));
-        anyTypeOwnClasses.addAll(anyType.getClasses());
-        any.getAuxClasses().forEach(atc -> {
-            AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
-                    orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
-            anyTypeOwnClasses.add(anyTypeClass);
-        });
-
-        anyTypeOwnClasses.forEach(atc -> {
-            if (reference.equals(PlainSchema.class)) {
-                atc.getPlainSchemas().stream().
-                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.self().add((S) schema));
-            } else if (reference.equals(DerSchema.class)) {
-                atc.getDerSchemas().stream().
-                        map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.self().add((S) schema));
-            }
-        });
-
-        // schemas given by type extensions
-        Map<Group, Set<AnyTypeClass>> gTypeExtensionClasses = new HashMap<>();
-        switch (any) {
-            case User user ->
-                user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().forEach(typeExt -> {
-                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
-                    typeExt.getAuxClasses().forEach(atc -> {
-                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
-                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
-                        typeExtClasses.add(anyTypeClass);
-                    });
-
-                    gTypeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
-                }));
-
-            case AnyObject anyObject ->
-                anyObject.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
-                        filter(typeExt -> any.getType().equals(typeExt.getAnyType())).forEach(typeExt -> {
-
-                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
-                    typeExt.getAuxClasses().forEach(atc -> {
-                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
-                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
-                        typeExtClasses.add(anyTypeClass);
-                    });
-
-                    gTypeExtensionClasses.put(memb.getRightEnd(), typeExtClasses);
-                }));
-
-            default -> {
-            }
-        }
-        gTypeExtensionClasses.entrySet().stream().peek(
-                entry -> result.memberships().put(entry.getKey(), new HashSet<>()))
-                .forEach(entry -> entry.getValue().forEach(atc -> {
-            if (reference.equals(PlainSchema.class)) {
-                atc.getPlainSchemas().stream().
-                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
-            } else if (reference.equals(DerSchema.class)) {
-                atc.getDerSchemas().stream().
-                        map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
-            }
-        }));
-
-        // schemas given by relationship type extensions
-        Map<RelationshipType, Set<AnyTypeClass>> rTypeExtensionClasses = new HashMap<>();
-        switch (any) {
-            case User user ->
-                user.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().forEach(typeExt -> {
-                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
-                    typeExt.getAuxClasses().forEach(atc -> {
-                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
-                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
-                        typeExtClasses.add(anyTypeClass);
-                    });
-
-                    rTypeExtensionClasses.put(rel.getType(), typeExtClasses);
-                }));
-
-            case AnyObject anyObject ->
-                anyObject.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().stream().
-                        filter(typeExt -> any.getType().equals(typeExt.getAnyType())).forEach(typeExt -> {
-
-                    Set<AnyTypeClass> typeExtClasses = new HashSet<>();
-                    typeExt.getAuxClasses().forEach(atc -> {
-                        AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(atc.getKey()).
-                                orElseThrow(() -> new NotFoundException("AnyTypeClass " + atc.getKey()));
-                        typeExtClasses.add(anyTypeClass);
-                    });
-
-                    rTypeExtensionClasses.put(rel.getType(), typeExtClasses);
-                }));
-
-            default -> {
-            }
-        }
-        rTypeExtensionClasses.entrySet().stream().peek(
-                entry -> result.relationshipTypes().put(entry.getKey(), new HashSet<>()))
-                .forEach(entry -> entry.getValue().forEach(atc -> {
-            if (reference.equals(PlainSchema.class)) {
-                atc.getPlainSchemas().stream().
-                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
-            } else if (reference.equals(DerSchema.class)) {
-                atc.getDerSchemas().stream().
-                        map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
-            }
-        }));
-
-        return result;
-    }
-
     @Override
     public List<A> findByResourcesContaining(final ExternalResource resource) {
         return findByRelationship(
@@ -321,36 +175,13 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         neo4jTemplate.deleteById(relationship.getKey(), domainType);
     }
 
-    protected <T extends Attributable> void checkBeforeSave(final T attributable) {
-        // check UNIQUE constraints
-        attributable.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            if (plainSchemaDAO.existsPlainAttrUniqueValue(
-                    anyUtils,
-                    attributable.getKey(),
-                    plainSchemaDAO.findById(attr.getSchema()).
-                            orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
-                    attr.getUniqueValue())) {
-
-                throw new DuplicateException("Duplicate value found for "
-                        + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
-            } else {
-                LOG.debug("No duplicate value found for {}={}",
-                        attr.getSchema(), attr.getUniqueValue().getValueAsString());
-            }
-        });
-
-        // update sysInfo
-        if (attributable instanceof Any any) {
-            OffsetDateTime now = OffsetDateTime.now();
-            String who = AuthContextUtils.getWho();
-            LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
-            any.setLastModifier(who);
-            any.setLastChangeDate(now);
-        }
-    }
-
     @Override
     public void deleteById(final String key) {
         findById(key).ifPresent(this::delete);
+    }
+
+    @Override
+    public void evict(final Class<A> entityClass, final String key) {
+        cache().remove(EntityCacheKey.of(key));
     }
 }

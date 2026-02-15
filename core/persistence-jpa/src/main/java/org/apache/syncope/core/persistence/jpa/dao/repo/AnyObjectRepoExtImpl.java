@@ -19,13 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,8 +31,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -52,7 +50,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implements AnyObjectRepoExt {
@@ -63,15 +60,15 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
@@ -80,34 +77,35 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Override
     public Map<String, Long> countByType() {
-        Query query = entityManager.createNativeQuery(
+        return query(
                 "SELECT e.type_id, COUNT(e.id) "
                 + "FROM " + JPAAnyObject.TABLE + " e "
-                + "GROUP BY e.type_id");
+                + "GROUP BY e.type_id",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        Map<String, Long> countByRealm = new LinkedHashMap<>(results.size());
-        results.forEach(result -> countByRealm.put(result[0].toString(), ((Number) result[1]).longValue()));
-
-        return Collections.unmodifiableMap(countByRealm);
     }
 
     @Override
     public Map<String, Long> countByRealm(final String anyType) {
-        Query query = entityManager.createNativeQuery(
+        return query(
                 "SELECT r.fullPath, COUNT(e.id) "
                 + "FROM " + JPAAnyObject.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
                 + "WHERE e.type_id=? "
-                + "GROUP BY r.fullPath");
-        query.setParameter(1, anyType);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> result[0].toString(),
-                result -> ((Number) result[1]).longValue()));
+                + "GROUP BY r.fullPath",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                },
+                anyType);
     }
 
     @Transactional(readOnly = true)
@@ -179,16 +177,9 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave((JPAAnyObject) anyObject);
-
-        AnyObject merged = entityManager.merge(anyObject);
-
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
-
-        return (S) merged;
+        anyChecker.checkBeforeSave(anyObject, anyUtils);
+        return entityManager.merge(anyObject);
     }
 
     protected List<ARelationship> findARelationships(final AnyObject anyObject) {
@@ -209,19 +200,22 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return query.getResultList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         return anyObject.getMemberships().stream().map(AMembership::getRightEnd).collect(Collectors.toSet());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return findAllGroups(anyObject).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(anyObject.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final AnyObject anyObject) {
         Set<ExternalResource> result = new HashSet<>();

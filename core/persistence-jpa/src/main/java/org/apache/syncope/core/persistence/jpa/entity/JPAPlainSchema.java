@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +38,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.String2StringMapConverter;
+import tools.jackson.core.type.TypeReference;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
@@ -61,7 +55,7 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
             new TypeReference<HashMap<String, String>>() {
     };
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @NotNull
@@ -80,11 +74,9 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Column(nullable = true)
     private String conversionPattern;
 
+    @Convert(converter = String2StringMapConverter.class)
     @Lob
-    private String enumValues;
-
-    @Transient
-    private Map<String, String> enumValuesMap = new HashMap<>();
+    private Map<String, String> enumValues = new HashMap<>();
 
     @ManyToOne
     private JPAImplementation dropdownValueProvider;
@@ -229,39 +221,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @Override
     public Map<String, String> getEnumValues() {
-        return enumValuesMap;
-    }
-
-    @Override
-    protected void json2map(final boolean clearFirst) {
-        super.json2map(clearFirst);
-
-        if (clearFirst) {
-            getEnumValues().clear();
-        }
-        if (enumValues != null) {
-            getEnumValues().putAll(POJOHelper.deserialize(enumValues, ENUMVALUES_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    @Override
-    public void postLoad() {
-        json2map(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    @Override
-    public void postSave() {
-        json2map(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    @Override
-    public void map2json() {
-        super.map2json();
-        enumValues = POJOHelper.serialize(getEnumValues());
+        return enumValues;
     }
 }

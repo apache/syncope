@@ -135,6 +135,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         if (rp.getAccessTokenMaxTimeToLive() != null
                 || rp.getAccessTokenTimeToKill() != null
                 || rp.getAccessTokenMaxActiveTokens() != null) {
+
             DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy accessTokenExpirationPolicy =
                     new DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy();
             Optional.ofNullable(rp.getAccessTokenMaxTimeToLive())
@@ -159,8 +160,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         if (rp.getDeviceTokenTimeToKill() != null) {
             DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy deviceTokenExpirationPolicy =
                     new DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy();
-            Optional.ofNullable(rp.getAccessTokenTimeToKill())
-                    .ifPresent(deviceTokenExpirationPolicy::setTimeToKill);
+            deviceTokenExpirationPolicy.setTimeToKill(rp.getDeviceTokenTimeToKill());
             service.setDeviceTokenExpirationPolicy(deviceTokenExpirationPolicy);
         }
         return service;

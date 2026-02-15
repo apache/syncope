@@ -20,8 +20,8 @@ package org.apache.syncope.ext.opensearch.client;
 
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch.cluster.HealthResponse;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 
 public class SyncopeOpenSearchHealthContributor implements HealthIndicator {
 

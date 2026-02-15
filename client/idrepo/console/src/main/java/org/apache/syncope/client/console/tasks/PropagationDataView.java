@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Task attributes details.
@@ -39,7 +40,7 @@ public class PropagationDataView extends MultilevelPanel.SecondLevel {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyPropagationTasks.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public PropagationDataView(final PropagationTaskTO taskTO) {
         super();
@@ -64,8 +65,8 @@ public class PropagationDataView extends MultilevelPanel.SecondLevel {
         try {
             JsonNode list = MAPPER.readTree(taskTO.getPropagationData());
             json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(list);
-        } catch (IOException ex) {
-            LOG.error("Error converting objects to JSON", ex);
+        } catch (JacksonException e) {
+            LOG.error("Error converting objects to JSON", e);
         }
 
         return json;

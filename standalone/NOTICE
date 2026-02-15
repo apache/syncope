@@ -41,6 +41,11 @@ Copyright (c) 2022 Pablo Alcaraz Martínez
 
 ==
 
+This product includes software developed by Logback
+Copyright (C) 1999-2024, QOS.ch. All rights reserved.
+
+==
+
 This product includes software developed by the Chart.js project.
 Copyright (c) 2018 Chart.js Contributors
 
@@ -63,6 +68,11 @@ Copyright 2015-2024 Vladimir Bukhtoyarov
 
 This product includes software developed by Duo Auth API
 Copyright (c) 2012, Duo Security, Inc.
+
+==
+
+This product includes software developed by hash4j
+Copyright 2025-2026 Dynatrace LLC
 
 ==
 
@@ -133,6 +143,11 @@ This product includes software developed by J2ObjC: Java to Objective-C Translat
 
 This product includes software developed by Protocol Buffers
 Copyright 2008 Google Inc. All rights reserved.
+
+==
+
+This product includes software developed by RE2/J
+Copyright (c) 2009 The Go Authors. All rights reserved.
 
 ==
 
@@ -227,18 +242,6 @@ Copyright (c) 2018, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software developed by t-digest
-The code for the t-digest was originally authored by Ted Dunning
-
-==
-
-This product includes software developed by Method Parameter Name Access for Java.
-Portions copyright (c) 2006-2018 Paul Hammant & ThoughtWorks Inc
-Portions copyright (c) 2000-2007 INRIA, France Telecom
-All rights reserved.
-
-==
-
 This product includes software developed by Scala Logging.
 Copyright 2014-2021 Lightbend, Inc.
 
@@ -260,11 +263,6 @@ Copyright (c) 2014-2017 Enrico M. Crisostomo
 
 ==
 
-This product includes software developed by Wavefront's Java SDK
-Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
-
-==
-
 This product includes software developed by Yammer Metrics.
 Copyright (c) 2010-2013 Coda Hale, Yammer.com
 
@@ -281,16 +279,6 @@ This product includes software developed by the HikariCP project.
 
 This product includes software developed by DataTables
 Copyright (c) 2008-present, SpryMedia Limited
-
-==
-
-This product includes software developed by define-data-property
-Copyright (c) 2023 Jordan Harband
-
-==
-
-This product includes software developed by define-properties
-Copyright (C) 2015 Jordan Harband
 
 ==
 
@@ -314,33 +302,13 @@ Copyright (c) 2021 Jonathan Peterson (@Eonasdan)
 
 ==
 
-This product includes software developed by es-define-property
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by es-errors
-Copyright (c) 2024 Jordan Harband
-
-==
-
-This product includes software developed by globalThis
-Copyright (c) 2016 Jordan Harband
+This product includes software developed by FingerprintJS
+Copyright (c) 2025 FingerprintJS, Inc
 
 ==
 
 This product includes software developed by the google-diff-match-patch project.
 Copyright (c) 2006 Google Inc.
-
-==
-
-This product includes software developed by gopd
-Copyright (c) 2022 Jordan Harband
-
-==
-
-This product includes software developed by has-property-descriptors
-Copyright (c) 2022 Inspect JS
 
 ==
 
@@ -352,11 +320,6 @@ Copyright (c) 2006, Ivan Sagalaev
 This product includes software developed by gmetric4j
 Copyright (C) 2010-2015 Daniel Pocock <daniel@pocock.com.au>
 Copyright (c) 2008-2011 Jasper Humphrey <jasper521@gmail.com>
-
-==
-
-This product includes software developed by inherits
-Copyright (c) 2011-2023 Isaac Z. Schlueter
 
 ==
 
@@ -528,11 +491,6 @@ Copyright (c) 2011-2016 Tim Wood, Iskren Chernev, Moment.js contributors
 
 ==
 
-This product includes software developed by murmurhash-js
-Copyright (c) 2011 Gary Court
-
-==
-
 This product includes software developed by Byte Buddy
 Copyright 2014 - Present Rafael Winterhalter
 
@@ -573,11 +531,6 @@ Copyright (c) 2025 Tirasa
 
 This product includes software developed by normalize.css
 Copyright © Nicolas Gallagher and Jonathan Neal
-
-==
-
-This product includes software developed by object-keys
-Copyright (C) 2013 Jordan Harband
 
 ==
 
@@ -675,6 +628,11 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates and others. All rights res
 
 This product includes software produced and maintained by Jakarta JSON Processing
 All content is the property of the respective authors or their employers.
+
+==
+
+This product includes software developed by Hibernate models
+Copyright: Red Hat Inc. and Hibernate Authors
 
 ==
 
@@ -880,11 +838,6 @@ Copyright (c) 2016 Tempus Dominus
 
 This product includes software developed by tslib
 Copyright (c) Microsoft Corporation.
-
-==
-
-This product includes software developed by UAParser.js
-Copyright (c) 2012-2025 Faisal Salman <f@faisalman.com>
 
 ==
 

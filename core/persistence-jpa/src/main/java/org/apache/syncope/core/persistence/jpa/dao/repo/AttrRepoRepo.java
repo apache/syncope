@@ -23,6 +23,6 @@ import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface AttrRepoRepo
-        extends ListCrudRepository<JPAAttrRepo, String>, AttrRepoRepoExt, AttrRepoDAO {
+        extends ListCrudRepository<JPAAttrRepo, String>, AttrRepoDAO {
 
 }

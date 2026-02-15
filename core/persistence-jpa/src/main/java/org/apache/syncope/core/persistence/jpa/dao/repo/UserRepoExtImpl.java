@@ -23,6 +23,7 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +34,13 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -56,7 +56,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
@@ -75,7 +74,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -83,11 +81,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
@@ -98,23 +97,48 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.securityProperties = securityProperties;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<String> findByToken(final String token) {
+        return query(
+                "SELECT id FROM " + JPAUser.TABLE + " WHERE token LIKE ?",
+                rs -> {
+                    if (rs.next()) {
+                        return Optional.of(rs.getString(1));
+                    }
+                    return Optional.empty();
+                },
+                token);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public boolean isManager(final String key) {
-        Query user = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE uManager_id=?");
-        user.setParameter(1, key);
+        long users = query(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE uManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        Query group = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE uManager_id=?");
-        group.setParameter(1, key);
+        long groups = query(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE uManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        Query anyObject = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE uManager_id=?");
-        anyObject.setParameter(1, key);
+        long anyObjects = query(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE uManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        return ((Number) user.getSingleResult()).longValue()
-                + ((Number) group.getSingleResult()).longValue()
-                + ((Number) anyObject.getSingleResult()).longValue() > 0;
+        return users + groups + anyObjects > 0;
     }
 
     @Override
@@ -190,26 +214,32 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Override
     public Map<String, Long> countByRealm() {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> ((Realm) result[0]).getFullPath(),
-                result -> ((Number) result[1]).longValue()));
+        return query(
+                "SELECT r.fullPath, COUNT(e.id) "
+                + "FROM " + JPAUser.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
+                + "GROUP BY r.fullPath",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
     }
 
     @Override
     public Map<String, Long> countByStatus() {
-        Query query = entityManager.createQuery(
-                "SELECT e.status, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.status");
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> (String) result[0],
-                result -> ((Number) result[1]).longValue()));
+        return query(
+                "SELECT e.status, COUNT(e.id) "
+                + "FROM " + JPAUser.TABLE + " e "
+                + "GROUP BY e.status",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
     }
 
     @Transactional(readOnly = true)
@@ -263,31 +293,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(membership);
     }
 
-    protected User checkBeforeSave(final User user) {
-        User merged = user;
-        if (user.getLinkedAccounts() == null) {
-            entityManager.flush();
-            merged = entityManager.merge(user);
-        }
-        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
-
-        super.checkBeforeSave((JPAUser) merged);
-        merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
-
-        return merged;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public <S extends User> S save(final S user) {
-        checkBeforeSave(user);
+        S saved = entityManager.merge(user);
 
-        User merged = entityManager.merge(user);
+        anyChecker.checkBeforeSave(saved, anyUtils);
+        saved.getLinkedAccounts().forEach(account -> anyChecker.checkBeforeSave(account, anyUtils));
 
-        // ensure that entity listeners are invoked at this point
-        entityManager.flush();
-
-        return (S) merged;
+        return saved;
     }
 
     @Override
@@ -302,7 +315,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
@@ -311,25 +324,28 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
         return user.getMemberships().stream().map(UMembership::getRightEnd).collect(Collectors.toSet());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return findAllGroups(user).stream().map(Group::getKey).toList();
+        Set<String> result = new HashSet<>();
+        result.addAll(user.getMemberships().stream().map(m -> m.getRightEnd().getKey()).toList());
+
+        return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
         return findAllGroups(user).stream().map(Group::getName).toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
@@ -348,11 +364,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(readOnly = true)
     @Override
     public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
-        query.setParameter(1, userKey);
-        query.setParameter(2, connObjectKeyValue);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                userKey, connObjectKeyValue) > 0;
     }
 }

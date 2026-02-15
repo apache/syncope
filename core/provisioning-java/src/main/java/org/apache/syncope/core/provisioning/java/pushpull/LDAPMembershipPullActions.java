@@ -53,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -189,7 +188,6 @@ public class LDAPMembershipPullActions implements InboundActions {
                 () -> LOG.warn("Could not find matching user for {}", membValue)));
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) {
         List<UserUR> updateReqs = new ArrayList<>();

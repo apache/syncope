@@ -70,14 +70,15 @@ public class SAML2IdPEntityTest extends AbstractTest {
     public void update() {
         SAML2IdPEntity entity = create("SyncopeUpdate");
         assertNotNull(entity);
-        entity.setKey("OtherSyncope");
+
+        entity.setMetadata("metadata2".getBytes(StandardCharsets.UTF_8));
 
         entity = saml2IdPEntityDAO.save(entity);
         assertNotNull(entity);
-        
+
         entityManager.flush();
 
         SAML2IdPEntity found = saml2IdPEntityDAO.findById(entity.getKey()).orElseThrow();
-        assertEquals("OtherSyncope", found.getKey());
+        assertEquals("metadata2", new String(found.getMetadata(), StandardCharsets.UTF_8));
     }
 }

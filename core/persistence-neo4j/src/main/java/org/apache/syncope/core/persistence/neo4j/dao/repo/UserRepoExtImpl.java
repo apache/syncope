@@ -32,16 +32,15 @@ import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -101,13 +100,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder,
             final SecurityProperties securityProperties,
             final Neo4jTemplate neo4jTemplate,
@@ -120,12 +119,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         super(
                 anyTypeDAO,
                 anyTypeClassDAO,
-                plainSchemaDAO,
                 derSchemaDAO,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
                 neo4jClient);
+
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.groupDAO = groupDAO;
@@ -144,11 +144,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     }
 
     @Override
-    public Optional<? extends User> findByToken(final String token) {
+    public Optional<String> findByToken(final String token) {
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + ") WHERE n.token = $token RETURN n.id").
                 bindAll(Map.of("token", token)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jUser.class, userCache));
+                map(found -> found.get("n.id").toString());
     }
 
     @Override
@@ -308,16 +308,11 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
     }
 
-    @Override
-    protected <T extends Attributable> void checkBeforeSave(final T user) {
-        super.checkBeforeSave(user);
-        ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <S extends User> S save(final S user) {
-        checkBeforeSave(user);
+        anyChecker.checkBeforeSave(user, anyUtils);
+        user.getLinkedAccounts().forEach(account -> anyChecker.checkBeforeSave(account, anyUtils));
 
         // unlink any role, resource, aux class or security question that was unlinked from user
         // delete any membership, relationship or linked account that was removed from user
@@ -360,8 +355,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                         AbstractAny.GROUP_MANAGER_REL);
             }
             if (before.getSecurityQuestion() != null && user.getSecurityQuestion() == null) {
-                deleteRelationship(
-                        Neo4jUser.NODE,
+                deleteRelationship(Neo4jUser.NODE,
                         Neo4jSecurityQuestion.NODE,
                         user.getKey(),
                         before.getSecurityQuestion().getKey(),

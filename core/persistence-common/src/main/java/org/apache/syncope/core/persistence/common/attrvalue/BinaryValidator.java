@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.core.persistence.common.attrvalue;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
-import java.io.IOException;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.tika.Tika;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public class BinaryValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 1344152444666540361L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     private static final Tika TIKA = new Tika();
 
@@ -67,7 +68,7 @@ public class BinaryValidator extends AbstractValidator {
         try {
             MAPPER.readTree(value);
             return true;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.debug("Invalid JSON string: {}", value, e);
             return false;
         }

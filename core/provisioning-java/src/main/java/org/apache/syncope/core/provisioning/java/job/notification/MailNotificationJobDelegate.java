@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job.notification;
 
 import jakarta.mail.internet.MimeMessage;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -34,6 +35,7 @@ public class MailNotificationJobDelegate extends AbstractNotificationJobDelegate
     protected final JavaMailSender mailSender;
 
     public MailNotificationJobDelegate(
+            final ConfParamOps confParamOps,
             final TaskDAO taskDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
@@ -41,7 +43,7 @@ public class MailNotificationJobDelegate extends AbstractNotificationJobDelegate
             final ApplicationEventPublisher publisher,
             final JavaMailSender mailSender) {
 
-        super(taskDAO, taskUtilsFactory, auditManager, notificationManager, publisher);
+        super(confParamOps, taskDAO, taskUtilsFactory, auditManager, notificationManager, publisher);
         this.mailSender = mailSender;
     }
 

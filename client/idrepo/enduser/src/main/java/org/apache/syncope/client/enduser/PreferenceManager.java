@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -31,10 +29,13 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 
 public final class PreferenceManager implements Serializable {
 
@@ -46,7 +47,7 @@ public final class PreferenceManager implements Serializable {
 
     private static final int ONE_YEAR_TIME = 60 * 60 * 24 * 365;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     private static final TypeReference<Map<String, String>> MAP_TYPE_REF = new TypeReference<>() {
     };

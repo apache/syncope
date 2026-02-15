@@ -40,10 +40,6 @@ public interface UserRepo
     @Override
     Optional<String> findUsername(@Param("key") String key);
 
-    @Query("SELECT e FROM #{#entityName} e WHERE e.token LIKE :token")
-    @Override
-    Optional<? extends User> findByToken(@Param("token") String token);
-
     @Query("SELECT e FROM #{#entityName} e WHERE e.id IN (:keys)")
     @Override
     List<User> findByKeys(@Param("keys") List<String> keys);

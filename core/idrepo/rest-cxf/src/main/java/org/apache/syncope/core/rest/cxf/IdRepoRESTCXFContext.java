@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
 import java.util.HashMap;
@@ -132,6 +131,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.task.AsyncTaskExecutor;
+import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)

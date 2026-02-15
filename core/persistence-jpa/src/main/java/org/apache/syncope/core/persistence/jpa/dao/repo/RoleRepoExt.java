@@ -22,7 +22,5 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 
 public interface RoleRepoExt {
 
-    Role save(Role role);
-
     void delete(Role role);
 }

@@ -50,7 +50,7 @@ The received response, after being post-processed by matching route's _filters_,
 ==== Predicates
 
 Inside Route definition, each predicate will be referring to some Spring Cloud Gateway's 
-https://docs.spring.io/spring-cloud-gateway/reference/4.3/spring-cloud-gateway-server-webflux/request-predicates-factories.html[Predicate factory^]:
+https://docs.spring.io/spring-cloud-gateway/reference/5.0/spring-cloud-gateway-server-webflux/request-predicates-factories.html[Predicate factory^]:
 
    * `AFTER` matches requests that happen after the specified datetime;
    * `BEFORE` matches requests that happen before the specified datetime;
@@ -74,7 +74,7 @@ endif::[]
 ==== Filters
 
 Inside Route definition, each filter will be referring to some Spring Cloud Gateway's 
-https://docs.spring.io/spring-cloud-gateway/reference/4.3/spring-cloud-gateway-server-webflux/gatewayfilter-factories.html[Filter factory^]:
+https://docs.spring.io/spring-cloud-gateway/reference/5.0/spring-cloud-gateway-server-webflux/gatewayfilter-factories.html[Filter factory^]:
 
    * `ADD_REQUEST_HEADER` adds a header to the downstream request's headers;
    * `ADD_REQUEST_PARAMETER` adds a parameter too the downstream request's query string;

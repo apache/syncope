@@ -18,19 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Locale;
@@ -41,8 +35,9 @@ import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.common.validation.FormPropertyDefCheck;
+import org.apache.syncope.core.persistence.jpa.converters.Locale2StringMapConverter;
+import org.apache.syncope.core.persistence.jpa.converters.String2StringMapConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAFormPropertyDef.TABLE)
@@ -53,14 +48,6 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
 
     public static final String TABLE = "FormPropertyDef";
 
-    protected static final TypeReference<Map<String, String>> ENUMVALUES_TYPEREF =
-            new TypeReference<Map<String, String>>() {
-    };
-
-    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
-            new TypeReference<HashMap<Locale, String>>() {
-    };
-
     private int idx;
 
     @ManyToOne(optional = false)
@@ -69,11 +56,9 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     @NotNull
     private String name;
 
+    @Convert(converter = Locale2StringMapConverter.class)
     @Lob
-    private String labels;
-
-    @Transient
-    private Map<Locale, String> labelMap = new HashMap<>();
+    private Map<Locale, String> labels = new HashMap<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -92,8 +77,9 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
 
     private String datePattern;
 
+    @Convert(converter = String2StringMapConverter.class)
     @Lob
-    private String enumValues;
+    private Map<String, String> enumValues = new HashMap<>();
 
     @NotNull
     private Boolean dropdownSingleSelection = Boolean.TRUE;
@@ -130,12 +116,12 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
 
     @Override
     public Optional<String> getLabel(final Locale locale) {
-        return Optional.ofNullable(labelMap.get(locale));
+        return Optional.ofNullable(labels.get(locale));
     }
 
     @Override
     public Map<Locale, String> getLabels() {
-        return labelMap;
+        return labels;
     }
 
     @Override
@@ -200,13 +186,12 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).
-                orElseGet(Map::of);
+        return enumValues;
     }
 
     @Override
     public void setEnumValues(final Map<String, String> enumValues) {
-        this.enumValues = Optional.ofNullable(enumValues).map(POJOHelper::serialize).orElse(null);
+        this.enumValues = enumValues;
     }
 
     @Override
@@ -237,31 +222,5 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     @Override
     public void setMimeType(final String mimeType) {
         this.mimeType = mimeType;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getLabels().clear();
-        }
-        if (labels != null) {
-            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2map(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void map2json() {
-        labels = POJOHelper.serialize(getLabels());
     }
 }
