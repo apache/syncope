@@ -1006,7 +1006,7 @@ public abstract class AbstractITCase {
 
         oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
-        
+
         oidcrpTO.setAccessTokenMaxActiveTokens(0L);
         oidcrpTO.setAccessTokenMaxTimeToLive("PT8H");
         oidcrpTO.setAccessTokenTimeToKill("PT2H");
@@ -1079,6 +1079,7 @@ public abstract class AbstractITCase {
         conf.getReleaseAttrs().put("cn", "fullname");
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
         conf.getIncludeOnlyAttrs().add("cn");
+        conf.getPrincipalAttrRepoConf().getAttrRepos().add("DefaultStubAttrRepo");
 
         policy.setConf(conf);
 

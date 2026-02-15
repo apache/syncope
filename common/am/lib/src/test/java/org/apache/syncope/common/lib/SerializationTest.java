@@ -19,13 +19,15 @@
 package org.apache.syncope.common.lib;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -34,7 +36,7 @@ public class SerializationTest {
     private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
-    public void accessPolicyConf() throws IOException {
+    public void accessPolicyConf() {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
 
@@ -51,5 +53,29 @@ public class SerializationTest {
 
         AccessPolicyTO actual = MAPPER.readValue(writer.toString(), AccessPolicyTO.class);
         assertEquals(policy, actual);
+    }
+
+    @Test
+    public void attrReleasePolicyConf() {
+        AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
+        policy.setName("Test Attribute Release Policy");
+
+        DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
+        conf.setPrincipalIdAttr("principalIdAttr");
+        conf.getAllowedAttrs().add("allowed1");
+        conf.getAllowedAttrs().add("allowed2");
+        conf.getPrincipalAttrRepoConf().getAttrRepos().add("attrRepo1");
+        policy.setConf(conf);
+
+        StringWriter writer = new StringWriter();
+        MAPPER.writeValue(writer, policy);
+
+        assertTrue(writer.toString().contains("attrRepo1"));
+
+        AttrReleasePolicyTO actual = MAPPER.readValue(writer.toString(), AttrReleasePolicyTO.class);
+        assertEquals(policy, actual);
+
+        assertTrue(((DefaultAttrReleasePolicyConf) actual.getConf()).
+                getPrincipalAttrRepoConf().getAttrRepos().contains("attrRepo1"));
     }
 }
