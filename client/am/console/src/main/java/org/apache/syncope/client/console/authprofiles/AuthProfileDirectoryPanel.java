@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.authprofiles;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

@@ -36,7 +36,9 @@ public class AuthProfilePanel extends Panel {
 
     private static final long serialVersionUID = -4716856239434102405L;
 
-    public AuthProfilePanel(final String id, final AuthProfileRestClient authProfileRestClient, final PageReference pageRef) {
+    public AuthProfilePanel(final String id,
+                            final AuthProfileRestClient authProfileRestClient,
+                            final PageReference pageRef) {
         super(id);
 
         Model<String> keywordModel = new Model<>(StringUtils.EMPTY);
