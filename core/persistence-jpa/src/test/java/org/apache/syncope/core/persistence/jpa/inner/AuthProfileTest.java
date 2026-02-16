@@ -192,4 +192,17 @@ public class AuthProfileTest extends AbstractTest {
         profile.setGoogleMfaAuthAccounts(List.of(account));
         return authProfileDAO.save(profile);
     }
+
+    @Test
+    public void findByOwnerLike() {
+        createAuthProfileWithAccount("owner1");
+        createAuthProfileWithAccount("owner2");
+        createAuthProfileWithAccount("test");
+
+        entityManager.flush();
+
+        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
+        assertEquals(2, result.size());
+        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
+    }
 }

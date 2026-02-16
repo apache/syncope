@@ -20,18 +20,23 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
+import org.apache.syncope.common.rest.api.beans.AuthProfileQuery;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 
 public class AuthProfileRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public long count() {
-        return getService(AuthProfileService.class).list(1, 1).getTotalCount();
+    public long count(final String keyword) {
+        return getService(AuthProfileService.class).
+                search(new AuthProfileQuery.Builder().page(1).size(0).keyword(keyword).build()).
+                getTotalCount();
     }
 
-    public List<AuthProfileTO> list(final int page, final int size) {
-        return getService(AuthProfileService.class).list(page, size).getResult();
+    public List<AuthProfileTO> search(final String keyword, final int page, final int size) {
+        return getService(AuthProfileService.class).
+                search(new AuthProfileQuery.Builder().page(page).size(size).keyword(keyword).build()).
+                getResult();
     }
 
     public AuthProfileTO read(final String key) {

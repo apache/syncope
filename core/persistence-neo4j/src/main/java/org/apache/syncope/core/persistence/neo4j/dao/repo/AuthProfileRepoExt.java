@@ -16,19 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface AuthProfileDAO extends DAO<AuthProfile> {
-
-    Optional<? extends AuthProfile> findByOwner(String owner);
-
-    Page<? extends AuthProfile> findAll(Pageable pageable);
+public interface AuthProfileRepoExt {
 
     List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
 
