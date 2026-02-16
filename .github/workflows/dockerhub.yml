@@ -64,6 +64,6 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all,docker'
+      run: mvn -U -T 1C -P 'skipTests,all,docker'
     - name: 'Push to DockerHub'
       run: mvn -f docker/pom.xml docker:push -Ddocker.username=${{secrets.DOCKERHUB_USER}} -Ddocker.password=${{secrets.DOCKERHUB_TOKEN}}

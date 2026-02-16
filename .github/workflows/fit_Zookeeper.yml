@@ -40,6 +40,6 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Zookeeper / PostgreSQL'
       run: mvn -f fit/core-reference/pom.xml -P zookeeper-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true

@@ -77,7 +77,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       mvn -U -T 1C -Dapache.snapshots=true -PskipTests,all
+       mvn -U -T 1C -PskipTests,all
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4

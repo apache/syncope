@@ -40,7 +40,7 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Unit Tests: MySQL'
       run: mvn -f core/persistence-jpa/pom.xml -P mysql -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Integration Tests: MySQL'

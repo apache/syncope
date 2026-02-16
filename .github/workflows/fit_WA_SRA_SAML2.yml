@@ -40,6 +40,6 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -Dapache.snapshots=true -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'WA / SRA / SAML 2.0'
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.SAML2SRAITCase
