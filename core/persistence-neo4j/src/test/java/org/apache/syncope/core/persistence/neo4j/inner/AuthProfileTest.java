@@ -166,6 +166,17 @@ public class AuthProfileTest extends AbstractTest {
         assertEquals(accounts.size(), authProfile.getImpersonationAccounts().size());
     }
 
+    @Test
+    public void findByOwnerLike() {
+        createAuthProfileWithAccount("owner1");
+        createAuthProfileWithAccount("owner2");
+        createAuthProfileWithAccount("test");
+
+        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
+        assertEquals(2, result.size());
+        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
+    }
+
     private AuthProfile createAuthProfileWithWebAuthnDevice(
             final String owner,
             final List<WebAuthnDeviceCredential> credentials) {
@@ -189,16 +200,5 @@ public class AuthProfileTest extends AbstractTest {
                 .build();
         profile.getGoogleMfaAuthAccounts().add(account);
         return authProfileDAO.save(profile);
-    }
-
-    @Test
-    public void findByOwnerLike() {
-        createAuthProfileWithAccount("owner1");
-        createAuthProfileWithAccount("owner2");
-        createAuthProfileWithAccount("test");
-
-        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
-        assertEquals(2, result.size());
-        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
     }
 }
