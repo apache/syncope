@@ -18,9 +18,15 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
+import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.springframework.data.domain.Pageable;
 
 public interface AuthProfileRepoExt {
+
+    List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
+
+    long countByOwnerLike(String owner);
 
     AuthProfile save(AuthProfile authProfileI);
 }

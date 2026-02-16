@@ -715,9 +715,10 @@ public class PersistenceContext {
     @Bean
     public AuthProfileRepoExt authProfileRepoExt(
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
-        return new AuthProfileRepoExtImpl(neo4jTemplate, nodeValidator);
+        return new AuthProfileRepoExtImpl(neo4jTemplate, neo4jClient, nodeValidator);
     }
 
     @ConditionalOnMissingBean

@@ -32,7 +32,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel;
+import org.apache.syncope.client.console.authprofiles.AuthProfilePanel;
 import org.apache.syncope.client.console.clientapps.ClientApps;
 import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel;
@@ -265,7 +265,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AuthProfileDirectoryPanel(panelId, authProfileRestClient, getPageReference());
+                    return new AuthProfilePanel(panelId, authProfileRestClient, getPageReference());
                 }
             });
         }
