@@ -24,10 +24,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel.AuthProfileProvider;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.KeywordSearchEvent;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
@@ -48,6 +51,7 @@ import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -61,6 +65,8 @@ public class AuthProfileDirectoryPanel
         extends DirectoryPanel<AuthProfileTO, AuthProfileTO, AuthProfileProvider, AuthProfileRestClient> {
 
     private static final long serialVersionUID = 2018518567549153364L;
+
+    private String keyword;
 
     private final BaseModal<AuthProfileTO> authProfileModal;
 
@@ -431,6 +437,25 @@ public class AuthProfileDirectoryPanel
         return panel;
     }
 
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof KeywordSearchEvent payload) {
+            keyword = payload.getKeyword();
+            if (StringUtils.isNotBlank(keyword)) {
+                if (!Strings.CS.startsWith(keyword, "*")) {
+                    keyword = "*" + keyword;
+                }
+                if (!Strings.CS.endsWith(keyword, "*")) {
+                    keyword += "*";
+                }
+            }
+
+            updateResultTable(payload.getTarget());
+        } else {
+            super.onEvent(event);
+        }
+    }
+
     protected final class AuthProfileProvider extends DirectoryDataProvider<AuthProfileTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
@@ -443,12 +468,12 @@ public class AuthProfileDirectoryPanel
         @Override
         public Iterator<AuthProfileTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return restClient.list((page < 0 ? 0 : page) + 1, paginatorRows).iterator();
+            return restClient.search(keyword, (page < 0 ? 0 : page) + 1, paginatorRows).iterator();
         }
 
         @Override
         public long size() {
-            return restClient.count();
+            return restClient.count(keyword);
         }
 
         @Override

@@ -23,10 +23,10 @@ import java.net.URI;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AuthProfileQuery;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 public class AuthProfileServiceImpl extends AbstractService implements AuthProfileService {
 
@@ -37,8 +37,9 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
     }
 
     @Override
-    public PagedResult<AuthProfileTO> list(final int page, final int size) {
-        Page<AuthProfileTO> result = logic.list(PageRequest.of(page < 1 ? 0 : page - 1, size < 1 ? 1 : size));
+    public PagedResult<AuthProfileTO> search(final AuthProfileQuery query) {
+        String keyword = query.getKeyword() == null ? "%" : query.getKeyword().replace('*', '%');
+        Page<AuthProfileTO> result = logic.search(keyword, pageable(query));
         return buildPagedResult(result);
     }
 
