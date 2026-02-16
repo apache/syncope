@@ -206,5 +206,6 @@ public class AuthProfileTest extends AbstractTest {
 
         List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
         assertEquals(2, result.size());
+        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
     }
 }

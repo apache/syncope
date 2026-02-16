@@ -25,4 +25,6 @@ import org.springframework.data.domain.Pageable;
 public interface AuthProfileRepoExt {
 
     List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
+
+    long countByOwnerLike(String owner);
 }

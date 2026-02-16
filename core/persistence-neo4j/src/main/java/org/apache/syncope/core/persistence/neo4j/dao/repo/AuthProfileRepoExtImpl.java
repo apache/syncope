@@ -36,12 +36,16 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
         super(neo4jTemplate, neo4jClient);
     }
 
+    protected StringBuilder query(final String owner) {
+        return  new StringBuilder(
+                "MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
+                append("n.owner =~ \"").append(AnyRepoExt.escapeForLikeRegex(owner).replace("%", ".*")).
+                append('"');
+    }
+
     @Override
     public List<? extends AuthProfile> findByOwnerLike(final String owner, final Pageable pageable) {
-        StringBuilder query = new StringBuilder(
-                "MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
-                append("n.owner =~ \"").append(AnyRepoExt.escapeForLikeRegex(owner).replace("%", ".*")).append('"').
-                append("RETURN n.id");
+        StringBuilder query = query(owner).append(" RETURN n.id");
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -50,4 +54,12 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
 
         return toList(neo4jClient.query(query.toString()).fetch().all(), "n.id", Neo4jAuthProfile.class, null);
     }
+
+    @Override
+    public long countByOwnerLike(final String owner) {
+        StringBuilder query = query(owner).append(" RETURN COUNT(n.id)");
+
+        return neo4jTemplate.count(query.toString());
+    }
+
 }
