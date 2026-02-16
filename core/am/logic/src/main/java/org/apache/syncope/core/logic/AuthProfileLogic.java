@@ -49,9 +49,10 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
     @Transactional(readOnly = true)
     public Page<AuthProfileTO> search(final String keyword, final Pageable pageable) {
+        long count = authProfileDAO.countByOwnerLike(keyword);
         List<AuthProfileTO> result = authProfileDAO.findByOwnerLike(keyword, pageable).
                 stream().map(binder::getAuthProfileTO).toList();
-        return new SyncopePage<>(result, pageable, result.size());
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")

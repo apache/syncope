@@ -38,7 +38,7 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
 
     @Override
     public PagedResult<AuthProfileTO> search(final AuthProfileQuery query) {
-        String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
+        String keyword = query.getKeyword() == null ? "%" : query.getKeyword().replace('*', '%');
         Page<AuthProfileTO> result = logic.search(keyword, pageable(query));
         return buildPagedResult(result);
     }

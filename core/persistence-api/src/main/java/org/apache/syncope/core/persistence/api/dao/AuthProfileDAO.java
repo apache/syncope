@@ -31,4 +31,6 @@ public interface AuthProfileDAO extends DAO<AuthProfile> {
     Page<? extends AuthProfile> findAll(Pageable pageable);
 
     List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
+
+    long countByOwnerLike(String owner);
 }
