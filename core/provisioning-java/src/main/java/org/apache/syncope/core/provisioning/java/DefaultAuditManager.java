@@ -164,7 +164,6 @@ public class DefaultAuditManager implements AuditManager {
                 }
                 if (!auditConf.get().isActive()) {
                     LOG.debug("Audit conf found for {} is not active, skipping", opEvent);
-                    LOG.debug("Audit conf found for {} is not active, skippping", opEvent);
                     return;
                 }
 
