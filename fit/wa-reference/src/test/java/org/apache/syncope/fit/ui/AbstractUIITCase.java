@@ -154,7 +154,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
             assertEquals(HttpStatus.SC_CREATED, response.getStatus());
             key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-            AbstractUIITCase.this.passwordManagement(baseURL, "mustChangePassword", "Password123!");
+            passwordManagement(baseURL, "mustChangePassword", "Password123!");
         } finally {
             Optional.ofNullable(key).ifPresent(USER_SERVICE::delete);
         }
