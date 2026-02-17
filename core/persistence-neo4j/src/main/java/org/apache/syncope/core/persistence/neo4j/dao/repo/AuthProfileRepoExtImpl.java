@@ -41,8 +41,7 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
     }
 
     protected StringBuilder query(final String owner) {
-        return new StringBuilder(
-                "MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
+        return new StringBuilder("MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
                 append("n.owner =~ \"").append(AnyRepoExt.escapeForLikeRegex(owner).replace("%", ".*")).append('"');
     }
 
