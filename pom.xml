@@ -435,6 +435,7 @@ under the License.
     <bouncycastle.version>1.83</bouncycastle.version>
     <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
 
+    <spring-framework.version>6.2.16</spring-framework.version>
     <spring-boot.version>3.4.13</spring-boot.version>
     <spring-cloud-gateway.version>4.2.7</spring-cloud-gateway.version>
 
@@ -690,6 +691,13 @@ under the License.
         <version>7.1.1</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
