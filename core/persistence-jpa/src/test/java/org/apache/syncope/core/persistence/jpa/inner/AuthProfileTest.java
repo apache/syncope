@@ -160,6 +160,19 @@ public class AuthProfileTest extends AbstractTest {
         assertEquals(accounts.size(), authProfile.getImpersonationAccounts().size());
     }
 
+    @Test
+    public void findByOwnerLike() {
+        createAuthProfileWithAccount("owner1");
+        createAuthProfileWithAccount("owner2");
+        createAuthProfileWithAccount("test");
+
+        entityManager.flush();
+
+        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
+        assertEquals(2, result.size());
+        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
+    }
+
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
@@ -191,18 +204,5 @@ public class AuthProfileTest extends AbstractTest {
                 .build();
         profile.setGoogleMfaAuthAccounts(List.of(account));
         return authProfileDAO.save(profile);
-    }
-
-    @Test
-    public void findByOwnerLike() {
-        createAuthProfileWithAccount("owner1");
-        createAuthProfileWithAccount("owner2");
-        createAuthProfileWithAccount("test");
-
-        entityManager.flush();
-
-        List<? extends AuthProfile> result = authProfileDAO.findByOwnerLike("owner%", Pageable.unpaged());
-        assertEquals(2, result.size());
-        assertEquals(2, authProfileDAO.countByOwnerLike("owner%"));
     }
 }

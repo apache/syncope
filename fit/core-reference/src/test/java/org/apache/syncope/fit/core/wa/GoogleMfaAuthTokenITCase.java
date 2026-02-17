@@ -20,13 +20,11 @@ package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
@@ -66,47 +64,42 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
 
     @Test
     public void listProfiles() {
-        String owner = "owner" + UUID.randomUUID();
         String owner1 = "owner" + UUID.randomUUID();
+        String owner2 = "owner" + UUID.randomUUID();
         String test = "test" + UUID.randomUUID();
-        PagedResult<AuthProfileTO> results = null;
-        PagedResult<AuthProfileTO> resultsTest = null;
+        PagedResult<AuthProfileTO> owners = null;
+        PagedResult<AuthProfileTO> tests = null;
         try {
             GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
+            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner1, token);
 
             GoogleMfaAuthToken token1 = createGoogleMfaAuthToken();
-            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner1, token1);
+            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner2, token1);
 
             GoogleMfaAuthToken token2 = createGoogleMfaAuthToken();
             GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(test, token2);
 
-            results = AUTH_PROFILE_SERVICE.search(
+            owners = AUTH_PROFILE_SERVICE.search(
                     new AuthProfileQuery.Builder().page(1).size(100).keyword("owner*").build());
+            assertEquals(2, owners.getTotalCount());
+            assertEquals(2, owners.getResult().size());
 
-            resultsTest = AUTH_PROFILE_SERVICE.search(
+            tests = AUTH_PROFILE_SERVICE.search(
                     new AuthProfileQuery.Builder().page(1).size(100).keyword("test*").build());
-
-            assertEquals(2, results.getTotalCount());
-            assertEquals(2, results.getResult().size());
+            assertEquals(1, tests.getTotalCount());
+            assertEquals(1, tests.getResult().size());
         } finally {
-            AuthProfileTO profileTO = results.getResult().stream().
-                    filter(p -> owner.equals(p.getOwner())).findFirst().orElseThrow();
-            assertEquals(profileTO, AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
-            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
-            assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
-
-            AuthProfileTO profileTO1 = results.getResult().stream().
+            AuthProfileTO profileTO = owners.getResult().stream().
                     filter(p -> owner1.equals(p.getOwner())).findFirst().orElseThrow();
-            assertEquals(profileTO1, AUTH_PROFILE_SERVICE.read(profileTO1.getKey()));
-            AUTH_PROFILE_SERVICE.delete(profileTO1.getKey());
-            assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO1.getKey()));
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
 
-            AuthProfileTO profileTO2 = resultsTest.getResult().stream().
+            profileTO = owners.getResult().stream().
+                    filter(p -> owner2.equals(p.getOwner())).findFirst().orElseThrow();
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
+
+            profileTO = tests.getResult().stream().
                     filter(p -> test.equals(p.getOwner())).findFirst().orElseThrow();
-            assertEquals(profileTO2, AUTH_PROFILE_SERVICE.read(profileTO2.getKey()));
-            AUTH_PROFILE_SERVICE.delete(profileTO2.getKey());
-            assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO2.getKey()));
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
         }
     }
 

@@ -26,7 +26,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
-
 public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRepoExt {
 
     public AuthProfileRepoExtImpl(
@@ -37,10 +36,8 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
     }
 
     protected StringBuilder query(final String owner) {
-        return  new StringBuilder(
-                "MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
-                append("n.owner =~ \"").append(AnyRepoExt.escapeForLikeRegex(owner).replace("%", ".*")).
-                append('"');
+        return new StringBuilder("MATCH (n:").append(Neo4jAuthProfile.NODE).append(") WHERE ").
+                append("n.owner =~ \"").append(AnyRepoExt.escapeForLikeRegex(owner).replace("%", ".*")).append('"');
     }
 
     @Override
@@ -61,5 +58,4 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
 
         return neo4jTemplate.count(query.toString());
     }
-
 }
