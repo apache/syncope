@@ -39,12 +39,6 @@ under the License.
       <bodyColumnClass>span10</bodyColumnClass>
       <sourceLineNumbersEnabled>false</sourceLineNumbersEnabled>
       <skipGenerationDate>true</skipGenerationDate>
-      <twitter>
-        <user>syncopeidm</user>
-        <showUser>true</showUser>
-        <showFollowers>false</showFollowers>
-      </twitter>
-      <facebookLike/>
     </fluidoSkin>
   </custom>
   

@@ -112,11 +112,11 @@ under the License.
             <strong>
               <em>Persistence</em>
             </strong> manages all data (users, groups, attributes, resources, …&#8203;) at a high level
-            using a standard <a target="_blank" href="https://en.wikipedia.org/wiki/Java_Persistence_API">JPA 2.2</a> 
+            using a standard <a target="_blank" href="https://en.wikipedia.org/wiki/Java_Persistence_API">JPA 3.2</a> 
             approach. The data is persisted to an underlying database, referred to as <strong>
               <em>Internal Storage</em>
             </strong>. Consistency is ensured via the comprehensive
-            <a target="_blank" href="https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/data-access.html#transaction">transaction management</a>
+            <a target="_blank" href="https://docs.spring.io/spring-framework/reference/6.2/data-access/transaction.html">transaction management</a>
             provided by the Spring Framework.<br/>
             Globally, this offers the ability to easily scale up to a million entities and at the same time allows great 
             portability with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported 

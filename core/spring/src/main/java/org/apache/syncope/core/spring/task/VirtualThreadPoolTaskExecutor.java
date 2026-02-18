@@ -68,7 +68,7 @@ public class VirtualThreadPoolTaskExecutor
      * <p>
      * Note that {@code SimpleAsyncTaskExecutor} does not participate in
      * a coordinated lifecycle stop but rather just awaits task termination
-     * on {@link #close()}.
+     * on {@link #shutdown()}.
      *
      * @param taskTerminationTimeout the timeout in milliseconds
      * @see SimpleAsyncTaskExecutor#close

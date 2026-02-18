@@ -47,7 +47,7 @@ https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DateForma
 ** `Dropdown` - allows to specify an <<implementations,implementation>> which will dynamically return the value(s) that
 can be selected
 ** `Encrypted`
-*** secret key (stored or referenced as https://docs.spring.io/spring-framework/reference/7.0/core/beans/environment.html#beans-using-propertysource[Spring property^])
+*** secret key (stored or referenced as https://docs.spring.io/spring-framework/reference/6.2/core/beans/environment.html#beans-using-propertysource[Spring property^])
 *** cipher algorithm
 *** whether transparent encryption is to be enabled, e.g. attribute values are stored as encrypted but available as
 cleartext on-demand (requires AES ciphering)
