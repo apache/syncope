@@ -36,6 +36,88 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2026-23795: Apache Syncope: Console XXE on Keymaster parameters">
+        <p>Improper Restriction of XML External Entity Reference vulnerability in Apache Syncope Console.</p>
+        <p>An administrator with adequate entitlements to create or edit Keymaster parameters via Console can construct malicious XML text to launch an XXE attack, thereby causing sensitive data leakage occurs.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.0 through 4.0.3</li>
+            <li>3.0 through 3.0.15</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.0.4 / 3.0.16 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.0.4</li>
+            <li>Release 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-23795">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-23794: Apache Syncope: Reflected XSS on Enduser Login">
+        <p>Reflected XSS in Apache Syncope's Enduser Login page.</p>
+        <p>An attacker that tricks a legitimate user into clicking a malicious link and logging in to Syncope Enduser could steal that user's credentials.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.0 through 4.0.3</li>
+            <li>3.0 through 3.0.15</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.0.4 / 3.0.16 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.0.4</li>
+            <li>Release 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-23794">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2025-65998: Apache Syncope: Default AES key used for internal password encryption">
         <p>Apache Syncope can be configured to store the user password values in the internal database with AES encryption, though this is not the default option.</p>
 

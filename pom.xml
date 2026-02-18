@@ -2206,8 +2206,8 @@ under the License.
             <link>https://docs.spring.io/spring-boot/3.5/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/6.5.x/api/</link>
-            <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.41/apidocs/</link>
+            <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.1/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.43/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>

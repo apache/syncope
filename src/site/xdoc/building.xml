@@ -35,12 +35,12 @@ under the License.
     <section name="Prerequisites">
       <p>
         <ul>
-          <li>JDK 8 for &le; 2.1; JDK 11 for 3.0; JDK 21 for later versions</li>
+          <li>JDK 21 for 4.0 and 4.1; JDK 25 for later versions</li>
           <li>
             Latest <a href="https://maven.apache.org/download.html">Apache Maven</a>
           </li>
           <li>
-            <a href="source-repository.html">Latest source code</a>
+            <a href="source-repository">Latest source code</a>
           </li>
         </ul>
       </p>

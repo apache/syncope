@@ -28,29 +28,33 @@ under the License.
   <body>    
     <section name="Jenkins">
       <p>
-        <source><a href="https://ci-builds.apache.org/job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
+        <source>
+          <a href="https://ci-builds.apache.org/job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a>
+        </source>
       </p>
     </section>
 
     <section name="GitHub Actions">
-      <p>
-        <a href="https://github.com/apache/syncope/actions/workflows/crosschecks.yml">
-          <img src="https://github.com/apache/syncope/actions/workflows/crosschecks.yml/badge.svg" style="max-width:100%;"/>
-        </a>
-        <a href="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml">
-          <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;"/>
-        </a>
-      </p>
-      
-      <p>See more at <a href="https://github.com/apache/syncope/actions/">GitHub</a>.</p>
+      <source>
+        <a href="https://github.com/apache/syncope/actions/">https://github.com/apache/syncope/actions/</a>
+      </source>
     </section>
 
     <section name="Buildbot">
       <p>
-        <source><a href="https://ci2.apache.org/#/builders/56">4_0_X</a></source>
+        <source>
+          <a href="https://ci2.apache.org/#/builders/56">master</a>
+        </source>
       </p>
       <p>
-        <source><a href="https://ci2.apache.org/#/builders/115">3_0_X</a></source>
+        <source>
+          <a href="https://ci2.apache.org/#/builders/125">4_1_X</a>
+        </source>
+      </p>
+      <p>
+        <source>
+          <a href="https://ci2.apache.org/#/builders/123">4_0_X</a>
+        </source>
       </p>
     </section>
   </body>

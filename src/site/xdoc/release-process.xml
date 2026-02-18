@@ -57,7 +57,7 @@ under the License.
       </subsection>
 
       <subsection name="Apache Maven">
-        <p>Install Apache Maven 3.0.3 or higher; we strongly encourage our committers to install 
+        <p>Install Apache Maven 3.9.5 or higher; we strongly encourage our committers to install 
           the latest <a href="https://maven.apache.org/download.html">Apache Maven</a> version available.
         </p>
       
@@ -244,9 +244,8 @@ cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip .
 cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
-# if releasing from 4_0_X              
-cp $SYNCOPE_RELEASE_DIR/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar .
-cp $SYNCOPE_RELEASE_DIR/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar.asc .
+cp $SYNCOPE_RELEASE_DIR/core/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar .
+cp $SYNCOPE_RELEASE_DIR/core/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar.asc .
 
 for file in `find . -type f -iname '*.asc'`
 do
@@ -301,26 +300,26 @@ mv * $MAJOR_VERSION/
 cd ../..
 svn add $VERSION
 
-# if releasing from 4_0_X              
-svn copy apidocs/3.0 $VERSION/apidocs/
-svn copy rest/3.0 $VERSION/rest/
-svn copy docs/3.0 $VERSION/docs/
-# else if releasing from 3_0_X
+# if releasing from 4_1_X              
 svn copy apidocs/4.0 $VERSION/apidocs/
 svn copy rest/4.0 $VERSION/rest/
-svn copy docs/4.0 $VERSION/docs/              
+svn copy docs/4.0 $VERSION/docs/
+# else if releasing from 4_0_X
+svn copy apidocs/4.1 $VERSION/apidocs/
+svn copy rest/4.1 $VERSION/rest/
+svn copy docs/4.1 $VERSION/docs/              
 
 cd $VERSION/docs
-ln -s 4.0/reference-guide.html .
-ln -s 4.0/getting-started.html .
-ln -s 4.0/css/ .
-ln -s 4.0/fonts/ .
-ln -s 4.0/images/ .
-svn add 4.0/reference-guide.html
-svn add 4.0/getting-started.html
-svn add 4.0/css/
-svn add 4.0/fonts/
-svn add 4.0/images/
+ln -s 4.1/reference-guide.html .
+ln -s 4.1/getting-started.html .
+ln -s 4.1/css/ .
+ln -s 4.1/fonts/ .
+ln -s 4.1/images/ .
+svn add 4.1/reference-guide.html
+svn add 4.1/getting-started.html
+svn add 4.1/css/
+svn add 4.1/fonts/
+svn add 4.1/images/
 cd ../..
 
 svn commit -m "Staging site for release"]]></source>
@@ -397,10 +396,10 @@ Subject: [VOTE] Apache Syncope $VERSION
 I've created a $VERSION release, with the following artifacts up for a vote:
 
 GIT source tag (XXXXXXXXXXXXXXXX):
-https://gitbox.apache.org/repos/asf?p=syncope.git;a=tag;h=XXXXXXXXXXXXXXXX
+https://github.com/apache/syncope/releases/tag/syncope-$VERSION
 
 List of changes:
-https://gitbox.apache.org/repos/asf?p=syncope.git;a=blob_plain;f=CHANGES;h=XXXXXXXXXXXXXXXX;hb=YYYYYYYYYYYYYYYYYYYYY              
+https://github.com/apache/syncope/blob/syncope-$VERSION/CHANGES
 
 Staging artifacts:
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
@@ -484,7 +483,7 @@ Best regards.
             Add the distribution artifacts to the distribution area
             <source><![CDATA[
 svn mv -m "Moving the voted release artifacts to dist/release" \
-https://dist.apache.org/repos/dist/dev/syncope/$VERSION
+https://dist.apache.org/repos/dist/dev/syncope/$VERSION \
 https://dist.apache.org/repos/dist/release/syncope/
 
 svn rm -m "Cleaning up older releases" \

@@ -34,15 +34,10 @@ under the License.
         We need and appreciate all contributions, including documentation help, source code development and feedback.
       </p>
 
-      <subsection name="Looking for ideas?">
-        <div style="width: 700px;" type="helpwanted" project="syncope" description="Apache Syncope"></div>
-        <script src="https://helpwanted.apache.org/widget.js" type="text/javascript"></script>
-      </subsection>
-
       <subsection name="Code">
         <ul>
           <li>If you have found an issue or you want to propose a new feature, post a message to the 
-            <a href="mailing-lists">Syncope Dev list or jump on IRC</a> to discuss it.
+            <a href="mailing-lists">Syncope dev list or jump on IRC</a> to discuss it.
           </li>
           <li>Search existing 
             <a href="https://issues.apache.org/jira/secure/IssueNavigator.jspa" rel="nofollow">issues</a> to see 
@@ -80,9 +75,9 @@ under the License.
         overview of working as a contributor.
       </p>
       <p>We ask contributors of significant amounts of code to fill out and send into Apache, an 
-        <a href="https://www.apache.org/licenses/#clas">Individual Contributors License Agreement (ICLA)</a> 
+        <a href="https://www.apache.org/licenses/contributor-agreements.html#clas">Individual Contributors License Agreement (ICLA)</a> 
         (and perhaps also a 
-        <a href="https://www.apache.org/licenses/#clas">Corporate Contributors License Agreement (CCLA)</a>).
+        <a href="https://www.apache.org/licenses/contributor-agreements.html#clas">Corporate Contributors License Agreement (CCLA)</a>).
       </p>
       <p>If you're interested in committing to the project, you need to establish a history over time of successful 
         contributions to the project. After that, you may be invited to become a committer.
@@ -105,10 +100,10 @@ under the License.
       <p>All Committers and Contributors should:</p>
       <ul>
         <li>Sign up for a 
-          <a rel="nofollow" href="https://cwiki.apache.org/confluence/signup.action">Wiki</a> account.
+          <a rel="nofollow" href="https://selfserve.apache.org/confluence-account.html">Wiki</a> account.
         </li>
         <li>Sign up for an 
-          <a rel="nofollow" href="https://issues.apache.org/jira/">ASF JIRA</a> account.
+          <a rel="nofollow" href="https://selfserve.apache.org/jira-account.html">ASF JIRA</a> account.
         </li>
       </ul>
     </section>
