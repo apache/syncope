@@ -41,7 +41,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/ilgrosso/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/ilgrosso/syncope/blob/master/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
+https://github.com/ilgrosso/syncope/blob/4_1_X/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
 endif::[]
 .
 

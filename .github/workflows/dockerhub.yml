@@ -19,7 +19,7 @@ name: "Push to DockerHub"
 on:
   push:
     branches:
-      - master
+      - 4_1_X
 
 jobs:
   push2DockerHub:

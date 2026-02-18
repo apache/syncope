@@ -37,14 +37,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/attr/AttrRepoConf.java[AttrRepoConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/attr/AttrRepoConf.java[AttrRepoConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/attr/AttrRepoConf.java[AttrRepoConf^]
 endif::[]
 interface and extending appropriately the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/wa/bootstrap/src/main/java/org/apache/syncope/wa/bootstrap/WAPropertySourceLocator.java[WAPropertySourceLocator^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/wa/bootstrap/src/main/java/org/apache/syncope/wa/bootstrap/WAPropertySourceLocator.java[WAPropertySourceLocator^]
+https://github.com/apache/syncope/blob/4_1_X/wa/bootstrap/src/main/java/org/apache/syncope/wa/bootstrap/WAPropertySourceLocator.java[WAPropertySourceLocator^]
 endif::[]
 class.
 ====

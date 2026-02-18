@@ -68,7 +68,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/LogicActions.java[LogicActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/LogicActions.java[LogicActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/LogicActions.java[LogicActions^]
 endif::[]
 interface.
 

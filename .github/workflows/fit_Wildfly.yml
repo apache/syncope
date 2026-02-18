@@ -18,10 +18,10 @@ name: "FIT Wildfly"
 
 on:
   push:
-    branches: [master]
+    branches: [4_1_X]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [4_1_X]
 
 jobs:
   fit_Wildfly:

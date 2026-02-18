@@ -69,21 +69,21 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/AccountRuleConf.java[AccountRuleConf^]
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
+https://github.com/apache/syncope/blob/4_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRuleConfClass.java[@AccountRuleConfClass^]
 endif::[]
 referring to the configuration class.
 
@@ -92,7 +92,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ====
 
@@ -103,14 +103,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultAccountRule.java[DefaultAccountRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultAccountRule.java[DefaultAccountRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccountRuleConf.java[DefaultAccountRuleConf^]
 endif::[]
 ) contains the following controls:
 
@@ -173,21 +173,21 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/PasswordRuleConf.java[PasswordRuleConf^]
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
+https://github.com/apache/syncope/blob/4_1_X/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRuleConfClass.java[@PasswordRuleConfClass^]
 endif::[]
 referring to the configuration class.
 
@@ -196,7 +196,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ====
 
@@ -207,14 +207,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultPasswordRule.java[DefaultPasswordRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/spring/src/main/java/org/apache/syncope/core/spring/policy/DefaultPasswordRule.java[DefaultPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultPasswordRuleConf.java[DefaultPasswordRuleConf^]
 endif::[]
 ) is based on https://www.passay.org/[Passay^] and contains the following controls:
 
@@ -248,14 +248,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/policy/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/policy/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/spring/src/main/java/org/apache/syncope/core/spring/policy/HaveIBeenPwnedPasswordRule.java[HaveIBeenPwnedPasswordRule^]
 endif::[]
 and configurable via
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/policy/HaveIBeenPwnedPasswordRuleConf.java[HaveIBeenPwnedPasswordRuleConf^]
 endif::[]
 ) checks the provided password values against the popular
 https://haveibeenpwned.com["Have I Been Pwned?"^] service.
@@ -281,7 +281,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccessPolicyConf.java[DefaultAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccessPolicyConf.java[DefaultAccessPolicyConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccessPolicyConf.java[DefaultAccessPolicyConf^]
 endif::[]
 | It describes whether the client application is allowed to use WA, allowed to participate in single sign-on
 authentication, etc; additionally, it may be configured to require a certain set of principal attributes that must exist
@@ -292,7 +292,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/HttpRequestAccessPolicyConf.java[HttpRequestAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/HttpRequestAccessPolicyConf.java[HttpRequestAccessPolicyConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/HttpRequestAccessPolicyConf.java[HttpRequestAccessPolicyConf^]
 endif::[]
 | Make access decisions based on HTTP request properties as client IP address and user-agent.
 
@@ -301,7 +301,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/OpenFGAAccessPolicyConf.java[OpenFGAAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/OpenFGAAccessPolicyConf.java[OpenFGAAccessPolicyConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/OpenFGAAccessPolicyConf.java[OpenFGAAccessPolicyConf^]
 endif::[]
 | Builds an authorization request and submits it to https://openfga.dev/[OpenFGA^]'s `check` API endpoint. 
 
@@ -310,7 +310,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
 endif::[]
 | Delegate access decisions to a remote endpoint by receiving the authenticated principal as url parameter of a `GET`
 request; the response code that the endpoint returns is then compared against the policy setting and if a match is
@@ -321,7 +321,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/TimeBasedAccessPolicyConf.java[TimeBasedAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/TimeBasedAccessPolicyConf.java[TimeBasedAccessPolicyConf^]
+https://github.com/apache/syncope/blob/4_1_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/TimeBasedAccessPolicyConf.java[TimeBasedAccessPolicyConf^]
 endif::[]
 | Access is only allowed within the configured timeframe.
 
@@ -425,7 +425,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultInboundCorrelationRule.java[default^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultInboundCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultInboundCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -437,7 +437,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/InboundCorrelationRule.java[InboundCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/InboundCorrelationRule.java[InboundCorrelationRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/InboundCorrelationRule.java[InboundCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -463,7 +463,7 @@ https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-ja
 ]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPushCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPushCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -475,7 +475,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PushCorrelationRule.java[PushCorrelationRule^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 interface.
 ====

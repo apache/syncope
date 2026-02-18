@@ -40,7 +40,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/notification/RecipientsProvider.java[RecipientsProvider^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/notification/RecipientsProvider.java[RecipientsProvider^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/notification/RecipientsProvider.java[RecipientsProvider^]
 endif::[]
 interface
 * <<notification-events,notification event(s)>> - event(s) triggering the enclosing notification
@@ -115,7 +115,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/to/UserTO.java[UserTO^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/to/UserTO.java[UserTO^]
+https://github.com/apache/syncope/blob/4_1_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/to/UserTO.java[UserTO^]
 endif::[]
 with actual value matching the _about_ condition as introduced above, can be used.
 

@@ -74,7 +74,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
 endif::[]
 which implements the following logic:
 
@@ -109,7 +109,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
 endif::[]
 interface can be provided, in case the required behavior does not fit into the provided implementation.
 
@@ -121,7 +121,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationActions.java[PropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationActions.java[PropagationActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationActions.java[PropagationActions^]
 endif::[]
 interface.
 
@@ -135,7 +135,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/AzurePropagationActions.java[AzurePropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/AzurePropagationActions.java[AzurePropagationActions^]
+https://github.com/apache/syncope/tree/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/AzurePropagationActions.java[AzurePropagationActions^]
 endif::[]
 | Required for setup of an External Resource based on the https://connid.atlassian.net/wiki/display/BASE/Azure#Azure-Configuration[ConnId Azure connector bundle^].
 
@@ -144,7 +144,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
 endif::[]
 | If no password value was already provided in the propagation task, sends out the internal password hash value to DBMS;
 the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
@@ -155,7 +155,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GenerateRandomPasswordPropagationActions.java[GenerateRandomPasswordPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GenerateRandomPasswordPropagationActions.java[GenerateRandomPasswordPropagationActions^]
+https://github.com/apache/syncope/tree/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GenerateRandomPasswordPropagationActions.java[GenerateRandomPasswordPropagationActions^]
 endif::[]
 | If no password value was already provided in the propagation task, random password value is generated according to the defined <<policies-password,password policy>> and sent to the External Resource.
 
@@ -164,7 +164,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GoogleAppsPropagationActions.java[GoogleAppsPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GoogleAppsPropagationActions.java[GoogleAppsPropagationActions^]
+https://github.com/apache/syncope/tree/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/GoogleAppsPropagationActions.java[GoogleAppsPropagationActions^]
 endif::[]
 | Required for setup of an External Resource based on the https://connid.atlassian.net/wiki/display/BASE/Google+Apps#GoogleApps-Configuration[ConnId GoogleApps connector bundle^].
 
@@ -173,7 +173,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
 endif::[]
 | If a User is associated with a Group in Syncope, keep the corresponding User as a member of the corresponding Group in LDAP or AD.
 
@@ -182,7 +182,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[LDAPPasswordPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[LDAPPasswordPropagationActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[LDAPPasswordPropagationActions^]
 endif::[]
 | If no password value was already provided in the propagation task, sends out the internal password hash value to LDAP;
 the cipher algorithm associated with the password must match the value of `passwordHashAlgorithm` for the 

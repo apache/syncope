@@ -24,7 +24,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/Command.java[Command^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/Command.java[Command^],
+https://github.com/apache/syncope/blob/4_1_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/Command.java[Command^],
 endif::[]
 interface, designed to optionally take parameters.
 
@@ -66,14 +66,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DefaultPropagationManager.java[PropagationManager^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DefaultPropagationManager.java[PropagationManager^],
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DefaultPropagationManager.java[PropagationManager^],
 endif::[]
 executed (by default) via the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^]
 endif::[]
 during the <<propagation,propagation>> process, and are permanently saved - for later re-execution or for examining
 the execution details - depending on the trace levels set on the related
@@ -110,7 +110,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
 endif::[]
 during the <<provisioning-pull,pull>> process, and are permanently saved - for later re-execution or for examining
 the execution details - depending on the trace level set on the related
@@ -158,7 +158,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LiveSyncJobDelegate.java[LiveSyncJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LiveSyncJobDelegate.java[LiveSyncJobDelegate^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LiveSyncJobDelegate.java[LiveSyncJobDelegate^]
 endif::[]
 during the <<provisioning-livesync,live sync>> process; the execution results are permanently saved - for examining the
 execution details - depending on the trace level set on the related <<external-resource-details,external resource>>.
@@ -198,7 +198,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
 endif::[]
 during the <<provisioning-push,push>> process, and are permanently saved - for later re-execution or for examining
 the execution details - depending on the trace level set on the related
@@ -232,14 +232,14 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/DefaultNotificationManager.java[NotificationManager^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/DefaultNotificationManager.java[NotificationManager^],
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/DefaultNotificationManager.java[NotificationManager^],
 endif::[]
 executed via the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/notification/NotificationJob.java[NotificationJob^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/notification/NotificationJob.java[NotificationJob^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/notification/NotificationJob.java[NotificationJob^]
 endif::[]
 and are permanently saved - for later re-execution or for examining the execution details - depending on the trace level
  set on the related <<notifications,notification>>.
@@ -268,7 +268,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
+https://github.com/apache/syncope/blob/4_1_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
 interface.
 
@@ -505,7 +505,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/AbstractSchedTaskJobDelegate.java[AbstractSchedTaskJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/AbstractSchedTaskJobDelegate.java[AbstractSchedTaskJobDelegate^]
+https://github.com/apache/syncope/blob/4_1_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/AbstractSchedTaskJobDelegate.java[AbstractSchedTaskJobDelegate^]
 endif::[]
 providing the custom logic to execute
 * scheduling information:

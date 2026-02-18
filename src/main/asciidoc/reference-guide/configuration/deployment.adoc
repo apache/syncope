@@ -106,7 +106,7 @@ for the Master domain.
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-10.0-doc/jdbc-pool.html[Apache Tomcat 10^]
   * https://docs.payara.fish/community/docs/Technical%20Documentation/Payara%20Server%20Documentation/Server%20Configuration%20And%20Management/JDBC%20Resource%20Management/JDBC.html[Payara Server 6^]
-  * https://docs.wildfly.org/38/Admin_Guide.html#DataSource[Wildfly 38^]
+  * https://docs.wildfly.org/39/Admin_Guide.html#DataSource[Wildfly 39^]
 ****
 
 ==== Apache Tomcat 10
