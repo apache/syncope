@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
@@ -220,7 +222,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             final String password) throws IOException {
 
         // 1. redirected to WA login screen
-        String location = null;
+        Mutable<String> location = new MutableObject<>();
         try (CloseableHttpResponse response =
                 authenticateToWA(username, password, loginPageBody, httpclient, context)) {
 
@@ -249,21 +251,21 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
                     try (CloseableHttpResponse r = httpclient.execute(post, context)) {
                         assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, r.getStatusLine().getStatusCode());
 
-                        location = r.getLastHeader(HttpHeaders.LOCATION).getValue();
+                        location.setValue(r.getLastHeader(HttpHeaders.LOCATION).getValue());
                     }
                 }
 
                 case HttpStatus.SC_MOVED_TEMPORARILY ->
-                    location = response.getLastHeader(HttpHeaders.LOCATION).getValue();
+                    location.setValue(response.getLastHeader(HttpHeaders.LOCATION).getValue());
 
                 default ->
                     fail("Unexpected HTTP status: " + response.getStatusLine().getStatusCode());
             }
         }
-        assertNotNull(location);
+        assertNotNull(location.get());
 
         // 2b. WA scope consent screen
-        HttpGet get = new HttpGet(location);
+        HttpGet get = new HttpGet(location.get());
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         String allow;
