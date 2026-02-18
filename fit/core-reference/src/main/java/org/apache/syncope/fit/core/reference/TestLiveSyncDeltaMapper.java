@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
@@ -37,6 +34,9 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class TestLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
 
@@ -69,28 +69,28 @@ public class TestLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
         JsonNode tree;
         try {
             tree = JSON_MAPPER.readTree(value);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new IllegalStateException("Could not parse the received value as JSON", e);
         }
 
         SyncDeltaBuilder builder = new SyncDeltaBuilder().
                 setToken(new SyncToken(timestamp)).
-                setDeltaType(SyncDeltaType.valueOf(tree.get("type").asText()));
+                setDeltaType(SyncDeltaType.valueOf(tree.get("type").asString()));
         if (ObjectClass.ACCOUNT.equals(liveSyncDelta.getObjectClass())) {
-            Uid uid = new Uid(tree.get("username").asText());
+            Uid uid = new Uid(tree.get("username").asString());
             builder.setObject(new ConnectorObjectBuilder().
                     setObjectClass(liveSyncDelta.getObjectClass()).
                     setUid(uid).
                     setName(uid.getUidValue()).
-                    addAttribute(AttributeBuilder.build("email", tree.get("email").asText())).
-                    addAttribute(AttributeBuilder.build("givenName", tree.get("givenName").asText())).
-                    addAttribute(AttributeBuilder.build("lastName", tree.get("lastName").asText())).
+                    addAttribute(AttributeBuilder.build("email", tree.get("email").asString())).
+                    addAttribute(AttributeBuilder.build("givenName", tree.get("givenName").asString())).
+                    addAttribute(AttributeBuilder.build("lastName", tree.get("lastName").asString())).
                     addAttribute(AttributeBuilder.build(
                             "fullname",
-                            tree.get("givenName").asText() + " " + tree.get("lastName").asText())).
+                            tree.get("givenName").asString() + " " + tree.get("lastName").asString())).
                     build());
         } else if (ObjectClass.GROUP.equals(liveSyncDelta.getObjectClass())) {
-            Uid uid = new Uid(tree.get("name").asText());
+            Uid uid = new Uid(tree.get("name").asString());
             builder.setObject(new ConnectorObjectBuilder().
                     setObjectClass(liveSyncDelta.getObjectClass()).
                     setUid(uid).

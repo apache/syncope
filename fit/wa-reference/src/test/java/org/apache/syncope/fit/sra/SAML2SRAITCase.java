@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -53,6 +52,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 public class SAML2SRAITCase extends AbstractSRAITCase {
 
@@ -214,7 +214,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             ObjectNode headers = checkGetResponse(response, originalRequestURI.replace("/protected", ""));
-            assertFalse(headers.get(HttpHeaders.COOKIE).asText().isBlank());
+            assertFalse(headers.get(HttpHeaders.COOKIE).asString().isBlank());
         }
 
         // 3. logout

@@ -305,6 +305,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(newPolicyTO);
 
         DefaultAttrReleasePolicyConf policyConf = (DefaultAttrReleasePolicyConf) newPolicyTO.getConf();
+        assertTrue(policyConf.getPrincipalAttrRepoConf().getAttrRepos().contains("DefaultStubAttrRepo"));
         policyConf.getAllowedAttrs().add("postalCode");
 
         // update new policy
@@ -318,6 +319,7 @@ public class PolicyITCase extends AbstractITCase {
         assertTrue(policyConf.getAllowedAttrs().contains("postalCode"));
         assertTrue(policyConf.getAllowedAttrs().contains("givenName"));
         assertTrue(policyConf.getIncludeOnlyAttrs().contains("cn"));
+        assertTrue(policyConf.getPrincipalAttrRepoConf().getAttrRepos().contains("DefaultStubAttrRepo"));
     }
 
     @Test

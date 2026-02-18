@@ -18,26 +18,27 @@
  */
 package org.apache.syncope.sra;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.wiremock.spring.EnableWireMock;
+import tools.jackson.databind.json.JsonMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = { "classpath:sra.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
-@AutoConfigureWireMock(port = 0)
+@AutoConfigureWebTestClient
+@EnableWireMock
 public abstract class AbstractTest {
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     public static boolean available(final int port) {
         try (Socket ignored = new Socket("localhost", port)) {

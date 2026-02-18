@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(using = SCIMPatchOperationDeserializer.class)
 public class SCIMPatchOperation extends SCIMBean {
@@ -32,7 +33,7 @@ public class SCIMPatchOperation extends SCIMBean {
 
     private SCIMPatchPath path;
 
-    private List<Serializable> value;
+    private final List<Serializable> value = new ArrayList<>();
 
     public PatchOp getOp() {
         return op;
@@ -52,9 +53,5 @@ public class SCIMPatchOperation extends SCIMBean {
 
     public List<Serializable> getValue() {
         return value;
-    }
-
-    public void setValue(final List<Serializable> value) {
-        this.value = value;
     }
 }

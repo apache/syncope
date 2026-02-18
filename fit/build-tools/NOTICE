@@ -9,6 +9,11 @@ with which this file is now or was at one time distributed.
 
 ==
 
+This product includes software developed by Logback
+Copyright (C) 1999-2024, QOS.ch. All rights reserved.
+
+==
+
 This product includes software developed by the Jackson project.
 
 ==
@@ -23,19 +28,13 @@ Copyright (c) 2015-present, Luben Karavelov/ All rights reserved.
 
 ==
 
-This product includes software developed by Error Prone.
+This product includes software developed by RE2/J
+Copyright (c) 2009 The Go Authors. All rights reserved.
 
 ==
 
 This product includes software developed by the GreenMail project.
 Copyright (c) 2006 - 2019, Wael Chatila and GreenMail project contributors
-
-==
-
-This product includes software developed by Method Parameter Name Access for Java.
-Portions copyright (c) 2006-2018 Paul Hammant & ThoughtWorks Inc
-Portions copyright (c) 2000-2007 INRIA, France Telecom
-All rights reserved.
 
 ==
 
@@ -69,18 +68,8 @@ All content is the property of the respective authors or their employers.
 
 ==
 
-This product includes software developed by the Metrics project.
-Copyright (c) 2010-2014 Coda Hale, Yammer.com
-
-==
-
 This product includes software developed by Micrometer Application Metrics.
 Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
-
-==
-
-This product includes software developed by Netty
-Copyright 2014 The Netty Project
 
 ==
 
@@ -161,7 +150,7 @@ Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 ==
 
 This product includes software developed by Hibernate Validator
-Copyright: Red Hat Inc. and Hibernate Authors
+Copyright 2022, The Hibernate Validator project
 
 ==
 

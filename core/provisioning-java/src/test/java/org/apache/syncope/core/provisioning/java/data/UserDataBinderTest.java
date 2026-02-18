@@ -151,8 +151,7 @@ public class UserDataBinderTest extends AbstractTest {
         typeExt.getAuxClasses().add("other");
         relTypeTO.getTypeExtensions().add(typeExt);
 
-        relationshipTypeDataBinder.update(relType, relTypeTO);
-        relType = relationshipTypeDAO.save(relType);
+        relType = relationshipTypeDAO.save(relationshipTypeDataBinder.update(relType, relTypeTO));
         relTypeTO = relationshipTypeDataBinder.getRelationshipTypeTO(relType);
         assertEquals("other", relTypeTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().getFirst());
 

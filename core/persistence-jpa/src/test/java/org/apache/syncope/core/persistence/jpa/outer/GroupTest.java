@@ -191,7 +191,7 @@ public class GroupTest extends AbstractTest {
 
         group = groupDAO.findByName("new").orElseThrow();
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).get().getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).orElseThrow().getAuxClasses().size());
     }
 
     @Test
@@ -269,7 +269,8 @@ public class GroupTest extends AbstractTest {
         entityManager.flush();
 
         group = groupDAO.findById(group.getKey()).orElseThrow();
-        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().getFirst());
-        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("title").orElseThrow().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("originalName").orElseThrow().
+                getValuesAsStrings().getFirst());
     }
 }

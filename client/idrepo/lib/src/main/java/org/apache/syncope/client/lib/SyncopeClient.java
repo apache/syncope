@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,6 +56,9 @@ import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -214,7 +214,8 @@ public class SyncopeClient {
 
     protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).build();
 
     protected final JAXRSClientFactoryBean restClientFactory;
 
@@ -442,7 +443,7 @@ public class SyncopeClient {
                     MAPPER.readValue(
                             response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
                     }));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalStateException(e);
         }
     }

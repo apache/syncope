@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.sra.security.cas;
 
+import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 
 public class CASAuthenticationToken extends AbstractAuthenticationToken {
 
@@ -29,7 +31,7 @@ public class CASAuthenticationToken extends AbstractAuthenticationToken {
     private final Assertion assertion;
 
     public CASAuthenticationToken(final Assertion assertion) {
-        super(null);
+        super((Collection<? extends GrantedAuthority>) null);
         this.assertion = assertion;
         this.setAuthenticated(true);
     }

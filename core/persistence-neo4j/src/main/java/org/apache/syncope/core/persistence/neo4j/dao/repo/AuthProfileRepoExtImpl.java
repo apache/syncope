@@ -22,17 +22,22 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
+import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
 public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRepoExt {
 
+    protected final NodeValidator nodeValidator;
+
     public AuthProfileRepoExtImpl(
             final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient) {
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator) {
 
         super(neo4jTemplate, neo4jClient);
+        this.nodeValidator = nodeValidator;
     }
 
     protected StringBuilder query(final String owner) {
@@ -57,5 +62,13 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
         StringBuilder query = query(owner).append(" RETURN COUNT(n.id)");
 
         return neo4jTemplate.count(query.toString());
+    }
+
+    @Override
+    public AuthProfile save(final AuthProfile connector) {
+        ((Neo4jAuthProfile) connector).list2json();
+        AuthProfile saved = neo4jTemplate.save(nodeValidator.validate(connector));
+        ((Neo4jAuthProfile) saved).postSave();
+        return saved;
     }
 }

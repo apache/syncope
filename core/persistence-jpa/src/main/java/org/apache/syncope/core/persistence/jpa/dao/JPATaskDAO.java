@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTaskCommand;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
@@ -132,6 +131,9 @@ public class JPATaskDAO implements TaskDAO {
     @Override
     public Optional<? extends Task<?>> findById(final String key) {
         Optional<? extends Task<?>> task = findById(TaskType.SCHEDULED, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.LIVE_SYNC, key);
+        }
         if (task.isEmpty()) {
             task = findById(TaskType.PULL, key);
         }
@@ -504,14 +506,6 @@ public class JPATaskDAO implements TaskDAO {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task<?>> T save(final T task) {
-        switch (task) {
-            case JPANotificationTask jpaNotificationTask ->
-                jpaNotificationTask.list2json();
-            case JPAPushTask jpaPushTask ->
-                jpaPushTask.map2json();
-            default -> {
-            }
-        }
         return entityManager.merge(task);
     }
 

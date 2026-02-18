@@ -19,8 +19,6 @@
 package org.apache.syncope.client.ui.commons.resources.oidcc4ui;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -37,6 +35,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class CodeConsumerResource extends AbstractResource {
 
@@ -45,12 +45,14 @@ public abstract class CodeConsumerResource extends AbstractResource {
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumerResource.class);
 
     protected static final JsonMapper MAPPER =
-            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
+            JsonMapper.builder().findAndAddModules().
+                    changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY)).
+                    changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY)).
+                    build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 
-    protected abstract Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(UserTO newUser)
-            throws JsonProcessingException;
+    protected abstract Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(UserTO newUser);
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -73,7 +75,7 @@ public abstract class CodeConsumerResource extends AbstractResource {
             try {
                 Pair<Class<? extends WebPage>, PageParameters> selfRegInfo = getSelfRegInfo(newUser);
                 throw new RestartResponseException(selfRegInfo.getLeft(), selfRegInfo.getRight());
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 LOG.error("Could not serialize new user {}", newUser, e);
                 throw new WicketRuntimeException(e);
             }

@@ -188,7 +188,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     UnmatchingRule.toOp(rule), OpEvent.Outcome.SUCCESS,
                     null,
                     null,
@@ -215,7 +216,8 @@ public abstract class AbstractPullResultHandler
 
         if (profile.isDryRun()) {
             result.setKey(null);
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     UnmatchingRule.toOp(rule),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -279,7 +281,8 @@ public abstract class AbstractPullResultHandler
             }
         }
 
-        end(provision.getAnyType(),
+        end(Optional.ofNullable(result.getKey()),
+                provision.getAnyType(),
                 UnmatchingRule.toOp(rule),
                 resultStatus,
                 null,
@@ -296,7 +299,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -323,7 +327,8 @@ public abstract class AbstractPullResultHandler
         }
 
         if (profile.isDryRun()) {
-            end(provision.getAnyType(),
+            end(Optional.of(result.getKey()),
+                    provision.getAnyType(),
                     MatchingRule.toOp(MatchingRule.UPDATE),
                     OpEvent.Outcome.SUCCESS,
                     before,
@@ -403,7 +408,8 @@ public abstract class AbstractPullResultHandler
                 }
             }
         }
-        end(provision.getAnyType(),
+        end(Optional.of(result.getKey()),
+                provision.getAnyType(),
                 MatchingRule.toOp(MatchingRule.UPDATE),
                 resultStatus,
                 before,
@@ -425,7 +431,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     MatchingRule.toOp(matchingRule),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -517,7 +524,8 @@ public abstract class AbstractPullResultHandler
                     resultStatus = OpEvent.Outcome.FAILURE;
                 }
             }
-            end(provision.getAnyType(),
+            end(Optional.of(result.getKey()),
+                    provision.getAnyType(),
                     MatchingRule.toOp(matchingRule),
                     resultStatus,
                     before,
@@ -539,7 +547,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     unlink ? MatchingRule.toOp(MatchingRule.UNLINK) : MatchingRule.toOp(MatchingRule.LINK),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -619,7 +628,8 @@ public abstract class AbstractPullResultHandler
                     resultStatus = OpEvent.Outcome.FAILURE;
                 }
             }
-            end(provision.getAnyType(),
+            end(Optional.of(result.getKey()),
+                    provision.getAnyType(),
                     unlink ? MatchingRule.toOp(MatchingRule.UNLINK) : MatchingRule.toOp(MatchingRule.LINK),
                     resultStatus,
                     before,
@@ -640,7 +650,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
-            end(provision.getAnyType(),
+            end(Optional.empty(),
+                    provision.getAnyType(),
                     ResourceOperation.DELETE.name().toLowerCase(),
                     OpEvent.Outcome.SUCCESS,
                     null,
@@ -698,7 +709,8 @@ public abstract class AbstractPullResultHandler
                     }
                 }
 
-                end(provision.getAnyType(),
+                end(Optional.of(result.getKey()),
+                        provision.getAnyType(),
                         ResourceOperation.DELETE.name().toLowerCase(),
                         resultStatus,
                         before,
@@ -740,7 +752,8 @@ public abstract class AbstractPullResultHandler
 
         profile.getResults().add(result);
 
-        end(provision.getAnyType(),
+        end(Optional.ofNullable(result.getKey()),
+                provision.getAnyType(),
                 matching ? MatchingRule.toOp(MatchingRule.IGNORE) : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
                 OpEvent.Outcome.SUCCESS,
                 null,
@@ -907,6 +920,7 @@ public abstract class AbstractPullResultHandler
     }
 
     protected void end(
+            final Optional<String> key,
             final String anyType,
             final String event,
             final OpEvent.Outcome result,
@@ -914,6 +928,8 @@ public abstract class AbstractPullResultHandler
             final Object output,
             final SyncDelta delta,
             final Object... furtherInput) {
+
+        key.ifPresent(k -> anyUtils().dao().evict(anyUtils().anyClass(), k));
 
         notificationManager.createTasks(
                 profile.getExecutor(),

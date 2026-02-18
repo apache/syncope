@@ -19,7 +19,7 @@
 === Metrics
 
 Monitoring performance to ensure reliability and efficiency can be achieved by leveraging 
-https://docs.spring.io/spring-boot/3.5/reference/actuator/metrics.html[Spring Boot's metrics^].
+https://docs.spring.io/spring-boot/4.0/reference/actuator/metrics.html[Spring Boot's metrics^].
 
 [[metrics-core]]
 ==== Core
@@ -36,7 +36,7 @@ This can be enabled by adding the following dependency to `core/pom.xml`:
 ----
 
 Additional dependencies might be required, depending on the
-https://docs.spring.io/spring-boot/3.5/reference/actuator/metrics.html#actuator.metrics.export[actual monitoring system in use^].
+https://docs.spring.io/spring-boot/4.0/reference/actuator/metrics.html#actuator.metrics.export[actual monitoring system in use^].
 
 [[metrics-wa]]
 ==== WA

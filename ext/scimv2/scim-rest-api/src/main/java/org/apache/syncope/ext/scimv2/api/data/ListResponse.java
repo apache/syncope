@@ -19,6 +19,7 @@
 package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
 
     private static final long serialVersionUID = -776611610457583160L;
 
+    @JsonIgnore
     private final List<String> schemas = List.of(Resource.ListResponse.schema());
 
     private final long totalResults;

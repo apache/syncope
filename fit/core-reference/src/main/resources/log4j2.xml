@@ -81,12 +81,28 @@ under the License.
     <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.openjpa" additivity="false" level="INFO">
-      <appender-ref ref="persistence"/>
-    </asyncLogger>
     <asyncLogger name="org.apache.ibatis" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
     </asyncLogger>
+
+    <asyncLogger name="org.hibernate" additivity="false" level="INFO">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.cache" additivity="false" level="ERROR">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <!-- log SQL statements, parameters and results
+    <asyncLogger name="org.hibernate.SQL" additivity="false" level="DEBUG">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.jdbc.bind" additivity="false" level="TRACE">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.jdbc.extract" additivity="false" level="TRACE">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    -->
+
     <asyncLogger name="org.springframework.data.neo4j.cypher.unrecognized" additivity="false" level="ERROR">
       <appender-ref ref="persistence"/>
     </asyncLogger>

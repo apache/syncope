@@ -189,11 +189,9 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void saveInvalidSchema() {
-        assertThrows(InvalidEntityException.class, () -> {
-            PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-            schema.setKey("username");
-            plainSchemaDAO.save(schema);
-        });
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+        schema.setKey("username");
+        assertThrows(InvalidEntityException.class, () -> plainSchemaDAO.save(schema));
     }
 
     @Test
@@ -210,11 +208,7 @@ public class PlainSchemaTest extends AbstractTest {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
-        try {
-            plainSchemaDAO.save(schema);
-            fail("This should not happen");
-        } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
-        }
+        InvalidEntityException iee = assertThrows(InvalidEntityException.class, () -> plainSchemaDAO.save(schema));
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidKey));
     }
 }

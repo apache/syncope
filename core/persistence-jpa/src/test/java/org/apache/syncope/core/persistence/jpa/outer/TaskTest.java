@@ -141,12 +141,11 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addPropagationTaskExecution() {
+    public void addPropagationTaskExec() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
-        assertNotNull(task);
 
-        int executionNumber = task.getExecs().size();
+        int execs = task.getExecs().size();
 
         TaskExec<PropagationTask> execution = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTaskExec();
         execution.setTask(task);
@@ -154,25 +153,21 @@ public class TaskTest extends AbstractTest {
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
 
         task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
-        assertNotNull(task);
-
-        assertEquals(executionNumber + 1, task.getExecs().size());
+        assertEquals(execs + 1, task.getExecs().size());
     }
 
     @Test
-    public void addPullTaskExecution() {
+    public void addPullTaskExec() {
         PullTask task = (PullTask) taskDAO.findById(
                 TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
-        assertNotNull(task);
 
-        int executionNumber = task.getExecs().size();
+        int execs = task.getExecs().size();
 
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(TaskType.PULL).newTaskExec();
         execution.setStatus("Text-free status");
@@ -181,25 +176,21 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
 
         task = (PullTask) taskDAO.findById(
                 TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
-        assertNotNull(task);
-
-        assertEquals(executionNumber + 1, task.getExecs().size());
+        assertEquals(execs + 1, task.getExecs().size());
     }
 
     @Test
-    public void addPushTaskExecution() {
+    public void addPushTaskExec() {
         PushTask task = (PushTask) taskDAO.findById(
                 TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
-        assertNotNull(task);
 
-        int executionNumber = task.getExecs().size();
+        int execs = task.getExecs().size();
 
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(TaskType.PUSH).newTaskExec();
         execution.setStatus("Text-free status");
@@ -208,15 +199,12 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
-        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
 
         task = (PushTask) taskDAO.findById(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
-        assertNotNull(task);
-
-        assertEquals(executionNumber + 1, task.getExecs().size());
+        assertEquals(execs + 1, task.getExecs().size());
     }
 
     @Test
@@ -230,11 +218,11 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void deleteTaskExecution() {
+    public void deleteTaskExec() {
         @SuppressWarnings("unchecked")
         TaskExec<PropagationTask> execution = (TaskExec<PropagationTask>) taskExecDAO.findById(
                 TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655").orElseThrow();
-        int executionNumber = execution.getTask().getExecs().size();
+        int execs = execution.getTask().getExecs().size();
 
         taskExecDAO.delete(TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655");
 
@@ -244,7 +232,7 @@ public class TaskTest extends AbstractTest {
 
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
-        assertEquals(task.getExecs().size(), executionNumber - 1);
+        assertEquals(task.getExecs().size(), execs - 1);
     }
 
     @Test
@@ -391,6 +379,8 @@ public class TaskTest extends AbstractTest {
         task.add(inboundActions);
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
+        task.setJobDelegate(implementationDAO.findById("PullJobDelegate").orElseThrow());
+        task.setDestinationRealm(realmDAO.getRoot());
 
         task = taskDAO.save(task);
         assertNotNull(task);

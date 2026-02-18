@@ -21,6 +21,8 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -44,6 +46,8 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
     protected static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
+    protected final ConfParamOps confParamOps;
+
     protected final TaskDAO taskDAO;
 
     protected final TaskUtilsFactory taskUtilsFactory;
@@ -55,12 +59,14 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     protected final ApplicationEventPublisher publisher;
 
     protected AbstractNotificationJobDelegate(
+            final ConfParamOps confParamOps,
             final TaskDAO taskDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
             final NotificationManager notificationManager,
             final ApplicationEventPublisher publisher) {
 
+        this.confParamOps = confParamOps;
         this.taskDAO = taskDAO;
         this.taskUtilsFactory = taskUtilsFactory;
         this.auditManager = auditManager;
@@ -177,7 +183,7 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
         }
     }
 
-    protected static boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {
+    protected boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {
         NotificationTask task = execution.getTask();
 
         // True if either failed and failures have to be registered, or if ALL
@@ -188,16 +194,18 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     }
 
     protected void handleRetries(final TaskExec<NotificationTask> execution) {
-        if (notificationManager.getMaxRetries() <= 0) {
+        long maxRetries = confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", 0L, Long.class);
+
+        if (maxRetries <= 0) {
             return;
         }
 
         long failedExecutionsCount = notificationManager.countExecutionsWithStatus(
                 execution.getTask().getKey(), NotificationJob.Status.NOT_SENT.name());
 
-        if (failedExecutionsCount <= notificationManager.getMaxRetries()) {
+        if (failedExecutionsCount <= maxRetries) {
             LOG.debug("Execution of notification task {} will be retried [{}/{}]",
-                    execution.getTask(), failedExecutionsCount, notificationManager.getMaxRetries());
+                    execution.getTask(), failedExecutionsCount, maxRetries);
             notificationManager.setTaskExecuted(execution.getTask().getKey(), false);
 
             auditManager.audit(

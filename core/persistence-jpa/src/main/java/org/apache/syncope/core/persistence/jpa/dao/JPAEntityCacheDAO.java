@@ -19,20 +19,14 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManagerFactory;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import org.apache.openjpa.datacache.CacheStatistics;
-import org.apache.openjpa.datacache.CacheStatisticsSPI;
-import org.apache.openjpa.datacache.QueryKey;
-import org.apache.openjpa.kernel.QueryStatistics;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
-import org.apache.openjpa.persistence.QueryResultCacheImpl;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.utils.FormatUtils;
+import org.hibernate.Cache;
+import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.stat.EntityStatistics;
+import org.hibernate.stat.Statistics;
 
 public class JPAEntityCacheDAO implements EntityCacheDAO {
 
@@ -42,109 +36,105 @@ public class JPAEntityCacheDAO implements EntityCacheDAO {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    protected CacheStatisticsSPI cacheStatisticsSPI() {
-        return (CacheStatisticsSPI) entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).
-                getStoreCache().getStatistics();
-    }
-
-    protected QueryStatistics<QueryKey> queryStatistics() {
-        return ((QueryResultCacheImpl) entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).
-                getQueryResultCache()).getDelegate().getStatistics();
+    protected Statistics statistics() {
+        return entityManagerFactory.unwrap(SessionFactoryImpl.class).getStatistics();
     }
 
     @Override
     public Map<String, Object> getStatistics() {
-        Map<String, Object> result = new LinkedHashMap<>();
+        Statistics statistics = statistics();
 
-        CacheStatistics cacheStats = cacheStatisticsSPI();
+        Map<String, Object> general = new HashMap<>();
+        general.put("start time", statistics.getStart());
+        general.put("sessions opened", statistics.getSessionOpenCount());
+        general.put("sessions closed", statistics.getSessionCloseCount());
+        general.put("transactions", statistics.getTransactionCount());
+        general.put("successful transactions", statistics.getSuccessfulTransactionCount());
+        general.put("optimistic lock failures", statistics.getOptimisticFailureCount());
+        general.put("flushes", statistics.getFlushCount());
+        general.put("connections obtained", statistics.getConnectCount());
+        general.put("statements prepared", statistics.getPrepareStatementCount());
+        general.put("statements closed", statistics.getCloseStatementCount());
+        general.put("second level cache puts", statistics.getSecondLevelCachePutCount());
+        general.put("second level cache hits", statistics.getSecondLevelCacheHitCount());
+        general.put("second level cache misses", statistics.getSecondLevelCacheMissCount());
+        general.put("entities loaded", statistics.getEntityLoadCount());
+        general.put("entities updated", statistics.getEntityUpdateCount());
+        general.put("entities upserted", statistics.getEntityUpsertCount());
+        general.put("entities inserted", statistics.getEntityInsertCount());
+        general.put("entities deleted", statistics.getEntityDeleteCount());
+        general.put("entities fetched", statistics.getEntityFetchCount());
+        general.put("collections loaded", statistics.getCollectionLoadCount());
+        general.put("collections updated", statistics.getCollectionUpdateCount());
+        general.put("collections removed", statistics.getCollectionRemoveCount());
+        general.put("collections recreated", statistics.getCollectionRecreateCount());
+        general.put("collections fetched", statistics.getCollectionFetchCount());
+        general.put("naturalId queries executed to database", statistics.getNaturalIdQueryExecutionCount());
+        general.put("naturalId cache puts", statistics.getNaturalIdCachePutCount());
+        general.put("naturalId cache hits", statistics.getNaturalIdCacheHitCount());
+        general.put("naturalId cache misses", statistics.getNaturalIdCacheMissCount());
+        general.put("naturalId max query time", statistics.getNaturalIdQueryExecutionMaxTime());
+        general.put("queries executed to database", statistics.getQueryExecutionCount());
+        general.put("query cache puts", statistics.getQueryCachePutCount());
+        general.put("query cache hits", statistics.getQueryCacheHitCount());
+        general.put("query cache misses", statistics.getQueryCacheMissCount());
+        general.put("update timestamps cache puts", statistics.getUpdateTimestampsCachePutCount());
+        general.put("update timestamps cache hits", statistics.getUpdateTimestampsCacheHitCount());
+        general.put("update timestamps cache misses", statistics.getUpdateTimestampsCacheMissCount());
+        general.put("max query time", statistics.getQueryExecutionMaxTime());
+        general.put("query plan cache hits", statistics.getQueryPlanCacheHitCount());
+        general.put("query plan cache misses", statistics.getQueryPlanCacheMissCount());
 
-        Map<String, Object> storeCache = new LinkedHashMap<>();
-        result.put("storeCache", storeCache);
+        Map<String, Object> entities = new HashMap<>();
+        for (String entityName : statistics.getEntityNames()) {
+            EntityStatistics es = statistics.getEntityStatistics(entityName);
 
-        storeCache.put("enabled", cacheStats.isEnabled());
-        storeCache.put("activation", DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-                cacheStats.start().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)));
-        storeCache.put("last_update", DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-                cacheStats.since().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)));
-        storeCache.put("hits", cacheStats.getHitCount());
-        storeCache.put("reads", cacheStats.getReadCount());
-        storeCache.put("writes", cacheStats.getWriteCount());
-        storeCache.put("total_hits", cacheStats.getTotalHitCount());
-        storeCache.put("total_reads", cacheStats.getTotalReadCount());
-        storeCache.put("total_writes", cacheStats.getTotalWriteCount());
+            Map<String, Object> entity = new HashMap<>();
+            entity.put("cache hits", es.getCacheHitCount());
+            entity.put("cache misses", es.getCacheMissCount());
+            entity.put("cache puts", es.getCachePutCount());
+            entity.put("cache removes", es.getCacheRemoveCount());
+            entity.put("deletes", es.getDeleteCount());
+            entity.put("fetches", es.getFetchCount());
+            entity.put("inserts", es.getInsertCount());
+            entity.put("loads", es.getLoadCount());
+            entity.put("updates", es.getUpdateCount());
+            entity.put("optimistic lock failures", es.getOptimisticFailureCount());
+            entities.put(entityName, entity);
+        }
 
-        List<Map<String, Object>> storeCacheDetails = new ArrayList<>();
-        storeCache.put("details", storeCacheDetails);
-        cacheStats.classNames().forEach(className -> {
-            Map<String, Object> classMap = new LinkedHashMap<>();
-            classMap.put("region", className);
-            classMap.put("hits", cacheStats.getHitCount(className));
-            classMap.put("reads", cacheStats.getReadCount(className));
-            classMap.put("writes", cacheStats.getWriteCount(className));
-            storeCache.put("total_hits", cacheStats.getTotalHitCount(className));
-            storeCache.put("total_reads", cacheStats.getTotalReadCount(className));
-            storeCache.put("total_writes", cacheStats.getTotalWriteCount(className));
-            storeCacheDetails.add(classMap);
-        });
-
-        QueryStatistics<QueryKey> queryStats = queryStatistics();
-
-        Map<String, Object> queryCache = new LinkedHashMap<>();
-        result.put("queryCache", queryCache);
-
-        queryCache.put("activation", DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-                queryStats.start().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)));
-        queryCache.put("last_update", DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(
-                queryStats.since().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET)));
-        queryCache.put("hits", queryStats.getHitCount());
-        queryCache.put("executions", queryStats.getExecutionCount());
-        queryCache.put("evictions", queryStats.getEvictionCount());
-        queryCache.put("total_hits", queryStats.getTotalHitCount());
-        queryCache.put("total_executions", queryStats.getTotalExecutionCount());
-        queryCache.put("total_evictions", queryStats.getTotalEvictionCount());
-
-        List<Map<String, Object>> queryCacheDetails = new ArrayList<>();
-        queryCache.put("details", queryCacheDetails);
-
-        queryStats.keys().forEach(queryKey -> {
-            Map<String, Object> queryKeyMap = new LinkedHashMap<>();
-            queryKeyMap.put("query_key", queryKey.toString());
-            queryCache.put("hits", queryStats.getHitCount(queryKey));
-            queryCache.put("executions", queryStats.getExecutionCount(queryKey));
-            queryCache.put("total_hits", queryStats.getTotalHitCount(queryKey));
-            queryCache.put("total_executions", queryStats.getTotalExecutionCount(queryKey));
-            queryCacheDetails.add(queryKeyMap);
-        });
-
-        return result;
+        return Map.of("general", general, "entities", entities);
     }
 
     @Override
     public void enableStatistics() {
-        cacheStatisticsSPI().enable();
+        statistics().setStatisticsEnabled(true);
     }
 
     @Override
     public void disableStatistics() {
-        cacheStatisticsSPI().disable();
+        statistics().setStatisticsEnabled(false);
     }
 
     @Override
     public void resetStatistics() {
-        cacheStatisticsSPI().reset();
-        queryStatistics().reset();
+        statistics().clear();
+    }
+
+    protected Cache cache() {
+        return entityManagerFactory.unwrap(SessionFactoryImpl.class).getCache();
     }
 
     @Override
     public void evict(final Class<? extends Entity> entityClass, final String key) {
-        entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).getStoreCache().evict(entityClass, key);
+        cache().evict(entityClass, key);
     }
 
     @Override
     public void clearCache() {
-        OpenJPAEntityManagerFactory emf = entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class);
+        Cache cache = cache();
 
-        emf.getStoreCache().evictAll();
-        emf.getQueryResultCache().evictAll();
+        cache.evictAll();
+        cache.evictQueryRegions();
     }
 }

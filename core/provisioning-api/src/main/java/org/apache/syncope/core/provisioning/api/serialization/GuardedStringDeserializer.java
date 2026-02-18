@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
@@ -30,8 +25,13 @@ import org.identityconnectors.common.security.GuardedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.node.ObjectNode;
 
-class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
+class GuardedStringDeserializer extends ValueDeserializer<GuardedString> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuardedStringDeserializer.class);
 
@@ -44,10 +44,10 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
     private static final String BASE64_SHA1_HASH = "base64SHA1Hash";
 
     private static final String LOG_ERROR_MESSAGE = "Could not set field value to {}";
-    
+
     @Override
     public GuardedString deserialize(final JsonParser jp, final DeserializationContext ctx)
-            throws IOException {
+            throws JacksonException {
 
         ObjectNode tree = jp.readValueAsTree();
 
@@ -61,11 +61,11 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         }
         byte[] encryptedBytes = null;
         if (tree.has(ENCRYPTED_BYTES)) {
-            encryptedBytes = Base64.getDecoder().decode(tree.get(ENCRYPTED_BYTES).asText());
+            encryptedBytes = Base64.getDecoder().decode(tree.get(ENCRYPTED_BYTES).asString());
         }
         String base64SHA1Hash = null;
         if (tree.has(BASE64_SHA1_HASH)) {
-            base64SHA1Hash = tree.get(BASE64_SHA1_HASH).asText();
+            base64SHA1Hash = tree.get(BASE64_SHA1_HASH).asString();
         }
 
         final byte[] clearBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(encryptedBytes);

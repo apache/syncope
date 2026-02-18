@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.Optional;
 import org.apache.syncope.common.lib.command.CommandArgs;
@@ -46,7 +45,7 @@ public class JPAMacroTaskCommand extends AbstractGeneratedKeyEntity implements M
     @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     private JPAImplementation command;
 
     @Lob

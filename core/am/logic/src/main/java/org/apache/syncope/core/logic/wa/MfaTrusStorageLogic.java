@@ -87,7 +87,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).flatMap(List::stream)
                 : authProfileDAO.findByOwner(principal).
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).map(List::stream).
-            orElseGet(Stream::empty)).
+                        orElseGet(Stream::empty)).
                 filter(device -> {
                     EqualsBuilder builder = new EqualsBuilder();
                     builder.appendSuper(device.getExpirationDate().isAfter(ZonedDateTime.now()));
@@ -123,28 +123,23 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final MfaTrustedDevice device) {
         AuthProfile profile = authProfile(owner);
-
-        List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
-        devices.add(device);
-        profile.setMfaTrustedDevices(devices);
+        profile.add(device);
         authProfileDAO.save(profile);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final OffsetDateTime expirationDate, final String recordKey) {
         authProfileDAO.findAll(Pageable.unpaged(Sort.by("owner"))).forEach(profile -> {
-            List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
-            if (devices != null) {
-                if (recordKey != null) {
-                    devices.removeIf(device -> recordKey.equals(device.getRecordKey()));
-                } else if (expirationDate != null) {
-                    devices.removeIf(device -> device.getExpirationDate().isBefore(expirationDate.toZonedDateTime()));
-                } else {
-                    devices = List.of();
-                }
-                profile.setMfaTrustedDevices(devices);
-                authProfileDAO.save(profile);
+            if (recordKey != null) {
+                profile.getMfaTrustedDevices().
+                        removeIf(device -> recordKey.equals(device.getRecordKey()));
+            } else if (expirationDate != null) {
+                profile.getMfaTrustedDevices().
+                        removeIf(device -> device.getExpirationDate().isBefore(expirationDate.toZonedDateTime()));
+            } else {
+                profile.getMfaTrustedDevices().clear();
             }
+            authProfileDAO.save(profile);
         });
     }
 }

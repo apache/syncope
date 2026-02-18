@@ -20,8 +20,6 @@ package org.apache.syncope.core.provisioning.api.serialization;
 
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.UUID;
@@ -29,49 +27,51 @@ import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class SyncTokenSerializerTest extends AbstractTest {
 
     @Test
     public void syncTokenSerializer(
             final @Mock JsonGenerator jgen,
-            final @Mock SerializerProvider sp) throws IOException {
+            final @Mock SerializationContext ctx) throws IOException {
 
         SyncTokenSerializer serializer = new SyncTokenSerializer();
         SyncToken source = new SyncToken(UUID.randomUUID().toString());
-        serializer.serialize(source, jgen, sp);
+        serializer.serialize(source, jgen, ctx);
         verify(jgen).writeStartObject();
-        verify(jgen).writeStringField("type", "String");
-        verify(jgen).writeStringField("value", source.getValue().toString());
+        verify(jgen).writeStringProperty("type", "String");
+        verify(jgen).writeStringProperty("value", source.getValue().toString());
         verify(jgen).writeEndObject();
 
         boolean bool = false;
         source = new SyncToken(bool);
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeStringField("type", "Boolean");
-        verify(jgen).writeBooleanField("value", false);
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writeStringProperty("type", "Boolean");
+        verify(jgen).writeBooleanProperty("value", false);
 
         double doubleNum = 9000.1;
         source = new SyncToken(doubleNum);
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeStringField("type", "Double");
-        verify(jgen).writeNumberField("value", doubleNum);
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writeStringProperty("type", "Double");
+        verify(jgen).writeNumberProperty("value", doubleNum);
 
         long longNum = 9001;
         source = new SyncToken(longNum);
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeStringField("type", "Long");
-        verify(jgen).writeNumberField("value", longNum);
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writeStringProperty("type", "Long");
+        verify(jgen).writeNumberProperty("value", longNum);
 
         int intNum = 9000;
         source = new SyncToken(intNum);
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeStringField("type", "Integer");
-        verify(jgen).writeNumberField("value", intNum);
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writeStringProperty("type", "Integer");
+        verify(jgen).writeNumberProperty("value", intNum);
 
         byte[] bytes = { 9, 0, 0, 1 };
         source = new SyncToken(bytes);
-        serializer.serialize(source, jgen, sp);
-        verify(jgen).writeStringField("value", Base64.getEncoder().encodeToString(bytes));
+        serializer.serialize(source, jgen, ctx);
+        verify(jgen).writeStringProperty("value", Base64.getEncoder().encodeToString(bytes));
     }
 }

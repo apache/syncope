@@ -44,7 +44,5 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
             OffsetDateTime after,
             Pageable pageable);
 
-    <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
-
     void delete(TaskType type, String key);
 }

@@ -24,6 +24,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -190,6 +191,12 @@ public class BatchItemResponse implements HttpServletResponse {
     @Override
     public void sendRedirect(final String location) {
         setStatus(SC_MOVED_TEMPORARILY);
+        setHeader(HttpHeaders.LOCATION, location);
+    }
+
+    @Override
+    public void sendRedirect(final String location, final int sc, final boolean clearBuffer) throws IOException {
+        setStatus(sc);
         setHeader(HttpHeaders.LOCATION, location);
     }
 

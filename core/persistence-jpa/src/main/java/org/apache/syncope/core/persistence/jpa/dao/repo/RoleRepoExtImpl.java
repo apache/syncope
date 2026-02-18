@@ -23,7 +23,6 @@ import jakarta.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -46,12 +45,6 @@ public class RoleRepoExtImpl implements RoleRepoExt {
         this.publisher = publisher;
         this.delegationDAO = delegationDAO;
         this.entityManager = entityManager;
-    }
-
-    @Override
-    public Role save(final Role role) {
-        ((JPARole) role).list2json();
-        return entityManager.merge(role);
     }
 
     @Override

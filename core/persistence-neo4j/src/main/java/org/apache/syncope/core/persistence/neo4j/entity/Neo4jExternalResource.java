@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jExternalResource.NODE)
 @ExternalResourceCheck
@@ -132,31 +132,31 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Relationship(type = RESOURCE_CONNECTOR_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jConnInstance connector;
 
-    @Relationship(type = RESOURCE_PASSWORD_POLICY_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_PASSWORD_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private Neo4jPasswordPolicy passwordPolicy;
 
-    @Relationship(type = RESOURCE_ACCOUNT_POLICY_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_ACCOUNT_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private Neo4jAccountPolicy accountPolicy;
 
-    @Relationship(type = RESOURCE_PROPAGATION_POLICY_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_PROPAGATION_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private Neo4jPropagationPolicy propagationPolicy;
 
-    @Relationship(type = RESOURCE_INBOUND_POLICY_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_INBOUND_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private Neo4jInboundPolicy inboundPolicy;
 
     @Relationship(type = RESOURCE_PUSH_POLICY_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jPushPolicy pushPolicy;
 
-    @Relationship(type = RESOURCE_PROVISION_SORTER_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_PROVISION_SORTER_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private Neo4jImplementation provisionSorter;
 
-    @Relationship(type = RESOURCE_PROPAGATION_ACTIONS_REL,
-            direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
+    @Relationship(type = RESOURCE_PROPAGATION_ACTIONS_REL, direction = Relationship.Direction.OUTGOING, cascadeUpdates =
+            false)
     private SortedSet<Neo4jImplementationRelationship> propagationActions = new TreeSet<>();
 
     @Transient

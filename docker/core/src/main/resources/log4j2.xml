@@ -32,16 +32,41 @@ under the License.
     <asyncLogger name="org.apache.syncope.core.persistence" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
+    <asyncLogger name="org.springframework.data" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.openjpa" additivity="false" level="INFO">
+    <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="org.apache.ibatis" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    
+
+    <asyncLogger name="org.hibernate" additivity="false" level="INFO">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.cache" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <!-- log SQL statements, parameters and results
+    <asyncLogger name="org.hibernate.SQL" additivity="false" level="DEBUG">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.jdbc.bind" additivity="false" level="TRACE">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <asyncLogger name="org.hibernate.orm.jdbc.extract" additivity="false" level="TRACE">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    -->
+
+    <asyncLogger name="org.springframework.data.neo4j.cypher.unrecognized" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <asyncLogger name="org.springframework.data.neo4j.core.mapping" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
@@ -54,7 +79,10 @@ under the License.
     <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
-    
+    <asyncLogger name="org.apache.syncope.ext.self.keymaster" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
     <asyncLogger name="org.identityconnectors" additivity="false" level="DEBUG">
       <appender-ref ref="console"/>
     </asyncLogger>
@@ -64,7 +92,7 @@ under the License.
     <asyncLogger name="org.apache.syncope.core.provisioning.api.ConnIdBundleManager" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    
+
     <asyncLogger name="org.apache.syncope" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
@@ -104,13 +132,22 @@ under the License.
     <asyncLogger name="org.elasticsearch" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
+    <asyncLogger name="org.opensearch" additivity="false" level="INFO">
+      <appender-ref ref="console"/>
+    </asyncLogger>
     <asyncLogger name="io.netty" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="com.zaxxer.hikari" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
-    
+    <asyncLogger name="org.apache.zookeeper" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.curator" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
     <!-- To enable when setting 'mail.debug=true' in mail.properties -->
     <!--<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification" additivity="false" level="DEBUG">
       <appender-ref ref="console"/>

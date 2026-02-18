@@ -29,7 +29,6 @@ import org.springframework.data.repository.core.support.RepositoryComposition;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.query.QueryLookupStrategy;
 import org.springframework.data.repository.query.ValueExpressionDelegate;
-import org.springframework.lang.Nullable;
 
 public class SyncopeNeo4jRepositoryFactory extends RepositoryFactorySupport {
 
@@ -43,8 +42,8 @@ public class SyncopeNeo4jRepositoryFactory extends RepositoryFactorySupport {
     }
 
     @Override
-    public <T, ID> EntityInformation<T, ID> getEntityInformation(final Class<T> domainClass) {
-        return delegate.getEntityInformation(domainClass);
+    public EntityInformation<?, ?> getEntityInformation(final RepositoryMetadata metadata) {
+        return delegate.getEntityInformation(metadata);
     }
 
     @Override
@@ -64,7 +63,7 @@ public class SyncopeNeo4jRepositoryFactory extends RepositoryFactorySupport {
 
     @Override
     protected Optional<QueryLookupStrategy> getQueryLookupStrategy(
-            final @Nullable QueryLookupStrategy.Key key, final ValueExpressionDelegate valueExpressionDelegate) {
+            final QueryLookupStrategy.Key key, final ValueExpressionDelegate valueExpressionDelegate) {
 
         return delegate.getQueryLookupStrategy(key, valueExpressionDelegate);
     }

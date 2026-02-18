@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -108,7 +107,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
 
         Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
-        connInstance.setConf(connInstanceTO.getConf());
+        connInstance.getConf().addAll(connInstanceTO.getConf());
         Optional.ofNullable(connInstanceTO.getPoolConf()).
                 ifPresent(conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)));
 
@@ -141,9 +140,8 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(connInstance::setVersion);
         Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(connInstance::setConnectorName);
         Optional.ofNullable(connInstanceTO.getDisplayName()).ifPresent(connInstance::setDisplayName);
-        Optional.ofNullable(connInstanceTO.getConf()).
-                filter(Predicate.not(Collection::isEmpty)).
-                ifPresent(connInstance::setConf);
+        connInstance.getConf().clear();
+        connInstance.getConf().addAll(connInstanceTO.getConf());
         Optional.ofNullable(connInstanceTO.getConnRequestTimeout()).ifPresent(connInstance::setConnRequestTimeout);
         Optional.ofNullable(connInstanceTO.getPoolConf()).ifPresentOrElse(
                 conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)),

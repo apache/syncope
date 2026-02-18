@@ -470,7 +470,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDuoSecretKey(conf.getSecretKey());
         props.setSessionStorageType(SessionStorageTypes.HTTP);
 
-        return prefix("cas.authn.mfa.duo.", WAConfUtils.asMap(props));
+        return prefix("cas.authn.mfa.duo[].", WAConfUtils.asMap(props));
     }
 
     @Override

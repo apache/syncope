@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api.serialization;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -30,6 +29,7 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.type.TypeReference;
 
 public class POJOHelperTest extends AbstractTest {
 

@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.client.console.chartjs;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ChartJSPanel extends Panel {
 
@@ -33,8 +31,7 @@ public class ChartJSPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChartJSPanel.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().
-            findAndAddModules().serializationInclusion(Include.NON_NULL).build();
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final IModel<? extends Chart<?>> model;
 
@@ -66,12 +63,12 @@ public class ChartJSPanel extends Panel {
         String dataString = null;
         String optionString = null;
         try {
-            Object data = (model.getObject() instanceof final SimpleChart simpleChart)
+            Object data = (model.getObject() instanceof final SimpleChart<?, ?> simpleChart)
                     ? simpleChart.getData()
                     : ((DataSetChart) model.getObject()).getData();
             dataString = MAPPER.writeValueAsString(data);
             optionString = MAPPER.writeValueAsString(model.getObject().getOptions());
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             LOG.error("Unexpected error during JSON serialization", e);
         }
 

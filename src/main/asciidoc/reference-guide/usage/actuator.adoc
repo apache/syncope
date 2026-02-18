@@ -23,7 +23,7 @@ Spring Boot's actuator endpoints let you monitor and interact with Syncope compo
 Each individual endpoint can be enabled / disabled and exposed over HTTP (pre-defined, under the `/actuator` subcontext)
 or JMX.
 
-Besides a number of https://docs.spring.io/spring-boot/3.5/reference/actuator/endpoints.html[built-in endpoints^],
+Besides a number of https://docs.spring.io/spring-boot/4.0/reference/actuator/endpoints.html[built-in endpoints^],
 more are made available for each component, as reported below.
 
 [NOTE]
@@ -40,7 +40,7 @@ The pre-defined `health` endpoint is typically used for liveness and readiness p
 |===
 
 | `entityCache`
-a| Allows to work with https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html#ref_guide_cache_statistics[JPA cache statistics^]
+a| Allows to work with https://docs.hibernate.org/orm/7.2/userguide/html_single/#caching-statistics[JPA cache statistics^]
 
 * `GET` - shows JPA cache statistics
 * `POST {ENABLE,DISABLE,RESET}` - performs the requested operation onto JPA cache
@@ -85,6 +85,6 @@ a|
 * `DELETE {id}` - removes the session with given `id`
 
 | `gateway`
-| https://docs.spring.io/spring-cloud-gateway/reference/4.3/spring-cloud-gateway-server-webflux/actuator-api.html[More details^]
+| https://docs.spring.io/spring-cloud-gateway/reference/5.0/spring-cloud-gateway-server-webflux/actuator-api.html[More details^]
 
 |===

@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -50,12 +49,14 @@ import org.apache.wicket.util.visit.IVisit;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class AbstractUIITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractUIITCase.class);
 
-    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper JSON_MAPPER = new SyncopeJsonMapper();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -108,11 +109,11 @@ public abstract class AbstractUIITCase {
         JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
-        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asString().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
-        IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
-                || anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asString().contains("Elasticsearch")
+                || anySearchDAO.get("type").asString().contains("OpenSearch");
     }
 
     protected static <V extends Serializable> Component findComponentByProp(

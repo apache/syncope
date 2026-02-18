@@ -32,7 +32,7 @@ persistence.domain[0].jdbcDriver=org.postgresql.Driver
 persistence.domain[0].jdbcURL=jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
-persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
+persistence.domain[0].databasePlatform=org.apache.syncope.core.persistence.jpa.hibernate.SyncopePostgreSQLDialect
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -40,7 +40,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-postgresql.properties`.
 
 Do not forget to include `postgresql` as
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [WARNING]
@@ -64,7 +64,7 @@ persistence.domain[0].jdbcDriver=com.mysql.cj.jdbc.Driver
 persistence.domain[0].jdbcURL=jdbc:mysql://localhost:3306/syncope?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
-persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
+persistence.domain[0].databasePlatform=org.hibernate.dialect.MySQLDialect
 persistence.domain[0].orm=META-INF/mysql/spring-orm.xml
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
@@ -73,7 +73,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-mysql.properties`.
 
 Do not forget to include `mysql` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [CAUTION]
@@ -100,7 +100,7 @@ persistence.domain[0].jdbcDriver=org.mariadb.jdbc.Driver
 persistence.domain[0].jdbcURL=jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
-persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
+persistence.domain[0].databasePlatform=org.hibernate.dialect.MariaDBDialect
 persistence.domain[0].orm=META-INF/mariadb/spring-orm.xml
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
@@ -109,7 +109,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-mariadb.properties`.
 
 Do not forget to include `mariadb` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [CAUTION]
@@ -148,7 +148,7 @@ persistence.domain[0].jdbcURL=jdbc:oracle:thin:@localhost}:1521/FREEPDB1
 persistence.domain[0].dbSchema=SYNCOPE
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
-persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
+persistence.domain[0].databasePlatform=org.hibernate.dialect.OracleDialect
 persistence.domain[0].orm=META-INF/oracle/spring-orm.xml
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
@@ -157,7 +157,7 @@ persistence.domain[0].poolMinIdle=5
 as `core/src/main/resources/core-oracle.properties`.
 
 Do not forget to include `oracle` as 
-https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/4.0/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [WARNING]

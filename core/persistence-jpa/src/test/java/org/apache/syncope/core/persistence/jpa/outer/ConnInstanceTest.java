@@ -47,13 +47,10 @@ public class ConnInstanceTest extends AbstractTest {
     public void deleteCascade() {
         ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
 
-        List<? extends ExternalResource> resources = connInstance.getResources();
-        assertNotNull(resources);
+        List<? extends ExternalResource> resources = resourceDAO.findByConnInstance(connInstance.getKey());
         assertFalse(resources.isEmpty());
 
         connInstanceDAO.deleteById(connInstance.getKey());
-
-        entityManager.flush();
 
         assertTrue(connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").isEmpty());
 
@@ -67,14 +64,10 @@ public class ConnInstanceTest extends AbstractTest {
         ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
         assertTrue(connInstance.getCapabilities().isEmpty());
 
-        List<? extends ExternalResource> resources = connInstance.getResources();
-        assertNotNull(resources);
+        List<? extends ExternalResource> resources = resourceDAO.findByConnInstance(connInstance.getKey());
         assertEquals(4, resources.size());
-        assertTrue(
-                "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(0).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(1).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(2).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(3).getKey()));
+        assertTrue(resources.stream().map(ExternalResource::getKey).
+                anyMatch("ws-target-resource-nopropagation"::equals));
 
         connInstance.getCapabilities().add(ConnectorCapability.SEARCH);
 
@@ -82,13 +75,9 @@ public class ConnInstanceTest extends AbstractTest {
         assertNotNull(connInstance);
         assertFalse(connInstance.getCapabilities().isEmpty());
 
-        resources = connInstance.getResources();
-        assertNotNull(resources);
+        resources = resourceDAO.findByConnInstance(connInstance.getKey());
         assertEquals(4, resources.size());
-        assertTrue(
-                "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(0).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(1).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(2).getKey())
-                || "ws-target-resource-nopropagation".equalsIgnoreCase(resources.get(3).getKey()));
+        assertTrue(resources.stream().map(ExternalResource::getKey).
+                anyMatch("ws-target-resource-nopropagation"::equals));
     }
 }

@@ -21,19 +21,19 @@ package org.apache.syncope.client.console.layout;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Arrays;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 public class AnyLayoutTest {
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
-    public void issueSYNCOPE1554() throws JsonProcessingException {
+    public void issueSYNCOPE1554() {
         AnyLayout defaultObj = new AnyLayout();
         defaultObj.setUser(new UserFormLayoutInfo());
         defaultObj.setGroup(new GroupFormLayoutInfo());

@@ -35,7 +35,5 @@ public interface PlainSchemaRepoExt {
 
     boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
-    PlainSchema save(PlainSchema schema);
-
     void deleteById(String key);
 }

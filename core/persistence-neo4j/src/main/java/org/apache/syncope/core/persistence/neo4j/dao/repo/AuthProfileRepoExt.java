@@ -27,4 +27,6 @@ public interface AuthProfileRepoExt {
     List<? extends AuthProfile> findByOwnerLike(String owner, Pageable pageable);
 
     long countByOwnerLike(String owner);
+
+    AuthProfile save(AuthProfile authProfileI);
 }

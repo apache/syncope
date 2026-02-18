@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +56,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import tools.jackson.core.JacksonException;
 
 public class CommandComposeDirectoryPanel extends DirectoryPanel<
         CommandWrapper, CommandWrapper, DirectoryDataProvider<CommandWrapper>, CommandRestClient>
@@ -176,7 +176,7 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
 
                                 idx = i;
                             }
-                        } catch (JsonProcessingException e) {
+                        } catch (JacksonException e) {
                             LOG.error("While comparing command arguments", e);
                         }
                     }

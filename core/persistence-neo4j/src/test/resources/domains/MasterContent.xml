@@ -65,26 +65,26 @@ under the License.
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":{},"allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
       
   <!-- Authentication modules -->
-  <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","principalAttributeId":"cn","bindDn": "${testds.bindDn}", "bindCredential":"${testds.password}","ldapUrl":"ldap://localhost:${testds.port}","searchFilter":"cn={user}","baseDn":"ou=People,${testds.rootDn}","subtreeSearch":true}'
               items='[{"intAttrName":"mail","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"givenName","extAttrName":"given_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"sn","extAttrName":"family_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"cn","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
-  <AuthModule id="DefaultJDBCAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultJDBCAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","sql":"SELECT * FROM users_table WHERE name=?", "fieldPassword": "password"}'/>
-  <AuthModule id="DefaultGoogleMfaAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultGoogleMfaAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Google Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
-  <AuthModule id="DefaultSimpleMfaAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultSimpleMfaAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Simple Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf","tokenLength":6, "timeToKillInSeconds":30}'/>
-  <AuthModule id="DefaultDuoMfaAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultDuoMfaAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "apiHost":"theapi.duosecurity.com"}'/>
-  <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "clientId":"client-id", "clientSecret": "client-secret" }'/>
   <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
-  <AuthModule id="DefaultJaasAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultJaasAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
-  <AuthModule id="DefaultStaticAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultStaticAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","users":{"syncope1": "$cynop3"}}'/>
-  <AuthModule id="DefaultSyncopeAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultSyncopeAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'
               items='[{"intAttrName":"syncopeUserAttr_surname","extAttrName":"family_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_fullname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_firstname","extAttrName":"given_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"memberships","extAttrName":"groups","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
   <AuthModule id="DefaultOAuth20AuthModule" description="OAuth20 auth module" authModuleOrder="0" 

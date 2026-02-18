@@ -18,16 +18,17 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implements {@link ConfParamOps} via Apache Curator / Zookeeper.
@@ -36,7 +37,7 @@ public class ZookeeperConfParamOps implements ConfParamOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String CONF_PATH = "/conf";
 

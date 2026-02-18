@@ -18,28 +18,28 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 class AttributeDeltaSerializer extends AbstractValueSerializer<AttributeDelta> {
 
     @Override
-    public void serialize(final AttributeDelta source, final JsonGenerator jgen, final SerializerProvider sp)
-            throws IOException {
+    public void serialize(final AttributeDelta source, final JsonGenerator jgen, final SerializationContext ctx)
+            throws JacksonException {
 
         jgen.writeStartObject();
 
-        jgen.writeStringField("name", source.getName());
+        jgen.writeStringProperty("name", source.getName());
 
-        jgen.writeFieldName("valuesToAdd");
+        jgen.writeName("valuesToAdd");
         doSerialize(source.getValuesToAdd(), jgen);
 
-        jgen.writeFieldName("valuesToRemove");
+        jgen.writeName("valuesToRemove");
         doSerialize(source.getValuesToRemove(), jgen);
 
-        jgen.writeFieldName("valuesToReplace");
+        jgen.writeName("valuesToReplace");
         doSerialize(source.getValuesToReplace(), jgen);
 
         jgen.writeEndObject();

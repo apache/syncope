@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
@@ -44,11 +44,11 @@ public class JPAAMembership extends AbstractGeneratedKeyEntity implements AMembe
     public static final String TABLE = "AMembership";
 
     @ManyToOne
-    @Column(name = "anyObject_id")
+    @JoinColumn(name = "anyObject_id")
     private JPAAnyObject leftEnd;
 
     @ManyToOne
-    @Column(name = "group_id")
+    @JoinColumn(name = "group_id")
     private JPAGroup rightEnd;
 
     @Transient

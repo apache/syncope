@@ -18,16 +18,17 @@
  */
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ConfParamServiceImpl implements ConfParamService {
 
@@ -35,7 +36,7 @@ public class ConfParamServiceImpl implements ConfParamService {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamService.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected final ConfParamLogic logic;
 
@@ -58,7 +59,7 @@ public class ConfParamServiceImpl implements ConfParamService {
         JsonNode valueNode = null;
         try {
             valueNode = MAPPER.readTree(value);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             LOG.error("Could not deserialize body as valid JSON", e);
         }
 

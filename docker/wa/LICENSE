@@ -242,11 +242,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For ClientJS (https://github.com/jackspirou/clientjs):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Auth0 Java JWT (https://github.com/auth0/java-jwt):
 This is licensed under the MIT license, see above.
 
@@ -1232,11 +1227,6 @@ This is licensed under the BSD license, see above.
 
 ==
 
-For t-digest (https://github.com/tdunning/t-digest):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For CBOR (https://github.com/peteroupc/CBOR-Java):
 This is licensed under the CC0 1.0, see above.
 
@@ -1249,11 +1239,6 @@ This is licensed under the MIT license, see above.
 
 For GoogleAuth (https://github.com/wstrange/GoogleAuth):
 This is licensed under the BSD license, see above.
-
-==
-
-For Wavefront's Java SDK (https://github.com/wavefrontHQ/wavefront-sdk-java):
-This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1277,16 +1262,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For define-data-property (https://github.com/ljharb/define-data-property):
-This is licensed under the MIT license, see above.
-
-==
-
-For define-properties (https://github.com/ljharb/define-properties):
-This is licensed under the MIT license, see above.
-
-==
-
 For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0, see above.
 
@@ -1302,32 +1277,12 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
-For es-define-property (https://github.com/ljharb/es-define-property/):
+For FingerprintJS (https://github.com/fingerprintjs/fingerprintjs):
 This is licensed under the MIT license, see above.
-
-==
-
-For MIT:
-This is licensed under the AL 2.0, see above.
 
 ==
 
 For Font Awesome (http://fontawesome.io/):
-This is licensed under the MIT license, see above.
-
-==
-
-For globalThis (https://github.com/es-shims/globalThis):
-This is licensed under the MIT license, see above.
-
-==
-
-For gopd (https://github.com/ljharb/gopd):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For has-property-descriptors (https://github.com/inspect-js/has-property-descriptors):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1337,18 +1292,8 @@ This is licensed under the BSD license, see above.
 
 ==
 
-For Hypersistence Utils (https://github.com/vladmihalcea/hypersistence-utils):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For gmetric4j (https://github.com/ganglia/gmetric4j):
 This is licensed under the BSD license, see above.
-
-==
-
-For inherits (https://github.com/isaacs/inherits):
-This is licensed under the MIT license, see above.
 
 ==
 
@@ -1364,6 +1309,11 @@ This is licensed under the MIT license, see above.
 
 For TSID Generator (https://github.com/vladmihalcea/hypersistence-tsid):
 This is licensed under the MIT license, see above.
+
+==
+
+For Hypersistence Utils (https://github.com/vladmihalcea/hypersistence-utils):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1393,11 +1343,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Prometheus Java Metrics Library (http://prometheus.github.io/client_java/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jandex (https://github.com/smallrye/jandex/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1472,11 +1417,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For murmurhash-js (https://github.com/mikolalysenko/murmurhash-js):
-This is licensed under the MIT license, see above.
-
-==
-
 For Byte Buddy (https://bytebuddy.net/):
 This is licensed under the AL 2.0, see above.
 
@@ -1503,11 +1443,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For normalize.css (http://necolas.github.io/normalize.css/):
-This is licensed under the MIT license, see above.
-
-==
-
-For object-keys (https://github.com/ljharb/object-keys):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1602,7 +1537,7 @@ This is licensed under the CC0 1.0, see above.
 
 ==
 
-For Hibernate Commons Annotations (https://github.com/hibernate/hibernate-commons-annotations):
+For Hibernate models (https://github.com/hibernate/hibernate-models):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1712,6 +1647,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For snakeyaml-engine (https://bitbucket.org/snakeyaml/snakeyaml-engine/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Spring openapi documentation (https://springdoc.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1764,11 +1704,6 @@ This is licensed under the AL 2.0, see above.
 
 For tslib (https://github.com/Microsoft/tslib):
 This is licensed under the BSD license, see above.
-
-==
-
-For UAParser.js (https://github.com/faisalman/ua-parser-js):
-This is licensed under the MIT license, see above.
 
 ==
 

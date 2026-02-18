@@ -38,12 +38,6 @@ public class NotificationRepoExtImpl implements NotificationRepoExt {
     }
 
     @Override
-    public Notification save(final Notification notification) {
-        ((JPANotification) notification).list2json();
-        return entityManager.merge(notification);
-    }
-
-    @Override
     public void deleteById(final String key) {
         Notification notification = entityManager.find(JPANotification.class, key);
         if (notification == null) {

@@ -58,16 +58,9 @@ public interface ConnInstance extends Entity {
 
     Set<ConnectorCapability> getCapabilities();
 
-    boolean add(ExternalResource resource);
-
-    List<? extends ExternalResource> getResources();
-
-    void setConf(List<ConnConfProperty> conf);
-
     List<ConnConfProperty> getConf();
 
     void setConnRequestTimeout(Integer timeout);
 
     Integer getConnRequestTimeout();
-
 }

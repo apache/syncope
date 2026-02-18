@@ -18,19 +18,6 @@
  */
 package org.apache.syncope.client.console.audit;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +49,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 public abstract class AuditHistoryDetails<T extends Serializable> extends Panel implements ModalPanel {
 
@@ -83,8 +81,6 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     protected static class SortedSetJsonSerializer extends StdSerializer<Set<?>> {
 
-        private static final long serialVersionUID = 3849059774309L;
-
         SortedSetJsonSerializer(final Class<Set<?>> clazz) {
             super(clazz);
         }
@@ -93,7 +89,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         public void serialize(
                 final Set<?> set,
                 final JsonGenerator gen,
-                final SerializerProvider sp) throws IOException {
+                final SerializationContext sp)
+                throws JacksonException {
 
             if (set == null) {
                 gen.writeNull();
@@ -117,7 +114,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 }
 
                 for (Object item : sorted) {
-                    gen.writeObject(item);
+                    gen.writePOJO(item);
                 }
             }
 
@@ -130,10 +127,12 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         return (Class<T>) aClass;
     }
 
-    protected static final ObjectMapper MAPPER = JsonMapper.builder().
-            nodeFactory(new SortingNodeFactory()).build().
-            registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
-            registerModule(new JavaTimeModule());
+    protected static final JsonMapper MAPPER = JsonMapper.builder().
+            nodeFactory(new SortingNodeFactory()).
+            findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).
+            addModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
+            build();
 
     protected EntityTO currentEntity;
 
@@ -142,8 +141,6 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     protected String category;
 
     protected String op;
-
-    protected Class<T> reference;
 
     protected final List<AuditEventTO> auditEntries = new ArrayList<>();
 
@@ -175,7 +172,6 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         this.type = type;
         this.category = category;
         this.op = op;
-        this.reference = (Class<T>) currentEntity.getClass();
         this.restClient = restClient;
 
         setOutputMarkupId(true);
@@ -222,7 +218,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                         ? after
                         : buildAfterAuditEventTO(beforeEvent);
                 AuditHistoryDetails.this.addOrReplace(
-                        new JsonDiffPanel(toJSON(beforeEvent, reference), toJSON(afterEvent, reference)));
+                        new JsonDiffPanel(toJSON(beforeEvent), toJSON(afterEvent)));
                 // change after audit entries in order to match only the ones newer than the current after one
                 afterVersionsPanel.setChoices(auditEntries.stream().
                         filter(ae -> ae.getWhen().isAfter(beforeEvent.getWhen())
@@ -245,10 +241,10 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 AuditHistoryDetails.this.addOrReplace(new JsonDiffPanel(
                         toJSON(beforeVersionsPanel.getModelObject() == null
                                 ? latestAuditEventTO
-                                : beforeVersionsPanel.getModelObject(), reference),
+                                : beforeVersionsPanel.getModelObject()),
                         toJSON(afterVersionsPanel.getModelObject() == null
                                 ? after
-                                : buildAfterAuditEventTO(afterVersionsPanel.getModelObject()), reference)));
+                                : buildAfterAuditEventTO(afterVersionsPanel.getModelObject()))));
                 target.add(AuditHistoryDetails.this);
             }
         });
@@ -271,7 +267,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                             : MAPPER.readTree(before.getOutput()).get("entity").toPrettyString()
                             : before.getBefore();
                     restore(json, target);
-                } catch (JsonProcessingException e) {
+                } catch (JacksonException e) {
                     throw new WicketRuntimeException(e);
                 }
             }
@@ -301,7 +297,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         latestAuditEventTO = auditEntries.isEmpty() ? null : auditEntries.getFirst();
         after = latestAuditEventTO == null ? null : buildAfterAuditEventTO(latestAuditEventTO);
         // add default diff panel
-        addOrReplace(new JsonDiffPanel(toJSON(latestAuditEventTO, reference), toJSON(after, reference)));
+        addOrReplace(new JsonDiffPanel(toJSON(latestAuditEventTO), toJSON(after)));
 
         beforeVersionsPanel.setChoices(auditEntries);
         afterVersionsPanel.setChoices(auditEntries.stream().
@@ -324,7 +320,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         return output;
     }
 
-    protected Model<String> toJSON(final AuditEventTO auditEvent, final Class<T> reference) {
+    protected Model<String> toJSON(final AuditEventTO auditEvent) {
         if (auditEvent == null) {
             return Model.of();
         }
@@ -347,7 +343,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
             T entity = MAPPER.reader().
                     with(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
-                    readValue(content, reference);
+                    readValue(content);
             if (entity instanceof UserTO userTO) {
                 userTO.setPassword(null);
                 userTO.setSecurityAnswer(null);

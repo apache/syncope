@@ -19,25 +19,23 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -73,16 +71,16 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public GroupRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
-            final PlainSchemaDAO plainSchemaDAO,
             final RealmDAO realmDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final EntityManager entityManager,
+            final AnyChecker anyChecker,
             final AnyFinder anyFinder) {
 
         super(
-                plainSchemaDAO,
                 entityManager,
+                anyChecker,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
@@ -122,23 +120,34 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean isManager(final String key) {
-        Query user = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?");
-        user.setParameter(1, key);
+        long users = query(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        Query group = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE gManager_id=?");
-        group.setParameter(1, key);
+        long groups = query(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        Query anyObject = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE gManager_id=?");
-        anyObject.setParameter(1, key);
+        long anyObjects = query(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE gManager_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                key);
 
-        return ((Number) user.getSingleResult()).longValue()
-                + ((Number) group.getSingleResult()).longValue()
-                + ((Number) anyObject.getSingleResult()).longValue() > 0;
+        return users + groups + anyObjects > 0;
     }
 
     @Override
@@ -167,14 +176,17 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public Map<String, Long> countByRealm() {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> ((Realm) result[0]).getFullPath(),
-                result -> ((Number) result[1]).longValue()));
+        return query(
+                "SELECT r.fullPath, COUNT(e.id) "
+                + "FROM " + JPAGroup.TABLE + " e JOIN Realm r ON e.realm_id=r.id "
+                + "GROUP BY r.fullPath",
+                rs -> {
+                    Map<String, Long> result = new HashMap<>();
+                    while (rs.next()) {
+                        result.put(rs.getString(1), rs.getLong(2));
+                    }
+                    return result;
+                });
     }
 
     @Transactional(readOnly = true)
@@ -188,23 +200,25 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional(readOnly = true)
     @Override
     public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, anyObjectKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                groupKey, anyObjectKey) > 0;
     }
 
     @Transactional(readOnly = true)
     @Override
     public boolean existsUMembership(final String userKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, userKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return query(
+                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?",
+                rs -> {
+                    rs.next();
+                    return rs.getLong(1);
+                },
+                groupKey, userKey) > 0;
     }
 
     @Override
@@ -234,7 +248,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
-        checkBeforeSave((JPAGroup) group);
+        anyChecker.checkBeforeSave(group, anyUtils);
         return entityManager.merge(group);
     }
 

@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.common.keymaster</groupId>
     <artifactId>syncope-common-keymaster-self</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Common Keymaster Client Self</name>
@@ -64,7 +64,7 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <groupId>tools.jackson.jakarta.rs</groupId>
       <artifactId>jackson-jakarta-rs-json-provider</artifactId>
     </dependency>
 

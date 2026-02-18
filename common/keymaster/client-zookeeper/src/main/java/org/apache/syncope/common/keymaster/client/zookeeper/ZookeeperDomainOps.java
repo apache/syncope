@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -33,11 +31,13 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implements {@link DomainOps} via Apache Curator / Zookeeper.
@@ -46,7 +46,7 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainOps.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String DOMAIN_PATH = "/domains";
 
@@ -86,7 +86,7 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
                         LOG.info("Domain {} created", domain.getKey());
                         watcher.added(domain);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         LOG.debug("Could not parse {}", new String(newData.getData()), e);
                     }
                 }

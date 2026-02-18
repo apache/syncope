@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope SRA</name>
@@ -40,18 +40,12 @@ under the License.
   <dependencies>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-starter-gateway</artifactId>
+      <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-logging</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -85,6 +79,11 @@ under the License.
     <dependency>
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
+    </dependency>
+
+    <dependency>      
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-health</artifactId>
     </dependency>
 
     <dependency>
@@ -136,10 +135,15 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework.cloud</groupId>
-      <artifactId>spring-cloud-contract-wiremock</artifactId>
+      <groupId>org.wiremock.integrations</groupId>
+      <artifactId>wiremock-spring-boot</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-webtestclient</artifactId>
+      <scope>test</scope>
+    </dependency>    
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
@@ -189,7 +193,6 @@ under the License.
               <layout>ZIP</layout>
               <classifier>exec</classifier>
               <attach>false</attach>
-              <loaderImplementation>CLASSIC</loaderImplementation>
             </configuration>
             <goals>
               <goal>repackage</goal>

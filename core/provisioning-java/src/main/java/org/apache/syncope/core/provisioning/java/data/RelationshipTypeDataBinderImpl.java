@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -37,6 +38,8 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
 
     protected static final Logger LOG = LoggerFactory.getLogger(RelationshipTypeDataBinder.class);
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
@@ -44,10 +47,12 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
     protected final EntityFactory entityFactory;
 
     public RelationshipTypeDataBinderImpl(
+            final RelationshipTypeDAO relationshipTypeDAO,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final EntityFactory entityFactory) {
 
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.entityFactory = entityFactory;
@@ -64,29 +69,34 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
                 flatMap(anyTypeDAO::findById).
                 orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getRightEndAnyType())));
 
-        update(relationshipType, relationshipTypeTO);
-
-        return relationshipType;
+        return update(relationshipType, relationshipTypeTO);
     }
 
     @Override
-    public void update(final RelationshipType relationshipType, final RelationshipTypeTO relationshipTypeTO) {
+    public RelationshipType update(
+            final RelationshipType relationshipType,
+            final RelationshipTypeTO relationshipTypeTO) {
+
+        RelationshipType rt;
         if (relationshipType.getKey() == null) {
             relationshipType.setKey(relationshipTypeTO.getKey());
+            rt = relationshipTypeDAO.save(relationshipType);
+        } else {
+            rt = relationshipType;
         }
 
-        relationshipType.setDescription(relationshipTypeTO.getDescription());
+        rt.setDescription(relationshipTypeTO.getDescription());
 
         // type extensions
         relationshipTypeTO.getTypeExtensions().
                 forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(anyType -> {
 
-            RelationshipTypeExtension typeExt = relationshipType.getTypeExtension(anyType).orElse(null);
+            RelationshipTypeExtension typeExt = rt.getTypeExtension(anyType).orElse(null);
             if (typeExt == null) {
                 typeExt = entityFactory.newEntity(RelationshipTypeExtension.class);
                 typeExt.setAnyType(anyType);
-                typeExt.setRelationshipType(relationshipType);
-                relationshipType.add(typeExt);
+                typeExt.setRelationshipType(rt);
+                rt.add(typeExt);
             }
 
             // add all classes contained in the TO
@@ -104,15 +114,17 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
 
             // only consider non-empty type extensions
             if (typeExt.getAuxClasses().isEmpty()) {
-                relationshipType.getTypeExtensions().remove(typeExt);
+                rt.getTypeExtensions().remove(typeExt);
                 typeExt.setRelationshipType(null);
             }
 
         }, () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType())));
 
         // remove all type extensions not contained in the TO
-        relationshipType.getTypeExtensions().
+        rt.getTypeExtensions().
                 removeIf(typeExt -> relationshipTypeTO.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
+
+        return rt;
     }
 
     @Override

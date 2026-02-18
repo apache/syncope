@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ['java']
-        java: [ '21', '26-ea' ]
+        java: [ '25', '26-ea' ]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
@@ -47,7 +47,7 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -P 'skipTests,all'
+      run: mvn -U -T 1C -D'apache.snapshots=true' -P 'skipTests,all'
     - name: Validate
       if: runner.os == 'Linux'
       run: mvn -T 1C checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check

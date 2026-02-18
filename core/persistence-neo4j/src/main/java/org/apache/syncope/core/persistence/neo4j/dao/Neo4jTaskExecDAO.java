@@ -240,18 +240,6 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
         return neo4jTemplate.save(nodeValidator.validate(execution));
     }
 
-    @Transactional(rollbackFor = { Throwable.class })
-    @Override
-    public <T extends Task<T>> void saveAndAdd(
-            final TaskType taskType, final String taskKey, final TaskExec<T> execution) {
-
-        Optional<T> task = taskDAO.findById(taskType, taskKey);
-        if (task.isPresent()) {
-            task.get().add(execution);
-            taskDAO.save(task.get());
-        }
-    }
-
     @Override
     public void delete(final TaskType taskType, final String key) {
         findById(taskType, key).ifPresent(this::delete);

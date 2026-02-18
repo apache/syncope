@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core Persistence JPA</name>
@@ -48,10 +48,9 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.openjpa</groupId>
-      <artifactId>openjpa</artifactId>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-jcache</artifactId>
     </dependency>
 
     <dependency>
@@ -61,6 +60,11 @@ under the License.
     </dependency>
 
     <!-- TEST -->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>jcache</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>${jdbcdriver.groupId}</groupId>
       <artifactId>${jdbcdriver.artifactId}</artifactId>
@@ -125,17 +129,25 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-maven-plugin</artifactId>
-        <inherited>true</inherited>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-maven-plugin</artifactId>
         <configuration>
-          <persistenceXmlFile>${project.basedir}/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
-          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
+          <fileSets>
+            <fileset>
+              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
+            </fileset>
+          </fileSets>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.syncope.core</groupId>
+            <artifactId>syncope-core-persistence-common</artifactId>
+            <version>${project.version}</version>
+          </dependency>          
+        </dependencies>
         <executions>
           <execution>
-            <id>enhancer</id>
-            <phase>process-classes</phase>
+            <id>enhance</id>
             <goals>
               <goal>enhance</goal>
             </goals>
@@ -150,6 +162,7 @@ under the License.
           <systemPropertyVariables>
             <syncope.connid.location>${syncope.connid.location}</syncope.connid.location>
             <TESTCONTAINERS_REUSE_ENABLE>true</TESTCONTAINERS_REUSE_ENABLE>
+            <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -203,40 +216,6 @@ under the License.
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
       </properties>
-    </profile>
-
-    <profile>
-      <id>openjpa-maven-plugin</id>
-
-      <properties>
-        <!-- possible values: sql | schema -->
-        <action>sql</action>
-
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
-        <plugins>
-          <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <connectionDriverName>org.postgresql.Driver</connectionDriverName>
-            </configuration>
-            <executions>
-              <execution>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>${action}</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>          
-        </plugins>
-      </build>
     </profile>
   </profiles>
 

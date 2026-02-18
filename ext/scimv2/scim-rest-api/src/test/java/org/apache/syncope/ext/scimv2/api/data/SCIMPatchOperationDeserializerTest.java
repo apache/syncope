@@ -23,21 +23,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.List;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 public class SCIMPatchOperationDeserializerTest {
 
     private static final JsonMapper MAPPER = JsonMapper.builder().
-            findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
+            findAndAddModules().
+            enable(MapperFeature.USE_GETTERS_AS_SETTERS).
+            build();
 
     @Test
-    public void addMember() throws JsonProcessingException {
+    public void addMember() {
         String input =
                 "{ "
                 + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -75,7 +76,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void removeMembers() throws JsonProcessingException {
+    public void removeMembers() {
         String input =
                 "{"
                 + "     \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -98,7 +99,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void removeAndAddMembers() throws JsonProcessingException {
+    public void removeAndAddMembers() {
         String input =
                 "{ \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
                 + "     \"Operations\": ["
@@ -156,7 +157,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void addAttributes() throws JsonProcessingException {
+    public void addAttributes() {
         String input =
                 "{"
                 + "  \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -199,7 +200,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void replaceMembers() throws JsonProcessingException {
+    public void replaceMembers() {
         String input =
                 " {"
                 + "     \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -245,7 +246,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void replaceAttribute() throws JsonProcessingException {
+    public void replaceAttribute() {
         String input =
                 "{"
                 + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -289,7 +290,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void replaceAttributeValue() throws JsonProcessingException {
+    public void replaceAttributeValue() {
         String input =
                 "{"
                 + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -319,7 +320,7 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
-    public void addAttributeValue() throws JsonProcessingException {
+    public void addAttributeValue() {
         String input =
                 "{"
                 + "  \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"

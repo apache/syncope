@@ -27,11 +27,9 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.common.validation.AnyCheck;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
-@AnyCheck
 @MappedSuperclass
 public abstract class AbstractAny extends AbstractAttributable implements Any {
 
@@ -64,13 +62,13 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
      */
     private String lastChangeContext;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private JPARealm realm;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private JPAUser uManager;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private JPAGroup gManager;
 
     @Column(nullable = true)

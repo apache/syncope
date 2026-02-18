@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core Spring Boot Self Keymaster</name>
@@ -60,17 +60,18 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-maven-plugin</artifactId>
-        <inherited>true</inherited>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-maven-plugin</artifactId>
         <configuration>
-          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile>
-          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
+          <fileSets>
+            <fileset>
+              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
+            </fileset>
+          </fileSets>
         </configuration>
         <executions>
           <execution>
-            <id>enhancer</id>
-            <phase>process-classes</phase>
+            <id>enhance</id>
             <goals>
               <goal>enhance</goal>
             </goals>

@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -112,6 +113,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             final PlainSchemaDAO plainSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
+            final AnyChecker anyChecker,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
@@ -136,6 +138,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 plainSchemaDAO,
                 resourceDAO,
                 relationshipTypeDAO,
+                anyChecker,
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
@@ -254,15 +257,13 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         }
         account.setSuspended(accountTO.isSuspended());
 
+        new HashSet<>(account.getPlainAttrs()).forEach(account::remove);
         accountTO.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-            PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
-                PlainAttr newAttr = new PlainAttr();
-                newAttr.setPlainSchema(schema);
-                return newAttr;
-            });
+            PlainAttr attr = new PlainAttr();
+            attr.setPlainSchema(schema);
             fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
             if (!attr.getValuesAsStrings().isEmpty()) {
@@ -457,27 +458,34 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
 
         // linked accounts
         userUR.getLinkedAccounts().stream().filter(patch -> patch.getLinkedAccountTO() != null).forEach(patch -> {
-            user.getLinkedAccount(
-                    patch.getLinkedAccountTO().getResource(),
-                    patch.getLinkedAccountTO().getConnObjectKeyValue()).ifPresent(account -> {
+            switch (patch.getOperation()) {
+                case DELETE -> {
+                    user.getLinkedAccount(
+                            patch.getLinkedAccountTO().getResource(),
+                            patch.getLinkedAccountTO().getConnObjectKeyValue()).ifPresentOrElse(
+                            account -> {
+                                user.getLinkedAccounts().remove(account);
+                                account.setOwner(null);
 
-                if (patch.getOperation() == PatchOperation.DELETE) {
-                    user.getLinkedAccounts().remove(account);
-                    account.setOwner(null);
-
-                    propByLinkedAccount.add(
-                            ResourceOperation.DELETE,
-                            Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
+                                propByLinkedAccount.add(
+                                        ResourceOperation.DELETE,
+                                        Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
+                            },
+                            () -> LOG.debug("No linked acccount ({},{}) was found, nothing to delete",
+                                    patch.getLinkedAccountTO().getResource(),
+                                    patch.getLinkedAccountTO().getConnObjectKeyValue()));
                 }
 
-                new HashSet<>(account.getPlainAttrs()).forEach(account::remove);
-            });
-            if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                linkedAccount(
-                        anyTO,
-                        user,
-                        patch.getLinkedAccountTO(),
-                        invalidValues);
+                case ADD_REPLACE -> {
+                    linkedAccount(
+                            anyTO,
+                            user,
+                            patch.getLinkedAccountTO(),
+                            invalidValues);
+                }
+
+                default -> {
+                }
             }
         });
         user.getLinkedAccounts().forEach(account -> propByLinkedAccount.add(
@@ -494,7 +502,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
 
         // Build final information for next stage (propagation)
         Map<String, ConnObject> afterOnResources =
-                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwdRes);
+                onResources(saved, userDAO.findAllResourceKeys(saved.getKey()), password, changePwdRes);
         propByRes.merge(propByRes(beforeOnResources, afterOnResources));
 
         if (userUR.getMustChangePassword() != null) {

@@ -117,7 +117,7 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private String principalIdAttr;
 
-    private final PrincipalAttrRepoConf principalAttrRepoConf = new PrincipalAttrRepoConf();
+    private PrincipalAttrRepoConf principalAttrRepoConf = new PrincipalAttrRepoConf();
 
     public Map<String, Object> getReleaseAttrs() {
         return releaseAttrs;
@@ -145,5 +145,9 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     public PrincipalAttrRepoConf getPrincipalAttrRepoConf() {
         return principalAttrRepoConf;
+    }
+
+    public void setPrincipalAttrRepoConf(final PrincipalAttrRepoConf principalAttrRepoConf) {
+        this.principalAttrRepoConf = principalAttrRepoConf;
     }
 }

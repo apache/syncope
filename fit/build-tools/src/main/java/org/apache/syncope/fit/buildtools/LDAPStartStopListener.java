@@ -74,6 +74,8 @@ public class LDAPStartStopListener implements ServletContextListener {
             ldapServer = new InMemoryDirectoryServer(config);
             ldapServer.importFromLDIF(false, ctx.getResource("classpath:/content.ldif").getFile());
             ldapServer.startListening();
+
+            LOG.info("LDAP server successfully (re)started");
         } catch (Exception e) {
             LOG.error("Fatal error in context init", e);
             throw new RuntimeException(e);
@@ -84,6 +86,8 @@ public class LDAPStartStopListener implements ServletContextListener {
     public void contextDestroyed(final ServletContextEvent sce) {
         if (ldapServer != null) {
             ldapServer.shutDown(true);
+
+            LOG.info("LDAP server successfully stopped");
         }
     }
 }

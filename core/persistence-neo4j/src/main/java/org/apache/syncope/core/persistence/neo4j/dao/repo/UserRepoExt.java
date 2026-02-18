@@ -36,7 +36,7 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     String CACHE = "userCache";
 
-    Optional<? extends User> findByToken(String token);
+    Optional<String> findByToken(String token);
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
 

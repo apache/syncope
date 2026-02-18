@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.cache.Cache;
 import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.RealmChecker;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -79,6 +80,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     protected final NodeValidator nodeValidator;
 
+    protected final RealmChecker realmChecker;
+
     protected final Cache<EntityCacheKey, Neo4jRealm> cache;
 
     public Neo4jRealmDAO(
@@ -88,6 +91,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
+            final RealmChecker realmChecker,
             final Cache<EntityCacheKey, Neo4jRealm> cache) {
 
         super(neo4jTemplate, neo4jClient);
@@ -95,6 +99,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         this.realmSearchDAO = realmSearchDAO;
         this.publisher = publisher;
         this.nodeValidator = nodeValidator;
+        this.realmChecker = realmChecker;
         this.cache = cache;
     }
 
@@ -234,6 +239,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             ((Neo4jRealm) realm).setFullPath(fullPathAfter);
         }
 
+        realmChecker.checkBeforeSave(realm);
+
         S merged = neo4jTemplate.save(nodeValidator.validate(realm));
 
         if (!fullPathAfter.equals(fullPathBefore)) {
@@ -276,5 +283,10 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, toBeDeleted, AuthContextUtils.getDomain()));
         });
+    }
+
+    @Override
+    public void evict(final String key) {
+        cache.remove(EntityCacheKey.of(key));
     }
 }

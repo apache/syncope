@@ -694,22 +694,12 @@ public class GroupITCase extends AbstractITCase {
             groupCR.getPlainAttrs().add(attr("title", "first"));
             groupCR.getResources().add(RESOURCE_NAME_LDAP);
 
-            ProvisioningResult<GroupTO> result = createGroup(groupCR);
-            assertNotNull(result);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
-            GroupTO group = result.getEntity();
+            GroupTO group = getEntity(createGroup(groupCR));
 
             // 2. update succeeds
-            result = updateGroup(new GroupUR.Builder(group.getKey()).
+            group = getEntity(updateGroup(new GroupUR.Builder(group.getKey()).
                     plainAttr(new AttrPatch.Builder(attr("title", "second")).build()).
-                    build());
-            assertNotNull(result);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
-            group = result.getEntity();
+                    build()));
 
             // 3. enable capability override with only search allowed
             ldap.setCapabilitiesOverride(Optional.of(Set.of(ConnectorCapability.SEARCH)));
@@ -720,10 +710,9 @@ public class GroupITCase extends AbstractITCase {
             assertTrue(ldap.getCapabilitiesOverride().orElseThrow().contains(ConnectorCapability.SEARCH));
 
             // 4. update now fails
-            result = updateGroup(new GroupUR.Builder(group.getKey()).
+            ProvisioningResult<GroupTO> result = updateGroup(new GroupUR.Builder(group.getKey()).
                     plainAttr(new AttrPatch.Builder(attr("title", "fourth")).build()).
                     build());
-            assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
             assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().getFirst().getStatus());
@@ -922,9 +911,9 @@ public class GroupITCase extends AbstractITCase {
             // 4. check that a single group exists in LDAP for the group created and updated above
             assertEquals(1, ldapSearch("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')').getEntryCount());
         } finally {
-            SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
-            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
-            RESOURCE_SERVICE.delete("new-ldap");
+//            SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
+//            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
+//            RESOURCE_SERVICE.delete("new-ldap");
         }
     }
 

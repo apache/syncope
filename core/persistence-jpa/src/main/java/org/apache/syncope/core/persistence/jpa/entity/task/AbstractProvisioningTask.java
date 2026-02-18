@@ -38,7 +38,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @MappedSuperclass
 @ProvisioningTaskCheck
 public abstract class AbstractProvisioningTask<T extends SchedTask>
-        extends JPASchedTask implements ProvisioningTask<T> {
+        extends AbstractSchedTask implements ProvisioningTask<T> {
 
     private static final long serialVersionUID = -4141057723006682562L;
 

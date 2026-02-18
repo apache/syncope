@@ -27,7 +27,5 @@ public interface DerSchemaRepoExt {
 
     List<? extends DerSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
-    DerSchema save(DerSchema schema);
-
     void deleteById(String key);
 }

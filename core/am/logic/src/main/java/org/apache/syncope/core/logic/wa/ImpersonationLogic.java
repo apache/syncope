@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.wa;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
@@ -53,9 +52,7 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
         if (profile.getImpersonationAccounts().stream().
                 noneMatch(acct -> acct.getImpersonated().equalsIgnoreCase(account.getImpersonated()))) {
 
-            List<ImpersonationAccount> accounts = new ArrayList<>(profile.getImpersonationAccounts());
-            accounts.add(account);
-            profile.setImpersonationAccounts(accounts);
+            profile.add(account);
         }
 
         authProfileDAO.save(profile);
@@ -64,9 +61,9 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final String owner, final String impersonated) {
         authProfileDAO.findByOwner(owner).ifPresent(profile -> {
-            List<ImpersonationAccount> accounts = profile.getImpersonationAccounts();
-            if (accounts.removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(impersonated))) {
-                profile.setImpersonationAccounts(accounts);
+            if (profile.getImpersonationAccounts().
+                    removeIf(acct -> acct.getImpersonated().equalsIgnoreCase(impersonated))) {
+
                 authProfileDAO.save(profile);
             }
         });

@@ -35,7 +35,7 @@ under the License.
     <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.openjpa" additivity="false" level="INFO">
+    <asyncLogger name="org.hibernate" additivity="false" level="INFO">
       <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="org.apache.ibatis" additivity="false" level="INFO">

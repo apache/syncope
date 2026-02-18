@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -27,10 +26,12 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Implements {@link ServiceOps} via Apache Curator / Zookeeper.
@@ -39,7 +40,7 @@ public class ZookeeperServiceOps implements ServiceOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ServiceOps.class);
 
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     protected static final String SERVICE_PATH = "/services";
 

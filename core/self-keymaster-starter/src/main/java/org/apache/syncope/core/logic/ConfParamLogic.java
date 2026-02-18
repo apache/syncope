@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.lang.reflect.Method;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.keymaster.internal.InternalConfParamHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
 
 public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
 

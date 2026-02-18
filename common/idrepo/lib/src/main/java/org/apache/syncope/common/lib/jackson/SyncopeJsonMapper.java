@@ -18,15 +18,17 @@
  */
 package org.apache.syncope.common.lib.jackson;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.io.DataOutput;
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.Map;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * Jackson ObjectMapper that unwraps singleton map values and enable default
@@ -37,11 +39,7 @@ public class SyncopeJsonMapper extends JsonMapper {
     private static final long serialVersionUID = -317191546835195103L;
 
     public SyncopeJsonMapper() {
-        super();
-
-        findAndRegisterModules();
-
-        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        super(JsonMapper.builder().findAndAddModules().enable(MapperFeature.USE_GETTERS_AS_SETTERS));
     }
 
     /**
@@ -62,32 +60,47 @@ public class SyncopeJsonMapper extends JsonMapper {
     }
 
     @Override
-    public void writeValue(final JsonGenerator jgen, final Object value) throws IOException {
-        super.writeValue(jgen, unwrapMap(value));
-    }
-
-    @Override
-    public void writeValue(final File resultFile, final Object value) throws IOException {
-        super.writeValue(resultFile, unwrapMap(value));
-    }
-
-    @Override
-    public void writeValue(final OutputStream out, final Object value) throws IOException {
+    public void writeValue(final DataOutput out, final Object value) throws JacksonException {
         super.writeValue(out, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(final Writer writer, final Object value) throws IOException {
+    public void writeValue(final Path path, final Object value) throws JacksonException {
+        super.writeValue(path, unwrapMap(value));
+    }
+
+    @Override
+    public TokenBuffer writeValueIntoBuffer(final Object value) throws JacksonException {
+        return super.writeValueIntoBuffer(unwrapMap(value));
+    }
+
+    @Override
+    public void writeValue(final JsonGenerator jgen, final Object value) throws JacksonException {
+        super.writeValue(jgen, unwrapMap(value));
+    }
+
+    @Override
+    public void writeValue(final File resultFile, final Object value) throws JacksonException {
+        super.writeValue(resultFile, unwrapMap(value));
+    }
+
+    @Override
+    public void writeValue(final OutputStream out, final Object value) throws JacksonException {
+        super.writeValue(out, unwrapMap(value));
+    }
+
+    @Override
+    public void writeValue(final Writer writer, final Object value) throws JacksonException {
         super.writeValue(writer, unwrapMap(value));
     }
 
     @Override
-    public byte[] writeValueAsBytes(final Object value) throws JsonProcessingException {
+    public byte[] writeValueAsBytes(final Object value) throws JacksonException {
         return super.writeValueAsBytes(unwrapMap(value));
     }
 
     @Override
-    public String writeValueAsString(final Object value) throws JsonProcessingException {
+    public String writeValueAsString(final Object value) throws JacksonException {
         return super.writeValueAsString(unwrapMap(value));
     }
 }

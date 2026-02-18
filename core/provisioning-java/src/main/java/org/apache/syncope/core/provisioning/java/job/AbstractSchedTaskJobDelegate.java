@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -58,12 +57,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
      * The actual task to be executed.
      */
     protected T task;
-
-    /**
-     * Task execution DAO.
-     */
-    @Autowired
-    protected TaskExecDAO taskExecDAO;
 
     /**
      * Task DAO.
@@ -141,7 +134,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         if (hasToBeRegistered(execution)) {
             register(execution);
         }
-        task = taskDAO.save(task);
 
         notificationManager.createTasks(
                 executor,
@@ -171,7 +163,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional
     @Override
     public void execute(
@@ -229,7 +220,8 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         return false;
     }
 
-    protected void register(final TaskExec<?> execution) {
-        taskExecDAO.saveAndAdd(taskType, task.getKey(), execution);
+    protected void register(final TaskExec<SchedTask> execution) {
+        task.add(execution);
+        task = taskDAO.save(task);
     }
 }

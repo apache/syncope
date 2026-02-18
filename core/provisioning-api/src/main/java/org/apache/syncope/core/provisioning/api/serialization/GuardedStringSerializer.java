@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
@@ -30,8 +26,12 @@ import org.identityconnectors.common.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 
-class GuardedStringSerializer extends JsonSerializer<GuardedString> {
+class GuardedStringSerializer extends ValueSerializer<GuardedString> {
 
     private static final Logger LOG = LoggerFactory.getLogger(GuardedStringSerializer.class);
 
@@ -46,8 +46,8 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
     private static final String LOG_ERROR_MESSAGE = "Could not get field value";
 
     @Override
-    public void serialize(final GuardedString source, final JsonGenerator jgen, final SerializerProvider sp)
-            throws IOException {
+    public void serialize(final GuardedString source, final JsonGenerator jgen, final SerializationContext ctx)
+            throws JacksonException {
 
         jgen.writeStartObject();
 
@@ -59,7 +59,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
         } catch (Exception e) {
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
-        jgen.writeBooleanField(READONLY, readOnly);
+        jgen.writeBooleanProperty(READONLY, readOnly);
 
         boolean disposed = false;
         try {
@@ -69,11 +69,11 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
         } catch (Exception e) {
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
-        jgen.writeBooleanField(DISPOSED, disposed);
+        jgen.writeBooleanProperty(DISPOSED, disposed);
 
         byte[] encryptedBytes =
                 EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(SecurityUtil.decrypt(source).getBytes());
-        jgen.writeStringField(ENCRYPTED_BYTES, Base64.getEncoder().encodeToString(encryptedBytes));
+        jgen.writeStringProperty(ENCRYPTED_BYTES, Base64.getEncoder().encodeToString(encryptedBytes));
 
         String base64SHA1Hash = null;
         try {
@@ -84,7 +84,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
             LOG.error(LOG_ERROR_MESSAGE, e);
         }
         if (base64SHA1Hash != null) {
-            jgen.writeStringField(BASE64_SHA1_HASH, base64SHA1Hash);
+            jgen.writeStringProperty(BASE64_SHA1_HASH, base64SHA1Hash);
         }
 
         jgen.writeEndObject();

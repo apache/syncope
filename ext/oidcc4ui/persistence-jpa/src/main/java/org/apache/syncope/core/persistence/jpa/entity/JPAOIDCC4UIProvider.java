@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -29,13 +29,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.persistence.api.validation.OIDCC4UIProviderCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.ItemListConverter;
 import org.springframework.util.CollectionUtils;
 
 @Entity
@@ -95,11 +89,9 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "op")
     private JPAOIDCC4UIUserTemplate userTemplate;
 
+    @Convert(converter = ItemListConverter.class)
     @Lob
-    private String items;
-
-    @Transient
-    private final List<Item> itemList = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     @NotNull
     private Boolean createUnmatching = false;
@@ -273,7 +265,7 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
 
     @Override
     public List<Item> getItems() {
-        return itemList;
+        return items;
     }
 
     @Override
@@ -297,33 +289,5 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @Override
     public List<? extends Implementation> getActions() {
         return actions;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getItems().clear();
-        }
-        if (items != null) {
-            getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
-                    }));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        items = POJOHelper.serialize(getItems());
     }
 }

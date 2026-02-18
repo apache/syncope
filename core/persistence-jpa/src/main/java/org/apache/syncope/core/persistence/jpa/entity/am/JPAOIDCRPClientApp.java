@@ -18,19 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -42,7 +36,9 @@ import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.jpa.converters.OIDCGrantTypeSetConverter;
+import org.apache.syncope.core.persistence.jpa.converters.OIDCResponseTypeSetConverter;
+import org.apache.syncope.core.persistence.jpa.converters.StringSetConverter;
 
 @Entity
 @Table(name = JPAOIDCRPClientApp.TABLE)
@@ -51,21 +47,6 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     private static final long serialVersionUID = 7422422526695279794L;
 
     public static final String TABLE = "OIDCRPClientApp";
-
-    protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
-    };
-
-    protected static final TypeReference<Set<OIDCGrantType>> GRANT_TYPE_TYPEREF =
-            new TypeReference<Set<OIDCGrantType>>() {
-    };
-
-    protected static final TypeReference<Set<OIDCResponseType>> RESPONSE_TYPE_TYPEREF =
-            new TypeReference<Set<OIDCResponseType>>() {
-    };
-
-    protected static final TypeReference<Set<String>> SCOPE_TYPEREF =
-            new TypeReference<Set<String>>() {
-    };
 
     @Column(unique = true, nullable = false)
     private String clientId;
@@ -108,29 +89,21 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Enumerated(EnumType.STRING)
     private OIDCApplicationType applicationType = OIDCApplicationType.WEB;
 
+    @Convert(converter = StringSetConverter.class)
     @Lob
-    private String redirectUris;
+    private Set<String> redirectUris = new HashSet<>();
 
-    @Transient
-    private Set<String> redirectUrisSet = new HashSet<>();
-
+    @Convert(converter = OIDCGrantTypeSetConverter.class)
     @Lob
-    private String supportedGrantTypes;
+    private Set<OIDCGrantType> supportedGrantTypes = new HashSet<>();
 
-    @Transient
-    private Set<OIDCGrantType> supportedGrantTypesSet = new HashSet<>();
-
+    @Convert(converter = OIDCResponseTypeSetConverter.class)
     @Lob
-    private String supportedResponseTypes;
+    private Set<OIDCResponseType> supportedResponseTypes = new HashSet<>();
 
-    @Transient
-    private Set<OIDCResponseType> supportedResponseTypesSet = new HashSet<>();
-
+    @Convert(converter = StringSetConverter.class)
     @Lob
-    private String scopes;
-
-    @Transient
-    private Set<String> scopesSet = new HashSet<>();
+    private Set<String> scopes = new HashSet<>();
 
     @Lob
     private String jwks;
@@ -156,7 +129,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Override
     public Set<String> getRedirectUris() {
-        return redirectUrisSet;
+        return redirectUris;
     }
 
     @Override
@@ -321,17 +294,17 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Override
     public Set<OIDCGrantType> getSupportedGrantTypes() {
-        return supportedGrantTypesSet;
+        return supportedGrantTypes;
     }
 
     @Override
     public Set<OIDCResponseType> getSupportedResponseTypes() {
-        return supportedResponseTypesSet;
+        return supportedResponseTypes;
     }
 
     @Override
     public Set<String> getScopes() {
-        return scopesSet;
+        return scopes;
     }
 
     @Override
@@ -434,45 +407,5 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
-    }
-    
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getRedirectUris().clear();
-            getSupportedGrantTypes().clear();
-            getSupportedResponseTypes().clear();
-        }
-        if (redirectUris != null) {
-            getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
-        }
-        if (supportedGrantTypes != null) {
-            getSupportedGrantTypes().addAll(POJOHelper.deserialize(supportedGrantTypes, GRANT_TYPE_TYPEREF));
-        }
-        if (supportedResponseTypes != null) {
-            getSupportedResponseTypes().addAll(POJOHelper.deserialize(supportedResponseTypes, RESPONSE_TYPE_TYPEREF));
-        }
-        if (scopes != null) {
-            getScopes().addAll(POJOHelper.deserialize(scopes, SCOPE_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        redirectUris = POJOHelper.serialize(getRedirectUris());
-        supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
-        supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
-        scopes = POJOHelper.serialize(getScopes());
     }
 }

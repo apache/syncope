@@ -18,26 +18,26 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
+import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfParamOps {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     public SelfKeymasterConfParamOps(final JAXRSClientFactoryBean clientFactory) {
         super(clientFactory);
@@ -56,7 +56,7 @@ public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfP
         }
         try {
             return MAPPER.readValue(response.readEntity(InputStream.class), reference);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOG.error("Could not deserialize response", e);
             return defaultValue;
         }
@@ -73,7 +73,7 @@ public class SelfKeymasterConfParamOps extends SelfKeymasterOps implements ConfP
 
                 client(ConfParamService.class, Map.of(RESTHeaders.DOMAIN, domain)).
                         set(key, new ByteArrayInputStream(baos.toByteArray()));
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new KeymasterException("Could not serialize " + value, e);
             }
         }

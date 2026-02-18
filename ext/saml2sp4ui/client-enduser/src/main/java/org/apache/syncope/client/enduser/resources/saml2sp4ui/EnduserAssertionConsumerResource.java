@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources.saml2sp4ui;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.enduser.pages.SAML2SPLogin;
 import org.apache.syncope.client.enduser.pages.SelfRegistration;
@@ -42,8 +41,7 @@ public class EnduserAssertionConsumerResource extends AssertionConsumerResource 
     }
 
     @Override
-    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser)
-            throws JsonProcessingException {
+    protected Pair<Class<? extends WebPage>, PageParameters> getSelfRegInfo(final UserTO newUser) {
         return Pair.of(SelfRegistration.class,
                 new PageParameters().add(SelfRegistration.NEW_USER_PARAM, MAPPER.writeValueAsString(newUser)));
     }

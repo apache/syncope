@@ -19,13 +19,6 @@
 package org.apache.syncope.wa.bootstrap.mapping;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -37,12 +30,19 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.ResourceUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
+import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.dataformat.yaml.YAMLMapper;
 
 public final class WAConfUtils {
 
     private static class ResourceSerializer extends StdSerializer<Resource> {
-
-        private static final long serialVersionUID = 7971411664567411958L;
 
         ResourceSerializer() {
             this(null);
@@ -53,14 +53,19 @@ public final class WAConfUtils {
         }
 
         @Override
-        public void serialize(final Resource value,
+        public void serialize(
+                final Resource value,
                 final JsonGenerator jgen,
-                final SerializerProvider provider) throws IOException {
+                final SerializationContext ctx) throws JacksonException {
 
             if (value instanceof ClassPathResource) {
                 jgen.writeString(ResourceUtils.CLASSPATH_URL_PREFIX + value.getFilename());
             } else {
-                jgen.writeString(value.getURI().toString());
+                try {
+                    jgen.writeString(value.getURI().toString());
+                } catch (IOException e) {
+                    throw new StreamWriteException(jgen, "During Resource serialization", e);
+                }
             }
         }
     }
@@ -68,14 +73,16 @@ public final class WAConfUtils {
     private static final YAMLMapper YAML_MAPPER;
 
     static {
-        YAML_MAPPER = new YAMLMapper();
-        YAML_MAPPER.setFilterProvider(new SimpleFilterProvider().setFailOnUnknownId(false));
-        YAML_MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        YAML_MAPPER.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
-
         SimpleModule module = new SimpleModule();
         module.addSerializer(Resource.class, new ResourceSerializer());
-        YAML_MAPPER.registerModule(module);
+
+        YAML_MAPPER = YAMLMapper.builder().
+                addModule(module).
+                filterProvider(new SimpleFilterProvider().setFailOnUnknownId(false)).
+                propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE).
+                changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL)).
+                changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL)).
+                build();
     }
 
     public static Map<String, Object> asMap(final Serializable properties) {

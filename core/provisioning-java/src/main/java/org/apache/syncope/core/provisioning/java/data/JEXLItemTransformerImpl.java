@@ -37,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
@@ -69,7 +70,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         if (attributable != null) {
             builder.fields(attributable).
                     plainAttrs(attributable.getPlainAttrs()).
-                    derAttrs(attributable, derAttrHandler);
+                    derAttrs(jexlTools.derAttrs(attributable, derAttrHandler));
         }
         JexlContext jexlContext = builder.build();
 
@@ -144,6 +145,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         return AttrSchemaType.String;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public MappingManager.IntValues beforePropagation(
             final Item item,

@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -103,11 +102,27 @@ class SCIMDataBinderTest {
         dataBinder = new SCIMDataBinder(scimConfManager, userLogic, authDataAccessor, groupDAO, jexlTools);
     }
 
+    private static SCIMPatchOperation operation(
+            final String attribute,
+            final String sub,
+            final PatchOp op,
+            final String value) {
+
+        SCIMPatchOperation operation = new SCIMPatchOperation();
+        SCIMPatchPath scimPatchPath = new SCIMPatchPath();
+        scimPatchPath.setAttribute(attribute);
+        scimPatchPath.setSub(sub);
+        operation.setOp(op);
+        operation.setPath(scimPatchPath);
+        Optional.ofNullable(value).ifPresent(v -> operation.getValue().add(v));
+        return operation;
+    }
+
     @ParameterizedTest
     @MethodSource("getValue")
     void toUserUpdateActive(final String value) {
         SCIMPatchOp scimPatchOp = new SCIMPatchOp();
-        scimPatchOp.setOperations(List.of(getOperation("active", null, PatchOp.add, value)));
+        scimPatchOp.getOperations().add(operation("active", null, PatchOp.add, value));
         Pair<List<UserUR>, StatusR> result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
         assertEquals(1, result.getLeft().size());
@@ -122,9 +137,7 @@ class SCIMDataBinderTest {
     @Test
     void toUserUpdate() {
         SCIMPatchOp scimPatchOp = new SCIMPatchOp();
-        List<SCIMPatchOperation> operations = new ArrayList<>();
-        operations.add(getOperation("name", "familyName", PatchOp.add, "Rossini"));
-        scimPatchOp.setOperations(operations);
+        scimPatchOp.getOperations().add(operation("name", "familyName", PatchOp.add, "Rossini"));
 
         Pair<List<UserUR>, StatusR> result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
@@ -136,10 +149,9 @@ class SCIMDataBinderTest {
                 && attrPatch.getAttr().getSchema().equals("surname")
                 && attrPatch.getAttr().getValues().contains("Rossini")));
 
-        operations.clear();
-        operations.add(getOperation("name", "givenName", PatchOp.add, "Gioacchino"));
-        operations.add(getOperation("name", "familyName", PatchOp.remove, null));
-        scimPatchOp.setOperations(operations);
+        scimPatchOp.getOperations().clear();
+        scimPatchOp.getOperations().add(operation("name", "givenName", PatchOp.add, "Gioacchino"));
+        scimPatchOp.getOperations().add(operation("name", "familyName", PatchOp.remove, null));
         result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
         assertNull(result.getRight());
@@ -154,11 +166,10 @@ class SCIMDataBinderTest {
                 && attrPatch.getAttr().getSchema().equals("surname")
                 && attrPatch.getAttr().getValues().isEmpty()));
 
-        operations.clear();
-        operations.add(getOperation("name", "familyName", PatchOp.add, "Verdi"));
-        operations.add(getOperation("name", "givenName", PatchOp.replace, "Giuseppe"));
-        operations.add(getOperation("userName", null, PatchOp.add, "gverdi"));
-        scimPatchOp.setOperations(operations);
+        scimPatchOp.getOperations().clear();
+        scimPatchOp.getOperations().add(operation("name", "familyName", PatchOp.add, "Verdi"));
+        scimPatchOp.getOperations().add(operation("name", "givenName", PatchOp.replace, "Giuseppe"));
+        scimPatchOp.getOperations().add(operation("userName", null, PatchOp.add, "gverdi"));
         result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
         assertNull(result.getRight());
@@ -175,11 +186,10 @@ class SCIMDataBinderTest {
                 && attrPatch.getAttr().getSchema().equals("firstname")
                 && attrPatch.getAttr().getValues().contains("Giuseppe")));
 
-        operations.clear();
-        operations.add(getOperation("name", "familyName", PatchOp.replace, "Puccini"));
-        operations.add(getOperation("name", "givenName", PatchOp.remove, null));
-        operations.add(getOperation("active", null, PatchOp.add, "True"));
-        scimPatchOp.setOperations(operations);
+        scimPatchOp.getOperations().clear();
+        scimPatchOp.getOperations().add(operation("name", "familyName", PatchOp.replace, "Puccini"));
+        scimPatchOp.getOperations().add(operation("name", "givenName", PatchOp.remove, null));
+        scimPatchOp.getOperations().add(operation("active", null, PatchOp.add, "True"));
         result = dataBinder.toUserUpdate(new UserTO(), scimPatchOp);
         assertNotNull(result);
         assertNotNull(result.getRight());
@@ -187,12 +197,12 @@ class SCIMDataBinderTest {
         assertEquals(StatusRType.REACTIVATE, result.getRight().getType());
         assertEquals(1, result.getLeft().size());
         assertEquals(2, result.getLeft().getFirst().getPlainAttrs().size());
-        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch
-                -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(
+                attrPatch -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                 && attrPatch.getAttr().getSchema().equals("surname")
                 && attrPatch.getAttr().getValues().contains("Puccini")));
-        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch
-                -> PatchOperation.DELETE.equals(attrPatch.getOperation())
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(
+                attrPatch -> PatchOperation.DELETE.equals(attrPatch.getOperation())
                 && attrPatch.getAttr().getSchema().equals("firstname")
                 && attrPatch.getAttr().getValues().isEmpty()));
 
@@ -206,10 +216,9 @@ class SCIMDataBinderTest {
         scimUser.getName().setFamilyName("Bellini");
         SCIMPatchOperation operation = new SCIMPatchOperation();
         operation.setOp(PatchOp.add);
-        operation.setValue(List.of(scimUser));
-        operations.clear();
-        operations.add(operation);
-        scimPatchOp.setOperations(operations);
+        operation.getValue().add(scimUser);
+        scimPatchOp.getOperations().clear();
+        scimPatchOp.getOperations().add(operation);
         result = dataBinder.toUserUpdate(userTO, scimPatchOp);
         assertNotNull(result);
         assertNull(result.getRight());
@@ -226,8 +235,8 @@ class SCIMDataBinderTest {
         assertEquals(PatchOperation.ADD_REPLACE, result.getLeft().getFirst().getUsername().getOperation());
         assertEquals("bellini", result.getLeft().getFirst().getUsername().getValue());
         assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
-        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch
-                -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().
+                anyMatch(attrPatch -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                 && attrPatch.getAttr().getSchema().equals("surname")
                 && attrPatch.getAttr().getValues().contains("Bellini")));
 
@@ -245,35 +254,18 @@ class SCIMDataBinderTest {
         assertEquals(1, result.getLeft().size());
         assertNull(result.getLeft().getFirst().getUsername());
         assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
-        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(attrPatch
-                -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
+        assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().anyMatch(
+                attrPatch -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
                 && attrPatch.getAttr().getSchema().equals("firstname")
                 && attrPatch.getAttr().getValues().contains("Gioacchino")));
         assertEquals(1, result.getLeft().getFirst().getRoles().size());
-        assertTrue(result.getLeft().getFirst().getRoles().stream().anyMatch(role
-                -> PatchOperation.ADD_REPLACE.equals(role.getOperation())
+        assertTrue(result.getLeft().getFirst().getRoles().stream().anyMatch(
+                role -> PatchOperation.ADD_REPLACE.equals(role.getOperation())
                 && role.getValue().equals("User reviewer")));
+    }
 
-        userTO = new UserTO();
-        Group group = new Group("37d15e4c-cdc1-460b-a591-8505c8133806", null, "root", null);
-        scimUser = new SCIMUser(
-                UUID.randomUUID().toString(), List.of(Resource.User.schema()), null, "bellini", true);
-        scimUser.getGroups().add(group);
-        group = new Group("29f96485-729e-4d31-88a1-6fc60e4677f3", null, "citizen", null);
-        scimUser.getGroups().add(group);
-        operation.setOp(PatchOp.add);
-        operation.setValue(List.of(scimUser));
-        operations.clear();
-        operations.add(operation);
-        group = new Group("f779c0d4-633b-4be5-8f57-32eb478a3ca5", null, "otherchild", null);
-        SCIMUser scimUser2 =
-                new SCIMUser(UUID.randomUUID().toString(), List.of(Resource.User.schema()), null, "bellini", true);
-        scimUser2.getGroups().add(group);
-        SCIMPatchOperation operation2 = new SCIMPatchOperation();
-        operation2.setOp(PatchOp.add);
-        operation2.setValue(List.of(scimUser2));
-        operations.add(operation2);
-        scimPatchOp.setOperations(operations);
+    @Test
+    void groups() {
         when(groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806")).thenAnswer(ic -> {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup =
                     mock(org.apache.syncope.core.persistence.api.entity.group.Group.class);
@@ -311,33 +303,47 @@ class SCIMDataBinderTest {
             when(syncopeGroup.getResources()).thenAnswer(invocation -> List.of(resource, resource2));
             return Optional.of(syncopeGroup);
         });
-        result = dataBinder.toUserUpdate(userTO, scimPatchOp);
+
+        UserTO userTO = new UserTO();
+
+        Group group = new Group("37d15e4c-cdc1-460b-a591-8505c8133806", null, "root", null);
+        SCIMUser scimUser = new SCIMUser(
+                UUID.randomUUID().toString(), List.of(Resource.User.schema()), null, "bellini", true);
+        scimUser.getGroups().add(group);
+        group = new Group("29f96485-729e-4d31-88a1-6fc60e4677f3", null, "citizen", null);
+        scimUser.getGroups().add(group);
+
+        SCIMPatchOperation operation = new SCIMPatchOperation();
+        operation.setOp(PatchOp.add);
+        operation.getValue().clear();
+        operation.getValue().add(scimUser);
+        SCIMPatchOp scimPatchOp = new SCIMPatchOp();
+        scimPatchOp.getOperations().add(operation);
+
+        group = new Group("f779c0d4-633b-4be5-8f57-32eb478a3ca5", null, "otherchild", null);
+        SCIMUser scimUser2 = new SCIMUser(
+                UUID.randomUUID().toString(), List.of(Resource.User.schema()), null, "bellini", true);
+        scimUser2.getGroups().add(group);
+        SCIMPatchOperation operation2 = new SCIMPatchOperation();
+        operation2.setOp(PatchOp.add);
+        operation2.getValue().add(scimUser2);
+        scimPatchOp.getOperations().add(operation2);
+
+        Pair<List<UserUR>, StatusR> result = dataBinder.toUserUpdate(userTO, scimPatchOp);
         assertNotNull(result);
         assertNull(result.getRight());
         assertEquals(3, result.getLeft().size());
         assertTrue(result.getLeft().get(0).isEmpty());
         assertEquals(2, result.getLeft().get(1).getMemberships().size());
-        assertTrue(result.getLeft().get(1).getMemberships().stream().anyMatch(membershipUR
-                -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
+        assertTrue(result.getLeft().get(1).getMemberships().stream().anyMatch(
+                membershipUR -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
                 && membershipUR.getGroup().equals("37d15e4c-cdc1-460b-a591-8505c8133806")));
-        assertTrue(result.getLeft().get(1).getMemberships().stream().anyMatch(membershipUR
-                -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
+        assertTrue(result.getLeft().get(1).getMemberships().stream().anyMatch(
+                membershipUR -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
                 && membershipUR.getGroup().equals("29f96485-729e-4d31-88a1-6fc60e4677f3")));
         assertEquals(1, result.getLeft().get(2).getMemberships().size());
-        assertTrue(result.getLeft().get(2).getMemberships().stream().anyMatch(membershipUR
-                -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
+        assertTrue(result.getLeft().get(2).getMemberships().stream().anyMatch(
+                membershipUR -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
                 && membershipUR.getGroup().equals("f779c0d4-633b-4be5-8f57-32eb478a3ca5")));
-    }
-
-    private SCIMPatchOperation getOperation(
-            final String attribute, final String sub, final PatchOp op, final String value) {
-        SCIMPatchOperation operation = new SCIMPatchOperation();
-        SCIMPatchPath scimPatchPath = new SCIMPatchPath();
-        scimPatchPath.setAttribute(attribute);
-        scimPatchPath.setSub(sub);
-        operation.setOp(op);
-        operation.setPath(scimPatchPath);
-        operation.setValue(value == null ? List.of() : List.of(value));
-        return operation;
     }
 }

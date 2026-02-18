@@ -18,12 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -32,6 +26,11 @@ import org.identityconnectors.framework.common.objects.ConnectorObjectIdentifica
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.Version;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * Helper class for serialization and deserialization of configuration objects (POJOs) in JSON.
@@ -54,13 +53,14 @@ public final class POJOHelper {
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(AttributeDelta.class, new AttributeDeltaDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());
-        pojoModule.addDeserializer(ConnectorObjectIdentification.class,
+        pojoModule.addDeserializer(
+                ConnectorObjectIdentification.class,
                 new ConnectorObjectIdentificationDeserializer());
 
         MAPPER = JsonMapper.builder().
+                findAndAddModules().
                 addModule(pojoModule).
-                addModule(new JavaTimeModule()).
-                disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).
+                enable(MapperFeature.USE_GETTERS_AS_SETTERS).
                 build();
     }
 
@@ -107,18 +107,6 @@ public final class POJOHelper {
             result = MAPPER.readValue(serialized, reference);
         } catch (Exception e) {
             LOG.error("During deserialization", e);
-        }
-
-        return result;
-    }
-
-    public static <T extends Object> T convertValue(final Object value, final Class<T> reference) {
-        T result = null;
-
-        try {
-            result = MAPPER.convertValue(value, reference);
-        } catch (Exception e) {
-            LOG.error("During conversion", e);
         }
 
         return result;

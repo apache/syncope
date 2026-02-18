@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -73,6 +74,7 @@ import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -88,13 +90,14 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.retry.RetryException;
-import org.springframework.retry.backoff.ExponentialBackOffPolicy;
-import org.springframework.retry.backoff.ExponentialRandomBackOffPolicy;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
+import org.springframework.core.retry.RetryException;
+import org.springframework.core.retry.RetryPolicy;
+import org.springframework.core.retry.RetryTemplate;
+import org.springframework.core.retry.Retryable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.backoff.BackOff;
+import org.springframework.util.backoff.ExponentialBackOff;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
@@ -415,91 +418,70 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     protected Optional<RetryTemplate> retryTemplate(final ExternalResource resource) {
-        RetryTemplate retryTemplate = null;
-
-        if (resource.getPropagationPolicy() != null) {
-            retryTemplate = retryTemplates.get(resource.getKey());
-            if (retryTemplate == null) {
-                retryTemplate = new RetryTemplate();
-
-                SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-                retryPolicy.setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
-                retryTemplate.setRetryPolicy(retryPolicy);
-
-                String[] params = resource.getPropagationPolicy().getBackOffParams().split(";");
-
-                switch (resource.getPropagationPolicy().getBackOffStrategy()) {
-                    case EXPONENTIAL:
-                        ExponentialBackOffPolicy eBackOffPolicy = new ExponentialBackOffPolicy();
-                        if (params.length > 0) {
-                            try {
-                                eBackOffPolicy.setInitialInterval(Long.parseLong(params[0]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to long: {}", params[0], e);
-                            }
-                        }
-                        if (params.length > 1) {
-                            try {
-                                eBackOffPolicy.setMaxInterval(Long.parseLong(params[1]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to long: {}", params[1], e);
-                            }
-                        }
-                        if (params.length > 2) {
-                            try {
-                                eBackOffPolicy.setMultiplier(Double.parseDouble(params[2]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to double: {}", params[2], e);
-                            }
-                        }
-                        retryTemplate.setBackOffPolicy(eBackOffPolicy);
-                        break;
-
-                    case RANDOM:
-                        ExponentialRandomBackOffPolicy erBackOffPolicy = new ExponentialRandomBackOffPolicy();
-                        if (params.length > 0) {
-                            try {
-                                erBackOffPolicy.setInitialInterval(Long.parseLong(params[0]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to long: {}", params[0], e);
-                            }
-                        }
-                        if (params.length > 1) {
-                            try {
-                                erBackOffPolicy.setMaxInterval(Long.parseLong(params[1]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to long: {}", params[1], e);
-                            }
-                        }
-                        if (params.length > 2) {
-                            try {
-                                erBackOffPolicy.setMultiplier(Double.parseDouble(params[2]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to double: {}", params[2], e);
-                            }
-                        }
-                        retryTemplate.setBackOffPolicy(erBackOffPolicy);
-                        break;
-
-                    case FIXED:
-                    default:
-                        FixedBackOffPolicy fBackOffPolicy = new FixedBackOffPolicy();
-                        if (params.length > 0) {
-                            try {
-                                fBackOffPolicy.setBackOffPeriod(Long.parseLong(params[0]));
-                            } catch (NumberFormatException e) {
-                                LOG.error("Could not convert to long: {}", params[0], e);
-                            }
-
-                        }
-                        retryTemplate.setBackOffPolicy(fBackOffPolicy);
-                }
-
-                retryTemplates.put(resource.getKey(), retryTemplate);
-            }
+        if (resource.getPropagationPolicy() == null) {
+            return Optional.empty();
         }
 
-        return Optional.ofNullable(retryTemplate);
+        RetryTemplate retryTemplate = retryTemplates.get(resource.getKey());
+        if (retryTemplate != null) {
+            return Optional.of(retryTemplate);
+        }
+
+        retryTemplate = new RetryTemplate();
+
+        String[] params = resource.getPropagationPolicy().getBackOffParams().split(";");
+
+        BackOff backOff = null;
+        switch (resource.getPropagationPolicy().getBackOffStrategy()) {
+            case EXPONENTIAL:
+            case RANDOM:
+                backOff = new ExponentialBackOff();
+                ((ExponentialBackOff) backOff).setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
+                if (params.length > 0) {
+                    try {
+                        ((ExponentialBackOff) backOff).setInitialInterval(Long.parseLong(params[0]));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Could not convert to long: {}", params[0], e);
+                    }
+                }
+                if (params.length > 1) {
+                    try {
+                        ((ExponentialBackOff) backOff).setMaxInterval(Long.parseLong(params[1]));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Could not convert to long: {}", params[1], e);
+                    }
+                }
+                if (params.length > 2) {
+                    try {
+                        ((ExponentialBackOff) backOff).setMultiplier(Double.parseDouble(params[2]));
+                    } catch (NumberFormatException e) {
+                        LOG.error("Could not convert to double: {}", params[2], e);
+                    }
+                }
+                if (resource.getPropagationPolicy().getBackOffStrategy() == BackOffStrategy.RANDOM) {
+                    ((ExponentialBackOff) backOff).setJitter(SecureRandomUtils.generateRandomLong(1, 1000));
+                }
+                break;
+
+            case FIXED:
+            default:
+                if (params.length > 0) {
+                    try {
+                        backOff = new FixedBackOff(Long.parseLong(params[0]));
+                        ((FixedBackOff) backOff).setMaxAttempts(resource.getPropagationPolicy().getMaxAttempts());
+                    } catch (NumberFormatException e) {
+                        LOG.error("Could not convert to long: {}", params[0], e);
+                    }
+
+                }
+        }
+
+        RetryPolicy.Builder builder = RetryPolicy.builder();
+        Optional.ofNullable(backOff).ifPresent(builder::backOff);
+        retryTemplate.setRetryPolicy(builder.build());
+        retryTemplates.put(resource.getKey(), retryTemplate);
+
+        return Optional.of(retryTemplate);
     }
 
     @Override
@@ -508,17 +490,27 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationReporter reporter,
             final String executor) {
 
-        return retryTemplate(taskInfo.getResource()).map(rt -> rt.execute(context -> {
-            LOG.debug("#{} Propagation attempt", context.getRetryCount());
+        return retryTemplate(taskInfo.getResource()).map(rt -> {
+            Mutable<TaskExec<PropagationTask>> exec = new MutableObject<>();
+            try {
+                return rt.execute(new Retryable<TaskExec<PropagationTask>>() {
 
-            TaskExec<PropagationTask> exec = doExecute(taskInfo, reporter, executor);
-            if (context.getRetryCount() < taskInfo.getResource().getPropagationPolicy().getMaxAttempts() - 1
-                    && !ExecStatus.SUCCESS.name().equals(exec.getStatus())) {
+                    @Override
+                    public TaskExec<PropagationTask> execute() throws Throwable {
+                        LOG.debug("New propagation attempt");
 
-                throw new RetryException("Attempt #" + context.getRetryCount() + " failed");
+                        exec.setValue(doExecute(taskInfo, reporter, executor));
+                        if (!ExecStatus.SUCCESS.name().equals(exec.get().getStatus())) {
+                            throw new IllegalStateException("Propagation attempt failed");
+                        }
+                        return exec.get();
+                    }
+                });
+            } catch (RetryException e) {
+                LOG.error("Could not propagate successfully, aborting", e);
+                return exec.get();
             }
-            return exec;
-        })).orElseGet(() -> doExecute(taskInfo, reporter, executor));
+        }).orElseGet(() -> doExecute(taskInfo, reporter, executor));
     }
 
     protected boolean isFetchRemoteObj(final PropagationTaskInfo taskInfo) {

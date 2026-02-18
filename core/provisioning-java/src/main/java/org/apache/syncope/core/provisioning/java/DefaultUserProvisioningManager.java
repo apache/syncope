@@ -36,7 +36,10 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -62,16 +65,28 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final UserDAO userDAO;
 
+    protected final EncryptorManager encryptorManager;
+
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final EncryptorManager encryptorManager) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.userDAO = userDAO;
+        this.encryptorManager = encryptorManager;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean checkSecurityAnswer(final String key, final String value) {
+        User user = userDAO.findById(key).orElseThrow(() -> new NotFoundException("User " + key));
+
+        return encryptorManager.getInstance().verify(value, user.getCipherAlgorithm(), user.getSecurityAnswer());
     }
 
     @Override
@@ -296,8 +311,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public void internalSuspend(final String key, final String updater, final String context) {
-        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.internalSuspend(key, updater, context);
+    public void suspendOnAuthFailures(final String key, final String updater, final String context) {
+        Pair<UserWorkflowResult<String>, Boolean> updated = uwfAdapter.suspendOnAuthFailures(key, updater, context);
 
         // propagate suspension if and only if it is required by policy
         if (updated != null && updated.getRight()) {

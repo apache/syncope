@@ -22,13 +22,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.common.security.GuardedString;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
 
 public class GuardedStringSerializerTest extends AbstractTest {
 
@@ -45,13 +45,13 @@ public class GuardedStringSerializerTest extends AbstractTest {
     @Test
     public void serialize(
             final @Mock JsonGenerator jgen,
-            final @Mock SerializerProvider sp) throws IOException {
+            final @Mock SerializationContext ctx) throws IOException {
 
-        serializer.serialize(new GuardedString(), jgen, sp);
-        verify(jgen).writeBooleanField(READONLY, false);
-        verify(jgen).writeBooleanField(DISPOSED, false);
-        verify(jgen).writeStringField(eq(ENCRYPTED_BYTES), anyString());
-        verify(jgen).writeStringField(eq(BASE64_SHA1_HASH), anyString());
+        serializer.serialize(new GuardedString(), jgen, ctx);
+        verify(jgen).writeBooleanProperty(READONLY, false);
+        verify(jgen).writeBooleanProperty(DISPOSED, false);
+        verify(jgen).writeStringProperty(eq(ENCRYPTED_BYTES), anyString());
+        verify(jgen).writeStringProperty(eq(BASE64_SHA1_HASH), anyString());
         verify(jgen).writeEndObject();
     }
 }
