@@ -138,17 +138,17 @@ under the License.
             <tr>
               <td>REST</td>
               <td>
-                <a href="../rest/4.1/index.html">4.0</a>
+                <a href="../rest/4.1/index.html">4.1</a>
                 &nbsp;&nbsp;
-                <a href="../rest/4.0/index.html">3.0</a> 
+                <a href="../rest/4.0/index.html">4.0</a> 
               </td>
             </tr>
             <tr>
               <td>Javadocs</td>
               <td>
-                <a href="../apidocs/4.1/index.html">4.0</a>
+                <a href="../apidocs/4.1/index.html">4.1</a>
                 &nbsp;&nbsp;
-                <a href="../apidocs/4.0/index.html">3.0</a> 
+                <a href="../apidocs/4.0/index.html">4.0</a> 
               </td>
             </tr>
           </tbody>

@@ -293,11 +293,11 @@ cp -r $SYNCOPE_SITE_DIR/target/generated-docs/css docs/$MAJOR_VERSION/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/fonts docs/$MAJOR_VERSION/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/$MAJOR_VERSION/
 
-cd ../apidocs
+cd apidocs
 mkdir $MAJOR_VERSION
 mv * $MAJOR_VERSION/
 
-cd ../..
+cd ..
 svn add $VERSION
 
 # if releasing from 4_1_X              
@@ -326,7 +326,7 @@ svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
             From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
-            <source>mvn -P apache-release release:perform -Darguments="-P all,docker,skipTests -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
+            <source>mvn -P apache-release,skipTests release:perform -Darguments="-P all,docker,skipTests -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
 
             <p>
               <em>If your local OS userid doesn't match your Apache userid, then you'll have to also override the value 
