@@ -48,8 +48,8 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.core.logic.ReconciliationLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.FilterVisitor;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
@@ -57,7 +57,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
 
     protected final ReconciliationLogic logic;
 
-    public ReconciliationServiceImpl(final SearchCondVisitor searchCondVisitor, final ReconciliationLogic logic) {
+    public ReconciliationServiceImpl(final AnySearchCondVisitor searchCondVisitor, final ReconciliationLogic logic) {
         super(searchCondVisitor);
         this.logic = logic;
     }

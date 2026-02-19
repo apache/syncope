@@ -54,7 +54,7 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.domain.Page;
@@ -62,7 +62,7 @@ import org.springframework.data.domain.Page;
 public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
         extends AbstractSearchService implements AnyService<TO> {
 
-    public AbstractAnyService(final SearchCondVisitor searchCondVisitor) {
+    public AbstractAnyService(final AnySearchCondVisitor searchCondVisitor) {
         super(searchCondVisitor);
     }
 

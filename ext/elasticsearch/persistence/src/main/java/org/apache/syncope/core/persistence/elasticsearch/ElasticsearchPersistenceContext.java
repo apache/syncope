@@ -77,10 +77,19 @@ public class ElasticsearchPersistenceContext {
     @Bean
     public RealmSearchDAO realmSearchDAO(
             final @Lazy RealmDAO realmDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final PlainAttrValidationManager validator,
             final ElasticsearchClient client,
             final ElasticsearchProperties props) {
 
-        return new ElasticsearchRealmSearchDAO(realmDAO, client, props.getIndexMaxResultWindow());
+        return new ElasticsearchRealmSearchDAO(
+                realmDAO,
+                plainSchemaDAO,
+                entityFactory,
+                validator,
+                client,
+                props.getIndexMaxResultWindow());
     }
 
     @ConditionalOnMissingBean(name = "elasticsearchAuditEventDAO")

@@ -24,13 +24,13 @@ import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 
 public abstract class AbstractSearchService extends AbstractService {
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
-    public AbstractSearchService(final SearchCondVisitor searchCondVisitor) {
+    public AbstractSearchService(final AnySearchCondVisitor searchCondVisitor) {
         this.searchCondVisitor = searchCondVisitor;
     }
 

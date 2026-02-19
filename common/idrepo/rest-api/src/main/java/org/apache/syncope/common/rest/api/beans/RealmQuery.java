@@ -39,8 +39,8 @@ public class RealmQuery extends AbstractQuery {
             return new RealmQuery();
         }
 
-        public Builder keyword(final String keyword) {
-            getInstance().setKeyword(keyword);
+        public Builder fiql(final String fiql) {
+            getInstance().setFiql(fiql);
             return this;
         }
 
@@ -62,18 +62,17 @@ public class RealmQuery extends AbstractQuery {
             return this;
         }
     }
-
-    private String keyword;
+    private String fiql;
 
     private Set<String> bases;
 
-    public String getKeyword() {
-        return keyword;
+    public String getFiql() {
+        return fiql;
     }
 
-    @QueryParam("keyword")
-    public void setKeyword(final String keyword) {
-        this.keyword = keyword;
+    @QueryParam("fiql")
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
     }
 
     public Set<String> getBases() {
@@ -99,7 +98,7 @@ public class RealmQuery extends AbstractQuery {
         RealmQuery other = (RealmQuery) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
-                append(keyword, other.keyword).
+                append(fiql, other.fiql).
                 append(bases, other.bases).
                 build();
     }
@@ -108,7 +107,7 @@ public class RealmQuery extends AbstractQuery {
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
-                append(keyword).
+                append(fiql).
                 append(bases).
                 build();
     }

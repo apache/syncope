@@ -68,7 +68,7 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        PagedResult<RealmTO> match = REALM_SERVICE.search(new RealmQuery.Builder().keyword("*o*").build());
+        PagedResult<RealmTO> match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("name=~*o*").build());
         assertTrue(match.getResult().stream().allMatch(realm -> realm.getName().contains("o")));
     }
 
@@ -456,7 +456,7 @@ public class RealmITCase extends AbstractITCase {
             Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realmTO);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
             childRealm = REALM_SERVICE.search(new RealmQuery.Builder().
-                    base(SyncopeConstants.ROOT_REALM).keyword("child").build()).getResult().getFirst();
+                    base(SyncopeConstants.ROOT_REALM).fiql("name=~child").build()).getResult().getFirst();
 
             // MANAGER CANNOT UPDATE /child
             try {

@@ -48,13 +48,13 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 /**
  * Visits CXF's {@link SearchBean} and produces {@link SearchCond}.
  */
-public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
+public abstract class SyncopeAbstractSearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
     protected static final ThreadLocal<String> REALM = new ThreadLocal<>();
 
     protected static final ThreadLocal<SearchCond> SEARCH_COND = new ThreadLocal<>();
 
-    public SearchCondVisitor() {
+    public SyncopeAbstractSearchCondVisitor() {
         super(null);
     }
 
@@ -84,19 +84,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         ConditionType ct = sc.getConditionType();
         if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
                 && sc.getConditionType() == ConditionType.CUSTOM) {
-            switch (sfsc.getOperator()) {
-                case SyncopeFiqlParser.IEQ:
-                    ct = ConditionType.EQUALS;
-                    break;
-
-                case SyncopeFiqlParser.NIEQ:
-                    ct = ConditionType.NOT_EQUALS;
-                    break;
-
-                default:
-                    throw new IllegalArgumentException(
-                            String.format("Condition type %s is not supported", sfsc.getOperator()));
-            }
+            ct = switch (sfsc.getOperator()) {
+                case SyncopeFiqlParser.IEQ -> ConditionType.EQUALS;
+                case SyncopeFiqlParser.NIEQ -> ConditionType.NOT_EQUALS;
+                default -> throw new IllegalArgumentException(
+                        String.format("Condition type %s is not supported", sfsc.getOperator()));
+            };
         }
 
         return ct;
@@ -105,7 +98,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     @SuppressWarnings("ConvertToStringSwitch")
     protected SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
         String name = getRealPropertyName(sc.getStatement().getProperty());
-        Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);
+        Optional<SpecialAttr> specialAttrName = getSpecialAttrName(name);
 
         String value = getValue(sc);
         Optional<SpecialAttr> specialAttrValue = SpecialAttr.fromString(value);
@@ -247,28 +240,16 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     protected SearchCond visitCompound(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
-        sc.getSearchConditions().forEach(searchCond -> {
-            searchConds.add(searchCond.getStatement() == null
-                    ? visitCompound(searchCond)
-                    : visitPrimitive(searchCond));
-        });
+        sc.getSearchConditions().forEach(searchCond -> searchConds.add(searchCond.getStatement() == null
+                ? visitCompound(searchCond)
+                : visitPrimitive(searchCond)));
 
-        SearchCond compound;
-        switch (sc.getConditionType()) {
-            case AND:
-                compound = SearchCond.and(searchConds);
-                break;
-
-            case OR:
-                compound = SearchCond.or(searchConds);
-                break;
-
-            default:
-                throw new IllegalArgumentException(
-                        String.format("Condition type %s is not supported", sc.getConditionType().name()));
-        }
-
-        return compound;
+        return switch (sc.getConditionType()) {
+            case AND -> SearchCond.and(searchConds);
+            case OR -> SearchCond.or(searchConds);
+            default -> throw new IllegalArgumentException(
+                    String.format("Condition type %s is not supported", sc.getConditionType().name()));
+        };
     }
 
     @Override
@@ -280,4 +261,6 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     public SearchCond getQuery() {
         return SEARCH_COND.get();
     }
+
+    protected abstract Optional<SpecialAttr> getSpecialAttrName(String propertyName);
 }

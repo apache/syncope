@@ -27,8 +27,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -38,14 +38,14 @@ public class FIQLQueryDataBinderImpl implements FIQLQueryDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(FIQLQueryDataBinder.class);
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
     protected final UserDAO userDAO;
 
     protected final EntityFactory entityFactory;
 
     public FIQLQueryDataBinderImpl(
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final UserDAO userDAO,
             final EntityFactory entityFactory) {
 

@@ -20,31 +20,42 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.cxf.jaxrs.ext.search.SearchBean;
+import org.apache.cxf.jaxrs.ext.search.SearchCondition;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.logic.RealmLogic;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.search.RealmSearchCondVisitor;
 import org.springframework.data.domain.Page;
 
 public class RealmServiceImpl extends AbstractService implements RealmService {
 
     protected final RealmLogic logic;
 
-    public RealmServiceImpl(final RealmLogic logic) {
+    protected final RealmSearchCondVisitor searchCondVisitor;
+
+    public RealmServiceImpl(final RealmLogic logic, final RealmSearchCondVisitor searchCondVisitor) {
         this.logic = logic;
+        this.searchCondVisitor = searchCondVisitor;
     }
 
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {
+        SearchCond searchCond = StringUtils.isBlank(query.getFiql()) ? null : getSearchCond(query.getFiql());
         Page<RealmTO> result = logic.search(
-                Optional.ofNullable(query.getKeyword()).map(k -> k.replace('*', '%')).orElse(null),
                 query.getBases(),
+                searchCond,
                 pageable(query));
         return buildPagedResult(result);
     }
@@ -72,5 +83,21 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
         ProvisioningResult<RealmTO> deleted =
                 logic.delete(Strings.CS.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
         return modificationResponse(deleted);
+    }
+
+    protected SearchCond getSearchCond(final String fiql) {
+        try {
+            SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
+            sc.accept(searchCondVisitor);
+
+            return searchCondVisitor.getQuery();
+        } catch (Exception e) {
+            LOG.error("Invalid FIQL expression: {}", fiql, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+            sce.getElements().add(fiql);
+            sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+            throw sce;
+        }
     }
 }

@@ -33,7 +33,7 @@ import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 
 public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> implements UserService {
 
@@ -44,7 +44,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
     protected final SyncopeLogic syncopeLogic;
 
     public UserServiceImpl(
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final UserDAO userDAO,
             final UserLogic logic,
             final SyncopeLogic syncopeLogic) {

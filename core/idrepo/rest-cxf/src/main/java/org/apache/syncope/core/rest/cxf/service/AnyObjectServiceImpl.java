@@ -34,7 +34,7 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 
 public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectCR, AnyObjectUR>
         implements AnyObjectService {
@@ -44,7 +44,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     protected final AnyObjectLogic logic;
 
     public AnyObjectServiceImpl(
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final AnyObjectDAO anyObjectDAO,
             final AnyObjectLogic logic) {
 

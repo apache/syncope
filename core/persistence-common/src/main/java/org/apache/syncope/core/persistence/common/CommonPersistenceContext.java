@@ -31,7 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.RealmSearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.attrvalue.DefaultPlainAttrValidationManager;
 import org.apache.syncope.core.persistence.common.content.KeymasterConfParamLoader;
@@ -48,8 +49,14 @@ public class CommonPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SearchCondVisitor searchCondVisitor() {
-        return new SearchCondVisitor();
+    public AnySearchCondVisitor anySearchCondVisitor() {
+        return new AnySearchCondVisitor();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmSearchCondVisitor realmSearchCondVisitor() {
+        return new RealmSearchCondVisitor();
     }
 
     @Bean

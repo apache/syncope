@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.data.domain.Pageable;
 
@@ -33,13 +34,13 @@ public interface RealmSearchDAO {
 
     List<Realm> findChildren(Realm realm);
 
-    long countDescendants(String base, String keyword);
+    long countDescendants(String base, SearchCond searchCond);
 
-    long countDescendants(Set<String> bases, String keyword);
+    long countDescendants(Set<String> bases, SearchCond searchCond);
 
-    List<Realm> findDescendants(String base, String keyword, Pageable pageable);
+    List<Realm> findDescendants(String base, SearchCond searchCond, Pageable pageable);
 
-    List<Realm> findDescendants(Set<String> bases, String keyword, Pageable pageable);
+    List<Realm> findDescendants(Set<String> bases, SearchCond searchCond, Pageable pageable);
 
     List<String> findDescendants(String base, String prefix);
 

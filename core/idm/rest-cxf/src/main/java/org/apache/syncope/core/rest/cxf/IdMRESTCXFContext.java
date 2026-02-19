@@ -27,7 +27,7 @@ import org.apache.syncope.core.logic.ReconciliationLogic;
 import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.rest.cxf.service.ConnectorServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ReconciliationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.RemediationServiceImpl;
@@ -48,7 +48,7 @@ public class IdMRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public ReconciliationService reconciliationService(
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final ReconciliationLogic reconciliationLogic) {
 
         return new ReconciliationServiceImpl(searchCondVisitor, reconciliationLogic);

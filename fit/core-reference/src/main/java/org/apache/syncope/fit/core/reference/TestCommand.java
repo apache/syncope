@@ -46,7 +46,7 @@ public class TestCommand implements Command<TestCommandArgs> {
     private AnyObjectLogic anyObjectLogic;
 
     private Optional<RealmTO> getRealm(final String fullPath) {
-        return realmLogic.search(null, Set.of(fullPath), Pageable.unpaged()).get().
+        return realmLogic.search(Set.of(fullPath), null, Pageable.unpaged()).get().
                 filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
