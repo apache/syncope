@@ -2,164 +2,92 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
-Release Notes - Syncope - Version 4.0.0-M1
+Release Notes - Syncope - Version 4.1.0-M0
 ================================================================================
 
 ** Bug
-    * [SYNCOPE-1849] - NullPointerException when logging into Console
-    * [SYNCOPE-1850] - Concurrent execution of a given task shall not be allowed
-    * [SYNCOPE-1851] - NullPointerExeption for Date fields in Macro execution forms
-    * [SYNCOPE-1853] - Deprovision is wrongly fired on group delete
-    * [SYNCOPE-1856] - Administrator can update and delete realms outside of the granted subtree
-    * [SYNCOPE-1857] - Unwanted Oracle persistence context enforce when Oracle driver is in classpath
-    * [SYNCOPE-1858] - Macro operation with dropdown form property without default value generates stacktrace
-    * [SYNCOPE-1860] - Standalone WAR artifacts duplicates JAR dependencies
-    * [SYNCOPE-1862] - Attribute release policy does not show up in the actuator endpoint registeredServices
-    * [SYNCOPE-1864] - Unwanted password propagation after update on pull
-    * [SYNCOPE-1867] - Prevent NPE when fetching realm entitlements to enforce authorization
+    * [SYNCOPE-1873] - LocalDateTime fields not properly handled in BeanPanel
+    * [SYNCOPE-1875] - SAML delegated authentication: metadata keeps getting re-generated
+    * [SYNCOPE-1878] - Priority propagation failing with NOT_ATTEMPTED
+    * [SYNCOPE-1879] - Serialization error while auditing Pull data
+    * [SYNCOPE-1881] - WA: SP Metadata not fetched from Core
+    * [SYNCOPE-1882] - Multivalue dropdown attributes show additional empty selectable value
+    * [SYNCOPE-1883] - Google MFA authentication does not validate scratch codes
+    * [SYNCOPE-1884] - Errors with Encrypted plain values
+    * [SYNCOPE-1888] - Console: change required property for specific inputs in policy configuration
+    * [SYNCOPE-1890] - Configure max retry attempts for login with Syncope authentication module on WA
+    * [SYNCOPE-1891] - Missing mapped attribute setting for SAML2IdPAuthModuleConf
+    * [SYNCOPE-1894] - Mapping parsing error while schema contains a dot
+    * [SYNCOPE-1895] - Console CSV export does not consider search filter
+    * [SYNCOPE-1896] - Audit: not serializable exception for ConnectorObject and Any instances
+    * [SYNCOPE-1899] - Console: code editor does not persist changes
+    * [SYNCOPE-1902] - Can't set Unauthorized Redirect URL in access policy via Console
+    * [SYNCOPE-1904] - Console: cannot edit authentication.attributes under Keymaster > Parameters
+    * [SYNCOPE-1905] - Error while pulling a specific group (single pull) from resource
+    * [SYNCOPE-1906] - Wrong result order if sorting by plain attribute
+    * [SYNCOPE-1910] - Tasks and Reports executed nevertheless inactive
+    * [SYNCOPE-1911] - Case sensisitve search failing with Elasticsearch or OpenSearch
+    * [SYNCOPE-1912] - Linked account password is not propagated on update
+    * [SYNCOPE-1913] - Missing dependency to resolve inline Groovy in Syncope WA
+    * [SYNCOPE-1915] - Failure when running the Persistence Storage Upgrader against Oracle DBMS
+    * [SYNCOPE-1919] - Notification Job occasionally stuck
+    * [SYNCOPE-1920] - Error in search panel while trying to add a condition after an attribute of type Long
+    * [SYNCOPE-1922] - Disallow searches by encrypted attribute
+    * [SYNCOPE-1924] - Bug in retainAll, removeAll, and removeIf methods of PropagationByResource
+    * [SYNCOPE-1925] - Contextual menu stays open after modal window is closed
+    * [SYNCOPE-1928] - Session timeout not working for Console
+    * [SYNCOPE-1933] - Console: only first dynamic group is shown
+    * [SYNCOPE-1936] - WA: only SIGNATURE and CURRENT keys generated for OIDC
+    * [SYNCOPE-1937] - User password history length is not correctly trimmed
+    * [SYNCOPE-1942] - Menu localization doesn't work properly on admin console
+    * [SYNCOPE-1943] - French Canadian GUI failed with Groups contextual menu
+    * [SYNCOPE-1944] - Membership derived attributes are not computed from membership plain attributes
 
 ** New Feature
-    * [SYNCOPE-1834] - OpenFGA integration
-    * [SYNCOPE-1863] - Group relationships
+    * [SYNCOPE-1874] - Realm attributes
+    * [SYNCOPE-1901] - WA: implement Password Management
+    * [SYNCOPE-1916] - Metrics
+    * [SYNCOPE-1938] - Relationship attributes
+    * [SYNCOPE-1948] - Introduce Manager
 
 ** Improvement
-    * [SYNCOPE-1854] - propagation not triggered after user updated while in status "updateApproved"
-    * [SYNCOPE-1855] - Refactor database search to use less nested queries
-    * [SYNCOPE-1859] - SearchPanel displays the schema keys and doesn't consider translations
-    * [SYNCOPE-1865] - Allow to specify signing and encryption algorithms for OIDC client application
+    * [SYNCOPE-1621] - Allow export for individual items in XML 
+    * [SYNCOPE-1841] - Read-only multi value schema must not show new and delete button
+    * [SYNCOPE-1870] - Generic exception handling (RestServiceExceptionMapper)
+    * [SYNCOPE-1872] - Allow setting of force execution for MFA authentication
+    * [SYNCOPE-1880] - SCIM endpoints ignore the Prefer header
+    * [SYNCOPE-1885] - Self password reset does not trigger notification tasks without Flowable extension
+    * [SYNCOPE-1886] - Elasticsearch and Opensearch query performance improvements
+    * [SYNCOPE-1887] - Enduser: require re-authentication for sensitive features
+    * [SYNCOPE-1889] - Improve group search using SCIM extension
+    * [SYNCOPE-1892] - Further Macro improvements
+    * [SYNCOPE-1893] - SCIM extension improvement
+    * [SYNCOPE-1897] - WA: mapping Google MFA crypto settings
+    * [SYNCOPE-1898] - Reset password with WA if mustChangePassword is true
+    * [SYNCOPE-1900] - Implement OIDC Back-Channel Logout for Console and Enduser
+    * [SYNCOPE-1903] - Add endpoint to verify the security answer during password reset in CAS
+    * [SYNCOPE-1907] - Run Groovy code in a sandbox
+    * [SYNCOPE-1908] - Improve Relationship management
+    * [SYNCOPE-1909] - Docker containers as unprivileged user
+    * [SYNCOPE-1914] - WA SAML 2.0: support IdP customization per Client Application
+    * [SYNCOPE-1917] - Manage bypassTrustedDeviceEnabled on Syncope WA
+    * [SYNCOPE-1918] - Push task with assign unmatching rule remove dynamic memberships
+    * [SYNCOPE-1926] - Reduce number of update on Syncope after a SCIM PATCH
+    * [SYNCOPE-1927] - Macro Tasks: simplify binary form property binding
+    * [SYNCOPE-1929] - Console: allow to extend session duration
+    * [SYNCOPE-1930] - Exploit MariaDB with JSON
+    * [SYNCOPE-1931] - Allow for JEXL custom functions
+    * [SYNCOPE-1932] - Improve AES management
+    * [SYNCOPE-1934] - Allow to select multiple AnyTypeClasses for Realm
+    * [SYNCOPE-1949] - Allow to search AuthProfile owners
+    * [SYNCOPE-1950] - Allow configuration of OIDC Token Expiration Policy in WA
 
 ** Task
-    * [SYNCOPE-1852] - Migrate from 3.0
-
-Release Notes - Syncope - Version 4.0.0-M0
-================================================================================
-
-** Bug
-    * [SYNCOPE-1686] - relationship refering to object itself
-    * [SYNCOPE-1725] - Error when searching with high number of OR or AND conditions with Elasticsearch
-    * [SYNCOPE-1726] - WA does not always get configuration from Core on startup
-    * [SYNCOPE-1727] - Elasticsearch cannot find anything under given Realm in case of parent update
-    * [SYNCOPE-1728] - Unable to create LDAP authentication module from console 
-    * [SYNCOPE-1730] - Standalone on Windows: Console Topology page does not show any Connector or Resource
-    * [SYNCOPE-1731] - Performance issue with multiple any type classes
-    * [SYNCOPE-1734] - Elasticsearch not updated for uidOnCreate
-    * [SYNCOPE-1735] - Can't retrieve all policies during Realm create and update
-    * [SYNCOPE-1736] - Templates do not set the latest additions to Users and Groups
-    * [SYNCOPE-1737] - Cannot specifiy attribute mapping for AttributeRelease policies
-    * [SYNCOPE-1739] - Wrong volume mapping for source code in fit docker profile 
-    * [SYNCOPE-1742] - Exception in console when defining a date for delegation 
-    * [SYNCOPE-1749] - Incorrect Dynamic Group Membership Condition save from Console
-    * [SYNCOPE-1750] - Password policy not enforced if password is not stored in Syncope
-    * [SYNCOPE-1755] - NullPointer exception during PULL delete operation in case of NO_MATCH
-    * [SYNCOPE-1757] - Misalignment between SyncTokenSerializer and SyncTokenDeserializer in case of token given as a clear string
-    * [SYNCOPE-1761] - As admin, searching Users, Groups or Any Objects performs full Realm tree traversal
-    * [SYNCOPE-1763] - Constant increase of open files after upgrade to CXF 3.6.0
-    * [SYNCOPE-1764] - Connector capabilities and/or configuration are not updated in cluster environments
-    * [SYNCOPE-1767] - When searching Groups with GROUP_MEMBER condition only Users are considered
-    * [SYNCOPE-1770] - Errors upon Core restart after adding domain
-    * [SYNCOPE-1774] - Admin console does not recognize parameter type
-    * [SYNCOPE-1777] - DelegatedAdministrationException is occasionally thrown during Pull Task execution
-    * [SYNCOPE-1778] - Reset password requires double click in order to provide username
-    * [SYNCOPE-1779] - Missing support for underscore in queries
-    * [SYNCOPE-1785] - Display rows changes not effective until reload
-    * [SYNCOPE-1790] - Swagger filtered GET returns multiple Users/AnyObjects instead of one
-    * [SYNCOPE-1791] - Unable to save audit config for CUSTOM event in the console
-    * [SYNCOPE-1792] - Error in console while editing conf parameter with values containing numbers
-    * [SYNCOPE-1793] - A logged in user cannot associate/deassociate a resource to himself
-    * [SYNCOPE-1794] - SAML: Authentication issue instant is too old or in the future
-    * [SYNCOPE-1798] - Incorrect descendant Realms found by Elasticsearch / OpenSearch
-    * [SYNCOPE-1800] - FIQL comparison espressions with single quote cause JSONB search to fail
-    * [SYNCOPE-1803] - Can't remove multivalue membership plain schema value from console
-    * [SYNCOPE-1806] - Overlapping dynamic realms don't get updated
-    * [SYNCOPE-1808] - Wrong location for group in ResourceTypes SCIM service
-    * [SYNCOPE-1812] - Can't perform case-sensitive search using MariaDB
-    * [SYNCOPE-1813] - Wrong provisioning result shown after batch operation 
-    * [SYNCOPE-1817] - Standalone: components not available
-    * [SYNCOPE-1818] - Wrong status value propagated to external resources if changed while pulling
-    * [SYNCOPE-1820] - Console label not working with multivalue schema
-    * [SYNCOPE-1824] - Password policies are not always enforced on linked account password while updating account
-    * [SYNCOPE-1826] - Search fails if search condition contains four digits at the end of the value
-    * [SYNCOPE-1828] - Can't open the profiles tab in WA page if one of the fields is null
-    * [SYNCOPE-1831] - SCIM general configuration can not be updated
-    * [SYNCOPE-1837] - Resources, Relationships and AuxClasses are deleted after SCIM PUT method invocation
-    * [SYNCOPE-1838] - Group owners cannot log into Console
-    * [SYNCOPE-1839] - In Console Commands cannot be removed from Macro Tasks
-    * [SYNCOPE-1840] - Cannot define the same form property for different Macro tasks
-    * [SYNCOPE-1846] - Cannot create more than one relationship at a time from the console
-    * [SYNCOPE-1847] - Propagation task audit throws exception during serialzation
-    * [SYNCOPE-1848] - Can't read user memberships with SCIM search endpoint
-
-** New Feature
-    * [SYNCOPE-1105] - Provide unique key for operations
-    * [SYNCOPE-1662] - Leverage MariaDB JSON type
-    * [SYNCOPE-1741] - Add support form Azure Active Directory delegated authentication
-    * [SYNCOPE-1746] - Provide Software Bill Of Materials (SBOM)
-    * [SYNCOPE-1772] - WA: support MFA trusted device storage
-    * [SYNCOPE-1781] - Virtual Threads
-    * [SYNCOPE-1783] - Provide OpenSearch extension
-    * [SYNCOPE-1789] - Add support for X509 authentication
-    * [SYNCOPE-1796] - Verify access token issued by Microsoft Entra (formerly Azure)
-    * [SYNCOPE-1804] - Neo4j for Internal Storage
-    * [SYNCOPE-1821] - Dropdown plain schema type
-    * [SYNCOPE-1829] - Pull by subscription
-
-** Improvement
-    * [SYNCOPE-1719] - Remove limitations for memberships and relationships
-    * [SYNCOPE-1720] - Switch persistence identifiers to UUID version 7
-    * [SYNCOPE-1721] - Allow for more Access Policy types
-    * [SYNCOPE-1722] - Allow password fields to reveal their value to the end-user
-    * [SYNCOPE-1723] - remove some non-reproducible bits
-    * [SYNCOPE-1724] - Provide health status for Elasticsearch
-    * [SYNCOPE-1729] - Configure Maven Build Cache Extension
-    * [SYNCOPE-1732] - Console does not support custom Access Policy Configuration
-    * [SYNCOPE-1733] - Support OAUTH20 authentication module in WA
-    * [SYNCOPE-1738] - Refactor Report management
-    * [SYNCOPE-1740] - Allow to specify UsernameAttributeProvider for Client Applications
-    * [SYNCOPE-1743] - Add support for Ticket Expiration Policies into ClientApp
-    * [SYNCOPE-1745] - Allow to manage ConnId bundles with more Connectors
-    * [SYNCOPE-1747] - Provide controls to refresh WA client applications from Console
-    * [SYNCOPE-1748] - SCIM 2.0 Implement PATCH operations
-    * [SYNCOPE-1751] - Improve password auto generation on propagation
-    * [SYNCOPE-1752] - Support large number of Realms
-    * [SYNCOPE-1753] - Extend changes' history management to most relevant WA configuration objects
-    * [SYNCOPE-1759] - REST endpoint to evaluate account and password compliance with policies
-    * [SYNCOPE-1760] - Align Core Spring Boot actuator endpoint security with other components
-    * [SYNCOPE-1762] - Enrich actuator info with JPA provider information
-    * [SYNCOPE-1765] - allow WA to decrypt properties during the configuration bootstrap phase
-    * [SYNCOPE-1768] - Improve internal storage export feature
-    * [SYNCOPE-1769] - Allow the same name to be used across different Any Object types
-    * [SYNCOPE-1771] - WA: support delegated authentication for Google, Keycloak and Apple ID
-    * [SYNCOPE-1773] - Support configuration for multi-nodes Elasticsearch clusters
-    * [SYNCOPE-1775] - It should be possible to set logoutType to WA services
-    * [SYNCOPE-1776] - Let Elasticsearch re-index use bulk requests
-    * [SYNCOPE-1780] - Password policy allows a minimum length less than the number of characters needed
-    * [SYNCOPE-1784] - Allow you to use other OIDCScopes in addition to those currently defined
-    * [SYNCOPE-1786] - Self Keymaster improvements
-    * [SYNCOPE-1787] - Support deployments with large number of Realms
-    * [SYNCOPE-1788] - Allow to insert JWKS value in OIDC Client Applications
-    * [SYNCOPE-1795] - JWT_SSO_PROVIDER and AUDIT_APPENDER should not be Implementations
-    * [SYNCOPE-1797] - Compatibility of SCIM 2.0 requests from Microsoft Entra
-    * [SYNCOPE-1799] - Introduce Spring Data JPA
-    * [SYNCOPE-1802] - Missing delegated SAML2 IdP configuration parameters
-    * [SYNCOPE-1807] - Status propagation on resource doesn't happen from the SCIM extension
-    * [SYNCOPE-1809] - Cleanup of uid-on-create attribute on resource unassignment
-    * [SYNCOPE-1811] - Missing Bypass MFA properties
-    * [SYNCOPE-1815] - Macro improvements
-    * [SYNCOPE-1816] - Provide the possibility to add a JcifsSpnegoAuthenticationHandler
-    * [SYNCOPE-1822] - SCIM: support user extension
-    * [SYNCOPE-1823] - SCIM: support search by extension attributes
-    * [SYNCOPE-1830] - Add support for membership attributes on elasticsearch and opensearch searches
-    * [SYNCOPE-1832] - Replace number input method for UI
-    * [SYNCOPE-1835] - Support Credential Criteria for LDAP authentication
-    * [SYNCOPE-1836] - Password propagation on resource doesn't happen from the SCIM extension
-    * [SYNCOPE-1842] - Support Credential Criteria for JAAS, JDBC and Syncope authentication
-    * [SYNCOPE-1843] - Support Azure AD authentication and attribute resolution
-    * [SYNCOPE-1844] - Support Okta authentication and attribute repository
-    * [SYNCOPE-1845] - Support doubleclik on data tables rows
-
-** Task
-    * [SYNCOPE-1717] - JDK and dependency upgrades for 4.0 Notturno
-    * [SYNCOPE-1782] - Upgrade to AdminLTE v4
-    * [SYNCOPE-1801] - Replace Quartz scheduler
-    * [SYNCOPE-1810] - Refactor audit features
-    * [SYNCOPE-1827] - Remove non-JSON JPA support
+    * [SYNCOPE-1866] - Implement AuthProfile management in Enduser
+    * [SYNCOPE-1876] - Remove Virtual Attributes
+    * [SYNCOPE-1877] - Include SAML SP keystore and metadata in AuthModule configuration
+    * [SYNCOPE-1923] - Virtual Threads and JDK versions
+    * [SYNCOPE-1935] - Remove client dependency on Commons HttpClient
+    * [SYNCOPE-1940] - Remove XML and YAML formats for REST payloads
+    * [SYNCOPE-1946] - Console: access audit history for Realms
+    * [SYNCOPE-1947] - Job actuator
