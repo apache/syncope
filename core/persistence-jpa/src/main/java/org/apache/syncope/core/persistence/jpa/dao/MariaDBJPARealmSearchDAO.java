@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
-public class MariaDBJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
+public class MariaDBJPARealmSearchDAO extends MySQLJPARealmSearchDAO {
 
     public MariaDBJPARealmSearchDAO(
             final EntityManager entityManager,

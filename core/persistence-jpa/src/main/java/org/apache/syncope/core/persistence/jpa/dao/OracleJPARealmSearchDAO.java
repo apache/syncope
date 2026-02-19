@@ -20,12 +20,15 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Query;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.Strings;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -34,6 +37,9 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.springframework.data.domain.Pageable;
 
 public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
@@ -134,30 +140,31 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             }
         }
 
-        return switch (cond.getType()) {
-            case ISNOTNULL -> new AttrCondQuery(true, new RealmSearchNode.Leaf(
+        switch (cond.getType()) {
+            case ISNOTNULL -> {
+                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
                     "JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
                             + checked.schema().getKey() + "\")')"));
+            }
 
-            case ISNULL -> new AttrCondQuery(true, new RealmSearchNode.Leaf(
+            case ISNULL -> {
+                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
                     "NOT JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
                             + checked.schema().getKey() + "\")')"));
+            }
 
             default -> {
                 RealmSearchNode.Leaf node;
                 if (not && checked.schema().isMultivalue()) {
-                    RealmSearchNode.Leaf notNode = filJSONAttrQuery(
-                            checked.value(), checked.schema(), cond, false);
-                    // exclude realms where the positive condition matches via NOT EXISTS
                     node = new RealmSearchNode.Leaf(
                             "NOT JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
                                     + checked.schema().getKey() + "\")')");
                 } else {
                     node = filJSONAttrQuery(checked.value(), checked.schema(), cond, not);
                 }
-                yield new AttrCondQuery(true, node);
+                return new AttrCondQuery(true, node);
             }
-        };
+        }
     }
 
     @Override
@@ -181,9 +188,22 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             final SearchCond searchCond,
             final List<Object> parameters) {
 
-        StringBuilder queryString = super.buildDescendantsQuery(bases, searchCond, parameters);
+        String basesClause = bases.stream().
+                map(base -> "e.fullpath=?" + setParameter(parameters, base)
+                + " OR e.fullpath LIKE ?" + setParameter(
+                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                collect(Collectors.joining(" OR "));
 
-        getQuery(searchCond, parameters).ifPresent(queryInfo ->
+        StringBuilder queryString = new StringBuilder("SELECT e.* FROM ").
+                append(JPARealm.TABLE).append(" e ").
+                append("WHERE (").append(basesClause).append(')');
+
+        getQuery(searchCond, parameters).ifPresent(condition ->
+                queryString.append(" AND (").
+                        append(buildPlainAttrQuery(condition, parameters, List.of())).
+                        append(')'));
+
+        getQuery(searchCond, new ArrayList<>()).ifPresent(queryInfo ->
                 queryInfo.plainSchemas().forEach(schemaKey ->
                         plainSchemaDAO.findById(schemaKey).ifPresent(schema -> {
                             int whereIdx = queryString.indexOf(" WHERE ");
@@ -191,5 +211,43 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                         })));
 
         return queryString;
+    }
+
+    @Override
+    public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
+        List<Object> parameters = new ArrayList<>();
+
+        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
+        Query query = entityManager.createNativeQuery(Strings.CS.replaceOnce(
+                queryString.toString(),
+                "SELECT e.* ",
+                "SELECT COUNT(e.id) "));
+
+        for (int i = 1; i <= parameters.size(); i++) {
+            query.setParameter(i, parameters.get(i - 1));
+        }
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
+        List<Object> parameters = new ArrayList<>();
+
+        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
+        Query query = entityManager.createNativeQuery(
+                queryString.append(" ORDER BY e.fullpath").toString(), JPARealm.class);
+
+        for (int i = 1; i <= parameters.size(); i++) {
+            query.setParameter(i, parameters.get(i - 1));
+        }
+
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
+        }
+
+        return (List<Realm>) query.getResultList();
     }
 }
