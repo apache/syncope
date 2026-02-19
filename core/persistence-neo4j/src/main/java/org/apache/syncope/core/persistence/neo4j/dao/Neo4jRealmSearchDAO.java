@@ -116,7 +116,7 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
     public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
         Map<String, Object> parameters = new HashMap<>();
 
-        //TODO: implementare nuova ricerca
+        //FixME: implementare nuova ricerca
         StringBuilder queryString = buildDescendantsQuery(bases, "searchCond", parameters).append(" RETURN COUNT(n)");
         return neo4jTemplate.count(queryString.toString(), parameters);
     }
@@ -130,7 +130,7 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
     public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
         Map<String, Object> parameters = new HashMap<>();
 
-        //TODO: implementare nuova ricerca
+        //FixME: implementare nuova ricerca
         StringBuilder queryString = buildDescendantsQuery(bases, "searchCond", parameters).
                 append(" RETURN n.id ORDER BY n.fullPath");
         if (pageable.isPaged()) {
