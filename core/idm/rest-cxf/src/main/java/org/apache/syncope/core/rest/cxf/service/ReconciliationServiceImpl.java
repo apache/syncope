@@ -53,7 +53,9 @@ import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 
-public class ReconciliationServiceImpl extends AbstractSearchService implements ReconciliationService {
+public class ReconciliationServiceImpl
+        extends AbstractSearchService<AnySearchCondVisitor>
+        implements ReconciliationService {
 
     protected final ReconciliationLogic logic;
 
@@ -150,7 +152,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
 
         SearchCond searchCond = StringUtils.isBlank(query.getFiql())
                 ? null
-                : getSearchCond(query.getFiql(), realm);
+                : getSearchCond(query.getFiql());
 
         StreamingOutput sout = os -> logic.push(
                 searchCond,

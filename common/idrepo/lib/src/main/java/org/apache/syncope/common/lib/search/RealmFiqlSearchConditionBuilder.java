@@ -25,16 +25,6 @@ public class RealmFiqlSearchConditionBuilder
 
     private static final long serialVersionUID = 324753886224642253L;
 
-    @Override
-    protected Builder newBuilderInstance() {
-        return new Builder(properties);
-    }
-
-    @Override
-    public RealmProperty is(final String property) {
-        return newBuilderInstance().is(property);
-    }
-
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
             RealmProperty, RealmPartialCondition, RealmCompleteCondition>
             implements RealmProperty, RealmPartialCondition, RealmCompleteCondition {
@@ -46,13 +36,15 @@ public class RealmFiqlSearchConditionBuilder
         public Builder(final RealmFiqlSearchConditionBuilder.Builder parent) {
             super(parent);
         }
-
-        @Override
-        public RealmProperty is(final String property) {
-            RealmFiqlSearchConditionBuilder.Builder builder = new RealmFiqlSearchConditionBuilder.Builder(this);
-            builder.result = property;
-            return builder;
-        }
     }
 
+    @Override
+    protected Builder newBuilderInstance() {
+        return new Builder(properties);
+    }
+
+    @Override
+    public RealmProperty is(final String property) {
+        return newBuilderInstance().is(property);
+    }
 }

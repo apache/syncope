@@ -60,7 +60,8 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.domain.Page;
 
 public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
-        extends AbstractSearchService implements AnyService<TO> {
+        extends AbstractSearchService<AnySearchCondVisitor>
+        implements AnyService<TO> {
 
     public AbstractAnyService(final AnySearchCondVisitor searchCondVisitor) {
         super(searchCondVisitor);
@@ -117,7 +118,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         String realm = Strings.CS.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
         SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
                 ? null
-                : getSearchCond(anyQuery.getFiql(), realm);
+                : getSearchCond(anyQuery.getFiql());
         try {
             Page<TO> result = getAnyLogic().search(
                     searchCond,

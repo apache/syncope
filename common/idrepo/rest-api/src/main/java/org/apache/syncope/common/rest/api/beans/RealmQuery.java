@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.QueryParam;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class RealmQuery extends AbstractQuery {
 
@@ -62,6 +66,7 @@ public class RealmQuery extends AbstractQuery {
             return this;
         }
     }
+
     private String fiql;
 
     private Set<String> bases;
@@ -70,7 +75,13 @@ public class RealmQuery extends AbstractQuery {
         return fiql;
     }
 
-    @QueryParam("fiql")
+    @Parameter(name = JAXRSService.PARAM_FIQL, description = "Feed Item Query Language (FIQL, pronounced “fickle”) is "
+            + "a simple but flexible, URI-friendly syntax for expressing filters across the entries in a syndicated "
+            + "feed.", example = "name==department1", schema =
+            @Schema(implementation = String.class, externalDocs =
+                    @ExternalDocumentation(description = "Apache Syncope Reference Guide",
+                            url = "https://syncope.apache.org/docs/4.0/reference-guide.html#search")))
+    @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;
     }

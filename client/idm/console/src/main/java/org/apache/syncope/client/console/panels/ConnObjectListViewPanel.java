@@ -161,8 +161,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
         List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        ListViewPanel.Builder<ConnObject> builder = new ListViewPanel.Builder<>(
-                ConnObject.class, pageRef) {
+        ListViewPanel.Builder<ConnObject> builder = new ListViewPanel.Builder<>(ConnObject.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
 

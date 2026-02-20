@@ -19,5 +19,4 @@
 package org.apache.syncope.common.lib.search;
 
 public interface RealmProperty extends SyncopeProperty<RealmCompleteCondition> {
-
 }
