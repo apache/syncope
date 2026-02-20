@@ -812,7 +812,7 @@ public class UserIssuesITCase extends AbstractITCase {
         }
         assertNotNull(logicActions);
 
-        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().fiql("name==two").build()).getResult().getFirst();
         assertNotNull(realm);
         realm.getActions().add(logicActions.getKey());
         REALM_SERVICE.update(realm);
@@ -1229,7 +1229,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().fiql("name==two").build()).getResult().getFirst();
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
         REALM_SERVICE.update(realm);
@@ -1473,7 +1473,8 @@ public class UserIssuesITCase extends AbstractITCase {
         PasswordPolicyTO pwdPolicy = POLICY_SERVICE.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
         assertEquals(1, pwdPolicy.getHistoryLength());
 
-        RealmTO evenTwo = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
+        RealmTO evenTwo = REALM_SERVICE.search(new RealmQuery.Builder().fiql("name==two").build())
+                .getResult().getFirst();
         evenTwo.setPasswordPolicy(pwdPolicy.getKey());
         REALM_SERVICE.update(evenTwo);
 

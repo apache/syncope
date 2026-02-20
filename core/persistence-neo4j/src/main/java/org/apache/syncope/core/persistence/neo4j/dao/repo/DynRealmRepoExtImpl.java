@@ -29,8 +29,8 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealmMembership;
@@ -60,7 +60,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
 
     protected final AnyMatchDAO anyMatchDAO;
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
     protected final NodeValidator nodeValidator;
 
@@ -71,7 +71,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final AnyMatchDAO anyMatchDAO,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {

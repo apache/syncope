@@ -30,8 +30,8 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -53,7 +53,7 @@ public class DynRealmRepoExtImpl implements DynRealmRepoExt {
 
     protected final AnyMatchDAO anyMatchDAO;
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
     protected final EntityManager entityManager;
 
@@ -64,7 +64,7 @@ public class DynRealmRepoExtImpl implements DynRealmRepoExt {
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final AnyMatchDAO anyMatchDAO,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final EntityManager entityManager) {
 
         this.publisher = publisher;

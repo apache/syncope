@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.MariaDBJPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.dao.MariaDBJPARealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MariaDBPlainSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.MariaDBEntityFactory;
@@ -79,6 +80,23 @@ public class MariaDBPersistenceContext {
                 validator,
                 entityManagerFactory,
                 entityManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmSearchDAO realmSearchDAO(
+            final EntityManager entityManager,
+            final EntityManagerFactory entityManagerFactory,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy EntityFactory entityFactory,
+            final PlainAttrValidationManager validator) {
+
+        return new MariaDBJPARealmSearchDAO(
+                entityManager,
+                entityManagerFactory,
+                plainSchemaDAO,
+                entityFactory,
+                validator);
     }
 
     @ConditionalOnMissingBean

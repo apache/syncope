@@ -103,7 +103,7 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void readRealm() {
         PagedResult<RealmTO> realms = ADMIN_CLIENT.getService(RealmService.class).
-                search(new RealmQuery.Builder().keyword("*").build());
+                search(new RealmQuery.Builder().build());
         assertEquals(1, realms.getTotalCount());
         assertEquals(1, realms.getResult().size());
         assertEquals(SyncopeConstants.ROOT_REALM, realms.getResult().getFirst().getName());
@@ -112,7 +112,7 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void createUser() {
         assertNull(ADMIN_CLIENT.getService(RealmService.class).
-                search(new RealmQuery.Builder().keyword("*").build()).getResult().getFirst().getPasswordPolicy());
+                search(new RealmQuery.Builder().build()).getResult().getFirst().getPasswordPolicy());
 
         UserCR userCR = new UserCR();
         userCR.setRealm(SyncopeConstants.ROOT_REALM);

@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
@@ -107,28 +108,30 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
     }
 
     @Override
-    public long countDescendants(final String base, final String keyword) {
-        return countDescendants(Set.of(base), keyword);
+    public long countDescendants(final String base, final SearchCond searchCond) {
+        return countDescendants(Set.of(base), searchCond);
     }
 
     @Override
-    public long countDescendants(final Set<String> bases, final String keyword) {
+    public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters).append(" RETURN COUNT(n)");
+        //FixME: implementare nuova ricerca
+        StringBuilder queryString = buildDescendantsQuery(bases, "searchCond", parameters).append(" RETURN COUNT(n)");
         return neo4jTemplate.count(queryString.toString(), parameters);
     }
 
     @Override
-    public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
-        return findDescendants(Set.of(base), keyword, pageable);
+    public List<Realm> findDescendants(final String base, final SearchCond searchCond, final Pageable pageable) {
+        return findDescendants(Set.of(base), searchCond, pageable);
     }
 
     @Override
-    public List<Realm> findDescendants(final Set<String> bases, final String keyword, final Pageable pageable) {
+    public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters).
+        //FixME: implementare nuova ricerca
+        StringBuilder queryString = buildDescendantsQuery(bases, "searchCond", parameters).
                 append(" RETURN n.id ORDER BY n.fullPath");
         if (pageable.isPaged()) {
             queryString.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).

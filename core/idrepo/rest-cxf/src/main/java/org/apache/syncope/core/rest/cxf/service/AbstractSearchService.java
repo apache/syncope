@@ -24,19 +24,18 @@ import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.SyncopeAbstractSearchCondVisitor;
 
-public abstract class AbstractSearchService extends AbstractService {
+public abstract class AbstractSearchService<V extends SyncopeAbstractSearchCondVisitor> extends AbstractService {
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final V searchCondVisitor;
 
-    public AbstractSearchService(final SearchCondVisitor searchCondVisitor) {
+    public AbstractSearchService(final V searchCondVisitor) {
         this.searchCondVisitor = searchCondVisitor;
     }
 
-    protected SearchCond getSearchCond(final String fiql, final String realm) {
+    protected SearchCond getSearchCond(final String fiql) {
         try {
-            searchCondVisitor.setRealm(realm);
             SearchCondition<SearchBean> sc = searchContext.getCondition(fiql, SearchBean.class);
             sc.accept(searchCondVisitor);
 

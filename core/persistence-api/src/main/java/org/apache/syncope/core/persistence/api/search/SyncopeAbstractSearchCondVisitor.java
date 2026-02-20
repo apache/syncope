@@ -48,19 +48,10 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 /**
  * Visits CXF's {@link SearchBean} and produces {@link SearchCond}.
  */
-public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
-
-    protected static final ThreadLocal<String> REALM = new ThreadLocal<>();
+public abstract class SyncopeAbstractSearchCondVisitor
+        extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
     protected static final ThreadLocal<SearchCond> SEARCH_COND = new ThreadLocal<>();
-
-    public SearchCondVisitor() {
-        super(null);
-    }
-
-    public void setRealm(final String realm) {
-        REALM.set(realm);
-    }
 
     protected static AttrCond createAttrCond(final String schema) {
         AttrCond attrCond = SearchableFields.contains(schema)
@@ -84,6 +75,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         ConditionType ct = sc.getConditionType();
         if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
                 && sc.getConditionType() == ConditionType.CUSTOM) {
+
             switch (sfsc.getOperator()) {
                 case SyncopeFiqlParser.IEQ:
                     ct = ConditionType.EQUALS;
@@ -102,10 +94,16 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         return ct;
     }
 
+    protected SyncopeAbstractSearchCondVisitor() {
+        super(null);
+    }
+
+    protected abstract Optional<SpecialAttr> getSpecialAttrName(String propertyName);
+
     @SuppressWarnings("ConvertToStringSwitch")
     protected SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
         String name = getRealPropertyName(sc.getStatement().getProperty());
-        Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);
+        Optional<SpecialAttr> specialAttrName = getSpecialAttrName(name);
 
         String value = getValue(sc);
         Optional<SpecialAttr> specialAttrValue = SpecialAttr.fromString(value);

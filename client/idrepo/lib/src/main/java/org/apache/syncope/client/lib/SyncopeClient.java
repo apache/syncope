@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
+import org.apache.syncope.common.lib.search.RealmFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;
@@ -75,6 +76,15 @@ public class SyncopeClient {
     public record JwtInfo(String value, OffsetDateTime expiration)
             implements Serializable {
 
+    }
+
+    /**
+     * Returns a new instance of {@link RealmFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
+     *
+     * @return default instance of {@link RealmFiqlSearchConditionBuilder}
+     */
+    public static RealmFiqlSearchConditionBuilder getRealmFiqlSearchConditionBuilder() {
+        return new RealmFiqlSearchConditionBuilder();
     }
 
     /**

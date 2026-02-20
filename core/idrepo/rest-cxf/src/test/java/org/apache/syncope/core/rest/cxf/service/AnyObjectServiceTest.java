@@ -72,7 +72,7 @@ import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
@@ -155,7 +155,7 @@ public class AnyObjectServiceTest {
                 return result;
             });
 
-            SearchCondVisitor searchCondVisitor = mock(SearchCondVisitor.class);
+            AnySearchCondVisitor searchCondVisitor = mock(AnySearchCondVisitor.class);
             when(searchCondVisitor.getQuery()).thenReturn(new SearchCond());
 
             @SuppressWarnings("unchecked")

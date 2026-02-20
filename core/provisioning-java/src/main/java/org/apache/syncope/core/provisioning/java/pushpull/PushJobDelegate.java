@@ -43,8 +43,8 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
@@ -73,7 +73,7 @@ public class PushJobDelegate
     protected RealmSearchDAO realmSearchDAO;
 
     @Autowired
-    protected SearchCondVisitor searchCondVisitor;
+    protected AnySearchCondVisitor searchCondVisitor;
 
     protected ProvisioningProfile<PushTask, PushActions> profile;
 

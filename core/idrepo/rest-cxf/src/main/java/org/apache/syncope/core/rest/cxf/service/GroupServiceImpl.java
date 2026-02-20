@@ -31,7 +31,7 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 
 public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, GroupUR> implements GroupService {
 
@@ -40,7 +40,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, Group
     protected final GroupLogic logic;
 
     public GroupServiceImpl(
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final GroupDAO groupDAO,
             final GroupLogic logic) {
 

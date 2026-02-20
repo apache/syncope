@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 
 public class SearchCondConverterTest {
 
-    private static final SearchCondVisitor VISITOR = new SearchCondVisitor();
+    private static final AnySearchCondVisitor VISITOR = new AnySearchCondVisitor();
 
     @Test
     public void eq() {

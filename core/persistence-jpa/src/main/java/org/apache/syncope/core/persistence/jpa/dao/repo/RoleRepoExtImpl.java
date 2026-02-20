@@ -28,8 +28,8 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
@@ -48,7 +48,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
 
     protected final DelegationDAO delegationDAO;
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
     protected final EntityManager entityManager;
 
@@ -57,7 +57,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
             final AnyMatchDAO anyMatchDAO,
             final AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final EntityManager entityManager) {
 
         this.publisher = publisher;

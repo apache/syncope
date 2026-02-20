@@ -29,8 +29,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +45,13 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
 
     protected final EntityFactory entityFactory;
 
-    protected final SearchCondVisitor searchCondVisitor;
+    protected final AnySearchCondVisitor searchCondVisitor;
 
     public DynRealmDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
             final DynRealmDAO dynRealmDAO,
             final EntityFactory entityFactory,
-            final SearchCondVisitor searchCondVisitor) {
+            final AnySearchCondVisitor searchCondVisitor) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.dynRealmDAO = dynRealmDAO;

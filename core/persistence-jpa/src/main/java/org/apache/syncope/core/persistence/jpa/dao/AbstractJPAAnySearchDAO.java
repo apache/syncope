@@ -562,7 +562,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final List<Object> parameters) {
 
-        // activate ignoreCase only for EQ and LIKE operators
+        // activate ignoreCase only for ILIKE and IEQ operators
         boolean ignoreCase = AttrCond.Type.ILIKE == cond.getType() || AttrCond.Type.IEQ == cond.getType();
 
         String left = column;

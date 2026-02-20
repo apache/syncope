@@ -84,7 +84,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
-import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
@@ -826,7 +826,7 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
             final AnyMatchDAO anyMatchDAO,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
@@ -927,7 +927,7 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
             final @Lazy AnyFinder anyFinder,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -1297,7 +1297,7 @@ public class PersistenceContext {
             final @Lazy AnyMatchDAO anyMatchDAO,
             final @Lazy AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
-            final SearchCondVisitor searchCondVisitor,
+            final AnySearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,

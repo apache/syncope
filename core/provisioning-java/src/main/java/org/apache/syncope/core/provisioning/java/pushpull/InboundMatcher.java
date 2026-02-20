@@ -468,8 +468,12 @@ public class InboundMatcher {
 
             case "name" -> {
                 if (orgUnit.isIgnoreCaseMatch()) {
+                    AttrCond cond = new AttrCond();
+                    cond.setType(AttrCond.Type.LIKE);
+                    cond.setSchema("name");
+                    cond.setExpression(connObjectKey);
                     result.addAll(realmSearchDAO.findDescendants(
-                            SyncopeConstants.ROOT_REALM, connObjectKey, Pageable.unpaged()));
+                            SyncopeConstants.ROOT_REALM, SearchCond.of(cond), Pageable.unpaged()));
                 } else {
                     result.addAll(realmSearchDAO.findByName(connObjectKey).stream().toList());
                 }
