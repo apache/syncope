@@ -111,7 +111,7 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                 if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                     clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
                             append(schema.getKey()).append("\").").append(valuesPath).
-                            append(" ? (@ like_regex \"").
+                            append(" ? (@.").append(key).append(" like_regex \"").
                             append(escapeForLikeRegex(value).replace("%", ".*")).append("\"").
                             append(lower ? " flag \"i\"" : "").append(")')");
                 } else {
@@ -191,16 +191,18 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             }
         }
 
-        return switch (cond.getType()) {
-            case ISNOTNULL ->
-                new AttrCondQuery(true, new RealmSearchNode.Leaf(
-                "jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
-                + checked.schema().getKey() + "\")')"));
+        switch (cond.getType()) {
+            case ISNOTNULL -> {
+                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
+                        "jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
+                                + checked.schema().getKey() + "\")')"));
+            }
 
-            case ISNULL ->
-                new AttrCondQuery(true, new RealmSearchNode.Leaf(
-                "NOT jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
-                + checked.schema().getKey() + "\")')"));
+            case ISNULL -> {
+                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
+                        "NOT jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
+                                + checked.schema().getKey() + "\")')"));
+            }
 
             default -> {
                 RealmSearchNode.Leaf node;
@@ -212,9 +214,9 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                 } else {
                     node = filJSONAttrQuery(checked.value(), checked.schema(), cond, not);
                 }
-                yield new AttrCondQuery(true, node);
+                return  new AttrCondQuery(true, node);
             }
-        };
+        }
     }
 
     @Override

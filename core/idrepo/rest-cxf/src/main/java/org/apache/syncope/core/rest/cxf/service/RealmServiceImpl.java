@@ -22,10 +22,13 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -46,11 +49,18 @@ public class RealmServiceImpl extends AbstractSearchService<RealmSearchCondVisit
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {
         SearchCond searchCond = StringUtils.isBlank(query.getFiql()) ? null : getSearchCond(query.getFiql());
-        Page<RealmTO> result = logic.search(
-                query.getBases(),
-                searchCond,
-                pageable(query));
-        return buildPagedResult(result);
+        try {
+            Page<RealmTO> result = logic.search(
+                    query.getBases(),
+                    searchCond,
+                    pageable(query));
+            return buildPagedResult(result);
+        } catch (IllegalArgumentException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+            sce.getElements().add(query.getFiql());
+            sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+            throw sce;
+        }
     }
 
     @Override

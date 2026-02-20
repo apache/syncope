@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -70,6 +71,164 @@ public class RealmITCase extends AbstractITCase {
     public void search() {
         PagedResult<RealmTO> match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("name=~*o*").build());
         assertTrue(match.getResult().stream().allMatch(realm -> realm.getName().contains("o")));
+
+        RealmTO realm = new RealmTO();
+        realm.setName("searchTest1");
+        realm.getAnyTypeClasses().add("other");
+        realm.getPlainAttrs().add(new Attr.Builder("ctype").value("number1").build());
+        realm.getPlainAttrs().add(new Attr.Builder("aLong").value("42").build());
+        realm.getPlainAttrs().add(new Attr.Builder("loginDate").value("2008-05-26").build());
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
+
+        realm = new RealmTO();
+        realm.setName("searchTest2");
+        realm.getAnyTypeClasses().add("other");
+        realm.getPlainAttrs().add(new Attr.Builder("ctype").value("string2").build());
+        realm.getPlainAttrs().add(new Attr.Builder("aLong").value("90").build());
+        realm.getPlainAttrs().add(new Attr.Builder("loginDate").value("2009-05-26").build());
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        REALM_SERVICE.create("/even", realm);
+
+        realm = new RealmTO();
+        realm.setName("searchTest3");
+        realm.getAnyTypeClasses().add("other");
+        realm.getPlainAttrs().add(new Attr.Builder("ctype").value("string2").build());
+        realm.getPlainAttrs().add(new Attr.Builder("aLong").value("42").build());
+        realm.getPlainAttrs().add(new Attr.Builder("loginDate").value("2009-05-26").value("2010-05-26").build());
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        REALM_SERVICE.create("/even", realm);
+
+        realm = new RealmTO();
+        realm.setName("searchTest4");
+        realm.getAnyTypeClasses().add("other");
+        realm.getPlainAttrs().add(new Attr.Builder("aLong").value("4242").build());
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        REALM_SERVICE.create("/even/two", realm);
+
+        realm = new RealmTO();
+        realm.setName("searchTest5");
+        realm.getAnyTypeClasses().add("other");
+        realm.getPlainAttrs().add(new Attr.Builder("ctype").value("String5").build());
+        realm.getPlainAttrs().add(new Attr.Builder("aLong").value("5").build());
+        realm.getPlainAttrs().add(new Attr.Builder("loginDate").value("2011-05-26").build());
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        REALM_SERVICE.create("/even", realm);
+
+        // Numeric equality
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("aLong==90").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().allMatch(r -> r.getName().equals("searchTest2")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42").build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest1")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        // Mixed numeric + string filters
+        match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42;ctype=~string*").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;ctype==string*").
+                build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;ctype=~string*").
+                build());
+        assertEquals(3, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        // Negated LIKE
+        match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42;ctype!~string*").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest1")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;ctype=~string5").
+                build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("aLong==4242;ctype==$null").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest4")));
+
+        // Null / not-null checks on optional plain attrs
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;ctype!=$null").
+                build());
+        assertEquals(3, match.getSize());
+        assertTrue(match.getResult().stream().noneMatch(r -> r.getName().equals("searchTest4")));
+
+        // Numeric ranges
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;aLong=gt=42").
+                build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest4")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("name==searchTest*;aLong=ge=80;aLong=le=100").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;aLong=lt=42").
+                build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("name==searchTest*;aLong=le=42").
+                build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        // Grouping / OR conditions
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("name==searchTest*;(aLong==90,ctype==String5)").build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        // Date equality against multivalue date schema
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("loginDate==2009-05-26").build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("loginDate==2010-05-26").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        // Date range checks on multivalue schema
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").fiql("loginDate=gt=2010-01-01").build());
+        assertEquals(2, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("loginDate=ge=2010-05-26;loginDate=le=2010-05-26").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("name==searchTest*;loginDate==$null").build());
+        assertEquals(1, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest4")));
+
+        // Date nullability checks
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("name==searchTest*;loginDate!=$null").build());
+        assertEquals(3, match.getSize());
+        assertTrue(match.getResult().stream().noneMatch(r -> r.getName().equals("searchTest4")));
+
+        // Validation error for numeric schema with non-numeric value
+        SyncopeClientException exception = assertThrows(SyncopeClientException.class,
+                () -> REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==notANumber").build()));
+        assertEquals(ClientExceptionType.InvalidSearchParameters, exception.getType());
     }
 
     @Test

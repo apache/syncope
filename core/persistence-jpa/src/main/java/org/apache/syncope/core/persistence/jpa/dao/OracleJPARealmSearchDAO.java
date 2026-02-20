@@ -70,19 +70,19 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             final PlainAttrValue attrValue,
             final PlainSchema schema,
             final AttrCond cond,
-            final boolean not) {
-
-        String colAlias = schema.isUniqueConstraint() ? "uniqueValue" : "valuez";
+            final boolean not,
+            final List<Object> parameters) {
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                 orElseGet(cond::getExpression);
+        Object typedValue = schema.getType() == AttrSchemaType.Date ? value : attrValue.getValue();
 
         boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
         StringBuilder clause = new StringBuilder(lower ? "LOWER(" : "").
-                append(schema.getKey()).append('.').append(colAlias).
+                append(schema.getKey()).append('.').append(schema.isUniqueConstraint() ? "uniqueValue" : "valuez").
                 append(lower ? ')' : "");
 
         switch (cond.getType()) {
@@ -91,33 +91,41 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                 if (not) {
                     clause.append(" NOT");
                 }
-                clause.append(" LIKE '").append(value).append("'");
+                clause.append(" LIKE ").
+                        append(lower ? "LOWER(" : "").
+                        append('?').append(setParameter(parameters, value)).
+                        append(lower ? ')' : "");
                 if (isOracle()) {
                     clause.append(" ESCAPE '\\'");
                 }
                 break;
 
             case GE:
-                clause.append(not ? " < '" : " >= '").append(value).append("'");
+                clause.append(not ? "<" : ">=").
+                        append('?').append(setParameter(parameters, typedValue));
                 break;
 
             case GT:
-                clause.append(not ? " <= '" : " > '").append(value).append("'");
+                clause.append(not ? "<=" : ">").
+                        append('?').append(setParameter(parameters, typedValue));
                 break;
 
             case LE:
-                clause.append(not ? " > '" : " <= '").append(value).append("'");
+                clause.append(not ? ">" : "<=").
+                        append('?').append(setParameter(parameters, typedValue));
                 break;
 
             case LT:
-                clause.append(not ? " >= '" : " < '").append(value).append("'");
+                clause.append(not ? ">=" : "<").
+                        append('?').append(setParameter(parameters, typedValue));
                 break;
 
             case IEQ:
             case EQ:
             default:
                 clause.append(not ? " != " : " = ").
-                        append(lower ? "LOWER('" : "'").append(value).append("'").
+                        append(lower ? "LOWER(" : "").
+                        append('?').append(setParameter(parameters, typedValue)).
                         append(lower ? ")" : "");
                 break;
         }
@@ -142,13 +150,13 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL -> {
-                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
+                return new AttrCondQuery(false, new RealmSearchNode.Leaf(
                     "JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
                             + checked.schema().getKey() + "\")')"));
             }
 
             case ISNULL -> {
-                return new AttrCondQuery(true, new RealmSearchNode.Leaf(
+                return new AttrCondQuery(false, new RealmSearchNode.Leaf(
                     "NOT JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
                             + checked.schema().getKey() + "\")')"));
             }
@@ -156,11 +164,16 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             default -> {
                 RealmSearchNode.Leaf node;
                 if (not && checked.schema().isMultivalue()) {
+                    RealmSearchNode.Leaf notNode = filJSONAttrQuery(
+                            checked.value(), checked.schema(), cond, false, parameters);
                     node = new RealmSearchNode.Leaf(
-                            "NOT JSON_EXISTS(e.plainAttrs, '$[*]?(@.schema == \""
-                                    + checked.schema().getKey() + "\")')");
+                            "id NOT IN ("
+                            + "SELECT id FROM " + JPARealm.TABLE + " e, " + jsonTable(checked.schema())
+                            + " WHERE " + notNode.getClause()
+                            + ")");
+                    return new AttrCondQuery(false, node);
                 } else {
-                    node = filJSONAttrQuery(checked.value(), checked.schema(), cond, not);
+                    node = filJSONAttrQuery(checked.value(), checked.schema(), cond, not, parameters);
                 }
                 return new AttrCondQuery(true, node);
             }
