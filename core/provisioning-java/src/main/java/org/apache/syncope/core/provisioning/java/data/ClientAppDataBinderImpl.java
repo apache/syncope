@@ -257,6 +257,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setJwks(clientAppTO.getJwks());
         clientApp.setJwksUri(clientAppTO.getJwksUri());
         clientApp.setTokenEndpointAuthenticationMethod(clientAppTO.getTokenEndpointAuthenticationMethod());
+        clientApp.setAccessTokenMaxActiveTokens(clientAppTO.getAccessTokenMaxActiveTokens());
+        clientApp.setAccessTokenMaxTimeToLive(clientAppTO.getAccessTokenMaxTimeToLive());
+        clientApp.setAccessTokenTimeToKill(clientAppTO.getAccessTokenTimeToKill());
+        clientApp.setRefreshTokenMaxActiveTokens(clientAppTO.getRefreshTokenMaxActiveTokens());
+        clientApp.setRefreshTokenTimeToKill(clientAppTO.getRefreshTokenTimeToKill());
+        clientApp.setDeviceTokenTimeToKill(clientAppTO.getDeviceTokenTimeToKill());
     }
 
     protected OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
@@ -289,7 +295,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setJwks(clientApp.getJwks());
         clientAppTO.setJwksUri(clientApp.getJwksUri());
         clientAppTO.setTokenEndpointAuthenticationMethod(clientApp.getTokenEndpointAuthenticationMethod());
-
+        clientAppTO.setAccessTokenMaxActiveTokens(clientApp.getAccessTokenMaxActiveTokens());
+        clientAppTO.setAccessTokenMaxTimeToLive(clientApp.getAccessTokenMaxTimeToLive());
+        clientAppTO.setAccessTokenTimeToKill(clientApp.getAccessTokenTimeToKill());
+        clientAppTO.setRefreshTokenTimeToKill(clientApp.getRefreshTokenTimeToKill());
+        clientAppTO.setRefreshTokenMaxActiveTokens(clientApp.getRefreshTokenMaxActiveTokens());
+        clientAppTO.setDeviceTokenTimeToKill(clientApp.getDeviceTokenTimeToKill());
         return clientAppTO;
     }
 

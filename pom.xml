@@ -431,10 +431,11 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.4</cxf.version>
+    <cxf.version>4.1.5</cxf.version>
     <bouncycastle.version>1.83</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.8</nimbus-jose-jwt.version>
 
+    <spring-framework.version>6.2.16</spring-framework.version>
     <spring-boot.version>3.4.13</spring-boot.version>
     <spring-cloud-gateway.version>4.2.7</spring-cloud-gateway.version>
 
@@ -450,8 +451,8 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.2.5</elasticsearch.version>
-    <opensearch.version>3.4.0</opensearch.version>
-    <opensearch-java.version>3.5.0</opensearch-java.version>
+    <opensearch.version>3.5.0</opensearch.version>
+    <opensearch-java.version>3.6.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
@@ -466,7 +467,7 @@ under the License.
     <cas.version>7.2.7</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <swagger-core.version>2.2.42</swagger-core.version>
+    <swagger-core.version>2.2.43</swagger-core.version>
     <swagger-ui.version>5.31.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -537,7 +538,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.9</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.10</jdbc.postgresql.version>
     <jdbc.mysql.version>9.6.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.7</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.1.0.0</jdbc.oracle.version>
@@ -690,6 +691,13 @@ under the License.
         <version>7.1.1</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -1982,7 +1990,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.3.0</version>
+        <version>4.3.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>

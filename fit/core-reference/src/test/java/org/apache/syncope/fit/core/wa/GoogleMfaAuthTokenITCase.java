@@ -20,17 +20,15 @@ package org.apache.syncope.fit.core.wa;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
+import org.apache.syncope.common.rest.api.beans.AuthProfileQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,17 +63,44 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     }
 
     @Test
-    public void verifyProfile() {
-        String owner = UUID.randomUUID().toString();
-        GoogleMfaAuthToken token = createGoogleMfaAuthToken();
-        GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner, token);
-        PagedResult<AuthProfileTO> results = AUTH_PROFILE_SERVICE.list(1, 100);
-        assertFalse(results.getResult().isEmpty());
-        AuthProfileTO profileTO = results.getResult().stream().
-                filter(p -> owner.equals(p.getOwner())).findFirst().get();
-        assertEquals(profileTO, AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
-        AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
-        assertThrows(SyncopeClientException.class, () -> AUTH_PROFILE_SERVICE.read(profileTO.getKey()));
+    public void listProfiles() {
+        String owner1 = "owner" + UUID.randomUUID();
+        String owner2 = "owner" + UUID.randomUUID();
+        String test = "test" + UUID.randomUUID();
+        PagedResult<AuthProfileTO> owners = null;
+        PagedResult<AuthProfileTO> tests = null;
+        try {
+            GoogleMfaAuthToken token = createGoogleMfaAuthToken();
+            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner1, token);
+
+            GoogleMfaAuthToken token1 = createGoogleMfaAuthToken();
+            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(owner2, token1);
+
+            GoogleMfaAuthToken token2 = createGoogleMfaAuthToken();
+            GOOGLE_MFA_AUTH_TOKEN_SERVICE.store(test, token2);
+
+            owners = AUTH_PROFILE_SERVICE.search(
+                    new AuthProfileQuery.Builder().page(1).size(100).keyword("owner*").build());
+            assertEquals(2, owners.getTotalCount());
+            assertEquals(2, owners.getResult().size());
+
+            tests = AUTH_PROFILE_SERVICE.search(
+                    new AuthProfileQuery.Builder().page(1).size(100).keyword("test*").build());
+            assertEquals(1, tests.getTotalCount());
+            assertEquals(1, tests.getResult().size());
+        } finally {
+            AuthProfileTO profileTO = owners.getResult().stream().
+                    filter(p -> owner1.equals(p.getOwner())).findFirst().orElseThrow();
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
+
+            profileTO = owners.getResult().stream().
+                    filter(p -> owner2.equals(p.getOwner())).findFirst().orElseThrow();
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
+
+            profileTO = tests.getResult().stream().
+                    filter(p -> test.equals(p.getOwner())).findFirst().orElseThrow();
+            AUTH_PROFILE_SERVICE.delete(profileTO.getKey());
+        }
     }
 
     @Test

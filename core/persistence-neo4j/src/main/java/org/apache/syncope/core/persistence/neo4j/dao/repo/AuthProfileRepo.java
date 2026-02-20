@@ -23,6 +23,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface AuthProfileRepo
-        extends PagingAndSortingRepository<Neo4jAuthProfile, String>, AuthProfileDAO {
+        extends PagingAndSortingRepository<Neo4jAuthProfile, String>, AuthProfileRepoExt, AuthProfileDAO {
 
 }

@@ -121,6 +121,7 @@ public class ClientAppITCase extends AbstractITCase {
         assertFalse(found.getSupportedResponseTypes().isEmpty());
         assertNotNull(found.getAccessPolicy());
         assertNotNull(found.getAuthPolicy());
+        assertNotNull(found.getAccessTokenMaxTimeToLive());
     }
 
     @Test
@@ -147,6 +148,7 @@ public class ClientAppITCase extends AbstractITCase {
 
         oidcrpTO.setClientId("newClientId");
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
+        oidcrpTO.setDeviceTokenTimeToKill("PT6M");
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, oidcrpTO);
         OIDCRPClientAppTO updated = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
@@ -154,6 +156,7 @@ public class ClientAppITCase extends AbstractITCase {
         assertNotNull(updated);
         assertEquals("newClientId", updated.getClientId());
         assertNotNull(updated.getAccessPolicy());
+        assertEquals("PT6M", updated.getDeviceTokenTimeToKill());
     }
 
     @Test

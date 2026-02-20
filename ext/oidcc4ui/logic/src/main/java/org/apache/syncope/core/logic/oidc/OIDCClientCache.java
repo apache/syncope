@@ -112,7 +112,12 @@ public class OIDCClientCache {
                 Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
         if (op.getHasDiscovery()) {
             try {
-                metadata.setIDTokenJWSAlgs(fetchMetadata(op.getIssuer()).getIDTokenJWSAlgs());
+                OIDCProviderMetadata fetched = fetchMetadata(op.getIssuer());
+
+                metadata.setIDTokenJWSAlgs(fetched.getIDTokenJWSAlgs());
+
+                metadata.setSupportsBackChannelLogout(fetched.supportsBackChannelLogout());
+                metadata.setSupportsBackChannelLogoutSession(fetched.supportsBackChannelLogoutSession());
             } catch (Exception e) {
                 LOG.error("While fetching OIDC metadata for issuer {}", op.getIssuer(), e);
                 metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
@@ -134,11 +139,8 @@ public class OIDCClientCache {
             }
 
             @Override
-            public TokenValidator getTokenValidator() {
-                if (tokenValidator == null) {
-                    tokenValidator = new TokenValidator(configuration, metadata);
-                }
-                return tokenValidator;
+            protected TokenValidator createTokenValidator() {
+                return new TokenValidator(configuration, metadata);
             }
         });
 
