@@ -19,19 +19,20 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 
 public class MariaDBJPARealmSearchDAO extends MySQLJPARealmSearchDAO {
 
     public MariaDBJPARealmSearchDAO(
             final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final PlainAttrValidationManager validator) {
-        super(entityManager, entityManagerFactory, plainSchemaDAO, entityFactory, validator);
+            final PlainAttrValidationManager validator,
+            final RealmUtils realmUtils) {
+
+        super(entityManager, plainSchemaDAO, entityFactory, validator, realmUtils);
     }
 }

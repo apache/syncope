@@ -19,28 +19,21 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Query;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.springframework.data.domain.Pageable;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.springframework.data.domain.Sort;
 
 public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
@@ -60,12 +53,28 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
     public PGJPARealmSearchDAO(
             final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final RealmUtils realmUtils) {
 
-        super(entityManager, entityManagerFactory, plainSchemaDAO, entityFactory, validator);
+        super(entityManager, plainSchemaDAO, entityFactory, validator, realmUtils);
+    }
+
+    @Override
+    protected void parseOrderByForPlainSchema(
+            final OrderBySupport obs,
+            final OrderBySupport.Item item,
+            final Sort.Order clause,
+            final PlainSchema schema,
+            final String fieldName) {
+
+        // keep track of involvement of non-mandatory schemas in the order by clauses
+        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
+
+        item.select = fieldName + " -> 0 AS " + fieldName;
+        item.where = StringUtils.EMPTY;
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
     protected RealmSearchNode.Leaf filJSONAttrQuery(
@@ -88,8 +97,10 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
         } else if (schema.getType() != AttrSchemaType.Date) {
             try {
                 switch (schema.getType()) {
-                    case Long -> Long.valueOf(value);
-                    case Double -> Double.valueOf(value);
+                    case Long ->
+                        Long.valueOf(value);
+                    case Double ->
+                        Double.valueOf(value);
                     case Boolean -> {
                         if (!("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value))) {
                             throw new IllegalArgumentException();
@@ -109,7 +120,7 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             case ILIKE:
             case LIKE:
                 if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
-                    clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                    clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                             append(schema.getKey()).append("\").").append(valuesPath).
                             append(" ? (@.").append(key).append(" like_regex \"").
                             append(escapeForLikeRegex(value).replace("%", ".*")).append("\"").
@@ -123,7 +134,7 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             case IEQ:
             case EQ:
             default:
-                clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                         append(schema.getKey()).append("\").").append(valuesPath).
                         append(" ? (");
                 if (StringUtils.containsAny(value, REGEX_CHARS) || lower) {
@@ -141,28 +152,28 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                 break;
 
             case GE:
-                clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                         append(schema.getKey()).append("\").").append(valuesPath).
                         append(" ? (@.").append(key).append(" >= ").
                         append(escapeIfString(value, isStr)).append(")')");
                 break;
 
             case GT:
-                clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                         append(schema.getKey()).append("\").").append(valuesPath).
                         append(" ? (@.").append(key).append(" > ").
                         append(escapeIfString(value, isStr)).append(")')");
                 break;
 
             case LE:
-                clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                         append(schema.getKey()).append("\").").append(valuesPath).
                         append(" ? (@.").append(key).append(" <= ").
                         append(escapeIfString(value, isStr)).append(")')");
                 break;
 
             case LT:
-                clause.append("jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \"").
+                clause.append("jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \"").
                         append(schema.getKey()).append("\").").append(valuesPath).
                         append(" ? (@.").append(key).append(" < ").
                         append(escapeIfString(value, isStr)).append(")')");
@@ -194,14 +205,14 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
         switch (cond.getType()) {
             case ISNOTNULL -> {
                 return new AttrCondQuery(true, new RealmSearchNode.Leaf(
-                        "jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
-                                + checked.schema().getKey() + "\")')"));
+                        "jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \""
+                        + checked.schema().getKey() + "\")')"));
             }
 
             case ISNULL -> {
                 return new AttrCondQuery(true, new RealmSearchNode.Leaf(
-                        "NOT jsonb_path_exists(e.plainAttrs, '$[*] ? (@.schema == \""
-                                + checked.schema().getKey() + "\")')"));
+                        "NOT jsonb_path_exists(r.plainAttrs, '$[*] ? (@.schema == \""
+                        + checked.schema().getKey() + "\")')"));
             }
 
             default -> {
@@ -214,84 +225,37 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                 } else {
                     node = filJSONAttrQuery(checked.value(), checked.schema(), cond, not);
                 }
-                return  new AttrCondQuery(true, node);
+                return new AttrCondQuery(true, node);
             }
         }
     }
 
     @Override
-    protected StringBuilder buildDescendantsQuery(
-            final Set<String> bases,
-            final SearchCond searchCond,
-            final List<Object> parameters) {
+    protected String buildFrom(
+            final Set<String> plainSchemas,
+            final OrderBySupport obs) {
 
-        String basesClause = bases.stream().
-                map(base -> "e.fullpath=?" + setParameter(parameters, base)
-                + " OR e.fullpath LIKE ?" + setParameter(
-                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                collect(Collectors.joining(" OR "));
+        StringBuilder clause = new StringBuilder(super.buildFrom(plainSchemas, obs));
 
-        StringBuilder queryString = new StringBuilder("SELECT e.* FROM ").
-                append(JPARealm.TABLE).append(" e ").
-                append("WHERE (").append(basesClause).append(')');
+        Set<String> schemas = new HashSet<>(plainSchemas);
 
-        getQuery(searchCond, parameters).ifPresent(condition ->
-                queryString.append(" AND (").
-                        append(buildPlainAttrQuery(condition, parameters, List.of())).
-                        append(')'));
-
-        return queryString;
-    }
-
-    @Override
-    public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
-        Query query = entityManager.createNativeQuery(Strings.CS.replaceOnce(
-                queryString.toString(),
-                "SELECT e.* ",
-                "SELECT COUNT(e.id) "));
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
+        if (obs != null) {
+            obs.items.forEach(item -> {
+                String schema = StringUtils.substringBefore(item.orderBy, ' ');
+                if (StringUtils.isNotBlank(schema)) {
+                    schemas.add(schema);
+                }
+            });
         }
 
-        return ((Number) query.getSingleResult()).longValue();
-    }
+        // i.e jsonb_path_query(plainattrs, '$[*] ? (@.schema=="Nome")."values"') AS Nome
+        schemas.forEach(schema -> plainSchemaDAO.findById(schema).ifPresent(
+                pschema -> clause.append(',').
+                        append("jsonb_path_query_array(plainattrs, '$[*] ? (@.schema==\"").
+                        append(schema).append("\").").
+                        append("\"").append(pschema.isUniqueConstraint() ? "uniqueValue" : "values").append("\"')").
+                        append(" AS ").append(schema)));
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
-        Query query = entityManager.createNativeQuery(
-                queryString.append(" ORDER BY e.fullpath").toString(), JPARealm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        if (pageable.isPaged()) {
-            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
-            query.setMaxResults(pageable.getPageSize());
-        }
-
-        return (List<Realm>) query.getResultList();
-    }
-
-    @Override
-    protected void visitNode(final RealmSearchNode node, final List<String> where) {
-        node.asLeaf().ifPresentOrElse(
-                leaf -> where.add(leaf.getClause()),
-                () -> {
-                    List<String> nodeWhere = new ArrayList<>();
-                    node.getChildren().forEach(child -> visitNode(child, nodeWhere));
-                    String op = " " + node.getType().name() + " ";
-                    where.add(nodeWhere.stream().
-                            map(w -> w.contains(" AND ") || w.contains(" OR ") ? "(" + w + ")" : w).
-                            collect(Collectors.joining(op)));
-                });
+        return clause.toString();
     }
 }

@@ -22,9 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -41,31 +38,9 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
 
     A authFind(String key);
 
-    /**
-     * Find any objects by derived attribute value. This method could fail if one or more string literals contained
-     * into the derived attribute value provided derive from identifier (schema key) replacement. When you are going to
-     * specify a derived attribute expression you must be quite sure that string literals used to build the expression
-     * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
-     *
-     * @param expression JEXL expression
-     * @param value derived attribute value
-     * @param ignoreCaseMatch whether comparison for string values should take case into account or not
-     * @return list of any objects
-     */
-    List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
-
     List<A> findByResourcesContaining(ExternalResource resource);
 
     Page<? extends A> findAll(Pageable pageable);
-
-    /**
-     * @return the search condition to match all entities
-     */
-    default SearchCond getAllMatchingCond() {
-        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
-        return SearchCond.of(idCond);
-    }
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

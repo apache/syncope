@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -42,6 +44,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -158,8 +161,8 @@ public class RealmTest extends AbstractTest {
         name.setSchema("name");
         name.setExpression("two");
 
-        List<Realm> result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        List<Realm> result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.of(name),
                 Pageable.unpaged());
         assertEquals(1, result.size());
@@ -169,15 +172,15 @@ public class RealmTest extends AbstractTest {
         attrEq.setSchema("aLong");
         attrEq.setExpression("42");
 
-        result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.of(attrEq),
                 Pageable.unpaged());
         assertEquals(1, result.size());
         assertEquals("two", result.getFirst().getName());
 
-        result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.and(SearchCond.of(name), SearchCond.of(attrEq)),
                 Pageable.unpaged());
         assertEquals(1, result.size());
@@ -187,8 +190,8 @@ public class RealmTest extends AbstractTest {
         attrEq2.setSchema("aLong");
         attrEq2.setExpression("99");
 
-        result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.or(SearchCond.of(attrEq), SearchCond.of(attrEq2)),
                 Pageable.unpaged());
         assertTrue(result.stream().anyMatch(r -> "two".equals(r.getName())));
@@ -197,8 +200,8 @@ public class RealmTest extends AbstractTest {
         AttrCond attrIsNull = new AttrCond(AttrCond.Type.ISNULL);
         attrIsNull.setSchema("aLong");
 
-        result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.of(attrIsNull),
                 Pageable.unpaged());
         result.forEach(r -> assertFalse("two".equals(r.getName()) || "odd".equals(r.getName())));
@@ -206,11 +209,33 @@ public class RealmTest extends AbstractTest {
         AttrCond attrIsNotNull = new AttrCond(AttrCond.Type.ISNOTNULL);
         attrIsNotNull.setSchema("aLong");
 
-        result = realmSearchDAO.findDescendants(
-                SyncopeConstants.ROOT_REALM,
+        assertEquals(2, realmSearchDAO.count(
+                Set.of(SyncopeConstants.ROOT_REALM),
+                SearchCond.of(attrIsNotNull)));
+
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
                 SearchCond.of(attrIsNotNull),
-                Pageable.unpaged());
-        assertTrue(result.stream().anyMatch(r -> "two".equals(r.getName())));
-        assertTrue(result.stream().anyMatch(r -> "odd".equals(r.getName())));
+                Pageable.unpaged(Sort.by(new Sort.Order(Sort.Direction.ASC, "name"))));
+        assertEquals("odd", result.get(0).getName());
+        assertEquals("two", result.get(1).getName());
+
+        result = realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
+                SearchCond.of(attrIsNotNull),
+                Pageable.unpaged(Sort.by(new Sort.Order(Sort.Direction.ASC, "aLong"))));
+        assertEquals("two", result.get(0).getName());
+        assertEquals("odd", result.get(1).getName());
+
+        AttrCond cond1 = new AttrCond(AttrCond.Type.EQ);
+        cond1.setSchema("aLong");
+        cond1.setExpression("42");
+        AttrCond cond2 = new AttrCond(AttrCond.Type.IEQ);
+        cond2.setSchema("ctype");
+        cond2.setExpression("string");
+        assertDoesNotThrow(() -> realmSearchDAO.search(
+                Set.of(SyncopeConstants.ROOT_REALM),
+                SearchCond.and(SearchCond.of(cond1), SearchCond.of(cond2)),
+                Pageable.unpaged()));
     }
 }

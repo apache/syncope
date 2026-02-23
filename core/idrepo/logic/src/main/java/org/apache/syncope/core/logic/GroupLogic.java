@@ -172,7 +172,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_SEARCH), realm);
 
-        SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
+        SearchCond effectiveCond = searchCond == null ? searchDAO.getAllMatchingCond() : searchCond;
 
         long count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.GROUP);
 

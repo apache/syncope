@@ -38,7 +38,7 @@ public final class RealmsUtils {
         return StringUtils.isNotBlank(input) && !"*".equals(input);
     }
 
-    public static RealmQuery buildKeywordQuery(final String input) {
+    public static RealmQuery buildNameQuery(final String input) {
         return new RealmQuery.Builder().fiql("name=~" + (input.contains("*") ? input : "*" + input + "*")).build();
     }
 

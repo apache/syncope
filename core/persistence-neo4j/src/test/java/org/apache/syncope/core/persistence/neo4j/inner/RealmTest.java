@@ -86,14 +86,11 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findDescendants() {
-        List<String> found = realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, SyncopeConstants.ROOT_REALM);
+        List<Realm> found = realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, SyncopeConstants.ROOT_REALM);
         assertEquals(4, found.size());
-        assertTrue(found.stream().allMatch(f -> SyncopeConstants.UUID_PATTERN.matcher(f).matches()));
+        assertTrue(found.stream().allMatch(f -> SyncopeConstants.UUID_PATTERN.matcher(f.getKey()).matches()));
 
-        assertEquals(
-                found,
-                realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).stream().
-                        map(Realm::getKey).toList());
+        assertEquals(found, realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, null));
     }
 
     @Test
@@ -110,14 +107,14 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
+        List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null);
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
 
         assertEquals(4, realmDAO.findAll(Pageable.ofSize(100)).stream().count());
 
-        list = realmSearchDAO.findDescendants(Set.of("/even", "/odd"), null, Pageable.unpaged());
+        list = realmSearchDAO.search(Set.of("/even", "/odd"), realmSearchDAO.getAllMatchingCond(), Pageable.unpaged());
         assertEquals(3, list.size());
         assertNotNull(list.stream().filter(realm -> "even".equals(realm.getName())).findFirst().orElseThrow());
         assertNotNull(list.stream().filter(realm -> "two".equals(realm.getName())).findFirst().orElseThrow());

@@ -196,7 +196,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                 protected Iterator<String> getChoices(final String input) {
                     return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildBaseQuery()
-                            : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
+                            : RealmsUtils.buildNameQuery(input)).getResult().stream().
                             map(RealmTO::getFullPath).iterator();
                 }
             };

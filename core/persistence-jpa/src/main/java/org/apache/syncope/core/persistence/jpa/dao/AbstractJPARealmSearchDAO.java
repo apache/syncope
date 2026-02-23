@@ -19,31 +19,23 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.sql.OracleDictionary;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -52,37 +44,13 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AbstractRealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmSearchDAO.class);
-
-    protected static final String ALWAYS_FALSE_CLAUSE = "1=2";
-
-    private static final Map<String, Boolean> IS_ORACLE = new ConcurrentHashMap<>();
-
-    protected final EntityManager entityManager;
-
-    protected final EntityManagerFactory entityManagerFactory;
-
-    protected final PlainSchemaDAO plainSchemaDAO;
-
-    protected final EntityFactory entityFactory;
-
-    protected final PlainAttrValidationManager validator;
-
-    protected final RealmUtils realmUtils;
-
-    protected record CheckResult<C extends AttrCond>(PlainSchema schema, PlainAttrValue value, C cond) {
-
-    }
+public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
 
     protected record QueryInfo(RealmSearchNode node, Set<String> plainSchemas) {
 
@@ -97,47 +65,103 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
         return parameters.size();
     }
 
-    protected static String key(final AttrSchemaType schemaType) {
-        return switch (schemaType) {
-            case Boolean -> "booleanValue";
-            case Date -> "dateValue";
-            case Double -> "doubleValue";
-            case Long -> "longValue";
-            case Binary -> "binaryValue";
-            default -> "stringValue";
-        };
+    protected static void fillWithParameters(final Query query, final List<Object> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Boolean aBoolean) {
+                query.setParameter(i + 1, aBoolean ? 1 : 0);
+            } else {
+                query.setParameter(i + 1, parameters.get(i));
+            }
+        }
     }
 
-    public AbstractJPARealmSearchDAO(
+    protected final EntityManager entityManager;
+
+    protected final RealmUtils realmUtils;
+
+    protected AbstractJPARealmSearchDAO(
             final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final RealmUtils realmUtils) {
+
+        super(plainSchemaDAO, entityFactory, validator);
 
         this.entityManager = entityManager;
-        this.entityManagerFactory = entityManagerFactory;
-        this.plainSchemaDAO = plainSchemaDAO;
-        this.entityFactory = entityFactory;
-        this.validator = validator;
-        this.realmUtils = new RealmUtils(entityFactory);
+        this.realmUtils = realmUtils;
     }
 
-    protected String realmId() {
-        return "e.id";
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Realm> findByFullPath(final String fullPath) {
+        if (StringUtils.isBlank(fullPath)
+                || (!SyncopeConstants.ROOT_REALM.equals(fullPath)
+                && !RealmDAO.PATH_PATTERN.matcher(fullPath).matches())) {
+
+            throw new MalformedPathException(fullPath);
+        }
+
+        TypedQuery<Realm> query = entityManager.createQuery(
+                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.fullPath=:fullPath", Realm.class);
+        query.setParameter("fullPath", fullPath);
+
+        Realm result = null;
+        try {
+            result = query.getSingleResult();
+        } catch (NoResultException e) {
+            LOG.debug("Realm with fullPath {} not found", fullPath, e);
+        }
+
+        return Optional.ofNullable(result);
     }
 
-    protected boolean isOracle() {
-        return IS_ORACLE.computeIfAbsent(
-                AuthContextUtils.getDomain(),
-                k -> {
-                    OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(
-                            OpenJPAEntityManagerFactorySPI.class);
-                    return ((MappingRepository) emfspi.getConfiguration().
-                            getMetaDataRepositoryInstance()).getDBDictionary() instanceof OracleDictionary;
-                });
+    @Override
+    public List<Realm> findByName(final String name) {
+        TypedQuery<Realm> query = entityManager.createQuery(
+                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.name=:name", Realm.class);
+        query.setParameter("name", name);
+
+        return query.getResultList();
     }
 
+    @Override
+    public List<Realm> findChildren(final Realm realm) {
+        TypedQuery<Realm> query = entityManager.createQuery(
+                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.parent=:realm", Realm.class);
+        query.setParameter("realm", realm);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Realm> findDescendants(final String base, final String prefix) {
+        List<Object> parameters = new ArrayList<>();
+
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPARealm.class.getSimpleName()).
+                append(" e WHERE (e.fullPath=?").append(setParameter(parameters, base)).
+                append(" OR e.fullPath LIKE ?").append(setParameter(
+                parameters,
+                SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                append(") ");
+        if (prefix != null) {
+            queryString.append("AND (e.fullPath=?").append(setParameter(parameters, prefix)).
+                    append(" OR e.fullPath LIKE ?").append(setParameter(
+                    parameters,
+                    SyncopeConstants.ROOT_REALM.equals(prefix) ? "/%" : prefix + "/%")).
+                    append(") ");
+        }
+        queryString.append("ORDER BY e.fullPath");
+
+        TypedQuery<Realm> query = entityManager.createQuery(queryString.toString(), Realm.class);
+
+        fillWithParameters(query, parameters);
+
+        return query.getResultList();
+    }
+
+    // ------------------------------------------ //
     protected Optional<RealmSearchNode> getQueryForCustomConds(
             final SearchCond cond,
             final boolean not,
@@ -147,7 +171,6 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
     }
 
     protected Optional<QueryInfo> getQuery(final SearchCond cond, final List<Object> parameters) {
-
         if (cond == null) {
             return Optional.empty();
         }
@@ -163,14 +186,14 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
                 node = cond.asLeaf(AnyCond.class).
                         map(anyCond -> getQuery(anyCond, not, parameters)).
                         or(() -> cond.asLeaf(AttrCond.class).
-                                map(attrCond -> {
-                                    CheckResult<AttrCond> checked = check(attrCond);
-                                    AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
-                                    if (query.addPlainSchemas()) {
-                                        plainSchemas.add(checked.schema().getKey());
-                                    }
-                                    return query.node();
-                                }));
+                        map(attrCond -> {
+                            CheckResult<AttrCond> checked = check(attrCond);
+                            AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
+                            if (query.addPlainSchemas()) {
+                                plainSchemas.add(checked.schema().getKey());
+                            }
+                            return query.node();
+                        }));
 
                 if (node.isEmpty()) {
                     node = getQueryForCustomConds(cond, not, parameters);
@@ -219,86 +242,34 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
         return node.map(n -> new QueryInfo(n, plainSchemas));
     }
 
-    protected AttrCondQuery getQuery(
-            final AttrCond cond,
-            final boolean not,
-            final CheckResult<AttrCond> checked,
-            final List<Object> parameters) {
-
-        // normalize NULL / NOT NULL checks when negated
-        if (not) {
-            if (cond.getType() == AttrCond.Type.ISNULL) {
-                cond.setType(AttrCond.Type.ISNOTNULL);
-            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
-                cond.setType(AttrCond.Type.ISNULL);
-            }
-        }
-
-        switch (cond.getType()) {
-            case ISNOTNULL -> {
-                return new AttrCondQuery(true,
-                        new RealmSearchNode.Leaf("r.schema_id='" + checked.schema().getKey() + "'"));
-            }
-
-            case ISNULL -> {
-                String clause = new StringBuilder(realmId()).
-                        append(" NOT IN (").
-                        append("SELECT DISTINCT realm_id FROM ").
-                        append(JPARealm.TABLE).
-                        append(" WHERE schema_id='").append(checked.schema().getKey()).append("'").
-                        append(')').toString();
-                return new AttrCondQuery(true, new RealmSearchNode.Leaf(clause));
-            }
-
-            default -> {
-                RealmSearchNode.Leaf node;
-                if (not && checked.schema().isMultivalue()) {
-                    // for negated multivalue schemas, exclude realms that match positively
-                    RealmSearchNode.Leaf notNode = fillAttrQuery(
-                            "r." + key(checked.schema().getType()),
-                            checked.value(),
-                            checked.schema(),
-                            cond,
-                            false,
-                            parameters);
-                    node = new RealmSearchNode.Leaf(
-                            realmId() + " NOT IN ("
-                            + "SELECT realm_id FROM " + JPARealm.TABLE
-                            + " WHERE " + notNode.getClause().replace("r.", "")
-                            + ")");
-                } else {
-                    node = fillAttrQuery(
-                            "r." + key(checked.schema().getType()),
-                            checked.value(),
-                            checked.schema(),
-                            cond,
-                            not,
-                            parameters);
-                }
-                return new AttrCondQuery(true, node);
-            }
-        }
-    }
+    protected abstract AttrCondQuery getQuery(
+            AttrCond cond,
+            boolean not,
+            CheckResult<AttrCond> checked,
+            List<Object> parameters);
 
     protected RealmSearchNode getQuery(final AnyCond cond, final boolean not, final List<Object> parameters) {
-
-        CheckResult<AnyCond> checked = check(cond);
+        CheckResult<AnyCond> checked = check(
+                cond,
+                realmUtils.getField(cond.getSchema()).
+                        orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema())),
+                RELATIONSHIP_FIELDS);
 
         return switch (checked.cond().getType()) {
             case ISNULL ->
-                new RealmSearchNode.Leaf("e." + checked.cond().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
+                new RealmSearchNode.Leaf("r." + checked.cond().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
 
             case ISNOTNULL ->
-                new RealmSearchNode.Leaf("e." + checked.cond().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
+                new RealmSearchNode.Leaf("r." + checked.cond().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
 
             default ->
                 fillAttrQuery(
-                        "e." + checked.cond().getSchema(),
-                        checked.value(),
-                        checked.schema(),
-                        checked.cond(),
-                        not,
-                        parameters);
+                "r." + checked.cond().getSchema(),
+                checked.value(),
+                checked.schema(),
+                checked.cond(),
+                not,
+                parameters);
         };
     }
 
@@ -332,7 +303,7 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
                     } else {
                         clause.append('?').append(setParameter(parameters, cond.getExpression()));
                     }
-                    if (isOracle()) {
+                    if (this instanceof OracleJPARealmSearchDAO) {
                         clause.append(" ESCAPE '\\'");
                     }
                 } else {
@@ -380,84 +351,9 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
                         : "r.schema_id='" + schema.getKey() + "' AND " + clause);
     }
 
-    protected CheckResult<AttrCond> check(final AttrCond cond) {
-        PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
-                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
-
-        PlainAttrValue attrValue = new PlainAttrValue();
-
-        if (AttrSchemaType.Encrypted == schema.getType()) {
-            throw new IllegalArgumentException("Cannot search by encrypted schema " + cond.getSchema());
-        }
-
-        try {
-            if (cond.getType() != AttrCond.Type.LIKE
-                    && cond.getType() != AttrCond.Type.ILIKE
-                    && cond.getType() != AttrCond.Type.ISNULL
-                    && cond.getType() != AttrCond.Type.ISNOTNULL) {
-
-                validator.validate(schema, cond.getExpression(), attrValue);
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not validate expression " + cond.getExpression(), e);
-        }
-
-        return new CheckResult<>(schema, attrValue, cond);
-    }
-
-    protected CheckResult<AnyCond> check(final AnyCond cond) {
-        AnyCond computed = new AnyCond(cond.getType());
-        computed.setSchema(cond.getSchema());
-        computed.setExpression(cond.getExpression());
-
-        Field realmField = realmUtils.getField(computed.getSchema()).
-                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + computed.getSchema()));
-
-        if ("key".equals(computed.getSchema())) {
-            computed.setSchema("id");
-        }
-
-        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-        schema.setKey(realmField.getName());
-
-        Class<?> fieldType = realmField.getType();
-        AttrSchemaType schemaType = null;
-        for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
-            if (fieldType.isAssignableFrom(attrSchemaType.getType())) {
-                schemaType = attrSchemaType;
-                break;
-            }
-        }
-
-        schema.setType(schemaType == null || schemaType == AttrSchemaType.Dropdown
-                ? AttrSchemaType.String : schemaType);
-
-        PlainAttrValue attrValue = new PlainAttrValue();
-
-        if (computed.getType() != AttrCond.Type.ISNULL && computed.getType() != AttrCond.Type.ISNOTNULL) {
-            try {
-                validator.validate(schema, computed.getExpression(), attrValue);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not validate expression " + computed.getExpression(), e);
-            }
-        }
-
-        return new CheckResult<>(schema, attrValue, computed);
-    }
-
     protected void visitNode(final RealmSearchNode node, final List<String> where) {
         node.asLeaf().ifPresentOrElse(
-                leaf -> {
-                    String clause = leaf.getClause();
-                    if (clause.contains("e.")) {
-                        where.add(clause);
-                    } else {
-                        where.add(realmId() + " IN ("
-                                + "SELECT r.realm_id FROM " + JPARealm.TABLE + " r"
-                                + " WHERE " + clause
-                                + ")");
-                    }
-                },
+                leaf -> where.add(leaf.getClause()),
                 () -> {
                     List<String> nodeWhere = new ArrayList<>();
                     node.getChildren().forEach(child -> visitNode(child, nodeWhere));
@@ -468,20 +364,16 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
                 });
     }
 
-    protected String buildWhere(final List<String> where, final RealmSearchNode root) {
-        String op = " " + root.getType().name() + " ";
-        if (where.size() == 1) {
-            return where.getFirst();
-        }
-        return where.stream().
-                map(w -> w.contains(" AND ") || w.contains(" OR ") ? "(" + w + ")" : w).
-                collect(Collectors.joining(op));
+    protected String buildFrom(final Set<String> plainSchemas, final OrderBySupport obs) {
+        return JPARealm.TABLE + " r";
     }
 
-    protected String buildPlainAttrQuery(
-            final QueryInfo queryInfo,
-            final List<Object> parameters,
-            final List<Sort.Order> orderBy) {
+    protected String buildWhere(final Set<String> bases, final QueryInfo queryInfo, final List<Object> parameters) {
+        String fullPaths = bases.stream().
+                map(base -> "r.fullPath=?" + setParameter(parameters, base)
+                + " OR r.fullPath LIKE ?" + setParameter(
+                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                collect(Collectors.joining(" OR "));
 
         RealmSearchNode root;
         if (queryInfo.node().getType() == RealmSearchNode.Type.AND) {
@@ -494,145 +386,152 @@ public abstract class AbstractJPARealmSearchDAO implements RealmSearchDAO {
         List<String> where = new ArrayList<>();
         visitNode(root, where);
 
-        String queryFragment = buildWhere(where, root);
-        LOG.debug("Plain attr query fragment: {}, parameters: {}", queryFragment, parameters);
-
-        return queryFragment;
-    }
-
-    protected StringBuilder buildDescendantsQuery(
-            final Set<String> bases,
-            final SearchCond searchCond,
-            final List<Object> parameters) {
-
-        String basesClause = bases.stream().
-                map(base -> "e.fullPath=?" + setParameter(parameters, base)
-                + " OR e.fullPath LIKE ?" + setParameter(
-                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                collect(Collectors.joining(" OR "));
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE (").append(basesClause).append(')');
-
-        getQuery(searchCond, parameters).ifPresent(condition ->
-                queryString.append(" AND (").
-                        append(buildPlainAttrQuery(condition, parameters, List.of())).
-                        append(')'));
-
-        return queryString;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Realm> findByFullPath(final String fullPath) {
-        if (StringUtils.isBlank(fullPath)
-                || (!SyncopeConstants.ROOT_REALM.equals(fullPath)
-                && !RealmDAO.PATH_PATTERN.matcher(fullPath).matches())) {
-
-            throw new MalformedPathException(fullPath);
-        }
-
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.fullPath=:fullPath", Realm.class);
-        query.setParameter("fullPath", fullPath);
-
-        Realm result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("Realm with fullPath {} not found", fullPath, e);
-        }
-
-        return Optional.ofNullable(result);
+        return "(" + fullPaths + ')'
+                + " AND (" + where.stream().
+                        map(w -> w.contains(" AND ") || w.contains(" OR ") ? "(" + w + ")" : w).
+                        collect(Collectors.joining(' ' + root.getType().name() + ' '))
+                + ')';
     }
 
     @Override
-    public List<Realm> findByName(final String name) {
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.name=:name", Realm.class);
-        query.setParameter("name", name);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<Realm> findChildren(final Realm realm) {
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.parent=:realm", Realm.class);
-        query.setParameter("realm", realm);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public long countDescendants(final String base, final SearchCond searchCond) {
-        return countDescendants(Set.of(base), searchCond);
-    }
-
-    @Override
-    public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
+    protected long doCount(final Set<String> bases, final SearchCond cond) {
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
-        Query query = entityManager.createQuery(Strings.CS.replaceOnce(
-                queryString.toString(),
-                "SELECT e ",
-                "SELECT COUNT(e) "));
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
+        QueryInfo queryInfo = getQuery(cond, parameters).orElse(null);
+        if (queryInfo == null) {
+            LOG.error("Invalid search condition: {}", cond);
+            return 0;
         }
+
+        String queryString = new StringBuilder("SELECT COUNT(DISTINCT r.id)").
+                append(" FROM ").append(buildFrom(queryInfo.plainSchemas(), null)).
+                append(" WHERE ").append(buildWhere(bases, queryInfo, parameters)).
+                toString();
+
+        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+
+        Query query = entityManager.createNativeQuery(queryString);
+        fillWithParameters(query, parameters);
 
         return ((Number) query.getSingleResult()).longValue();
     }
 
-    @Override
-    public List<Realm> findDescendants(final String base, final SearchCond searchCond, final Pageable pageable) {
-        return findDescendants(Set.of(base), searchCond, pageable);
+    protected abstract void parseOrderByForPlainSchema(
+            OrderBySupport obs,
+            OrderBySupport.Item item,
+            Sort.Order clause,
+            PlainSchema schema,
+            String fieldName);
+
+    protected void parseOrderByForField(
+            final OrderBySupport.Item item,
+            final String fieldName,
+            final Sort.Order clause) {
+
+        item.select = "r." + fieldName;
+        item.where = StringUtils.EMPTY;
+        item.orderBy = "r." + fieldName + ' ' + clause.getDirection().name();
+    }
+
+    protected void parseOrderByForCustom(
+            final Sort.Order clause,
+            final OrderBySupport.Item item,
+            final OrderBySupport obs) {
+
+        // do nothing by default, meant for subclasses
+    }
+
+    protected OrderBySupport parseOrderBy(final List<Sort.Order> orderBy) {
+        OrderBySupport obs = new OrderBySupport();
+
+        Set<String> orderByUniquePlainSchemas = new HashSet<>();
+        Set<String> orderByNonUniquePlainSchemas = new HashSet<>();
+        orderBy.forEach(clause -> {
+            OrderBySupport.Item item = new OrderBySupport.Item();
+
+            parseOrderByForCustom(clause, item, obs);
+
+            if (item.isEmpty()) {
+                realmUtils.getField(clause.getProperty()).ifPresentOrElse(
+                        field -> {
+                            // Manage difference among external key attribute and internal JPA @Id
+                            String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
+
+                            // Adjust field name to column name
+                            if (RELATIONSHIP_FIELDS.contains(fieldName)) {
+                                fieldName += "_id";
+                            }
+
+                            parseOrderByForField(item, fieldName, clause);
+                        },
+                        () -> {
+                            plainSchemaDAO.findById(clause.getProperty()).ifPresent(schema -> {
+                                if (schema.isUniqueConstraint()) {
+                                    orderByUniquePlainSchemas.add(schema.getKey());
+                                } else {
+                                    orderByNonUniquePlainSchemas.add(schema.getKey());
+                                }
+                                if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
+                                    throw syncopeClientException("Order by more than one attribute is not allowed; "
+                                            + "remove one from " + (orderByUniquePlainSchemas.size() > 1
+                                            ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas)).get();
+                                }
+                                parseOrderByForPlainSchema(obs, item, clause, schema, clause.getProperty());
+                            });
+                        });
+            }
+
+            if (item.isEmpty()) {
+                LOG.warn("Cannot build any valid clause from {}", clause);
+            } else {
+                obs.items.add(item);
+            }
+        });
+
+        return obs;
     }
 
     @Override
-    public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
+    protected List<Realm> doSearch(final Set<String> bases, final SearchCond cond, final Pageable pageable) {
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildDescendantsQuery(bases, searchCond, parameters);
-        TypedQuery<Realm> query = entityManager.createQuery(
-                queryString.append(" ORDER BY e.fullPath").toString(), Realm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
+        QueryInfo queryInfo = getQuery(cond, parameters).orElse(null);
+        if (queryInfo == null) {
+            LOG.error("Invalid search condition: {}", cond);
+            return List.of();
         }
+
+        OrderBySupport obs = parseOrderBy(pageable.getSort().toList());
+
+        StringBuilder queryString = new StringBuilder("SELECT DISTINCT r.id");
+        obs.items.forEach(item -> queryString.append(',').append(item.select));
+
+        queryString.append(" FROM ").append(buildFrom(queryInfo.plainSchemas(), obs)).
+                append(" WHERE ").append(buildWhere(bases, queryInfo, parameters)).
+                toString();
+
+        if (!obs.items.isEmpty()) {
+            queryString.append(" ORDER BY ").
+                    append(obs.items.stream().map(item -> item.orderBy).collect(Collectors.joining(",")));
+        }
+
+        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+
+        Query query = entityManager.createNativeQuery(queryString.toString());
 
         if (pageable.isPaged()) {
             query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
             query.setMaxResults(pageable.getPageSize());
         }
 
-        return query.getResultList();
-    }
+        fillWithParameters(query, parameters);
 
-    @Override
-    public List<String> findDescendants(final String base, final String prefix) {
-        List<Object> parameters = new ArrayList<>();
+        @SuppressWarnings("unchecked")
+        List<String> keys = query.getResultList().stream().
+                map(key -> key instanceof Object[] array ? (String) (array)[0] : ((String) key)).
+                toList();
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).
-                append(" e WHERE (e.fullPath=?").append(setParameter(parameters, base)).
-                append(" OR e.fullPath LIKE ?").append(setParameter(
-                        parameters,
-                        SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                append(") AND (e.fullPath=?").append(setParameter(parameters, prefix)).
-                append(" OR e.fullPath LIKE ?").append(setParameter(
-                        parameters,
-                        SyncopeConstants.ROOT_REALM.equals(prefix) ? "/%" : prefix + "/%")).
-                append(") ORDER BY e.fullPath");
-        TypedQuery<Realm> query = entityManager.createQuery(queryString.toString(), Realm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        return query.getResultList().stream().map(Realm::getKey).toList();
+        return keys.stream().map(k -> entityManager.find(JPARealm.class, k)).
+                filter(Objects::nonNull).map(Realm.class::cast).toList();
     }
 }

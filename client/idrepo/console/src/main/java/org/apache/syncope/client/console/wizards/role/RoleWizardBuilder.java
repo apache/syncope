@@ -190,7 +190,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                 protected Iterator<String> getChoices(final String input) {
                     return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildBaseQuery()
-                            : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
+                            : RealmsUtils.buildNameQuery(input)).getResult().stream().
                             map(RealmTO::getFullPath).iterator();
                 }
             };

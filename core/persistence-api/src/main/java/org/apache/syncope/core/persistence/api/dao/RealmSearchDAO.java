@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.data.domain.Pageable;
@@ -34,15 +36,7 @@ public interface RealmSearchDAO {
 
     List<Realm> findChildren(Realm realm);
 
-    long countDescendants(String base, SearchCond searchCond);
-
-    long countDescendants(Set<String> bases, SearchCond searchCond);
-
-    List<Realm> findDescendants(String base, SearchCond searchCond, Pageable pageable);
-
-    List<Realm> findDescendants(Set<String> bases, SearchCond searchCond, Pageable pageable);
-
-    List<String> findDescendants(String base, String prefix);
+    List<Realm> findDescendants(String base, String prefix);
 
     default void findAncestors(final List<Realm> result, final Realm realm) {
         if (realm.getParent() != null && !result.contains(realm.getParent())) {
@@ -56,5 +50,28 @@ public interface RealmSearchDAO {
         result.add(realm);
         findAncestors(result, realm);
         return result;
+    }
+
+    /**
+     * Find realmss by derived attribute value. This method could fail if one or more string literals contained
+     * into the derived attribute value provided derive from identifier (schema key) replacement. When you are going to
+     * specify a derived attribute expression you must be quite sure that string literals used to build the expression
+     * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
+     *
+     * @param expression JEXL expression
+     * @param value derived attribute value
+     * @param ignoreCaseMatch whether comparison for string values should take case into account or not
+     * @return list of realms
+     */
+    List<Realm> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
+
+    long count(Set<String> bases, SearchCond cond);
+
+    List<Realm> search(Set<String> bases, SearchCond cond, Pageable pageable);
+
+    default SearchCond getAllMatchingCond() {
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        return SearchCond.of(idCond);
     }
 }

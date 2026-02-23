@@ -185,7 +185,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_SEARCH), realm);
 
-        SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
+        SearchCond effectiveCond = searchCond == null ? searchDAO.getAllMatchingCond() : searchCond;
 
         long count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
 

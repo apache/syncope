@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.elasticsearch.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldSort;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.ScriptLanguage;
 import co.elastic.clients.elasticsearch._types.ScriptSortType;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -57,21 +59,23 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AbstractRealmSearchDAO;
+import org.apache.syncope.core.persistence.common.dao.AbstractSearchDAO.CheckResult;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
+public class ElasticsearchRealmSearchDAO extends AbstractRealmSearchDAO implements RealmSearchDAO {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RealmSearchDAO.class);
 
-    protected record CheckResult<C extends AttrCond>(PlainSchema schema, PlainAttrValue value, C cond) {
-    }
+    protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 
-    protected static final List<SortOptions> REALM_SORT_OPTIONS = List.of(
+    protected static final List<SortOptions> FULLPATH_SORT_OPTIONS = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
                     script(t -> t.lang(ScriptLanguage.Painless).
@@ -81,12 +85,6 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                     build());
 
     protected final RealmDAO realmDAO;
-
-    protected final PlainSchemaDAO plainSchemaDAO;
-
-    protected final EntityFactory entityFactory;
-
-    protected final PlainAttrValidationManager validator;
 
     protected final RealmUtils realmUtils;
 
@@ -102,10 +100,8 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
             final ElasticsearchClient client,
             final int indexMaxResultWindow) {
 
+        super(plainSchemaDAO, entityFactory, validator);
         this.realmDAO = realmDAO;
-        this.plainSchemaDAO = plainSchemaDAO;
-        this.entityFactory = entityFactory;
-        this.validator = validator;
         this.realmUtils = new RealmUtils(entityFactory);
         this.client = client;
         this.indexMaxResultWindow = indexMaxResultWindow;
@@ -149,7 +145,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(query).
-                sort(REALM_SORT_OPTIONS).
+                sort(FULLPATH_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search request: {}", request);
@@ -193,11 +189,9 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
         });
         Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(basesQueries).build()).build();
 
-        Query filter = searchCond == null ? null : getQuery(searchCond);
-
         BoolQuery.Builder boolBuilder = QueryBuilders.bool().filter(prefix);
-        if (filter != null) {
-            boolBuilder.filter(filter);
+        if (searchCond != null) {
+            boolBuilder.filter(getQuery(searchCond));
         }
         return new Query.Builder().bool(boolBuilder.build()).build();
     }
@@ -260,68 +254,19 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
         return query;
     }
 
-    protected CheckResult<AttrCond> check(final AttrCond cond) {
-        PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
-                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
+    @Override
+    protected CheckResult<AnyCond> check(final AnyCond cond, final Field field, final Set<String> relationshipsFields) {
+        CheckResult<AnyCond> checked = super.check(cond, field, relationshipsFields);
 
-        PlainAttrValue attrValue = new PlainAttrValue();
-
-        if (AttrSchemaType.Encrypted == schema.getType()) {
-            throw new IllegalArgumentException("Cannot search by encrypted schema " + cond.getSchema());
+        // Manage difference between external id attribute and internal _id
+        if ("id".equals(checked.cond().getSchema())) {
+            checked.cond().setSchema("_id");
+        }
+        if ("id".equals(checked.schema().getKey())) {
+            checked.schema().setKey("_id");
         }
 
-        try {
-            if (cond.getType() != AttrCond.Type.LIKE
-                    && cond.getType() != AttrCond.Type.ILIKE
-                    && cond.getType() != AttrCond.Type.ISNULL
-                    && cond.getType() != AttrCond.Type.ISNOTNULL) {
-
-                validator.validate(schema, cond.getExpression(), attrValue);
-            }
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not validate expression " + cond.getExpression(), e);
-        }
-
-        return new CheckResult<>(schema, attrValue, cond);
-    }
-
-    protected CheckResult<AnyCond> check(final AnyCond cond) {
-        AnyCond computed = new AnyCond(cond.getType());
-        computed.setSchema(cond.getSchema());
-        computed.setExpression(cond.getExpression());
-
-        Field realmField = realmUtils.getField(computed.getSchema()).
-                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + computed.getSchema()));
-
-        if ("key".equals(computed.getSchema())) {
-            computed.setSchema("id");
-        }
-
-        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-        schema.setKey(realmField.getName());
-
-        Class<?> fieldType = realmField.getType();
-        AttrSchemaType schemaType = null;
-        for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
-            if (fieldType.isAssignableFrom(attrSchemaType.getType())) {
-                schemaType = attrSchemaType;
-                break;
-            }
-        }
-
-        schema.setType(schemaType == null || schemaType == AttrSchemaType.Dropdown
-                ? AttrSchemaType.String : schemaType);
-
-        PlainAttrValue attrValue = new PlainAttrValue();
-        if (computed.getType() != AttrCond.Type.ISNULL && computed.getType() != AttrCond.Type.ISNOTNULL) {
-            try {
-                validator.validate(schema, computed.getExpression(), attrValue);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not validate expression " + computed.getExpression(), e);
-            }
-        }
-
-        return new CheckResult<>(schema, attrValue, computed);
+        return checked;
     }
 
     protected Query fillAttrQuery(
@@ -365,41 +310,45 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
 
             case EQ:
                 FieldValue fieldValue = switch (value) {
-                    case Double aDouble -> FieldValue.of(aDouble);
-                    case Long aLong -> FieldValue.of(aLong);
-                    case Boolean aBoolean -> FieldValue.of(aBoolean);
-                    default -> FieldValue.of(value.toString());
+                    case Double aDouble ->
+                        FieldValue.of(aDouble);
+                    case Long aLong ->
+                        FieldValue.of(aLong);
+                    case Boolean aBoolean ->
+                        FieldValue.of(aBoolean);
+                    default ->
+                        FieldValue.of(value.toString());
                 };
                 query = new Query.Builder().term(QueryBuilders.term().
-                                field(schema.getKey()).value(fieldValue).caseInsensitive(false).build()).
+                        field(schema.getKey()).value(fieldValue).caseInsensitive(false).build()).
                         build();
                 break;
 
             case GE:
                 query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
-                                field(schema.getKey()).
-                                gte(JsonData.of(value))))).
+                        field(schema.getKey()).
+                        gte(JsonData.of(value))))).
                         build();
                 break;
 
             case GT:
                 query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
-                                field(schema.getKey()).
-                                gt(JsonData.of(value))))).
+                        field(schema.getKey()).
+                        gt(JsonData.of(value))))).
                         build();
                 break;
 
             case LE:
                 query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
-                                field(schema.getKey()).
-                                lte(JsonData.of(value))))).
+                        field(schema.getKey()).
+                        lte(JsonData.of(value))))).
                         build();
                 break;
 
             case LT:
                 query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
-                                field(schema.getKey()).
-                                lt(JsonData.of(value))))).
+                        field(schema.getKey()).
+                        lt(JsonData.of(value))))).
                         build();
                 break;
 
@@ -416,7 +365,11 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
     }
 
     protected Query getQuery(final AnyCond cond) {
-        CheckResult<AnyCond> checked = check(cond);
+        CheckResult<AnyCond> checked = check(
+                cond,
+                realmUtils.getField(cond.getSchema()).
+                        orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema())),
+                RELATIONSHIP_FIELDS);
         return fillAttrQuery(checked.schema(), checked.value(), checked.cond());
     }
 
@@ -425,12 +378,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
     }
 
     @Override
-    public long countDescendants(final String base, final SearchCond searchCond) {
-        return countDescendants(Set.of(base), searchCond);
-    }
-
-    @Override
-    public long countDescendants(final Set<String> bases, final SearchCond searchCond) {
+    protected long doCount(final Set<String> bases, final SearchCond searchCond) {
         CountRequest request = new CountRequest.Builder().
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 query(buildDescendantsQuery(bases, searchCond)).
@@ -445,20 +393,52 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
         }
     }
 
-    @Override
-    public List<Realm> findDescendants(final String base, final SearchCond searchCond, final Pageable pageable) {
-        return findDescendants(Set.of(base), searchCond, pageable);
+    protected List<SortOptions> sortBuilders(final Stream<Sort.Order> orderBy) {
+        List<SortOptions> options = new ArrayList<>();
+        orderBy.forEach(clause -> {
+            String sortName = null;
+
+            String fieldName = clause.getProperty();
+            // Cannot sort by internal _id
+            if (!ID_PROPS.contains(fieldName)) {
+                Field anyField = realmUtils.getField(fieldName).orElse(null);
+                if (anyField == null) {
+                    PlainSchema schema = plainSchemaDAO.findById(fieldName).orElse(null);
+                    if (schema != null) {
+                        sortName = fieldName;
+                    }
+                } else {
+                    sortName = fieldName;
+                }
+            }
+
+            if (sortName == null) {
+                LOG.warn("Cannot build any valid clause from {}", clause);
+            } else {
+                if ("fullPath".equals(sortName)) {
+                    options.addAll(FULLPATH_SORT_OPTIONS);
+                } else {
+                    options.add(new SortOptions.Builder().field(
+                            new FieldSort.Builder().
+                                    field(sortName).
+                                    order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
+                                    build()).
+                            build());
+                }
+            }
+        });
+        return options.isEmpty() ? FULLPATH_SORT_OPTIONS : options;
     }
 
     @Override
-    public List<Realm> findDescendants(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
+    protected List<Realm> doSearch(final Set<String> bases, final SearchCond searchCond, final Pageable pageable) {
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(buildDescendantsQuery(bases, searchCond)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
-                sort(REALM_SORT_OPTIONS).
+                sort(sortBuilders(pageable.getSort().get())).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search request: {}", request);
@@ -477,17 +457,22 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
     }
 
     @Override
-    public List<String> findDescendants(final String base, final String prefix) {
-        Query prefixQuery = new Query.Builder().disMax(QueryBuilders.disMax().queries(
-                new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(prefix).caseInsensitive(false).build()).build(),
-                new Query.Builder().prefix(QueryBuilders.prefix().
-                        field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
-                        build()).build()).build()).build();
-
-        Query query = new Query.Builder().bool(QueryBuilders.bool().filter(
-                buildDescendantsQuery(Set.of(base), null), prefixQuery).build()).
-                build();
+    public List<Realm> findDescendants(final String base, final String prefix) {
+        Query descendantsQuery = buildDescendantsQuery(Set.of(base), null);
+        Query query;
+        if (prefix == null) {
+            query = descendantsQuery;
+        } else {
+            Query prefixQuery = new Query.Builder().disMax(QueryBuilders.disMax().queries(
+                    new Query.Builder().term(QueryBuilders.term().
+                            field("fullPath").value(prefix).caseInsensitive(false).build()).build(),
+                    new Query.Builder().prefix(QueryBuilders.prefix().
+                            field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
+                            build()).build()).build()).build();
+            query = new Query.Builder().bool(QueryBuilders.bool().filter(
+                    descendantsQuery, prefixQuery).build()).
+                    build();
+        }
 
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
@@ -495,7 +480,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 query(query).
                 from(0).
                 size(indexMaxResultWindow).
-                sort(REALM_SORT_OPTIONS).
+                sort(FULLPATH_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search request: {}", request);
@@ -508,6 +493,6 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
         } catch (Exception e) {
             LOG.error("While searching in Elasticsearch with request {}", request, e);
         }
-        return result;
+        return result.stream().map(realmDAO::findById).flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
 }

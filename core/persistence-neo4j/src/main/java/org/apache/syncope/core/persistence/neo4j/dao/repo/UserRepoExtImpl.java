@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
@@ -103,7 +102,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
-            final AnyFinder anyFinder,
             final SecurityProperties securityProperties,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -116,7 +114,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
-                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
                 neo4jClient);

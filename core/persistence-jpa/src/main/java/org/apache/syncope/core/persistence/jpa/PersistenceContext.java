@@ -84,7 +84,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
-import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
@@ -362,12 +361,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
-        return new AnyFinder(plainSchemaDAO, anySearchDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AccessTokenDAO accessTokenDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
         return jpaRepositoryFactory.getRepository(AccessTokenRepo.class);
     }
@@ -403,8 +396,7 @@ public class PersistenceContext {
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
-            final EntityManager entityManager,
-            final AnyFinder anyFinder) {
+            final EntityManager entityManager) {
 
         return new AnyObjectRepoExtImpl(
                 anyUtilsFactory,
@@ -412,8 +404,7 @@ public class PersistenceContext {
                 plainSchemaDAO,
                 userDAO,
                 groupDAO,
-                entityManager,
-                anyFinder);
+                entityManager);
     }
 
     @ConditionalOnMissingBean
@@ -649,8 +640,7 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
             final AnySearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager,
-            final AnyFinder anyFinder) {
+            final EntityManager entityManager) {
 
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
@@ -663,8 +653,7 @@ public class PersistenceContext {
                 anyObjectDAO,
                 anySearchDAO,
                 searchCondVisitor,
-                entityManager,
-                anyFinder);
+                entityManager);
     }
 
     @ConditionalOnMissingBean
@@ -793,7 +782,6 @@ public class PersistenceContext {
 
         return new JPARealmDAO(roleDAO, realmSearchDAO, plainSchemaDAO, publisher, entityManager);
     }
-
 
     @ConditionalOnMissingBean
     @Bean
@@ -981,8 +969,7 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
-            final EntityManager entityManager,
-            final AnyFinder anyFinder) {
+            final EntityManager entityManager) {
 
         return new UserRepoExtImpl(
                 anyUtilsFactory,
@@ -994,8 +981,7 @@ public class PersistenceContext {
                 delegationDAO,
                 fiqlQueryDAO,
                 securityProperties,
-                entityManager,
-                anyFinder);
+                entityManager);
     }
 
     @ConditionalOnMissingBean

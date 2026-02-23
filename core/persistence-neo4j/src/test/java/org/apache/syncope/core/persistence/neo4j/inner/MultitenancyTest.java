@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.neo4j.PersistenceTestContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -70,10 +69,10 @@ public class MultitenancyTest extends AbstractTest {
     public void readRealm() {
         assertEquals(
                 1,
-                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).size());
+                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null).size());
         assertEquals(
                 realmDAO.getRoot(),
-                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).getFirst());
+                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null).getFirst());
     }
 
     @Test

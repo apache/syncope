@@ -259,7 +259,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             return;
         }
 
-        realmSearchDAO.findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
+        realmSearchDAO.findDescendants(realm.getFullPath(), null).forEach(toBeDeleted -> {
             roleDAO.findByRealms(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
 
             cascadeDelete(

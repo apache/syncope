@@ -320,7 +320,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             Stream<String> realmKeys = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_LIST).stream().
                     map(realmSearchDAO::findByFullPath).
                     filter(Optional::isPresent).
-                    flatMap(r -> realmSearchDAO.findDescendants(r.get().getFullPath(), null, Pageable.unpaged()).
+                    flatMap(r -> realmSearchDAO.findDescendants(r.get().getFullPath(), null).
                     stream()).
                     map(Realm::getKey).
                     distinct();

@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -30,11 +32,30 @@ import org.springframework.data.domain.Sort;
 public interface AnySearchDAO {
 
     /**
+     * Find any objects by derived attribute value. This method could fail if one or more string literals contained
+     * into the derived attribute value provided derive from identifier (schema key) replacement. When you are going to
+     * specify a derived attribute expression you must be quite sure that string literals used to build the expression
+     * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
+     *
+     * @param expression JEXL expression
+     * @param value derived attribute value
+     * @param ignoreCaseMatch whether comparison for string values should take case into account or not
+     * @param kind any type kind
+     * @param <T> any
+     * @return list of any objects
+     */
+    <T extends Any> List<T> findByDerAttrValue(
+            String expression,
+            String value,
+            boolean ignoreCaseMatch,
+            AnyTypeKind kind);
+
+    /**
      * @param base Realm to start searching from
      * @param recursive whether search should recursively include results from child Realms
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
-     * @param kind any object
+     * @param kind any type kind
      * @return size of search result
      */
     long count(
@@ -55,7 +76,7 @@ public interface AnySearchDAO {
     /**
      * @param searchCondition the search condition
      * @param orderBy list of ordering clauses
-     * @param kind any object
+     * @param kind any type kind
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
@@ -67,7 +88,7 @@ public interface AnySearchDAO {
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param pageable paging information
-     * @param kind any object
+     * @param kind any type kind
      * @param <T> any
      * @return the list of any objects matching the given search condition (in the given page)
      */
@@ -78,4 +99,13 @@ public interface AnySearchDAO {
             SearchCond searchCondition,
             Pageable pageable,
             AnyTypeKind kind);
+
+    /**
+     * @return the search condition to match all entities
+     */
+    default SearchCond getAllMatchingCond() {
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        return SearchCond.of(idCond);
+    }
 }

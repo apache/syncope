@@ -90,6 +90,17 @@ public class ElasticsearchUtils {
         builder.put("relationshipTypes", relationshipTypes);
     }
 
+    protected void addPlainAttr(final Map<String, Object> builder, final List<PlainAttr> plainAttrs) {
+        for (PlainAttr plainAttr : plainAttrs) {
+            List<Object> values = plainAttr.getValues().stream().
+                    map(PlainAttrValue::getValue).collect(Collectors.toList());
+
+            Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
+
+            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
+        }
+    }
+
     /**
      * Returns the document specialized with content from the provided any.
      *
@@ -234,19 +245,6 @@ public class ElasticsearchUtils {
         return builder;
     }
 
-    protected void customizeDocument(
-            final Map<String, Object> builder,
-            final AuditEvent auditEvent) {
-    }
-
-    private void addPlainAttr(final Map<String, Object> builder, final List<PlainAttr> plainAttrs) {
-        for (PlainAttr plainAttr : plainAttrs) {
-            List<Object> values = plainAttr.getValues().stream().
-                    map(PlainAttrValue::getValue).collect(Collectors.toList());
-
-            Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
-
-            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
-        }
+    protected void customizeDocument(final Map<String, Object> builder, final AuditEvent auditEvent) {
     }
 }

@@ -124,8 +124,8 @@ public class RealmChoicePanel extends Panel {
                 Stream<Pair<String, RealmTO>> full;
                 if (fullRealmsTree) {
                     full = map.values().stream().
-                            map(realmTOListPair ->
-                                Pair.of(realmTOListPair.getLeft().getFullPath(), realmTOListPair.getKey())).
+                            map(realmTOListPair
+                                    -> Pair.of(realmTOListPair.getLeft().getFullPath(), realmTOListPair.getKey())).
                             sorted(Comparator.comparing(Pair::getLeft));
                 } else {
                     full = map.entrySet().stream().
@@ -163,7 +163,7 @@ public class RealmChoicePanel extends Panel {
             String rootRealmName = StringUtils.substringAfterLast(rootRealm, "/");
 
             List<RealmTO> realmTOs = realmRestClient.search(
-                    RealmsUtils.buildKeywordQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
+                    RealmsUtils.buildNameQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
                             ? SyncopeConstants.ROOT_REALM : rootRealmName)).getResult();
 
             return realmTOs.stream().
@@ -455,7 +455,7 @@ public class RealmChoicePanel extends Panel {
     protected Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         List<RealmTO> realmsToList = realmRestClient.search(fullRealmsTree
                 ? RealmsUtils.buildBaseQuery()
-                : RealmsUtils.buildKeywordQuery(searchQuery)).getResult();
+                : RealmsUtils.buildNameQuery(searchQuery)).getResult();
 
         return reloadRealmParentMap(realmsToList.stream().
                 sorted(Comparator.comparing(RealmTO::getName)).

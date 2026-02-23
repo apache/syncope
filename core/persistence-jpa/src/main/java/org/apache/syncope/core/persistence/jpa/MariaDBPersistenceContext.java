@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -31,6 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.dao.MariaDBJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.MariaDBJPARealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MariaDBPlainSchemaRepoExtImpl;
@@ -65,7 +65,6 @@ public class MariaDBPersistenceContext {
             final @Lazy EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final EntityManagerFactory entityManagerFactory,
             final EntityManager entityManager) {
 
         return new MariaDBJPAAnySearchDAO(
@@ -78,7 +77,6 @@ public class MariaDBPersistenceContext {
                 entityFactory,
                 anyUtilsFactory,
                 validator,
-                entityManagerFactory,
                 entityManager);
     }
 
@@ -86,17 +84,17 @@ public class MariaDBPersistenceContext {
     @Bean
     public RealmSearchDAO realmSearchDAO(
             final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy EntityFactory entityFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final RealmUtils realmUtils) {
 
         return new MariaDBJPARealmSearchDAO(
                 entityManager,
-                entityManagerFactory,
                 plainSchemaDAO,
                 entityFactory,
-                validator);
+                validator,
+                realmUtils);
     }
 
     @ConditionalOnMissingBean

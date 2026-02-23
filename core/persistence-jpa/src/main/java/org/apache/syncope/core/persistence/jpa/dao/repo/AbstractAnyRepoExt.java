@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -68,8 +67,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
 
     protected final EntityManager entityManager;
 
-    protected final AnyFinder anyFinder;
-
     protected final AnyUtils anyUtils;
 
     protected final String table;
@@ -78,13 +75,11 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
             final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager,
-            final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
         this.dynRealmDAO = dynRealmDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.entityManager = entityManager;
-        this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
         switch (anyUtils.anyTypeKind()) {
             case ANY_OBJECT:
@@ -139,11 +134,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
         securityChecks(any);
 
         return any;
-    }
-
-    @Override
-    public List<A> findByDerAttrValue(final String expression, final String value, final boolean ignoreCaseMatch) {
-        return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), expression, value, ignoreCaseMatch);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

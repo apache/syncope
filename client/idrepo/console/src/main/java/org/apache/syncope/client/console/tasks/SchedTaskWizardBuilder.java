@@ -124,7 +124,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
     protected List<String> searchRealms(final String realmQuery) {
         return realmRestClient.search(fullRealmsTree
                 ? RealmsUtils.buildBaseQuery()
-                : RealmsUtils.buildKeywordQuery(realmQuery)).
+                : RealmsUtils.buildNameQuery(realmQuery)).
                 getResult().stream().map(RealmTO::getFullPath).collect(Collectors.toList());
     }
 

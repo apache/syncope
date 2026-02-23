@@ -120,10 +120,10 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(1, match.getSize());
         assertTrue(match.getResult().stream().allMatch(r -> r.getName().equals("searchTest2")));
 
-        match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42").build());
+        match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42").orderBy("name DESC").build());
         assertEquals(2, match.getSize());
-        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest1")));
-        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+        assertEquals("searchTest3", match.getResult().get(0).getName());
+        assertEquals("searchTest1", match.getResult().get(1).getName());
 
         // Mixed numeric + string filters
         match = REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==42;ctype=~string*").build());
@@ -565,7 +565,7 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1472() {
         // 1. assign twice resource-ldap-orgunit to /odd
-        RealmTO realmTO = REALM_SERVICE.search(new RealmQuery.Builder().base("/odd").build()).getResult().getFirst();
+        RealmTO realmTO = getRealm("/odd").orElseThrow();
         realmTO.getResources().clear();
         realmTO.getResources().add("resource-ldap-orgunit");
         realmTO.getResources().add("resource-ldap-orgunit");

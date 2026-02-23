@@ -116,11 +116,12 @@ public class OpenSearchAnySearchDAOTest {
     public void getAdminRealmsFilter4realm() throws IOException {
         // 1. mock
         Realm root = mock(Realm.class);
+        when(root.getKey()).thenReturn("rootKey");
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
         when(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenAnswer(ic -> Optional.of(root));
         when(realmSearchDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).
-                thenReturn(List.of("rootKey"));
+                thenReturn(List.of(root));
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);

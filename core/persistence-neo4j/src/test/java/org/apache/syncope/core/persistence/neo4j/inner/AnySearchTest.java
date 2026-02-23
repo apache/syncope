@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -112,6 +113,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -750,13 +754,13 @@ public class AnySearchTest extends AbstractTest {
             assertEquals(
                     1,
                     searchDAO.count(
-                            realmDAO.getRoot(), true, authRealms, groupDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
+                            realmDAO.getRoot(), true, authRealms, searchDAO.getAllMatchingCond(), AnyTypeKind.GROUP));
 
             List<Group> groups = searchDAO.search(
                     realmDAO.getRoot(),
                     true,
                     authRealms,
-                    groupDAO.getAllMatchingCond(),
+                    searchDAO.getAllMatchingCond(),
                     PageRequest.of(0, 10),
                     AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
@@ -781,6 +785,35 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(5, users.size());
+    }
+
+    @Test
+    public void findByDerAttrValue() {
+        List<User> list = searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Vivaldi, Antonio", false, AnyTypeKind.USER);
+        assertEquals(1, list.size());
+
+        list = searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", false, AnyTypeKind.USER);
+        assertEquals(0, list.size());
+
+        list = searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", true, AnyTypeKind.USER);
+        assertEquals(1, list.size());
+    }
+
+    @Test
+    public void findByInvalidDerAttrValue() {
+        assertTrue(searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(),
+                "Antonio, Maria, Rossi", false, AnyTypeKind.USER).isEmpty());
+    }
+
+    @Test
+    public void findByInvalidDerAttrExpression() {
+        assertThrows(IllegalArgumentException.class, () -> searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("noschema").orElseThrow().getExpression(),
+                "Antonio, Maria", false, AnyTypeKind.USER).isEmpty());
     }
 
     @Test

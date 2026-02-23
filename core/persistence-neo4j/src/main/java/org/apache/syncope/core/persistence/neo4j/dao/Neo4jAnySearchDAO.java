@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.text.TextStringBuilder;
@@ -206,7 +205,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                                 return noRealm;
                             });
 
-                            realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
+                            realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                                    stream().map(Realm::getKey).toList());
                         } else {
                             dynRealmDAO.findById(realmPath).ifPresentOrElse(
                                     dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
@@ -647,12 +647,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     null);
         }
 
-        CheckResult<AnyCond> checked = check(cond, kind);
+        CheckResult<AnyCond> checked = check(
+                cond,
+                anyUtilsFactory.getInstance(kind).getField(cond.getSchema()).
+                        orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema())),
+                RELATIONSHIP_FIELDS);
 
-        if (ArrayUtils.contains(
-                RELATIONSHIP_FIELDS,
-                StringUtils.substringBefore(checked.cond().getSchema(), "_id"))) {
-
+        if (RELATIONSHIP_FIELDS.contains(StringUtils.substringBefore(checked.cond().getSchema(), "_id"))) {
             String field = StringUtils.substringBefore(checked.cond().getSchema(), "_id");
             switch (field) {
                 case "userOwner" -> {

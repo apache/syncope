@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -44,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -82,6 +84,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -210,6 +215,41 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(1, users.size());
 
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
+    }
+
+    @Test
+    public void issueSYNCOPE800() {
+        // create derived attribute (literal as prefix)
+        DerSchema prefix = entityFactory.newEntity(DerSchema.class);
+        prefix.setKey("kprefix");
+        prefix.setExpression("'k' + firstname");
+
+        derSchemaDAO.save(prefix);
+
+        // create derived attribute (literal as suffix)
+        DerSchema suffix = entityFactory.newEntity(DerSchema.class);
+        suffix.setKey("ksuffix");
+        suffix.setExpression("firstname + 'k'");
+
+        derSchemaDAO.save(suffix);
+
+        // add derived attributes to user
+        User owner = userDAO.findByUsername("vivaldi").orElseThrow();
+
+        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().getFirst();
+        assertNotNull(firstname);
+
+        // search by ksuffix derived attribute
+        List<User> list = searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("ksuffix").orElseThrow().getExpression(),
+                firstname + 'k', false, AnyTypeKind.USER);
+        assertEquals(1, list.size());
+
+        // search by kprefix derived attribute
+        list = searchDAO.findByDerAttrValue(
+                derSchemaDAO.findById("kprefix").orElseThrow().getExpression(),
+                'k' + firstname, false, AnyTypeKind.USER);
+        assertEquals(1, list.size());
     }
 
     @Test

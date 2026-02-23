@@ -501,11 +501,11 @@ public abstract class AbstractITCase {
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
-        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("resource").asText().contains("Elasticsearch");
+        IS_OPENSEARCH_ENABLED = anySearchDAO.get("resource").asText().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
 
-        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asText().contains("Neo4j");
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("resource").asText().contains("Neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;
@@ -977,7 +977,7 @@ public abstract class AbstractITCase {
 
         oidcrpTO.setAuthPolicy(authPolicyTO.getKey());
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
-        
+
         oidcrpTO.setAccessTokenMaxActiveTokens(0L);
         oidcrpTO.setAccessTokenMaxTimeToLive("PT8H");
         oidcrpTO.setAccessTokenTimeToKill("PT2H");

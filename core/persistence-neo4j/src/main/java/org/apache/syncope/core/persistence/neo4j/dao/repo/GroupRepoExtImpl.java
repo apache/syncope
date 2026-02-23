@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
@@ -120,7 +119,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
-            final AnyFinder anyFinder,
             final AnySearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -133,7 +131,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
-                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP),
                 neo4jTemplate,
                 neo4jClient);

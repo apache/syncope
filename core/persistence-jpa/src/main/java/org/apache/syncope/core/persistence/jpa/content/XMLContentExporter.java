@@ -77,7 +77,6 @@ import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -356,7 +355,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
             List<Map<String, String>> realmRows = new ArrayList<>(rows);
             rows.clear();
-            realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).
+            realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, null).
                     forEach(realm -> realmRows.stream().filter(row -> {
 
                 String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));

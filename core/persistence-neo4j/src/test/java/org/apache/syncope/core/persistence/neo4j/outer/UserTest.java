@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -38,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -70,9 +68,6 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -223,41 +218,5 @@ public class UserTest extends AbstractTest {
         userDAO.deleteById(rossini.getKey());
 
         assertTrue(delegationDAO.findById(delegation.getKey()).isEmpty());
-    }
-
-    /**
-     * Search by derived attribute.
-     */
-    @Test
-    public void issueSYNCOPE800() {
-        // create derived attribute (literal as prefix)
-        DerSchema prefix = entityFactory.newEntity(DerSchema.class);
-        prefix.setKey("kprefix");
-        prefix.setExpression("'k' + firstname");
-
-        derSchemaDAO.save(prefix);
-
-        // create derived attribute (literal as suffix)
-        DerSchema suffix = entityFactory.newEntity(DerSchema.class);
-        suffix.setKey("ksuffix");
-        suffix.setExpression("firstname + 'k'");
-
-        derSchemaDAO.save(suffix);
-
-        // add derived attributes to user
-        User owner = userDAO.findByUsername("vivaldi").orElseThrow();
-
-        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().getFirst();
-        assertNotNull(firstname);
-
-        // search by ksuffix derived attribute
-        List<User> list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("ksuffix").orElseThrow().getExpression(), firstname + 'k', false);
-        assertEquals(1, list.size());
-
-        // search by kprefix derived attribute
-        list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("kprefix").orElseThrow().getExpression(), 'k' + firstname, false);
-        assertEquals(1, list.size());
     }
 }

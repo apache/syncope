@@ -30,7 +30,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -61,9 +60,6 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private DerSchemaDAO derSchemaDAO;
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
@@ -108,33 +104,6 @@ public class UserTest extends AbstractTest {
         long count = userDAO.count();
         assertNotNull(count);
         assertEquals(5, count);
-    }
-
-    @Test
-    public void findByDerAttrValue() {
-        List<User> list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Vivaldi, Antonio", false);
-        assertEquals(1, list.size());
-
-        list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", false);
-        assertEquals(0, list.size());
-
-        list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", true);
-        assertEquals(1, list.size());
-    }
-
-    @Test
-    public void findByInvalidDerAttrValue() {
-        assertTrue(userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Antonio, Maria, Rossi", false).isEmpty());
-    }
-
-    @Test
-    public void findByInvalidDerAttrExpression() {
-        assertThrows(IllegalArgumentException.class, () -> userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("noschema").orElseThrow().getExpression(), "Antonio, Maria", false).isEmpty());
     }
 
     @Test

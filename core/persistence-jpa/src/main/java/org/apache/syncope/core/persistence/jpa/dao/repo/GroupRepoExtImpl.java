@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -101,14 +100,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final AnySearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager,
-            final AnyFinder anyFinder) {
+            final EntityManager entityManager) {
 
         super(
                 dynRealmDAO,
                 plainSchemaDAO,
                 entityManager,
-                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
         this.realmDAO = realmDAO;

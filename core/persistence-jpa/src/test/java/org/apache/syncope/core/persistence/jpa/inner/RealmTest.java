@@ -98,14 +98,14 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
+        List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null);
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
 
         assertEquals(4, realmDAO.findAll(Pageable.unpaged()).stream().count());
 
-        list = realmSearchDAO.findDescendants(Set.of("/even", "/odd"), null, Pageable.unpaged());
+        list = realmSearchDAO.search(Set.of("/even", "/odd"), realmSearchDAO.getAllMatchingCond(), Pageable.unpaged());
         assertEquals(3, list.size());
         assertNotNull(list.stream().filter(realm -> "even".equals(realm.getName())).findFirst().orElseThrow());
         assertNotNull(list.stream().filter(realm -> "two".equals(realm.getName())).findFirst().orElseThrow());
