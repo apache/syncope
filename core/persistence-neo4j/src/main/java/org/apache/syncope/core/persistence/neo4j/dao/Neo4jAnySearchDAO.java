@@ -136,6 +136,20 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 : value;
     }
 
+    protected static void queryOp(
+            final TextStringBuilder query,
+            final String op,
+            final QueryInfo leftInfo,
+            final QueryInfo rightInfo) {
+
+        query.append("WHERE EXISTS { ").
+                append(Strings.CS.prependIfMissing(leftInfo.query().toString(), "MATCH (n) ")).
+                append(" } ").
+                append(op).append(" EXISTS { ").
+                append(Strings.CS.prependIfMissing(rightInfo.query().toString(), "MATCH (n) ")).
+                append(" }");
+    }
+
     protected final Neo4jTemplate neo4jTemplate;
 
     protected final Neo4jClient neo4jClient;
@@ -716,20 +730,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         // do nothing by default, leave it open for subclasses
     }
 
-    protected void queryOp(
-            final TextStringBuilder query,
-            final String op,
-            final QueryInfo leftInfo,
-            final QueryInfo rightInfo) {
-
-        query.append("WHERE EXISTS { ").
-                append(Strings.CS.prependIfMissing(leftInfo.query().toString(), "MATCH (n) ")).
-                append(" } ").
-                append(op).append(" EXISTS { ").
-                append(Strings.CS.prependIfMissing(rightInfo.query().toString(), "MATCH (n) ")).
-                append(" }");
-    }
-
     protected QueryInfo getQuery(final AnyTypeKind kind, final SearchCond cond, final Map<String, Object> parameters) {
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
 
@@ -971,6 +971,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         // 4. prepare the count query
         query.append("RETURN COUNT(id)");
 
+        LOG.debug("Query: {}, parameters: {}", query, parameters);
+
         return neo4jTemplate.count(query.toString(), parameters);
     }
 
@@ -1047,7 +1049,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     append(" LIMIT ").append(pageable.getPageSize());
         }
 
-        LOG.debug("Query with auth and order by statements: {}, parameters: {}", query, parameters);
+        LOG.debug("Query: {}, parameters: {}", query, parameters);
 
         // 5. Prepare the result (avoiding duplicates)
         return buildResult(neo4jClient.query(query.toString()).bindAll(parameters).fetch().all().stream().

@@ -505,7 +505,7 @@ public abstract class AbstractITCase {
         IS_OPENSEARCH_ENABLED = anySearchDAO.get("resource").asText().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
 
-        IS_NEO4J_PERSISTENCE = anySearchDAO.get("resource").asText().contains("Neo4j");
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("resource").asText().contains("neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;

@@ -85,6 +85,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentExporter;
@@ -1164,14 +1165,22 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public RealmSearchDAO realmSearchDAO(
-            final RealmDAO realmDAO,
+            final @Lazy RealmDAO realmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
             final PlainAttrValidationManager validator,
+            final RealmUtils realmUtils,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient) {
 
-        return new Neo4jRealmSearchDAO(realmDAO, plainSchemaDAO, entityFactory, validator, neo4jTemplate, neo4jClient);
+        return new Neo4jRealmSearchDAO(
+                realmDAO,
+                plainSchemaDAO,
+                entityFactory,
+                validator,
+                realmUtils,
+                neo4jTemplate,
+                neo4jClient);
     }
 
     @ConditionalOnMissingBean
