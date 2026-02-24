@@ -1465,7 +1465,7 @@ under the License.
       <dependency>
         <groupId>org.wiremock.integrations</groupId>
         <artifactId>wiremock-spring-boot</artifactId>
-        <version>4.0.8</version>
+        <version>4.1.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
