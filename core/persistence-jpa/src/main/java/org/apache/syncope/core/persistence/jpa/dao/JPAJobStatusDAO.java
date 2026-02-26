@@ -22,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,5 +86,16 @@ public class JPAJobStatusDAO implements JobStatusDAO {
         @SuppressWarnings("unchecked")
         List<Object> result = query.getResultList();
         return result.isEmpty() ? UNKNOWN_STATUS : result.getFirst().toString();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<? extends JobStatus> findAll() {
+        Query query = entityManager.createNativeQuery(
+                "SELECT id,jobStatus FROM " + JPAJobStatus.TABLE + " ORDER BY id", JPAJobStatus.class);
+
+        @SuppressWarnings("unchecked")
+        List<JPAJobStatus> result = query.getResultList();
+        return result;
     }
 }

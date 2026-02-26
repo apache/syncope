@@ -20,7 +20,9 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -30,10 +32,12 @@ public class SystemLoadReporterJob extends Job {
 
     protected static final Integer MB = 1024 * 1024;
 
-    protected final ApplicationEventPublisher publisher;
+    @Autowired
+    protected ApplicationEventPublisher publisher;
 
-    public SystemLoadReporterJob(final ApplicationEventPublisher publisher) {
-        this.publisher = publisher;
+    @Override
+    protected JobDelegate getDelegate() {
+        return null;
     }
 
     @Override

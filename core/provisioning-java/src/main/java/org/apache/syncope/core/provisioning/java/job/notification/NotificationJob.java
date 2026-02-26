@@ -64,6 +64,11 @@ public class NotificationJob extends Job {
     }
 
     @Override
+    public NotificationJobDelegate getDelegate() {
+        return delegate;
+    }
+
+    @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
         String executor = Optional.ofNullable(context.getExecutor()).orElseGet(securityProperties::getAdminUser);

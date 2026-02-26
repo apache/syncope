@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -65,6 +66,11 @@ public class AfterHandlingJob extends Job {
 
     @Autowired
     private AuditManager auditManager;
+
+    @Override
+    protected JobDelegate getDelegate() {
+        return null;
+    }
 
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {

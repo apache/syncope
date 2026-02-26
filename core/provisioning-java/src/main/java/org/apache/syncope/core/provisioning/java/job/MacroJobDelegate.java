@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -65,7 +66,7 @@ import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.util.ReflectionUtils;
 
-public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
+public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> implements StoppableJobDelegate {
 
     public static final String MACRO_TASK_FORM_JOBDETAIL_KEY = "macroTaskForm";
 
@@ -80,6 +81,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     @Autowired
     protected JexlTools jexlTools;
+
+    protected volatile boolean stopRequested = false;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
@@ -203,7 +206,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     Mutable<Pair<String, Throwable>> error = new MutableObject<>();
 
-                    for (int i = 0; i < commands.size() && error.get() == null; i++) {
+                    for (int i = 0; i < commands.size() && !stopRequested && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
                         try {
@@ -251,7 +254,15 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             throw new JobExecutionException("While waiting for macro commands completion", e);
         }
 
+        if (stopRequested) {
+            output.append("\nStop was requested");
+        }
         output.append("COMPLETED");
+    }
+
+    @Override
+    public void stop() {
+        stopRequested = true;
     }
 
     @SuppressWarnings("unchecked")

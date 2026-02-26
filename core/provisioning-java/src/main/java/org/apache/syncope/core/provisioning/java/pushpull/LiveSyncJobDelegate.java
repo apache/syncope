@@ -48,7 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.LiveSyncDeltaMapper;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -68,7 +68,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class LiveSyncJobDelegate
         extends AbstractPullExecutor<LiveSyncTask>
-        implements SyncopePullExecutor, StoppableSchedTaskJobDelegate {
+        implements SyncopePullExecutor, StoppableJobDelegate {
 
     protected record LiveSyncInfo(
             Provision provision,

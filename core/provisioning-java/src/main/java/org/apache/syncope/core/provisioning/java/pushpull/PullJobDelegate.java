@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
@@ -48,7 +48,7 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 
 public class PullJobDelegate
         extends AbstractPullExecutor<PullTask>
-        implements SyncopePullExecutor, StoppableSchedTaskJobDelegate {
+        implements SyncopePullExecutor, StoppableJobDelegate {
 
     protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
 

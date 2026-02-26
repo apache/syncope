@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.job;
 
-public interface StoppableSchedTaskJobDelegate extends SchedTaskJobDelegate {
+@FunctionalInterface
+public interface StoppableJobDelegate {
 
     /**
-     * Request the current Job to stop the execution of the running Task.
+     * Request the current Job to stop the execution.
      */
     void stop();
 }

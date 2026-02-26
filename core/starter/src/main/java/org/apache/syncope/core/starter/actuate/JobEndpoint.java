@@ -19,10 +19,17 @@
 package org.apache.syncope.core.starter.actuate;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.boot.actuate.endpoint.annotation.DeleteOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.annotation.Selector;
@@ -33,14 +40,18 @@ public class JobEndpoint {
 
     protected final SyncopeTaskScheduler syncopeTaskScheduler;
 
-    public JobEndpoint(final SyncopeTaskScheduler syncopeTaskScheduler) {
+    protected final JobStatusDAO jobStatusDAO;
+
+    public JobEndpoint(final SyncopeTaskScheduler syncopeTaskScheduler, final JobStatusDAO jobStatusDAO) {
         this.syncopeTaskScheduler = syncopeTaskScheduler;
+        this.jobStatusDAO = jobStatusDAO;
     }
 
     @ReadOperation
     public Map<String, Object> status() {
-        Map<String, Object> status = new HashMap<>();
+        Map<String, Object> status = new LinkedHashMap<>();
 
+        // first information about jobs defined in the Scheduler
         syncopeTaskScheduler.getJobs().forEach((k, v) -> {
             @SuppressWarnings("unchecked")
             Map<String, Object> jobs = (Map<String, Object>) status.computeIfAbsent(k.domain(), d -> new HashMap<>());
@@ -60,6 +71,27 @@ public class JobEndpoint {
                 job.put("cancelled", f.isCancelled());
             });
         });
+
+        // then check if there are jobs not reconciled, e.g. reported by JobStatusDAO but not by Scheduler
+        // (potentially running in another node of the cluster)
+        Map<String, Object> unreconciled = new HashMap<>();
+
+        status.keySet().forEach(domain -> {
+            Set<JobStatus> jobStatuses = new HashSet<>(
+                    AuthContextUtils.callAsAdmin(domain, () -> jobStatusDAO.findAll()));
+            jobStatuses.removeIf(syncopeTaskScheduler.getJobNames(domain)::contains);
+
+            if (!jobStatuses.isEmpty()) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> jobs =
+                        (Map<String, Object>) unreconciled.computeIfAbsent(domain, d -> new HashMap<>());
+
+                jobStatuses.forEach(notfound -> jobs.put(notfound.getKey(), notfound.getStatus()));
+            }
+        });
+        if (!unreconciled.isEmpty()) {
+            status.put("unreconciled", unreconciled);
+        }
 
         return status;
     }
@@ -83,5 +115,10 @@ public class JobEndpoint {
             default -> {
             }
         }
+    }
+
+    @DeleteOperation
+    public void forceUnlock(final @Selector String domain, final @Selector String jobName) {
+        AuthContextUtils.runAsAdmin(domain, () -> jobStatusDAO.unlock(jobName));
     }
 }

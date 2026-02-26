@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,9 +99,7 @@ public class SyncopeTaskScheduler {
     protected void stop(final Key key, final List<Function<Value, Optional<ScheduledFuture<?>>>> suppliers) {
         Optional.ofNullable(jobs.get(key)).ifPresent(value -> {
             boolean mayInterruptIfRunning;
-            if (value.job() instanceof TaskJob taskJob
-                    && taskJob.getDelegate() instanceof StoppableSchedTaskJobDelegate stoppable) {
-
+            if (value.job().getDelegate() instanceof StoppableJobDelegate stoppable) {
                 stoppable.stop();
                 mayInterruptIfRunning = false;
             } else {

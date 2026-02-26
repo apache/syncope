@@ -21,12 +21,15 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -38,20 +41,28 @@ import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDelegate<SchedTask> {
+public class GroupMemberProvisionTaskJobDelegate
+        extends AbstractSchedTaskJobDelegate<SchedTask>
+        implements StoppableJobDelegate {
 
     public static final String ACTION_JOBDETAIL_KEY = "action";
 
     public static final String GROUP_KEY_JOBDETAIL_KEY = "groupKey";
 
     @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
     private GroupDAO groupDAO;
 
     @Autowired
-    private AnySearchDAO searchDAO;
+    private AnySearchDAO anySearchDAO;
 
     @Autowired
     private UserProvisioningManager userProvisioningManager;
@@ -62,6 +73,13 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
     private String groupKey;
 
     private ProvisionAction action;
+
+    private volatile boolean stopRequested = false;
+
+    @Override
+    public void stop() {
+        stopRequested = true;
+    }
 
     @Transactional
     @Override
@@ -89,57 +107,111 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
 
         setStatus(result.toString());
 
+        Collection<String> gResources = groupDAO.findAllResourceKeys(groupKey);
+
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
-        List<User> users = searchDAO.search(SearchCond.of(membershipCond), AnyTypeKind.USER);
-        Collection<String> gResources = groupDAO.findAllResourceKeys(groupKey);
+        SearchCond cond = SearchCond.of(membershipCond);
+
+        long userCount = anySearchDAO.count(
+                realmDAO.getRoot(),
+                true,
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                cond,
+                AnyTypeKind.USER);
+
         setStatus("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
-                + users.size() + " users from " + gResources);
+                + userCount + " users " + (action == ProvisionAction.DEPROVISION ? "from " : "to ") + gResources);
 
-        for (User user : users) {
-            List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
-                    ? userProvisioningManager.deprovision(
-                            user.getKey(), gResources, false, executor)
-                    : userProvisioningManager.provision(
-                            user.getKey(), true, null, gResources, false, executor);
-            for (PropagationStatus propagationStatus : statuses) {
-                result.append("User ").append(user.getKey()).append('\t').
-                        append("Resource ").append(propagationStatus.getResource()).append('\t').
-                        append(propagationStatus.getStatus());
-                if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
-                    result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
+        long pages = (userCount / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+        Sort sort = Sort.by(Sort.Direction.ASC, "creationDate");
+
+        for (int page = 0; page < pages && !stopRequested; page++) {
+            setStatus("Processing " + userCount + " users: page " + page + " of " + pages);
+
+            List<User> users = anySearchDAO.search(
+                    realmDAO.getRoot(),
+                    true,
+                    SyncopeConstants.FULL_ADMIN_REALMS,
+                    cond,
+                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, sort),
+                    AnyTypeKind.USER);
+
+            for (int i = 0; i < users.size() && !stopRequested; i++) {
+                User user = users.get(i);
+
+                List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
+                        ? userProvisioningManager.deprovision(
+                                user.getKey(), gResources, false, executor)
+                        : userProvisioningManager.provision(
+                                user.getKey(), true, null, gResources, false, executor);
+                for (PropagationStatus propagationStatus : statuses) {
+                    result.append("User ").append(user.getKey()).append('\t').
+                            append("Resource ").append(propagationStatus.getResource()).append('\t').
+                            append(propagationStatus.getStatus());
+                    if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
+                        result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
+                    }
+                    result.append('\n');
                 }
                 result.append('\n');
             }
-            result.append('\n');
         }
 
-        membershipCond = new MembershipCond();
-        membershipCond.setGroup(groupKey);
-        List<AnyObject> anyObjects = searchDAO.search(SearchCond.of(membershipCond), AnyTypeKind.ANY_OBJECT);
+        if (stopRequested) {
+            result.append("\nStop was requested");
+            return result.toString();
+        }
+
+        long anyObjectCount = anySearchDAO.count(
+                realmDAO.getRoot(),
+                true,
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                SearchCond.of(membershipCond),
+                AnyTypeKind.ANY_OBJECT);
         setStatus("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
-                + anyObjects.size() + " any objects from " + gResources);
+                + anyObjectCount + " any objects from " + gResources);
 
-        for (AnyObject anyObject : anyObjects) {
-            List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
-                    ? anyObjectProvisioningManager.deprovision(
-                            anyObject.getKey(), gResources, false, executor)
-                    : anyObjectProvisioningManager.provision(
-                            anyObject.getKey(), gResources, false, executor);
+        pages = (anyObjectCount / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            for (PropagationStatus propagationStatus : statuses) {
-                result.append(anyObject.getType().getKey()).append(' ').
-                        append(anyObject.getKey()).append('\t').
-                        append("Resource ").append(propagationStatus.getResource()).append('\t').
-                        append(propagationStatus.getStatus());
-                if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
-                    result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
+        for (int page = 0; page < pages && !stopRequested; page++) {
+            setStatus("Processing " + anyObjectCount + " anyObjects: page " + page + " of " + pages);
+
+            List<AnyObject> anyObjects = anySearchDAO.search(
+                    realmDAO.getRoot(),
+                    true,
+                    SyncopeConstants.FULL_ADMIN_REALMS,
+                    cond,
+                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, sort),
+                    AnyTypeKind.ANY_OBJECT);
+
+            for (int i = 0; i < anyObjects.size() && !stopRequested; i++) {
+                AnyObject anyObject = anyObjects.get(i);
+
+                List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
+                        ? anyObjectProvisioningManager.deprovision(
+                                anyObject.getKey(), gResources, false, executor)
+                        : anyObjectProvisioningManager.provision(
+                                anyObject.getKey(), gResources, false, executor);
+
+                for (PropagationStatus propagationStatus : statuses) {
+                    result.append(anyObject.getType().getKey()).append(' ').
+                            append(anyObject.getKey()).append('\t').
+                            append("Resource ").append(propagationStatus.getResource()).append('\t').
+                            append(propagationStatus.getStatus());
+                    if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
+                        result.append('\n').append(propagationStatus.getFailureReason()).append('\n');
+                    }
+                    result.append('\n');
                 }
                 result.append('\n');
             }
-            result.append('\n');
+        }
+
+        if (stopRequested) {
+            result.append("\nStop was requested");
         }
 
         return result.toString();

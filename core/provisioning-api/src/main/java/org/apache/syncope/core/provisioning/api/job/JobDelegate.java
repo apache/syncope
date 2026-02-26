@@ -18,21 +18,5 @@
  */
 package org.apache.syncope.core.provisioning.api.job;
 
-import org.apache.syncope.common.lib.types.TaskType;
-
-@FunctionalInterface
-public interface SchedTaskJobDelegate extends JobDelegate {
-
-    /**
-     * Executes a Job to run the given Task.
-     *
-     * @param taskType Type of task to run
-     * @param taskKey Task key to run
-     * @param context execution context, can be used to pass parameters to the job
-     * @throws JobExecutionException if anything goes wrong
-     */
-    void execute(
-            TaskType taskType,
-            String taskKey,
-            JobExecutionContext context) throws JobExecutionException;
+public interface JobDelegate {
 }

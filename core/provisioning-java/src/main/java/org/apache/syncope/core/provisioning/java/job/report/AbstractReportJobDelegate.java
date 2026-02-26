@@ -38,6 +38,7 @@ import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -48,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
+public abstract class AbstractReportJobDelegate implements ReportJobDelegate, StoppableJobDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReportJobDelegate.class);
 
@@ -86,6 +87,8 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     @Autowired
     protected ApplicationEventPublisher publisher;
 
+    protected volatile boolean stopRequested = false;
+
     @Override
     public void setConf(final ReportConf conf) {
         this.conf = conf;
@@ -94,6 +97,11 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
                 this, AuthContextUtils.getDomain(), JobNamer.getJobName(report), status));
+    }
+
+    @Override
+    public void stop() {
+        stopRequested = true;
     }
 
     @Transactional

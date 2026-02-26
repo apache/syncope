@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -201,8 +202,8 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public JobEndpoint jobEndpoint(final SyncopeTaskScheduler syncopeTaskScheduler) {
-        return new JobEndpoint(syncopeTaskScheduler);
+    public JobEndpoint jobEndpoint(final SyncopeTaskScheduler syncopeTaskScheduler, final JobStatusDAO jobStatusDAO) {
+        return new JobEndpoint(syncopeTaskScheduler, jobStatusDAO);
     }
 
     @Bean

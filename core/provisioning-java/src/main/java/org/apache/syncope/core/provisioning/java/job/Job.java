@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -46,6 +47,8 @@ public abstract class Job implements Runnable {
     public void setContext(final JobExecutionContext context) {
         this.context = context;
     }
+
+    protected abstract JobDelegate getDelegate();
 
     protected abstract void execute(JobExecutionContext context) throws JobExecutionException;
 

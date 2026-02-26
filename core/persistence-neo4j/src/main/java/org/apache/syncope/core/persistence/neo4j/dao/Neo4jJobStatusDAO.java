@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
+import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
@@ -80,5 +81,11 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
     @Override
     public String get(final String key) {
         return neo4jTemplate.findById(key, Neo4jJobStatus.class).map(JobStatus::getStatus).orElse(UNKNOWN_STATUS);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<? extends JobStatus> findAll() {
+        return neo4jTemplate.findAll(Neo4jJobStatus.class).stream().map(JobStatus.class::cast).toList();
     }
 }

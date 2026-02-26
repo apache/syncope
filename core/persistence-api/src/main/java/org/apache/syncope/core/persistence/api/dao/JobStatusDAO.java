@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
+
 public interface JobStatusDAO {
 
     String JOB_FIRED_STATUS = "JOB_FIRED";
@@ -31,4 +34,6 @@ public interface JobStatusDAO {
     void set(String key, String status);
 
     String get(String key);
+
+    List<? extends JobStatus> findAll();
 }

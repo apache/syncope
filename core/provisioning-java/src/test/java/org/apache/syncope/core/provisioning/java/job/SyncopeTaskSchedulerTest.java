@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
@@ -46,6 +47,11 @@ public class SyncopeTaskSchedulerTest extends AbstractTest {
     private static final Mutable<Integer> VALUE = new MutableObject<>(0);
 
     private static class TestJob extends Job {
+
+        @Override
+        protected JobDelegate getDelegate() {
+            return null;
+        }
 
         @Override
         protected void execute(final JobExecutionContext context) throws JobExecutionException {

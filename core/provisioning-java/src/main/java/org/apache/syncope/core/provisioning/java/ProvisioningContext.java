@@ -153,7 +153,6 @@ import org.apache.syncope.core.provisioning.java.data.wa.WAClientAppDataBinderIm
 import org.apache.syncope.core.provisioning.java.job.DefaultJobManager;
 import org.apache.syncope.core.provisioning.java.job.JobStatusUpdater;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
-import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.MailNotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.core.provisioning.java.notification.DefaultNotificationManager;
@@ -174,7 +173,6 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -637,12 +635,6 @@ public class ProvisioningContext {
             final AsyncTaskExecutor taskExecutor) {
 
         return new DefaultAuditManager(auditConfDAO, auditEventDAO, entityFactory, auditEventProcessors, taskExecutor);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SystemLoadReporterJob systemLoadReporterJob(final ApplicationContext ctx) {
-        return new SystemLoadReporterJob(ctx);
     }
 
     @ConditionalOnMissingBean

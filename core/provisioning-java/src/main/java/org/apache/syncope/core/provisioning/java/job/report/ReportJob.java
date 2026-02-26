@@ -59,6 +59,31 @@ public class ReportJob extends Job {
     @Autowired
     private DomainHolder<?> domainHolder;
 
+    private ReportJobDelegate delegate;
+
+    @Override
+    public ReportJobDelegate getDelegate() {
+        return delegate;
+    }
+
+    protected void delegate(final JobExecutionContext context, final String reportKey)
+            throws ClassNotFoundException, JobExecutionException {
+
+        String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+        Implementation impl = implementationDAO.findById(implKey).orElse(null);
+        if (impl == null) {
+            LOG.error("Could not find Implementation '{}', aborting", implKey);
+        } else {
+            delegate = ImplementationManager.buildReportJobDelegate(
+                    impl,
+                    () -> perContextReportJobDelegates.get(impl.getKey()),
+                    instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
+                    orElseThrow(() -> new IllegalArgumentException(
+                    "Could not instantiate " + impl.getBody()));
+            delegate.execute(reportKey, context);
+        }
+    }
+
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
         if (!domainHolder.getDomains().containsKey(context.getDomain())) {
@@ -70,21 +95,11 @@ public class ReportJob extends Job {
         try {
             AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
                 try {
-                    String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
-                    Implementation impl = implementationDAO.findById(implKey).orElse(null);
-                    if (impl == null) {
-                        LOG.error("Could not find Implementation '{}', aborting", implKey);
-                    } else {
-                        ReportJobDelegate delegate = ImplementationManager.buildReportJobDelegate(
-                                impl,
-                                () -> perContextReportJobDelegates.get(impl.getKey()),
-                                instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
-                                orElseThrow(() -> new IllegalArgumentException(
-                                "Could not instantiate " + impl.getBody()));
-                        delegate.execute(reportKey, context);
-                    }
+                    delegate(context, reportKey);
                 } catch (Exception e) {
-                    LOG.error("While executing report {}", reportKey, e);
+                    if (e instanceof RuntimeException re) {
+                        throw re;
+                    }
                     throw new RuntimeException(e);
                 }
             });
