@@ -140,4 +140,18 @@ under the License.
     FROM SyncopeGroup_ExternalResource st
   </entry>
 
+  <!-- realm -->
+  <entry key="realm_search_resource">
+    CREATE VIEW realm_search_resource AS
+
+    SELECT st.realm_id AS realm_id, st.resource_id AS resource_id
+    FROM Realm_ExternalResource st
+  </entry>
+
+  <entry key="realm_search_auxClass">
+    CREATE VIEW realm_search_auxClass AS
+
+    SELECT st.realm_id AS realm_id, st.anyTypeClass_id AS anyTypeClass_id
+    FROM Realm_AnyTypeClass st
+  </entry>
 </properties>

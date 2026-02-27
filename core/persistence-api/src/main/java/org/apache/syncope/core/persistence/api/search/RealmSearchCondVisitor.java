@@ -23,9 +23,8 @@ import org.apache.syncope.common.lib.search.SpecialAttr;
 
 public class RealmSearchCondVisitor extends SyncopeAbstractSearchCondVisitor {
 
-
     @Override
     protected Optional<SpecialAttr> getSpecialAttrName(final String propertyName) {
-        return Optional.empty();
+        return SpecialAttr.fromString(propertyName);
     }
 }

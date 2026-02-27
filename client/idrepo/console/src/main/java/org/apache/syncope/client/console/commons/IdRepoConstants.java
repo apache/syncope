@@ -56,6 +56,14 @@ public final class IdRepoConstants {
 
     public static final String PREF_DYNREALM_PAGINATOR_ROWS = "dynRealm.paginator.rows";
 
+    public static final String PREF_REALM_PAGINATOR_ROWS = "realm.paginator.rows";
+
+    public static final String PREF_REALM_DETAILS_VIEW = "realm.details.view";
+
+    public static final String PREF_REALM_PLAIN_ATTRS_VIEW = "realm.plain.attrs.view";
+
+    public static final String PREF_REALM_DER_ATTRS_VIEW = "realm.der.attrs.view";
+
     public static final String PREF_ACCESS_TOKEN_PAGINATOR_ROWS = "accessToken.paginator.rows";
 
     public static final String PREF_COMMAND_PAGINATOR_ROWS = "command.paginator.rows";

@@ -153,12 +153,22 @@ public class BasePage extends BaseWebPage {
         body.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("dashboard", Dashboard.class));
 
-        liContainer = new WebMarkupContainer(getLIContainerId("realms"));
-        body.add(liContainer);
+        WebMarkupContainer directoryLIContainer = new WebMarkupContainer(getLIContainerId("directory"));
+        body.add(directoryLIContainer);
+        WebMarkupContainer directoryULContainer = new WebMarkupContainer(getULContainerId("directory"));
+        directoryLIContainer.add(directoryULContainer);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("realmpage"));
+        directoryULContainer.add(liContainer);
+        BookmarkablePageLink<? extends BasePage> realmPageLink =
+                BookmarkablePageLinkBuilder.build("realmpage", RealmPage.class);
+        MetaDataRoleAuthorizationStrategy.authorize(realmPageLink, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
+        liContainer.add(realmPageLink);
+
+        liContainer = new WebMarkupContainer(getLIContainerId("realms"));
+        directoryULContainer.add(liContainer);
         BookmarkablePageLink<? extends BasePage> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
-
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("engagements"));
@@ -411,7 +421,12 @@ public class BasePage extends BaseWebPage {
             containingLI = (WebMarkupContainer) confULContainer.get(
                     getLIContainerId(getClass().getSimpleName().toLowerCase()));
         }
-        // 4. when found, set CSS coordinates for menu
+        // 4. if not, check if it is under 'Directory'
+        if (containingLI == null) {
+            containingLI = (WebMarkupContainer) directoryULContainer.get(
+                    getLIContainerId(getClass().getSimpleName().toLowerCase()));
+        }
+        // 5. when found, set CSS coordinates for menu
         if (containingLI != null) {
             StreamSupport.stream(containingLI.spliterator(), false).filter(Link.class::isInstance).
                     forEach(child -> child.add(new Behavior() {
@@ -424,7 +439,33 @@ public class BasePage extends BaseWebPage {
                 }
             }));
 
-            if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
+            if (directoryULContainer.getId().equals(containingLI.getParent().getId())) {
+                directoryULContainer.add(new Behavior() {
+
+                    private static final long serialVersionUID = -5775607340182293596L;
+
+                    @Override
+                    public void renderHead(final Component component, final IHeaderResponse response) {
+                        response.render(OnDomReadyHeaderItem.forScript("$('#domainLink').addClass('active')"));
+                    }
+
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("class", "nav nav-treeview");
+                        tag.put("style", "display: block;");
+                    }
+                });
+
+                directoryLIContainer.add(new Behavior() {
+
+                    private static final long serialVersionUID = -5775607340182293596L;
+
+                    @Override
+                    public void onComponentTag(final Component component, final ComponentTag tag) {
+                        tag.put("class", "nav-item has-treeview menu-open");
+                    }
+                });
+            } else if (keymasterULContainer.getId().equals(containingLI.getParent().getId())) {
                 keymasterULContainer.add(new Behavior() {
 
                     private static final long serialVersionUID = -5775607340182293596L;

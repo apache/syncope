@@ -102,7 +102,11 @@ public class RealmDetails extends Panel {
     protected final WebMarkupContainer container;
 
     public RealmDetails(final String id, final RealmTO realmTO) {
-        this(id, realmTO, null, true);
+        this(id, realmTO, null, true, null);
+    }
+
+    public RealmDetails(final String id, final RealmTO realmTO, final IModel<String> createParentPathModel) {
+        this(id, realmTO, null, true, createParentPathModel);
     }
 
     public RealmDetails(
@@ -110,6 +114,16 @@ public class RealmDetails extends Panel {
             final RealmTO realmTO,
             final ActionsPanel<RealmTO> actionsPanel,
             final boolean unwrapped) {
+
+        this(id, realmTO, actionsPanel, unwrapped, null);
+    }
+
+    public RealmDetails(
+            final String id,
+            final RealmTO realmTO,
+            final ActionsPanel<RealmTO> actionsPanel,
+            final boolean unwrapped,
+            final IModel<String> createParentPathModel) {
 
         super(id);
 
@@ -126,10 +140,20 @@ public class RealmDetails extends Panel {
                 new PropertyModel<>(realmTO, Constants.NAME_FIELD_NAME), false);
         generics.add(name.addRequiredLabel().setVisible(unwrapped));
 
+        IModel<String> parentModel = realmTO.getKey() == null && createParentPathModel != null
+                ? createParentPathModel
+                : new PropertyModel<>(realmTO, "parent");
+        FieldPanel<String> parent = new AjaxTextFieldPanel("parent", "parent", parentModel, false);
+        parent.setEnabled(realmTO.getKey() == null);
+        if (realmTO.getKey() == null) {
+            parent.addRequiredLabel();
+        }
+        generics.add(parent.setVisible(unwrapped && realmTO.getKey() == null));
+
         FieldPanel<String> fullPath = new AjaxTextFieldPanel(
                 "fullPath", "fullPath", new PropertyModel<>(realmTO, "fullPath"), false);
         fullPath.setEnabled(false);
-        generics.add(fullPath.setVisible(unwrapped));
+        generics.add(fullPath.setVisible(unwrapped && realmTO.getKey() != null));
 
         if (unwrapped) {
             generics.add(new AjaxPalettePanel.Builder<String>().

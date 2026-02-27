@@ -34,6 +34,8 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
+import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -202,6 +204,12 @@ public class OpenSearchRealmSearchDAO extends AbstractRealmSearchDAO implements 
             case LEAF, NOT_LEAF -> {
                 query = cond.asLeaf(AnyCond.class).map(this::getQuery).orElse(null);
                 if (query == null) {
+                    query = cond.asLeaf(AuxClassCond.class).map(this::getQuery).orElse(null);
+                }
+                if (query == null) {
+                    query = cond.asLeaf(ResourceCond.class).map(this::getQuery).orElse(null);
+                }
+                if (query == null) {
                     query = cond.asLeaf(AttrCond.class).map(this::getQuery).orElse(null);
                 }
                 if (query == null) {
@@ -366,6 +374,22 @@ public class OpenSearchRealmSearchDAO extends AbstractRealmSearchDAO implements 
                         orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema())),
                 RELATIONSHIP_FIELDS);
         return fillAttrQuery(checked.schema(), checked.value(), checked.cond());
+    }
+
+
+    protected Query getQuery(final AuxClassCond cond) {
+        return new Query.Builder().term(QueryBuilders.term()
+                .field("auxClasses")
+                .value(FieldValue.of(cond.getAuxClass()))
+                .caseInsensitive(false)
+                .build()).build();
+    }
+    protected Query getQuery(final ResourceCond cond) {
+        return new Query.Builder().term(QueryBuilders.term()
+                .field("resources")
+                .value(FieldValue.of(cond.getResource()))
+                .caseInsensitive(false)
+                .build()).build();
     }
 
     protected Query getQueryForCustomConds(final SearchCond cond) {

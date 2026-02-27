@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
-import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
+import org.apache.syncope.client.console.panels.AnyObjectAnyDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -44,7 +44,7 @@ public final class AnyObjectSelectionDirectoryPanel
 
     @Override
     protected String[] getDefaultAttributeSelection() {
-        return AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION;
+        return AnyObjectAnyDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     public static final class Builder extends AnySelectionDirectoryPanel.Builder<AnyObjectTO, AnyObjectRestClient> {

@@ -194,7 +194,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             item.add(panel.setRenderBodyOnly(true));
 
-            item.add(getFragmentMinus(item, panel, label));
+            Fragment minus = getFragmentMinus(item, panel, label);
+            minus.setVisible(minus.isVisible() && isRemovable(item));
+            item.add(minus);
 
             Fragment plus = item.getIndex() == model.getObject().size() - 1
                     ? getFragmentPlus()
@@ -204,6 +206,10 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
     }
 
     protected abstract Panel getItemPanel(ListItem<INNER> item);
+
+    protected boolean isRemovable(final ListItem<INNER> item) {
+        return true;
+    }
 
     protected void clearInput(final Panel panel) {
         // do nothing by default

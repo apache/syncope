@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -219,6 +220,8 @@ public class ElasticsearchUtils {
         builder.put("name", realm.getName());
         builder.put("parent_id", realm.getParent() == null ? null : realm.getParent().getKey());
         builder.put("fullPath", realm.getFullPath());
+        builder.put("auxClasses", realm.getAnyTypeClasses().stream().map(AnyTypeClass::getKey).toList());
+        builder.put("resources", realm.getResources().stream().map(Entity::getKey).toList());
         addPlainAttr(builder, realm.getPlainAttrs());
 
         customizeDocument(builder, realm);

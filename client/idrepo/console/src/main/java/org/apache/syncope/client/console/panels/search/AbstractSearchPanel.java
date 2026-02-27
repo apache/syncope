@@ -30,21 +30,17 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
-import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -65,9 +61,6 @@ public abstract class AbstractSearchPanel extends Panel {
     @SpringBean
     protected FIQLQueryRestClient fiqlQueryRestClient;
 
-    @SpringBean
-    protected GroupRestClient groupRestClient;
-
     protected IModel<Map<String, PlainSchemaTO>> dnames;
 
     protected IModel<Map<String, PlainSchemaTO>> anames;
@@ -85,10 +78,6 @@ public abstract class AbstractSearchPanel extends Panel {
     protected IModel<List<SearchClause>> model;
 
     protected WebMarkupContainer searchFormContainer;
-
-    protected final AnyTypeKind typeKind;
-
-    protected final String anyType;
 
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
 
@@ -138,20 +127,14 @@ public abstract class AbstractSearchPanel extends Panel {
         public abstract T build(String id);
     }
 
-    protected AbstractSearchPanel(final String id, final AnyTypeKind kind, final Builder<?> builder) {
-        this(id, kind, kind.name(), builder);
+    protected AbstractSearchPanel(final String id) {
+        super(id);
     }
 
-    protected AbstractSearchPanel(
-            final String id, final AnyTypeKind kind, final String type, final Builder<?> builder) {
-
-        super(id);
-
+    protected final void init(final Builder<?> builder) {
         populate();
 
         this.model = builder.model;
-        this.typeKind = kind;
-        this.anyType = type;
 
         setOutputMarkupId(true);
 
@@ -159,18 +142,7 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
-        Pair<IModel<List<String>>, IModel<Long>> groupInfo =
-                typeKind != AnyTypeKind.GROUP && SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
-                ? Pair.of(groupNames, new LoadableDetachableModel<>() {
-
-                    private static final long serialVersionUID = 7362833782319137329L;
-
-                    @Override
-                    protected Long load() {
-                        return groupRestClient.count(SyncopeConstants.ROOT_REALM, null);
-                    }
-                })
-                : Pair.of(groupNames, Model.of(0L));
+        Pair<IModel<List<String>>, IModel<Long>> groupInfo = getGroupInfo();
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 builder.required,
@@ -188,6 +160,11 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected SearchClause newModelObject() {
                 return new SearchClause();
+            }
+
+            @Override
+            protected boolean isRemovable(final ListItem<SearchClause> item) {
+                return AbstractSearchPanel.this.isRemovable(item.getModelObject(), item.getIndex());
             }
         }.build("search", "search", searchClausePanel).hideLabel().setOutputMarkupId(true));
 
@@ -208,8 +185,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 Optional.ofNullable(SearchUtils.buildFIQL(
                         AbstractSearchPanel.this.getModel().getObject(), getSearchConditionBuilder())).
                         ifPresentOrElse(
-                                fiql -> saveFIQLQuery.setFiql(
-                                        fiql.replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), "")),
+                                fiql -> saveFIQLQuery.setFiql(sanitizeFIQLForSave(fiql)),
                                 () -> saveFIQLQuery.setFiql(null));
                 saveFIQLQuery.toggle(target, true);
             }
@@ -236,26 +212,58 @@ public abstract class AbstractSearchPanel extends Panel {
     protected abstract String getFIQLQueryTarget();
 
     protected void updateFIQL(final AjaxRequestTarget target, final String fiql) {
-        model.setObject(SearchUtils.getSearchClauses(fiql.replaceAll(SearchUtils.getTypeConditionPattern(anyType).
-                pattern(), "")));
+        model.setObject(SearchUtils.getSearchClauses(normalizeFIQLForLoad(fiql)));
         target.add(searchFormContainer);
     }
 
     protected void populate() {
+        types = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<SearchClause.Type> load() {
+                return List.of();
+            }
+        };
+
+        groupNames = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return List.of();
+            }
+        };
+
+        roleNames = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return List.of();
+            }
+        };
+
+        anames = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected Map<String, PlainSchemaTO> load() {
+                return Map.of();
+            }
+        };
+
         dnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                Map<String, PlainSchemaTO> dSchemaNames = new HashMap<>();
-                SearchableFields.get(typeKind.getTOClass()).forEach((key, type) -> {
-                    PlainSchemaTO plainSchema = new PlainSchemaTO();
-                    plainSchema.setType(type);
-                    plainSchema.setKey(key);
-                    dSchemaNames.put(key, plainSchema);
-                });
-                return dSchemaNames;
+                return new HashMap<>();
             }
         };
 
@@ -278,17 +286,29 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SyncopeWebApplication.get().getResourceProvider().get(anyType);
+                return List.of();
             }
         };
     }
 
-    public IModel<List<SearchClause>> getModel() {
-        return model;
+    protected Pair<IModel<List<String>>, IModel<Long>> getGroupInfo() {
+        return Pair.of(groupNames, Model.of(0L));
     }
 
-    public String getAnyType() {
-        return anyType;
+    protected String sanitizeFIQLForSave(final String fiql) {
+        return fiql;
+    }
+
+    protected String normalizeFIQLForLoad(final String fiql) {
+        return fiql;
+    }
+
+    protected boolean isRemovable(final SearchClause clause, final int index) {
+        return true;
+    }
+
+    public IModel<List<SearchClause>> getModel() {
+        return model;
     }
 
     public Map<String, PlainSchemaTO> getAvailableSchemaTypes() {

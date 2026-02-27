@@ -21,26 +21,27 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
 /**
- * Modal window with Display user attributes form.
+ * Modal window with Display any attributes form.
  *
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
-public class UserDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
+public class AnyObjectAnyDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] DEFAULT_SELECTION = { "username", "status", "mustChangePassword", "realm" };
+    public static final String[] DEFAULT_SELECTION = { "name", "realm" };
 
-    public UserDisplayAttributesModalPanel(
+    public AnyObjectAnyDisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
-            final List<String> dSchemaNames) {
-        super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.USER.name());
+            final List<String> dSchemaNames,
+            final String type) {
+
+        super(modal, pageRef, schemaNames, dSchemaNames, type);
     }
 }

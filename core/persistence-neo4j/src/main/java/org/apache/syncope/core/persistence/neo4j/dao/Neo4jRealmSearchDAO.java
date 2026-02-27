@@ -43,6 +43,8 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
+import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -51,6 +53,8 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractRealmSearchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyRepoExt;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -208,6 +212,12 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
 
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
+                cond.asLeaf(AuxClassCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
+
+                cond.asLeaf(ResourceCond.class).
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
+
                 cond.asLeaf(AnyCond.class).ifPresentOrElse(
                         anyCond -> {
                             AnyCondQuery anyCondQuery = getQuery(anyCond, not, parameters);
@@ -326,6 +336,26 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
         }
 
         return new AttrCondQuery(query.toString(), checked.schema());
+    }
+
+    protected String getQuery(
+            final AuxClassCond cond,
+            final boolean not,
+            final Map<String, Object> parameters) {
+
+        return "MATCH (n:" + Neo4jRealm.NODE + ") "
+                + "WHERE " + (not ? "NOT " : "") + "(n)-[]-"
+                + "(:" + Neo4jAnyTypeClass.NODE + " {id: $" + setParameter(parameters, cond.getAuxClass()) + "}) ";
+    }
+
+    protected String getQuery(
+            final ResourceCond cond,
+            final boolean not,
+            final Map<String, Object> parameters) {
+
+        return "MATCH (n:" + Neo4jRealm.NODE + ") "
+                + "WHERE " + (not ? "NOT " : "") + "(n)-[]-"
+                + "(:" + Neo4jExternalResource.NODE + " {id: $" + setParameter(parameters, cond.getResource()) + "}) ";
     }
 
     protected void getQueryForCustomConds(

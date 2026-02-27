@@ -84,7 +84,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     @Override
     protected String[] getDefaultAttributeSelection() {
-        return UserDisplayAttributesModalPanel.DEFAULT_SELECTION;
+        return UserAnyDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(displayAttributeModal.setContent(new UserDisplayAttributesModalPanel<>(
+                target.add(displayAttributeModal.setContent(new UserAnyDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
                         plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
