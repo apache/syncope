@@ -450,7 +450,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.2.5</elasticsearch.version>
+    <elasticsearch.version>9.2.6</elasticsearch.version>
     <opensearch.version>3.5.0</opensearch.version>
     <opensearch-java.version>3.6.0</opensearch-java.version>
 

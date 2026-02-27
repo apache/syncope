@@ -54,6 +54,7 @@ public class TaskJob extends Job {
 
     private SchedTaskJobDelegate delegate;
 
+    @Override
     public SchedTaskJobDelegate getDelegate() {
         return delegate;
     }
