@@ -166,39 +166,67 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
 
             return switch (clause.getObject().getType()) {
-                case ATTRIBUTE -> switch (object) {
-                    case IS_NULL -> "NULL";
-                    case IS_NOT_NULL -> "NOT NULL";
-                    case EQUALS -> "==";
-                    case NOT_EQUALS -> "!=";
-                    case LESS_THAN -> "<";
-                    case LESS_OR_EQUALS -> "<=";
-                    case GREATER_THAN -> ">";
-                    case GREATER_OR_EQUALS -> ">=";
-                };
-                case GROUP_MEMBERSHIP -> switch (object) {
-                    case EQUALS -> "IN";
-                    case NOT_EQUALS -> "NOT IN";
-                    default -> StringUtils.EMPTY;
-                };
-                case GROUP_MEMBER -> switch (object) {
-                    case EQUALS -> "WITH";
-                    case NOT_EQUALS -> "WITHOUT";
-                    default -> StringUtils.EMPTY;
-                };
-                case AUX_CLASS, ROLE_MEMBERSHIP, RESOURCE -> switch (object) {
-                    case EQUALS -> "HAS";
-                    case NOT_EQUALS -> "HAS NOT";
-                    default -> StringUtils.EMPTY;
-                };
-                case RELATIONSHIP -> switch (object) {
-                    case IS_NOT_NULL -> "EXIST";
-                    case IS_NULL -> "NOT EXIST";
-                    case EQUALS -> "WITH";
-                    case NOT_EQUALS -> "WITHOUT";
-                    default -> StringUtils.EMPTY;
-                };
-                case CUSTOM -> customizer.comparatorDisplayValue(object);
+                case ATTRIBUTE ->
+                    switch (object) {
+                        case IS_NULL ->
+                            "NULL";
+                        case IS_NOT_NULL ->
+                            "NOT NULL";
+                        case EQUALS ->
+                            "==";
+                        case NOT_EQUALS ->
+                            "!=";
+                        case LESS_THAN ->
+                            "<";
+                        case LESS_OR_EQUALS ->
+                            "<=";
+                        case GREATER_THAN ->
+                            ">";
+                        case GREATER_OR_EQUALS ->
+                            ">=";
+                    };
+                case GROUP_MEMBERSHIP ->
+                    switch (object) {
+                        case EQUALS ->
+                            "IN";
+                        case NOT_EQUALS ->
+                            "NOT IN";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case GROUP_MEMBER ->
+                    switch (object) {
+                        case EQUALS ->
+                            "WITH";
+                        case NOT_EQUALS ->
+                            "WITHOUT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case AUX_CLASS, ROLE_MEMBERSHIP, RESOURCE ->
+                    switch (object) {
+                        case EQUALS ->
+                            "HAS";
+                        case NOT_EQUALS ->
+                            "HAS NOT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case RELATIONSHIP ->
+                    switch (object) {
+                        case IS_NOT_NULL ->
+                            "EXIST";
+                        case IS_NULL ->
+                            "NOT EXIST";
+                        case EQUALS ->
+                            "WITH";
+                        case NOT_EQUALS ->
+                            "WITHOUT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case CUSTOM ->
+                    customizer.comparatorDisplayValue(object);
             };
         }
 
@@ -216,17 +244,25 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
 
             return switch (id) {
-                case "HAS", "IN", "WITH", "==" -> Comparator.EQUALS;
-                case "HAS NOT", "NOT IN", "WITHOUT", "!=" -> Comparator.NOT_EQUALS;
-                case "NULL", "NOT EXIST" -> Comparator.IS_NULL;
-                case "NOT NULL", "EXIST" -> Comparator.IS_NOT_NULL;
-                case "<" -> Comparator.LESS_THAN;
-                case "<=" -> Comparator.LESS_OR_EQUALS;
-                case ">" -> Comparator.GREATER_THAN;
-                case ">=" -> Comparator.GREATER_OR_EQUALS;
+                case "HAS", "IN", "WITH", "==" ->
+                    Comparator.EQUALS;
+                case "HAS NOT", "NOT IN", "WITHOUT", "!=" ->
+                    Comparator.NOT_EQUALS;
+                case "NULL", "NOT EXIST" ->
+                    Comparator.IS_NULL;
+                case "NOT NULL", "EXIST" ->
+                    Comparator.IS_NOT_NULL;
+                case "<" ->
+                    Comparator.LESS_THAN;
+                case "<=" ->
+                    Comparator.LESS_OR_EQUALS;
+                case ">" ->
+                    Comparator.GREATER_THAN;
+                case ">=" ->
+                    Comparator.GREATER_OR_EQUALS;
                 default ->
                     // EQUALS to be used as default value
-                        customizer.comparatorGetObject(id).orElse(Comparator.EQUALS);
+                    customizer.comparatorGetObject(id).orElse(Comparator.EQUALS);
             };
         }
     }

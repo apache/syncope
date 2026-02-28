@@ -376,20 +376,16 @@ public class OpenSearchRealmSearchDAO extends AbstractRealmSearchDAO implements 
         return fillAttrQuery(checked.schema(), checked.value(), checked.cond());
     }
 
-
     protected Query getQuery(final AuxClassCond cond) {
-        return new Query.Builder().term(QueryBuilders.term()
-                .field("auxClasses")
-                .value(FieldValue.of(cond.getAuxClass()))
-                .caseInsensitive(false)
-                .build()).build();
+        return new Query.Builder().term(QueryBuilders.term().
+                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).caseInsensitive(false).build()).
+                build();
     }
+
     protected Query getQuery(final ResourceCond cond) {
-        return new Query.Builder().term(QueryBuilders.term()
-                .field("resources")
-                .value(FieldValue.of(cond.getResource()))
-                .caseInsensitive(false)
-                .build()).build();
+        return new Query.Builder().term(QueryBuilders.term().
+                field("resources").value(FieldValue.of(cond.getResource())).caseInsensitive(false).build()).
+                build();
     }
 
     protected Query getQueryForCustomConds(final SearchCond cond) {

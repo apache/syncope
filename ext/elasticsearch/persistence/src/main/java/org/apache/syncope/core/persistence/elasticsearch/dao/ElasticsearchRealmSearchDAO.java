@@ -381,19 +381,15 @@ public class ElasticsearchRealmSearchDAO extends AbstractRealmSearchDAO implemen
     }
 
     protected Query getQuery(final AuxClassCond cond) {
-        return new Query.Builder().term(QueryBuilders.term()
-                .field("auxClasses")
-                .value(cond.getAuxClass())
-                .caseInsensitive(false)
-                .build()).build();
+        return new Query.Builder().term(QueryBuilders.term().
+                field("auxClasses").value(cond.getAuxClass()).caseInsensitive(false).build()).
+                build();
     }
 
     protected Query getQuery(final ResourceCond cond) {
-        return new Query.Builder().term(QueryBuilders.term()
-                .field("resources")
-                .value(cond.getResource())
-                .caseInsensitive(false)
-                .build()).build();
+        return new Query.Builder().term(QueryBuilders.term().
+                field("resources").value(cond.getResource()).caseInsensitive(false).build()).
+                build();
     }
 
     protected Query getQueryForCustomConds(final SearchCond cond) {

@@ -25,6 +25,7 @@ public class RealmSearchCondVisitor extends SyncopeAbstractSearchCondVisitor {
 
     @Override
     protected Optional<SpecialAttr> getSpecialAttrName(final String propertyName) {
-        return SpecialAttr.fromString(propertyName);
+        return SpecialAttr.fromString(propertyName).
+                filter(sa -> sa == SpecialAttr.NULL || sa == SpecialAttr.AUX_CLASSES || sa == SpecialAttr.RESOURCES);
     }
 }

@@ -250,12 +250,11 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected String getQuery(
-            final AnyTypeKind kind,
             final AuxClassCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
 
-        return "MATCH (n:" + AnyRepoExt.node(kind) + ") "
+        return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "(n)-[]-"
                 + "(:" + Neo4jAnyTypeClass.NODE + " {id: $" + setParameter(parameters, cond.getAuxClass()) + "}) ";
     }
@@ -378,7 +377,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Map<String, Object> parameters) {
 
         String param = setParameter(parameters, cond.getResource());
-        TextStringBuilder query = new TextStringBuilder("MATCH (n:").append(AnyRepoExt.node(kind)).append(") ").
+        TextStringBuilder query = new TextStringBuilder("MATCH (n) ").
                 append("WHERE ").
                 append(not ? "NOT " : "").
                 append("(n)-[]-(:").append(Neo4jExternalResource.NODE).append(" {id: $").append(param).append("}) ");
@@ -746,7 +745,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
                 cond.asLeaf(AuxClassCond.class).
-                        ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
                 cond.asLeaf(RelationshipTypeCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).

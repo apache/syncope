@@ -196,13 +196,13 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
                     node = cond.asLeaf(AnyCond.class)
                             .map(anyCond -> getQuery(anyCond, not, parameters))
                             .or(() -> cond.asLeaf(AttrCond.class).map(attrCond -> {
-                                CheckResult<AttrCond> checked = check(attrCond);
-                                AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
-                                if (query.addPlainSchemas()) {
-                                    plainSchemas.add(checked.schema().getKey());
-                                }
-                                return query.node();
-                            }));
+                        CheckResult<AttrCond> checked = check(attrCond);
+                        AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
+                        if (query.addPlainSchemas()) {
+                            plainSchemas.add(checked.schema().getKey());
+                        }
+                        return query.node();
+                    }));
                 }
 
                 if (node.isEmpty()) {
@@ -295,9 +295,9 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
             clause.append("r.id IN (");
         }
 
-        clause.append("SELECT realm_id FROM realm_search_auxClass WHERE anyTypeClass_id=?")
-                .append(setParameter(parameters, cond.getAuxClass()))
-                .append(')');
+        clause.append("SELECT realm_id FROM Realm_AnyTypeClass WHERE anyTypeClass_id=?").
+                append(setParameter(parameters, cond.getAuxClass())).
+                append(')');
 
         return new RealmSearchNode.Leaf(clause.toString());
     }
@@ -314,9 +314,9 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
             clause.append("r.id IN (");
         }
 
-        clause.append("SELECT realm_id FROM realm_search_resource WHERE resource_id=?")
-                .append(setParameter(parameters, cond.getResource()))
-                .append(')');
+        clause.append("SELECT realm_id FROM Realm_ExternalResource WHERE resource_id=?").
+                append(setParameter(parameters, cond.getResource())).
+                append(')');
 
         return new RealmSearchNode.Leaf(clause.toString());
     }

@@ -343,7 +343,7 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
             final boolean not,
             final Map<String, Object> parameters) {
 
-        return "MATCH (n:" + Neo4jRealm.NODE + ") "
+        return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "(n)-[]-"
                 + "(:" + Neo4jAnyTypeClass.NODE + " {id: $" + setParameter(parameters, cond.getAuxClass()) + "}) ";
     }
@@ -353,7 +353,7 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
             final boolean not,
             final Map<String, Object> parameters) {
 
-        return "MATCH (n:" + Neo4jRealm.NODE + ") "
+        return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "(n)-[]-"
                 + "(:" + Neo4jExternalResource.NODE + " {id: $" + setParameter(parameters, cond.getResource()) + "}) ";
     }
