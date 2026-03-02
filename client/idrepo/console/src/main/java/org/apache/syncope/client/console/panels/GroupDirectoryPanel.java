@@ -210,7 +210,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
     @Override
     protected String[] getDefaultAttributeSelection() {
-        return GroupAnyDisplayAttributesModalPanel.DEFAULT_SELECTION;
+        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -223,7 +223,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(displayAttributeModal.setContent(new GroupAnyDisplayAttributesModalPanel<>(
+                target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
                         plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),

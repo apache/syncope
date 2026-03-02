@@ -35,7 +35,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public abstract class AnyAbstractSearchPanel extends AbstractSearchPanel {
+abstract class AbstractAnySearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = 5922413053568696414L;
 
@@ -46,11 +46,11 @@ public abstract class AnyAbstractSearchPanel extends AbstractSearchPanel {
 
     protected final String anyType;
 
-    protected AnyAbstractSearchPanel(final String id, final AnyTypeKind kind, final Builder<?> builder) {
+    protected AbstractAnySearchPanel(final String id, final AnyTypeKind kind, final Builder<?> builder) {
         this(id, kind, kind.name(), builder);
     }
 
-    protected AnyAbstractSearchPanel(
+    protected AbstractAnySearchPanel(
             final String id, final AnyTypeKind kind, final String type, final Builder<?> builder) {
 
         super(id);
@@ -107,12 +107,7 @@ public abstract class AnyAbstractSearchPanel extends AbstractSearchPanel {
     }
 
     @Override
-    protected String sanitizeFIQLForSave(final String fiql) {
-        return fiql.replaceAll(SearchUtils.getTypeConditionPattern(anyType).pattern(), "");
-    }
-
-    @Override
-    protected String normalizeFIQLForLoad(final String fiql) {
+    protected String sanitizeFIQL(final String fiql) {
         return fiql.replaceAll(SearchUtils.getTypeConditionPattern(anyType).pattern(), "");
     }
 

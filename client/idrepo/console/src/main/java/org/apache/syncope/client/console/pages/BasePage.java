@@ -411,19 +411,19 @@ public class BasePage extends BaseWebPage {
         // 1. check if current class is set to top-level menu
         WebMarkupContainer containingLI = (WebMarkupContainer) body.get(
                 getLIContainerId(getClass().getSimpleName().toLowerCase()));
-        // 2. if not, check if it is under 'Keymaster'
+        // 2. if not, check if it is under 'Directory'
+        if (containingLI == null) {
+            containingLI = (WebMarkupContainer) directoryULContainer.get(
+                    getLIContainerId(getClass().getSimpleName().toLowerCase()));
+        }
+        // 3. if not, check if it is under 'Keymaster'
         if (containingLI == null) {
             containingLI = (WebMarkupContainer) keymasterULContainer.get(
                     getLIContainerId(getClass().getSimpleName().toLowerCase()));
         }
-        // 3. if not, check if it is under 'Configuration'
+        // 4. if not, check if it is under 'Configuration'
         if (containingLI == null) {
             containingLI = (WebMarkupContainer) confULContainer.get(
-                    getLIContainerId(getClass().getSimpleName().toLowerCase()));
-        }
-        // 4. if not, check if it is under 'Directory'
-        if (containingLI == null) {
-            containingLI = (WebMarkupContainer) directoryULContainer.get(
                     getLIContainerId(getClass().getSimpleName().toLowerCase()));
         }
         // 5. when found, set CSS coordinates for menu

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -185,7 +184,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 Optional.ofNullable(SearchUtils.buildFIQL(
                         AbstractSearchPanel.this.getModel().getObject(), getSearchConditionBuilder())).
                         ifPresentOrElse(
-                                fiql -> saveFIQLQuery.setFiql(sanitizeFIQLForSave(fiql)),
+                                fiql -> saveFIQLQuery.setFiql(sanitizeFIQL(fiql)),
                                 () -> saveFIQLQuery.setFiql(null));
                 saveFIQLQuery.toggle(target, true);
             }
@@ -212,7 +211,7 @@ public abstract class AbstractSearchPanel extends Panel {
     protected abstract String getFIQLQueryTarget();
 
     protected void updateFIQL(final AjaxRequestTarget target, final String fiql) {
-        model.setObject(SearchUtils.getSearchClauses(normalizeFIQLForLoad(fiql)));
+        model.setObject(SearchUtils.getSearchClauses(sanitizeFIQL(fiql)));
         target.add(searchFormContainer);
     }
 
@@ -263,7 +262,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return new HashMap<>();
+                return Map.of();
             }
         };
 
@@ -295,11 +294,7 @@ public abstract class AbstractSearchPanel extends Panel {
         return Pair.of(groupNames, Model.of(0L));
     }
 
-    protected String sanitizeFIQLForSave(final String fiql) {
-        return fiql;
-    }
-
-    protected String normalizeFIQLForLoad(final String fiql) {
+    protected String sanitizeFIQL(final String fiql) {
         return fiql;
     }
 

@@ -21,27 +21,26 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
 /**
- * Modal window with Display any attributes form.
+ * Modal window with Display group attributes form.
  *
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
-public class AnyObjectAnyDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
+public class GroupDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
     public static final String[] DEFAULT_SELECTION = { "name", "realm" };
 
-    public AnyObjectAnyDisplayAttributesModalPanel(
+    public GroupDisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,
-            final List<String> dSchemaNames,
-            final String type) {
-
-        super(modal, pageRef, schemaNames, dSchemaNames, type);
+            final List<String> dSchemaNames) {
+        super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.GROUP.name());
     }
 }

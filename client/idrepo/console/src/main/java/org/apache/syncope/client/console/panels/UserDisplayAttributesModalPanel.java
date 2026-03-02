@@ -30,13 +30,13 @@ import org.apache.wicket.PageReference;
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
-public class UserAnyDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
+public class UserDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
     public static final String[] DEFAULT_SELECTION = { "username", "status", "mustChangePassword", "realm" };
 
-    public UserAnyDisplayAttributesModalPanel(
+    public UserDisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
             final List<String> schemaNames,

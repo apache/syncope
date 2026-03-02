@@ -34,6 +34,7 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
@@ -104,8 +105,8 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
                 "details",
                 modelObject,
                 modelObject.getKey() == null
-                        ? new org.apache.wicket.model.PropertyModel<>(this, "parentPath")
-                        : null);
+                ? new PropertyModel<>(this, "parentPath")
+                : null);
         details.add(new AttributeAppender("style", "overflow-x:hidden;"));
 
         wizardModel.add(new Realm(details));

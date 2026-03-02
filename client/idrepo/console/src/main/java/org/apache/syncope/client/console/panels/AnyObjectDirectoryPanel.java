@@ -74,7 +74,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
     @Override
     protected String[] getDefaultAttributeSelection() {
-        return AnyObjectAnyDisplayAttributesModalPanel.DEFAULT_SELECTION;
+        return AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -87,7 +87,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(displayAttributeModal.setContent(new AnyObjectAnyDisplayAttributesModalPanel<>(
+                target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
                         plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
