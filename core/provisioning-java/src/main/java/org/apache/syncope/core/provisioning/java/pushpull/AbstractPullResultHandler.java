@@ -355,15 +355,11 @@ public abstract class AbstractPullResultHandler
 
                 Optional.ofNullable(req.getUManager()).ifPresent(patch -> uManagers.put(
                         before.getKey(),
-                        patch.getOperation() == PatchOperation.ADD_REPLACE
-                        ? Optional.of(patch.getValue())
-                        : Optional.empty()));
+                        Optional.ofNullable(patch.getValue())));
                 req.setUManager(null);
                 Optional.ofNullable(req.getGManager()).ifPresent(patch -> gManagers.put(
                         before.getKey(),
-                        patch.getOperation() == PatchOperation.ADD_REPLACE
-                        ? Optional.of(patch.getValue())
-                        : Optional.empty()));
+                        Optional.ofNullable(patch.getValue())));
                 req.setGManager(null);
 
                 req = doUpdate(before, req, delta, result);
