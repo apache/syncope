@@ -25,8 +25,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
@@ -738,34 +740,40 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         composeDefaultAccountPolicy(name);
 
         // goto realms
-        TESTER.clickLink("body:realmsLI:realms", false);
+        TESTER.clickLink(REALM_PAGE, false);
         TESTER.assertRenderedPage(Realms.class);
 
         // edit root realm
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
-                + "actionsPanel:actions:actionRepeater:1:action:action");
-        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
+        Component component = findComponentByProp("name",
+                "body:directoryPanel:container:content:searchContainer:resultTable"
+                        + ":tablePanel:groupForm:checkgroup:dataTable", SyncopeConstants.ROOT_REALM);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
+        TESTER.assertComponent("body:directoryPanel:outerObjectsRepeater:0:outer:dialog:header:header-label",
+                Label.class);
+        TESTER.assertLabel("body:directoryPanel:outerObjectsRepeater:0:outer:dialog:header:header-label",
+                "Edit Realm /");
 
         // set new account policy
-        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:container:"
-                + "policies:1:field-label", "Account Policy");
+        TESTER.assertComponent("body:directoryPanel:outerObjectsRepeater:0:outer:form:content:"
+                + "form:view:details:container:policies:1:field-label", Label.class);
+        TESTER.assertLabel("body:directoryPanel:outerObjectsRepeater:0:outer:form:content:"
+                + "form:view:details:container:policies:1:field-label", "Account policy");
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+                "body:directoryPanel:outerObjectsRepeater:0:outer:form:content:form");
         formTester.select("view:details:container:policies:1:dropDownChoiceField", 0);
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.executeAjaxEvent(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action",
-                Constants.ON_CLICK);
+        //navigate to Any Page (default: UserTab)
+        TESTER.clickLink(ANY_PAGE, false);
 
         // create user with a valid account name
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
-
-        Component component = findComponentByProp("username",
+        component = findComponentByProp("username",
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);

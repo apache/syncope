@@ -25,36 +25,47 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.RealmsUtils;
+import org.apache.syncope.client.console.commons.StatusProvider;
+import org.apache.syncope.client.console.pages.Anys;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.tasks.RealmPropagationTasks;
+import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
+import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -62,6 +73,8 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -101,7 +114,7 @@ public class RealmDirectoryPanel
         derSchemas.addAll(schemaRestClient.getSchemas(SchemaType.DERIVED, null, new String[0]));
 
         disableCheckBoxes();
-        setShowResultPanel(false);
+        setShowResultPanel(true);
 
         utilityModal.size(Modal.Size.Large);
         addOuterObject(utilityModal);
@@ -213,8 +226,8 @@ public class RealmDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final RealmTO realmTO) {
                 PageParameters parameters = new PageParameters();
-                parameters.add(Realms.INITIAL_REALM, realmTO.getFullPath());
-                setResponsePage(Realms.class, parameters);
+                parameters.add(Anys.INITIAL_REALM, realmTO.getFullPath());
+                setResponsePage(Anys.class, parameters);
             }
         }, ActionLink.ActionType.ZOOM_IN, IdRepoEntitlement.REALM_SEARCH, false).
                 setRealm(model.getObject().getFullPath());
@@ -320,6 +333,18 @@ public class RealmDirectoryPanel
 
         panel.add(new ActionLink<>() {
 
+            private static final long serialVersionUID = 6267403882972164669L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RealmTO realmTO) {
+                actionTogglePanel.close(target);
+                send(RealmDirectoryPanel.this, Broadcast.BUBBLE,
+                        new TemplatesTogglePanel.ShowTemplatesTogglePanelEvent(realmTO, target));
+            }
+        }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).setRealm(model.getObject().getFullPath());
+
+        panel.add(new ActionLink<>() {
+
             private static final long serialVersionUID = -8998343172643697605L;
 
             @Override
@@ -373,6 +398,111 @@ public class RealmDirectoryPanel
                 .setRealm(model.getObject().getFullPath());
 
         return panel;
+    }
+
+    @Override
+    protected Panel customResultBody(final String panelId, final RealmTO item, final Serializable result) {
+        if (!(result instanceof ProvisioningResult<?> provisioningResult)) {
+            throw new IllegalStateException("Unsupported result type");
+        }
+
+        MultilevelPanel mlp = new MultilevelPanel(panelId);
+        add(mlp);
+
+        PropagationStatus syncope = new PropagationStatus();
+        syncope.setStatus(ExecStatus.SUCCESS);
+        syncope.setResource(Constants.SYNCOPE);
+
+        List<PropagationStatus> propagations = new ArrayList<>();
+        propagations.add(syncope);
+        propagations.addAll(provisioningResult.getPropagationStatuses());
+
+        ListViewPanel.Builder<PropagationStatus> builder =
+                new ListViewPanel.Builder<>(PropagationStatus.class, pageRef) {
+
+            private static final long serialVersionUID = -6809736686861678498L;
+
+            @Override
+            protected Component getValueComponent(final String key, final PropagationStatus bean) {
+                if ("objectLink".equalsIgnoreCase(key)) {
+                    String remoteId = Optional.ofNullable(bean.getAfterObj()).
+                            flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
+                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
+                            orElse(StringUtils.EMPTY);
+
+                    return new Label("field", remoteId);
+                }
+
+                if ("status".equalsIgnoreCase(key)) {
+                    return StatusUtils.getStatusImagePanel("field", bean.getStatus());
+                }
+
+                return super.getValueComponent(key, bean);
+            }
+        };
+
+        builder.setItems(propagations);
+
+        builder.includes("resource", "objectLink", "status");
+        builder.withChecks(ListViewPanel.CheckAvailability.NONE);
+        builder.setReuseItem(false);
+
+        ActionLink<PropagationStatus> connObjectLink = new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            protected boolean statusCondition(final PropagationStatus bean) {
+                return !Constants.SYNCOPE.equals(bean.getResource())
+                        && (ExecStatus.CREATED == bean.getStatus()
+                        || ExecStatus.SUCCESS == bean.getStatus());
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationStatus status) {
+                mlp.next(status.getResource(), new RemoteRealmPanel(status), target);
+            }
+        };
+        SyncopeWebApplication.get().getStatusProvider().addConnObjectLink(builder, connObjectLink);
+
+        builder.addAction(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            protected boolean statusCondition(final PropagationStatus status) {
+                return StringUtils.isNotBlank(status.getFailureReason());
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationStatus status) {
+                mlp.next(status.getResource(), new PropagationErrorPanel(status.getFailureReason()), target);
+            }
+        }, ActionLink.ActionType.PROPAGATION_TASKS, StringUtils.EMPTY);
+
+        mlp.setFirstLevel(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
+        return mlp;
+    }
+
+    protected static class RemoteRealmPanel extends RemoteObjectPanel {
+
+        private static final long serialVersionUID = 4303365227411467563L;
+
+        protected final PropagationStatus bean;
+
+        protected RemoteRealmPanel(final PropagationStatus bean) {
+            this.bean = bean;
+            add(new ConnObjectPanel(
+                    REMOTE_OBJECT_PANEL_ID,
+                    Pair.of(new ResourceModel("before"), new ResourceModel("after")),
+                    getStatusProviderInfo(),
+                    false));
+        }
+
+        @Override
+        protected StatusProvider.Info getStatusProviderInfo() {
+            return new StatusProvider.Info(bean.getBeforeObj(), bean.getAfterObj());
+        }
     }
 
     @Override

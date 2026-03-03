@@ -1,34 +1,27 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * for additional information regarding copyright ownership.
+ * The ASF licenses this file under the Apache License, Version 2.0.
  */
 package org.apache.syncope.client.console.panels.search;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -52,6 +45,9 @@ public class RealmSearchPanel extends AbstractSearchPanel {
     private static final String FULLPATH = "fullPath";
 
     private static final List<String> ATTRIBUTES_INCLUDED = List.of("name", "key");
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
 
     public static class Builder extends AbstractSearchPanel.Builder<RealmSearchPanel> {
 
@@ -83,7 +79,6 @@ public class RealmSearchPanel extends AbstractSearchPanel {
                         public SearchClause.Type getObject(
                                 final String id,
                                 final IModel<? extends List<? extends SearchClause.Type>> choices) {
-
                             return SearchClause.Type.valueOf(id);
                         }
                     };
@@ -94,14 +89,9 @@ public class RealmSearchPanel extends AbstractSearchPanel {
                         final List<SearchClause.Type> available,
                         final int index,
                         final SearchClause currentClause) {
-
-                    if (currentClause != null && currentClause.getType() == SearchClause.Type.CUSTOM) {
-                        return available;
-                    }
-
-                    return available.stream()
-                            .filter(type -> type != SearchClause.Type.CUSTOM)
-                            .toList();
+                    return currentClause != null && currentClause.getType() == SearchClause.Type.CUSTOM
+                            ? available
+                            : available.stream().filter(type -> type != SearchClause.Type.CUSTOM).toList();
                 }
 
                 @Override
@@ -116,7 +106,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
                 @Override
                 public List<String> properties() {
-                    return List.of(BASE);
+                    return List.of(FULLPATH);
                 }
 
                 @Override
@@ -137,8 +127,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
                 @Override
                 public boolean showOperator(final int index, final SearchClause currentClause) {
-                    // For realm panel, do not show the AND/OR operator for the second clause (index == 1)
-                    return index > 1;
+                    return isNotBaseClause(currentClause, index);
                 }
             });
         }
@@ -149,17 +138,10 @@ public class RealmSearchPanel extends AbstractSearchPanel {
         }
     }
 
-    @SpringBean
-    protected SchemaRestClient schemaRestClient;
-
     protected RealmSearchPanel(final String id, final Builder builder) {
         super(id);
         if (builder.model.getObject().isEmpty()) {
-            SearchClause baseClause = new SearchClause();
-            baseClause.setType(SearchClause.Type.CUSTOM);
-            baseClause.setProperty(BASE);
-            baseClause.setComparator(SearchClause.Comparator.EQUALS);
-            baseClause.setValue("/");
+            SearchClause baseClause = createBaseClause(SyncopeConstants.ROOT_REALM);
             builder.model.getObject().add(baseClause);
         }
         init(builder);
@@ -177,7 +159,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
     @Override
     protected boolean isRemovable(final SearchClause clause, final int index) {
-        return index > 0 && (clause != null && clause.getType() != SearchClause.Type.CUSTOM);
+        return isNotBaseClause(clause, index);
     }
 
     @Override
@@ -186,7 +168,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
         this.types = new LoadableDetachableModel<>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = -5329135110865860544L;
 
             @Override
             protected List<SearchClause.Type> load() {
@@ -211,7 +193,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
         this.auxClassNames = new LoadableDetachableModel<>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 4082537432455696478L;
 
             @Override
             protected List<String> load() {
@@ -220,8 +202,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
         };
 
         this.resourceNames = new LoadableDetachableModel<>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 2392986851268987236L;
 
             @Override
             protected List<String> load() {
@@ -230,8 +211,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
         };
 
         this.dnames = new LoadableDetachableModel<>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 1727353134876260253L;
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
@@ -247,5 +227,67 @@ public class RealmSearchPanel extends AbstractSearchPanel {
                 return dSchemaNames;
             }
         };
+    }
+
+    @Override
+    protected ActionLink<Serializable> saveAction(final SaveFIQLQuery saveFIQLQuery) {
+        return new ActionLink<>() {
+            private static final long serialVersionUID = -7354640433272022003L;
+            @Override
+            public void onClick(final org.apache.wicket.ajax.AjaxRequestTarget target, final Serializable ignore) {
+                Function<SearchClause, CompleteCondition> fullPathHandler = clause -> {
+                    if (clause.getType() == SearchClause.Type.CUSTOM && FULLPATH.equals(clause.getProperty())) {
+                        return getSearchConditionBuilder().is(FULLPATH).equalTo(clause.getValue());
+                    }
+                    return null;
+                };
+
+                Optional.ofNullable(SearchUtils.buildFIQL(
+                        getModel().getObject(),
+                        getSearchConditionBuilder(),
+                        getAvailableSchemaTypes(),
+                        fullPathHandler))
+                        .ifPresentOrElse(
+                                fiql -> saveFIQLQuery.setFiql(sanitizeFIQL(fiql)),
+                                () -> saveFIQLQuery.setFiql(null));
+
+                saveFIQLQuery.toggle(target, true);
+            }
+        };
+    }
+
+    @Override
+    protected void updateFIQL(final org.apache.wicket.ajax.AjaxRequestTarget target, final String fiql) {
+        List<SearchClause> clauses = SearchUtils.getSearchClauses(sanitizeFIQL(fiql));
+
+        String baseValue = clauses.stream()
+                .filter(cl -> FULLPATH.equals(cl.getProperty()))
+                .map(SearchClause::getValue)
+                .findFirst()
+                .orElse(SyncopeConstants.ROOT_REALM);
+
+        SearchClause baseClause = createBaseClause(baseValue);
+
+        clauses.removeIf(cl -> FULLPATH.equals(cl.getProperty()));
+        clauses.addFirst(baseClause);
+
+        model.setObject(clauses);
+        target.add(searchFormContainer);
+    }
+
+    protected SearchClause createBaseClause(final String value) {
+        SearchClause baseClause = new SearchClause();
+        baseClause.setType(SearchClause.Type.CUSTOM);
+        baseClause.setProperty(FULLPATH);
+        baseClause.setComparator(SearchClause.Comparator.EQUALS);
+        baseClause.setValue(value);
+        return baseClause;
+    }
+
+    protected static boolean isNotBaseClause(final SearchClause clause, final int index) {
+        return clause == null
+                || clause.getType() != SearchClause.Type.CUSTOM
+                || !FULLPATH.equals(clause.getProperty())
+                || index > 1;
     }
 }

@@ -158,16 +158,16 @@ public class BasePage extends BaseWebPage {
         WebMarkupContainer directoryULContainer = new WebMarkupContainer(getULContainerId("directory"));
         directoryLIContainer.add(directoryULContainer);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("realmpage"));
-        directoryULContainer.add(liContainer);
-        BookmarkablePageLink<? extends BasePage> realmPageLink =
-                BookmarkablePageLinkBuilder.build("realmpage", RealmPage.class);
-        MetaDataRoleAuthorizationStrategy.authorize(realmPageLink, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
-        liContainer.add(realmPageLink);
-
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
         directoryULContainer.add(liContainer);
-        BookmarkablePageLink<? extends BasePage> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
+        BookmarkablePageLink<? extends BasePage> link =
+                BookmarkablePageLinkBuilder.build("realms", Realms.class);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
+        liContainer.add(link);
+
+        liContainer = new WebMarkupContainer(getLIContainerId("anys"));
+        directoryULContainer.add(liContainer);
+        link = BookmarkablePageLinkBuilder.build("anys", Anys.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
         liContainer.add(link);
 

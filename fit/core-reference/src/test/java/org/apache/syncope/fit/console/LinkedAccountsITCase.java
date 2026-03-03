@@ -112,8 +112,8 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
     @Test
     public void createLinkedAccountAndMergeWithUser() {
         // Locate and select first user
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:0:link");
 
         Component verdiUserComponent = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "verdi");

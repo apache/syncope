@@ -27,26 +27,25 @@ under the License.
           <div class="col-sm-6 mt-3">
             <ol class="breadcrumb float-sm-end">
               <li class="breadcrumb-item">
-                <a wicket:id="dashboardBr"><i class="fa fa-tachometer-alt"></i> <wicket:message key="dashboard"></wicket:message></a>
+                <a wicket:id="dashboardBr"><i class="fa fa-tachometer-alt"></i> <wicket:message key="dashboard"/></a>
               </li>
               <li class="breadcrumb-item active"><wicket:message key="directory"/></li>
-              <li class="breadcrumb-item active"><wicket:message key="any"/></li>
+              <li class="breadcrumb-item active"><wicket:message key="realm"/></li>
             </ol>
           </div>
         </div>
-      </div><!-- /.container-fluid -->
+      </div>
     </section>
 
-    <section class="content" wicket:id="content">
+    <section class="content">
       <div class="container-fluid">
         <div class="card card-outline">
-          <div class="card-header" wicket:id="realmChoicePanel"/>
           <div class="card-body">
-            <wicket:container wicket:id="body"/>
+            <div wicket:id="accordionPanel"></div>
+            <div wicket:id="directoryPanel"></div>
           </div>
         </div>
       </div>
-      <div wicket:id="modal"/>
       <div wicket:id="templateModal"/>
       <span wicket:id="toggleTemplates"/>
     </section>

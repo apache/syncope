@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.MarkupContainer;
@@ -196,5 +197,9 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
     public void setTargetObject(final TemplatableTO targetObject) {
         this.targetObject = targetObject;
+    }
+
+    public record ShowTemplatesTogglePanelEvent(RealmTO realmTO, AjaxRequestTarget target) {
+
     }
 }

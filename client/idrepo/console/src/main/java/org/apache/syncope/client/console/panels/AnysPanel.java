@@ -56,11 +56,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Realm extends WizardMgtPanel<RealmTO> {
+public abstract class AnysPanel extends WizardMgtPanel<RealmTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Realm.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnysPanel.class);
 
     @SpringBean
     protected RoleRestClient roleRestClient;
@@ -76,7 +76,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected final RealmWizardBuilder wizardBuilder;
 
-    public Realm(
+    public AnysPanel(
             final String id,
             final RealmTO realmTO,
             final List<AnyTypeTO> anyTypes,
@@ -158,26 +158,26 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         ListViewPanel.Builder<PropagationStatus> builder =
                 new ListViewPanel.Builder<>(PropagationStatus.class, pageRef) {
 
-            private static final long serialVersionUID = -6809736686861678498L;
+                    private static final long serialVersionUID = -6809736686861678498L;
 
-            @Override
-            protected Component getValueComponent(final String key, final PropagationStatus bean) {
-                if ("afterObj".equalsIgnoreCase(key)) {
-                    String remoteId = Optional.ofNullable(bean.getAfterObj()).
-                            flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
-                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
-                            orElse(StringUtils.EMPTY);
+                    @Override
+                    protected Component getValueComponent(final String key, final PropagationStatus bean) {
+                        if ("afterObj".equalsIgnoreCase(key)) {
+                            String remoteId = Optional.ofNullable(bean.getAfterObj()).
+                                    flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
+                                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
+                                    orElse(StringUtils.EMPTY);
 
-                    return new Label("field", remoteId);
-                }
+                            return new Label("field", remoteId);
+                        }
 
-                if ("status".equalsIgnoreCase(key)) {
-                    return StatusUtils.getStatusImagePanel("field", bean.getStatus());
-                }
+                        if ("status".equalsIgnoreCase(key)) {
+                            return StatusUtils.getStatusImagePanel("field", bean.getStatus());
+                        }
 
-                return super.getValueComponent(key, bean);
-            }
-        };
+                        return super.getValueComponent(key, bean);
+                    }
+                };
 
         builder.setItems(propagations);
 
