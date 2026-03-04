@@ -117,6 +117,81 @@ body {
   width: 65px;
 }
 
-/* BreadCrumb
+/* Sidebar Treeview
 ============================================================================= */
-.no-separator::before{content:none !important;}
+.app-sidebar {
+  .sidebar-menu {
+    .nav-treeview {
+      margin-left: 1rem;
+      padding-left: 0.5rem;
+      border-left: 1px solid rgba(0, 0, 0, 0.2);
+
+      > .nav-item {
+        > .nav-link {
+          position: relative;
+          padding-left: 0.5rem;
+        }
+      }
+    }
+  }
+}
+
+/* BreadCrumb - MUI Style
+============================================================================= */
+
+.syncope-breadcrumb {
+  padding: 0;
+  margin: 0;
+
+  &-list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &-item {
+    display: flex;
+    align-items: center;
+    list-style: none;
+
+    &:not(:last-child)::after {
+      content: '>';
+      margin-left: 8px;
+      color: #9ca3af;
+    }
+  }
+
+  &-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 4px;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(59, 130, 246, 0.08);
+      text-decoration: none;
+    }
+
+    &:active {
+      background-color: rgba(59, 130, 246, 0.12);
+    }
+
+    &:disabled {
+      color: #6b7280;
+      cursor: not-allowed;
+      pointer-events: none;
+
+      &:hover {
+        background-color: transparent;
+        text-decoration: none;
+      }
+    }
+  }
+}

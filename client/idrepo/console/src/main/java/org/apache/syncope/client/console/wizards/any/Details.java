@@ -23,7 +23,7 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
-import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.console.pages.Anys;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -92,8 +92,8 @@ public class Details<T extends AnyTO> extends WizardStep {
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    return (pageRef.getPage() instanceof Realms realms
-                            ? getRealmsFromLinks(realms.getRealmChoicePanel().getLinks())
+                    return (pageRef.getPage() instanceof Anys anys
+                            ? getRealmsFromLinks(anys.getRealmChoicePanel().getLinks())
                             : (fullRealmsTree
                                     ? realmRestClient.search(RealmsUtils.buildBaseQuery())
                                     : realmRestClient.search(RealmsUtils.buildNameQuery(input))).getResult()).

@@ -33,6 +33,9 @@ import org.junit.jupiter.api.Test;
 
 public class GroupsITCase extends AbstractConsoleITCase {
 
+    private static final String GROUP_TAB =
+            "body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link";
+
     private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private static final String CONTAINER = TAB_PANEL + "container:content:";
@@ -44,8 +47,8 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void read() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(GROUP_TAB);
 
         Component component = findComponentByProp("name", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "artDirector");
@@ -74,8 +77,8 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(GROUP_TAB);
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
@@ -92,8 +95,8 @@ public class GroupsITCase extends AbstractConsoleITCase {
     }
 
     private static void cloneGroup(final String group) {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(GROUP_TAB);
 
         Component component = findComponentByProp("name", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", group);
@@ -227,8 +230,8 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeleteGroupLink() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(GROUP_TAB);
 
         Component component = findComponentByProp("name", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");

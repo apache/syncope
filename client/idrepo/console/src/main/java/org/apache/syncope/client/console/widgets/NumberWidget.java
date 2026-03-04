@@ -22,8 +22,8 @@ import java.text.NumberFormat;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.pages.Anys;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.pages.Security;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -55,10 +55,9 @@ public class NumberWidget extends BaseWidget {
         box.add(new AttributeAppender("class", ' ' + bg));
 
         @SuppressWarnings("unchecked")
-        Class<? extends BasePage> realmsPage =
-                (Class<? extends BasePage>) SyncopeWebApplication.get().getPageClass("realms");
-        if (realmsPage == null) {
-            realmsPage = Realms.class;
+        Class<? extends BasePage> realms = SyncopeWebApplication.get().getPageClass("anys");
+        if (realms == null) {
+            realms = Anys.class;
         }
 
         boolean isAuthorized = true;
@@ -67,14 +66,14 @@ public class NumberWidget extends BaseWidget {
         List<String> anyTypes = anyTypeRestClient.list();
         switch (id) {
             case "totalUsers":
-                pageParameters.add(Realms.SELECTED_INDEX, 1);
-                responsePage = realmsPage;
+                pageParameters.add(Anys.SELECTED_INDEX, 0);
+                responsePage = realms;
                 isAuthorized = SyncopeConsoleSession.get().owns(IdRepoEntitlement.USER_SEARCH);
                 break;
 
             case "totalGroups":
-                pageParameters.add(Realms.SELECTED_INDEX, 2);
-                responsePage = realmsPage;
+                pageParameters.add(Anys.SELECTED_INDEX, 1);
+                responsePage = realms;
                 isAuthorized = SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH);
                 break;
 
@@ -83,11 +82,11 @@ public class NumberWidget extends BaseWidget {
                     Integer selectedIndex = null;
                     for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
                         if (anyTypes.get(i).equals(label)) {
-                            selectedIndex = i + 1;
-                            pageParameters.add(Realms.SELECTED_INDEX, selectedIndex);
+                            selectedIndex = i;
+                            pageParameters.add(Anys.SELECTED_INDEX, selectedIndex);
                         }
                     }
-                    responsePage = realmsPage;
+                    responsePage = realms;
                     isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
                 } else {
                     responsePage = Security.class;
@@ -99,17 +98,17 @@ public class NumberWidget extends BaseWidget {
                 Integer selectedIndex = null;
                 for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
                     if (anyTypes.get(i).equals(label)) {
-                        selectedIndex = i + 1;
-                        pageParameters.add(Realms.SELECTED_INDEX, selectedIndex);
+                        selectedIndex = i;
+                        pageParameters.add(Anys.SELECTED_INDEX, selectedIndex);
                     }
                 }
-                responsePage = realmsPage;
+                responsePage = realms;
                 isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
                 break;
 
             default:
-                pageParameters.add(Realms.SELECTED_INDEX, 0);
-                responsePage = realmsPage;
+                pageParameters.add(Anys.SELECTED_INDEX, 0);
+                responsePage = realms;
         }
 
         AjaxEventBehavior clickToRealms = new AjaxEventBehavior("mousedown") {

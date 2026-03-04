@@ -82,6 +82,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getTotalCount();
     }
 
+    public long countByEntityKey(final String entityKey, final TaskType kind) {
+        return getService(TaskService.class).search(
+                new TaskQuery.Builder(kind).entityKey(entityKey).page(1).size(0).build()).getTotalCount();
+    }
+
     public long count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
@@ -113,6 +118,20 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).
                 <PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
                         anyTypeKind(anyTypeKind).entityKey(entityKey).
+                        page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
+    }
+
+    public List<PropagationTaskTO> listPropagationTasksByEntityKey(
+            final String entityKey,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
+
+        return getService(TaskService.class).
+                <PropagationTaskTO>search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                        entityKey(entityKey).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();

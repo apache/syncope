@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -177,10 +176,7 @@ public class RealmChoicePanel extends Panel {
                     @Override
                     protected void onInitialize() {
                         super.onInitialize();
-                        String fullPath = RealmsUtils.getFullPath(item.getModelObject());
-                        if (!SyncopeConstants.ROOT_REALM.equals(fullPath) && fullPath.lastIndexOf("/") == 0) {
-                            item.add(new AttributeModifier("class", "breadcrumb-item no-separator"));
-                        }
+                        // MUI style breadcrumb doesn't need special separator handling
                     }
 
                     @Override

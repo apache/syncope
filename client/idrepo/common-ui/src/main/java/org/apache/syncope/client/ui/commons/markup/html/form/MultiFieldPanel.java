@@ -72,6 +72,10 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
             return null;
         }
 
+        protected boolean isRemovable(final ListItem<E> item) {
+            return true;
+        }
+
         public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
             return new MultiFieldPanel<>(id, name, model) {
 
@@ -80,6 +84,11 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
                 @Override
                 protected E newModelObject() {
                     return Builder.this.newModelObject();
+                }
+
+                @Override
+                protected boolean isRemovable(final ListItem<E> item) {
+                    return Builder.this.isRemovable(item);
                 }
 
                 @Override

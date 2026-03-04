@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.console.pages.Anys;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -87,10 +87,10 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         TESTER.assertLabel(component.getPageRelativePath() + ":cells:3:cell", "[csv]");
 
         // issue SYNCOPE-1111
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.assertRenderedPage(Realms.class);
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.assertRenderedPage(Anys.class);
         TESTER.assertLabel(
-                "body:content:body:container:content:tabbedPanel:tabs-container:tabs:4:link:title",
+                "body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link:title",
                 anyTypeTest);
     }
 
