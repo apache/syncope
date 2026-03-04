@@ -158,26 +158,26 @@ public abstract class AnysPanel extends WizardMgtPanel<RealmTO> {
         ListViewPanel.Builder<PropagationStatus> builder =
                 new ListViewPanel.Builder<>(PropagationStatus.class, pageRef) {
 
-                    private static final long serialVersionUID = -6809736686861678498L;
+            private static final long serialVersionUID = -6809736686861678498L;
 
-                    @Override
-                    protected Component getValueComponent(final String key, final PropagationStatus bean) {
-                        if ("afterObj".equalsIgnoreCase(key)) {
-                            String remoteId = Optional.ofNullable(bean.getAfterObj()).
-                                    flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
-                                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
-                                    orElse(StringUtils.EMPTY);
+            @Override
+            protected Component getValueComponent(final String key, final PropagationStatus bean) {
+                if ("afterObj".equalsIgnoreCase(key)) {
+                    String remoteId = Optional.ofNullable(bean.getAfterObj()).
+                            flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
+                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
+                            orElse(StringUtils.EMPTY);
 
-                            return new Label("field", remoteId);
-                        }
+                    return new Label("field", remoteId);
+                }
 
-                        if ("status".equalsIgnoreCase(key)) {
-                            return StatusUtils.getStatusImagePanel("field", bean.getStatus());
-                        }
+                if ("status".equalsIgnoreCase(key)) {
+                    return StatusUtils.getStatusImagePanel("field", bean.getStatus());
+                }
 
-                        return super.getValueComponent(key, bean);
-                    }
-                };
+                return super.getValueComponent(key, bean);
+            }
+        };
 
         builder.setItems(propagations);
 
@@ -242,5 +242,4 @@ public abstract class AnysPanel extends WizardMgtPanel<RealmTO> {
             return new StatusProvider.Info(bean.getBeforeObj(), bean.getAfterObj());
         }
     }
-
 }

@@ -200,7 +200,7 @@ public class RealmDirectoryPanel
                 target.add(displayAttributeModal.setContent(new RealmDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
-                        new ArrayList<>(RealmDisplayAttributesModalPanel.AVAILABLE_COLUMNS),
+                        RealmDisplayAttributesModalPanel.AVAILABLE_COLUMNS,
                         plainSchemas.stream().map(PlainSchemaTO::getKey).toList(),
                         derSchemas.stream().map(DerSchemaTO::getKey).toList())));
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));

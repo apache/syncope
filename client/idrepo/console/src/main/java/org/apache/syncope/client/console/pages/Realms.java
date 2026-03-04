@@ -161,8 +161,8 @@ public class Realms extends BasePage {
                     .toList();
 
             realmDirectoryPanel.search(base, Optional.ofNullable(SearchUtils.buildFIQL(
-                            fiqlClauses,
-                            SyncopeClient.getRealmFiqlSearchConditionBuilder())).orElse(StringUtils.EMPTY),
+                    fiqlClauses,
+                    SyncopeClient.getRealmFiqlSearchConditionBuilder())).orElse(StringUtils.EMPTY),
                     payload.getTarget());
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent<?> newItemEvent) {
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();

@@ -175,8 +175,8 @@ public abstract class AbstractSearchPanel extends Panel {
         add(saveFIQLQuery);
 
         ActionsPanel<Serializable> fiqlQueryActionsPanel = new ActionsPanel<>("fiqlQueryActionsPanel", null);
-        fiqlQueryActionsPanel.add(saveAction(saveFIQLQuery), ActionLink.ActionType.EXPORT, StringUtils.EMPTY)
-                .hideLabel();
+        fiqlQueryActionsPanel.add(saveAction(saveFIQLQuery), ActionLink.ActionType.EXPORT, StringUtils.EMPTY).
+                hideLabel();
         fiqlQueryActionsPanel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -279,21 +279,20 @@ public abstract class AbstractSearchPanel extends Panel {
     }
 
     protected ActionLink<Serializable> saveAction(final SaveFIQLQuery saveFIQLQuery) {
-    return new ActionLink<>() {
+        return new ActionLink<>() {
 
-        private static final long serialVersionUID = 2041211756396714619L;
+            private static final long serialVersionUID = 2041211756396714619L;
 
-        @Override
-        public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-            Optional.ofNullable(SearchUtils.buildFIQL(
-                    AbstractSearchPanel.this.getModel().getObject(), getSearchConditionBuilder()))
-                    .ifPresentOrElse(
-                            fiql -> saveFIQLQuery.setFiql(sanitizeFIQL(fiql)),
-                            () -> saveFIQLQuery.setFiql(null));
-            saveFIQLQuery.toggle(target, true);
-        }
-    };
-}
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                Optional.ofNullable(SearchUtils.buildFIQL(
+                        getModel().getObject(), getSearchConditionBuilder())).ifPresentOrElse(
+                        fiql -> saveFIQLQuery.setFiql(sanitizeFIQL(fiql)),
+                        () -> saveFIQLQuery.setFiql(null));
+                saveFIQLQuery.toggle(target, true);
+            }
+        };
+    }
 
     protected Pair<IModel<List<String>>, IModel<Long>> getGroupInfo() {
         return Pair.of(groupNames, Model.of(0L));

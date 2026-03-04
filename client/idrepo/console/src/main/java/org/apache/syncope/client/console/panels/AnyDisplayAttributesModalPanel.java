@@ -19,10 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.search.SearchableFields;
@@ -54,19 +51,13 @@ public abstract class AnyDisplayAttributesModalPanel<T extends Serializable> ext
         super(
                 modal,
                 pageRef,
-                SearchableFields.get(getTOClass(type)).keySet().stream().sorted().collect(Collectors.toList()),
-                sortedCopy(pSchemaNames),
-                sortedCopy(dSchemaNames),
+                SearchableFields.get(getTOClass(type)).keySet().stream().toList(),
+                pSchemaNames,
+                dSchemaNames,
                 getPrefDetailView(type),
                 getPrefPlainAttributeView(type),
                 getPrefDerivedAttributeView(type));
         this.type = type;
-    }
-
-    private static List<String> sortedCopy(final List<String> values) {
-        List<String> copy = new ArrayList<>(values);
-        Collections.sort(copy);
-        return copy;
     }
 
     public static String getPrefDetailView(final String type) {

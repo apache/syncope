@@ -36,7 +36,13 @@ public class RealmDisplayAttributesModalPanel<T extends Serializable> extends Ab
             "parent",
             "plainAttrs",
             "derAttrs",
-            "templates");
+            "templates",
+            "accountPolicy",
+            "passwordPolicy",
+            "authPolicy",
+            "accessPolicy",
+            "attrReleasePolicy",
+            "ticketExpirationPolicy");
 
     protected static final List<String> DEFAULT_COLUMNS = List.of(
             Constants.KEY_FIELD_NAME,
