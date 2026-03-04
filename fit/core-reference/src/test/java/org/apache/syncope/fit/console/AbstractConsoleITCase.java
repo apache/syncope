@@ -67,6 +67,10 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
+    protected static final String REALM_PAGE = "body:directoryLI:directoryUL:realmsLI:realms";
+
+    protected static final String ANY_PAGE = "body:directoryLI:directoryUL:anysLI:anys";
+
     @ImportAutoConfiguration(classes = {
         SelfKeymasterClientContext.class,
         ZookeeperKeymasterClientContext.class,

@@ -40,6 +40,8 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
+import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -187,17 +189,25 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                node = cond.asLeaf(AnyCond.class).
-                        map(anyCond -> getQuery(anyCond, not, parameters)).
-                        or(() -> cond.asLeaf(AttrCond.class).
-                        map(attrCond -> {
-                            CheckResult<AttrCond> checked = check(attrCond);
-                            AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
-                            if (query.addPlainSchemas()) {
-                                plainSchemas.add(checked.schema().getKey());
-                            }
-                            return query.node();
-                        }));
+                node = cond.asLeaf(AuxClassCond.class).
+                        map(leaf -> getQuery(leaf, not, parameters));
+
+                if (node.isEmpty()) {
+                    node = cond.asLeaf(ResourceCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters));
+                }
+                if (node.isEmpty()) {
+                    node = cond.asLeaf(AnyCond.class)
+                            .map(anyCond -> getQuery(anyCond, not, parameters))
+                            .or(() -> cond.asLeaf(AttrCond.class).map(attrCond -> {
+                        CheckResult<AttrCond> checked = check(attrCond);
+                        AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
+                        if (query.addPlainSchemas()) {
+                            plainSchemas.add(checked.schema().getKey());
+                        }
+                        return query.node();
+                    }));
+                }
 
                 if (node.isEmpty()) {
                     node = getQueryForCustomConds(cond, not, parameters);
@@ -275,6 +285,44 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
                 not,
                 parameters);
         };
+    }
+
+    protected RealmSearchNode getQuery(
+            final AuxClassCond cond,
+            final boolean not,
+            final List<Object> parameters) {
+
+        StringBuilder clause = new StringBuilder();
+        if (not) {
+            clause.append("r.id NOT IN (");
+        } else {
+            clause.append("r.id IN (");
+        }
+
+        clause.append("SELECT realm_id FROM Realm_AnyTypeClass WHERE anyTypeClass_id=?").
+                append(setParameter(parameters, cond.getAuxClass())).
+                append(')');
+
+        return new RealmSearchNode.Leaf(clause.toString());
+    }
+
+    protected RealmSearchNode getQuery(
+            final ResourceCond cond,
+            final boolean not,
+            final List<Object> parameters) {
+
+        StringBuilder clause = new StringBuilder();
+        if (not) {
+            clause.append("r.id NOT IN (");
+        } else {
+            clause.append("r.id IN (");
+        }
+
+        clause.append("SELECT realm_id FROM Realm_ExternalResource WHERE resource_id=?").
+                append(setParameter(parameters, cond.getResource())).
+                append(')');
+
+        return new RealmSearchNode.Leaf(clause.toString());
     }
 
     protected RealmSearchNode.Leaf fillAttrQuery(
@@ -532,7 +580,7 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
 
         @SuppressWarnings("unchecked")
         List<String> keys = query.getResultList().stream().
-                map(key -> key instanceof Object[] array ? (String) (array)[0] : ((String) key)).
+                map(key -> key instanceof Object[] array ? (array)[0] : key).
                 toList();
 
         return keys.stream().map(k -> entityManager.find(JPARealm.class, k)).

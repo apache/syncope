@@ -36,6 +36,13 @@ public class RealmFiqlSearchConditionBuilder
         public Builder(final RealmFiqlSearchConditionBuilder.Builder parent) {
             super(parent);
         }
+
+        @Override
+        public RealmProperty is(final String property) {
+            Builder b = new Builder(this);
+            b.result = property;
+            return b;
+        }
     }
 
     @Override

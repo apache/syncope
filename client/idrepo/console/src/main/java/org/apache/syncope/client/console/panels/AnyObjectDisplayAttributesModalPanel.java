@@ -29,7 +29,7 @@ import org.apache.wicket.PageReference;
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
  * {@link org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper}
  */
-public class AnyObjectDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
+public class AnyObjectDisplayAttributesModalPanel<T extends Serializable> extends AnyDisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 

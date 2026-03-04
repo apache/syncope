@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.console;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.console.pages.Anys;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,13 +29,13 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
     @BeforeEach
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.assertRenderedPage(Realms.class);
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.assertRenderedPage(Anys.class);
     }
 
     @Test
     public void readAndSet() {
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
                 + "searchContainer:tablehandling:actionRepeater:1:action:action");

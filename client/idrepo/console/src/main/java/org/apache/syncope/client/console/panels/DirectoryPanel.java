@@ -180,7 +180,7 @@ public abstract class DirectoryPanel<
 
         setWindowClosedReloadCallback(modal);
 
-        altDefaultModal.size(Modal.Size.Default);
+        altDefaultModal.size(Modal.Size.Large);
         setWindowClosedReloadCallback(altDefaultModal);
 
         displayAttributeModal.size(Modal.Size.Default);

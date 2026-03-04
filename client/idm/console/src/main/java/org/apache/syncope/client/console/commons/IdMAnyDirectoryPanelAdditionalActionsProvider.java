@@ -26,7 +26,7 @@ import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
-import org.apache.syncope.client.console.panels.DisplayAttributesModalPanel;
+import org.apache.syncope.client.console.panels.AnyDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
@@ -195,11 +195,11 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             final List<String> dSchemaNames) {
 
         return new CSVPushSpec.Builder(type).
-                fields(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDetailView(type)).
+                fields(PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefDetailView(type)).
                         stream().filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).toList()).
-                plainAttrs(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                plainAttrs(PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
                         stream().filter(pSchemaNames::contains).toList()).
-                derAttrs(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                derAttrs(PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
                         stream().filter(dSchemaNames::contains).toList()).
                 build();
     }

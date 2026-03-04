@@ -103,7 +103,6 @@ public class RealmITCase extends AbstractITCase {
         realm.setName("searchTest4");
         realm.getAnyTypeClasses().add("other");
         realm.getPlainAttrs().add(new Attr.Builder("aLong").value("4242").build());
-        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
         REALM_SERVICE.create("/even/two", realm);
 
         realm = new RealmTO();
@@ -112,7 +111,6 @@ public class RealmITCase extends AbstractITCase {
         realm.getPlainAttrs().add(new Attr.Builder("ctype").value("String5").build());
         realm.getPlainAttrs().add(new Attr.Builder("aLong").value("5").build());
         realm.getPlainAttrs().add(new Attr.Builder("loginDate").value("2011-05-26").build());
-        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
         REALM_SERVICE.create("/even", realm);
 
         // Numeric equality
@@ -229,6 +227,23 @@ public class RealmITCase extends AbstractITCase {
         SyncopeClientException exception = assertThrows(SyncopeClientException.class,
                 () -> REALM_SERVICE.search(new RealmQuery.Builder().fiql("aLong==notANumber").build()));
         assertEquals(ClientExceptionType.InvalidSearchParameters, exception.getType());
+
+        // Resource
+        match = REALM_SERVICE.search(new RealmQuery.Builder().
+                fiql("name==searchTest*;$resources==" + RESOURCE_NAME_LDAP_ORGUNIT).build());
+        assertEquals(3, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest1")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+
+        // Resource
+        match = REALM_SERVICE.search(new RealmQuery.Builder().base("/even").
+                fiql("name==searchTest*;$auxClasses==other").build());
+        assertEquals(4, match.getSize());
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest2")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest3")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest4")));
+        assertTrue(match.getResult().stream().anyMatch(r -> r.getName().equals("searchTest5")));
     }
 
     @Test
