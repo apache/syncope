@@ -106,6 +106,18 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             return new ChoiceRenderer<>();
         }
 
+        default List<SearchClause.Type> types(
+                final List<SearchClause.Type> available,
+                final int index,
+                final SearchClause currentClause) {
+
+            return available;
+        }
+
+        default boolean typeEnabled(final int index, final SearchClause currentClause) {
+            return true;
+        }
+
         default List<Comparator> comparators() {
             return List.of();
         }
@@ -120,6 +132,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         default List<String> properties() {
             return List.of();
+        }
+
+        default boolean showOperator(final int index, final SearchClause currentClause) {
+            return index > 0;
         }
 
         default void adjust(
@@ -149,126 +165,69 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 return object.toString();
             }
 
-            String display;
-
-            switch (clause.getObject().getType()) {
-                case ATTRIBUTE:
+            return switch (clause.getObject().getType()) {
+                case ATTRIBUTE ->
                     switch (object) {
-                        case IS_NULL:
-                            display = "NULL";
-                            break;
-
-                        case IS_NOT_NULL:
-                            display = "NOT NULL";
-                            break;
-
-                        case EQUALS:
-                            display = "==";
-                            break;
-
-                        case NOT_EQUALS:
-                            display = "!=";
-                            break;
-
-                        case LESS_THAN:
-                            display = "<";
-                            break;
-
-                        case LESS_OR_EQUALS:
-                            display = "<=";
-                            break;
-
-                        case GREATER_THAN:
-                            display = ">";
-                            break;
-
-                        case GREATER_OR_EQUALS:
-                            display = ">=";
-                            break;
-
-                        default:
-                            display = StringUtils.EMPTY;
-                    }
-                    break;
-
-                case GROUP_MEMBERSHIP:
+                        case IS_NULL ->
+                            "NULL";
+                        case IS_NOT_NULL ->
+                            "NOT NULL";
+                        case EQUALS ->
+                            "==";
+                        case NOT_EQUALS ->
+                            "!=";
+                        case LESS_THAN ->
+                            "<";
+                        case LESS_OR_EQUALS ->
+                            "<=";
+                        case GREATER_THAN ->
+                            ">";
+                        case GREATER_OR_EQUALS ->
+                            ">=";
+                    };
+                case GROUP_MEMBERSHIP ->
                     switch (object) {
-                        case EQUALS:
-                            display = "IN";
-                            break;
-
-                        case NOT_EQUALS:
-                            display = "NOT IN";
-                            break;
-
-                        default:
-                            display = StringUtils.EMPTY;
-                    }
-                    break;
-
-                case GROUP_MEMBER:
+                        case EQUALS ->
+                            "IN";
+                        case NOT_EQUALS ->
+                            "NOT IN";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case GROUP_MEMBER ->
                     switch (object) {
-                        case EQUALS:
-                            display = "WITH";
-                            break;
-
-                        case NOT_EQUALS:
-                            display = "WITHOUT";
-                            break;
-
-                        default:
-                            display = StringUtils.EMPTY;
-                    }
-                    break;
-
-                case AUX_CLASS:
-                case ROLE_MEMBERSHIP:
-                case RESOURCE:
+                        case EQUALS ->
+                            "WITH";
+                        case NOT_EQUALS ->
+                            "WITHOUT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case AUX_CLASS, ROLE_MEMBERSHIP, RESOURCE ->
                     switch (object) {
-                        case EQUALS:
-                            display = "HAS";
-                            break;
-
-                        case NOT_EQUALS:
-                            display = "HAS NOT";
-                            break;
-
-                        default:
-                            display = StringUtils.EMPTY;
-                    }
-                    break;
-
-                case RELATIONSHIP:
+                        case EQUALS ->
+                            "HAS";
+                        case NOT_EQUALS ->
+                            "HAS NOT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case RELATIONSHIP ->
                     switch (object) {
-                        case IS_NOT_NULL:
-                            display = "EXIST";
-                            break;
-
-                        case IS_NULL:
-                            display = "NOT EXIST";
-                            break;
-
-                        case EQUALS:
-                            display = "WITH";
-                            break;
-
-                        case NOT_EQUALS:
-                            display = "WITHOUT";
-                            break;
-
-                        default:
-                            display = StringUtils.EMPTY;
-                    }
-                    break;
-
-                case CUSTOM:
-                    display = customizer.comparatorDisplayValue(object);
-                    break;
-
-                default:
-                    display = object.toString();
-            }
-            return display;
+                        case IS_NOT_NULL ->
+                            "EXIST";
+                        case IS_NULL ->
+                            "NOT EXIST";
+                        case EQUALS ->
+                            "WITH";
+                        case NOT_EQUALS ->
+                            "WITHOUT";
+                        default ->
+                            StringUtils.EMPTY;
+                    };
+                case CUSTOM ->
+                    customizer.comparatorDisplayValue(object);
+            };
         }
 
         @Override
@@ -284,61 +243,27 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 return SearchClause.Comparator.EQUALS;
             }
 
-            final SearchClause.Comparator comparator;
-            switch (id) {
-                case "HAS":
-                case "IN":
-                case "WITH":
-                    comparator = SearchClause.Comparator.EQUALS;
-                    break;
-
-                case "HAS NOT":
-                case "NOT IN":
-                case "WITHOUT":
-                    comparator = SearchClause.Comparator.NOT_EQUALS;
-                    break;
-
-                case "NULL":
-                case "NOT EXIST":
-                    comparator = SearchClause.Comparator.IS_NULL;
-                    break;
-
-                case "NOT NULL":
-                case "EXIST":
-                    comparator = SearchClause.Comparator.IS_NOT_NULL;
-                    break;
-
-                case "==":
-                    comparator = SearchClause.Comparator.EQUALS;
-                    break;
-
-                case "!=":
-                    comparator = SearchClause.Comparator.NOT_EQUALS;
-                    break;
-
-                case "<":
-                    comparator = SearchClause.Comparator.LESS_THAN;
-                    break;
-
-                case "<=":
-                    comparator = SearchClause.Comparator.LESS_OR_EQUALS;
-                    break;
-
-                case ">":
-                    comparator = SearchClause.Comparator.GREATER_THAN;
-                    break;
-
-                case ">=":
-                    comparator = SearchClause.Comparator.GREATER_OR_EQUALS;
-                    break;
-
-                default:
+            return switch (id) {
+                case "HAS", "IN", "WITH", "==" ->
+                    Comparator.EQUALS;
+                case "HAS NOT", "NOT IN", "WITHOUT", "!=" ->
+                    Comparator.NOT_EQUALS;
+                case "NULL", "NOT EXIST" ->
+                    Comparator.IS_NULL;
+                case "NOT NULL", "EXIST" ->
+                    Comparator.IS_NOT_NULL;
+                case "<" ->
+                    Comparator.LESS_THAN;
+                case "<=" ->
+                    Comparator.LESS_OR_EQUALS;
+                case ">" ->
+                    Comparator.GREATER_THAN;
+                case ">=" ->
+                    Comparator.GREATER_OR_EQUALS;
+                default ->
                     // EQUALS to be used as default value
-                    comparator = customizer.comparatorGetObject(id).orElse(SearchClause.Comparator.EQUALS);
-                    break;
-            }
-
-            return comparator;
+                    customizer.comparatorGetObject(id).orElse(Comparator.EQUALS);
+            };
         }
     }
 
@@ -375,6 +300,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     protected final Fragment operatorFragment;
 
     protected final Fragment searchButtonFragment;
+
+    protected final Fragment placeholderFragment;
 
     protected final AjaxLink<Void> searchButton;
 
@@ -426,6 +353,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         searchButtonFragment.add(searchButton.setEnabled(false).setVisible(false));
 
         operatorFragment = new Fragment("operator", "operatorFragment", this);
+
+        placeholderFragment = new Fragment("operator", "placeholderFragment", this);
 
         field = new FormComponent<>("container", this.clause) {
 
@@ -651,10 +580,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         }.setOutputMarkupPlaceholderTag(true));
 
-        if (getIndex() > 0) {
+        // Use customizer to decide whether to show the AND/OR operator for this clause
+        if (customizer.showOperator(getIndex(), searchClause)) {
             operatorContainer.add(operatorFragment);
-        } else {
+        } else if (getIndex() == 0) {
             operatorContainer.add(searchButtonFragment);
+        } else {
+            operatorContainer.add(placeholderFragment);
         }
 
         AjaxTextFieldPanel property = new AjaxTextFieldPanel(
@@ -664,7 +596,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             protected Optional<IConverter<String>> getConverter() {
-                return Optional.of(new IConverter<String>() {
+                return Optional.of(new IConverter<>() {
 
                     private static final long serialVersionUID = -2754107934642211828L;
 
@@ -779,9 +711,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<>(searchClause, "type"));
 
-        type.setChoices(types).setChoiceRenderer(customizer.typeRenderer()).
+        type.setChoices(customizer.types(types.getObject(), getIndex(), searchClause)).
+                setChoiceRenderer(customizer.typeRenderer()).
                 hideLabel().setRequired(required).setOutputMarkupId(true);
         type.setNullValid(false);
+        type.setEnabled(customizer.typeEnabled(getIndex(), searchClause));
         type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -794,10 +728,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 }
                 SearchClausePanel.this.clause.setObject(searchClause);
 
-                adjust(searchClause.getType(), property, comparator);
-
                 // reset property value in case and just in case of change of type
                 property.setModelObject(StringUtils.EMPTY);
+
+                adjust(searchClause.getType(), property, comparator);
                 target.add(property);
 
                 target.add(comparator);
@@ -842,7 +776,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         return this;
     }
 
-    @SuppressWarnings("unchecked")
     protected void adjust(final Type type, final AjaxTextFieldPanel property, final FieldPanel<Comparator> comparator) {
         if (type == null) {
             return;
@@ -1023,21 +956,65 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 break;
 
             case Long:
+                PropertyModel<Long> longModel = new PropertyModel<>(searchClause, "value") {
+
+                    private static final long serialVersionUID = -3833062746549144382L;
+
+                    @Override
+                    public Long getObject() {
+                        try {
+                            return StringUtils.isBlank(searchClause.getValue())
+                                    ? null
+                                    : Long.valueOf(searchClause.getValue());
+                        } catch (NumberFormatException e) {
+                            LOG.debug("Unparsable long value: {}", searchClause.getValue(), e);
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    public void setObject(final Long object) {
+                        searchClause.setValue(object == null ? null : object.toString());
+                    }
+                };
+
                 result = new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().build(
                         "value",
                         "Value",
                         Long.class,
-                        new PropertyModel<>(searchClause, "value"));
+                        longModel);
 
                 result.add(new AttributeModifier("class", "field value search-spinner"));
                 break;
 
             case Double:
+                PropertyModel<Double> doubleModel = new PropertyModel<>(searchClause, "value") {
+
+                    private static final long serialVersionUID = 6005517697668894899L;
+
+                    @Override
+                    public Double getObject() {
+                        try {
+                            return StringUtils.isBlank(searchClause.getValue())
+                                    ? null
+                                    : Double.valueOf(searchClause.getValue());
+                        } catch (NumberFormatException e) {
+                            LOG.debug("Unparsable double value: {}", searchClause.getValue(), e);
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    public void setObject(final Double object) {
+                        searchClause.setValue(object == null ? null : object.toString());
+                    }
+                };
+
                 result = new AjaxNumberFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
                         "value",
                         "value",
                         Double.class,
-                        new PropertyModel<>(searchClause, "value"));
+                        doubleModel);
                 result.add(new AttributeModifier("class", "field value search-spinner"));
                 break;
 

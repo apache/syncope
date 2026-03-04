@@ -76,6 +76,15 @@ body {
 /* General
 ============================================================================= */
 
+.sidebar-brand{
+  border: none !important;
+  padding: 5px!important;
+}
+
+.brand-image{
+  max-height: 50px !important;
+}
+
 .block-sidebar {
   max-height: 100% !important;
   overflow: auto !important;
@@ -107,8 +116,9 @@ body {
 .realm-header {
   width: 100%;
   clear: both;
-  display: inline-table;
-  margin: 0 0 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   line-height: 25px;
 }
 

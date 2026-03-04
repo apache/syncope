@@ -24,10 +24,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.commons.StatusProvider;
@@ -36,7 +34,6 @@ import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
@@ -47,7 +44,6 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -60,11 +56,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Realm extends WizardMgtPanel<RealmTO> {
+public abstract class AnysPanel extends WizardMgtPanel<RealmTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Realm.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnysPanel.class);
 
     @SpringBean
     protected RoleRestClient roleRestClient;
@@ -80,7 +76,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected final RealmWizardBuilder wizardBuilder;
 
-    public Realm(
+    public AnysPanel(
             final String id,
             final RealmTO realmTO,
             final List<AnyTypeTO> anyTypes,
@@ -116,8 +112,6 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     protected List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
-
-        tabs.add(new RealmDetailsTabPanel());
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(roleRestClient, anyTypes.stream().map(AnyTypeTO::getKey).toList());
         for (AnyTypeTO anyType : anyTypes) {
@@ -228,16 +222,6 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         return mlp;
     }
 
-    protected abstract void onClickTemplate(AjaxRequestTarget target);
-
-    protected abstract void onClickCreate(AjaxRequestTarget target);
-
-    protected abstract void onClickEdit(AjaxRequestTarget target, RealmTO realmTO);
-
-    protected abstract void onClickAudit(AjaxRequestTarget target, RealmTO realmTO);
-
-    protected abstract void onClickDelete(AjaxRequestTarget target, RealmTO realmTO);
-
     protected static class RemoteRealmPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
@@ -256,96 +240,6 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         @Override
         protected StatusProvider.Info getStatusProviderInfo() {
             return new StatusProvider.Info(bean.getBeforeObj(), bean.getAfterObj());
-        }
-    }
-
-    protected class RealmDetailsTabPanel extends ITabComponent {
-
-        private static final long serialVersionUID = -5861786415855103549L;
-
-        protected RealmDetailsTabPanel() {
-            super(new ResourceModel("realm.details", "DETAILS"),
-                    IdRepoEntitlement.REALM_CREATE, IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.REALM_DELETE);
-        }
-
-        @Override
-        public Panel getPanel(final String panelId) {
-            ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
-
-            if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE))) {
-                actionPanel.add(new ActionLink<>(realmTO) {
-
-                    private static final long serialVersionUID = 2802988981431379827L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickCreate(target);
-                    }
-                }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
-            }
-
-            if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
-                actionPanel.add(new ActionLink<>(realmTO) {
-
-                    private static final long serialVersionUID = 2802988981431379828L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickEdit(target, realmTO);
-                    }
-                }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
-            }
-
-            if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
-                actionPanel.add(new ActionLink<>(realmTO) {
-
-                    private static final long serialVersionUID = 2802988981431379827L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickTemplate(target);
-                    }
-                }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
-            }
-
-            if (securityCheck(Set.of(IdRepoEntitlement.AUDIT_LIST))) {
-                actionPanel.add(new ActionLink<>(realmTO) {
-
-                    private static final long serialVersionUID = 2802988981431379827L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickAudit(target, realmTO);
-                    }
-                }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, IdRepoEntitlement.AUDIT_LIST).hideLabel();
-            }
-
-            if (securityCheck(Set.of(IdRepoEntitlement.REALM_DELETE))) {
-                actionPanel.add(new ActionLink<>(realmTO) {
-
-                    private static final long serialVersionUID = 2802988981431379829L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickDelete(target, realmTO);
-                    }
-                }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
-            }
-
-            RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);
-            panel.setContentEnabled(false);
-            actionPanel.setEnabled(true);
-            return panel;
-        }
-
-        @Override
-        public boolean isVisible() {
-            return SyncopeWebApplication.get().getSecuritySettings().
-                    getAuthorizationStrategy().isActionAuthorized(this, RENDER);
-        }
-
-        private boolean securityCheck(final Set<String> entitlements) {
-            return entitlements.stream().anyMatch(e -> SyncopeConsoleSession.get().owns(e, realmTO.getFullPath()));
         }
     }
 }

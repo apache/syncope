@@ -180,20 +180,20 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
         List<IColumn<A, String>> prefcolumns = new ArrayList<>();
-        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
+        PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefDetailView(type)).stream().
                 filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
                 forEach(name -> addPropertyColumn(
                 name,
-                ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                ReflectionUtils.findField(AnyDisplayAttributesModalPanel.getTOClass(type), name),
                 prefcolumns));
 
-        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
+        PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 map(a -> plainSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
                 flatMap(Optional::stream).
                 forEach(s -> prefcolumns.add(new AttrColumn<>(
                 s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.PLAIN)));
 
-        PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
+        PreferenceManager.getList(AnyDisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 map(a -> derSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
                 flatMap(Optional::stream).
                 forEach(s -> prefcolumns.add(new AttrColumn<>(
@@ -204,12 +204,12 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             for (String name : getDefaultAttributeSelection()) {
                 addPropertyColumn(
                         name,
-                        ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                        ReflectionUtils.findField(AnyDisplayAttributesModalPanel.getTOClass(type), name),
                         prefcolumns);
             }
 
             PreferenceManager.setList(
-                    DisplayAttributesModalPanel.getPrefDetailView(type),
+                    AnyDisplayAttributesModalPanel.getPrefDetailView(type),
                     List.of(getDefaultAttributeSelection()));
         }
 

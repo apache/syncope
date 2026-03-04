@@ -23,7 +23,6 @@ import org.apache.syncope.common.lib.search.SpecialAttr;
 
 public class AnySearchCondVisitor extends SyncopeAbstractSearchCondVisitor {
 
-
     @Override
     protected Optional<SpecialAttr> getSpecialAttrName(final String propertyName) {
         return SpecialAttr.fromString(propertyName);

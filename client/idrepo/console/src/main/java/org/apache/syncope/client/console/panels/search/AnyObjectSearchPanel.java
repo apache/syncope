@@ -41,7 +41,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class AnyObjectSearchPanel extends AbstractSearchPanel {
+public class AnyObjectSearchPanel extends AbstractAnySearchPanel {
 
     private static final long serialVersionUID = -1769527800450203738L;
 

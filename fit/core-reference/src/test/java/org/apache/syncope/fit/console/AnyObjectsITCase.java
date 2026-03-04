@@ -31,6 +31,9 @@ import org.junit.jupiter.api.Test;
 
 public class AnyObjectsITCase extends AbstractConsoleITCase {
 
+    private static final String ANY_OBJECT_TAB =
+            "body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link";
+
     private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
     private static final String CONTAINER = TAB_PANEL + "container:content:";
@@ -42,9 +45,9 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void filteredSearch() {
-        TESTER.clickLink("body:realmsLI:realms", false);
+        TESTER.clickLink(ANY_PAGE, false);
 
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink(ANY_OBJECT_TAB);
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
@@ -62,8 +65,8 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void clickToClonePrinter() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(ANY_OBJECT_TAB);
 
         Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
@@ -84,8 +87,8 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void editPrinter() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(ANY_OBJECT_TAB);
 
         Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
@@ -136,8 +139,8 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
 
     @Test
     public void checkDeletePrinterLink() {
-        TESTER.clickLink("body:realmsLI:realms", false);
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink(ANY_PAGE, false);
+        TESTER.clickLink(ANY_OBJECT_TAB);
 
         Component component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",

@@ -18,76 +18,100 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.audit.AuditHistoryModal;
-import org.apache.syncope.client.console.panels.Realm;
-import org.apache.syncope.client.console.panels.RealmChoicePanel;
-import org.apache.syncope.client.console.panels.RealmChoicePanel.ChosenRealm;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.AuditRestClient;
+import org.apache.syncope.client.console.panels.RealmDirectoryPanel;
+import org.apache.syncope.client.console.panels.search.RealmSearchPanel;
+import org.apache.syncope.client.console.panels.search.SearchClause;
+import org.apache.syncope.client.console.panels.search.SearchClausePanel;
+import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.ResultPanel;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.types.OpEvent;
-import org.apache.wicket.PageReference;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Realms extends BasePage {
 
-    private static final long serialVersionUID = -1100228004207271270L;
-
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
-
-    public static final String SELECTED_INDEX = "selectedIndex";
-
-    public static final String INITIAL_REALM = "initialRealm";
+    private static final long serialVersionUID = -810612679853772333L;
 
     @SpringBean
     protected RealmRestClient realmRestClient;
 
-    @SpringBean
-    protected AnyTypeRestClient anyTypeRestClient;
+    protected final RealmDirectoryPanel realmDirectoryPanel;
 
-    @SpringBean
-    protected AuditRestClient auditRestClient;
+    protected RealmSearchPanel searchPanel;
 
     protected final TemplatesTogglePanel templates;
-
-    protected final RealmChoicePanel realmChoicePanel;
-
-    protected final WebMarkupContainer content;
-
-    protected final BaseModal<RealmTO> modal;
 
     protected final BaseModal<Serializable> templateModal;
 
     public Realms(final PageParameters parameters) {
         super(parameters);
+
+        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
+
+        List<SearchClause> clauses = new ArrayList<>();
+
+        Model<Integer> model = Model.of(-1);
+        body.add(new Accordion("accordionPanel",
+                List.of(new AbstractTab(new ResourceModel("search.result")) {
+
+                    private static final long serialVersionUID = 1037272333056449377L;
+
+                    @Override
+                    public WebMarkupContainer getPanel(final String panelId) {
+                        searchPanel = new RealmSearchPanel.Builder(new ListModel<>(clauses), getPageReference()).
+                                required(true).enableSearch().build(panelId);
+                        return searchPanel;
+                    }
+                }), model) {
+
+            private static final long serialVersionUID = -3056452800492734900L;
+
+            @Override
+            protected Component newTitle(final String markupId, final ITab tab, final Accordion.State state) {
+                return new AjaxLink<Integer>(markupId) {
+
+                    private static final long serialVersionUID = 6250423506463465679L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        model.setObject(model.getObject() == 0 ? -1 : 0);
+                    }
+                }.setBody(tab.getTitle()).setEscapeModelStrings(false);
+            }
+        });
+
+        realmDirectoryPanel = new RealmDirectoryPanel("directoryPanel", realmRestClient, getPageReference());
+        realmDirectoryPanel.setOutputMarkupId(true);
+        body.add(realmDirectoryPanel);
 
         templates = new TemplatesTogglePanel(BaseModal.CONTENT_ID, this, getPageReference()) {
 
@@ -102,22 +126,7 @@ public class Realms extends BasePage {
                 return targetObject;
             }
         };
-
-        body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
-
-        content = new WebMarkupContainer("content");
-        body.add(content.setOutputMarkupId(true));
-
-        realmChoicePanel = buildRealmChoicePanel(parameters.get(INITIAL_REALM).toOptionalString(), getPageReference());
-        content.add(realmChoicePanel);
-
-        content.add(new Label("body", "Root realm"));
-
-        modal = new BaseModal<>("modal");
-        modal.size(Modal.Size.Large);
-        content.add(modal);
-
-        content.add(templates);
+        body.add(templates);
 
         templateModal = new BaseModal<>("templateModal") {
 
@@ -130,41 +139,31 @@ public class Realms extends BasePage {
             }
         };
         templateModal.size(Modal.Size.Extra_large);
-        content.add(templateModal);
+        body.add(templateModal);
 
-        modal.setWindowClosedCallback(target -> {
-            target.add(realmChoicePanel.reloadRealmTree(target));
-            target.add(content);
-            modal.show(false);
-        });
-
-        templateModal.setWindowClosedCallback(target -> {
-            target.add(content);
-            templateModal.show(false);
-        });
-
-        updateRealmContent(realmChoicePanel.getCurrentRealm(), parameters.get(SELECTED_INDEX).toInt(0));
-    }
-
-    protected RealmChoicePanel buildRealmChoicePanel(final String initialRealm, final PageReference pageRef) {
-        RealmChoicePanel panel = new RealmChoicePanel("realmChoicePanel", initialRealm, realmRestClient, pageRef);
-        panel.setOutputMarkupId(true);
-        return panel;
-    }
-
-    public RealmChoicePanel getRealmChoicePanel() {
-        return realmChoicePanel;
+        templateModal.setWindowClosedCallback(target -> templateModal.show(false));
     }
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        super.onEvent(event);
+        if (event.getPayload() instanceof SearchClausePanel.SearchEvent payload && searchPanel != null) {
+            List<SearchClause> clauses = searchPanel.getModel().getObject();
+            String base = clauses.stream().
+                    filter(Realms::isBaseClause).
+                    map(SearchClause::getValue).
+                    filter(StringUtils::isNotBlank).
+                    findFirst().
+                    orElse(StringUtils.EMPTY);
 
-        if (event.getPayload() instanceof ChosenRealm) {
-            @SuppressWarnings("unchecked")
-            ChosenRealm<RealmTO> choosenRealm = ChosenRealm.class.cast(event.getPayload());
-            updateRealmContent(choosenRealm.getObj(), 0);
-            choosenRealm.getTarget().add(content);
+            List<SearchClause> fiqlClauses = clauses.stream()
+                    .filter(clause -> !isBaseClause(clause))
+                    .filter(Realms::isValid)
+                    .toList();
+
+            realmDirectoryPanel.search(base, Optional.ofNullable(SearchUtils.buildFIQL(
+                    fiqlClauses,
+                    SyncopeClient.getRealmFiqlSearchConditionBuilder())).orElse(StringUtils.EMPTY),
+                    payload.getTarget());
         } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent<?> newItemEvent) {
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
@@ -183,120 +182,19 @@ public class Realms extends BasePage {
                     templateModal.close(t);
                 });
             }
+        } else if (event.getPayload() instanceof TemplatesTogglePanel.ShowTemplatesTogglePanelEvent action) {
+            templates.setTargetObject(action.realmTO());
+            templates.toggle(action.target(), true);
+        } else {
+            super.onEvent(event);
         }
     }
 
-    protected WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
-        if (realmTO != null) {
-            content.addOrReplace(new Content(realmTO, anyTypeRestClient.listAnyTypes(), selectedIndex));
-        }
-        return content;
+    private static boolean isBaseClause(final SearchClause clause) {
+        return clause.getType() == SearchClause.Type.CUSTOM && "fullPath".equalsIgnoreCase(clause.getProperty());
     }
 
-    protected class Content extends Realm {
-
-        private static final long serialVersionUID = 8221398624379357183L;
-
-        protected Content(final RealmTO realmTO, final List<AnyTypeTO> anyTypes, final int selectedIndex) {
-            super("body", realmTO, anyTypes, selectedIndex, Realms.this.getPageReference());
-        }
-
-        @Override
-        protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-            modal.setWindowClosedCallback(target -> {
-                if (modal.getContent() instanceof ResultPanel<?, ?> rp) {
-                    RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(rp.getResult()).getEntity());
-                    // reload realmChoicePanel label too - SYNCOPE-1151
-                    target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
-                    realmChoicePanel.setCurrentRealm(newRealmTO);
-                    send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
-                } else {
-                    target.add(realmChoicePanel.reloadRealmTree(target));
-                }
-                target.add(content);
-                modal.show(false);
-            });
-        }
-
-        @Override
-        protected void onClickTemplate(final AjaxRequestTarget target) {
-            templates.setTargetObject(realmTO);
-            templates.toggle(target, true);
-        }
-
-        @Override
-        protected void onClickCreate(final AjaxRequestTarget target) {
-            this.wizardBuilder.setParent(realmChoicePanel.getCurrentRealm());
-            send(this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RealmTO>(new RealmTO(), target) {
-
-                @Override
-                public String getEventDescription() {
-                    return "realm.new";
-                }
-            });
-        }
-
-        @Override
-        protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-            send(this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<RealmTO>(realmTO, target) {
-
-                @Override
-                public String getEventDescription() {
-                    return "realm.edit";
-                }
-            });
-        }
-
-        @Override
-        protected void onClickAudit(final AjaxRequestTarget target, final RealmTO realmTO) {
-            target.add(templateModal.setContent(new AuditHistoryModal<>(
-                    OpEvent.CategoryType.LOGIC,
-                    "RealmLogic",
-                    realmTO,
-                    IdRepoEntitlement.REALM_UPDATE,
-                    auditRestClient) {
-
-                private static final long serialVersionUID = -5819724478921691835L;
-
-                @Override
-                protected void restore(final String json, final AjaxRequestTarget target) {
-                    try {
-                        RealmTO updated = MAPPER.readValue(json, RealmTO.class);
-                        realmRestClient.update(updated);
-
-                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                        target.add(realmChoicePanel.reloadRealmTree(target));
-                    } catch (Exception e) {
-                        LOG.error("While restoring realm {}", realmTO.getKey(), e);
-                        SyncopeConsoleSession.get().onException(e);
-                    }
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                }
-            }));
-
-            templateModal.header(new Model<>(getString("realm.auditHistory.title", new Model<>(realmTO))));
-
-            templateModal.show(true);
-        }
-
-        @Override
-        protected void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO) {
-            try {
-                if (realmTO.getKey() == null) {
-                    throw new Exception("Root realm cannot be deleted");
-                }
-                realmRestClient.delete(realmTO.getFullPath());
-                RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
-                target.add(realmChoicePanel.reloadRealmTree(target));
-
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                updateRealmContent(parent, selectedIndex);
-                target.add(content);
-            } catch (Exception e) {
-                LOG.error("While deleting realm", e);
-                SyncopeConsoleSession.get().onException(e);
-            }
-            ((BaseWebPage) Realms.this.getPage()).getNotificationPanel().refresh(target);
-        }
+    private static boolean isValid(final SearchClause clause) {
+        return clause.getProperty() != null && clause.getComparator() != null;
     }
 }
