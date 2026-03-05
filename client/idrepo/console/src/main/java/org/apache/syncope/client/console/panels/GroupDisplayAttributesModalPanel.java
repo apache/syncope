@@ -41,6 +41,7 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends An
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
+
         super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.GROUP.name());
     }
 }
