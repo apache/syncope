@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -110,8 +109,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 target.add(displayAttributeModal.setContent(new UserDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
-                        plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
-                        derSchemas.stream().map(DerSchemaTO::getKey).collect(Collectors.toList()))));
+                        plainSchemas.stream().map(PlainSchemaTO::getKey).sorted().toList(),
+                        derSchemas.stream().map(DerSchemaTO::getKey).sorted().toList())));
 
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.addSubmitButton();

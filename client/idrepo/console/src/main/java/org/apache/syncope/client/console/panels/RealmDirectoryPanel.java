@@ -20,9 +20,12 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +48,8 @@ import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.tasks.RealmPropagationTasks;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -83,6 +88,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.util.ReflectionUtils;
 
 public class RealmDirectoryPanel
         extends DirectoryPanel<RealmTO, RealmTO, RealmDirectoryPanel.RealmDataProvider, RealmRestClient> {
@@ -154,35 +160,63 @@ public class RealmDirectoryPanel
 
     @Override
     protected List<IColumn<RealmTO, String>> getColumns() {
-        List<String> selectedColumns = PreferenceManager.getList(IdRepoConstants.PREF_REALM_DETAILS_VIEW);
-        selectedColumns.retainAll(RealmDisplayAttributesModalPanel.AVAILABLE_COLUMNS);
-        if (selectedColumns.isEmpty()) {
-            selectedColumns = new ArrayList<>(RealmDisplayAttributesModalPanel.DEFAULT_COLUMNS);
-            PreferenceManager.setList(IdRepoConstants.PREF_REALM_DETAILS_VIEW, selectedColumns);
-        }
-        List<String> selectedPlainSchemas = PreferenceManager.getList(IdRepoConstants.PREF_REALM_PLAIN_ATTRS_VIEW);
-        selectedPlainSchemas.retainAll(plainSchemas.stream().map(PlainSchemaTO::getKey).toList());
-
-        List<String> selectedDerSchemas = PreferenceManager.getList(IdRepoConstants.PREF_REALM_DER_ATTRS_VIEW);
-        selectedDerSchemas.retainAll(derSchemas.stream().map(DerSchemaTO::getKey).toList());
-
         List<IColumn<RealmTO, String>> columns = new ArrayList<>();
-        selectedColumns.forEach(column -> addPropertyColumn(column, columns));
-        plainSchemas.stream().
-                filter(schema -> selectedPlainSchemas.contains(schema.getKey())).
-                forEach(schema -> columns.add(new AttrColumn<>(
-                schema.getKey(), schema.getLabel(getLocale()), SchemaType.PLAIN)));
+        columns.add(new KeyPropertyColumn<>(
+                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
-        derSchemas.stream().
-                filter(schema -> selectedDerSchemas.contains(schema.getKey())).
-                forEach(schema -> columns.add(new AttrColumn<>(
-                schema.getKey(), schema.getLabel(getLocale()), SchemaType.DERIVED)));
+        List<IColumn<RealmTO, String>> prefcolumns = new ArrayList<>();
+        PreferenceManager.getList(IdRepoConstants.PREF_REALM_DETAILS_VIEW).stream().
+                filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
+                forEach(name -> addPropertyColumn(
+                name,
+                ReflectionUtils.findField(RealmTO.class, name),
+                prefcolumns));
+
+        PreferenceManager.getList(IdRepoConstants.PREF_REALM_PLAIN_ATTRS_VIEW).stream().
+                map(a -> plainSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
+                flatMap(Optional::stream).
+                forEach(s -> prefcolumns.add(new AttrColumn<>(
+                s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.PLAIN)));
+
+        PreferenceManager.getList(IdRepoConstants.PREF_REALM_DER_ATTRS_VIEW).stream().
+                map(a -> derSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
+                flatMap(Optional::stream).
+                forEach(s -> prefcolumns.add(new AttrColumn<>(
+                s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.DERIVED)));
+
+        // Add defaults in case of no selection
+        if (prefcolumns.isEmpty()) {
+            for (String name : RealmDisplayAttributesModalPanel.DEFAULT_COLUMNS) {
+                addPropertyColumn(
+                        name,
+                        ReflectionUtils.findField(RealmTO.class, name),
+                        prefcolumns);
+            }
+
+            PreferenceManager.setList(
+                    IdRepoConstants.PREF_REALM_DETAILS_VIEW,
+                    RealmDisplayAttributesModalPanel.DEFAULT_COLUMNS);
+        }
+
+        columns.addAll(prefcolumns);
         return columns;
     }
 
-    protected void addPropertyColumn(final String name, final List<IColumn<RealmTO, String>> columns) {
+    protected void addPropertyColumn(
+            final String name,
+            final Field field,
+            final List<IColumn<RealmTO, String>> columns) {
+
         if (Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-            columns.add(new KeyPropertyColumn<>(new StringResourceModel(Constants.KEY_FIELD_NAME, this), name));
+            columns.add(new KeyPropertyColumn<>(new ResourceModel(name, name), name, name));
+        } else if (field != null && !field.isSynthetic()
+                && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
+
+            columns.add(new BooleanPropertyColumn<>(new ResourceModel(name, name), name, name));
+        } else if (field != null && !field.isSynthetic()
+                && (field.getType().equals(Date.class) || field.getType().equals(OffsetDateTime.class))) {
+
+            columns.add(new DatePropertyColumn<>(new ResourceModel(name, name), name, name));
         } else {
             columns.add(new PropertyColumn<>(new ResourceModel(name, name), name, name));
         }
@@ -201,8 +235,8 @@ public class RealmDirectoryPanel
                         displayAttributeModal,
                         page.getPageReference(),
                         RealmDisplayAttributesModalPanel.AVAILABLE_COLUMNS,
-                        plainSchemas.stream().map(PlainSchemaTO::getKey).toList(),
-                        derSchemas.stream().map(DerSchemaTO::getKey).toList())));
+                        plainSchemas.stream().map(PlainSchemaTO::getKey).sorted().toList(),
+                        derSchemas.stream().map(DerSchemaTO::getKey).sorted().toList())));
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);
             }

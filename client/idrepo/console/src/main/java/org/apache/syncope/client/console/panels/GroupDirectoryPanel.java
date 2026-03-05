@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -226,8 +225,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 target.add(displayAttributeModal.setContent(new GroupDisplayAttributesModalPanel<>(
                         displayAttributeModal,
                         page.getPageReference(),
-                        plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
-                        derSchemas.stream().map(DerSchemaTO::getKey).collect(Collectors.toList()))));
+                        plainSchemas.stream().map(PlainSchemaTO::getKey).sorted().toList(),
+                        derSchemas.stream().map(DerSchemaTO::getKey).sorted().toList())));
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);
             }
