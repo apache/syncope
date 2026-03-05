@@ -36,16 +36,16 @@ public class RealmDisplayAttributesModalPanel<T extends Serializable> extends Ab
             "parent",
             "plainAttrs",
             "derAttrs",
-            "templates",
             "accountPolicy",
             "passwordPolicy",
             "authPolicy",
             "accessPolicy",
             "attrReleasePolicy",
-            "ticketExpirationPolicy");
+            "ticketExpirationPolicy",
+            "actions",
+            "templates");
 
     protected static final List<String> DEFAULT_COLUMNS = List.of(
-            Constants.KEY_FIELD_NAME,
             Constants.NAME_FIELD_NAME,
             "fullPath",
             "anyTypeClasses");
@@ -54,6 +54,7 @@ public class RealmDisplayAttributesModalPanel<T extends Serializable> extends Ab
             filter(field -> !Modifier.isStatic(field.getModifiers())).
             map(Field::getName).
             filter(fieldName -> !EXCLUDED_COLUMNS.contains(fieldName)).
+            sorted().
             toList();
 
     private static final long serialVersionUID = 4055453846383559861L;

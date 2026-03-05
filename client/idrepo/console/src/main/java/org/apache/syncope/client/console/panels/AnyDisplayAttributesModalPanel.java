@@ -51,7 +51,7 @@ public abstract class AnyDisplayAttributesModalPanel<T extends Serializable> ext
         super(
                 modal,
                 pageRef,
-                SearchableFields.get(getTOClass(type)).keySet().stream().toList(),
+                SearchableFields.get(getTOClass(type)).keySet().stream().sorted().toList(),
                 pSchemaNames,
                 dSchemaNames,
                 getPrefDetailView(type),

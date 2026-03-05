@@ -41,6 +41,7 @@ public class UserDisplayAttributesModalPanel<T extends Serializable> extends Any
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
+
         super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.USER.name());
     }
 }
