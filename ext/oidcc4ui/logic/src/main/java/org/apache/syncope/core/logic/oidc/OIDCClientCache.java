@@ -132,10 +132,10 @@ public class OIDCClientCache {
 
             @Override
             public ClientAuthentication getClientAuthentication() {
-                if (clientAuthentication == null) {
-                    clientAuthentication = computeClientAuthentication();
+                if (clientAuthenticationRef.get() == null) {
+                    clientAuthenticationRef.set(computeClientAuthentication());
                 }
-                return clientAuthentication;
+                return super.getClientAuthentication();
             }
 
             @Override
