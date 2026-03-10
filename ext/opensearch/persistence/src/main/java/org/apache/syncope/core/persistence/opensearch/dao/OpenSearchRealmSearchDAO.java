@@ -63,16 +63,11 @@ import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.opensearch.client.opensearch.core.search.SourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 public class OpenSearchRealmSearchDAO extends AbstractRealmSearchDAO implements RealmSearchDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmSearchDAO.class);
-
     protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 
     protected static final List<SortOptions> FULLPATH_SORT_OPTIONS = List.of(
