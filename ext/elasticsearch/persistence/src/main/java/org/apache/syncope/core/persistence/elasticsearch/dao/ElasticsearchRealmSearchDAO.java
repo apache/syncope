@@ -64,15 +64,11 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractRealmSearchDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ElasticsearchRealmSearchDAO extends AbstractRealmSearchDAO implements RealmSearchDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmSearchDAO.class);
 
     protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 
