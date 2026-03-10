@@ -559,8 +559,7 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
         obs.items.forEach(item -> queryString.append(',').append(item.select));
 
         queryString.append(" FROM ").append(buildFrom(queryInfo.plainSchemas(), obs)).
-                append(" WHERE ").append(buildWhere(bases, queryInfo, parameters)).
-                toString();
+                append(" WHERE ").append(buildWhere(bases, queryInfo, parameters));
 
         if (!obs.items.isEmpty()) {
             queryString.append(" ORDER BY ").

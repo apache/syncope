@@ -139,7 +139,7 @@ public class RealmSearchPanel extends AbstractSearchPanel {
 
                 @Override
                 public boolean showOperator(final int index, final SearchClause currentClause) {
-                    return isNotBaseClause(currentClause, index);
+                    return index > 1;
                 }
             });
         }
@@ -304,6 +304,6 @@ public class RealmSearchPanel extends AbstractSearchPanel {
         return clause == null
                 || clause.getType() != SearchClause.Type.CUSTOM
                 || !FULLPATH.equals(clause.getProperty())
-                || index > 1;
+                || index > 0;
     }
 }
