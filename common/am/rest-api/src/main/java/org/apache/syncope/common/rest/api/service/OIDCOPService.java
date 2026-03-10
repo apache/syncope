@@ -37,25 +37,25 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
 
 @Tag(name = "OpenID Connect 1.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("oidc/jwks")
-public interface OIDCJWKSService extends JAXRSService {
+@Path("oidc/op")
+public interface OIDCOPService extends JAXRSService {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    OIDCJWKSTO get();
+    OIDCOPTO get();
 
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    void set(@NotNull OIDCJWKSTO entityTO);
+    void set(@NotNull OIDCOPTO oidcOPTO);
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",

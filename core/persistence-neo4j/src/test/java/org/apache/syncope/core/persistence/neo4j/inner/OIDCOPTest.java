@@ -16,41 +16,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.inner;
+package org.apache.syncope.core.persistence.neo4j.inner;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import java.util.Set;
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OIDCJWKSTest extends AbstractTest {
+public class OIDCOPTest extends AbstractTest {
 
     @Autowired
-    private OIDCJWKSDAO jwksDAO;
+    private OIDCOPDAO oidcOPDAO;
 
     @Test
     public void save() throws Exception {
-        OIDCJWKS jwks = entityFactory.newEntity(OIDCJWKS.class);
+        OIDCOP oidcOp = entityFactory.newEntity(OIDCOP.class);
 
-        RSAKey jwk = new RSAKeyGenerator(2048)
-                .keyUse(KeyUse.SIGNATURE)
-                .keyID(UUID.randomUUID().toString())
-                .generate();
+        RSAKey jwk = new RSAKeyGenerator(2048).
+                keyUse(KeyUse.SIGNATURE).
+                keyID(UUID.randomUUID().toString()).
+                generate();
+        oidcOp.setJWKS(new JWKSet(jwk).toString());
 
-        String json = new JWKSet(jwk).toString();
-        jwks.setJson(json);
-        jwks = jwksDAO.save(jwks);
-        assertNotNull(jwks);
-        assertNotNull(jwks.getKey());
+        oidcOp.getCustomScopes().put("scope1", Set.of("claim1", "claim2"));
+        oidcOp.getCustomScopes().put("scope2", Set.of("claim1", "claim3", "claim4"));
+
+        oidcOp = oidcOPDAO.save(oidcOp);
+        assertNotNull(oidcOp);
+        assertNotNull(oidcOp.getKey());
+        assertEquals(2, oidcOp.getCustomScopes().size());
+        assertEquals(Set.of("claim1", "claim2"), oidcOp.getCustomScopes().get("scope1"));
     }
 }

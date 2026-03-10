@@ -24,13 +24,13 @@ import java.io.IOException;
 import java.util.Optional;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.OIDCOPRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -54,12 +54,12 @@ public class OIDC extends Panel {
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
-    protected OIDCJWKSRestClient oidcJWKSRestClient;
+    protected OIDCOPRestClient oidcOPRestClient;
 
     @SpringBean
     protected WAConfigRestClient waConfigRestClient;
 
-    protected final BaseModal<OIDCJWKSTO> generateModal = new BaseModal<>("generateModal");
+    protected final BaseModal<OIDCOPTO> generateModal = new BaseModal<>("generateModal");
 
     protected final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 
@@ -85,7 +85,7 @@ public class OIDC extends Panel {
         WebMarkupContainer container = new WebMarkupContainer("container");
         add(container.setOutputMarkupId(true));
 
-        Mutable<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
+        Mutable<OIDCOPTO> oidcOPTO = oidcOPRestClient.get();
 
         add(viewModal);
         viewModal.size(Modal.Size.Extra_large);
@@ -97,13 +97,15 @@ public class OIDC extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                String pretty;
-                try {
-                    pretty = MAPPER.writerWithDefaultPrettyPrinter().
-                            writeValueAsString(MAPPER.readTree(oidcjwksto.get().getJson()));
-                } catch (IOException e) {
-                    LOG.error("Could not pretty-print", e);
-                    pretty = Optional.ofNullable(oidcjwksto.get()).map(OIDCJWKSTO::getJson).orElse(null);
+                String pretty = null;
+                if (oidcOPTO.get() != null) {
+                    try {
+                        pretty = MAPPER.writerWithDefaultPrettyPrinter().
+                                writeValueAsString(MAPPER.readTree(oidcOPTO.get().getJWKS()));
+                    } catch (IOException e) {
+                        LOG.error("Could not pretty-print", e);
+                        pretty = Optional.ofNullable(oidcOPTO.get()).map(OIDCOPTO::getJWKS).orElse(null);
+                    }
                 }
 
                 viewModal.header(Model.of("JSON Web Key Sets"));
@@ -115,14 +117,14 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcOPTO.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        view.setEnabled(oidcjwksto.get() != null);
+        view.setEnabled(oidcOPTO.get() != null);
         container.add(view.setOutputMarkupId(true));
-        MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_JWKS_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_OP_READ);
 
         generate = new AjaxLink<>("generate") {
 
@@ -131,8 +133,8 @@ public class OIDC extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 generateModal.header(Model.of("Generate JSON Web Key Sets"));
-                target.add(generateModal.setContent(new OIDCJWKSGenerationPanel(
-                        oidcJWKSRestClient, waConfigRestClient, generateModal, pageRef)));
+                target.add(generateModal.setContent(new OIDCOPGenerationPanel(
+                        oidcOPRestClient, waConfigRestClient, generateModal, pageRef)));
                 generateModal.show(true);
             }
 
@@ -140,12 +142,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() != null) {
+                if (oidcOPTO.get() != null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        generate.setEnabled(oidcjwksto.get() == null);
+        generate.setEnabled(oidcOPTO.get() == null);
         container.add(generate.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(generate, ENABLE, AMEntitlement.OIDC_JWKS_GENERATE);
 
@@ -156,8 +158,8 @@ public class OIDC extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    oidcJWKSRestClient.delete();
-                    oidcjwksto.setValue(null);
+                    oidcOPRestClient.delete();
+                    oidcOPTO.setValue(null);
                     generate.setEnabled(true);
                     view.setEnabled(false);
 
@@ -174,21 +176,21 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcOPTO.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        delete.setEnabled(oidcjwksto.get() != null);
+        delete.setEnabled(oidcOPTO.get() != null);
         container.add(delete.setOutputMarkupId(true));
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_JWKS_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_OP_DELETE);
 
         generateModal.addSubmitButton();
         add(generateModal);
         generateModal.setWindowClosedCallback(target -> {
-            oidcjwksto.setValue(oidcJWKSRestClient.get().get());
-            view.setEnabled(oidcjwksto.get() != null);
-            delete.setEnabled(oidcjwksto.get() != null);
+            oidcOPTO.setValue(oidcOPRestClient.get().get());
+            view.setEnabled(oidcOPTO.get() != null);
+            delete.setEnabled(oidcOPTO.get() != null);
 
             target.add(container);
             generateModal.show(false);

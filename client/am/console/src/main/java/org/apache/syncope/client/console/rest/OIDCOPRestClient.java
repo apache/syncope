@@ -21,29 +21,29 @@ package org.apache.syncope.client.console.rest;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.rest.api.service.OIDCOPService;
 
-public class OIDCJWKSRestClient extends BaseRestClient {
+public class OIDCOPRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public Mutable<OIDCJWKSTO> get() {
-        MutableObject<OIDCJWKSTO> result = new MutableObject<>();
+    public Mutable<OIDCOPTO> get() {
+        MutableObject<OIDCOPTO> result = new MutableObject<>();
         try {
-            result.setValue(getService(OIDCJWKSService.class).get());
+            result.setValue(getService(OIDCOPService.class).get());
         } catch (Exception e) {
             LOG.debug("While getting OIDC JKS", e);
         }
         return result;
     }
 
-    public OIDCJWKSTO generate(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
-        Response response = getService(OIDCJWKSService.class).generate(jwksKeyId, jwksType, jwksKeySize);
-        return response.readEntity(OIDCJWKSTO.class);
+    public OIDCOPTO generate(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
+        Response response = getService(OIDCOPService.class).generate(jwksKeyId, jwksType, jwksKeySize);
+        return response.readEntity(OIDCOPTO.class);
     }
 
     public void delete() {
-        getService(OIDCJWKSService.class).delete();
+        getService(OIDCOPService.class).delete();
     }
 }

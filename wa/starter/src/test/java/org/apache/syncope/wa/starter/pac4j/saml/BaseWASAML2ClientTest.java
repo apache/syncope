@@ -56,7 +56,6 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.TBSCertificate;
 import org.bouncycastle.asn1.x509.Time;
 import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
-import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
 import org.springframework.core.io.ClassPathResource;
@@ -98,7 +97,7 @@ public abstract class BaseWASAML2ClientTest {
         return cert;
     }
 
-    protected static SAML2Client getSAML2Client() throws Exception {
+    protected static SAML2Configuration getSAML2Configuration() throws Exception {
         SAML2Configuration cfg = new SAML2Configuration();
         cfg.setKeystorePassword("password");
         cfg.setPrivateKeyPassword("password");
@@ -111,10 +110,7 @@ public abstract class BaseWASAML2ClientTest {
 
         cfg.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
 
-        SAML2Client client = new SAML2Client(cfg);
-        client.setName("CAS");
-        client.setCallbackUrl("https://syncope.apache.org");
-        return client;
+        return cfg;
     }
 
     protected static KeyStore getKeystore() throws Exception {

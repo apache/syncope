@@ -20,19 +20,13 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import org.junit.jupiter.api.Test;
-import org.pac4j.saml.client.SAML2Client;
 
 public class WASAML2MetadataResolverTest extends BaseWASAML2ClientTest {
 
     @Test
     public void fetchMetadata() throws Exception {
-        SAML2Client client = getSAML2Client();
-        String keystoreFile = File.createTempFile("keystore", "jks").getCanonicalPath();
-        client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
-
-        WASAML2MetadataResolver resolver = new WASAML2MetadataResolver(getWARestClient(), client);
+        WASAML2MetadataResolver resolver = new WASAML2MetadataResolver(getWARestClient(), "CAS");
         assertNotNull(resolver.fetchMetadata());
     }
 }

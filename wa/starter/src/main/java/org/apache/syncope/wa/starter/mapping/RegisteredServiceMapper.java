@@ -22,7 +22,11 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
@@ -61,6 +65,8 @@ public class RegisteredServiceMapper {
 
     protected final List<ClientAppMapper> clientAppMappers;
 
+    protected final WARestClient waRestClient;
+
     public RegisteredServiceMapper(
             final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
@@ -69,7 +75,8 @@ public class RegisteredServiceMapper {
             final List<AccessMapper> accessMappers,
             final List<AttrReleaseMapper> attrReleaseMappers,
             final List<TicketExpirationMapper> ticketExpirationMappers,
-            final List<ClientAppMapper> clientAppMappers) {
+            final List<ClientAppMapper> clientAppMappers,
+            final WARestClient waRestClient) {
 
         this.pac4jCoreName = pac4jCoreName;
         this.authEventExecPlan = authEventExecPlan;
@@ -79,20 +86,46 @@ public class RegisteredServiceMapper {
         this.attrReleaseMappers = attrReleaseMappers;
         this.ticketExpirationMappers = ticketExpirationMappers;
         this.clientAppMappers = clientAppMappers;
+        this.waRestClient = waRestClient;
+    }
+
+    protected OIDCOPTO getOIDCOPTO(final WAClientApp clientApp) {
+        if (clientApp.getClientAppTO() instanceof OIDCRPClientAppTO) {
+            OIDCOPTO oidcOP = null;
+            if (waRestClient.isReady()) {
+                try {
+                    oidcOP = waRestClient.getService(OIDCOPService.class).get();
+                } catch (Exception e) {
+                    LOG.error("While reading OIDC OP", e);
+                }
+            } else {
+                LOG.debug("Syncope client is not yet ready to fetch OIDC OP");
+            }
+            if (oidcOP == null) {
+                return new OIDCOPTO();
+            }
+            return oidcOP;
+        }
+
+        return null;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
         return clientAppMappers.stream().
                 filter(m -> m.supports(clientApp.getClientAppTO())).
                 findFirst().
-                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper)).
+                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper, getOIDCOPTO(clientApp))).
                 orElseGet(() -> {
                     LOG.warn("Unable to locate mapper for {}", clientApp.getClientAppTO().getClass().getName());
                     return null;
                 });
     }
 
-    public RegisteredService toRegisteredService(final WAClientApp clientApp, final ClientAppMapper clientAppMapper) {
+    protected RegisteredService toRegisteredService(
+            final WAClientApp clientApp,
+            final ClientAppMapper clientAppMapper,
+            final OIDCOPTO oidcOP) {
+
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
         RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
@@ -138,7 +171,9 @@ public class RegisteredServiceMapper {
                 filter(m -> m.supports(attrReleasePolicyTO.getConf())).
                 findFirst();
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = attrReleaseMapper.
-                map(mapper -> mapper.build(clientApp.getClientAppTO(), attrReleasePolicyTO)).
+                map(mapper -> clientApp.getClientAppTO() instanceof OIDCRPClientAppTO oidcRPClientAppTO
+                ? mapper.build(oidcRPClientAppTO, attrReleasePolicyTO, oidcOP)
+                : mapper.build(clientApp.getClientAppTO(), attrReleasePolicyTO)).
                 orElse(null);
 
         RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy = null;

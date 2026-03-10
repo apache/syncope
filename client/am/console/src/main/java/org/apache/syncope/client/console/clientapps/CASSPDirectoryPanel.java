@@ -45,6 +45,7 @@ public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPClientAppT
                 policyRestClient,
                 clientAppRestClient,
                 realmRestClient,
+                oidcOPRestClient,
                 pageRef),
                 true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
@@ -49,10 +50,11 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
-import org.apache.syncope.common.lib.OIDCScopeConstants;
+import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -66,7 +68,28 @@ import org.junit.jupiter.api.BeforeAll;
 
 public class OIDCC4UIITCase extends AbstractUIITCase {
 
+    private static final String ITCASE_SCOPE = "itcase";
+
+    private static void oidcOPSetup() {
+        OIDCOPTO oidcOP;
+        try {
+            oidcOP = OIDC_OP_SERVICE.get();
+        } catch (Exception e) {
+            Response response = OIDC_OP_SERVICE.generate("syncope", "RSA", 2048);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+            oidcOP = OIDC_OP_SERVICE.get();
+        }
+
+        if (!oidcOP.getCustomScopes().containsKey(ITCASE_SCOPE)) {
+            oidcOP.getCustomScopes().put(ITCASE_SCOPE, Set.of("identifier"));
+            OIDC_OP_SERVICE.set(oidcOP);
+        }
+    }
+
     private static void clientAppSetup(final String appName, final String baseAddress, final long appId) {
+        oidcOPSetup();
+
         OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(OIDCRPClientAppTO.class::cast).
@@ -102,9 +125,10 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScopeConstants.OPEN_ID);
-        clientApp.getScopes().add(OIDCScopeConstants.PROFILE);
-        clientApp.getScopes().add(OIDCScopeConstants.EMAIL);
+        clientApp.getScopes().add(OIDCStandardScope.openid.name());
+        clientApp.getScopes().add(OIDCStandardScope.profile.name());
+        clientApp.getScopes().add(OIDCStandardScope.email.name());
+        clientApp.getScopes().add(ITCASE_SCOPE);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
 
@@ -113,7 +137,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
                 String metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/env", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
-                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes.syncope")) {
+                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes." + ITCASE_SCOPE)) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
@@ -160,8 +184,8 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             cas.setIssuer(WA_ADDRESS + "/oidc");
             cas.setHasDiscovery(true);
 
-            cas.getScopes().addAll(OIDCScopeConstants.ALL_STANDARD_SCOPES);
-            cas.getScopes().add("syncope");
+            Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(cas.getScopes()::add);
+            cas.getScopes().add(ITCASE_SCOPE);
 
             cas.setCreateUnmatching(createUnmatching);
             cas.setSelfRegUnmatching(selfRegUnmatching);

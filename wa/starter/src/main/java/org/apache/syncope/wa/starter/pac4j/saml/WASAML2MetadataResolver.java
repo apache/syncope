@@ -23,7 +23,6 @@ import net.shibboleth.shared.resolver.ResolverException;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
-import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,28 +32,28 @@ public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
 
     protected final WARestClient waRestClient;
 
-    protected final SAML2Client saml2Client;
+    protected final String saml2Client;
 
-    public WASAML2MetadataResolver(final WARestClient waRestClient, final SAML2Client saml2Client) {
+    public WASAML2MetadataResolver(final WARestClient waRestClient, final String saml2Client) {
         this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
 
     @Override
     protected String getMetadataIdentifier() {
-        return saml2Client.getName();
+        return saml2Client;
     }
 
     @Override
     protected byte[] fetchMetadata() throws ResolverException {
         try {
             String encodedMetadata = waRestClient.getService(WASAML2SPService.class).
-                    getSAML2SPMetadata(saml2Client.getName()).readEntity(String.class);
+                    getSAML2SPMetadata(saml2Client).readEntity(String.class);
 
             LOG.debug("Retrieved metadata {}", encodedMetadata);
             return Base64.getDecoder().decode(encodedMetadata);
         } catch (Exception e) {
-            String message = "Unable to fetch SP metadata for SP entity " + saml2Client.getName();
+            String message = "Unable to fetch SP metadata for SP entity " + saml2Client;
             LOG.error(message, e);
             throw new ResolverException(message);
         }

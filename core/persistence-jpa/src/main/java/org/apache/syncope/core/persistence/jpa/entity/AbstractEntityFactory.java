@@ -50,7 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
@@ -95,7 +95,7 @@ import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPACASSPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCOP;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCRPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAPasswordManagement;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2IdPEntity;
@@ -275,8 +275,8 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPASAML2IdPEntity();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new JPAAuthProfile();
-        } else if (reference.equals(OIDCJWKS.class)) {
-            result = (E) new JPAOIDCJWKS();
+        } else if (reference.equals(OIDCOP.class)) {
+            result = (E) new JPAOIDCOP();
         } else if (reference.equals(WAConfigEntry.class)) {
             result = (E) new JPAWAConfigEntry();
         } else if (reference.equals(ConfParam.class)) {

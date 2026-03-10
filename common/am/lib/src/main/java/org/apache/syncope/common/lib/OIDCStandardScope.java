@@ -18,25 +18,12 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.List;
+public enum OIDCStandardScope {
 
-public final class OIDCScopeConstants {
+    openid,
+    address,
+    email,
+    profile,
+    phone;
 
-    public static final String OPEN_ID = "openid";
-
-    public static final String PROFILE = "profile";
-
-    public static final String EMAIL = "email";
-
-    public static final String ADDRESS = "address";
-
-    public static final String PHONE = "phone";
-
-    public static final String SYNCOPE = "syncope";
-
-    public static final List<String> ALL_STANDARD_SCOPES = List.of(OPEN_ID, PROFILE, EMAIL, ADDRESS, PHONE);
-
-    private OIDCScopeConstants() {
-        // private constructor for static utility class
-    }
 }

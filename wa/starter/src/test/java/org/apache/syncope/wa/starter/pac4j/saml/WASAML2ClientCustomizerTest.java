@@ -28,9 +28,13 @@ public class WASAML2ClientCustomizerTest extends BaseWASAML2ClientTest {
     @Test
     public void customize() throws Exception {
         WASAML2ClientCustomizer customizer = new WASAML2ClientCustomizer(getWARestClient());
-        SAML2Client client = getSAML2Client();
+        SAML2Client client = new SAML2Client(getSAML2Configuration());
+        client.setName("CAS");
+        client.setCallbackUrl("https://syncope.apache.org");
+
         customizer.customize(client);
         client.init();
+
         assertTrue(client.getConfiguration().getKeystoreGenerator() instanceof WASAML2ClientKeystoreGenerator);
         assertTrue(client.getConfiguration().toMetadataGenerator() instanceof WASAML2ClientMetadataGenerator);
     }

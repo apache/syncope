@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.persistence.api.entity.am;
 
+import java.util.Map;
+import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface OIDCJWKS extends Entity {
+public interface OIDCOP extends Entity {
 
-    String getJson();
+    String getJWKS();
 
-    void setJson(String json);
+    void setJWKS(String jwks);
 
+    Map<String, Set<String>> getCustomScopes();
 }

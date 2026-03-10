@@ -16,30 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.neo4j.entity.am;
+package org.apache.syncope.core.persistence.api.dao;
 
-import jakarta.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.springframework.data.neo4j.core.schema.Node;
+import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
 
-@Node(Neo4jOIDCJWKS.NODE)
-public class Neo4jOIDCJWKS extends AbstractGeneratedKeyNode implements OIDCJWKS {
+public interface OIDCOPDAO {
 
-    public static final String NODE = "OIDCJWKS";
+    Optional<OIDCOP> get();
 
-    private static final long serialVersionUID = 47352617217394093L;
+    OIDCOP save(OIDCOP oidcOp);
 
-    @NotNull
-    private String json;
-
-    @Override
-    public String getJson() {
-        return this.json;
-    }
-
-    @Override
-    public void setJson(final String json) {
-        this.json = json;
-    }
+    void delete();
 }

@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
+import org.apache.syncope.client.console.rest.OIDCOPRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -55,7 +56,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.OIDCScopeConstants;
+import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
@@ -147,6 +148,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
     protected final RealmRestClient realmRestClient;
 
+    protected final OIDCOPRestClient oidcOPRestClient;
+
     public ClientAppModalPanelBuilder(
             final ClientAppType type,
             final T defaultItem,
@@ -154,6 +157,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             final PolicyRestClient policyRestClient,
             final ClientAppRestClient clientAppRestClient,
             final RealmRestClient realmRestClient,
+            final OIDCOPRestClient oidcOPRestClient,
             final PageReference pageRef) {
 
         super(defaultItem, pageRef);
@@ -162,6 +166,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         this.policyRestClient = policyRestClient;
         this.clientAppRestClient = clientAppRestClient;
         this.realmRestClient = realmRestClient;
+        this.oidcOPRestClient = oidcOPRestClient;
     }
 
     @Override
@@ -405,8 +410,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                         @Override
                         protected Iterator<String> getChoices(final String input) {
-                            List<String> choices = new ArrayList<>(OIDCScopeConstants.ALL_STANDARD_SCOPES);
-                            choices.add(OIDCScopeConstants.SYNCOPE);
+                            List<String> choices = new ArrayList<>();
+                            Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(choices::add);
+                            Optional.ofNullable(oidcOPRestClient.get().get()).ifPresent(oidcOP -> choices.addAll(
+                                    oidcOP.getCustomScopes().keySet().stream().sorted().toList()));
+
                             return choices.iterator();
                         }
                     };

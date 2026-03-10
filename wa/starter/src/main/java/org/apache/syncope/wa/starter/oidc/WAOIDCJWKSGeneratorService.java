@@ -22,9 +22,9 @@ import jakarta.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
+import org.apache.syncope.common.rest.api.service.OIDCOPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratedEvent;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
@@ -68,10 +68,10 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     @Override
     public JsonWebKeySet store(final JsonWebKeySet jsonWebKeySet) {
-        OIDCJWKSService service = waRestClient.getService(OIDCJWKSService.class);
-        OIDCJWKSTO to = new OIDCJWKSTO();
-        to.setJson(jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
-        service.set(to);
+        OIDCOPService service = waRestClient.getService(OIDCOPService.class);
+        OIDCOPTO oidcOPTO = new OIDCOPTO();
+        oidcOPTO.setJWKS(jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
+        service.set(oidcOPTO);
         return jsonWebKeySet;
     }
 
@@ -82,26 +82,26 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     @Override
     public Resource generate() {
-        OIDCJWKSService service = waRestClient.getService(OIDCJWKSService.class);
-        OIDCJWKSTO jwksTO = null;
+        OIDCOPService service = waRestClient.getService(OIDCOPService.class);
+        OIDCOPTO oidcOPTO = null;
         try {
-            jwksTO = service.get();
+            oidcOPTO = service.get();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 try (Response response = service.generate(jwksKeyId, jwksType, jwksKeySize)) {
-                    jwksTO = response.readEntity(OIDCJWKSTO.class);
+                    oidcOPTO = response.readEntity(OIDCOPTO.class);
                 } catch (Exception ge) {
                     LOG.error("While generating new OIDC JWKS", ge);
                 }
             } else {
-                LOG.error("While reading OIDC JWKS", e);
+                LOG.error("While reading OIDC OP", e);
             }
         }
-        if (jwksTO == null) {
-            throw new IllegalStateException("Unable to determine OIDC JWKS resource");
+        if (oidcOPTO == null) {
+            throw new IllegalStateException("Unable to determine OIDC OP");
         }
 
-        Resource result = new ByteArrayResource(jwksTO.getJson().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+        Resource result = new ByteArrayResource(oidcOPTO.getJWKS().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
         ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
         applicationContext.publishEvent(new OidcJsonWebKeystoreGeneratedEvent(this, result, clientInfo));
         return result;

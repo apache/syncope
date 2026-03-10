@@ -20,31 +20,31 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
-import org.apache.syncope.core.logic.OIDCJWKSLogic;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.core.logic.OIDCOPLogic;
 
-public class OIDCJWKSServiceImpl extends AbstractService implements OIDCJWKSService {
+public class OIDCOPServiceImpl extends AbstractService implements OIDCOPService {
 
-    protected final OIDCJWKSLogic logic;
+    protected final OIDCOPLogic logic;
 
-    public OIDCJWKSServiceImpl(final OIDCJWKSLogic logic) {
+    public OIDCOPServiceImpl(final OIDCOPLogic logic) {
         this.logic = logic;
     }
 
     @Override
-    public OIDCJWKSTO get() {
+    public OIDCOPTO get() {
         return logic.get();
     }
 
     @Override
-    public void set(final OIDCJWKSTO entityTO) {
-        logic.set(entityTO);
+    public void set(final OIDCOPTO oidcOPTO) {
+        logic.set(oidcOPTO);
     }
 
     @Override
     public Response generate(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
-        OIDCJWKSTO jwks = logic.generate(jwksKeyId, jwksType, jwksKeySize);
+        OIDCOPTO jwks = logic.generate(jwksKeyId, jwksType, jwksKeySize);
         URI location = uriInfo.getAbsolutePathBuilder().build();
         return Response.created(location).entity(jwks).build();
     }

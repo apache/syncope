@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
@@ -60,7 +59,6 @@ import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 
@@ -141,9 +139,6 @@ public class WAServiceRegistryTest extends AbstractTest {
 
     @Autowired
     private ServicesManager servicesManager;
-
-    @Autowired
-    private ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan;
 
     @Autowired
     private ContextRefresher contextRefresher;

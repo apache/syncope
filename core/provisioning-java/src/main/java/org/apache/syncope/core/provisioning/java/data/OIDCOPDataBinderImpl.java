@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
-import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.provisioning.api.data.OIDCOPDataBinder;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.jose4j.jwk.EcJwkGenerator;
 import org.jose4j.jwk.JsonWebKey;
@@ -40,22 +40,24 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
+public class OIDCOPDataBinderImpl implements OIDCOPDataBinder {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OIDCOPDataBinder.class);
 
     protected final EntityFactory entityFactory;
 
-    public OIDCJWKSDataBinderImpl(final EntityFactory entityFactory) {
+    public OIDCOPDataBinderImpl(final EntityFactory entityFactory) {
         this.entityFactory = entityFactory;
     }
 
     @Override
-    public OIDCJWKSTO getOIDCJWKSTO(final OIDCJWKS jwks) {
-        return new OIDCJWKSTO.Builder().
-                key(jwks.getKey()).
-                json(jwks.getJson()).
-                build();
+    public OIDCOPTO getOIDCOPTO(final OIDCOP oidcOP) {
+        OIDCOPTO oidcOPTO = new OIDCOPTO();
+        oidcOPTO.setKey(oidcOP.getKey());
+        oidcOPTO.setJWKS(oidcOP.getJWKS());
+        oidcOPTO.getCustomScopes().putAll(oidcOP.getCustomScopes());
+
+        return oidcOPTO;
     }
 
     protected PublicJsonWebKey generate(
@@ -97,7 +99,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
     }
 
     @Override
-    public OIDCJWKS create(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
+    public OIDCOP create(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
         List<PublicJsonWebKey> keys = new ArrayList<>();
         try {
             keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.CURRENT));
@@ -112,8 +114,16 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             throw sce;
         }
 
-        OIDCJWKS oidcJWKS = entityFactory.newEntity(OIDCJWKS.class);
-        oidcJWKS.setJson(new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
-        return oidcJWKS;
+        OIDCOP oidcOP = entityFactory.newEntity(OIDCOP.class);
+        oidcOP.setJWKS(new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
+        return oidcOP;
+    }
+
+    @Override
+    public void update(final OIDCOP oidcOP, final OIDCOPTO oidcOPTO) {
+        oidcOP.setJWKS(oidcOPTO.getJWKS());
+
+        oidcOP.getCustomScopes().clear();
+        oidcOP.getCustomScopes().putAll(oidcOPTO.getCustomScopes());
     }
 }

@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
-import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
@@ -44,7 +44,7 @@ import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
-import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.provisioning.api.data.OIDCOPDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PasswordManagementDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
@@ -122,13 +122,13 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSLogic oidcJWKSLogic(
-            final OIDCJWKSDataBinder oidcJWKSDataBinder,
-            final OIDCJWKSDAO oidcJWKSDAO,
+    public OIDCOPLogic oidcOPLogic(
+            final OIDCOPDataBinder oidcOPDataBinder,
+            final OIDCOPDAO oidcOPDAO,
             final WAConfigDAO waConfigDAO,
             final EntityFactory entityFactory) {
 
-        return new OIDCJWKSLogic(oidcJWKSDataBinder, oidcJWKSDAO, waConfigDAO, entityFactory);
+        return new OIDCOPLogic(oidcOPDataBinder, oidcOPDAO, waConfigDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

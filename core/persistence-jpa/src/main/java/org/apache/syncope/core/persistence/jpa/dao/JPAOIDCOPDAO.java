@@ -22,29 +22,29 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
+import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCOP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPAOIDCJWKSDAO implements OIDCJWKSDAO {
+public class JPAOIDCOPDAO implements OIDCOPDAO {
 
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDAO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OIDCOPDAO.class);
 
     protected final EntityManager entityManager;
 
-    public JPAOIDCJWKSDAO(final EntityManager entityManager) {
+    public JPAOIDCOPDAO(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<OIDCJWKS> get() {
+    public Optional<OIDCOP> get() {
         try {
-            TypedQuery<OIDCJWKS> query = entityManager.createQuery(
-                    "SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
+            TypedQuery<OIDCOP> query = entityManager.createQuery(
+                    "SELECT e FROM " + JPAOIDCOP.class.getSimpleName() + " e", OIDCOP.class);
             return Optional.ofNullable(query.getSingleResult());
         } catch (NoResultException e) {
             LOG.debug("No OIDC JWKS found", e);
@@ -53,12 +53,15 @@ public class JPAOIDCJWKSDAO implements OIDCJWKSDAO {
     }
 
     @Override
-    public OIDCJWKS save(final OIDCJWKS jwks) {
-        return entityManager.merge(jwks);
+    public OIDCOP save(final OIDCOP oidcOp) {
+        ((JPAOIDCOP) oidcOp).map2json();
+        OIDCOP merged = entityManager.merge(oidcOp);
+        ((JPAOIDCOP) merged).postSave();
+        return merged;
     }
 
     @Override
     public void delete() {
-        entityManager.createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).executeUpdate();
+        entityManager.createQuery("DELETE FROM " + JPAOIDCOP.class.getSimpleName()).executeUpdate();
     }
 }

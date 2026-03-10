@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
+import org.apache.syncope.client.console.rest.OIDCOPRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -79,6 +80,9 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
     @SpringBean
     protected AuditRestClient auditRestClient;
+
+    @SpringBean
+    protected OIDCOPRestClient oidcOPRestClient;
 
     protected final ClientAppType type;
 
