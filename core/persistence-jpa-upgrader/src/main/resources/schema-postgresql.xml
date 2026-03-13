@@ -705,10 +705,11 @@ under the License.
             <fk to-table="NotificationTask" column="TASK_ID"/>
             <index name="I_NTFCKXC_TASK" column="TASK_ID"/>
         </table>
-        <table name="OIDCJWKS">
+        <table name="OIDCOpEntity">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="json" type="clob" not-null="true" size="-1"/>
+            <column name="jwks" type="clob" not-null="true" size="-1"/>
+            <column name="customScopes" type="clob" not-null="true" size="-1"/>
         </table>
         <table name="OIDCRPClientApp">
             <pk column="id"/>

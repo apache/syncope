@@ -23,7 +23,7 @@ import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
-import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
@@ -39,7 +39,7 @@ import org.apache.syncope.core.logic.AttrRepoLogic;
 import org.apache.syncope.core.logic.AuthModuleLogic;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.apache.syncope.core.logic.ClientAppLogic;
-import org.apache.syncope.core.logic.OIDCJWKSLogic;
+import org.apache.syncope.core.logic.OIDCOpEntityLogic;
 import org.apache.syncope.core.logic.PasswordManagementLogic;
 import org.apache.syncope.core.logic.SAML2IdPEntityLogic;
 import org.apache.syncope.core.logic.SRARouteLogic;
@@ -55,7 +55,7 @@ import org.apache.syncope.core.rest.cxf.service.AuthModuleServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthProfileSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.OIDCJWKSServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.OIDCOpEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.PasswordManagementServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2IdPEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
@@ -134,8 +134,8 @@ public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSService oidcJWKSService(final OIDCJWKSLogic oidcJWKSLogic) {
-        return new OIDCJWKSServiceImpl(oidcJWKSLogic);
+    public OIDCOpEntityService oidcOpService(final OIDCOpEntityLogic oidcOpLogic) {
+        return new OIDCOpEntityServiceImpl(oidcOpLogic);
     }
 
     @ConditionalOnMissingBean

@@ -28,7 +28,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -75,7 +75,7 @@ public interface SAML2IdPEntityService extends JAXRSService {
      */
     @Parameter(name = "key", description = "SAML2IdPEntityTO's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
-    @POST
+    @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })

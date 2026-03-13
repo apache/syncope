@@ -43,13 +43,13 @@ public class WAServiceRegistry extends AbstractServiceRegistry {
     protected final RegisteredServiceMapper registeredServiceMapper;
 
     public WAServiceRegistry(
-            final WARestClient restClient,
+            final WARestClient waRestClient,
             final RegisteredServiceMapper registeredServiceMapper,
             final ConfigurableApplicationContext applicationContext,
             final Collection<ServiceRegistryListener> serviceRegistryListeners) {
 
         super(applicationContext, serviceRegistryListeners);
-        this.waRestClient = restClient;
+        this.waRestClient = waRestClient;
         this.registeredServiceMapper = registeredServiceMapper;
     }
 

@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -90,7 +91,7 @@ import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
-import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.provisioning.api.data.OIDCOpEntityDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PasswordManagementDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -132,7 +133,7 @@ import org.apache.syncope.core.provisioning.java.data.FIQLQueryDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.GroupDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ImplementationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.NotificationDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.data.OIDCJWKSDataBinderImpl;
+import org.apache.syncope.core.provisioning.java.data.OIDCOpEntityDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.PasswordManagementDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.PolicyDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.RealmDataBinderImpl;
@@ -812,9 +813,10 @@ public class ProvisioningContext {
     public ClientAppDataBinder clientAppDataBinder(
             final PolicyDAO policyDAO,
             final RealmSearchDAO realmSearchDAO,
+            final OIDCOpEntityDAO oidcOEntityDAO,
             final EntityFactory entityFactory) {
 
-        return new ClientAppDataBinderImpl(policyDAO, realmSearchDAO, entityFactory);
+        return new ClientAppDataBinderImpl(policyDAO, realmSearchDAO, oidcOEntityDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -917,8 +919,11 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSDataBinder oidcJWKSDataBinder(final EntityFactory entityFactory) {
-        return new OIDCJWKSDataBinderImpl(entityFactory);
+    public OIDCOpEntityDataBinder oidcOpEntityDataBinder(
+            final WAConfigDAO waConfigDAO,
+            final EntityFactory entityFactory) {
+
+        return new OIDCOpEntityDataBinderImpl(waConfigDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

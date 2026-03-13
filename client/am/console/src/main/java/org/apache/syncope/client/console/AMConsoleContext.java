@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
-import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
 import org.apache.syncope.client.console.rest.PasswordManagementRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
@@ -96,8 +96,8 @@ public class AMConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSRestClient oidcJWKSRestClient() {
-        return new OIDCJWKSRestClient();
+    public OIDCOpEntityRestClient oidcOpEntityRestClient() {
+        return new OIDCOpEntityRestClient();
     }
 
     @ConditionalOnMissingBean

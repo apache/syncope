@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Iterator;
-import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAutoCompleteBehavior;
@@ -33,11 +32,9 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteR
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
+public abstract class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
 
     private static final long serialVersionUID = 6890905510177974519L;
-
-    private List<String> choices = List.of();
 
     private final IAutoCompleteRenderer<String> renderer;
 
@@ -51,6 +48,7 @@ public class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
             final String id, final String name,
             final IModel<String> model,
             final AutoCompleteSettings settings) {
+
         this(id, name, model, null, settings);
     }
 
@@ -59,6 +57,7 @@ public class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
             final IModel<String> model,
             final IAutoCompleteRenderer<String> renderer,
             final AutoCompleteSettings settings) {
+
         super(id, name, model);
 
         this.settings = settings;
@@ -107,16 +106,10 @@ public class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
         }
     }
 
-    public List<String> getChoices() {
-        return choices;
-    }
-
     public void onUpdateBehavior() {
     }
 
-    protected Iterator<String> getChoices(final String input) {
-        return choices.iterator();
-    }
+    protected abstract Iterator<String> getChoices(String input);
 
     @Override
     public FieldPanel<String> clone() {

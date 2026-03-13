@@ -27,7 +27,6 @@ import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractMetadataResolver;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.BaseSAML2MetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +37,9 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
     protected final WARestClient waRestClient;
 
-    protected final SAML2Client saml2Client;
+    protected final String saml2Client;
 
-    public WASAML2ClientMetadataGenerator(final WARestClient waRestClient, final SAML2Client saml2Client) {
+    public WASAML2ClientMetadataGenerator(final WARestClient waRestClient, final String saml2Client) {
         this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
@@ -53,12 +52,12 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     protected Optional<String> metadataAvailable() {
         try {
             String encodedMetadata = waRestClient.getService(WASAML2SPService.class).
-                    getSAML2SPMetadata(saml2Client.getName()).readEntity(String.class);
+                    getSAML2SPMetadata(saml2Client).readEntity(String.class);
 
             LOG.debug("Retrieved metadata {}", encodedMetadata);
             return Optional.of(new String(Base64.getDecoder().decode(encodedMetadata), StandardCharsets.UTF_8));
         } catch (Exception e) {
-            LOG.error("While attempting to read metadata for SP Entity {}", saml2Client.getName(), e);
+            LOG.error("While attempting to read metadata for SP Entity {}", saml2Client, e);
             return Optional.empty();
         }
     }
@@ -111,9 +110,9 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
             try {
                 waRestClient.getService(WASAML2SPService.class).setSAML2SPMetadata(
-                        saml2Client.getName(), IOUtils.toInputStream(encodedMetadata, StandardCharsets.UTF_8));
+                        saml2Client, IOUtils.toInputStream(encodedMetadata, StandardCharsets.UTF_8));
             } catch (Exception e) {
-                LOG.error("While storing SP {} metadata", saml2Client.getName(), e);
+                LOG.error("While storing SP {} metadata", saml2Client, e);
             }
         }
 

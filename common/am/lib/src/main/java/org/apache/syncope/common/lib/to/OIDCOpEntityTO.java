@@ -18,44 +18,22 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class OIDCJWKSTO implements EntityTO {
+public class OIDCOpEntityTO implements EntityTO {
 
     private static final long serialVersionUID = 1285073386484048953L;
 
-    public static class Builder {
-
-        private final OIDCJWKSTO instance = new OIDCJWKSTO();
-
-        public OIDCJWKSTO.Builder json(final String json) {
-            instance.setJson(json);
-            return this;
-        }
-
-        public OIDCJWKSTO.Builder key(final String key) {
-            instance.setKey(key);
-            return this;
-        }
-
-        public OIDCJWKSTO build() {
-            return instance;
-        }
-    }
-
     private String key;
 
-    private String json;
+    private String jwks;
 
-    public String getJson() {
-        return json;
-    }
-
-    public void setJson(final String json) {
-        this.json = json;
-    }
+    private final Map<String, Set<String>> customScopes = new HashMap<>();
 
     @Override
     public String getKey() {
@@ -67,13 +45,26 @@ public class OIDCJWKSTO implements EntityTO {
         this.key = key;
     }
 
+    public String getJWKS() {
+        return jwks;
+    }
+
+    public void setJWKS(final String jwks) {
+        this.jwks = jwks;
+    }
+
+    public Map<String, Set<String>> getCustomScopes() {
+        return customScopes;
+    }
+
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
-                .append(key)
-                .append(json)
-                .toHashCode();
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(key).
+                append(jwks).
+                append(customScopes).
+                toHashCode();
     }
 
     @Override
@@ -87,19 +78,22 @@ public class OIDCJWKSTO implements EntityTO {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        OIDCJWKSTO rhs = (OIDCJWKSTO) obj;
-        return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.key, rhs.key)
-                .append(this.json, rhs.json)
-                .isEquals();
+        OIDCOpEntityTO rhs = (OIDCOpEntityTO) obj;
+        return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
+                append(this.key, rhs.key).
+                append(this.jwks, rhs.jwks).
+                append(this.customScopes, rhs.customScopes).
+                isEquals();
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("key", key)
-                .append("json", json)
-                .toString();
+        return new ToStringBuilder(this).
+                append(super.toString()).
+                append("key", key).
+                append("jwks", jwks).
+                append("customScopes", customScopes).
+                toString();
     }
 }

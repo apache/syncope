@@ -31,31 +31,32 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 
 @Tag(name = "OpenID Connect 1.0")
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("oidc/jwks")
-public interface OIDCJWKSService extends JAXRSService {
+@Path("oidc/op")
+public interface OIDCOpEntityService extends JAXRSService {
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    OIDCJWKSTO get();
+    OIDCOpEntityTO get();
 
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
-    @POST
+    @PUT
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    void set(@NotNull OIDCJWKSTO entityTO);
+    void set(@NotNull OIDCOpEntityTO oidcOpEntityTO);
 
     @ApiResponses({
         @ApiResponse(responseCode = "201",
@@ -68,7 +69,6 @@ public interface OIDCJWKSService extends JAXRSService {
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    @Path("new")
     Response generate(
             @NotNull @QueryParam("jwksKeyId") @DefaultValue("syncope") String jwksKeyId,
             @NotNull @QueryParam("jwksType") @DefaultValue("RSA") String jwksType,

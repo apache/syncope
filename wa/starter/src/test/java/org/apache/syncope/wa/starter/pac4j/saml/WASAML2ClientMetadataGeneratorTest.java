@@ -20,21 +20,15 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import org.junit.jupiter.api.Test;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
-import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.SAML2MetadataGenerator;
 
 public class WASAML2ClientMetadataGeneratorTest extends BaseWASAML2ClientTest {
 
     @Test
     public void storeMetadata() throws Exception {
-        SAML2Client client = getSAML2Client();
-        String keystoreFile = File.createTempFile("keystore", "jks").getCanonicalPath();
-        client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
-
-        SAML2MetadataGenerator generator = new WASAML2ClientMetadataGenerator(getWARestClient(), client);
+        SAML2MetadataGenerator generator = new WASAML2ClientMetadataGenerator(getWARestClient(), "CAS");
         EntityDescriptor entityDescriptor = generator.buildEntityDescriptor();
         String metadata = generator.getMetadata(entityDescriptor);
         assertNotNull(generator.storeMetadata(metadata, false));

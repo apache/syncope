@@ -38,6 +38,9 @@ public class GenerateUpgradeSQL {
             UPDATE SyncopeGroup SET groupOwner_id=gManager_id;
             ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
 
+            INSERT INTO OIDCOpEntity SELECT id,json AS jwks FROM OIDCJWKS;
+            DROP TABLE OIDCJWKS;
+
             DROP TABLE SyncopeRole_DynRealm;
             DROP TABLE DynRealmMembership;
             DROP TABLE DynRealm;

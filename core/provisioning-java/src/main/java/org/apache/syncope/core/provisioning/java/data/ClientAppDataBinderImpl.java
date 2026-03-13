@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -26,6 +30,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -47,15 +52,19 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected final RealmSearchDAO realmSearchDAO;
 
+    protected final OIDCOpEntityDAO oidcOpEntityDAO;
+
     protected final EntityFactory entityFactory;
 
     public ClientAppDataBinderImpl(
             final PolicyDAO policyDAO,
             final RealmSearchDAO realmSearchDAO,
+            final OIDCOpEntityDAO oidcOpEntityDAO,
             final EntityFactory entityFactory) {
 
         this.policyDAO = policyDAO;
         this.realmSearchDAO = realmSearchDAO;
+        this.oidcOpEntityDAO = oidcOpEntityDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -251,8 +260,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
         clientApp.getSupportedResponseTypes().clear();
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
-        clientApp.getScopes().clear();
-        clientApp.getScopes().addAll(clientAppTO.getScopes());
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
         clientApp.setJwks(clientAppTO.getJwks());
         clientApp.setJwksUri(clientAppTO.getJwksUri());
@@ -263,6 +270,19 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setRefreshTokenMaxActiveTokens(clientAppTO.getRefreshTokenMaxActiveTokens());
         clientApp.setRefreshTokenTimeToKill(clientAppTO.getRefreshTokenTimeToKill());
         clientApp.setDeviceTokenTimeToKill(clientAppTO.getDeviceTokenTimeToKill());
+
+        Set<String> allowedScopes = new HashSet<>();
+        Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(allowedScopes::add);
+        oidcOpEntityDAO.get().ifPresent(oidcOpEntity -> allowedScopes.addAll(oidcOpEntity.getCustomScopes().keySet()));
+
+        if (!allowedScopes.containsAll(clientAppTO.getScopes())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            clientAppTO.getScopes().removeAll(allowedScopes);
+            sce.getElements().add("Undefined OIDC scope(s):" + clientAppTO.getScopes());
+            throw sce;
+        }
+        clientApp.getScopes().clear();
+        clientApp.getScopes().addAll(clientAppTO.getScopes());
     }
 
     protected OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
