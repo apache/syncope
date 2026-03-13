@@ -23,19 +23,19 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 
-@Node(Neo4jOIDCOP.NODE)
-public class Neo4jOIDCOP extends AbstractGeneratedKeyNode implements OIDCOP {
+@Node(Neo4jOIDCOpEntity.NODE)
+public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCOpEntity {
 
     private static final long serialVersionUID = 47352617217394093L;
 
-    public static final String NODE = "OIDCOP";
+    public static final String NODE = "OIDCOpEntity";
 
     protected static final TypeReference<HashMap<String, Set<String>>> CUSTOMSCOPES_TYPEREF =
             new TypeReference<HashMap<String, Set<String>>>() {

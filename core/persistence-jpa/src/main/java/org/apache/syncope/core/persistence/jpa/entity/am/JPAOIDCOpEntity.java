@@ -32,17 +32,17 @@ import jakarta.persistence.Transient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
-@Table(name = JPAOIDCOP.TABLE)
-public class JPAOIDCOP extends AbstractGeneratedKeyEntity implements OIDCOP {
+@Table(name = JPAOIDCOpEntity.TABLE)
+public class JPAOIDCOpEntity extends AbstractGeneratedKeyEntity implements OIDCOpEntity {
 
     private static final long serialVersionUID = 47352617217394093L;
 
-    public static final String TABLE = "OIDCOP";
+    public static final String TABLE = "OIDCOpEntity";
 
     protected static final TypeReference<HashMap<String, Set<String>>> CUSTOMSCOPES_TYPEREF =
             new TypeReference<HashMap<String, Set<String>>>() {

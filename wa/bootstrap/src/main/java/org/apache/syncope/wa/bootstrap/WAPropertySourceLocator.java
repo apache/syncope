@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
-import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
@@ -134,7 +134,7 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
         Map<String, Set<String>> customScopes;
         try {
-            customScopes = syncopeClient.getService(OIDCOPService.class).get().getCustomScopes();
+            customScopes = syncopeClient.getService(OIDCOpEntityService.class).get().getCustomScopes();
         } catch (Exception e) {
             LOG.warn("Could not read OIDC OP: no custom scopes or claims will be set", e);
             customScopes = Map.of();

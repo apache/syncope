@@ -21,9 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -78,7 +76,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
-    private final Set<String> scopes = new HashSet<>();
+    private final List<String> scopes = new ArrayList<>();
 
     private String jwks;
 
@@ -233,7 +231,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessToken = jwtAccessToken;
     }
 
-    public Set<String> getScopes() {
+    public List<String> getScopes() {
         return scopes;
     }
 

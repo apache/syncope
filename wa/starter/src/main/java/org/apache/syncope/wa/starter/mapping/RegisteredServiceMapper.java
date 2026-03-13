@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
@@ -89,22 +89,22 @@ public class RegisteredServiceMapper {
         this.waRestClient = waRestClient;
     }
 
-    protected OIDCOPTO getOIDCOPTO(final WAClientApp clientApp) {
+    protected OIDCOpEntityTO getOIDCOpEntityTO(final WAClientApp clientApp) {
         if (clientApp.getClientAppTO() instanceof OIDCRPClientAppTO) {
-            OIDCOPTO oidcOP = null;
+            OIDCOpEntityTO oidcOpEntity = null;
             if (waRestClient.isReady()) {
                 try {
-                    oidcOP = waRestClient.getService(OIDCOPService.class).get();
+                    oidcOpEntity = waRestClient.getService(OIDCOpEntityService.class).get();
                 } catch (Exception e) {
                     LOG.error("While reading OIDC OP", e);
                 }
             } else {
                 LOG.debug("Syncope client is not yet ready to fetch OIDC OP");
             }
-            if (oidcOP == null) {
-                return new OIDCOPTO();
+            if (oidcOpEntity == null) {
+                return new OIDCOpEntityTO();
             }
-            return oidcOP;
+            return oidcOpEntity;
         }
 
         return null;
@@ -114,7 +114,7 @@ public class RegisteredServiceMapper {
         return clientAppMappers.stream().
                 filter(m -> m.supports(clientApp.getClientAppTO())).
                 findFirst().
-                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper, getOIDCOPTO(clientApp))).
+                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper, getOIDCOpEntityTO(clientApp))).
                 orElseGet(() -> {
                     LOG.warn("Unable to locate mapper for {}", clientApp.getClientAppTO().getClass().getName());
                     return null;
@@ -124,7 +124,7 @@ public class RegisteredServiceMapper {
     protected RegisteredService toRegisteredService(
             final WAClientApp clientApp,
             final ClientAppMapper clientAppMapper,
-            final OIDCOPTO oidcOP) {
+            final OIDCOpEntityTO oidcOpEntity) {
 
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
@@ -172,7 +172,7 @@ public class RegisteredServiceMapper {
                 findFirst();
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = attrReleaseMapper.
                 map(mapper -> clientApp.getClientAppTO() instanceof OIDCRPClientAppTO oidcRPClientAppTO
-                ? mapper.build(oidcRPClientAppTO, attrReleasePolicyTO, oidcOP)
+                ? mapper.build(oidcRPClientAppTO, attrReleasePolicyTO, oidcOpEntity)
                 : mapper.build(clientApp.getClientAppTO(), attrReleasePolicyTO)).
                 orElse(null);
 

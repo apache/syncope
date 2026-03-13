@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface OIDCOP extends Entity {
+public interface OIDCOpEntity extends Entity {
 
     String getJWKS();
 

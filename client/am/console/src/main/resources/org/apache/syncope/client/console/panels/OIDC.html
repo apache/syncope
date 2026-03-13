@@ -18,32 +18,49 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="row" wicket:id="container">
-      <div class="col-md-6">
-        <div class="card card-gray mb-4">
-          <div class="card-header">
-            <h3 class="card-title">JSON Web Key Sets</h3>
-          </div>
-          <div class="card-body" style="text-align: center;">
-            <a wicket:id="view" class="btn btn-app">
-              <i class="fas fa-eye"></i> <wicket:message key="view"/>
-            </a>
-            <a wicket:id="generate" class="btn btn-app">
-              <i class="fa fa-edit"></i> <wicket:message key="generate"/>
-            </a>
-            <a wicket:id="delete" class="btn btn-app">
-              <i class="fas fa-trash-alt"></i> <wicket:message key="delete"/>
-            </a>
+    <div  wicket:id="container">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card card-gray mb-4">
+            <div class="card-header">
+              <h3 class="card-title">JSON Web Key Sets</h3>
+            </div>
+            <div class="card-body" style="text-align: center;">
+              <a wicket:id="view" class="btn btn-app btn-info">
+                <i class="fas fa-eye"></i> <wicket:message key="view"/>
+              </a>
+              <a wicket:id="generate" class="btn btn-app btn-warning">
+                <i class="fa fa-edit"></i> <wicket:message key="generate"/>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="card card-gray mb-4">
-          <div class="card-header">
-            <h3 class="card-title">Well-Known URI</h3>
+        <div class="col-md-5">
+          <div class="card card-gray mb-4">
+            <div class="card-header">
+              <h3 class="card-title">Metadata URI</h3>
+            </div>
+            <div class="card-body" style="text-align: center;">
+              <a wicket:id="wellKnownURI"/>
+            </div>
           </div>
-          <div class="card-body" style="text-align: center;">
-            <a wicket:id="wellKnownURI"/>
+        </div>
+        <div class="col-md-1">
+          <a wicket:id="delete" class="btn btn-app btn-danger">
+            <i class="fas fa-trash-alt"></i> <wicket:message key="reset"/>
+          </a>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card card-gray mb-4">
+            <div class="card-header">
+              <h3 class="card-title"><wicket:message key="customScopes"/></h3>
+            </div>
+            <div class="card-body">
+              <div wicket:id="customScopes"/>
+            </div>
           </div>
         </div>
       </div>

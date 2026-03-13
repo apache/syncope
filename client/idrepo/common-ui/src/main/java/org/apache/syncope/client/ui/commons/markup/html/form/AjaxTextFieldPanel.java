@@ -50,6 +50,7 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
 
     public AjaxTextFieldPanel(
             final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
+
         super(id, name, model);
 
         questionMarkJexlHelp = Constants.getJEXLPopover(this, TooltipConfig.Placement.right);

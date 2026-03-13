@@ -52,6 +52,8 @@ public final class AMConstants {
     public static final String PREF_AUTHPROFILE_WEBAUTHNDEVICECREDENTIALS_PAGINATOR_ROWS =
             "authprofile.webAuthnDeviceCredentials.paginator.rows";
 
+    public static final String PREF_OIDC_CUSTOMSCOPES_PAGINATOR_ROWS = "oidc.customScopes.paginator.rows";
+
     private AMConstants() {
         // private constructor for static utility class
     }

@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
 import org.apereo.cas.authentication.principal.cache.AbstractPrincipalAttributesRepository;
@@ -216,7 +216,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
     public RegisteredServiceAttributeReleasePolicy build(
             final OIDCRPClientAppTO clientApp,
             final AttrReleasePolicyTO policy,
-            final OIDCOPTO oidcOP) {
+            final OIDCOpEntityTO oidcOpEntity) {
 
         if (clientApp.getScopes().isEmpty()) {
             return build(clientApp, policy);
@@ -267,7 +267,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                         internal,
                         external.toString());
             } else {
-                oidcOP.getCustomScopes().entrySet().stream().
+                oidcOpEntity.getCustomScopes().entrySet().stream().
                         filter(entry -> entry.getValue().contains(external.toString())).
                         map(Map.Entry::getKey).findFirst().ifPresentOrElse(
                         scope -> buildForOIDCustomScope(

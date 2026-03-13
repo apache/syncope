@@ -116,7 +116,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setLogoutUrl(rp.getLogoutUri());
         service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod().name());
 
-        service.setScopes(rp.getScopes());
+        service.setScopes(rp.getScopes().stream().collect(Collectors.toSet()));
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);

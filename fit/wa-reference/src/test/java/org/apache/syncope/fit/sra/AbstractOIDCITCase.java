@@ -61,7 +61,7 @@ import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -117,20 +117,20 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
                 });
     }
 
-    protected static void oidcOPSetup() {
-        OIDCOPTO oidcOP;
+    protected static void oidcOpEntitySetup() {
+        OIDCOpEntityTO oidcOpEntity;
         try {
-            oidcOP = OIDC_OP_SERVICE.get();
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
         } catch (Exception e) {
-            Response response = OIDC_OP_SERVICE.generate("syncope", "RSA", 2048);
+            Response response = OIDC_OP_ENTITY_SERVICE.generate("syncope", "RSA", 2048);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-            oidcOP = OIDC_OP_SERVICE.get();
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
         }
 
-        if (!oidcOP.getCustomScopes().containsKey(GROUPS_SCOPE)) {
-            oidcOP.getCustomScopes().put(GROUPS_SCOPE, Set.of("groups"));
-            OIDC_OP_SERVICE.set(oidcOP);
+        if (!oidcOpEntity.getCustomScopes().containsKey(GROUPS_SCOPE)) {
+            oidcOpEntity.getCustomScopes().put(GROUPS_SCOPE, Set.of("groups"));
+            OIDC_OP_ENTITY_SERVICE.set(oidcOpEntity);
         }
     }
 
@@ -141,7 +141,7 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
             final String clientId,
             final String clientSecret) {
 
-        oidcOPSetup();
+        oidcOpEntitySetup();
 
         OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).

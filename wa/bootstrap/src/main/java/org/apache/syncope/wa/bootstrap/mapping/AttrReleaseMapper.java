@@ -21,7 +21,7 @@ package org.apache.syncope.wa.bootstrap.mapping;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
@@ -34,5 +34,5 @@ public interface AttrReleaseMapper {
     RegisteredServiceAttributeReleasePolicy build(
             OIDCRPClientAppTO clientApp,
             AttrReleasePolicyTO policy,
-            OIDCOPTO oidcOP);
+            OIDCOpEntityTO oidcOpEntity);
 }

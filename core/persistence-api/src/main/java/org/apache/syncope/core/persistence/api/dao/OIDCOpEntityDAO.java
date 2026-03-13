@@ -19,13 +19,13 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 
-public interface OIDCOPDAO {
+public interface OIDCOpEntityDAO {
 
-    Optional<OIDCOP> get();
+    Optional<OIDCOpEntity> get();
 
-    OIDCOP save(OIDCOP oidcOp);
+    OIDCOpEntity save(OIDCOpEntity oidcOp);
 
     void delete();
 }

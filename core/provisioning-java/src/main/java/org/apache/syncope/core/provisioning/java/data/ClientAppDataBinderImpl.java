@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
-import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -52,19 +52,19 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected final RealmSearchDAO realmSearchDAO;
 
-    protected final OIDCOPDAO oidcOPDAO;
+    protected final OIDCOpEntityDAO oidcOpEntityDAO;
 
     protected final EntityFactory entityFactory;
 
     public ClientAppDataBinderImpl(
             final PolicyDAO policyDAO,
             final RealmSearchDAO realmSearchDAO,
-            final OIDCOPDAO oidcOPDAO,
+            final OIDCOpEntityDAO oidcOpEntityDAO,
             final EntityFactory entityFactory) {
 
         this.policyDAO = policyDAO;
         this.realmSearchDAO = realmSearchDAO;
-        this.oidcOPDAO = oidcOPDAO;
+        this.oidcOpEntityDAO = oidcOpEntityDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -273,7 +273,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
         Set<String> allowedScopes = new HashSet<>();
         Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(allowedScopes::add);
-        oidcOPDAO.get().ifPresent(oidcOP -> allowedScopes.addAll(oidcOP.getCustomScopes().keySet()));
+        oidcOpEntityDAO.get().ifPresent(oidcOpEntity -> allowedScopes.addAll(oidcOpEntity.getCustomScopes().keySet()));
 
         if (!allowedScopes.containsAll(clientAppTO.getScopes())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);

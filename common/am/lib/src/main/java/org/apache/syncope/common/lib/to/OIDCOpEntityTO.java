@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class OIDCOPTO implements EntityTO {
+public class OIDCOpEntityTO implements EntityTO {
 
     private static final long serialVersionUID = 1285073386484048953L;
 
@@ -78,7 +78,7 @@ public class OIDCOPTO implements EntityTO {
         if (obj.getClass() != getClass()) {
             return false;
         }
-        OIDCOPTO rhs = (OIDCOPTO) obj;
+        OIDCOpEntityTO rhs = (OIDCOpEntityTO) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(this.key, rhs.key).

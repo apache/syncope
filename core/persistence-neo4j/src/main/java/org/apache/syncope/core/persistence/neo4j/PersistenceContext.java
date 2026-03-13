@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
@@ -95,7 +95,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAuditEventDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jBatchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jEntityCacheDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jJobStatusDAO;
-import org.apache.syncope.core.persistence.neo4j.dao.Neo4jOIDCOPDAO;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jOIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPolicyDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jRealmDAO;
@@ -996,8 +996,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCOPDAO oidcOPDAO(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
-        return new Neo4jOIDCOPDAO(neo4jTemplate, nodeValidator);
+    public OIDCOpEntityDAO oidcOpEntityDAO(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
+        return new Neo4jOIDCOpEntityDAO(neo4jTemplate, nodeValidator);
     }
 
     @ConditionalOnMissingBean

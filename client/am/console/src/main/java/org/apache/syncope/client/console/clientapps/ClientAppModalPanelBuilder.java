@@ -37,7 +37,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
-import org.apache.syncope.client.console.rest.OIDCOPRestClient;
+import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -148,7 +148,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
     protected final RealmRestClient realmRestClient;
 
-    protected final OIDCOPRestClient oidcOPRestClient;
+    protected final OIDCOpEntityRestClient oidcOpEntityRestClient;
 
     public ClientAppModalPanelBuilder(
             final ClientAppType type,
@@ -157,7 +157,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             final PolicyRestClient policyRestClient,
             final ClientAppRestClient clientAppRestClient,
             final RealmRestClient realmRestClient,
-            final OIDCOPRestClient oidcOPRestClient,
+            final OIDCOpEntityRestClient oidcOpEntityRestClient,
             final PageReference pageRef) {
 
         super(defaultItem, pageRef);
@@ -166,7 +166,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         this.policyRestClient = policyRestClient;
         this.clientAppRestClient = clientAppRestClient;
         this.realmRestClient = realmRestClient;
-        this.oidcOPRestClient = oidcOPRestClient;
+        this.oidcOpEntityRestClient = oidcOpEntityRestClient;
     }
 
     @Override
@@ -383,7 +383,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     applicationType.setChoices(List.of(OIDCApplicationType.values()));
                     fields.add(applicationType.addRequiredLabel().setEnabled(true));
 
-                    AjaxTextFieldPanel redirectUri = new AjaxTextFieldPanel("panel", "redirectUris", new Model<>());
+                    AjaxTextFieldPanel redirectUri = new AjaxTextFieldPanel("panel", "redirectUris", Model.of());
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "redirectUris")).build(
                             "field",
@@ -400,24 +400,12 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             new PropertyModel<>(clientAppTO, "supportedResponseTypes"),
                             new ListModel<>(List.of(OIDCResponseType.values()))));
 
-                    AutoCompleteSettings scopesSettings = new AutoCompleteSettings();
-                    scopesSettings.setShowCompleteListOnFocusGain(true);
-                    scopesSettings.setShowListOnEmptyInput(true);
-                    AjaxSearchFieldPanel scopes = new AjaxSearchFieldPanel(
-                            "panel", "scopes", new PropertyModel<>(clientAppTO, "scopes"), scopesSettings) {
-
-                        private static final long serialVersionUID = 7160878678968866138L;
-
-                        @Override
-                        protected Iterator<String> getChoices(final String input) {
-                            List<String> choices = new ArrayList<>();
-                            Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(choices::add);
-                            Optional.ofNullable(oidcOPRestClient.get().get()).ifPresent(oidcOP -> choices.addAll(
-                                    oidcOP.getCustomScopes().keySet().stream().sorted().toList()));
-
-                            return choices.iterator();
-                        }
-                    };
+                    AjaxTextFieldPanel scopes = new AjaxTextFieldPanel("panel", "scopes", Model.of());
+                    scopes.setChoices(Stream.concat(Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name),
+                            Optional.ofNullable(oidcOpEntityRestClient.get().get()).
+                                    map(oidcOpEntity -> oidcOpEntity.getCustomScopes().keySet().stream()).
+                                    orElseGet(() -> Stream.empty())).
+                            distinct().sorted().toList());
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "scopes")).build(
                             "field",
@@ -561,7 +549,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "nameIdQualifier", new PropertyModel<>(clientAppTO, "nameIdQualifier"), false));
 
                     AjaxTextFieldPanel assertionAudience = new AjaxTextFieldPanel(
-                            "panel", "assertionAudience", new Model<>());
+                            "panel", "assertionAudience", Model.of());
                     assertionAudience.addValidator(new UrlValidator());
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "assertionAudiences")).build(

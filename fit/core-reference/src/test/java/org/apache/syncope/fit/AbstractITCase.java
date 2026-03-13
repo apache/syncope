@@ -144,7 +144,7 @@ import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
-import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -377,7 +377,7 @@ public abstract class AbstractITCase {
 
     protected static SAML2IdPEntityService SAML2IDP_ENTITY_SERVICE;
 
-    protected static OIDCOPService OIDC_OP_SERVICE;
+    protected static OIDCOpEntityService OIDC_OP_ENTITY_SERVICE;
 
     protected static WAConfigService WA_CONFIG_SERVICE;
 
@@ -580,7 +580,7 @@ public abstract class AbstractITCase {
         PASSWORD_MANAGEMENT_SERVICE = ADMIN_CLIENT.getService(PasswordManagementService.class);
         SAML2IDP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
-        OIDC_OP_SERVICE = ADMIN_CLIENT.getService(OIDCOPService.class);
+        OIDC_OP_ENTITY_SERVICE = ADMIN_CLIENT.getService(OIDCOpEntityService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
     }
 

@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -44,14 +44,14 @@ import org.junit.jupiter.api.Test;
 
 public class ClientAppITCase extends AbstractITCase {
 
-    private static OIDCOPTO getOIDCOPTO() {
-        OIDCOPTO oidcOPTO = null;
+    private static OIDCOpEntityTO getOIDCOpEntityTO() {
+        OIDCOpEntityTO oidcOpEntityTO = null;
         try {
-            oidcOPTO = OIDC_OP_SERVICE.get();
+            oidcOpEntityTO = OIDC_OP_ENTITY_SERVICE.get();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
-                try (Response response = OIDC_OP_SERVICE.generate("syncope", "RSA", 2048)) {
-                    oidcOPTO = response.readEntity(OIDCOPTO.class);
+                try (Response response = OIDC_OP_ENTITY_SERVICE.generate("syncope", "RSA", 2048)) {
+                    oidcOpEntityTO = response.readEntity(OIDCOpEntityTO.class);
                 } catch (Exception ge) {
                     fail("While generating new OIDC JWKS", ge);
                 }
@@ -59,8 +59,8 @@ public class ClientAppITCase extends AbstractITCase {
                 throw e;
             }
         }
-        assertNotNull(oidcOPTO);
-        return oidcOPTO;
+        assertNotNull(oidcOpEntityTO);
+        return oidcOpEntityTO;
     }
 
     @Test
@@ -169,9 +169,9 @@ public class ClientAppITCase extends AbstractITCase {
         oidcrpTO.getScopes().add(OIDCStandardScope.profile.name());
         oidcrpTO.getScopes().add("missing");
 
-        OIDCOPTO oidcOPTO = getOIDCOPTO();
-        oidcOPTO.getCustomScopes().clear();
-        OIDC_OP_SERVICE.set(oidcOPTO);
+        OIDCOpEntityTO oidcOpEntityTO = getOIDCOpEntityTO();
+        oidcOpEntityTO.getCustomScopes().clear();
+        OIDC_OP_ENTITY_SERVICE.set(oidcOpEntityTO);
 
         try {
             CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, oidcrpTO);
@@ -182,8 +182,8 @@ public class ClientAppITCase extends AbstractITCase {
         }
 
         // adjust OIDC OP to support the new scope
-        oidcOPTO.getCustomScopes().put("missing", Set.of());
-        OIDC_OP_SERVICE.set(oidcOPTO);
+        oidcOpEntityTO.getCustomScopes().put("missing", Set.of());
+        OIDC_OP_ENTITY_SERVICE.set(oidcOpEntityTO);
 
         AccessPolicyTO accessPolicyTO = new AccessPolicyTO();
         accessPolicyTO.setKey("NewAccessPolicyTest_" + getUUIDString());

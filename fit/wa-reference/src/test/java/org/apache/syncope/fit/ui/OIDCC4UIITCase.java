@@ -54,7 +54,7 @@ import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
-import org.apache.syncope.common.lib.to.OIDCOPTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -70,25 +70,25 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
 
     private static final String ITCASE_SCOPE = "itcase";
 
-    private static void oidcOPSetup() {
-        OIDCOPTO oidcOP;
+    private static void oidcOpEntitySetup() {
+        OIDCOpEntityTO oidcOpEntity;
         try {
-            oidcOP = OIDC_OP_SERVICE.get();
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
         } catch (Exception e) {
-            Response response = OIDC_OP_SERVICE.generate("syncope", "RSA", 2048);
+            Response response = OIDC_OP_ENTITY_SERVICE.generate("syncope", "RSA", 2048);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
-            oidcOP = OIDC_OP_SERVICE.get();
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
         }
 
-        if (!oidcOP.getCustomScopes().containsKey(ITCASE_SCOPE)) {
-            oidcOP.getCustomScopes().put(ITCASE_SCOPE, Set.of("identifier"));
-            OIDC_OP_SERVICE.set(oidcOP);
+        if (!oidcOpEntity.getCustomScopes().containsKey(ITCASE_SCOPE)) {
+            oidcOpEntity.getCustomScopes().put(ITCASE_SCOPE, Set.of("identifier"));
+            OIDC_OP_ENTITY_SERVICE.set(oidcOpEntity);
         }
     }
 
     private static void clientAppSetup(final String appName, final String baseAddress, final long appId) {
-        oidcOPSetup();
+        oidcOpEntitySetup();
 
         OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).

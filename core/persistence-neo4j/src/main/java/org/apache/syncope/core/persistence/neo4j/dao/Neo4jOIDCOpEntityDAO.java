@@ -19,40 +19,40 @@
 package org.apache.syncope.core.persistence.neo4j.dao;
 
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.dao.OIDCOPDAO;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCOP;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCOP;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCOpEntity;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-public class Neo4jOIDCOPDAO implements OIDCOPDAO {
+public class Neo4jOIDCOpEntityDAO implements OIDCOpEntityDAO {
 
     protected final Neo4jTemplate neo4jTemplate;
 
     protected final NodeValidator nodeValidator;
 
-    public Neo4jOIDCOPDAO(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
+    public Neo4jOIDCOpEntityDAO(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
         this.neo4jTemplate = neo4jTemplate;
         this.nodeValidator = nodeValidator;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<OIDCOP> get() {
-        return neo4jTemplate.findAll(Neo4jOIDCOP.class).stream().findFirst().map(OIDCOP.class::cast);
+    public Optional<OIDCOpEntity> get() {
+        return neo4jTemplate.findAll(Neo4jOIDCOpEntity.class).stream().findFirst().map(OIDCOpEntity.class::cast);
     }
 
     @Override
-    public OIDCOP save(final OIDCOP oidcOp) {
-        ((Neo4jOIDCOP) oidcOp).map2json();
-        OIDCOP saved = neo4jTemplate.save(nodeValidator.validate(oidcOp));
-        ((Neo4jOIDCOP) saved).postSave();
+    public OIDCOpEntity save(final OIDCOpEntity oidcOp) {
+        ((Neo4jOIDCOpEntity) oidcOp).map2json();
+        OIDCOpEntity saved = neo4jTemplate.save(nodeValidator.validate(oidcOp));
+        ((Neo4jOIDCOpEntity) saved).postSave();
         return saved;
     }
 
     @Override
     public void delete() {
-        neo4jTemplate.deleteAll(Neo4jOIDCOP.class);
+        neo4jTemplate.deleteAll(Neo4jOIDCOpEntity.class);
     }
 }

@@ -24,38 +24,32 @@ import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.service.OIDCOPService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class OIDCOPITCase extends AbstractITCase {
+public class OIDCOpEntityITCase extends AbstractITCase {
 
-    private static OIDCOPService WA_OIDC_OP_SERVICE;
+    private static OIDCOpEntityService WA_OIDC_OP_ENTITY_SERVICE;
 
     @BeforeAll
     public static void setup() {
-        WA_OIDC_OP_SERVICE = ANONYMOUS_CLIENT.getService(OIDCOPService.class);
+        WA_OIDC_OP_ENTITY_SERVICE = ANONYMOUS_CLIENT.getService(OIDCOpEntityService.class);
     }
 
     @Test
     public void deleteGetSet() {
         try {
-            OIDC_OP_SERVICE.delete();
+            OIDC_OP_ENTITY_SERVICE.delete();
 
-            WA_OIDC_OP_SERVICE.get();
+            WA_OIDC_OP_ENTITY_SERVICE.get();
             fail("Should not locate an OIDC JWKS");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        Response response = WA_OIDC_OP_SERVICE.generate("syncope", "RSA", 2048);
+        Response response = WA_OIDC_OP_ENTITY_SERVICE.generate("syncope", "RSA", 2048);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-        try {
-            WA_OIDC_OP_SERVICE.generate("syncope", "RSA", 2048);
-            fail("Should not recreate an OIDC OP");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.EntityExists, e.getType());
-        }
     }
 }

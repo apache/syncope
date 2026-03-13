@@ -46,7 +46,7 @@ public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPClient
                 policyRestClient,
                 clientAppRestClient,
                 realmRestClient,
-                oidcOPRestClient,
+                oidcOpEntityRestClient,
                 pageRef),
                 true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);
