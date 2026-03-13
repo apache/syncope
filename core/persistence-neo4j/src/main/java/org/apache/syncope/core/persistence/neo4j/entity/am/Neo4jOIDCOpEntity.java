@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -42,7 +43,7 @@ public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCO
     };
 
     @NotNull
-    private String jwks;
+    private byte[] jwks;
 
     private String customScopes;
 
@@ -50,13 +51,13 @@ public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCO
     private Map<String, Set<String>> customScopesMap = new HashMap<>();
 
     @Override
-    public String getJWKS() {
+    public byte[] getJWKS() {
         return jwks;
     }
 
     @Override
-    public void setJWKS(final String jwks) {
-        this.jwks = jwks;
+    public void setJWKS(final byte[] jwks) {
+        this.jwks = ArrayUtils.clone(jwks);
     }
 
     @Override

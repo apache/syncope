@@ -25,6 +25,7 @@ import jakarta.persistence.Table;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.hibernate.Length;
 
 @Entity
 @Table(name = JPASAML2IdPEntity.TABLE)
@@ -34,7 +35,7 @@ public class JPASAML2IdPEntity extends AbstractProvidedKeyEntity implements SAML
 
     private static final long serialVersionUID = 57352617217394093L;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = Length.LONG16)
     @Lob
     private byte[] metadata;
 

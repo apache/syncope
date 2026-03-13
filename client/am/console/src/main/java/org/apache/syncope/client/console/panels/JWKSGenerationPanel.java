@@ -78,6 +78,8 @@ public class JWKSGenerationPanel extends AbstractModalPanel<OIDCOpEntityTO> {
         try {
             jwksKeySizeM.setObject(Integer.valueOf(
                     waConfigRestClient.get("cas.authn.oidc.jwks.core.jwks-key-size").getValues().getFirst()));
+        } catch (NumberFormatException e) {
+            LOG.error("Incorrect key size specified: {}, reverting to {}", jwksKeySizeM.getObject(), e);
         } catch (SyncopeClientException e) {
             LOG.error("While reading cas.authn.oidc.jwks.core.jwks-key-size", e);
         }
