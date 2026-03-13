@@ -194,7 +194,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     protected void buildForOIDCustomScope(
             final OIDCRPClientAppTO clientApp,
-            final DefaultAttrReleasePolicyConf conf,
             final Map<String, BaseOidcScopeAttributeReleasePolicy> policies,
             final String scope,
             final String internal,
@@ -271,10 +270,10 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                         filter(entry -> entry.getValue().contains(external.toString())).
                         map(Map.Entry::getKey).findFirst().ifPresentOrElse(
                         scope -> buildForOIDCustomScope(
-                                clientApp, conf, policies, scope, internal, external.toString()),
+                                clientApp, policies, scope, internal, external.toString()),
                         () -> LOG.warn(
                                 "OIDC client app {} defines custom claim {}={} for which no valid scope could be found",
-                                clientApp, internal, external));
+                                clientApp.getName(), internal, external));
             }
         });
 

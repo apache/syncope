@@ -56,7 +56,7 @@ public abstract class OIDCCustomScopeDirectoryPanel
 
     private static final long serialVersionUID = -7283064059391373326L;
 
-    public class CustomScope implements EntityTO {
+    public static class CustomScope implements EntityTO {
 
         private static final long serialVersionUID = -6041970196389196072L;
 
