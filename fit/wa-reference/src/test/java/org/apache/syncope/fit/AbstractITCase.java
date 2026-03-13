@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
@@ -96,6 +97,8 @@ public abstract class AbstractITCase {
 
     protected static PolicyService POLICY_SERVICE;
 
+    protected static OIDCOpEntityService OIDC_OP_ENTITY_SERVICE;
+
     protected static ClientAppService CLIENT_APP_SERVICE;
 
     protected static WAConfigService WA_CONFIG_SERVICE;
@@ -115,6 +118,7 @@ public abstract class AbstractITCase {
         TASK_SERVICE = ADMIN_CLIENT.getService(TaskService.class);
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
         POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
+        OIDC_OP_ENTITY_SERVICE = ADMIN_CLIENT.getService(OIDCOpEntityService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);

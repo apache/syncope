@@ -28,21 +28,17 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
-import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
-import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.PasswordManagementPropertySourceMapper;
 import org.apereo.cas.configuration.model.support.oidc.OidcDiscoveryProperties;
-import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
-import org.apereo.cas.services.ChainingAttributeReleasePolicy;
-import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +61,6 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper;
 
-    protected final AttrReleaseMapper attrReleaseMapper;
-
     protected final CipherExecutor<String, String> configurationCipher;
 
     public WAPropertySourceLocator(
@@ -74,14 +68,12 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             final AuthModulePropertySourceMapper authModulePropertySourceMapper,
             final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
             final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper,
-            final AttrReleaseMapper attrReleaseMapper,
             final CipherExecutor<String, String> configurationCipher) {
 
         this.waRestClient = waRestClient;
         this.authModulePropertySourceMapper = authModulePropertySourceMapper;
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
         this.passwordManagementPropertySourceMapper = passwordManagementPropertySourceMapper;
-        this.attrReleaseMapper = attrReleaseMapper;
         this.configurationCipher = configurationCipher;
     }
 
@@ -140,38 +132,31 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
-                filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).
-                flatMap(app -> {
-                    RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
-                            attrReleaseMapper.build(app.getClientAppTO(), app.getAttrReleasePolicy());
-
-                    if (attributeReleasePolicy instanceof OidcCustomScopeAttributeReleasePolicy custom) {
-                        return custom.getAllowedAttributes().stream();
-                    }
-
-                    if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chain) {
-                        return chain.getPolicies().stream().
-                                filter(OidcCustomScopeAttributeReleasePolicy.class::isInstance).
-                                map(OidcCustomScopeAttributeReleasePolicy.class::cast).
-                                flatMap(p -> p.getAllowedAttributes().stream());
-                    }
-
-                    return Stream.empty();
-                }).collect(Collectors.toSet());
-        if (!customClaims.isEmpty()) {
-            Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
-                    collect(Collectors.joining(","));
-
-            properties.put("cas.authn.oidc.discovery.claims",
-                    Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
+        Map<String, Set<String>> customScopes;
+        try {
+            customScopes = syncopeClient.getService(OIDCOpEntityService.class).get().getCustomScopes();
+        } catch (Exception e) {
+            LOG.warn("Could not read OIDC OP: no custom scopes or claims will be set", e);
+            customScopes = Map.of();
+        }
+        if (!customScopes.isEmpty()) {
+            properties.put("cas.authn.oidc.discovery.scopes",
+                    Stream.concat(Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name),
+                            customScopes.keySet().stream()).
+                            distinct().
                             collect(Collectors.joining(",")));
-            properties.put("cas.authn.oidc.core.user-defined-scopes.syncope",
-                    String.join(",", customClaims));
+            properties.put("cas.authn.oidc.discovery.claims",
+                    Stream.concat(new OidcDiscoveryProperties().getClaims().stream(),
+                            customScopes.values().stream().flatMap(Set::stream)).
+                            distinct().
+                            collect(Collectors.joining(",")));
+
+            customScopes.forEach((scope, claims) -> properties.put(
+                    "cas.authn.oidc.core.user-defined-scopes." + scope, String.join(",", claims)));
         }
 
-        syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(
-                attr.getSchema(), String.join(",", attr.getValues())));
+        syncopeClient.getService(WAConfigService.class).list().
+                forEach(attr -> properties.put(attr.getSchema(), String.join(",", attr.getValues())));
 
         LOG.debug("Collected WA properties: {}", properties);
         Map<String, Object> decodedProperties = configurationCipher.decode(properties, ArrayUtils.EMPTY_OBJECT_ARRAY);

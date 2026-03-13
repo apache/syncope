@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
@@ -97,7 +97,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAttrRepo;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthModule;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jCASSPClientApp;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCJWKS;
+import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCOpEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCRPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
@@ -276,8 +276,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSAML2IdPEntity();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new Neo4jAuthProfile();
-        } else if (reference.equals(OIDCJWKS.class)) {
-            result = (E) new Neo4jOIDCJWKS();
+        } else if (reference.equals(OIDCOpEntity.class)) {
+            result = (E) new Neo4jOIDCOpEntity();
         } else if (reference.equals(WAConfigEntry.class)) {
             result = (E) new Neo4jWAConfigEntry();
         } else if (reference.equals(ConfParam.class)) {

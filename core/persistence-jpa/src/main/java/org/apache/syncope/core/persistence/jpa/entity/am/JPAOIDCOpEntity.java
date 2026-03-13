@@ -18,32 +18,46 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
+import org.apache.syncope.core.persistence.jpa.converters.String2SetOfStringMapConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
-@Table(name = JPAOIDCJWKS.TABLE)
-public class JPAOIDCJWKS extends AbstractGeneratedKeyEntity implements OIDCJWKS {
-
-    public static final String TABLE = "OIDCJWKS";
+@Table(name = JPAOIDCOpEntity.TABLE)
+public class JPAOIDCOpEntity extends AbstractGeneratedKeyEntity implements OIDCOpEntity {
 
     private static final long serialVersionUID = 47352617217394093L;
 
-    @NotNull
+    public static final String TABLE = "OIDCOpEntity";
+
+    @Column(nullable = false)
     @Lob
-    private String json;
+    private String jwks;
+
+    @Convert(converter = String2SetOfStringMapConverter.class)
+    @Lob
+    private Map<String, Set<String>> customScopes = new HashMap<>();
 
     @Override
-    public String getJson() {
-        return json;
+    public String getJWKS() {
+        return jwks;
     }
 
     @Override
-    public void setJson(final String json) {
-        this.json = json;
+    public void setJWKS(final String jwks) {
+        this.jwks = jwks;
+    }
+
+    @Override
+    public Map<String, Set<String>> getCustomScopes() {
+        return customScopes;
     }
 }

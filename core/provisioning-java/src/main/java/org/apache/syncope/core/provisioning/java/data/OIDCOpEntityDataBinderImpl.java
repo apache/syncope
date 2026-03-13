@@ -22,11 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
-import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
+import org.apache.syncope.core.provisioning.api.data.OIDCOpEntityDataBinder;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.jose4j.jwk.EcJwkGenerator;
 import org.jose4j.jwk.JsonWebKey;
@@ -40,22 +42,17 @@ import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
+public class OIDCOpEntityDataBinderImpl implements OIDCOpEntityDataBinder {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDataBinder.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(OIDCOpEntityDataBinder.class);
+
+    protected final WAConfigDAO waConfigDAO;
 
     protected final EntityFactory entityFactory;
 
-    public OIDCJWKSDataBinderImpl(final EntityFactory entityFactory) {
+    public OIDCOpEntityDataBinderImpl(final WAConfigDAO waConfigDAO, final EntityFactory entityFactory) {
+        this.waConfigDAO = waConfigDAO;
         this.entityFactory = entityFactory;
-    }
-
-    @Override
-    public OIDCJWKSTO getOIDCJWKSTO(final OIDCJWKS jwks) {
-        return new OIDCJWKSTO.Builder().
-                key(jwks.getKey()).
-                json(jwks.getJson()).
-                build();
     }
 
     protected PublicJsonWebKey generate(
@@ -97,7 +94,7 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
     }
 
     @Override
-    public OIDCJWKS create(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
+    public String generateJWKS(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
         List<PublicJsonWebKey> keys = new ArrayList<>();
         try {
             keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.CURRENT));
@@ -105,15 +102,49 @@ public class OIDCJWKSDataBinderImpl implements OIDCJWKSDataBinder {
             keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.FUTURE));
             keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.ENCRYPTION, JsonWebKeyLifecycleState.FUTURE));
         } catch (JoseException e) {
-            LOG.error("Could not create OIDC JWKS", e);
+            LOG.error("Could not generate OIDC JWKS", e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
             sce.getElements().add(e.getMessage());
             throw sce;
         }
 
-        OIDCJWKS oidcJWKS = entityFactory.newEntity(OIDCJWKS.class);
-        oidcJWKS.setJson(new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
-        return oidcJWKS;
+        WAConfigEntry jwksKeyIdConfig = entityFactory.newEntity(WAConfigEntry.class);
+        jwksKeyIdConfig.setKey("cas.authn.oidc.jwks.core.jwks-key-id");
+        jwksKeyIdConfig.setValues(List.of(jwksKeyId));
+        waConfigDAO.save(jwksKeyIdConfig);
+
+        WAConfigEntry jwksTypeConfig = entityFactory.newEntity(WAConfigEntry.class);
+        jwksTypeConfig.setKey("cas.authn.oidc.jwks.core.jwks-type");
+        jwksTypeConfig.setValues(List.of(jwksType));
+        waConfigDAO.save(jwksTypeConfig);
+
+        WAConfigEntry jwksKeySizeConfig = entityFactory.newEntity(WAConfigEntry.class);
+        jwksKeySizeConfig.setKey("cas.authn.oidc.jwks.core.jwks-key-size");
+        jwksKeySizeConfig.setValues(List.of(String.valueOf(jwksKeySize)));
+        waConfigDAO.save(jwksKeySizeConfig);
+
+        return new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE);
+    }
+
+    @Override
+    public OIDCOpEntityTO getOIDCOpEntityTO(final OIDCOpEntity oidcOpEntity) {
+        OIDCOpEntityTO oidcOpEntityTO = new OIDCOpEntityTO();
+        oidcOpEntityTO.setKey(oidcOpEntity.getKey());
+        oidcOpEntityTO.setJWKS(oidcOpEntity.getJWKS());
+        oidcOpEntityTO.getCustomScopes().putAll(oidcOpEntity.getCustomScopes());
+
+        return oidcOpEntityTO;
+    }
+
+    @Override
+    public void update(final OIDCOpEntity oidcOpEntity, final OIDCOpEntityTO oidcOpEntityTO) {
+        oidcOpEntity.setJWKS(oidcOpEntityTO.getJWKS());
+        if (oidcOpEntity.getJWKS() == null) {
+            oidcOpEntity.setJWKS(generateJWKS("syncope", "RSA", 2048));
+        }
+
+        oidcOpEntity.getCustomScopes().clear();
+        oidcOpEntity.getCustomScopes().putAll(oidcOpEntityTO.getCustomScopes());
     }
 }

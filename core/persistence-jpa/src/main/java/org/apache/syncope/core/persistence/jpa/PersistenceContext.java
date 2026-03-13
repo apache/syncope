@@ -55,7 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
@@ -92,7 +92,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAAuditEventDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCOpEntityDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
@@ -693,8 +693,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSDAO oidcJWKSDAO(final EntityManager entityManager) {
-        return new JPAOIDCJWKSDAO(entityManager);
+    public OIDCOpEntityDAO oidcOpEntityDAO(final EntityManager entityManager) {
+        return new JPAOIDCOpEntityDAO(entityManager);
     }
 
     @ConditionalOnMissingBean

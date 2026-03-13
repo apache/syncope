@@ -26,8 +26,7 @@ import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import tools.jackson.core.type.TypeReference;
 
-abstract class SerializableMapConverter<K extends Serializable, V extends Serializable>
-        implements AttributeConverter<Map<K, V>, String> {
+abstract class SerializableMapConverter<K extends Serializable, V> implements AttributeConverter<Map<K, V>, String> {
 
     protected abstract TypeReference<HashMap<K, V>> typeRef();
 

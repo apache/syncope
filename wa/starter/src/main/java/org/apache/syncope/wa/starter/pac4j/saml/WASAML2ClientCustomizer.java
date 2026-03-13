@@ -41,8 +41,10 @@ public class WASAML2ClientCustomizer implements DelegatedClientFactoryCustomizer
         if (client instanceof SAML2Client saml2Client) {
             LOG.debug("Customizing SAML2 client {}", client.getName());
             SAML2Configuration configuration = saml2Client.getConfiguration();
-            configuration.setKeystoreGenerator(new WASAML2ClientKeystoreGenerator(restClient, saml2Client));
-            configuration.setMetadataGenerator(new WASAML2ClientMetadataGenerator(restClient, saml2Client));
+            configuration.setKeystoreGenerator(
+                    new WASAML2ClientKeystoreGenerator(restClient, saml2Client.getName(), configuration));
+            configuration.setMetadataGenerator(
+                    new WASAML2ClientMetadataGenerator(restClient, saml2Client.getName()));
         }
     }
 }

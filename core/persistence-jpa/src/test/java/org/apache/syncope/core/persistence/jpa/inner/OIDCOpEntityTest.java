@@ -18,39 +18,47 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import java.util.Set;
 import java.util.UUID;
-import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OIDCJWKSTest extends AbstractTest {
+public class OIDCOpEntityTest extends AbstractTest {
 
     @Autowired
-    private OIDCJWKSDAO jwksDAO;
+    private OIDCOpEntityDAO oidcOpEntityDAO;
 
     @Test
     public void save() throws Exception {
-        OIDCJWKS jwks = entityFactory.newEntity(OIDCJWKS.class);
+        OIDCOpEntity oidcOpEntity = entityFactory.newEntity(OIDCOpEntity.class);
 
-        RSAKey jwk = new RSAKeyGenerator(2048)
-                .keyUse(KeyUse.SIGNATURE)
-                .keyID(UUID.randomUUID().toString())
-                .generate();
+        RSAKey jwk = new RSAKeyGenerator(2048).
+                keyUse(KeyUse.SIGNATURE).
+                keyID(UUID.randomUUID().toString()).
+                generate();
+        oidcOpEntity.setJWKS(new JWKSet(jwk).toString());
 
-        String json = new JWKSet(jwk).toString();
-        jwks.setJson(json);
-        jwks = jwksDAO.save(jwks);
-        assertNotNull(jwks);
-        assertNotNull(jwks.getKey());
+        oidcOpEntity.getCustomScopes().put("scope1", Set.of("claim1", "claim2"));
+        oidcOpEntity.getCustomScopes().put("scope2", Set.of("claim1", "claim3", "claim4"));
+
+        oidcOpEntity = oidcOpEntityDAO.save(oidcOpEntity);
+        entityManager.flush();
+
+        assertNotNull(oidcOpEntity);
+        assertNotNull(oidcOpEntity.getKey());
+        assertEquals(2, oidcOpEntity.getCustomScopes().size());
+        assertEquals(Set.of("claim1", "claim2"), oidcOpEntity.getCustomScopes().get("scope1"));
     }
 }

@@ -18,17 +18,20 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.IOException;
 import java.util.Optional;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -42,8 +45,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.json.JsonMapper;
 
 public class OIDC extends Panel {
 
@@ -54,12 +55,12 @@ public class OIDC extends Panel {
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
-    protected OIDCJWKSRestClient oidcJWKSRestClient;
+    protected OIDCOpEntityRestClient oidcOpEntityRestClient;
 
     @SpringBean
     protected WAConfigRestClient waConfigRestClient;
 
-    protected final BaseModal<OIDCJWKSTO> generateModal = new BaseModal<>("generateModal");
+    protected final BaseModal<OIDCOpEntityTO> generateModal = new BaseModal<>("generateModal");
 
     protected final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 
@@ -72,9 +73,11 @@ public class OIDC extends Panel {
         }
     };
 
-    protected final AjaxLink<Void> view;
+    protected final WebMarkupContainer container;
 
-    protected final AjaxLink<Void> generate;
+    protected final Mutable<OIDCOpEntityTO> oidcOpEntity;
+
+    protected final AjaxLink<Void> view;
 
     protected final AjaxLink<Void> delete;
 
@@ -82,10 +85,10 @@ public class OIDC extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        WebMarkupContainer container = new WebMarkupContainer("container");
+        container = new WebMarkupContainer("container");
         add(container.setOutputMarkupId(true));
 
-        Mutable<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
+        oidcOpEntity = oidcOpEntityRestClient.get();
 
         add(viewModal);
         viewModal.size(Modal.Size.Extra_large);
@@ -97,13 +100,15 @@ public class OIDC extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                String pretty;
-                try {
-                    pretty = MAPPER.writerWithDefaultPrettyPrinter().
-                            writeValueAsString(MAPPER.readTree(oidcjwksto.get().getJson()));
-                } catch (JacksonException e) {
-                    LOG.error("Could not pretty-print", e);
-                    pretty = Optional.ofNullable(oidcjwksto.get()).map(OIDCJWKSTO::getJson).orElse(null);
+                String pretty = null;
+                if (oidcOpEntity.get() != null) {
+                    try {
+                        pretty = MAPPER.writerWithDefaultPrettyPrinter().
+                                writeValueAsString(MAPPER.readTree(oidcOpEntity.get().getJWKS()));
+                    } catch (IOException e) {
+                        LOG.error("Could not pretty-print", e);
+                        pretty = Optional.ofNullable(oidcOpEntity.get()).map(OIDCOpEntityTO::getJWKS).orElse(null);
+                    }
                 }
 
                 viewModal.header(Model.of("JSON Web Key Sets"));
@@ -115,56 +120,53 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcOpEntity.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        view.setEnabled(oidcjwksto.get() != null);
+        view.setEnabled(oidcOpEntity.get() != null);
         container.add(view.setOutputMarkupId(true));
-        MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_JWKS_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_OP_ENTITY_GET);
 
-        generate = new AjaxLink<>("generate") {
+        AjaxLink<Void> generate = new AjaxLink<>("generate") {
 
             private static final long serialVersionUID = 6250423506463465679L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 generateModal.header(Model.of("Generate JSON Web Key Sets"));
-                target.add(generateModal.setContent(new OIDCJWKSGenerationPanel(
-                        oidcJWKSRestClient, waConfigRestClient, generateModal, pageRef)));
+                target.add(generateModal.setContent(new JWKSGenerationPanel(
+                        oidcOpEntityRestClient, waConfigRestClient, generateModal, pageRef)));
                 generateModal.show(true);
             }
-
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                super.onComponentTag(tag);
-
-                if (oidcjwksto.get() != null) {
-                    tag.put("class", "btn btn-app disabled");
-                }
-            }
         };
-        generate.setEnabled(oidcjwksto.get() == null);
         container.add(generate.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(generate, ENABLE, AMEntitlement.OIDC_JWKS_GENERATE);
 
-        delete = new AjaxLink<>("delete") {
+        OIDCCustomScopeDirectoryPanel customScopes = new OIDCCustomScopeDirectoryPanel(
+                this, "customScopes", oidcOpEntityRestClient, pageRef) {
+
+            private static final long serialVersionUID = 2220666976933420952L;
+
+        };
+        container.add(customScopes.setOutputMarkupId(true));
+
+        delete = new IndicatingOnConfirmAjaxLink<>("delete", "confirmDelete", true) {
 
             private static final long serialVersionUID = 6250423506463465679L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    oidcJWKSRestClient.delete();
-                    oidcjwksto.setValue(null);
-                    generate.setEnabled(true);
+                    oidcOpEntityRestClient.delete();
+                    oidcOpEntity.setValue(null);
                     view.setEnabled(false);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
-                    LOG.error("While deleting OIDC JWKS", e);
+                    LOG.error("While deleting OIDC OP", e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -174,27 +176,31 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcOpEntity.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        delete.setEnabled(oidcjwksto.get() != null);
+        delete.setEnabled(oidcOpEntity.get() != null);
         container.add(delete.setOutputMarkupId(true));
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_JWKS_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_OP_ENTITY_DELETE);
 
         generateModal.addSubmitButton();
         add(generateModal);
         generateModal.setWindowClosedCallback(target -> {
-            oidcjwksto.setValue(oidcJWKSRestClient.get().get());
-            view.setEnabled(oidcjwksto.get() != null);
-            delete.setEnabled(oidcjwksto.get() != null);
-
-            target.add(container);
+            refreshOIDCOpEntity(target);
             generateModal.show(false);
         });
 
         String wellKnownURI = waPrefix + "/oidc/.well-known/openid-configuration";
         container.add(new ExternalLink("wellKnownURI", wellKnownURI, wellKnownURI));
+    }
+
+    public void refreshOIDCOpEntity(final AjaxRequestTarget target) {
+        oidcOpEntity.setValue(oidcOpEntityRestClient.get().get());
+        view.setEnabled(oidcOpEntity.get() != null);
+        delete.setEnabled(oidcOpEntity.get() != null);
+
+        target.add(container);
     }
 }

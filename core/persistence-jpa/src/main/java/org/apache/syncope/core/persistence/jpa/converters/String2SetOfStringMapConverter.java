@@ -16,27 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.core.persistence.jpa.converters;
 
-import java.util.List;
+import jakarta.persistence.Converter;
+import java.util.HashMap;
+import java.util.Set;
+import tools.jackson.core.type.TypeReference;
 
-public final class OIDCScopeConstants {
+@Converter
+public class String2SetOfStringMapConverter extends SerializableMapConverter<String, Set<String>> {
 
-    public static final String OPEN_ID = "openid";
+    protected static final TypeReference<HashMap<String, Set<String>>> TYPEREF =
+            new TypeReference<HashMap<String, Set<String>>>() {
+    };
 
-    public static final String PROFILE = "profile";
-
-    public static final String EMAIL = "email";
-
-    public static final String ADDRESS = "address";
-
-    public static final String PHONE = "phone";
-
-    public static final String SYNCOPE = "syncope";
-
-    public static final List<String> ALL_STANDARD_SCOPES = List.of(OPEN_ID, PROFILE, EMAIL, ADDRESS, PHONE);
-
-    private OIDCScopeConstants() {
-        // private constructor for static utility class
+    @Override
+    protected TypeReference<HashMap<String, Set<String>>> typeRef() {
+        return TYPEREF;
     }
 }

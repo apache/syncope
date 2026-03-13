@@ -20,7 +20,9 @@ package org.apache.syncope.core.logic;
 
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -169,8 +171,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         OidcClient oidcClient = getOidcClient(oidcClientCacheLogin, op, redirectURI);
 
         // 2. get OpenID Connect tokens
-        String idTokenHint;
-        JWTClaimsSet idToken;
+        String idTokenHint = null;
+        JWTClaimsSet claimsSet = null;
         try {
             OidcCredentials credentials = new OidcCredentials();
             credentials.setCode(authorizationCode);
@@ -178,13 +180,25 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             oidcClient.getAuthenticator().validate(
                     new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE), credentials);
 
-            JWT jwt = credentials.toIdToken();
-            idToken = jwt.getJWTClaimsSet();
-            idTokenHint = jwt.serialize();
+            JWT idToken = credentials.toIdToken();
+            if (idToken == null) {
+                AccessToken accessToken = credentials.toAccessToken();
+                if (accessToken != null) {
+                    claimsSet = JWTParser.parse(accessToken.getValue()).getJWTClaimsSet();
+                }
+            } else {
+                idTokenHint = idToken.serialize();
+                claimsSet = idToken.getJWTClaimsSet();
+            }
         } catch (Exception e) {
             LOG.error("While validating Token Response", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
             sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+        if (claimsSet == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Unable to extract OIDC claims");
             throw sce;
         }
 
@@ -193,12 +207,12 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         loginResp.setLogoutSupported(StringUtils.isNotBlank(op.getEndSessionEndpoint()));
 
         // 3a. find matching user (if any) and return the received attributes
-        String keyValue = idToken.getSubject();
+        String keyValue = claimsSet.getSubject();
         for (Item item : op.getItems()) {
             Attr attrTO = new Attr();
             attrTO.setSchema(item.getExtAttrName());
 
-            String value = Optional.ofNullable(idToken.getClaim(item.getExtAttrName())).
+            String value = Optional.ofNullable(claimsSet.getClaim(item.getExtAttrName())).
                     map(Object::toString).
                     orElse(null);
             if (value != null) {
@@ -263,7 +277,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         // 4. generate JWT for further access
         Map<String, Object> claims = new HashMap<>();
         claims.put(JWT_CLAIM_OP_NAME, opName);
-        claims.put(JWT_CLAIM_ID_TOKEN, idTokenHint);
+        Optional.ofNullable(idTokenHint).ifPresent(v -> claims.put(JWT_CLAIM_ID_TOKEN, v));
 
         String authorities = null;
         try {
@@ -274,7 +288,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         AccessTokenDataBinder.AccessTokenInfo accessTokenInfo = accessTokenDataBinder.create(
-                Optional.ofNullable(idToken.getClaim(Pac4jConstants.OIDC_CLAIM_SESSIONID)).map(Object::toString),
+                Optional.ofNullable(claimsSet.getClaim(Pac4jConstants.OIDC_CLAIM_SESSIONID)).map(Object::toString),
                 loginResp.getUsername(),
                 claims,
                 authorities,

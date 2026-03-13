@@ -39,6 +39,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
@@ -54,10 +55,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.OIDCScopeConstants;
+import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -65,13 +67,14 @@ import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
-import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 abstract class AbstractOIDCITCase extends AbstractSRAITCase {
+
+    protected static final String GROUPS_SCOPE = "groups";
 
     protected static String SRA_REGISTRATION_ID;
 
@@ -114,12 +117,31 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
                 });
     }
 
+    protected static void oidcOpEntitySetup() {
+        OIDCOpEntityTO oidcOpEntity;
+        try {
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
+        } catch (Exception e) {
+            Response response = OIDC_OP_ENTITY_SERVICE.generate("syncope", "RSA", 2048);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+            oidcOpEntity = OIDC_OP_ENTITY_SERVICE.get();
+        }
+
+        if (!oidcOpEntity.getCustomScopes().containsKey(GROUPS_SCOPE)) {
+            oidcOpEntity.getCustomScopes().put(GROUPS_SCOPE, Set.of("groups"));
+            OIDC_OP_ENTITY_SERVICE.set(oidcOpEntity);
+        }
+    }
+
     protected static void oidcClientAppSetup(
             final String appName,
             final String sraRegistrationId,
             final Long clientAppId,
             final String clientId,
             final String clientSecret) {
+
+        oidcOpEntitySetup();
 
         OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
                 filter(app -> appName.equals(app.getName())).
@@ -153,9 +175,10 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScopeConstants.OPEN_ID);
-        clientApp.getScopes().add(OIDCScopeConstants.PROFILE);
-        clientApp.getScopes().add(OIDCScopeConstants.EMAIL);
+        clientApp.getScopes().add(OIDCStandardScope.openid.name());
+        clientApp.getScopes().add(OIDCStandardScope.profile.name());
+        clientApp.getScopes().add(OIDCStandardScope.email.name());
+        clientApp.getScopes().add(GROUPS_SCOPE);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
 
@@ -164,16 +187,9 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
         await().atMost(120, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
             try {
                 String metadata = WebClient.create(
-                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
-                        get().readEntity(String.class);
-                if (!metadata.contains("groups")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
-                    throw new IllegalStateException();
-                }
-                metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/env", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
-                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes.syncope")) {
+                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes." + GROUPS_SCOPE)) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
@@ -302,7 +318,7 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
                 param("client_secret", CLIENT_SECRET).
                 param("username", "verdi").
                 param("password", "password").
-                param("scope", "openid profile email syncope");
+                param("scope", "openid profile email " + GROUPS_SCOPE);
         response = WebClient.create(TOKEN_URI).post(form);
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));

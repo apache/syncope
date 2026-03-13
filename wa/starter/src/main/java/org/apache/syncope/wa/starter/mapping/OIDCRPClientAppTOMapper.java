@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -31,8 +29,6 @@ import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
-import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -120,14 +116,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setLogoutUrl(rp.getLogoutUri());
         service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod().name());
 
-        service.setScopes(new HashSet<>(rp.getScopes()));
-
-        if (attributeReleasePolicy instanceof OidcCustomScopeAttributeReleasePolicy
-                || (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chain
-                && chain.getPolicies().stream().anyMatch(OidcCustomScopeAttributeReleasePolicy.class::isInstance))) {
-
-            service.getScopes().add(OIDCScopeConstants.SYNCOPE);
-        }
+        service.setScopes(rp.getScopes().stream().collect(Collectors.toSet()));
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
@@ -136,33 +125,29 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                 || rp.getAccessTokenTimeToKill() != null
                 || rp.getAccessTokenMaxActiveTokens() != null) {
 
-            DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy accessTokenExpirationPolicy =
+            DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy policy =
                     new DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy();
-            Optional.ofNullable(rp.getAccessTokenMaxTimeToLive())
-                    .ifPresent(accessTokenExpirationPolicy::setMaxTimeToLive);
-            Optional.ofNullable(rp.getAccessTokenTimeToKill())
-                    .ifPresent(accessTokenExpirationPolicy::setTimeToKill);
-            Optional.ofNullable(rp.getAccessTokenMaxActiveTokens())
-                    .ifPresent(accessTokenExpirationPolicy::setMaxActiveTokens);
-            service.setAccessTokenExpirationPolicy(accessTokenExpirationPolicy);
+            Optional.ofNullable(rp.getAccessTokenMaxTimeToLive()).ifPresent(policy::setMaxTimeToLive);
+            Optional.ofNullable(rp.getAccessTokenTimeToKill()).ifPresent(policy::setTimeToKill);
+            Optional.ofNullable(rp.getAccessTokenMaxActiveTokens()).ifPresent(policy::setMaxActiveTokens);
+            service.setAccessTokenExpirationPolicy(policy);
         }
 
         if (rp.getRefreshTokenTimeToKill() != null || rp.getRefreshTokenMaxActiveTokens() != null) {
-            DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy refreshTokenExpirationPolicy =
+            DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy policy =
                     new DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy();
-            Optional.ofNullable(rp.getRefreshTokenTimeToKill())
-                    .ifPresent(refreshTokenExpirationPolicy::setTimeToKill);
-            Optional.ofNullable(rp.getRefreshTokenMaxActiveTokens())
-                    .ifPresent(refreshTokenExpirationPolicy::setMaxActiveTokens);
-            service.setRefreshTokenExpirationPolicy(refreshTokenExpirationPolicy);
+            Optional.ofNullable(rp.getRefreshTokenTimeToKill()).ifPresent(policy::setTimeToKill);
+            Optional.ofNullable(rp.getRefreshTokenMaxActiveTokens()).ifPresent(policy::setMaxActiveTokens);
+            service.setRefreshTokenExpirationPolicy(policy);
         }
 
-        if (rp.getDeviceTokenTimeToKill() != null) {
-            DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy deviceTokenExpirationPolicy =
+        Optional.ofNullable(rp.getDeviceTokenTimeToKill()).ifPresent(timeToKill -> {
+            DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy policy =
                     new DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy();
-            deviceTokenExpirationPolicy.setTimeToKill(rp.getDeviceTokenTimeToKill());
-            service.setDeviceTokenExpirationPolicy(deviceTokenExpirationPolicy);
-        }
+            policy.setTimeToKill(timeToKill);
+            service.setDeviceTokenExpirationPolicy(policy);
+        });
+
         return service;
     }
 }

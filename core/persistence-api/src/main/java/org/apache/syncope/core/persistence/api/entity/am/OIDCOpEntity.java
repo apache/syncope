@@ -16,16 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity.am;
 
-import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import java.util.Map;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface OIDCJWKSDAO {
+public interface OIDCOpEntity extends Entity {
 
-    Optional<OIDCJWKS> get();
+    String getJWKS();
 
-    OIDCJWKS save(OIDCJWKS jwks);
+    void setJWKS(String jwks);
 
-    void delete();
+    Map<String, Set<String>> getCustomScopes();
 }

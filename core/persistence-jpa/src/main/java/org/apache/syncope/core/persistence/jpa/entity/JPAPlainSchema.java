@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
 import org.apache.syncope.core.persistence.jpa.converters.String2StringMapConverter;
-import tools.jackson.core.type.TypeReference;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
@@ -50,10 +49,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     private static final long serialVersionUID = -8621028596062054739L;
 
     public static final String TABLE = "PlainSchema";
-
-    protected static final TypeReference<HashMap<String, String>> ENUMVALUES_TYPEREF =
-            new TypeReference<HashMap<String, String>>() {
-    };
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;

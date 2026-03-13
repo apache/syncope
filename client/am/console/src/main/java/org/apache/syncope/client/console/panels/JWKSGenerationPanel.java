@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -30,16 +30,16 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPane
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 
-public class OIDCJWKSGenerationPanel extends AbstractModalPanel<OIDCJWKSTO> {
+public class JWKSGenerationPanel extends AbstractModalPanel<OIDCOpEntityTO> {
 
     private static final long serialVersionUID = -3372006007594607067L;
 
-    protected final OIDCJWKSRestClient oidcJWKSRestClient;
+    protected final OIDCOpEntityRestClient oidcOpEntityRestClient;
 
     protected final Model<String> jwksKeyIdM;
 
@@ -47,14 +47,14 @@ public class OIDCJWKSGenerationPanel extends AbstractModalPanel<OIDCJWKSTO> {
 
     protected final Model<Integer> jwksKeySizeM;
 
-    public OIDCJWKSGenerationPanel(
-            final OIDCJWKSRestClient oidcJWKSRestClient,
+    public JWKSGenerationPanel(
+            final OIDCOpEntityRestClient oidcOpEntityRestClient,
             final WAConfigRestClient waConfigRestClient,
-            final BaseModal<OIDCJWKSTO> modal,
+            final BaseModal<OIDCOpEntityTO> modal,
             final PageReference pageRef) {
 
         super(modal, pageRef);
-        this.oidcJWKSRestClient = oidcJWKSRestClient;
+        this.oidcOpEntityRestClient = oidcOpEntityRestClient;
 
         jwksKeyIdM = Model.of("syncope");
         try {
@@ -104,7 +104,7 @@ public class OIDCJWKSGenerationPanel extends AbstractModalPanel<OIDCJWKSTO> {
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            oidcJWKSRestClient.generate(jwksKeyIdM.getObject(), jwksTypeM.getObject(), jwksKeySizeM.getObject());
+            oidcOpEntityRestClient.generate(jwksKeyIdM.getObject(), jwksTypeM.getObject(), jwksKeySizeM.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

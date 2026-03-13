@@ -48,6 +48,7 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
                 policyRestClient,
                 clientAppRestClient,
                 realmRestClient,
+                oidcOpEntityRestClient,
                 pageRef),
                 true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);

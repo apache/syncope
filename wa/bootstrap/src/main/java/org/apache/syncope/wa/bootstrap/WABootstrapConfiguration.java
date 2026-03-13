@@ -102,14 +102,12 @@ public class WABootstrapConfiguration {
                 final WARestClient waRestClient,
                 final AuthModulePropertySourceMapper authModulePropertySourceMapper,
                 final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
-                final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper,
-                final AttrReleaseMapper attrReleaseMapper) {
+                final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper) {
 
             return new WAPropertySourceLocator(
                     waRestClient,
                     authModulePropertySourceMapper,
                     attrRepoPropertySourceMapper, passwordManagementPropertySourceMapper,
-                    attrReleaseMapper,
                     waConfigurationCipher);
         }
     }

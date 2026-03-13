@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 
-public interface OIDCJWKSDataBinder {
+public interface OIDCOpEntityDataBinder {
 
     String PARAMETER_STATE = "state";
 
@@ -53,7 +53,9 @@ public interface OIDCJWKSDataBinder {
         }
     }
 
-    OIDCJWKSTO getOIDCJWKSTO(OIDCJWKS jwks);
+    String generateJWKS(String jwksKeyId, String jwksType, int jwksKeySize);
 
-    OIDCJWKS create(String jwksKeyId, String jwksType, int jwksKeySize);
+    OIDCOpEntityTO getOIDCOpEntityTO(OIDCOpEntity oidcOpEntity);
+
+    void update(OIDCOpEntity oidcOpEntity, OIDCOpEntityTO oidcOpEntityTO);
 }

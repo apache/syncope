@@ -27,7 +27,8 @@ public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
     @Test
     public void generate() throws Exception {
-        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(getWARestClient(), getSAML2Client());
+        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(
+                getWARestClient(), "CAS", getSAML2Configuration());
         assertDoesNotThrow(generator::generate);
     }
 }

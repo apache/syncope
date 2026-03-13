@@ -98,11 +98,11 @@ public final class AMEntitlement {
 
     public static final String OIDC_JWKS_GENERATE = "OIDC_JWKS_GENERATE";
 
-    public static final String OIDC_JWKS_READ = "OIDC_JWKS_READ";
+    public static final String OIDC_OP_ENTITY_GET = "OIDC_OP_ENTITY_GET";
 
-    public static final String OIDC_JWKS_SET = "OIDC_JWKS_SET";
+    public static final String OIDC_OP_ENTITY_SET = "OIDC_OP_ENTITY_SET";
 
-    public static final String OIDC_JWKS_DELETE = "OIDC_JWKS_DELETE";
+    public static final String OIDC_OP_ENTITY_DELETE = "OIDC_OP_ENTITY_DELETE";
 
     public static final String WA_CONFIG_LIST = "WA_CONFIG_LIST";
 
