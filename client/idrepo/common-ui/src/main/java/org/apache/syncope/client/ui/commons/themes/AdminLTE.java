@@ -19,26 +19,14 @@
 package org.apache.syncope.client.ui.commons.themes;
 
 import de.agilecoders.wicket.core.settings.Theme;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.wicket.markup.head.CssHeaderItem;
-import org.apache.wicket.markup.head.HeaderItem;
-import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.resource.JQueryPluginResourceReference;
 
 public class AdminLTE extends Theme {
 
     public AdminLTE() {
-        super("adminLTE");
-    }
-
-    @Override
-    public List<HeaderItem> getDependencies() {
-        List<HeaderItem> references = new ArrayList<>();
-        references.add(JavaScriptHeaderItem.forReference(
-                new JQueryPluginResourceReference(AdminLTE.class, "js/AdminLTE-app.min.js"), "adminltejs"));
-        references.add(CssHeaderItem.forReference(AdminLTECssResourceReference.INSTANCE));
-        references.addAll(super.getDependencies());
-        return references;
+        super("AdminLTE",
+                new JQueryPluginResourceReference(AdminLTE.class, "js/adminlte.min.js"),
+                new CssResourceReference(AdminLTE.class, "css/adminlte.min.css"));
     }
 }

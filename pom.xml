@@ -2038,7 +2038,8 @@ under the License.
             <exclude>**/META-INF/MANIFEST.MF</exclude>
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
-            <exclude>**/AdminLTE*/**</exclude>
+            <exclude>**/adminlte*</exclude>
+            <exclude>**/dataTables.bootstrap5.min.css</exclude>
             <exclude>**/goal.txt</exclude>
             <exclude>**/rat.txt</exclude>
             <exclude>**/build-copy-javadoc-files.xml</exclude>
