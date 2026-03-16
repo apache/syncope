@@ -78,8 +78,12 @@ public class JWKSGenerationPanel extends AbstractModalPanel<OIDCOpEntityTO> {
         try {
             jwksKeySizeM.setObject(Integer.valueOf(
                     waConfigRestClient.get("cas.authn.oidc.jwks.core.jwks-key-size").getValues().getFirst()));
+        } catch (NumberFormatException e) {
+            LOG.error("Incorrect value for cas.authn.oidc.jwks.core.jwks-key-size, reverting to {}",
+                    jwksKeySizeM.getObject(), e);
         } catch (SyncopeClientException e) {
-            LOG.error("While reading cas.authn.oidc.jwks.core.jwks-key-size", e);
+            LOG.error("While reading cas.authn.oidc.jwks.core.jwks-key-size, reverting to {}",
+                    jwksKeySizeM.getObject(), e);
         }
         AjaxNumberFieldPanel<Integer> jwksKeySize = new AjaxNumberFieldPanel.Builder<Integer>().step(128).
                 build("jwksKeySize", "jwksKeySize", Integer.class, jwksKeySizeM);

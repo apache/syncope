@@ -19,7 +19,7 @@
 package org.apache.syncope.wa.starter.oidc;
 
 import jakarta.ws.rs.core.Response;
-import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
@@ -101,7 +101,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
             throw new IllegalStateException("Unable to determine OIDC OP");
         }
 
-        Resource result = new ByteArrayResource(oidcOpEntity.getJWKS().getBytes(StandardCharsets.UTF_8), "OIDC JWKS");
+        Resource result = new ByteArrayResource(Base64.getDecoder().decode(oidcOpEntity.getJWKS()), "OIDC JWKS");
         ClientInfo clientInfo = ClientInfoHolder.getClientInfo();
         applicationContext.publishEvent(new OidcJsonWebKeystoreGeneratedEvent(this, result, clientInfo));
         return result;
