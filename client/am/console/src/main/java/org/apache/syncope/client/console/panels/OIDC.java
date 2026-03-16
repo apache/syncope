@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.panels;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Optional;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
@@ -108,7 +108,8 @@ public class OIDC extends Panel {
                                 MAPPER.readTree(Base64.getDecoder().decode(oidcOpEntity.get().getJWKS())));
                     } catch (IOException e) {
                         LOG.error("Could not pretty-print", e);
-                        pretty = Optional.ofNullable(oidcOpEntity.get()).map(OIDCOpEntityTO::getJWKS).orElse(null);
+                        pretty = new String(Base64.getDecoder().decode(
+                                oidcOpEntity.get().getJWKS()), StandardCharsets.UTF_8);
                     }
                 }
 

@@ -183,10 +183,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                     scope.name(), k -> attributeReleasePolicyCreator.get());
 
             policy.getClaimMappings().put(external, internal);
-
-            if (conf.getAllowedAttrs().contains(external)) {
-                policy.getAllowedAttributes().add(external);
-            }
         } else {
             warnMissingScope(clientApp.getName(), internal, external, scope.name());
         }
