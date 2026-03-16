@@ -171,7 +171,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     protected void buildForOIDCStandardScope(
             final OIDCRPClientAppTO clientApp,
-            final DefaultAttrReleasePolicyConf conf,
             final Map<String, BaseOidcScopeAttributeReleasePolicy> policies,
             final Supplier<BaseOidcScopeAttributeReleasePolicy> attributeReleasePolicyCreator,
             final OIDCStandardScope scope,
@@ -228,7 +227,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
             if (OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
                 buildForOIDCStandardScope(
                         clientApp,
-                        conf,
                         policies,
                         OidcProfileScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.profile,
@@ -237,7 +235,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
             } else if (OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
                 buildForOIDCStandardScope(
                         clientApp,
-                        conf,
                         policies,
                         OidcEmailScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.email,
@@ -246,7 +243,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
             } else if (OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
                 buildForOIDCStandardScope(
                         clientApp,
-                        conf,
                         policies,
                         OidcAddressScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.address,
@@ -255,7 +251,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
             } else if (OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
                 buildForOIDCStandardScope(
                         clientApp,
-                        conf,
                         policies,
                         OidcPhoneScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.phone,
