@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -94,7 +96,7 @@ public class OIDCOpEntityDataBinderImpl implements OIDCOpEntityDataBinder {
     }
 
     @Override
-    public String generateJWKS(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
+    public byte[] generateJWKS(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
         List<PublicJsonWebKey> keys = new ArrayList<>();
         try {
             keys.add(generate(jwksKeyId, jwksType, jwksKeySize, Use.SIGNATURE, JsonWebKeyLifecycleState.CURRENT));
@@ -124,14 +126,16 @@ public class OIDCOpEntityDataBinderImpl implements OIDCOpEntityDataBinder {
         jwksKeySizeConfig.setValues(List.of(String.valueOf(jwksKeySize)));
         waConfigDAO.save(jwksKeySizeConfig);
 
-        return new JsonWebKeySet(keys).toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE);
+        return new JsonWebKeySet(keys).
+                toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE).
+                getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
     public OIDCOpEntityTO getOIDCOpEntityTO(final OIDCOpEntity oidcOpEntity) {
         OIDCOpEntityTO oidcOpEntityTO = new OIDCOpEntityTO();
         oidcOpEntityTO.setKey(oidcOpEntity.getKey());
-        oidcOpEntityTO.setJWKS(oidcOpEntity.getJWKS());
+        oidcOpEntityTO.setJWKS(Base64.getEncoder().encodeToString(oidcOpEntity.getJWKS()));
         oidcOpEntityTO.getCustomScopes().putAll(oidcOpEntity.getCustomScopes());
 
         return oidcOpEntityTO;
@@ -139,10 +143,9 @@ public class OIDCOpEntityDataBinderImpl implements OIDCOpEntityDataBinder {
 
     @Override
     public void update(final OIDCOpEntity oidcOpEntity, final OIDCOpEntityTO oidcOpEntityTO) {
-        oidcOpEntity.setJWKS(oidcOpEntityTO.getJWKS());
-        if (oidcOpEntity.getJWKS() == null) {
-            oidcOpEntity.setJWKS(generateJWKS("syncope", "RSA", 2048));
-        }
+        oidcOpEntity.setJWKS(oidcOpEntityTO.getJWKS() == null
+                ? generateJWKS("syncope", "RSA", 2048)
+                : Base64.getDecoder().decode(oidcOpEntityTO.getJWKS()));
 
         oidcOpEntity.getCustomScopes().clear();
         oidcOpEntity.getCustomScopes().putAll(oidcOpEntityTO.getCustomScopes());

@@ -24,9 +24,9 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface OIDCOpEntity extends Entity {
 
-    String getJWKS();
+    byte[] getJWKS();
 
-    void setJWKS(String jwks);
+    void setJWKS(byte[] jwks);
 
     Map<String, Set<String>> getCustomScopes();
 }

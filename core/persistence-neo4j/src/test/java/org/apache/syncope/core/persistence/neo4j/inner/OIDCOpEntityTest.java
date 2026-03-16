@@ -25,6 +25,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.OIDCOpEntityDAO;
@@ -48,7 +49,7 @@ public class OIDCOpEntityTest extends AbstractTest {
                 keyUse(KeyUse.SIGNATURE).
                 keyID(UUID.randomUUID().toString()).
                 generate();
-        oidcOpEntity.setJWKS(new JWKSet(jwk).toString());
+        oidcOpEntity.setJWKS(new JWKSet(jwk).toString().getBytes(StandardCharsets.UTF_8));
 
         oidcOpEntity.getCustomScopes().put("scope1", Set.of("claim1", "claim2"));
         oidcOpEntity.getCustomScopes().put("scope2", Set.of("claim1", "claim3", "claim4"));

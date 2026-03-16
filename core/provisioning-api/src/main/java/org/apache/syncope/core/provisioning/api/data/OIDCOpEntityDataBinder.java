@@ -53,7 +53,7 @@ public interface OIDCOpEntityDataBinder {
         }
     }
 
-    String generateJWKS(String jwksKeyId, String jwksType, int jwksKeySize);
+    byte[] generateJWKS(String jwksKeyId, String jwksType, int jwksKeySize);
 
     OIDCOpEntityTO getOIDCOpEntityTO(OIDCOpEntity oidcOpEntity);
 

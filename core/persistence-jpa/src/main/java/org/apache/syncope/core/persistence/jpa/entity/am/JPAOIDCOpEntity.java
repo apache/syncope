@@ -32,6 +32,7 @@ import jakarta.persistence.Transient;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -50,7 +51,7 @@ public class JPAOIDCOpEntity extends AbstractGeneratedKeyEntity implements OIDCO
 
     @Column(nullable = false)
     @Lob
-    private String jwks;
+    private byte[] jwks;
 
     @Lob
     private String customScopes;
@@ -59,13 +60,13 @@ public class JPAOIDCOpEntity extends AbstractGeneratedKeyEntity implements OIDCO
     private Map<String, Set<String>> customScopesMap = new HashMap<>();
 
     @Override
-    public String getJWKS() {
+    public byte[] getJWKS() {
         return jwks;
     }
 
     @Override
-    public void setJWKS(final String jwks) {
-        this.jwks = jwks;
+    public void setJWKS(final byte[] jwks) {
+        this.jwks = ArrayUtils.clone(jwks);
     }
 
     @Override
