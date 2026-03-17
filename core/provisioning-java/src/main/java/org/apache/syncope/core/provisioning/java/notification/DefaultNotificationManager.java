@@ -286,7 +286,9 @@ public class DefaultNotificationManager implements NotificationManager {
 
         Optional<? extends Any> any = Optional.empty();
 
-        if (before instanceof UserTO userTO) {
+        if (before instanceof Any a) {
+            any = Optional.of(a);
+        } else if (before instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
         } else if (output instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
