@@ -182,7 +182,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.hibernate.DomainJCacheRegionFactory;
-import org.apache.syncope.core.persistence.jpa.hibernate.Jackson3JsonFormatMapper;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
@@ -235,9 +234,6 @@ public class PersistenceContext {
         Optional.ofNullable(props.getCacheURI()).
                 ifPresent(cacheURI -> jpaPropertyMap.put("hibernate.javax.cache.uri", cacheURI));
         jpaPropertyMap.put("hibernate.cache.region.factory_class", DomainJCacheRegionFactory.class.getName());
-
-        // until https://hibernate.atlassian.net/browse/HHH-19890 https://github.com/hibernate/hibernate-orm/pull/11357
-        jpaPropertyMap.put("hibernate.type.json_format_mapper", Jackson3JsonFormatMapper.class.getName());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
