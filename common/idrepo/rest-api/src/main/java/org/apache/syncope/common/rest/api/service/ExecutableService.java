@@ -134,5 +134,5 @@ public interface ExecutableService extends JAXRSService {
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("jobs/{key}")
-    void actionJob(@NotNull @PathParam("key") String key, @QueryParam("action") JobAction action);
+    void actionJob(@NotNull @PathParam("key") String key, @NotNull @QueryParam("action") JobAction action);
 }
