@@ -455,7 +455,7 @@ under the License.
 
     <openfga.version>v1</openfga.version>
 
-    <debezium.version>3.0</debezium.version>
+    <debezium.version>3.4</debezium.version>
 
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-jexl.version>3.6.2</commons-jexl.version>
@@ -525,7 +525,7 @@ under the License.
 
     <tomcat.version>11.0.18</tomcat.version>
     <wildfly.version>39.0.1.Final</wildfly.version>
-    <payara.version>7.2026.2</payara.version>
+    <payara.version>7.2026.3</payara.version>
     <jakarta.faces.version>4.1.6</jakarta.faces.version>
 
     <docker.postgresql.version>18-alpine</docker.postgresql.version>
