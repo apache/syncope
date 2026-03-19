@@ -450,7 +450,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.2.6</elasticsearch.version>
+    <elasticsearch.version>9.2.7</elasticsearch.version>
     <opensearch.version>3.5.0</opensearch.version>
     <opensearch-java.version>3.7.0</opensearch-java.version>
 
@@ -495,7 +495,7 @@ under the License.
     <byte-buddy.jdk25.version>1.17.8</byte-buddy.jdk25.version>
     <mockito.jdk25.version>5.20.0</mockito.jdk25.version>
 
-    <testcontainers.version>2.0.3</testcontainers.version>
+    <testcontainers.version>2.0.4</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.2.2</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.8.0</zonky.embedded-postgres-binaries.version>
