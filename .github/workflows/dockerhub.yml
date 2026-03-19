@@ -60,7 +60,7 @@ jobs:
         distribution: 'temurin'
         java-version: 25
     - name: Setup Maven
-      uses: stCarolas/setup-maven@v5
+      uses: stCarolas/setup-maven@v5.1
       with:
         maven-version: 3.9.6
     - name: Build
