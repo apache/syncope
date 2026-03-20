@@ -220,12 +220,8 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     @Override
     public AjaxPalettePanel<T> setModelObject(final List<T> object) {
-        palette.setDefaultModelObject(object);
+        palette.setModelObject(object);
         return this;
-    }
-
-    public Collection<T> getModelCollection() {
-        return palette.getModelCollection();
     }
 
     public void reload(final AjaxRequestTarget target) {
