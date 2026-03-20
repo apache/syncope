@@ -60,8 +60,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<String> roles = new ArrayList<>();
 
-    private final List<String> dynRoles = new ArrayList<>();
-
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
     private final List<String> delegatingDelegations = new ArrayList<>();
@@ -190,10 +188,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return roles;
     }
 
-    public List<String> getDynRoles() {
-        return dynRoles;
-    }
-
     public List<LinkedAccountTO> getLinkedAccounts() {
         return linkedAccounts;
     }
@@ -214,7 +208,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 appendSuper(super.hashCode()).
                 append(username).
                 append(roles).
-                append(dynRoles).
                 append(token).
                 append(tokenExpireTime).
                 append(lastLoginDate).
@@ -247,7 +240,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 appendSuper(super.equals(obj)).
                 append(username, other.username).
                 append(roles, other.roles).
-                append(dynRoles, other.dynRoles).
                 append(token, other.token).
                 append(tokenExpireTime, other.tokenExpireTime).
                 append(lastLoginDate, other.lastLoginDate).
