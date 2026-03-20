@@ -118,7 +118,7 @@ public abstract class AbstractDisplayModalPanel<T extends Serializable> extends 
             prefs.put(detailsPreferenceKey, selectedDetails);
             prefs.put(plainAttrsPreferenceKey, selectedPlainSchemas);
             prefs.put(derAttrsPreferenceKey, selectedDerSchemas);
-            PreferenceManager.setList(prefs);
+            PreferenceManager.set(prefs);
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

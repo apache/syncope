@@ -120,13 +120,13 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(attributable.getDerAttrs());
 
         schemas.values().forEach(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
-                attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
 
-            derAttrs.add(attrTO);
+            derAttrs.add(attr);
         });
 
         attributable.getDerAttrs().clear();

@@ -159,12 +159,8 @@ public final class PreferenceManager implements Serializable {
         }
     }
 
-    public static void setList(final String key, final List<String> values) {
+    public static void set(final String key, final List<String> values) {
         set(key, String.join(";", values));
-    }
-
-    public static void setList(final Map<String, List<String>> prefs) {
-        set(prefs);
     }
 
     private PreferenceManager() {

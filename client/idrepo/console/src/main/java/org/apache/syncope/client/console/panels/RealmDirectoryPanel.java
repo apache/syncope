@@ -193,7 +193,7 @@ public class RealmDirectoryPanel
                         prefcolumns);
             }
 
-            PreferenceManager.setList(
+            PreferenceManager.set(
                     IdRepoConstants.PREF_REALM_DETAILS_VIEW,
                     RealmDisplayAttributesModalPanel.DEFAULT_COLUMNS);
         }

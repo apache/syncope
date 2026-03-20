@@ -184,7 +184,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     }
 
     @SuppressWarnings("unchecked")
-    protected AbstractFieldPanel<?> getFieldPanel(final PlainSchemaTO plainSchema) {
+    protected AbstractFieldPanel<?> getFieldPanel(final PlainSchemaTO plainSchema, final ListItem<Attr> item) {
         final boolean required;
         final boolean readOnly;
         final AttrSchemaType type;
@@ -281,8 +281,10 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                                 : List.of();
                 if (plainSchema.isMultivalue()) {
                     panel = new AjaxPalettePanel.Builder<String>().
-                            setName(plainSchema.getLabel(SyncopeConsoleSession.get().getLocale())).
-                            build("panel", new ListModel<>(), new ListModel<>(dropdownValues));
+                            setName(plainSchema.getLabel(SyncopeConsoleSession.get().getLocale())).build(
+                            "panel",
+                            new PropertyModel<>(item.getModelObject(), "values"),
+                            new ListModel<>(dropdownValues));
                 } else {
                     panel = new AjaxDropDownChoicePanel<>("panel",
                             plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
@@ -432,20 +434,15 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             Attr attr = item.getModelObject();
             PlainSchemaTO schema = schemas.get(attr.getSchema());
 
-            AbstractFieldPanel<?> panel = getFieldPanel(schema);
-            panel.setReadOnly(setReadOnly);
-            if (mode != AjaxWizard.Mode.TEMPLATE
-                    && schema.isMultivalue()
-                    && schema.getType() != AttrSchemaType.Dropdown) {
-
+            AbstractFieldPanel<?> panel = getFieldPanel(schema, item).setReadOnly(setReadOnly);
+            if (panel instanceof FieldPanel fieldPanel && mode != AjaxWizard.Mode.TEMPLATE && schema.isMultivalue()) {
                 // SYNCOPE-1476 set form as multipart to properly manage membership attributes
-                panel = new MultiFieldPanel.Builder<>(
-                        new PropertyModel<>(attr, "values")).build(
+                panel = new MultiFieldPanel.Builder<>(new PropertyModel<>(attr, "values")).build(
                         "panel",
                         schema.getLabel(SyncopeConsoleSession.get().getLocale()),
-                        FieldPanel.class.cast(panel)).setFormAsMultipart(true);
-                // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                MultiFieldPanel.class.cast(panel).setFormReadOnly(setReadOnly);
+                        fieldPanel).
+                        setFormAsMultipart(true).
+                        setFormReadOnly(setReadOnly);
             } else if (panel instanceof AjaxPalettePanel ajaxPalettePanel) {
                 ajaxPalettePanel.setModelObject(attr.getValues());
             } else {
@@ -465,8 +462,8 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
             Optional<Attr> prevAttr = previousObject.getPlainAttr(attr.getSchema());
             if (prevAttr.map(a -> !ListUtils.isEqualList(
-                    a.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()),
-                    attr.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))).
+                    a.getValues().stream().filter(StringUtils::isNotBlank).toList(),
+                    attr.getValues().stream().filter(StringUtils::isNotBlank).toList())).
                     orElseGet(() -> attr.getValues().stream().anyMatch(StringUtils::isNotBlank))) {
 
                 List<String> oldValues = prevAttr.map(Attr::getValues).orElseGet(List::of);
