@@ -38,10 +38,8 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.Action
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Roles extends WizardStep implements ICondition {
@@ -54,8 +52,6 @@ public class Roles extends WizardStep implements ICondition {
     protected final List<String> allRoles;
 
     protected final UserTO userTO;
-
-    protected WebMarkupContainer dynrolesContainer;
 
     public <T extends AnyTO> Roles(final UserWrapper modelObject) {
         if (modelObject.getPreviousUserTO() != null
@@ -82,15 +78,6 @@ public class Roles extends WizardStep implements ICondition {
         allRoles = getManagedRoles();
 
         add(buildRolesSelector(modelObject));
-
-        dynrolesContainer = new WebMarkupContainer("dynrolesContainer");
-        dynrolesContainer.setOutputMarkupId(true);
-        dynrolesContainer.setOutputMarkupPlaceholderTag(true);
-        add(dynrolesContainer);
-
-        dynrolesContainer.add(new AjaxPalettePanel.Builder<String>().build("dynroles",
-                new PropertyModel<>(userTO, "dynRoles"),
-                new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 
     protected List<String> getManagedRoles() {

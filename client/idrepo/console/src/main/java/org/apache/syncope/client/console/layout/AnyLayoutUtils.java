@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -74,10 +73,7 @@ public final class AnyLayoutUtils {
     }
 
     public static AnyLayout fetch(final RoleRestClient roleRestClient, final List<String> anyTypes) {
-        List<String> ownedRoles = Stream.concat(
-                SyncopeConsoleSession.get().getSelfTO().getRoles().stream(),
-                SyncopeConsoleSession.get().getSelfTO().getDynRoles().stream()).
-                distinct().toList();
+        List<String> ownedRoles = SyncopeConsoleSession.get().getSelfTO().getRoles();
         try {
             AnyLayout anyLayout = null;
             for (int i = 0; i < ownedRoles.size() && anyLayout == null; i++) {

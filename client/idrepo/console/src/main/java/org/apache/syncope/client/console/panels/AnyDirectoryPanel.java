@@ -204,7 +204,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                         prefcolumns);
             }
 
-            PreferenceManager.setList(
+            PreferenceManager.set(
                     AnyDisplayAttributesModalPanel.getPrefDetailView(type),
                     List.of(getDefaultAttributeSelection()));
         }
