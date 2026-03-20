@@ -59,6 +59,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.UncategorizedDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 
 @Provider
@@ -121,8 +122,13 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         ResponseBuilder builder;
 
         if (ex instanceof AccessDeniedException) {
-            // leaves the default exception processing to Spring Security
-            builder = null;
+            if (ex instanceof AuthorizationDeniedException ade) {
+                builder = Response.status(Response.Status.FORBIDDEN).
+                        header(RESTHeaders.ERROR_INFO, ade.getMessage());
+            } else {
+                // leaves the default exception processing to Spring Security
+                builder = null;
+            }
         } else if (ex instanceof SyncopeClientException sce) {
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
