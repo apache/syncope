@@ -937,7 +937,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.2.3</version>
+        <version>3.3.0</version>
       </dependency>
 
       <dependency>
