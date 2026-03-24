@@ -38,9 +38,9 @@ import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
+import org.pac4j.core.keystore.generation.BaseKeystoreGenerator;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -257,8 +257,8 @@ public class SecurityConfig {
                 props.getSaml2().getKeystoreKeypass(),
                 resourceResolver.getResource(props.getSaml2().getIdpMetadata()));
 
-        if (cfg.getKeystoreResource() instanceof FileUrlResource) {
-            cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
+        if (cfg.getKeystore().getKeystoreResource() instanceof FileUrlResource) {
+            cfg.getKeystore().setKeystoreGenerator(new BaseKeystoreGenerator(cfg.getKeystore()) {
 
                 @Override
                 protected void store(
@@ -271,7 +271,7 @@ public class SecurityConfig {
 
                 @Override
                 public InputStream retrieve() throws Exception {
-                    return cfg.getKeystoreResource().getInputStream();
+                    return cfg.getKeystore().getKeystoreResource().getInputStream();
                 }
             });
         }

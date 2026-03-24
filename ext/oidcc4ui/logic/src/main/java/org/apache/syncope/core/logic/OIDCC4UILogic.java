@@ -65,6 +65,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.redirect.OidcRedirectionActionBuilder;
+import org.pac4j.oidc.redirect.Params;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
@@ -136,11 +137,11 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         oidcClient.setRedirectionActionBuilder(new OidcRedirectionActionBuilder(oidcClient) {
 
             @Override
-            protected Map<String, String> buildParams(final WebContext webContext) {
-                Map<String, String> params = super.buildParams(webContext);
+            protected Params buildParams(final WebContext webContext) {
+                Params params = super.buildParams(webContext);
                 if (reauth) {
-                    params.put(OidcConfiguration.PROMPT, "login");
-                    params.put(OidcConfiguration.MAX_AGE, "0");
+                    params.main().put(OidcConfiguration.PROMPT, "login");
+                    params.main().put(OidcConfiguration.MAX_AGE, "0");
                 }
                 return params;
             }

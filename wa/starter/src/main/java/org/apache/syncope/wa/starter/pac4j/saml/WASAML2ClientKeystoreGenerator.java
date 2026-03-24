@@ -30,12 +30,12 @@ import java.util.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.pac4j.core.keystore.generation.BaseKeystoreGenerator;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
+public class WASAML2ClientKeystoreGenerator extends BaseKeystoreGenerator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientKeystoreGenerator.class);
 
@@ -48,7 +48,7 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
             final String saml2Client,
             final SAML2Configuration configuration) {
 
-        super(configuration);
+        super(configuration.getKeystore());
         this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
@@ -71,7 +71,7 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
 
         String encodedKeystore;
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            char[] password = saml2Configuration.getKeystorePassword().toCharArray();
+            char[] password = keystore.getKeystorePassword().toCharArray();
             ks.store(out, password);
             out.flush();
             encodedKeystore = Base64.getEncoder().encodeToString(out.toByteArray());

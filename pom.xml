@@ -461,10 +461,10 @@ under the License.
     <commons-jexl.version>3.6.2</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
 
-    <pac4j.version>6.3.3</pac4j.version>
+    <pac4j.version>6.4.0-RC1</pac4j.version>
 
-    <cas.version>8.0.0-RC2</cas.version>
-    <cas-client.version>4.0.4</cas-client.version>
+    <cas.version>8.0.0-RC3</cas.version>
+    <cas-client.version>4.1.0</cas-client.version>
 
     <swagger-core.version>2.2.45</swagger-core.version>
     <swagger-ui.version>5.32.1</swagger-ui.version>

@@ -35,7 +35,9 @@ public class WASAML2ClientCustomizerTest extends BaseWASAML2ClientTest {
         customizer.customize(client);
         client.init();
 
-        assertTrue(client.getConfiguration().getKeystoreGenerator() instanceof WASAML2ClientKeystoreGenerator);
-        assertTrue(client.getConfiguration().toMetadataGenerator() instanceof WASAML2ClientMetadataGenerator);
+        assertTrue(client.getConfiguration().getKeystore().
+                getKeystoreGenerator() instanceof WASAML2ClientKeystoreGenerator);
+        assertTrue(client.getConfiguration().
+                toMetadataGenerator() instanceof WASAML2ClientMetadataGenerator);
     }
 }

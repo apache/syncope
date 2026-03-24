@@ -99,8 +99,8 @@ public abstract class BaseWASAML2ClientTest {
 
     protected static SAML2Configuration getSAML2Configuration() throws Exception {
         SAML2Configuration cfg = new SAML2Configuration();
-        cfg.setKeystorePassword("password");
-        cfg.setPrivateKeyPassword("password");
+        cfg.getKeystore().setKeystorePassword("password");
+        cfg.getKeystore().setPrivateKeyPassword("password");
 
         cfg.setIdentityProviderMetadataResource(new ClassPathResource("idp-metadata.xml"));
 

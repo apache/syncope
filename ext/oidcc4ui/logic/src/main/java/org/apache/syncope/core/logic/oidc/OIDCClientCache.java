@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.credentials.clientauth.DefaultClientAuthenticationBuilder;
 import org.pac4j.oidc.metadata.StaticOidcOpMetadataResolver;
 import org.pac4j.oidc.profile.creator.TokenValidator;
 import org.slf4j.Logger;
@@ -132,8 +133,9 @@ public class OIDCClientCache {
 
             @Override
             public ClientAuthentication getClientAuthentication() {
-                if (clientAuthenticationRef.get() == null) {
-                    clientAuthenticationRef.set(computeClientAuthentication());
+                if (clientAuthenticationBuilder == null) {
+                    clientAuthenticationBuilder = new DefaultClientAuthenticationBuilder(configuration, metadata);
+                    clientAuthenticationBuilder.buildClientAuthentication();
                 }
                 return super.getClientAuthentication();
             }

@@ -21,13 +21,12 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
-import org.pac4j.saml.metadata.keystore.SAML2KeystoreGenerator;
 
 public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
     @Test
     public void generate() throws Exception {
-        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(
+        WASAML2ClientKeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(
                 getWARestClient(), "CAS", getSAML2Configuration());
         assertDoesNotThrow(generator::generate);
     }

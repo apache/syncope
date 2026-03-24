@@ -23,8 +23,8 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.pac4j.core.keystore.generation.BaseKeystoreGenerator;
 import org.pac4j.saml.config.SAML2Configuration;
-import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
@@ -51,8 +51,8 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
                 props.getKeystoreKeypass(),
                 null);
 
-        if (cfg.getKeystoreResource() instanceof FileUrlResource) {
-            cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
+        if (cfg.getKeystore().getKeystoreResource() instanceof FileUrlResource) {
+            cfg.getKeystore().setKeystoreGenerator(new BaseKeystoreGenerator(cfg.getKeystore()) {
 
                 @Override
                 protected void store(
@@ -65,7 +65,7 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
 
                 @Override
                 public InputStream retrieve() throws Exception {
-                    return cfg.getKeystoreResource().getInputStream();
+                    return cfg.getKeystore().getKeystoreResource().getInputStream();
                 }
             });
         }
