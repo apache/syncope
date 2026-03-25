@@ -53,15 +53,15 @@ class OAUTH2SRAITCase extends AbstractOIDCITCase {
         }
         SRA_REGISTRATION_ID = "OAUTH2";
         CLIENT_APP_ID = 2L;
-        CLIENT_ID = props.getProperty("sra.oauth2.client-id");
-        assertNotNull(CLIENT_ID);
-        CLIENT_SECRET = props.getProperty("sra.oauth2.client-secret");
-        assertNotNull(CLIENT_SECRET);
+        SRA_CLIENT_ID = props.getProperty("sra.oauth2.client-id");
+        assertNotNull(SRA_CLIENT_ID);
+        SRA_CLIENT_SECRET = props.getProperty("sra.oauth2.client-secret");
+        assertNotNull(SRA_CLIENT_SECRET);
         TOKEN_URI = props.getProperty("sra.oauth2.tokenUri");
         assertNotNull(TOKEN_URI);
 
         oidcClientAppSetup(
-                OAUTH2SRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
+                OAUTH2SRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, SRA_CLIENT_ID, SRA_CLIENT_SECRET);
     }
 
     @Override

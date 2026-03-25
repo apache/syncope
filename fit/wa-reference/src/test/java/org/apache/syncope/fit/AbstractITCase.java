@@ -41,6 +41,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
+import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
@@ -109,6 +110,8 @@ public abstract class AbstractITCase {
 
     protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
 
+    protected static AttrRepoService ATTR_REPO_SERVICE;
+
     @BeforeAll
     public static void restSetup() {
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
@@ -124,6 +127,7 @@ public abstract class AbstractITCase {
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
+        ATTR_REPO_SERVICE = ADMIN_CLIENT.getService(AttrRepoService.class);
     }
 
     @BeforeAll

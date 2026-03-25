@@ -40,7 +40,6 @@ import org.apereo.cas.oidc.claims.BaseOidcScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcOpenIdScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
 import org.apereo.cas.services.AbstractRegisteredServiceAttributeReleasePolicy;
@@ -220,9 +219,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
         Map<String, BaseOidcScopeAttributeReleasePolicy> policies = new HashMap<>();
 
-        if (clientApp.getScopes().contains(OIDCStandardScope.openid.name())) {
-            policies.put(OIDCStandardScope.openid.name(), new OidcOpenIdScopeAttributeReleasePolicy());
-        }
         conf.getReleaseAttrs().forEach((internal, external) -> {
             if (OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
                 buildForOIDCStandardScope(
@@ -258,7 +254,8 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                         external.toString());
             } else {
                 oidcOpEntity.getCustomScopes().entrySet().stream().
-                        filter(entry -> entry.getValue().contains(external.toString())).
+                        filter(entry -> clientApp.getScopes().contains(entry.getKey())
+                        && entry.getValue().contains(external.toString())).
                         map(Map.Entry::getKey).findFirst().ifPresentOrElse(
                         scope -> buildForOIDCustomScope(
                                 clientApp, policies, scope, internal, external.toString()),
