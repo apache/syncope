@@ -43,8 +43,7 @@ public class WASurrogateAuthenticationServiceTest extends AbstractTest {
     @Test
     public void verifyImpersonation() throws Throwable {
         String owner = "syncope-principal";
-        ImpersonationAccount account = new ImpersonationAccount.Builder().
-                impersonated("impersonatee").build();
+        ImpersonationAccount account = new ImpersonationAccount.Builder().impersonated("impersonatee").build();
 
         ImpersonationService impersonationService = waRestClient.getService(ImpersonationService.class);
 

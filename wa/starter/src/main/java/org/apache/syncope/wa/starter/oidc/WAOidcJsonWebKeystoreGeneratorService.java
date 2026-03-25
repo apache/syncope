@@ -38,9 +38,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 
-public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
+public class WAOidcJsonWebKeystoreGeneratorService implements OidcJsonWebKeystoreGeneratorService {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(WAOIDCJWKSGeneratorService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAOidcJsonWebKeystoreGeneratorService.class);
 
     protected final WARestClient waRestClient;
 
@@ -52,7 +52,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     protected final ApplicationContext applicationContext;
 
-    public WAOIDCJWKSGeneratorService(
+    public WAOidcJsonWebKeystoreGeneratorService(
             final WARestClient waRestClient,
             final String jwksKeyId,
             final String jwksType,

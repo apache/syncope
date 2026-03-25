@@ -104,8 +104,8 @@ public class OIDC extends Panel {
                 String pretty = null;
                 if (oidcOpEntity.get() != null) {
                     try {
-                        pretty = MAPPER.writerWithDefaultPrettyPrinter().
-                                writeValueAsString(MAPPER.readTree(oidcOpEntity.get().getJWKS()));
+                        pretty = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(
+                                MAPPER.readTree(Base64.getDecoder().decode(oidcOpEntity.get().getJWKS())));
                     } catch (IOException e) {
                         LOG.error("Could not pretty-print", e);
                         pretty = new String(Base64.getDecoder().decode(

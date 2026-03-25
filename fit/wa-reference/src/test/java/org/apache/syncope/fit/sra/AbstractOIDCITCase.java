@@ -69,6 +69,7 @@ import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apereo.cas.support.oauth.OAuth20Constants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 
@@ -76,13 +77,19 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
     protected static final String GROUPS_SCOPE = "groups";
 
+    protected static final String CUSTOM_SCOPE1 = "customScope1";
+
+    protected static final String CUSTOM_CLAIM1 = "customClaim1";
+
+    protected static final String CUSTOM_CLAIM2 = "customClaim2";
+
     protected static String SRA_REGISTRATION_ID;
 
     protected static Long CLIENT_APP_ID;
 
-    protected static String CLIENT_ID;
+    protected static String SRA_CLIENT_ID;
 
-    protected static String CLIENT_SECRET;
+    protected static String SRA_CLIENT_SECRET;
 
     protected static String TOKEN_URI;
 
@@ -313,12 +320,12 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
         // 1. obtain id and access tokens
         Form form = new Form().
-                param("grant_type", "password").
-                param("client_id", CLIENT_ID).
-                param("client_secret", CLIENT_SECRET).
+                param(OAuth20Constants.GRANT_TYPE, OIDCGrantType.password.getExternalForm()).
+                param(OAuth20Constants.CLIENT_ID, SRA_CLIENT_ID).
+                param(OAuth20Constants.CLIENT_SECRET, SRA_CLIENT_SECRET).
                 param("username", "verdi").
                 param("password", "password").
-                param("scope", "openid profile email " + GROUPS_SCOPE);
+                param(OAuth20Constants.SCOPE, "openid profile email " + GROUPS_SCOPE);
         response = WebClient.create(TOKEN_URI).post(form);
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
