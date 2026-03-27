@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.util.concurrent.TimeUnit;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 
@@ -33,9 +33,11 @@ public abstract class ExtAlertWidget extends AlertWidget {
         super(id);
         this.pageRef = pageRef;
 
-        add(new RefreshWebSocketBehavior() {
+        pageRef.getPage().getBehaviors().stream().
+                filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
+                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(30, TimeUnit.SECONDS) {
 
-            private static final long serialVersionUID = -7095269057058900157L;
+            private static final long serialVersionUID = 532119924423529449L;
 
             @Override
             protected void onTimer(final WebSocketRequestHandler handler) {
@@ -48,6 +50,6 @@ public abstract class ExtAlertWidget extends AlertWidget {
                     handler.add(headerAlertsNumber);
                 }
             }
-        }.schedule(30, TimeUnit.SECONDS));
+        }));
     }
 }

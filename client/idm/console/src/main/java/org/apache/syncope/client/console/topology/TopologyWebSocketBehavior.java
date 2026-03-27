@@ -31,22 +31,20 @@ import java.util.concurrent.TimeoutException;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
-public class TopologyWebSocketBehavior extends WebSocketBehavior {
+public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessageChild {
 
     private static final long serialVersionUID = -1653665542635275551L;
 
@@ -58,17 +56,13 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     protected static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
 
-    @SpringBean
-    protected ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @SpringBean
-    protected ConfParamOps confParamOps;
+    protected final ConfParamOps confParamOps;
 
-    @SpringBean
-    protected ConnectorRestClient connectorRestClient;
+    protected final ConnectorRestClient connectorRestClient;
 
-    @SpringBean
-    protected ResourceRestClient resourceRestClient;
+    protected final ResourceRestClient resourceRestClient;
 
     protected final Map<String, String> connectors = Collections.synchronizedMap(new HashMap<>());
 
@@ -77,8 +71,6 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     protected final Map<String, String> resources = Collections.synchronizedMap(new HashMap<>());
 
     protected final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
-
-    protected final transient SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
 
     protected String coreAddress;
 
@@ -90,8 +82,16 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     protected Integer resourceTestTimeout = null;
 
-    public TopologyWebSocketBehavior() {
-        executor.setVirtualThreads(true);
+    public TopologyWebSocketBehavior(
+            final ServiceOps serviceOps,
+            final ConfParamOps confParamOps,
+            final ConnectorRestClient connectorRestClient,
+            final ResourceRestClient resourceRestClient) {
+
+        this.serviceOps = serviceOps;
+        this.confParamOps = confParamOps;
+        this.connectorRestClient = connectorRestClient;
+        this.resourceRestClient = resourceRestClient;
 
         coreAddress = serviceOps.get(NetworkService.Type.CORE).getAddress();
         domain = SyncopeConsoleSession.get().getDomain();
@@ -120,7 +120,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                 response = checker.call();
             } else {
                 LOG.debug("Timeouts provided for resource connection checking ... ");
-                response = executor.submit(checker).get(timeout, TimeUnit.SECONDS);
+                response = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
             }
         } catch (InterruptedException | TimeoutException e) {
             LOG.warn("Connection with {} timed out", checker.key);
@@ -142,7 +142,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         try {
             JsonNode obj = MAPPER.readTree(message.getText());
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asString())) {
-                case CHECK_CONNECTOR:
+                case CHECK_CONNECTOR -> {
                     String ckey = obj.get("target").asString();
 
                     if (connectors.containsKey(ckey)) {
@@ -164,9 +164,9 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                             LOG.error("Unexpected error", e);
                         }
                     }
-                    break;
+                }
 
-                case CHECK_RESOURCE:
+                case CHECK_RESOURCE -> {
                     String rkey = obj.get("target").asString();
 
                     if (resources.containsKey(rkey)) {
@@ -188,16 +188,16 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                             LOG.error("Unexpected error", e);
                         }
                     }
-                    break;
+                }
 
-                case ADD_ENDPOINT:
+                case ADD_ENDPOINT ->
                     handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
                             obj.get("source").asString(),
                             obj.get("target").asString(),
                             obj.get("scope").asString()));
-                    break;
 
-                default:
+                default -> {
+                }
             }
         } catch (JacksonException e) {
             LOG.error("Error managing websocket message", e);

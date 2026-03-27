@@ -49,7 +49,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
@@ -174,7 +174,9 @@ public class JobWidget extends BaseWidget {
         recent = getUpdatedRecent();
 
         container = new WebMarkupContainer("jobContainer");
-        container.add(new RefreshWebSocketBehavior() {
+        pageRef.getPage().getBehaviors().stream().
+                filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
+                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(10, TimeUnit.SECONDS) {
 
             private static final long serialVersionUID = 7298597675929755960L;
 
@@ -200,7 +202,7 @@ public class JobWidget extends BaseWidget {
                     }
                 }
             }
-        }.schedule(10, TimeUnit.SECONDS));
+        }));
         add(container);
 
         container.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
@@ -559,7 +561,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class RecentExecPanel
+    public class RecentExecPanel
             extends DirectoryPanel<ExecTO, ExecTO, RecentExecPanel.RecentExecProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;

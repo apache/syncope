@@ -57,7 +57,7 @@ public class Dashboard extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new DashboardOverviewPanel(panelId);
+                return new DashboardOverviewPanel(panelId, getPageReference());
             }
         });
 

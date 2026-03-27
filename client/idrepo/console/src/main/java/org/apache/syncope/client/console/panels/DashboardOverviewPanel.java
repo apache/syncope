@@ -20,13 +20,14 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
 import org.apache.syncope.client.console.widgets.CompletenessWidget;
 import org.apache.syncope.client.console.widgets.LoadWidget;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
@@ -88,7 +89,7 @@ public class DashboardOverviewPanel extends Panel {
 
     private final LoadWidget load;
 
-    public DashboardOverviewPanel(final String id) {
+    public DashboardOverviewPanel(final String id, final PageReference pageRef) {
         super(id);
 
         NumbersInfo numbers = SyncopeConsoleSession.get().getAnonymousClient().numbers();
@@ -134,7 +135,9 @@ public class DashboardOverviewPanel extends Panel {
         load = new LoadWidget("load", SyncopeConsoleSession.get().getAnonymousClient().system());
         container.add(load);
 
-        container.add(new RefreshWebSocketBehavior() {
+        pageRef.getPage().getBehaviors().stream().
+                filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
+                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(60, TimeUnit.SECONDS) {
 
             private static final long serialVersionUID = -7095269057058900157L;
 
@@ -180,6 +183,6 @@ public class DashboardOverviewPanel extends Panel {
                 load.refresh(SyncopeConsoleSession.get().getAnonymousClient().system());
                 handler.add(load);
             }
-        }.schedule(60, TimeUnit.SECONDS));
+        }));
     }
 }

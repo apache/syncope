@@ -64,7 +64,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 import org.springframework.util.CollectionUtils;
@@ -106,7 +105,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
-    protected final SimpleAsyncTaskExecutor executor;
+    protected final SimpleAsyncTaskScheduler executor = new SimpleAsyncTaskScheduler();
 
     protected String domain;
 
@@ -133,7 +132,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
 
-        executor = new SimpleAsyncTaskScheduler();
         executor.setVirtualThreads(true);
     }
 
