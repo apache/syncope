@@ -33,7 +33,7 @@ import org.apache.syncope.client.console.panels.SessionExpirationModalPanel;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
@@ -92,6 +92,8 @@ public class BasePage extends BaseWebPage {
 
     protected final BaseModal<Serializable> sessionExpiration = new BaseModal<>("sessionExpirationModal");
 
+    protected final BasePageWebSocketBehavior webSocketBehavior = new BasePageWebSocketBehavior();
+
     public BasePage() {
         this(null);
     }
@@ -119,9 +121,11 @@ public class BasePage extends BaseWebPage {
         sessionExpiration.setWindowClosedCallback(target -> sessionExpiration.show(false));
         body.add(sessionExpiration);
 
-        add(new RefreshWebSocketBehavior() {
+        add(webSocketBehavior);
+        webSocketBehavior.add(new BasePageWebSocketBehavior.OnTimerChild(
+                SyncopeWebApplication.get().getJwtExpirationMinutesThreshold() - 1, TimeUnit.MINUTES) {
 
-            private static final long serialVersionUID = 8165980028271428241L;
+            private static final long serialVersionUID = 532119924423529449L;
 
             @Override
             protected void onTimer(final WebSocketRequestHandler handler) {
@@ -133,7 +137,7 @@ public class BasePage extends BaseWebPage {
                     handler.add(sessionExpiration);
                 }
             }
-        }.schedule(SyncopeWebApplication.get().getJwtExpirationMinutesThreshold() - 1, TimeUnit.MINUTES));
+        });
 
         Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(Constants.MENU_COLLAPSE);
         if ((leftMenuCollapse instanceof final Boolean b) && b) {

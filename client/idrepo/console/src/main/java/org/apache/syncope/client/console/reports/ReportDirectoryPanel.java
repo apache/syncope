@@ -40,7 +40,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
@@ -99,7 +99,9 @@ public abstract class ReportDirectoryPanel
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        container.add(new RefreshWebSocketBehavior() {
+        pageRef.getPage().getBehaviors().stream().
+                filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
+                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(10, TimeUnit.SECONDS) {
 
             private static final long serialVersionUID = -4661303265651934868L;
 
@@ -108,7 +110,7 @@ public abstract class ReportDirectoryPanel
                 container.modelChanged();
                 handler.add(container);
             }
-        }.schedule(10, TimeUnit.SECONDS));
+        }));
 
         startAt = new ReportStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
@@ -221,8 +223,7 @@ public abstract class ReportDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 final ReportTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
-                send(ReportDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+                send(ReportDirectoryPanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.REPORT_CREATE);
 
@@ -232,8 +233,8 @@ public abstract class ReportDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                startAt.setExecutionDetail(
-                        model.getObject().getKey(), model.getObject().getName(), target);
+                ReportDirectoryPanel.this.getTogglePanel().close(target);
+                startAt.setExecutionDetail(model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
             }
         }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.REPORT_EXECUTE);

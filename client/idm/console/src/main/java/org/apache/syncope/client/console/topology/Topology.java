@@ -46,6 +46,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder.CreateEvent;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.IdMPage;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -70,6 +72,12 @@ public class Topology extends BasePage {
     private static final long serialVersionUID = -1100228004207271272L;
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
+
+    @SpringBean
+    protected ServiceOps serviceOps;
+
+    @SpringBean
+    protected ConfParamOps confParamOps;
 
     @SpringBean
     protected ResourceRestClient resourceRestClient;
@@ -158,8 +166,9 @@ public class Topology extends BasePage {
         body.add(modal.size(Modal.Size.Large));
         modal.setWindowClosedCallback(target -> modal.show(false));
 
-        TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
-        body.add(websocket);
+        TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior(
+                serviceOps, confParamOps, connectorRestClient, resourceRestClient);
+        webSocketBehavior.add(websocket);
 
         togglePanel = new TopologyTogglePanel("toggle", getPageReference());
         body.add(togglePanel);
@@ -574,8 +583,7 @@ public class Topology extends BasePage {
 
             payload.getTarget().appendJavaScript(String.format(
                     "window.Wicket.WebSocket.send('"
-                    + "{\"kind\":\"%s\",\"target\":\"%s\",\"source\":\"%s\",\"scope\":\"%s\"}"
-                    + "');",
+                    + "{\"kind\":\"%s\",\"target\":\"%s\",\"source\":\"%s\",\"scope\":\"%s\"}');",
                     SupportedOperation.ADD_ENDPOINT,
                     payload.getKey(),
                     payload.getParent(),
