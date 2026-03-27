@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.tasks;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.common.lib.to.InboundTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
@@ -36,7 +34,6 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 
 /**
  * Tasks page.
@@ -75,17 +72,6 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
         // super in order to call the parent implementation
         enableUtilityButton();
         super.initResultTable();
-
-        container.add(new RefreshWebSocketBehavior() {
-
-            private static final long serialVersionUID = -4661303265651934868L;
-
-            @Override
-            protected void onTimer(final WebSocketRequestHandler handler) {
-                container.modelChanged();
-                handler.add(container);
-            }
-        }.schedule(10, TimeUnit.SECONDS));
     }
 
     @Override

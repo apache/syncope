@@ -39,9 +39,6 @@ public class TabularTopology extends BasePage {
     private static final long serialVersionUID = -4434385801124981824L;
 
     public TabularTopology() {
-        TopologyWebSocketBehavior websocket = new TopologyWebSocketBehavior();
-        body.add(websocket);
-
         WebMarkupContainer content = new WebMarkupContainer("content");
         body.add(content.setOutputMarkupId(true));
 

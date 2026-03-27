@@ -41,7 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.console.wicket.ws.RefreshWebSocketBehavior;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
@@ -121,16 +121,18 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         initResultTable();
 
-        container.add(new RefreshWebSocketBehavior() {
+        pageRef.getPage().getBehaviors().stream().
+                filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
+                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(10, TimeUnit.SECONDS) {
 
-            private static final long serialVersionUID = -4661303265651934868L;
+            private static final long serialVersionUID = 532119924423529449L;
 
             @Override
             protected void onTimer(final WebSocketRequestHandler handler) {
                 container.modelChanged();
                 handler.add(container);
             }
-        }.schedule(10, TimeUnit.SECONDS));
+        }));
 
         startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
