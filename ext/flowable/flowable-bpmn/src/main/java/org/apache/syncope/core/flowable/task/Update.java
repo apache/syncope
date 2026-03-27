@@ -20,7 +20,6 @@ package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -30,11 +29,8 @@ public class Update extends FlowableServiceTask {
 
     protected final UserDataBinder dataBinder;
 
-    protected final UserDAO userDAO;
-
-    public Update(final UserDataBinder dataBinder, final UserDAO userDAO) {
+    public Update(final UserDataBinder dataBinder) {
         this.dataBinder = dataBinder;
-        this.userDAO = userDAO;
     }
 
     @Override
@@ -44,8 +40,6 @@ public class Update extends FlowableServiceTask {
             LOG.warn("No actual update is to be performed: empty or null request");
         } else {
             User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
-
-            user = userDAO.save(user);
 
             UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, req);
 
