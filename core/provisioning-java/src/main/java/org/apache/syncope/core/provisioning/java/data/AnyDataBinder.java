@@ -390,7 +390,25 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected void fillAuxClasses(final Relatable<?, ?> any, final AnyUR anyUR) {
+        for (StringPatchItem patch : anyUR.getAuxClasses()) {
+            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
+                    auxClass -> {
+                        switch (patch.getOperation()) {
+                            case ADD_REPLACE:
+                                any.add(auxClass);
+                                break;
+
+                            case DELETE:
+                            default:
+                                any.getAuxClasses().remove(auxClass);
+                        }
+                    },
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                            AnyTypeClass.class.getSimpleName(), patch.getValue()));
+        }
+    }
+
     protected void fill(
             final AnyTO anyTO,
             final Relatable<?, ?> any,
@@ -439,25 +457,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         }
         propByRes.merge(managerPropByRes);
 
-        // 1. anyTypeClasses
-        for (StringPatchItem patch : anyUR.getAuxClasses()) {
-            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
-                    auxClass -> {
-                        switch (patch.getOperation()) {
-                            case ADD_REPLACE:
-                                any.add(auxClass);
-                                break;
-
-                            case DELETE:
-                            default:
-                                any.getAuxClasses().remove(auxClass);
-                        }
-                    },
-                    () -> LOG.debug("Invalid {} {}, ignoring...",
-                            AnyTypeClass.class.getSimpleName(), patch.getValue()));
-        }
-
-        // 2. relationships
+        // 1. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         for (RelationshipUR patch : anyUR.getRelationships().stream().
                 filter(patch -> patch.getType() != null && patch.getOtherEndKey() != null).toList()) {
@@ -517,7 +517,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             }
         }
 
-        // 3. resources
+        // 2. resources
         for (StringPatchItem patch : anyUR.getResources()) {
             resourceDAO.findById(patch.getValue()).ifPresentOrElse(
                     resource -> {
@@ -538,7 +538,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         Set<ExternalResource> resources = anyUtils.getAllResources(any);
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        // 4. attributes
+        // 3. attributes
         anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).
                 forEach(patch -> getPlainSchema(patch.getAttr().getSchema()).ifPresentOrElse(
                 schema -> {
