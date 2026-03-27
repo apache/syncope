@@ -366,7 +366,25 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected void fillAuxClasses(final Relatable<?, ?> any, final AnyUR anyUR) {
+        for (StringPatchItem patch : anyUR.getAuxClasses()) {
+            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
+                    auxClass -> {
+                        switch (patch.getOperation()) {
+                            case ADD_REPLACE:
+                                any.add(auxClass);
+                                break;
+
+                            case DELETE:
+                            default:
+                                any.getAuxClasses().remove(auxClass);
+                        }
+                    },
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                            AnyTypeClass.class.getSimpleName(), patch.getValue()));
+        }
+    }
+
     protected void fill(
             final AnyTO anyTO,
             final Any any,

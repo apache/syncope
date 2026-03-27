@@ -26,25 +26,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -326,5 +341,102 @@ public class AnyObjectITCase extends AbstractITCase {
         SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
         assertEquals(ClientExceptionType.InvalidRelationship, e.getType());
         assertTrue(e.getMessage().contains("Relationships shall be created or updated only from their left end"));
+    }
+
+    public void issueSYNCOPE1957() {
+        // prepare
+        PlainSchemaTO schema1 = new PlainSchemaTO();
+        schema1.setKey("schema1" + getUUIDString());
+        schema1.setType(AttrSchemaType.Boolean);
+        createSchema(SchemaType.PLAIN, schema1);
+
+        PlainSchemaTO schema2 = new PlainSchemaTO();
+        schema2.setKey("schema2" + getUUIDString());
+        schema2.setType(AttrSchemaType.Boolean);
+        createSchema(SchemaType.PLAIN, schema2);
+
+        String class1Key = "class1" + getUUIDString();
+        AnyTypeClassTO class1 = new AnyTypeClassTO();
+        class1.setKey(class1Key);
+        class1.getPlainSchemas().add(schema1.getKey());
+        class1.getPlainSchemas().add(schema2.getKey());
+
+        Response response = ANY_TYPE_CLASS_SERVICE.create(class1);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+
+        class1 = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
+
+        // 1. create user, group and printer with auxClass class1
+        Consumer<AnyCR> setupAnyCR = anyCR -> {
+            anyCR.getResources().clear();
+            anyCR.getAuxClasses().add(class1Key);
+            anyCR.getPlainAttrs().add(attr(schema1.getKey(), "true"));
+            anyCR.getPlainAttrs().add(attr(schema2.getKey(), "true"));
+        };
+        Consumer<AnyTO> checkAnyTO = anyTO -> {
+            assertTrue(anyTO.getPlainAttr(schema1.getKey()).isPresent());
+            assertTrue(anyTO.getPlainAttr(schema2.getKey()).isPresent());
+        };
+
+        UserCR userCR = UserITCase.getUniqueSample("syncope1957@apache.org");
+        setupAnyCR.accept(userCR);
+
+        UserTO user = createUser(userCR).getEntity();
+        checkAnyTO.accept(user);
+
+        GroupCR groupCR = GroupITCase.getSample("syncope1957");
+        setupAnyCR.accept(groupCR);
+
+        GroupTO group = createGroup(groupCR).getEntity();
+        checkAnyTO.accept(group);
+
+        AnyObjectCR printerCR = getSample("syncope1957");
+        setupAnyCR.accept(printerCR);
+
+        AnyObjectTO printer = createAnyObject(printerCR).getEntity();
+        checkAnyTO.accept(printer);
+
+        // 2. create new anytypeclass and move schema there
+        class1.getPlainSchemas().remove(schema2.getKey());
+        ANY_TYPE_CLASS_SERVICE.update(class1);
+
+        class1 = ANY_TYPE_CLASS_SERVICE.read(class1.getKey());
+        assertEquals(List.of(schema1.getKey()), class1.getPlainSchemas());
+
+        String class2Key = "class2" + getUUIDString();
+        AnyTypeClassTO class2 = new AnyTypeClassTO();
+        class2.setKey(class2Key);
+        class2.getPlainSchemas().add(schema2.getKey());
+
+        response = ANY_TYPE_CLASS_SERVICE.create(class2);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+
+        class2 = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
+        assertEquals(List.of(schema2.getKey()), class2.getPlainSchemas());
+
+        // 3. update user, group and printer by adding auxClass class2
+        Consumer<AnyUR> setupAnyUR = anyUR -> anyUR.getAuxClasses().
+                add(new StringPatchItem.Builder().value(class2Key).build());
+
+        UserUR userUR = new UserUR();
+        userUR.setKey(user.getKey());
+        setupAnyUR.accept(userUR);
+
+        user = updateUser(userUR).getEntity();
+        checkAnyTO.accept(user);
+
+        GroupUR groupUR = new GroupUR();
+        groupUR.setKey(group.getKey());
+        setupAnyUR.accept(groupUR);
+
+        group = updateGroup(groupUR).getEntity();
+        checkAnyTO.accept(group);
+
+        AnyObjectUR printerUR = new AnyObjectUR();
+        printerUR.setKey(printer.getKey());
+        setupAnyUR.accept(printerUR);
+
+        printer = updateAnyObject(printerUR).getEntity();
+        checkAnyTO.accept(printer);
     }
 }

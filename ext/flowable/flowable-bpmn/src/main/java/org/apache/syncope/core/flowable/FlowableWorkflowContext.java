@@ -248,7 +248,7 @@ public class FlowableWorkflowContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public Update update(final UserDataBinder userDataBinder, final UserDAO userDAO) {
-        return new Update(userDataBinder, userDAO);
+    public Update update(final UserDataBinder userDataBinder) {
+        return new Update(userDataBinder);
     }
 }
