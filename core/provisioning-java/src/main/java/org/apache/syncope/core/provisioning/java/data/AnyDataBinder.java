@@ -392,25 +392,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final AnyUtils anyUtils,
             final SyncopeClientCompositeException scce) {
 
-        // 1. anyTypeClasses
-        for (StringPatchItem patch : anyUR.getAuxClasses()) {
-            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
-                    auxClass -> {
-                        switch (patch.getOperation()) {
-                            case ADD_REPLACE:
-                                any.add(auxClass);
-                                break;
-
-                            case DELETE:
-                            default:
-                                any.getAuxClasses().remove(auxClass);
-                        }
-                    },
-                    () -> LOG.debug("Invalid {} {}, ignoring...",
-                            AnyTypeClass.class.getSimpleName(), patch.getValue()));
-        }
-
-        // 2. resources
+        // 1. resources
         for (StringPatchItem patch : anyUR.getResources()) {
             resourceDAO.findById(patch.getValue()).ifPresentOrElse(
                     resource -> {
@@ -431,7 +413,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         Set<ExternalResource> resources = anyUtils.getAllResources(any);
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        // 3. plain attributes
+        // 2. plain attributes
         anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).
                 forEach(patch -> getPlainSchema(patch.getAttr().getSchema()).ifPresentOrElse(
                 schema -> {
@@ -464,7 +446,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             scce.addException(reqValMissing);
         }
 
-        // relationships
+        // 3. relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         for (RelationshipUR patch : anyUR.getRelationships().stream().
                 filter(patch -> patch.getRelationshipTO() != null).toList()) {
