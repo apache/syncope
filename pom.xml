@@ -1123,6 +1123,11 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.webjars.npm</groupId>
+        <artifactId>sweetalert2</artifactId>
+        <version>11.22.5</version>
+      </dependency>
       <!-- /CAS -->
 
       <!-- Wicket -->
