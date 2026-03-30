@@ -442,7 +442,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.4</groovy.version>
+    <groovy.version>5.0.5</groovy.version>
 
     <flowable.version>8.0.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
