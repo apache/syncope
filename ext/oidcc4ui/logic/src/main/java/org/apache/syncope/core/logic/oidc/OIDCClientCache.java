@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.oidc;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -39,9 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import org.pac4j.oidc.credentials.clientauth.DefaultClientAuthenticationBuilder;
 import org.pac4j.oidc.metadata.StaticOidcOpMetadataResolver;
-import org.pac4j.oidc.profile.creator.TokenValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,27 +121,7 @@ public class OIDCClientCache {
                 metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
             }
         }
-        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata) {
-
-            @Override
-            public boolean hasChanged() {
-                return true;
-            }
-
-            @Override
-            public ClientAuthentication getClientAuthentication() {
-                if (clientAuthenticationBuilder == null) {
-                    clientAuthenticationBuilder = new DefaultClientAuthenticationBuilder(configuration, metadata);
-                    clientAuthenticationBuilder.buildClientAuthentication();
-                }
-                return super.getClientAuthentication();
-            }
-
-            @Override
-            protected TokenValidator createTokenValidator() {
-                return new TokenValidator(configuration, metadata);
-            }
-        });
+        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
 
         OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());

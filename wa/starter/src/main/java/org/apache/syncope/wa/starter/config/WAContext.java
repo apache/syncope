@@ -61,7 +61,6 @@ import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
-import org.apache.syncope.wa.starter.oidc.WAOidcAttributeReleasePolicyFactory;
 import org.apache.syncope.wa.starter.oidc.WAOidcJsonWebKeystoreGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataCacheRefresher;
@@ -81,7 +80,6 @@ import org.apereo.cas.configuration.model.support.pm.PasswordManagementPropertie
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
-import org.apereo.cas.oidc.scopes.OidcAttributeReleasePolicyFactory;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.pm.LdapPasswordManagementService;
 import org.apereo.cas.pm.PasswordHistoryService;
@@ -533,14 +531,6 @@ public class WAContext {
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksType(),
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize(),
                 applicationContext);
-    }
-
-    @Bean
-    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    public OidcAttributeReleasePolicyFactory oidcAttributeReleasePolicyFactory(
-            final CasConfigurationProperties casProperties) {
-
-        return new WAOidcAttributeReleasePolicyFactory(casProperties);
     }
 
     @Bean
