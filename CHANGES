@@ -2,6 +2,19 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.1.0
+================================================================================
+
+** Bug
+    * [SYNCOPE-1945] - Tasks result not visible until the refresh is triggered
+    * [SYNCOPE-1956] - Dropdown multivalue PlainAttr not updated via Console
+    * [SYNCOPE-1957] - Wrong validation triggered while updating users, groups or any objects after auxiliary class change
+
+** Improvement
+    * [SYNCOPE-1951] - Searching Realms by attributes
+    * [SYNCOPE-1953] - Improve job stopping
+    * [SYNCOPE-1955] - OIDC custom scope management
+
 Release Notes - Syncope - Version 4.1.0-M0
 ================================================================================
 
