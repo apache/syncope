@@ -148,7 +148,7 @@ under the License.
                       <time>30000</time>
                     </wait>
                     <tmpfs>
-                      <mount>/var/lib/postgresql/data:rw</mount>
+                      <mount>/var/lib/postgresql/docker:rw</mount>
                     </tmpfs>
                   </run>
                 </image>
