@@ -645,7 +645,7 @@ under the License.
       <dependency>
         <groupId>co.elastic.clients</groupId>
         <artifactId>elasticsearch-java</artifactId>
-        <version>${elasticsearch.version}</version>
+        <version>9.3.3</version>
       </dependency>
 
       <dependency>
