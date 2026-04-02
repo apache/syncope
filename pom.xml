@@ -436,7 +436,7 @@ under the License.
     <nimbus-jose-jwt.version>10.8</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.5.13</spring-boot.version>
-    <spring-cloud-gateway.version>4.3.3</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.3.4</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
@@ -1465,7 +1465,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.3.1</version>
+        <version>4.3.3</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
