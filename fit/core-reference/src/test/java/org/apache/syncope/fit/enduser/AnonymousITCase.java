@@ -51,7 +51,7 @@ public class AnonymousITCase extends AbstractEnduserITCase {
         String form = "body:contentWrapper:content:selfRegistrationPanel:form";
         FormTester formTester = TESTER.newFormTester(form);
 
-        formTester.setValue("userDetailsPanelCard:contentPanel:username:textField", username);
+        formTester.setValue("userDetailsPanelCard:contentPanel:usernameInnerForm:username:textField", username);
 
         formTester.setValue(
                 "userDetailsPanelCard:contentPanel:password:passwordPanel:passwordInnerForm:password:passwordField",

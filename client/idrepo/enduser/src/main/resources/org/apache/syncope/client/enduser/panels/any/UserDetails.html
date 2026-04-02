@@ -23,9 +23,11 @@ under the License.
       <div class="form-group mb-3">
         <span wicket:id="destinationRealm">[DESTINATION REALM]</span>
       </div>
-      <div class="form-group mb-3">
-        <span wicket:id="username"/>
-      </div>
+      <form wicket:id="usernameInnerForm">
+        <div class="form-group mb-3">
+          <span wicket:id="username"/>
+        </div>
+      </form>
       <wicket:child/>
     </div>
   </wicket:panel>

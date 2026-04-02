@@ -785,7 +785,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         TESTER.assertComponent(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
                 TextField.class);
 
         formTester = TESTER.newFormTester(

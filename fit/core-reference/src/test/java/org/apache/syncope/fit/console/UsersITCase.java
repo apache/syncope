@@ -100,7 +100,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:10:action:action");
 
         TESTER.assertComponent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
                 TextField.class);
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL
@@ -125,7 +125,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
                 TextField.class);
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL
@@ -522,7 +522,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
                 TextField.class);
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL
@@ -568,7 +568,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
                 TextField.class);
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
