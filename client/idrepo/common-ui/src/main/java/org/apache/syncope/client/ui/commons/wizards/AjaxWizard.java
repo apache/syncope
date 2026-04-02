@@ -199,11 +199,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
     public final void onFinish() {
         AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class).orElse(null);
         try {
-            final Serializable res = onApply(target);
+            Serializable applied = onApply(target);
             if (eventSink == null) {
-                send(this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+                send(this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(applied));
             } else {
-                send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(res));
+                send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(applied));
             }
         } catch (TimeoutException te) {
             LOG.warn("Operation took too long", te);
