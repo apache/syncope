@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
 import org.apache.commons.lang3.Strings;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -28,6 +29,7 @@ import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Ac
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -35,14 +37,21 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.validation.IFormValidator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
+
+    @SpringBean
+    protected UserRestClient restClient;
 
     public UserDetails(
             final UserWrapper wrapper,
@@ -58,9 +67,13 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Username
         // ------------------------
+        Form<?> form = new Form<>("usernameInnerForm");
+        add(form);
+
         AjaxTextFieldPanel username = new AjaxTextFieldPanel(
                 Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME,
                 new PropertyModel<>(userTO, Constants.USERNAME_FIELD_NAME), false);
+        form.add(username);
 
         if (wrapper.getPreviousUserTO() != null && Strings.CS.compare(
                 wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
@@ -72,8 +85,31 @@ public class UserDetails extends Details<UserTO> {
             username.enableJexlHelp();
         } else {
             username.addRequiredLabel();
+
+            form.add(new IFormValidator() {
+
+                private static final long serialVersionUID = -73522462874258637L;
+
+                @Override
+                public FormComponent<?>[] getDependentFormComponents() {
+                    return null;
+                }
+
+                @Override
+                public void validate(final Form<?> form) {
+                    ComplianceQuery quey = new ComplianceQuery.Builder().
+                            realm(wrapper.getInnerObject().getRealm()).
+                            username(username.getField().getInput()).
+                            resources(wrapper.getInnerObject().getResources()).
+                            build();
+                    try {
+                        restClient.compliance(quey);
+                    } catch (Exception e) {
+                        username.getField().error(e.getMessage());
+                    }
+                }
+            });
         }
-        add(username);
         // ------------------------
 
         // ------------------------
@@ -121,7 +157,6 @@ public class UserDetails extends Details<UserTO> {
                 }.setBody(new ResourceModel("password.change", "Change password ..."));
             }
         };
-
         accordion.setOutputMarkupId(true);
         accordion.setVisible(showPasswordManagement);
         add(accordion);
@@ -133,7 +168,7 @@ public class UserDetails extends Details<UserTO> {
         return new UserInformationPanel(id, anyTO);
     }
 
-    public static class EditUserPasswordPanel extends Panel {
+    protected class EditUserPasswordPanel extends Panel {
 
         private static final long serialVersionUID = -8198836979773590078L;
 
@@ -141,7 +176,7 @@ public class UserDetails extends Details<UserTO> {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
-            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode));
+            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode, restClient));
         }
     }
 }

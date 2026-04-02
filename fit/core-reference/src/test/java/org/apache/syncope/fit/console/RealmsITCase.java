@@ -129,7 +129,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertComponent("body:templateModal", Modal.class);
 
         formTester = TESTER.newFormTester("body:templateModal:form:content:form");
-        formTester.setValue("view:username:textField", "'k' + firstname");
+        formTester.setValue("view:usernameInnerForm:username:textField", "'k' + firstname");
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();
@@ -147,11 +147,11 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertComponent("body:templateModal", Modal.class);
 
-        TESTER.assertModelValue("body:templateModal:form:content:form:view:username:textField",
+        TESTER.assertModelValue("body:templateModal:form:content:form:view:usernameInnerForm:username:textField",
                 "'k' + firstname");
 
         formTester = TESTER.newFormTester("body:templateModal:form:content:form");
-        formTester.setValue("view:username:textField", "");
+        formTester.setValue("view:usernameInnerForm:username:textField", "");
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();

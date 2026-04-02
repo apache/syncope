@@ -22,7 +22,9 @@ import jakarta.ws.rs.core.GenericType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.rest.UserComplianceRestClient;
 import org.apache.syncope.client.ui.commons.status.Status;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
@@ -35,20 +37,27 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 /**
  * Console client for invoking rest users services.
  */
-public class UserRestClient extends AbstractAnyRestClient<UserTO> {
+public class UserRestClient extends AbstractAnyRestClient<UserTO> implements UserComplianceRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
     protected Class<? extends AnyService<UserTO>> getAnyServiceClass() {
         return UserService.class;
+    }
+
+    @Override
+    public void compliance(final ComplianceQuery query) {
+        SyncopeConsoleSession.get().getAnonymousService(UserSelfService.class).compliance(query);
     }
 
     public ProvisioningResult<UserTO> create(final UserCR createReq) {

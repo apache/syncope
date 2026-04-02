@@ -18,30 +18,35 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.Strings;
+import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.validation.IFormValidator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    protected final AjaxTextFieldPanel username;
+    @SpringBean
+    protected UserSelfRestClient restClient;
 
     protected final UserTO userTO;
 
@@ -49,18 +54,46 @@ public class UserDetails extends Details<UserTO> {
         super(id, pageRef);
 
         userTO = wrapper.getInnerObject();
+
         // ------------------------
         // Username
         // ------------------------
-        username = new AjaxTextFieldPanel("username", "username", new PropertyModel<>(userTO, "username"), false);
+        Form<?> form = new Form<>("usernameInnerForm");
+        add(form);
 
-        if (wrapper.getPreviousUserTO() != null && Strings.CS.
-                compare(wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
+        AjaxTextFieldPanel username = new AjaxTextFieldPanel(
+                "username", "username", new PropertyModel<>(userTO, "username"), false);
+
+        if (wrapper.getPreviousUserTO() != null && Strings.CS.compare(
+                wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
+
             username.showExternAction(new LabelInfo("externalAction", wrapper.getPreviousUserTO().getUsername()));
         }
 
-        username.addRequiredLabel();
-        add(username);
+        form.add(username.addRequiredLabel());
+        form.add(new IFormValidator() {
+
+            private static final long serialVersionUID = -73522462874258637L;
+
+            @Override
+            public FormComponent<?>[] getDependentFormComponents() {
+                return null;
+            }
+
+            @Override
+            public void validate(final Form<?> form) {
+                ComplianceQuery quey = new ComplianceQuery.Builder().
+                        realm(wrapper.getInnerObject().getRealm()).
+                        username(username.getField().getInput()).
+                        resources(wrapper.getInnerObject().getResources()).
+                        build();
+                try {
+                    restClient.compliance(quey);
+                } catch (Exception e) {
+                    username.getField().error(e.getMessage());
+                }
+            }
+        });
         // ------------------------
 
         // ------------------------
@@ -78,7 +111,7 @@ public class UserDetails extends Details<UserTO> {
         return destinationRealm;
     }
 
-    protected static class EditUserPasswordPanel extends Panel {
+    protected class EditUserPasswordPanel extends Panel {
 
         private static final long serialVersionUID = -8198836979773590078L;
 
@@ -89,9 +122,9 @@ public class UserDetails extends Details<UserTO> {
             add(new PasswordPanel(
                     "passwordPanel",
                     wrapper,
-                    false,
                     wrapper.getInnerObject().getKey() == null,
-                    new PasswordStrengthBehavior(new SyncopePasswordStrengthConfig())));
+                    false,
+                    restClient));
         }
     }
 }
