@@ -461,9 +461,9 @@ under the License.
     <commons-jexl.version>3.6.2</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
 
-    <pac4j.version>6.4.0-RC1</pac4j.version>
+    <pac4j.version>6.4.1</pac4j.version>
 
-    <cas.version>8.0.0-RC3</cas.version>
+    <cas.version>8.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.1.0</cas-client.version>
 
     <swagger-core.version>2.2.46</swagger-core.version>
@@ -536,7 +536,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.10</jdbc.postgresql.version>
     <jdbc.mysql.version>9.6.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.7</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.8</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.1.0.0</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>

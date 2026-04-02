@@ -58,6 +58,7 @@ import org.bouncycastle.asn1.x509.Time;
 import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.SAML2IdentityProviderMetadataResolver;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
@@ -99,6 +100,7 @@ public abstract class BaseWASAML2ClientTest {
 
     protected static SAML2Configuration getSAML2Configuration() throws Exception {
         SAML2Configuration cfg = new SAML2Configuration();
+        cfg.getKeystore().setKeystoreResource(new ByteArrayResource(new byte[0]));
         cfg.getKeystore().setKeystorePassword("password");
         cfg.getKeystore().setPrivateKeyPassword("password");
 

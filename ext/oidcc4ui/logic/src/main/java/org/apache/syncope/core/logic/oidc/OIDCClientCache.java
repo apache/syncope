@@ -132,12 +132,13 @@ public class OIDCClientCache {
             }
 
             @Override
-            public ClientAuthentication getClientAuthentication() {
-                if (clientAuthenticationBuilder == null) {
-                    clientAuthenticationBuilder = new DefaultClientAuthenticationBuilder(configuration, metadata);
-                    clientAuthenticationBuilder.buildClientAuthentication();
+            public ClientAuthentication getClientAuthenticationTokenEndpoint() {
+                if (clientAuthToken == null) {
+                    clientAuthToken = new DefaultClientAuthenticationBuilder(
+                            configuration, metadata, metadata.getTokenEndpointURI());
+                    clientAuthToken.buildClientAuthentication();
                 }
-                return super.getClientAuthentication();
+                return super.getClientAuthenticationTokenEndpoint();
             }
 
             @Override

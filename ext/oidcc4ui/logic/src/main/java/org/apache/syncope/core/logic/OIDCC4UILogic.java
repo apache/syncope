@@ -140,8 +140,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             protected Params buildParams(final WebContext webContext) {
                 Params params = super.buildParams(webContext);
                 if (reauth) {
-                    params.main().put(OidcConfiguration.PROMPT, "login");
-                    params.main().put(OidcConfiguration.MAX_AGE, "0");
+                    params.url().put(OidcConfiguration.PROMPT, "login");
+                    params.url().put(OidcConfiguration.MAX_AGE, "0");
                 }
                 return params;
             }
