@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.RelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -229,7 +230,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs(final RelationshipTO relationshipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(attributable).
+        Map<String, Attr> attrMap = RelatableTO.class.cast(attributable).
                 getRelationship(relationshipTO.getType(), relationshipTO.getOtherEndKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
                 orElseGet(HashMap::new);
