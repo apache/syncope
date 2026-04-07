@@ -840,7 +840,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             userCR.getResources().clear();
 
             String email = userCR.getPlainAttr("email").orElseThrow().getValues().getFirst();
-            userCR.getPlainAttrs().add(new Attr.Builder("userId").value(email).build());
+            userCR.getPlainAttrs().add(attr("userId", email));
 
             REMEDIATION_SERVICE.remedy(remediation.getKey(), userCR);
 

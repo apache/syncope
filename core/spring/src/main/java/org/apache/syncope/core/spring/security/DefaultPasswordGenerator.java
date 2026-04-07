@@ -30,9 +30,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
+import org.passay.data.EnglishCharacterData;
+import org.passay.rule.CharacterRule;
+import org.passay.rule.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +104,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         DefaultPasswordRuleConf result = new DefaultPasswordRuleConf();
         result.setMinLength(VERY_MIN_LENGTH);
         result.setMaxLength(VERY_MAX_LENGTH);
+        result.setUsernameAllowed(true);
 
         defaultRuleConfs.forEach(ruleConf -> {
             if (ruleConf.getMinLength() > result.getMinLength()) {
@@ -170,7 +171,9 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     }
 
     protected String generate(final DefaultPasswordRuleConf ruleConf) {
-        List<CharacterRule> characterRules = DefaultPasswordRule.conf2Rules(ruleConf).stream().
+        List<Rule> rules = PasswordGenerator.conf2Rules(ruleConf);
+
+        List<CharacterRule> characterRules = rules.stream().
                 filter(CharacterRule.class::isInstance).map(CharacterRule.class::cast).
                 toList();
         if (characterRules.isEmpty()) {
@@ -178,9 +181,12 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
             characterRules = List.of(
                     new CharacterRule(EnglishCharacterData.Alphabetical, halfMinLength),
                     new CharacterRule(EnglishCharacterData.Digit, halfMinLength));
+
+            rules.addAll(characterRules);
         }
         int min = Math.max(ruleConf.getMinLength(),
                 characterRules.stream().mapToInt(CharacterRule::getNumberOfCharacters).sum());
-        return SecureRandomUtils.passwordGenerator().generatePassword(min, characterRules);
+
+        return SecureRandomUtils.passwordGenerator(min, rules).generate().toString();
     }
 }

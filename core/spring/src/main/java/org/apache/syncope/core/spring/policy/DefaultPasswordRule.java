@@ -19,16 +19,12 @@
 package org.apache.syncope.core.spring.policy;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -37,18 +33,16 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
-import org.passay.CharacterData;
-import org.passay.CharacterRule;
-import org.passay.EnglishCharacterData;
-import org.passay.IllegalCharacterRule;
-import org.passay.LengthRule;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
+import org.passay.DefaultPasswordValidator;
 import org.passay.PasswordData;
 import org.passay.PasswordValidator;
-import org.passay.PropertiesMessageResolver;
-import org.passay.RepeatCharactersRule;
-import org.passay.Rule;
-import org.passay.RuleResult;
-import org.passay.UsernameRule;
+import org.passay.ValidationResult;
+import org.passay.dictionary.ArrayWordList;
+import org.passay.dictionary.WordListDictionary;
+import org.passay.resolver.PropertiesMessageResolver;
+import org.passay.rule.DictionaryRule;
+import org.passay.rule.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,71 +54,22 @@ public class DefaultPasswordRule implements PasswordRule {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPasswordRule.class);
 
-    public static List<Rule> conf2Rules(final DefaultPasswordRuleConf conf) {
-        List<Rule> rules = new ArrayList<>();
-
-        LengthRule lengthRule = new LengthRule();
-        if (conf.getMinLength() > 0) {
-            lengthRule.setMinimumLength(conf.getMinLength());
-        }
-        if (conf.getMaxLength() > 0) {
-            lengthRule.setMaximumLength(conf.getMaxLength());
-        }
-        rules.add(lengthRule);
-
-        if (conf.getAlphabetical() > 0) {
-            rules.add(new CharacterRule(EnglishCharacterData.Alphabetical, conf.getAlphabetical()));
-        }
-
-        if (conf.getUppercase() > 0) {
-            rules.add(new CharacterRule(EnglishCharacterData.UpperCase, conf.getUppercase()));
-        }
-
-        if (conf.getLowercase() > 0) {
-            rules.add(new CharacterRule(EnglishCharacterData.LowerCase, conf.getLowercase()));
-        }
-
-        if (conf.getDigit() > 0) {
-            rules.add(new CharacterRule(EnglishCharacterData.Digit, conf.getDigit()));
-        }
-
-        if (conf.getSpecial() > 0) {
-            rules.add(new CharacterRule(new CharacterData() {
-
-                @Override
-                public String getErrorCode() {
-                    return "INSUFFICIENT_SPECIAL";
-                }
-
-                @Override
-                public String getCharacters() {
-                    return new String(ArrayUtils.toPrimitive(conf.getSpecialChars().toArray(Character[]::new)));
-                }
-            }, conf.getSpecial()));
-        }
-
-        if (!conf.getIllegalChars().isEmpty()) {
-            rules.add(new IllegalCharacterRule(
-                    ArrayUtils.toPrimitive(conf.getIllegalChars().toArray(Character[]::new))));
-        }
-
-        if (conf.getRepeatSame() > 0) {
-            rules.add(new RepeatCharactersRule(conf.getRepeatSame()));
-        }
-
-        if (!conf.isUsernameAllowed()) {
-            rules.add(new UsernameRule(true, true));
-        }
-
-        return rules;
-    }
+    protected final PropertiesMessageResolver messageResolver;
 
     @Autowired
     protected EncryptorManager encryptorManager;
 
     protected DefaultPasswordRuleConf conf;
 
-    protected PasswordValidator passwordValidator;
+    public DefaultPasswordRule() {
+        Properties passay = new Properties();
+        try (InputStream in = getClass().getResourceAsStream("/passay.properties")) {
+            passay.load(in);
+            messageResolver = new PropertiesMessageResolver(passay);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not initialize Passay", e);
+        }
+    }
 
     @Override
     public PasswordRuleConf getConf() {
@@ -135,96 +80,77 @@ public class DefaultPasswordRule implements PasswordRule {
     public void setConf(final PasswordRuleConf conf) {
         if (conf instanceof DefaultPasswordRuleConf defaultPasswordRuleConf) {
             this.conf = defaultPasswordRuleConf;
-
-            Properties passay = new Properties();
-            try (InputStream in = getClass().getResourceAsStream("/passay.properties")) {
-                passay.load(in);
-                passwordValidator = new PasswordValidator(new PropertiesMessageResolver(passay), conf2Rules(this.conf));
-            } catch (Exception e) {
-                throw new IllegalStateException("Could not initialize Passay", e);
-            }
         } else {
             throw new IllegalArgumentException(
                     DefaultPasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
     }
 
-    protected void enforce(final String clear, final String username, final Set<String> wordsNotPermitted) {
-        RuleResult result = passwordValidator.validate(
-                username == null ? new PasswordData(clear) : new PasswordData(username, clear));
-        if (!result.isValid()) {
-            throw new PasswordPolicyException(String.join(",", passwordValidator.getMessages(result)));
+    protected void enforce(final String username, final String clearPassword, final Collection<String> notPermitted) {
+        List<Rule> rules = PasswordGenerator.conf2Rules(conf);
+        if (!notPermitted.isEmpty()) {
+            rules.add(new DictionaryRule(new WordListDictionary(new ArrayWordList(
+                    notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new), true)),
+                    true));
         }
 
-        // check words not permitted
-        wordsNotPermitted.stream().
-                filter(word -> Strings.CI.contains(clear, word)).findFirst().
-                ifPresent(word -> {
-                    throw new PasswordPolicyException("Used word(s) not permitted");
-                });
+        PasswordValidator passwordValidator = new DefaultPasswordValidator(messageResolver, rules);
+        ValidationResult result = passwordValidator.validate(
+                username == null ? new PasswordData(clearPassword) : new PasswordData(username, clearPassword));
+        if (!result.isValid()) {
+            throw new PasswordPolicyException(result.getMessages().stream().collect(Collectors.joining(",")));
+        }
     }
 
     @Override
     public void enforce(final String username, final String clearPassword) {
-        if (clearPassword != null) {
-            Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
-            enforce(clearPassword, username, wordsNotPermitted);
+        if (clearPassword == null) {
+            return;
         }
+
+        enforce(username, clearPassword, Set.of());
     }
 
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user, final String clearPassword) {
-        if (clearPassword != null) {
-            Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
-            wordsNotPermitted.addAll(
-                    conf.getSchemasNotPermitted().stream().
-                            map(schema -> user.getPlainAttr(schema).
-                            map(PlainAttr::getValuesAsStrings).orElse(null)).
-                            filter(Objects::nonNull).
-                            filter(values -> !CollectionUtils.isEmpty(values)).
-                            flatMap(Collection::stream).
-                            collect(Collectors.toSet()));
-
-            enforce(clearPassword, user.getUsername(), wordsNotPermitted);
+        if (clearPassword == null) {
+            return;
         }
+
+        List<String> notPermitted = conf.getSchemasNotPermitted().stream().
+                map(schema -> user.getPlainAttr(schema).
+                map(PlainAttr::getValuesAsStrings).orElse(null)).
+                filter(values -> !CollectionUtils.isEmpty(values)).
+                flatMap(Collection::stream).
+                toList();
+
+        enforce(user.getUsername(), clearPassword, notPermitted);
     }
 
     @Transactional(readOnly = true)
     @Override
     public void enforce(final LinkedAccount account) {
-        conf.getWordsNotPermitted().addAll(
-                conf.getSchemasNotPermitted().stream().
-                        map(schema -> account.getPlainAttr(schema).
-                        map(PlainAttr::getValuesAsStrings).orElse(null)).
-                        filter(Objects::nonNull).
-                        filter(values -> !CollectionUtils.isEmpty(values)).
-                        flatMap(Collection::stream).
-                        toList());
-
-        if (account.getPassword() != null) {
-            String clear = null;
-            if (account.canDecodeSecrets()) {
-                try {
-                    clear = encryptorManager.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
-                } catch (Exception e) {
-                    LOG.error("Could not decode password for {}", account, e);
-                }
-            }
-
-            if (clear != null) {
-                Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
-                wordsNotPermitted.addAll(
-                        conf.getSchemasNotPermitted().stream().
-                                map(schema -> account.getPlainAttr(schema).
-                                map(PlainAttr::getValuesAsStrings).orElse(null)).
-                                filter(Objects::nonNull).
-                                filter(values -> !CollectionUtils.isEmpty(values)).
-                                flatMap(Collection::stream).
-                                collect(Collectors.toSet()));
-
-                enforce(clear, account.getUsername(), wordsNotPermitted);
+        String clearPassword = null;
+        if (account.getPassword() != null && account.canDecodeSecrets()) {
+            try {
+                clearPassword = encryptorManager.getInstance().decode(
+                        account.getPassword(), account.getCipherAlgorithm());
+            } catch (Exception e) {
+                LOG.error("Could not decode password for {}", account, e);
             }
         }
+        if (clearPassword == null) {
+            return;
+        }
+
+        List<String> notPermitted = conf.getSchemasNotPermitted().stream().
+                map(schema -> account.getPlainAttr(schema).
+                map(PlainAttr::getValuesAsStrings).orElse(null)).
+                filter(values -> !CollectionUtils.isEmpty(values)).
+                flatMap(Collection::stream).
+                toList();
+
+        enforce(account.getUsername(), clearPassword, notPermitted);
     }
 }
