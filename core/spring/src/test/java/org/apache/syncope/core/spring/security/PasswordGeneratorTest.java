@@ -18,14 +18,18 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.apache.syncope.core.spring.implementation.PasswordRuleTest;
+import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -95,6 +99,42 @@ public class PasswordGeneratorTest {
         String generatedPassword = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
 
         assertTrue(generatedPassword.chars().anyMatch(c -> '@' == c || '!' == c || '%' == c));
+    }
+
+    @Test
+    public void validateGenerated() throws JsonProcessingException {
+        String input =
+                """
+{
+  "_class": "org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf",
+  "alphabetical": 0,
+  "digit": 1,
+  "illegalChars": [],
+  "lowercase": 0,
+  "maxLength": 64,
+  "minLength": 10,
+  "name": "org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf",
+  "repeatSame": 0,
+  "schemasNotPermitted": [],
+  "special": 0,
+  "specialChars": [],
+  "uppercase": 0,
+  "usernameAllowed": false,
+  "wordsNotPermitted": [
+    "notpermitted1",
+    "notpermitted2"
+  ]
+}
+""";
+        DefaultPasswordRuleConf ruleConf = JsonMapper.builder().build().readValue(input, DefaultPasswordRuleConf.class);
+        TestImplementation passwordRule = new TestImplementation();
+        passwordRule.setBody(POJOHelper.serialize(ruleConf));
+
+        String password = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
+
+        DefaultPasswordRule rule = new DefaultPasswordRule();
+        rule.setConf(ruleConf);
+        assertDoesNotThrow(() -> rule.enforce((String) null, password));
     }
 
     @Test
