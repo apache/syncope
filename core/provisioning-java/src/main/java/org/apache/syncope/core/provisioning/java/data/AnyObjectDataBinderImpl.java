@@ -200,7 +200,7 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
 
     @Override
     public PropagationByResource<String> update(final AnyObject toBeUpdated, final AnyObjectUR anyObjectUR) {
-        fillAuxClasses(toBeUpdated, anyObjectUR);
+        processAuxClasses(toBeUpdated, anyObjectUR);
 
         // Re-merge any pending change from workflow tasks
         AnyObject anyObject = anyObjectDAO.save(toBeUpdated);

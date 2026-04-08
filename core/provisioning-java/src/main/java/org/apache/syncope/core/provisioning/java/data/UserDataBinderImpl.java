@@ -341,7 +341,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
 
     @Override
     public UserWorkflowResult.PropagationInfo update(final User toBeUpdated, final UserUR userUR) {
-        fillAuxClasses(toBeUpdated, userUR);
+        processAuxClasses(toBeUpdated, userUR);
 
         // Re-merge any pending change from workflow tasks
         User user = userDAO.save(toBeUpdated);

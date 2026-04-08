@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -30,10 +31,11 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroups;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -43,21 +45,30 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
+import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class Groups extends AbstractGroups {
+public class Groups extends WizardStep implements WizardModel.ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
+
+    protected static final int MAX_GROUP_LIST_CARDINALITY = 30;
 
     @SpringBean
     protected GroupRestClient groupRestClient;
 
     @SpringBean
     protected SyncopeRestClient syncopeRestClient;
+
+    protected final AnyTO anyTO;
+
+    protected WebMarkupContainer groupsContainer;
 
     protected final boolean templateMode;
 
@@ -66,7 +77,31 @@ public class Groups extends AbstractGroups {
     protected AjaxPalettePanel.Builder<MembershipTO> groups;
 
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
-        super(modelObject);
+        super();
+        this.anyTO = modelObject.getInnerObject();
+
+        setOutputMarkupId(true);
+
+        groupsContainer = new WebMarkupContainer("groupsContainer");
+        groupsContainer.setOutputMarkupId(true);
+        groupsContainer.setOutputMarkupPlaceholderTag(true);
+        add(groupsContainer);
+
+        // ------------------
+        // insert changed label if needed
+        // ------------------
+        if (modelObject instanceof final UserWrapper uw
+                && uw.getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        uw.getInnerObject().getMemberships(),
+                        uw.getPreviousUserTO().getMemberships())) {
+
+            groupsContainer.add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            groupsContainer.add(new Label("changed", StringUtils.EMPTY));
+        }
+        // ------------------
+
         this.templateMode = templateMode;
         this.groupsModel = new ConsoleGroupsModel();
 
@@ -86,7 +121,6 @@ public class Groups extends AbstractGroups {
                 SyncopeConstants.ROOT_REALM, term, 1, Constants.MAX_GROUP_LIST_SIZE);
     }
 
-    @Override
     protected void addGroupsPanel() {
         if (anyTO instanceof GroupTO) {
             groupsContainer.add(new Label("groups").setVisible(false));

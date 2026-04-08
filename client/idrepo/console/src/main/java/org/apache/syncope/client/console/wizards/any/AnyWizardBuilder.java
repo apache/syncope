@@ -30,11 +30,10 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.client.ui.commons.wizards.any.AbstractAnyWizardBuilder;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -43,7 +42,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
-public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizardBuilder<A> {
+public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
@@ -62,14 +61,6 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
     protected AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo;
 
-    /**
-     * Construct.
-     *
-     * @param anyTO any
-     * @param anyTypeClasses any type classes
-     * @param formLayoutInfo form layout info
-     * @param pageRef caller page reference.
-     */
     public AnyWizardBuilder(
             final A anyTO,
             final List<String> anyTypeClasses,
@@ -81,15 +72,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         this.formLayoutInfo = formLayoutInfo;
     }
 
-    /**
-     * Construct.
-     *
-     * @param wrapper any wrapper
-     * @param anyTypeClasses any type classes
-     * @param formLayoutInfo form layout info
-     * @param pageRef caller page reference.
-     */
-    public AnyWizardBuilder(
+    protected AnyWizardBuilder(
             final AnyWrapper<A> wrapper,
             final List<String> anyTypeClasses,
             final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
@@ -160,15 +143,12 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
         }
     }
 
-    @Override
     protected void fixPlainAttrs(final AnyTO updated, final AnyTO original) {
         // re-add to the updated object any missing plain attribute (compared to original): this to cope with
         // form layout, which might have not included some plain attributes
-        for (Attr plainAttr : original.getPlainAttrs()) {
-            if (updated.getPlainAttr(plainAttr.getSchema()).isEmpty()) {
-                updated.getPlainAttrs().add(plainAttr);
-            }
-        }
+        original.getPlainAttrs().stream().
+                filter(plainAttr -> updated.getPlainAttr(plainAttr.getSchema()).isEmpty()).
+                forEach(updated.getPlainAttrs()::add);
 
         if (updated instanceof GroupableRelatableTO updatedTO && original instanceof GroupableRelatableTO originalTO) {
             originalTO.getMemberships().
