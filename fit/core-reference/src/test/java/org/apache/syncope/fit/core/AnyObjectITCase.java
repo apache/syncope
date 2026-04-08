@@ -439,4 +439,38 @@ public class AnyObjectITCase extends AbstractITCase {
         printer = updateAnyObject(printerUR).getEntity();
         checkAnyTO.accept(printer);
     }
+
+    @Test
+    public void issueSYNCOPE1960() {
+        // 1. create schema and class
+        PlainSchemaTO plainSchema = new PlainSchemaTO();
+        plainSchema.setKey("new_plain_schema" + getUUIDString());
+        plainSchema.setType(AttrSchemaType.String);
+        plainSchema = createSchema(SchemaType.PLAIN, plainSchema);
+
+        AnyTypeClassTO newClass = new AnyTypeClassTO();
+        newClass.setKey("new class" + getUUIDString());
+        newClass.getPlainSchemas().add(plainSchema.getKey());
+        ANY_TYPE_CLASS_SERVICE.create(newClass);
+
+        // 2. create printer with the new class as aux class
+        AnyObjectCR anyObjectCR = getSample("syncope1960");
+        anyObjectCR.getResources().clear();
+        anyObjectCR.getAuxClasses().add(newClass.getKey());
+        anyObjectCR.getPlainAttrs().add(attr(plainSchema.getKey(), "value"));
+
+        AnyObjectTO printer = createAnyObject(anyObjectCR).getEntity();
+        assertTrue(printer.getPlainAttr(plainSchema.getKey()).isPresent());
+        assertTrue(printer.getAuxClasses().contains(newClass.getKey()));
+
+        // 3. remove aux class
+        AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(printer.getKey()).
+                auxClass(new StringPatchItem.Builder().value(newClass.getKey()).
+                        operation(PatchOperation.DELETE).build()).
+                build();
+
+        printer = updateAnyObject(anyObjectUR).getEntity();
+        assertTrue(printer.getPlainAttr(plainSchema.getKey()).isEmpty());
+        assertFalse(printer.getAuxClasses().contains(newClass.getKey()));
+    }
 }

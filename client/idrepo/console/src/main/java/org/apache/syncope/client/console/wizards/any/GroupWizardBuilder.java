@@ -50,8 +50,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupRestClient groupRestClient,
             final PageReference pageRef) {
 
-        super(Optional.ofNullable(groupTO).map(GroupWrapper::new).
-                orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(groupTO).map(GroupWrapper::new).orElse(null),
+                anyTypeClasses, formLayoutInfo, pageRef);
         this.groupRestClient = groupRestClient;
     }
 
@@ -71,7 +71,8 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new GroupWrapper(previousGroupTO, groupTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(new GroupWrapper(previousGroupTO, groupTO),
+                anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     /**

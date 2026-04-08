@@ -286,8 +286,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                             pr).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                             setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                             AnyLayoutUtils.newLayoutInfo(anyObject, anyType.getClasses(),
-                                    layout.getAnyObjects().get(anyType.getKey()),
-                                    anyObjectRestClient, pr)).
+                                    layout.getAnyObjects().get(anyType.getKey()), anyObjectRestClient, pr)).
                             build(id);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyType.getKey()));
