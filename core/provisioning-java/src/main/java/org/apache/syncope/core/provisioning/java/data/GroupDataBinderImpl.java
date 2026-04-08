@@ -169,7 +169,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
 
     @Override
     public PropagationByResource<String> update(final Group toBeUpdated, final GroupUR groupUR) {
-        fillAuxClasses(toBeUpdated, groupUR);
+        processAuxClasses(toBeUpdated, groupUR);
 
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);

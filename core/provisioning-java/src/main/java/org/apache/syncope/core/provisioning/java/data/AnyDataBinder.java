@@ -395,23 +395,24 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         }
     }
 
-    protected void fillAuxClasses(final Relatable<?, ?> any, final AnyUR anyUR) {
-        for (StringPatchItem patch : anyUR.getAuxClasses()) {
-            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
-                    auxClass -> {
-                        switch (patch.getOperation()) {
-                            case ADD_REPLACE:
-                                any.add(auxClass);
-                                break;
+    protected void processAuxClasses(final Relatable<?, ?> any, final AnyUR anyUR) {
+        anyUR.getAuxClasses().forEach(patch -> anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
+                auxClass -> {
+                    switch (patch.getOperation()) {
+                        case ADD_REPLACE:
+                            any.add(auxClass);
+                            break;
 
-                            case DELETE:
-                            default:
-                                any.getAuxClasses().remove(auxClass);
-                        }
-                    },
-                    () -> LOG.debug("Invalid {} {}, ignoring...",
-                            AnyTypeClass.class.getSimpleName(), patch.getValue()));
-        }
+                        case DELETE:
+                        default:
+                            if (any.getAuxClasses().remove(auxClass)) {
+                                auxClass.getPlainSchemas().
+                                        forEach(schema -> any.getPlainAttr(schema.getKey()).ifPresent(any::remove));
+                            }
+                    }
+                },
+                () -> LOG.debug("Invalid {} {}, ignoring...",
+                        AnyTypeClass.class.getSimpleName(), patch.getValue())));
     }
 
     protected void fill(

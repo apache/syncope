@@ -47,8 +47,8 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final AnyObjectRestClient anyObjectRestClient,
             final PageReference pageRef) {
 
-        super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new).
-                orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new).orElse(null),
+                anyTypeClasses, formLayoutInfo, pageRef);
         this.anyObjectRestClient = anyObjectRestClient;
     }
 
@@ -68,7 +68,8 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new AnyObjectWrapper(previousAnyObjectTO, anyObjectTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(new AnyObjectWrapper(previousAnyObjectTO, anyObjectTO),
+                anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     @Override
