@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.Parameters;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;
@@ -41,7 +42,8 @@ public class ParametersITCase extends AbstractConsoleITCase {
     @Test
     public void readParameter() {
         TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
-        assertNotNull(findComponentByProp(SCHEMA, "body:content:parametersPanel", "authentication.statuses"));
+        assertNotNull(findComponentByProp(
+                SCHEMA, "body:content:parametersPanel", StandardConfParams.AUTHENTICATION_STATUSES));
     }
 
     @Test
@@ -71,7 +73,8 @@ public class ParametersITCase extends AbstractConsoleITCase {
     public void updateParameter() {
         TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "notification.maxRetries");
+        Component result = findComponentByProp(
+                SCHEMA, "body:content:parametersPanel", StandardConfParams.NOTIFICATION_MAX_RETRIES);
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);

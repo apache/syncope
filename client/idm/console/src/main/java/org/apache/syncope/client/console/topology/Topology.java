@@ -141,7 +141,7 @@ public class Topology extends BasePage {
             final List<URI> connectorServers = new ArrayList<>();
             final List<URI> filePaths = new ArrayList<>();
 
-            SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().forEach(location -> {
+            SyncopeConsoleSession.get().getPlatformInfo().connIdLocations().forEach(location -> {
                 if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
                     connectorServers.add(URI.create(location));
                 } else {

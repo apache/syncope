@@ -45,7 +45,7 @@ public abstract class CodeConsumerResource extends AbstractResource {
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumerResource.class);
 
     protected static final JsonMapper MAPPER =
-            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
+            JsonMapper.builder().findAndAddModules().defaultPropertyInclusion(JsonInclude.Value.ALL_NON_EMPTY).build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 

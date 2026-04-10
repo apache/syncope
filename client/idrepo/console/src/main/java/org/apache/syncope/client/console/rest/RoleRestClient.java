@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.rest;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -84,7 +83,6 @@ public class RoleRestClient extends BaseRestClient {
     }
 
     public List<String> getAllAvailableEntitlements() {
-        return SyncopeConsoleSession.get().getAnonymousClient().platform().getEntitlements().
-                stream().sorted().collect(Collectors.toList());
+        return SyncopeConsoleSession.get().getPlatformInfo().entitlements().stream().sorted().toList();
     }
 }

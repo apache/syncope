@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -157,7 +158,7 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
                         orElseGet(() -> CipherAlgorithm.valueOf(
                         ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
                                 AuthContextUtils.getDomain(),
-                                "password.cipher.algorithm",
+                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
                                 CipherAlgorithm.AES.name(),
                                 String.class))));
     }

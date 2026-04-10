@@ -23,7 +23,6 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
@@ -37,12 +36,11 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
-            final DefaultCredentialChecker credentialChecker,
             final SecurityProperties securityProperties,
-            final KeymasterProperties keymasterProperties,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final KeymasterProperties keymasterProperties) {
 
-        super(domainOps, dataAccessor, provisioningManager, credentialChecker, securityProperties, encryptorManager);
+        super(domainOps, dataAccessor, provisioningManager, securityProperties, encryptorManager);
         this.keymasterProperties = keymasterProperties;
     }
 
@@ -50,10 +48,14 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
     public Authentication authenticate(final Authentication authentication) {
         if (keymasterProperties.getUsername().equals(authentication.getName())) {
             return finalizeAuthentication(
-                    authentication.getCredentials().toString().equals(keymasterProperties.getPassword()),
                     SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(),
                     keymasterProperties.getUsername(),
-                    null,
+                    new AuthDataAccessor.UsernamePasswordAuthResult(
+                            null,
+                            authentication.getCredentials().toString().equals(keymasterProperties.getPassword()),
+                            null,
+                            null,
+                            dataAccessor.getAuthorities(authentication.getName(), null)),
                     authentication);
         }
 

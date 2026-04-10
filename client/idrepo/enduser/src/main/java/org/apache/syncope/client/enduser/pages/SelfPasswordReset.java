@@ -27,6 +27,8 @@ import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.PageReference;
@@ -51,6 +53,9 @@ public class SelfPasswordReset extends BaseNoSidebarPage {
     private static final long serialVersionUID = 164651008547631054L;
 
     protected static final String SELF_PWD_RESET = "page.selfPwdReset";
+
+    @SpringBean
+    protected ConfParamOps confParamOps;
 
     @SpringBean
     protected UserSelfRestClient userSelfRestClient;
@@ -147,8 +152,9 @@ public class SelfPasswordReset extends BaseNoSidebarPage {
         SelfPwdResetPanel(final String id, final CaptchaPanel<Void> captcha, final PageReference pageRef) {
             super(id);
 
-            boolean isSecurityQuestionEnabled =
-                    SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions();
+            boolean isSecurityQuestionEnabled = confParamOps.get(
+                    SyncopeEnduserSession.get().getDomain(), StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false,
+                    boolean.class);
 
             TextField<String> username = new TextField<>("username",
                     new PropertyModel<>(SelfPasswordReset.this, "usernameValue"), String.class);

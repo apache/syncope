@@ -83,7 +83,7 @@ public class Flowable extends BaseExtPage {
                         LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
                         SyncopeEnduserSession.get()
                                 .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
-                        notificationPanel.refresh(target);
+                        getNotificationPanel().refresh(target);
                     }
                     target.add(container);
                 }
@@ -125,7 +125,7 @@ public class Flowable extends BaseExtPage {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new UserRequestDetails(panelId, userRequest, container, notificationPanel);
+                        return new UserRequestDetails(panelId, userRequest, container, getNotificationPanel());
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }

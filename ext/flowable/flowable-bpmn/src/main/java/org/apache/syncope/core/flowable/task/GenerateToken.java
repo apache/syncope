@@ -19,6 +19,7 @@
 package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -37,8 +38,8 @@ public class GenerateToken extends FlowableServiceTask {
         User user = execution.getVariable(FlowableRuntimeUtils.USER, User.class);
 
         user.generateToken(
-                confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
-                confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
+                confParamOps.get(AuthContextUtils.getDomain(), StandardConfParams.TOKEN_LENGTH, 256, int.class),
+                confParamOps.get(AuthContextUtils.getDomain(), StandardConfParams.TOKEN_EXPIRE_TIME, 60, int.class));
 
         execution.setVariable(FlowableRuntimeUtils.USER, user);
     }

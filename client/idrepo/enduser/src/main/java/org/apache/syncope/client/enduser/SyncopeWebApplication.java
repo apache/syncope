@@ -39,12 +39,12 @@ import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
+import org.apache.syncope.client.ui.commons.pages.BaseLogin;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -54,6 +54,7 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authorization.IAuthorizationStrategy;
 import org.apache.wicket.authorization.IAuthorizationStrategy.AllowAllAuthorizationStrategy;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
+import org.apache.wicket.csp.CSPDirective;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.ResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -147,7 +148,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
             getRequestCycleListeners().add(new ResourceIsolationRequestCycleListener());
         }
 
-        getCspSettings().blocking().unsafeInline();
+        getCspSettings().blocking().unsafeInline().add(CSPDirective.IMG_SRC, "data:");
 
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
@@ -258,8 +259,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return SyncopeEnduserSession.get().isAuthenticated()
-                && SyncopeEnduserSession.get().isMustChangePassword()
+        return SyncopeEnduserSession.get().isMustChangePassword()
                 ? MustChangePassword.class
                 : SyncopeEnduserSession.get().isAuthenticated()
                 ? getPageClass("profile", Dashboard.class)

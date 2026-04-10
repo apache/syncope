@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.pages;
 import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -36,6 +37,12 @@ public class ReauthLogin extends Login {
         usernameField.setEnabled(false);
         usernameField.setModelObject(session.getSelfTO().getUsername());
         usernameField.modelChanged();
+
+        if (confParamOps.get(getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)
+                && anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
+
+            mfaField.setVisible(true);
+        }
 
         languageSelect.setEnabled(false);
         languageSelect.setModelObject(session.getLocale());

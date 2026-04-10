@@ -23,8 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.pages.BaseLogin;
+import org.apache.syncope.client.ui.commons.pages.BaseMfaEnroll;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
@@ -45,6 +46,11 @@ public class Login extends BaseLogin {
     }
 
     @Override
+    protected Class<? extends BaseMfaEnroll> getMfaEnrollPage() {
+        return MfaEnroll.class;
+    }
+
+    @Override
     protected List<BaseSSOLoginFormPanel> getSSOLoginFormPanels() {
         List<BaseSSOLoginFormPanel> ssoLoginFormPanels = new ArrayList<>();
         SyncopeWebApplication.get().getLookup().getClasses(BaseSSOLoginFormPanel.class).forEach(ssoLoginFormPanel -> {
@@ -56,11 +62,6 @@ public class Login extends BaseLogin {
             }
         });
         return ssoLoginFormPanels;
-    }
-
-    @Override
-    protected void sendError(final String error) {
-        SyncopeConsoleSession.get().error(error);
     }
 
     @Override

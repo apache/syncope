@@ -16,14 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.lib;
+package org.apache.syncope.core.logic;
 
-/**
- * Implementation providing Basic Authentication capability for the special {@code anonymous} user.
- */
-public class AnonymousAuthenticationHandler extends BasicAuthenticationHandler implements AuthenticationHandler {
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 
-    public AnonymousAuthenticationHandler(final String username, final String password) {
-        super(username, password);
-    }
+public interface AnyObjectLogicOp extends AnyCRUDLogicOp<AnyObjectTO, AnyObjectCR, AnyObjectUR> {
+
+    AnyObjectTO read(String type, String name);
 }

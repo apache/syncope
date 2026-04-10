@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import dev.samstevens.totp.code.CodeVerifier;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,13 +34,20 @@ import javax.security.auth.login.AccountNotFoundException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.Mfa;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -64,6 +72,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -79,8 +88,16 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class AuthDataAccessor {
 
-    public record UsernamePasswordAuthResult(User user, Boolean authenticated, String delegationKey) {
+    public record UsernamePasswordAuthResult(
+            User user,
+            boolean passwordVerified,
+            Boolean otpVerified,
+            String delegationKey,
+            Set<SyncopeGrantedAuthority> authorities) {
 
+        public boolean isSuccess() {
+            return passwordVerified && BooleanUtils.isNotFalse(otpVerified);
+        }
     }
 
     public record JWTAuthResult(String username, Set<SyncopeGrantedAuthority> authorities) {
@@ -94,6 +111,9 @@ public class AuthDataAccessor {
 
     protected static final Set<SyncopeGrantedAuthority> MUST_CHANGE_PASSWORD_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
+
+    protected static final Set<SyncopeGrantedAuthority> MFA_ENROLL_AUTHORITIES =
+            Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MFA_ENROLL));
 
     protected static final Set<String> BASE_MANAGER_ENTITLEMENTS = Set.of(
             IdRepoEntitlement.ANYTYPE_READ,
@@ -125,7 +145,28 @@ public class AuthDataAccessor {
         return entitlements;
     };
 
-    protected static void populate(
+    protected static Set<SyncopeGrantedAuthority> getAdminAuthorities() {
+        return EntitlementsHolder.getInstance().getValues().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toSet());
+    }
+
+    protected static Set<SyncopeGrantedAuthority> buildAuthorities(final Map<String, Set<String>> entForRealms) {
+        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+
+        entForRealms.forEach((entitlement, realms) -> {
+            RealmUtils.NormalizedRealms normalized = RealmUtils.NormalizedRealms.of(realms);
+
+            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+            authority.addRealms(normalized.realms());
+            authority.addRealms(normalized.managerRealms());
+            authorities.add(authority);
+        });
+
+        return authorities;
+    }
+
+    protected static void populateEntForRealms(
             final Map<String, Set<String>> entForRealms,
             final String entitlement,
             final Collection<String> toAdd) {
@@ -139,9 +180,21 @@ public class AuthDataAccessor {
         realms.addAll(toAdd);
     }
 
+    protected static Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
+        Map<String, Set<String>> entForRealms = new HashMap<>();
+
+        delegation.getRoles().forEach(role -> role.getEntitlements().
+                forEach(entitlement -> populateEntForRealms(
+                entForRealms, entitlement, role.getRealms().stream().map(Realm::getFullPath).toList())));
+
+        return buildAuthorities(entForRealms);
+    }
+
     protected final SecurityProperties securityProperties;
 
     protected final EncryptorManager encryptorManager;
+
+    protected final CodeVerifier totpCodeVerifier;
 
     protected final RealmSearchDAO realmSearchDAO;
 
@@ -167,11 +220,14 @@ public class AuthDataAccessor {
 
     protected final MappingManager mappingManager;
 
+    protected final DefaultCredentialChecker credentialChecker;
+
     private final List<JWTSSOProvider> jwtSSOProviders;
 
     public AuthDataAccessor(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            final CodeVerifier totpCodeVerifier,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -184,10 +240,12 @@ public class AuthDataAccessor {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
+            final DefaultCredentialChecker credentialChecker,
             final List<JWTSSOProvider> jwtSSOProviders) {
 
         this.securityProperties = securityProperties;
         this.encryptorManager = encryptorManager;
+        this.totpCodeVerifier = totpCodeVerifier;
         this.realmSearchDAO = realmSearchDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -200,6 +258,7 @@ public class AuthDataAccessor {
         this.connectorManager = connectorManager;
         this.auditManager = auditManager;
         this.mappingManager = mappingManager;
+        this.credentialChecker = credentialChecker;
         this.jwtSSOProviders = jwtSSOProviders;
     }
 
@@ -233,112 +292,83 @@ public class AuthDataAccessor {
                 "Delegation by " + delegatingKey + " was requested but none found"));
     }
 
-    /**
-     * Attempts to authenticate the given credentials against internal storage and pass-through resources (if
-     * configured): the first succeeding causes global success.
-     *
-     * @param domain domain
-     * @param authentication given credentials
-     * @return {@code null} if no matching user was found, authentication result otherwise
-     */
-    @Transactional(noRollbackFor = DisabledException.class)
-    public UsernamePasswordAuthResult authenticate(final String domain, final Authentication authentication) {
-        User user = null;
+    protected UsernamePasswordAuthResult authenticateAnonymous(final Authentication authentication) {
+        credentialChecker.checkIsDefaultAnonymousKeyInUse();
 
-        String[] authAttrValues = confParamOps.get(
-                domain, "authentication.attributes", new String[] { "username" }, String[].class);
-        for (int i = 0; user == null && i < authAttrValues.length; i++) {
-            if ("username".equals(authAttrValues[i])) {
-                user = userDAO.findByUsername(authentication.getName()).orElse(null);
-            } else {
-                AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
-                attrCond.setSchema(authAttrValues[i]);
-                attrCond.setExpression(authentication.getName());
-                try {
-                    List<User> users = anySearchDAO.search(SearchCond.of(attrCond), AnyTypeKind.USER);
-                    if (users.size() == 1) {
-                        user = users.getFirst();
-                    } else {
-                        LOG.warn("Search condition {} does not uniquely match a user", attrCond);
-                    }
-                } catch (IllegalArgumentException e) {
-                    LOG.error("While searching user for authentication via {}", attrCond, e);
-                }
-            }
-        }
+        boolean passwordVerified = authentication.getCredentials().toString().equals(
+                securityProperties.getAnonymousKey());
 
-        Boolean authenticated = null;
-        String delegationKey = null;
-        if (user != null) {
-            authenticated = false;
-
-            if (user.isSuspended() != null && user.isSuspended()) {
-                throw new DisabledException("User " + user.getUsername() + " is suspended");
-            }
-
-            String[] authStatuses = confParamOps.get(
-                    domain, "authentication.statuses", new String[] {}, String[].class);
-            if (!ArrayUtils.contains(authStatuses, user.getStatus())) {
-                throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
-            }
-
-            boolean userModified = false;
-            authenticated = usernamePasswordAuthentication(user, authentication.getCredentials().toString());
-            if (authenticated) {
-                delegationKey = getDelegationKey(
-                        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()), user.getKey());
-
-                if (confParamOps.get(domain, "log.lastlogindate", true, Boolean.class)) {
-                    user.setLastLoginDate(OffsetDateTime.now());
-                    userModified = true;
-                }
-
-                if (user.getFailedLogins() != 0) {
-                    user.setFailedLogins(0);
-                    userModified = true;
-                }
-            } else {
-                user.setFailedLogins(user.getFailedLogins() + 1);
-                userModified = true;
-            }
-
-            if (userModified) {
-                user = userDAO.save(user);
-            }
-        }
-
-        return new UsernamePasswordAuthResult(user, authenticated, delegationKey);
+        return new UsernamePasswordAuthResult(null, passwordVerified, null, null, ANONYMOUS_AUTHORITIES);
     }
 
-    protected boolean usernamePasswordAuthentication(final User user, final String password) {
-        boolean authenticated = encryptorManager.getInstance().
-                verify(password, user.getCipherAlgorithm(), user.getPassword());
-        LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
+    protected UsernamePasswordAuthResult doAuthenticateAdmin(
+            final String domainKey,
+            final boolean mfaEnabled,
+            final String password,
+            final String otp,
+            final CipherAlgorithm cipherAlgorithm,
+            final String encoded,
+            final String mfaSecret) {
 
-        for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
-                itor.hasNext() && !authenticated;) {
+        boolean passwordVerified = encryptorManager.getInstance().verify(password, cipherAlgorithm, encoded);
 
-            ExternalResource resource = itor.next();
-            String connObjectKey = null;
-            try {
-                Provision provision = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).
-                        orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate provision for user type " + AnyTypeKind.USER.name()));
-                connObjectKey = mappingManager.getConnObjectKeyValue(user, resource, provision).
-                        orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate conn object key value for " + AnyTypeKind.USER.name()));
-                Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
-                if (uid != null) {
-                    authenticated = true;
+        Boolean otpVerified = null;
+        Set<SyncopeGrantedAuthority> authorities = Set.of();
+        if (passwordVerified && mfaEnabled) {
+            if (mfaSecret == null) {
+                authorities = MFA_ENROLL_AUTHORITIES;
+            } else {
+                try {
+                    otpVerified = totpCodeVerifier.isValidCode(
+                            encryptorManager.getInstance().decode(mfaSecret, CipherAlgorithm.AES),
+                            otp);
+                } catch (Exception e) {
+                    throw new BadCredentialsException("Could not decode admin MFA secret for " + domainKey, e);
                 }
-            } catch (Exception e) {
-                LOG.debug("Could not authenticate {} on {}", user.getUsername(), resource.getKey(), e);
             }
-            LOG.debug("{} authenticated on {} as {}: {}",
-                    user.getUsername(), resource.getKey(), connObjectKey, authenticated);
+        }
+        if (passwordVerified && BooleanUtils.isNotFalse(otpVerified) && authorities.isEmpty()) {
+            authorities = getAdminAuthorities();
         }
 
-        return authenticated;
+        return new UsernamePasswordAuthResult(null, passwordVerified, otpVerified, null, authorities);
+    }
+
+    protected UsernamePasswordAuthResult authenticateAdmin(
+            final Optional<Domain> domain,
+            final Authentication authentication,
+            final boolean mfaEnabled) {
+
+        String password;
+        Mutable<String> otp = new MutableObject<>();
+        if (mfaEnabled) {
+            String credentials = authentication.getCredentials().toString();
+            password = StringUtils.substringBeforeLast(credentials, ":");
+            otp.setValue(StringUtils.substringAfterLast(credentials, ":"));
+        } else {
+            password = authentication.getCredentials().toString();
+        }
+
+        return domain.map(d -> doAuthenticateAdmin(
+                d.getKey(),
+                mfaEnabled,
+                password,
+                otp.get(),
+                d.getAdminCipherAlgorithm(),
+                d.getAdminPassword(),
+                d.getAdminMfaSecret())).
+                orElseGet(() -> {
+                    credentialChecker.checkIsDefaultAdminPasswordInUse();
+
+                    return doAuthenticateAdmin(
+                            SyncopeConstants.MASTER_DOMAIN,
+                            mfaEnabled,
+                            password,
+                            otp.get(),
+                            securityProperties.getAdminPasswordAlgorithm(),
+                            securityProperties.getAdminPassword(),
+                            securityProperties.getAdminMfaSecret());
+                });
     }
 
     protected Set<ExternalResource> getPassthroughResources(final User user) {
@@ -369,29 +399,169 @@ public class AuthDataAccessor {
         return result;
     }
 
-    protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
-        return EntitlementsHolder.getInstance().getValues().stream().
-                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
-                collect(Collectors.toSet());
+    protected UsernamePasswordAuthResult authenticateUser(
+            final String domain,
+            final Authentication authentication,
+            final boolean mfaEnabled,
+            final User user) {
+
+        if (BooleanUtils.isTrue(user.isSuspended())) {
+            throw new DisabledException("User " + user.getUsername() + " is suspended");
+        }
+
+        String[] authStatuses = confParamOps.get(
+                domain, StandardConfParams.AUTHENTICATION_STATUSES, new String[] {}, String[].class);
+        if (!ArrayUtils.contains(authStatuses, user.getStatus())) {
+            throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
+        }
+
+        String password;
+        Mutable<String> otp = new MutableObject<>();
+        if (mfaEnabled) {
+            String credentials = authentication.getCredentials().toString();
+            password = StringUtils.substringBeforeLast(credentials, ":");
+            otp.setValue(StringUtils.substringAfterLast(credentials, ":"));
+        } else {
+            password = authentication.getCredentials().toString();
+        }
+
+        boolean passwordVerified = encryptorManager.getInstance().
+                verify(password, user.getCipherAlgorithm(), user.getPassword());
+        LOG.debug("{} authentication on internal storage: {}", user.getUsername(), passwordVerified);
+
+        for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
+                itor.hasNext() && !passwordVerified;) {
+
+            ExternalResource resource = itor.next();
+            String connObjectKey = null;
+            try {
+                Provision provision = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).
+                        orElseThrow(() -> new AccountNotFoundException(
+                        "Unable to locate provision for user type " + AnyTypeKind.USER.name()));
+                connObjectKey = mappingManager.getConnObjectKeyValue(user, resource, provision).
+                        orElseThrow(() -> new AccountNotFoundException(
+                        "Unable to locate conn object key value for " + AnyTypeKind.USER.name()));
+                Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
+                if (uid != null) {
+                    passwordVerified = true;
+                }
+            } catch (Exception e) {
+                LOG.debug("Could not authenticate {} on {}", user.getUsername(), resource.getKey(), e);
+            }
+
+            LOG.debug("{} authentication on {} as {}: {}",
+                    user.getUsername(), resource.getKey(), connObjectKey, passwordVerified);
+        }
+
+        Boolean otpVerified = null;
+        boolean userModified = false;
+        Set<SyncopeGrantedAuthority> authorities = Set.of();
+        if (passwordVerified && mfaEnabled) {
+            if (user.getMfa() == null) {
+                authorities = MFA_ENROLL_AUTHORITIES;
+            } else {
+                if (NumberUtils.isDigits(otp.get())) {
+                    otpVerified = totpCodeVerifier.isValidCode(user.getMfa().secret(), otp.get());
+                    LOG.debug("{} MFA validation with TOTP: {}", user.getUsername(), otpVerified);
+                } else {
+                    Mfa mfa = user.getMfa();
+                    if (mfa.recoveryCodes().remove(otp.get())) {
+                        user.setMfa(mfa);
+                        userModified = true;
+
+                        otpVerified = true;
+                    } else {
+                        otpVerified = false;
+                    }
+                    LOG.debug("{} MFA validation with recovery code: {}", user.getUsername(), otpVerified);
+                }
+            }
+        }
+
+        String delegationKey = null;
+        if (passwordVerified && BooleanUtils.isNotFalse(otpVerified)) {
+            delegationKey = getDelegationKey(
+                    SyncopeAuthenticationDetails.class.cast(authentication.getDetails()), user.getKey());
+
+            if (authorities.isEmpty()) {
+                authorities = getUserAuthorities(user);
+            }
+
+            if (confParamOps.get(domain, StandardConfParams.LOG_LAST_LOGIN_DATE, true, boolean.class)) {
+                user.setLastLoginDate(OffsetDateTime.now());
+                userModified = true;
+            }
+
+            if (user.getFailedLogins() != 0) {
+                user.setFailedLogins(0);
+                userModified = true;
+            }
+        } else {
+            user.setFailedLogins(user.getFailedLogins() + 1);
+            userModified = true;
+        }
+
+        return new UsernamePasswordAuthResult(
+                userModified ? userDAO.save(user) : user,
+                passwordVerified,
+                otpVerified,
+                delegationKey,
+                authorities);
     }
 
-    protected Set<SyncopeGrantedAuthority> buildAuthorities(final Map<String, Set<String>> entForRealms) {
-        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+    /**
+     * Attempts to authenticate the given credentials against internal storage and pass-through resources (if
+     * configured): the first succeeding causes global success.
+     *
+     * @param domain domain
+     * @param authentication given credentials
+     * @return authentication result
+     */
+    @Transactional(noRollbackFor = DisabledException.class)
+    public UsernamePasswordAuthResult authenticate(final Optional<Domain> domain, final Authentication authentication) {
+        String domainKey = domain.map(Domain::getKey).orElse(SyncopeConstants.MASTER_DOMAIN);
+        boolean mfaEnabled = confParamOps.get(domainKey, StandardConfParams.MFA_ENABLED, false, boolean.class);
 
-        entForRealms.forEach((entitlement, realms) -> {
-            RealmUtils.NormalizedRealms normalized = RealmUtils.NormalizedRealms.of(realms);
+        if (securityProperties.getAnonymousUser().equals(authentication.getName())) {
+            return authenticateAnonymous(authentication);
+        }
+        if (securityProperties.getAdminUser().equals(authentication.getName())) {
+            return authenticateAdmin(domain, authentication, mfaEnabled);
+        }
 
-            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
-            authority.addRealms(normalized.realms());
-            authority.addRealms(normalized.managerRealms());
-            authorities.add(authority);
-        });
+        User user = null;
 
-        return authorities;
+        String[] authAttrValues = confParamOps.get(
+                domainKey, StandardConfParams.AUTHENTICATION_ATTRIBUTES, new String[] { "username" }, String[].class);
+        for (int i = 0; user == null && i < authAttrValues.length; i++) {
+            if ("username".equals(authAttrValues[i])) {
+                user = userDAO.findByUsername(authentication.getName()).orElse(null);
+            } else {
+                AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
+                attrCond.setSchema(authAttrValues[i]);
+                attrCond.setExpression(authentication.getName());
+                try {
+                    List<User> users = anySearchDAO.search(SearchCond.of(attrCond), AnyTypeKind.USER);
+                    if (users.size() == 1) {
+                        user = users.getFirst();
+                    } else {
+                        LOG.warn("Search condition {} does not uniquely match a user", attrCond);
+                    }
+                } catch (IllegalArgumentException e) {
+                    LOG.error("While searching user for authentication via {}", attrCond, e);
+                }
+            }
+        }
+
+        if (user == null) {
+            throw new UsernameNotFoundException(authentication.getName());
+        }
+
+        return authenticateUser(domainKey, authentication, mfaEnabled, user);
     }
 
     protected Set<SyncopeGrantedAuthority> getUserAuthorities(final User user) {
-        if (user.isMustChangePassword()) {
+        if (BooleanUtils.isTrue(user.isMustChangePassword())) {
             return MUST_CHANGE_PASSWORD_AUTHORITIES;
         }
 
@@ -399,40 +569,33 @@ public class AuthDataAccessor {
 
         // Give role entitlements
         userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().
-                forEach(e -> populate(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).toList())));
+                forEach(e -> populateEntForRealms(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).
+                toList())));
 
         // Give manager entitlements
         if (userDAO.isManager(user.getKey())) {
-            BASE_MANAGER_ENTITLEMENTS.forEach(e -> populate(entForRealms, e, SyncopeConstants.FULL_ADMIN_REALMS));
+            BASE_MANAGER_ENTITLEMENTS.forEach(e -> populateEntForRealms(
+                    entForRealms, e, SyncopeConstants.FULL_ADMIN_REALMS));
         }
 
         userDAO.findManagedUsers(user.getKey()).forEach(managedUser -> USER_MANAGER_ENTITLEMENTS.
-                forEach(e -> populate(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                forEach(e -> populateEntForRealms(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
                 managedUser.getRealm().getFullPath(),
                 AnyTypeKind.USER,
                 managedUser.getKey()).output()))));
 
         userDAO.findManagedGroups(user.getKey()).forEach(group -> GROUP_MANAGER_ENTITLEMENTS.
-                forEach(e -> populate(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                forEach(e -> populateEntForRealms(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
                 group.getRealm().getFullPath(),
                 AnyTypeKind.GROUP,
                 group.getKey()).output()))));
 
         userDAO.findManagedAnyObjects(user.getKey()).forEach(anyObject -> ANYOBJECT_MANAGER_ENTITLEMENTS.
-                apply(anyObject.getType().getKey()).forEach(e -> populate(entForRealms, e, Set.of(
+                apply(anyObject.getType().getKey()).forEach(e -> populateEntForRealms(entForRealms, e, Set.of(
                 new RealmUtils.ManagerRealm(
                         anyObject.getRealm().getFullPath(),
                         AnyTypeKind.ANY_OBJECT,
                         anyObject.getKey()).output()))));
-
-        return buildAuthorities(entForRealms);
-    }
-
-    protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
-        Map<String, Set<String>> entForRealms = new HashMap<>();
-
-        delegation.getRoles().forEach(role -> role.getEntitlements().
-                forEach(e -> populate(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).toList())));
 
         return buildAuthorities(entForRealms);
     }
@@ -503,7 +666,7 @@ public class AuthDataAccessor {
             }
 
             List<String> authStatuses = List.of(confParamOps.get(authentication.getDetails().getDomain(),
-                    "authentication.statuses", new String[] {}, String[].class));
+                    StandardConfParams.AUTHENTICATION_STATUSES, new String[] {}, String[].class));
             if (!authStatuses.contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");
             }

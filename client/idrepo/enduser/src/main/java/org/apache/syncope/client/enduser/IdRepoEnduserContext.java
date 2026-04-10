@@ -20,7 +20,9 @@ package org.apache.syncope.client.enduser;
 
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.rest.AnyTypeRestClient;
+import org.apache.syncope.client.enduser.rest.EnduserAnonymousRestClient;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
+import org.apache.syncope.client.enduser.rest.MfaRestClient;
 import org.apache.syncope.client.enduser.rest.SchemaRestClient;
 import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
@@ -28,6 +30,7 @@ import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.PreviewUtils;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -92,7 +95,19 @@ public class IdRepoEnduserContext {
     public UserSelfRestClient userSelfRestClient() {
         return new UserSelfRestClient();
     }
-    
+
+    @ConditionalOnMissingBean
+    @Bean
+    public MfaRestClient mfaRestClient() {
+        return new MfaRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnonymousRestClient anonymousRestClient() {
+        return new EnduserAnonymousRestClient();
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {

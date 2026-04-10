@@ -23,7 +23,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
-import org.apache.syncope.client.ui.commons.rest.UserComplianceRestClient;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -44,7 +44,7 @@ public class PasswordPanel extends Panel {
             final UserWrapper wrapper,
             final Boolean storePasswordInSyncope,
             final boolean templateMode,
-            final UserComplianceRestClient restClient) {
+            final AnonymousRestClient restClient) {
 
         super(id);
         setOutputMarkupId(true);

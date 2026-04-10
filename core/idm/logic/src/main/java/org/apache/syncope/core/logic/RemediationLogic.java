@@ -46,20 +46,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
-    protected final UserLogic userLogic;
+    protected final UserLogicOp userLogic;
 
-    protected final GroupLogic groupLogic;
+    protected final GroupLogicOp groupLogic;
 
-    protected final AnyObjectLogic anyObjectLogic;
+    protected final AnyObjectLogicOp anyObjectLogic;
 
     protected final RemediationDataBinder binder;
 
     protected final RemediationDAO remediationDAO;
 
     public RemediationLogic(
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final RemediationDataBinder binder,
             final RemediationDAO remediationDAO) {
 

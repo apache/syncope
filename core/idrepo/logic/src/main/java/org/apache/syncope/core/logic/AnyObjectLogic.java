@@ -63,7 +63,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
  * Spring's Transactional logic at class level.
  */
-public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR> {
+public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR>
+        implements AnyObjectLogicOp {
 
     protected final AnyObjectDAO anyObjectDAO;
 
@@ -97,6 +98,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     }
 
     @Transactional(readOnly = true)
+    @Override
     public AnyObjectTO read(final String type, final String name) {
         return anyObjectDAO.findKey(type, name).
                 map(binder::getAnyObjectTO).
@@ -134,6 +136,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         return new SyncopePage<>(result, pageable, count);
     }
 
+    @Override
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq, final boolean nullPriorityAsync) {
         BeforeResult<AnyObjectCR> before = beforeCreate(createReq);
 

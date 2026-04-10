@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.client.enduser.widgets;
 
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -47,13 +50,15 @@ public class UserProfileWidget extends BaseWidget {
     }
 
     protected void addBaseFields(final WebMarkupContainer userProfile) {
-        Label changePwdDate = new Label("changePwdDate", userTO.getChangePwdDate());
-        changePwdDate.setOutputMarkupId(true);
-        userProfile.add(changePwdDate);
+        DateOps.Format format = SyncopeEnduserSession.get().getDateFormat();
 
-        Label lastLoginDate = new Label("lastLoginDate", userTO.getLastLoginDate());
-        lastLoginDate.setOutputMarkupId(true);
-        userProfile.add(lastLoginDate);
+        Label changePwdDate = new Label("changePwdDate",
+                Optional.ofNullable(userTO.getChangePwdDate()).map(format::format).orElse(StringUtils.EMPTY));
+        userProfile.add(changePwdDate.setOutputMarkupId(true));
+
+        Label lastLoginDate = new Label("lastLoginDate",
+                Optional.ofNullable(userTO.getLastLoginDate()).map(format::format).orElse(StringUtils.EMPTY));
+        userProfile.add(lastLoginDate.setOutputMarkupId(true));
     }
 
     protected void addExtFields(final WebMarkupContainer userProfile) {

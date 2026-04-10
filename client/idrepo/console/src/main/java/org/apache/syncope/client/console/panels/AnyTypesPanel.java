@@ -76,7 +76,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
                                 restClient.create(modelObject);
-                                SyncopeConsoleSession.get().reloadSettings(null);
+                                SyncopeConsoleSession.get().reloadSettings();
                             } else {
                                 restClient.update(modelObject);
                             }
@@ -174,7 +174,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                 try {
                     restClient.delete(model.getObject().getKey());
-                    SyncopeConsoleSession.get().reloadSettings(null);
+                    SyncopeConsoleSession.get().reloadSettings();
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);

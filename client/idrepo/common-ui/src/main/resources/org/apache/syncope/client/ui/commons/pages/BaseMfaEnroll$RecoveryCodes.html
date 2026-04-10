@@ -17,22 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <wicket:panel xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div class="alert alert-warning" role="alert"><wicket:message key="recoveryCodes.warning"/></div>
 
-      <div class="float-start">
-        <input wicket:id="cancel" type="submit" wicket:message="value:cancel" class="btn btn-default float-start"/>
-      </div>
-      <div class="float-end">
-        <input wicket:id="previous" type="submit" wicket:message="value:previous" class="btn btn-default"/>
-        <input wicket:id="next" type="submit" wicket:message="value:next" class="btn btn-default"/>
-        <input wicket:id="last" type="submit" wicket:message="value:last" class="btn btn-default"/>
-        <input wicket:id="finish" type="submit" wicket:message="value:finish" class="btn btn-success"/>
-      </div>
-
-    </wicket:panel>
-  </body>
+    <div class="col-md-4 mx-auto">
+      <pre wicket:id="recoveryCodes">
+      </pre>
+    </div>
+  </wicket:panel>
 </html>

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -50,11 +51,11 @@ public class ZookeeperConfParamOpsITCase {
 
     @Test
     public void get() {
-        String stringValue = confParamOps.get(DOMAIN, "password.cipher.algorithm", null, String.class);
+        String stringValue = confParamOps.get(DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
         assertNotNull(stringValue);
         assertEquals("SSHA256", stringValue);
 
-        Long longValue = confParamOps.get(DOMAIN, "jwt.lifetime.minutes", null, Long.class);
+        Long longValue = confParamOps.get(DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, null, Long.class);
         assertNotNull(longValue);
         assertEquals(120L, longValue.longValue());
 
@@ -66,12 +67,12 @@ public class ZookeeperConfParamOpsITCase {
         assertNotNull(dateValue);
         assertEquals(new Date(1554982140000L), dateValue);
 
-        Boolean booleanValue = confParamOps.get(DOMAIN, "return.password.value", null, Boolean.class);
+        Boolean booleanValue = confParamOps.get(DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, null, Boolean.class);
         assertNotNull(booleanValue);
         assertEquals(false, booleanValue);
 
-        List<String> stringValues =
-                List.of(confParamOps.get(DOMAIN, "authentication.attributes", null, String[].class));
+        List<String> stringValues = List.of(confParamOps.get(
+                DOMAIN, StandardConfParams.AUTHENTICATION_STATUSES, null, String[].class));
         assertNotNull(stringValues);
         List<String> actualStringValues = new ArrayList<>();
         actualStringValues.add("created");

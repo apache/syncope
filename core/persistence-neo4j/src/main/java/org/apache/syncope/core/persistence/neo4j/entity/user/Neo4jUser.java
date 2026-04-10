@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.lib.types.Mfa;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.Encryptor;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -140,9 +143,15 @@ public class Neo4jUser
 
     protected String securityAnswer;
 
+    protected String mfa;
+
     @Relationship(direction = Relationship.Direction.INCOMING)
     @Valid
     protected List<Neo4jLinkedAccount> linkedAccounts = new ArrayList<>();
+
+    protected Encryptor encryptor() {
+        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance();
+    }
 
     @Override
     protected Map<String, PlainAttr> plainAttrs() {
@@ -194,13 +203,13 @@ public class Neo4jUser
     }
 
     protected String encode(final String value) throws Exception {
-        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
+        return encryptor().encode(
                 value,
                 Optional.ofNullable(cipherAlgorithm).
                         orElseGet(() -> CipherAlgorithm.valueOf(
                         ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
                                 AuthContextUtils.getDomain(),
-                                "password.cipher.algorithm",
+                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
                                 CipherAlgorithm.AES.name(),
                                 String.class))));
     }
@@ -380,6 +389,33 @@ public class Neo4jUser
     @Override
     public void setEncodedSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+    }
+
+    @Override
+    public Mfa getMfa() {
+        if (mfa == null) {
+            return null;
+        }
+
+        try {
+            return POJOHelper.deserialize(encryptor().decode(mfa, CipherAlgorithm.AES), Mfa.class);
+        } catch (Exception e) {
+            LOG.error("Could not read Mfa", e);
+            return null;
+        }
+    }
+
+    @Override
+    public void setMfa(final Mfa mfa) {
+        if (mfa == null) {
+            this.mfa = null;
+        } else {
+            try {
+                this.mfa = encryptor().encode(POJOHelper.serialize(mfa), CipherAlgorithm.AES);
+            } catch (Exception e) {
+                LOG.error("Could not save Mfa", e);
+            }
+        }
     }
 
     @Override

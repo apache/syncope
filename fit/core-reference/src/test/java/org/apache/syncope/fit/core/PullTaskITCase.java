@@ -196,7 +196,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     @Test
     public void getPullActionsClasses() {
         Set<String> actions = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.INBOUND_ACTIONS).orElseThrow().getClasses();
+                getJavaImplInfo(IdMImplementationType.INBOUND_ACTIONS).orElseThrow().classes();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

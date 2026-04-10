@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
@@ -55,11 +56,13 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    @Transactional(readOnly = true)
     public List<Domain> list() {
         return domainDAO.findAll().stream().map(DomainEntity::get).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    @Transactional(readOnly = true)
     public Domain read(final String key) {
         DomainEntity domain = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));
@@ -106,6 +109,17 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         Domain domainObj = domain.get();
         domainObj.setAdminPassword(password);
         domainObj.setAdminCipherAlgorithm(cipherAlgorithm);
+        domain.set(domainObj);
+        domainDAO.save(domain);
+    }
+
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    public void setAdminMfaSecret(final String key, final String secret) {
+        DomainEntity domain = domainDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Domain " + key));
+
+        Domain domainObj = domain.get();
+        domainObj.setAdminMfaSecret(secret);
         domain.set(domainObj);
         domainDAO.save(domain);
     }

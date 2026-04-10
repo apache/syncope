@@ -20,20 +20,15 @@ package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.extensions.wizard.FinishButton;
 import org.apache.wicket.extensions.wizard.IWizard;
 import org.apache.wicket.extensions.wizard.IWizardStep;
-import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardButton;
-import org.apache.wicket.extensions.wizard.WizardButtonBar;
-import org.apache.wicket.markup.ComponentTag;
 
-public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButtonBar {
+public class AjaxWizardMgtButtonBar<T extends Serializable> extends SyncopeWizardButtonBar {
 
     private static final long serialVersionUID = 7453943437344127136L;
 
@@ -44,23 +39,18 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
     public AjaxWizardMgtButtonBar(final String id, final AjaxWizard<T> wizard, final AjaxWizard.Mode mode) {
         super(id, wizard);
         this.mode = mode;
-        wizard.setOutputMarkupId(true);
     }
 
     @Override
-    public MarkupContainer add(final Component... childs) {
-        for (Component component : childs) {
-            if (component instanceof final WizardButton components) {
-                ajaxify(components);
+    protected AjaxFormSubmitBehavior newAjaxFormSubmitBehavior(final WizardButton button) {
+        return new SyncopeWizardAjaxFormSubmitBehavior(button) {
+
+            private static final long serialVersionUID = -5761581448568725878L;
+
+            @Override
+            protected NotificationPanel getNotificationPanel() {
+                return ((BaseWebPage) getPage()).getNotificationPanel();
             }
-        }
-        return super.add(childs);
-    }
-
-    private void ajaxify(final WizardButton button) {
-        button.add(new AjaxFormSubmitBehavior("click") {
-
-            private static final long serialVersionUID = 18163421824742L;
 
             @Override
             protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
@@ -68,35 +58,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
 
                 AjaxWizardMgtButtonBar.this.updateAjaxAttributes(attributes);
             }
-
-            @Override
-            public boolean getDefaultProcessing() {
-                return button.getDefaultFormProcessing();
-            }
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target) {
-                target.add(findParent(Wizard.class));
-                button.onSubmit();
-            }
-
-            @Override
-            protected void onAfterSubmit(final AjaxRequestTarget target) {
-                button.onAfterSubmit();
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target) {
-                target.add(findParent(Wizard.class));
-                button.onError();
-                ((BaseWebPage) getPage()).getNotificationPanel().refresh(target);
-            }
-
-            @Override
-            protected void onComponentTag(final ComponentTag tag) {
-                tag.put("type", "button");
-            }
-        });
+        };
     }
 
     protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
@@ -119,7 +81,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
                     default:
                         if (!completed) {
                             final IWizardStep activeStep = getWizardModel().getActiveStep();
-                            completed = (activeStep != null)
+                            completed = activeStep != null
                                     && getWizardModel().isLastStep(activeStep)
                                     && super.isEnabled();
                         }

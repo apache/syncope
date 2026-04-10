@@ -122,6 +122,18 @@ public interface DomainService extends Serializable {
             @QueryParam("cipherAlgorithm") CipherAlgorithm cipherAlgorithm);
 
     /**
+     * Set admin's MFA secret for the given domain.
+     *
+     * @param key key of domain to be updated
+     * @param secret encoded secret value
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "MFA dismissed"))
+    @POST
+    @Path("{key}/setAdminMfaSecret")
+    void setAdminMfaSecret(@NotNull @PathParam("key") String key, @QueryParam("secret") String secret);
+
+    /**
      * Adjusts the connection pool to the domain database.
      *
      * @param key key of domain to be updated

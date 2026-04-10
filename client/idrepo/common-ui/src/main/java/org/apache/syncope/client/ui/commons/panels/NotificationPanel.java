@@ -36,7 +36,7 @@ public class NotificationPanel extends Panel
 
     private static final long serialVersionUID = 5895940553202128621L;
 
-    private final Notification notification;
+    protected final Notification notification;
 
     public NotificationPanel(final String id) {
         super(id);
@@ -64,23 +64,23 @@ public class NotificationPanel extends Panel
     }
 
     public final void hide(final IPartialPageRequestHandler handler) {
-        this.notification.hide(handler);
+        notification.hide(handler);
     }
 
     public final void refresh(final IPartialPageRequestHandler handler) {
-        this.getModelObject().forEach(message -> {
+        getModelObject().forEach(message -> {
             if (message.isError()) {
-                this.notification.error(handler, message.getMessage());
+                notification.error(handler, message.getMessage());
             } else if (message.isWarning()) {
                 // this is necessary before check for success and info in order to show warnings: isSuccess and isInfo
                 // return true also in case of warnings ...
-                this.notification.warn(handler, message.getMessage());
+                notification.warn(handler, message.getMessage());
             } else if (message.isSuccess()) {
-                this.notification.success(handler, message.getMessage());
+                notification.success(handler, message.getMessage());
             } else if (message.isInfo()) {
-                this.notification.info(handler, message.getMessage());
+                notification.info(handler, message.getMessage());
             } else {
-                this.notification.warn(handler, message.getMessage());
+                notification.warn(handler, message.getMessage());
             }
             message.markRendered();
         });
@@ -94,29 +94,28 @@ public class NotificationPanel extends Panel
     @Override
     @SuppressWarnings("unchecked")
     public IModel<List<FeedbackMessage>> getModel() {
-        return (IModel<List<FeedbackMessage>>) this.getDefaultModel();
+        return (IModel<List<FeedbackMessage>>) getDefaultModel();
     }
 
     @Override
     public NotificationPanel setModel(final IModel<List<FeedbackMessage>> model) {
-        this.setDefaultModel(model);
+        setDefaultModel(model);
         return this;
     }
 
     @Override
     public NotificationPanel setModelObject(final List<FeedbackMessage> object) {
-        this.setDefaultModelObject(object);
+        setDefaultModelObject(object);
         return this;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<FeedbackMessage> getModelObject() {
-        return (List<FeedbackMessage>) this.getDefaultModelObject();
+        return (List<FeedbackMessage>) getDefaultModelObject();
     }
 
     public String getNotificationMarkupId() {
-        return this.notification.getMarkupId();
+        return notification.getMarkupId();
     }
-
 }

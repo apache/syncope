@@ -39,9 +39,6 @@ abstract class BaseReauthPage extends BasePage {
             notification.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.WARNING);
 
             throw new RestartResponseAtInterceptPageException(getReauthLoginPage(), notification);
-        } else {
-            SyncopeEnduserSession.get().clearLastReauth();
-            LOG.debug("Re-authentication cleared");
         }
     }
 

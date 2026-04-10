@@ -40,7 +40,7 @@ The pre-defined `health` endpoint is typically used for liveness and readiness p
 |===
 
 | `entityCache`
-a| Allows to work with https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html#ref_guide_cache_statistics[JPA cache statistics^]
+a| Allows to work with https://openjpa.apache.org/builds/4.1.1/apache-openjpa/docs/ref_guide_caching.html#ref_guide_cache_statistics[JPA cache statistics^]
 
 * `GET` - shows JPA cache statistics
 * `POST {ENABLE,DISABLE,RESET}` - performs the requested operation onto JPA cache

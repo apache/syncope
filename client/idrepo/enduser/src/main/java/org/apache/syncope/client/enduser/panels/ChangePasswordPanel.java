@@ -104,8 +104,7 @@ public abstract class ChangePasswordPanel extends Panel {
                 getResponse().write(buffer);
             }
         };
-        form.setOutputMarkupId(true);
-        add(form);
+        add(form.setOutputMarkupId(true));
 
         passwordField = new AjaxPasswordFieldPanel(
                 "password",
@@ -139,11 +138,10 @@ public abstract class ChangePasswordPanel extends Panel {
 
         captcha = new CaptchaPanel<>(EnduserConstants.CONTENT_PANEL);
         captcha.setOutputMarkupPlaceholderTag(true);
-
-        form.add(new CardPanel.Builder<CaptchaPanel<Void>>()
-                .setName("captcha")
-                .setComponent(captcha)
-                .isVisible(SyncopeWebApplication.get().isCaptchaEnabled()).build("captchaPanelCard"));
+        form.add(new CardPanel.Builder<CaptchaPanel<Void>>().
+                setName("captcha").
+                setComponent(captcha).
+                isVisible(SyncopeWebApplication.get().isCaptchaEnabled()).build("captchaPanelCard"));
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 

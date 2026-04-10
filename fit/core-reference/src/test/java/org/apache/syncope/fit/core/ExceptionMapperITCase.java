@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -62,8 +63,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
     public void uniqueSchemaConstraint() {
         // 1. create an user schema with unique constraint
         PlainSchemaTO schemaTO = new PlainSchemaTO();
-        String schemaUID = getUUIDString();
-        schemaTO.setKey("unique" + schemaUID);
+        schemaTO.setKey("unique" + getUUIDString());
         schemaTO.setType(AttrSchemaType.String);
         schemaTO.setUniqueConstraint(true);
         createSchema(SchemaType.PLAIN, schemaTO);
@@ -84,7 +84,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO1.getPlainAttrs().add(attr("userId", userId1));
         userTO1.getPlainAttrs().add(attr("fullname", userId1));
         userTO1.getPlainAttrs().add(attr("surname", userId1));
-        userTO1.getPlainAttrs().add(attr("unique" + schemaUID, "unique" + schemaUID));
+        userTO1.getPlainAttrs().add(attr(schemaTO.getKey(), schemaTO.getKey()));
 
         createUser(userTO1);
 
@@ -99,15 +99,13 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO2.getPlainAttrs().add(attr("userId", userId2));
         userTO2.getPlainAttrs().add(attr("fullname", userId2));
         userTO2.getPlainAttrs().add(attr("surname", userId2));
-        userTO2.getPlainAttrs().add(attr("unique" + schemaUID, "unique" + schemaUID));
+        userTO2.getPlainAttrs().add(attr(schemaTO.getKey(), schemaTO.getKey()));
 
-        try {
-            createUser(userTO2);
-            fail("This should not happen");
-        } catch (Exception e) {
-            String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals("EntityExists [" + message + ']', e.getMessage());
-        }
+        SyncopeClientException sce = assertThrows(SyncopeClientException.class, () -> createUser(userTO2));
+        assertEquals(ClientExceptionType.EntityExists, sce.getType());
+        assertEquals(
+                "EntityExists [Duplicate value found for " + schemaTO.getKey() + "=" + schemaTO.getKey() + "]",
+                sce.getMessage());
     }
 
     @Test
@@ -124,14 +122,11 @@ public class ExceptionMapperITCase extends AbstractITCase {
         GroupCR groupTO2 = new GroupCR();
         groupTO2.setName("child1" + groupUUID);
         groupTO2.setRealm(SyncopeConstants.ROOT_REALM);
-        try {
-            createGroup(groupTO2);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.EntityExists, e.getType());
-            String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals("EntityExists [" + message + ']', e.getMessage());
-        }
+
+        SyncopeClientException sce = assertThrows(SyncopeClientException.class, () -> createGroup(groupTO2));
+        assertEquals(ClientExceptionType.EntityExists, sce.getType());
+        String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
+        assertEquals("EntityExists [" + message + ']', sce.getMessage());
     }
 
     @Test
@@ -146,12 +141,9 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userCR.getPlainAttrs().add(attr("fullname", userId));
         userCR.getPlainAttrs().add(attr("surname", userId));
 
-        try {
-            createUser(userCR);
-            fail("This should not happen");
-        } catch (SyncopeClientCompositeException e) {
-            assertEquals(2, e.getExceptions().size());
-        }
+        SyncopeClientCompositeException scce = assertThrows(
+                SyncopeClientCompositeException.class, () -> createUser(userCR));
+        assertEquals(2, scce.getExceptions().size());
     }
 
     @Test

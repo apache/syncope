@@ -38,7 +38,7 @@ public abstract class AssertionConsumerResource extends AbstractSAML2SP4UIResour
     private static final long serialVersionUID = 3858609271031003370L;
 
     protected static final JsonMapper MAPPER =
-            JsonMapper.builder().findAndAddModules().serializationInclusion(JsonInclude.Include.NON_EMPTY).build();
+            JsonMapper.builder().findAndAddModules().defaultPropertyInclusion(JsonInclude.Value.ALL_NON_EMPTY).build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 

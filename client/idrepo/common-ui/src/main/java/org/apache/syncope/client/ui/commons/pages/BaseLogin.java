@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons;
+package org.apache.syncope.client.ui.commons.pages;
 
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -26,9 +26,16 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DomainDropDown;
+import org.apache.syncope.client.ui.commons.StyledNotificationBehavior;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
@@ -48,8 +55,8 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -65,6 +72,12 @@ public abstract class BaseLogin extends WebPage {
     @SpringBean
     protected DomainOps domainOps;
 
+    @SpringBean
+    protected ConfParamOps confParamOps;
+
+    @SpringBean
+    protected AnonymousRestClient anonymousRestClient;
+
     protected final NotificationPanel notificationPanel;
 
     protected final StatelessForm<Void> form;
@@ -72,6 +85,8 @@ public abstract class BaseLogin extends WebPage {
     protected final TextField<String> usernameField;
 
     protected final TextField<String> passwordField;
+
+    protected final TextField<String> mfaField;
 
     protected final LocaleDropDown languageSelect;
 
@@ -110,12 +125,31 @@ public abstract class BaseLogin extends WebPage {
 
         form = new StatelessForm<>("login");
 
-        usernameField = new TextField<>("username", new Model<>());
-        usernameField.setMarkupId("username");
+        mfaField = new TextField<>("mfa", new Model<>());
+        mfaField.setVisible(false);
+        form.add(mfaField.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
+        usernameField = new TextField<>(Constants.USERNAME_FIELD_NAME, new Model<>());
+        usernameField.setMarkupId(Constants.USERNAME_FIELD_NAME);
+        usernameField.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -6139318907146065915L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (confParamOps.get(
+                        getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)
+                        && anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
+
+                    mfaField.setVisible(true);
+                    target.add(mfaField);
+                }
+            }
+        });
         form.add(usernameField);
 
-        passwordField = new PasswordTextField("password", new Model<>());
-        passwordField.setMarkupId("password");
+        passwordField = new PasswordTextField(Constants.PASSWORD_FIELD_NAME, new Model<>());
+        passwordField.setMarkupId(Constants.PASSWORD_FIELD_NAME);
         form.add(passwordField);
 
         languageSelect = new LocaleDropDown("language");
@@ -164,7 +198,22 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                authenticate(usernameField.getValue(), passwordField.getRawInput(), target);
+                if (confParamOps.get(
+                        getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)) {
+
+                    if (anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
+                        authenticate(
+                                usernameField.getValue(),
+                                passwordField.getRawInput() + ":" + mfaField.getRawInput(),
+                                target);
+                    } else {
+                        getBaseSession().setAttribute(Constants.USERNAME_FIELD_NAME, usernameField.getValue());
+                        getBaseSession().setAttribute(Constants.PASSWORD_FIELD_NAME, passwordField.getValue());
+                        setResponsePage(getMfaEnrollPage());
+                    }
+                } else {
+                    authenticate(usernameField.getValue(), passwordField.getRawInput(), target);
+                }
             }
         };
         submitButton.setDefaultFormProcessing(false);
@@ -210,7 +259,7 @@ public abstract class BaseLogin extends WebPage {
 
     protected abstract List<BaseSSOLoginFormPanel> getSSOLoginFormPanels();
 
-    protected abstract void sendError(String error);
+    protected abstract Class<? extends BaseMfaEnroll> getMfaEnrollPage();
 
     protected abstract void authenticate(
             String username,
@@ -262,7 +311,7 @@ public abstract class BaseLogin extends WebPage {
             // set default language selection
             List<Locale> filtered = List.of();
 
-            String acceptLanguage = ((ServletWebRequest) RequestCycle.get().getRequest()).
+            String acceptLanguage = ((WebRequest) RequestCycle.get().getRequest()).
                     getHeader(HttpHeaders.ACCEPT_LANGUAGE);
             if (StringUtils.isNotBlank(acceptLanguage)) {
                 try {

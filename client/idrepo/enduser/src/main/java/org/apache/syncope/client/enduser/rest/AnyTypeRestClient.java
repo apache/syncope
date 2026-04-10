@@ -113,7 +113,7 @@ public class AnyTypeRestClient extends BaseRestClient {
     }
 
     public List<String> list() {
-        List<String> types = SyncopeEnduserSession.get().getAnonymousClient().platform().getAnyTypes();
+        List<String> types = SyncopeEnduserSession.get().getPlatformInfo().anyTypes();
         types.sort(KEY_COMPARATOR);
         return types;
     }

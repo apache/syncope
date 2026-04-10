@@ -32,9 +32,14 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 public class SyncopeAccessDeniedHandler extends AccessDeniedHandlerImpl {
 
     @Override
-    public void handle(final HttpServletRequest request, final HttpServletResponse response,
+    public void handle(
+            final HttpServletRequest request,
+            final HttpServletResponse response,
             final AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
+        if (accessDeniedException.getCause() instanceof SingleEntitlementException see) {
+            response.addHeader(RESTHeaders.OWNED_ENTITLEMENTS, see.getEntitlement());
+        }
         response.addHeader(RESTHeaders.ERROR_INFO, accessDeniedException.getMessage());
 
         super.handle(request, response, accessDeniedException);

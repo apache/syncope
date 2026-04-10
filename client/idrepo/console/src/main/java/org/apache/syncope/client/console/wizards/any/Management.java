@@ -237,12 +237,10 @@ public class Management extends WizardStep implements ICondition {
                 }
             }
         }, false);
-        uManager.setPlaceholder("uManager");
-        uManager.hideLabel();
-        uManager.setReadOnly(true).setOutputMarkupId(true);
-        userSearchFragment.add(uManager);
+        userSearchFragment.add(uManager.setPlaceholder("uManager").hideLabel().
+                setReadOnly(true).setOutputMarkupId(true));
 
-        IndicatingAjaxLink<Void> uManagerReset = new IndicatingAjaxLink<>("uManagerReset") {
+        userSearchFragment.add(new IndicatingAjaxLink<>("uManagerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -255,9 +253,7 @@ public class Management extends WizardStep implements ICondition {
             public String getAjaxIndicatorMarkupId() {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
-
-        };
-        userSearchFragment.add(uManagerReset);
+        });
 
         AjaxTextFieldPanel gManager = new AjaxTextFieldPanel(
                 "gManager", "gManager", new PropertyModel<>(anyWrapper.getInnerObject(), "gManager") {
@@ -290,12 +286,10 @@ public class Management extends WizardStep implements ICondition {
                 }
             }
         }, false);
-        gManager.setPlaceholder("gManager");
-        gManager.hideLabel();
-        gManager.setReadOnly(true).setOutputMarkupId(true);
-        groupSearchFragment.add(gManager);
+        groupSearchFragment.add(gManager.setPlaceholder("gManager").hideLabel().
+                setReadOnly(true).setOutputMarkupId(true));
 
-        IndicatingAjaxLink<Void> gManagerReset = new IndicatingAjaxLink<>("gManagerReset") {
+        groupSearchFragment.add(new IndicatingAjaxLink<>("gManagerReset") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -309,8 +303,7 @@ public class Management extends WizardStep implements ICondition {
                 return Constants.VEIL_INDICATOR_MARKUP_ID;
             }
 
-        };
-        groupSearchFragment.add(gManagerReset);
+        });
     }
 
     @Override

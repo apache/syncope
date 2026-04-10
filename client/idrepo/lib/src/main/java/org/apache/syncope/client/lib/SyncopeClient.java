@@ -191,6 +191,7 @@ public class SyncopeClient {
      * @param <T> any service class
      * @param service service class instance
      * @param etag ETag value
+     *
      * @return given service instance, with {@code If-Match} set
      */
     public static <T> T ifMatch(final T service, final EntityTag etag) {
@@ -273,23 +274,32 @@ public class SyncopeClient {
     protected void init(final AuthenticationHandler authHandler) {
         cleanup();
 
-        if (authHandler instanceof final AnonymousAuthenticationHandler anonymous) {
-            restClientFactory.setUsername(anonymous.getUsername());
-            restClientFactory.setPassword(anonymous.getPassword());
-        } else if (authHandler instanceof final BasicAuthenticationHandler basic) {
-            restClientFactory.setUsername(basic.getUsername());
-            restClientFactory.setPassword(basic.getPassword());
+        switch (authHandler) {
+            case ObtainingJWTAuthenticationHandler obtaining -> {
+                restClientFactory.setUsername(obtaining.getUsername());
+                restClientFactory.setPassword(obtaining.getPassword());
 
-            Response response = getService(AccessTokenService.class).login();
-            String jwt = response.getHeaderString(RESTHeaders.TOKEN);
-            String jwtExpiration = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
-            restClientFactory.getHeaders().put(HttpHeaders.EXPIRES, List.of(jwtExpiration));
+                Response response = getService(AccessTokenService.class).login();
+                String jwt = response.getHeaderString(RESTHeaders.TOKEN);
+                restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
+                String jwtExpiration = response.getHeaderString(RESTHeaders.TOKEN_EXPIRE);
+                restClientFactory.getHeaders().put(HttpHeaders.EXPIRES, List.of(jwtExpiration));
 
-            restClientFactory.setUsername(null);
-            restClientFactory.setPassword(null);
-        } else if (authHandler instanceof final JWTAuthenticationHandler jwt) {
-            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt.getJwt()));
+                restClientFactory.setUsername(null);
+                restClientFactory.setPassword(null);
+            }
+
+            case BasicAuthenticationHandler basic -> {
+                restClientFactory.setUsername(basic.getUsername());
+                restClientFactory.setPassword(basic.getPassword());
+            }
+
+            case JWTAuthenticationHandler jwt -> {
+                restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt.getJwt()));
+            }
+
+            default -> {
+            }
         }
     }
 
@@ -446,11 +456,9 @@ public class SyncopeClient {
         try {
             return new Self(
                     response.readEntity(UserTO.class),
-                    MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS), new TypeReference<>() {
+                    MAPPER.readValue(response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS), new TypeReference<>() {
                     }),
-                    MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
+                    MAPPER.readValue(response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
                     }));
         } catch (IOException e) {
             throw new IllegalStateException(e);

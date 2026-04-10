@@ -16,11 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons.rest;
+package org.apache.syncope.client.lib;
 
-import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
+/**
+ * Implementation using Basic Authentication to obtain JSON Web Token for further operations.
+ * This is the default choice.
+ */
+public class ObtainingJWTAuthenticationHandler extends BasicAuthenticationHandler {
 
-public interface UserComplianceRestClient extends RestClient {
-
-    void compliance(ComplianceQuery query);
+    public ObtainingJWTAuthenticationHandler(final String username, final String password) {
+        super(username, password);
+    }
 }

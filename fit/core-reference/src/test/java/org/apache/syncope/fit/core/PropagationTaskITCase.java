@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
-import jakarta.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -256,12 +256,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void purgePropagations() {
-        try {
-            TASK_SERVICE.purgePropagations(null, null, null);
-            fail();
-        } catch (WebServiceException e) {
-            assertNotNull(e);
-        }
+        assertThrows(WebApplicationException.class, () -> TASK_SERVICE.purgePropagations(null, null, null));
 
         long count = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
                 resource(RESOURCE_NAME_WS1).page(1).size(100).build()).getResult().stream().

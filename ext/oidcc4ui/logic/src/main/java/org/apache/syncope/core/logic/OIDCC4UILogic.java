@@ -307,8 +307,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             SignedJWT jwt = SignedJWT.parse(accessToken);
             claimsSet = jwt.getJWTClaimsSet();
         } catch (ParseException e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAccessToken);
-            sce.getElements().add(e.getMessage());
+            LOG.error("While parsing JWT", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ExecutionError);
+            sce.getElements().add("While parsing JWT: " + e.getMessage());
             throw sce;
         }
         String opName = (String) claimsSet.getClaim(JWT_CLAIM_OP_NAME);
@@ -346,8 +348,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             SignedJWT jwt = SignedJWT.parse(logoutToken);
             claimsSet = jwt.getJWTClaimsSet();
         } catch (ParseException e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAccessToken);
-            sce.getElements().add(e.getMessage());
+            LOG.error("While parsing JWT", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ExecutionError);
+            sce.getElements().add("While parsing JWT: " + e.getMessage());
             throw sce;
         }
         String opName = claimsSet.getAudience().getFirst();

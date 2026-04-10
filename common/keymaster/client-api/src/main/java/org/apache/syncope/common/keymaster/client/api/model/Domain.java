@@ -94,6 +94,8 @@ public abstract class Domain implements Serializable {
 
     protected CipherAlgorithm adminCipherAlgorithm = CipherAlgorithm.SHA512;
 
+    private String adminMfaSecret;
+
     protected String content;
 
     protected String keymasterConfParams;
@@ -127,6 +129,14 @@ public abstract class Domain implements Serializable {
 
     public void setAdminCipherAlgorithm(final CipherAlgorithm adminCipherAlgorithm) {
         this.adminCipherAlgorithm = adminCipherAlgorithm;
+    }
+
+    public String getAdminMfaSecret() {
+        return adminMfaSecret;
+    }
+
+    public void setAdminMfaSecret(final String adminMfaSecret) {
+        this.adminMfaSecret = adminMfaSecret;
     }
 
     protected abstract String defaultContentFile();
