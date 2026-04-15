@@ -62,7 +62,7 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="255"/>
             <column name="authorities" type="clob" size="-1"/>
             <column name="body" type="clob" size="-1"/>
-            <column name="expirationTime" type="unknown(2014)"/>
+            <column name="expirationTime" type="timestamp"/>
             <column name="owner" type="varchar" size="255"/>
             <unique name="U_CCSSTKN_OWNER" column="owner"/>
         </table>
@@ -104,10 +104,10 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="creationContext" type="varchar" size="255"/>
-            <column name="creationDate" type="unknown(2014)"/>
+            <column name="creationDate" type="timestamp"/>
             <column name="creator" type="varchar" size="255"/>
             <column name="lastChangeContext" type="varchar" size="255"/>
-            <column name="lastChangeDate" type="unknown(2014)"/>
+            <column name="lastChangeDate" type="timestamp"/>
             <column name="lastModifier" type="varchar" size="255"/>
             <column name="status" type="varchar" size="255"/>
             <column name="name" type="varchar" size="255"/>
@@ -245,7 +245,7 @@ under the License.
             <column name="opEvent" type="varchar" size="255"/>
             <column name="output" type="clob" size="-1"/>
             <column name="throwable" type="clob" size="-1"/>
-            <column name="event_date" type="unknown(2014)" not-null="true"/>
+            <column name="event_date" type="timestamp" not-null="true"/>
             <column name="who" type="varchar" size="255"/>
         </table>
         <table name="AuthModule">
@@ -303,7 +303,7 @@ under the License.
             <index name="I_CSSPTPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
             <index name="I_CSSPTPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
             <index name="I_CSSPTPP_REALM" column="REALM_ID"/>
-            <index name="I_CSSPTPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_CSSPTPP_TICKETEXPIRATIONPOLI" column="TICKETEXPIRATIONPOLICY_ID"/>
             <unique name="U_CSSPTPP_CLIENTAPPID" column="clientAppId"/>
             <unique name="U_CSSPTPP_NAME" column="name"/>
             <unique name="U_CSSPTPP_SERVICEID" column="serviceId"/>
@@ -333,8 +333,8 @@ under the License.
         <table name="Delegation">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="DELEGATED_ID" type="varchar" size="36"/>
             <column name="DELEGATING_ID" type="varchar" size="36"/>
             <fk to-table="SyncopeUser" column="DELEGATED_ID"/>
@@ -589,10 +589,10 @@ under the License.
         <table name="LiveSyncTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="LiveSyncTask" column="TASK_ID"/>
@@ -633,10 +633,10 @@ under the License.
         <table name="MacroTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="MacroTask" column="TASK_ID"/>
@@ -696,10 +696,10 @@ under the License.
         <table name="NotificationTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="NotificationTask" column="TASK_ID"/>
@@ -708,7 +708,7 @@ under the License.
         <table name="OIDCOpEntity">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="jwks" type="clob" not-null="true" size="-1"/>
+            <column name="jwks" type="blob" not-null="true" size="-1"/>
             <column name="customScopes" type="clob" not-null="true" size="-1"/>
         </table>
         <table name="OIDCRPClientApp">
@@ -751,9 +751,9 @@ under the License.
             <column name="subjectType" type="varchar" size="20"/>
             <column name="supportedGrantTypes" type="clob" size="-1"/>
             <column name="supportedResponseTypes" type="clob" size="-1"/>
-            <column name="tokenEndpointAuthenticationMethod" type="varchar" size="20"/>
+            <column name="tokenEndpointAuthenticationMet" type="varchar" size="20"/>
             <column name="userInfoEncryptedResponseAlg" type="varchar" size="20"/>
-            <column name="userInfoEncryptedResponseEncoding" type="varchar" size="20"/>
+            <column name="userInfoEncryptedResponseEncod" type="varchar" size="20"/>
             <column name="userInfoSigningAlg" type="varchar" size="20"/>
             <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
             <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
@@ -769,7 +769,7 @@ under the License.
             <index name="I_DCRPTPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
             <index name="I_DCRPTPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
             <index name="I_DCRPTPP_REALM" column="REALM_ID"/>
-            <index name="I_DCRPTPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_DCRPTPP_TICKETEXPIRATIONPOLI" column="TICKETEXPIRATIONPOLICY_ID"/>
             <unique name="U_DCRPTPP_CLIENTAPPID" column="clientAppId"/>
             <unique name="U_DCRPTPP_NAME" column="name"/>
             <unique name="U_DCRPTPP_CLIENTID" column="clientId"/>
@@ -821,7 +821,7 @@ under the License.
             <fk to-table="Implementation" column="DROPDOWNVALUEPROVIDER_ID"/>
             <fk to-table="Implementation" column="VALIDATOR_ID"/>
             <index name="I_PLNSCHM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
-            <index name="I_PLNSCHM_DROPDOWNVALUEPROVIDER" column="DROPDOWNVALUEPROVIDER_ID"/>
+            <index name="I_PLNSCHM_DROPDOWNVALUEPROVIDE" column="DROPDOWNVALUEPROVIDER_ID"/>
             <index name="I_PLNSCHM_VALIDATOR" column="VALIDATOR_ID"/>
         </table>
         <table name="PropagationPolicy">
@@ -852,10 +852,10 @@ under the License.
         <table name="PropagationTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="PropagationTask" column="TASK_ID"/>
@@ -906,10 +906,10 @@ under the License.
         <table name="PullTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="PullTask" column="TASK_ID"/>
@@ -979,10 +979,10 @@ under the License.
         <table name="PushTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="PushTask" column="TASK_ID"/>
@@ -1094,7 +1094,7 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="error" type="clob" size="-1"/>
-            <column name="instant" type="unknown(2014)"/>
+            <column name="instant" type="timestamp"/>
             <column name="operation" type="varchar" size="20"/>
             <column name="payload" type="clob" size="-1"/>
             <column name="remoteName" type="varchar" size="255"/>
@@ -1121,10 +1121,10 @@ under the License.
         <table name="ReportExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="execResult" type="blob" size="-1"/>
             <column name="REPORT_ID" type="varchar" size="36"/>
@@ -1188,7 +1188,7 @@ under the License.
             <index name="I_SML2TPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
             <index name="I_SML2TPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
             <index name="I_SML2TPP_REALM" column="REALM_ID"/>
-            <index name="I_SML2TPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_SML2TPP_TICKETEXPIRATIONPOLI" column="TICKETEXPIRATIONPOLICY_ID"/>
             <unique name="U_SML2TPP_CLIENTAPPID" column="clientAppId"/>
             <unique name="U_SML2TPP_NAME" column="name"/>
             <unique name="U_SML2TPP_ENTITYID" column="entityId"/>
@@ -1223,10 +1223,10 @@ under the License.
         <table name="SchedTaskExec">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
-            <column name="endDate" type="unknown(2014)"/>
+            <column name="endDate" type="timestamp"/>
             <column name="executor" type="varchar" size="255"/>
             <column name="message" type="clob" size="-1"/>
-            <column name="startDate" type="unknown(2014)" not-null="true"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="SchedTask" column="TASK_ID"/>
@@ -1245,7 +1245,7 @@ under the License.
         <table name="SyncopeBatch">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="255"/>
-            <column name="expiryTime" type="unknown(2014)"/>
+            <column name="expiryTime" type="timestamp"/>
             <column name="results" type="clob" size="-1"/>
         </table>
         <table name="SyncopeDomain">
@@ -1257,10 +1257,10 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="creationContext" type="varchar" size="255"/>
-            <column name="creationDate" type="unknown(2014)"/>
+            <column name="creationDate" type="timestamp"/>
             <column name="creator" type="varchar" size="255"/>
             <column name="lastChangeContext" type="varchar" size="255"/>
-            <column name="lastChangeDate" type="unknown(2014)"/>
+            <column name="lastChangeDate" type="timestamp"/>
             <column name="lastModifier" type="varchar" size="255"/>
             <column name="status" type="varchar" size="255"/>
             <column name="name" type="varchar" size="255"/>
@@ -1327,16 +1327,16 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="creationContext" type="varchar" size="255"/>
-            <column name="creationDate" type="unknown(2014)"/>
+            <column name="creationDate" type="timestamp"/>
             <column name="creator" type="varchar" size="255"/>
             <column name="lastChangeContext" type="varchar" size="255"/>
-            <column name="lastChangeDate" type="unknown(2014)"/>
+            <column name="lastChangeDate" type="timestamp"/>
             <column name="lastModifier" type="varchar" size="255"/>
             <column name="status" type="varchar" size="255"/>
-            <column name="changePwdDate" type="unknown(2014)"/>
+            <column name="changePwdDate" type="timestamp"/>
             <column name="cipherAlgorithm" type="varchar" size="20"/>
             <column name="failedLogins" type="integer"/>
-            <column name="lastLoginDate" type="unknown(2014)"/>
+            <column name="lastLoginDate" type="timestamp"/>
             <column name="mustChangePassword" type="bit"/>
             <column name="password" type="varchar" size="255"/>
             <column name="passwordHistory" type="clob" size="-1"/>
@@ -1344,7 +1344,7 @@ under the License.
             <column name="securityAnswer" type="varchar" size="255"/>
             <column name="suspended" type="bit"/>
             <column name="token" type="clob" size="-1"/>
-            <column name="tokenExpireTime" type="unknown(2014)"/>
+            <column name="tokenExpireTime" type="timestamp"/>
             <column name="username" type="varchar" size="255"/>
             <column name="GMANAGER_ID" type="varchar" size="36"/>
             <column name="REALM_ID" type="varchar" size="36"/>
