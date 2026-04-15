@@ -110,6 +110,20 @@ assuming that:
  * you have an Oracle instance running on `localhost`, listening on its default port `1521` with a database
 `syncope` fully accessible by user `syncope` with password `syncope`
 
+[WARNING]
+====
+It is required to change the type of the `AUTHORITIES` column of the `ACCESSTOKEN` table.
+
+The simplest way to perform such operation is to run the following SQL statements:
+
+....
+DELETE FROM ACCESSTOKEN;
+ALTER TABLE ACCESSTOKEN MODIFY AUTHORITIES CLOB;
+....
+
+This will forcibly log out from all authenticated users.
+====
+
 ==== Finalization
 
 . shutdown the standalone process or the Jakarta EE container running Apache Syncope 4.0 Core, to ensure no changes
