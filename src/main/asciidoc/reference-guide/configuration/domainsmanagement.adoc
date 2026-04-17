@@ -18,10 +18,9 @@
 //
 === Domains Management
 
-Besides the pre-defined `Master` domain, other <<domains>> are bootstrapped during <<core>> startup from three files
+Besides the pre-defined `Master` domain, other <<domains>> are bootstrapped during <<core>> startup from two files
 in the <<properties-files-location,configuration directory>>; assuming that the domain name is `Two`, such files are:
 
-* `domains/TwoSecurity.json` - admin credentials;
 * `domains/TwoKeymasterConfParams.json` - for <<keymaster>> initialization;
 * `domains/TwoContent.xml` - for <<import,content>> initialization.
 

@@ -48,3 +48,8 @@ Apache Syncope {docVersion} is verified with the recent versions of the followin
  . https://mariadb.org/[MariaDB^] (>= {mariadb}, JDBC driver >= {mariadbJDBC})
  . https://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
  . https://www.oracle.com/database/index.html[Oracle Database^] (>= {oracle}, JDBC driver >= ojdbc11 {oracleJDBC})
+
+[WARNING]
+Persistence support for https://neo4j.com/product/neo4j-graph-database/[Neo4j Graph Database^] (>= {neo4j}) is also
+available. +
+While completely functional, the code is not considered stable for production environments.

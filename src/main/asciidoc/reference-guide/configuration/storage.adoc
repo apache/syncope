@@ -16,7 +16,7 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== DBMS
+=== Internal Storage
 
 ==== PostgreSQL
 
@@ -163,3 +163,65 @@ for the Core application.
 [WARNING]
 This assumes that you have an Oracle instance running on localhost, listening on its default port 1521 with a database
 `syncope` under tablespace `SYNCOPE`, fully accessible by user `syncope` with password `syncope`.
+
+==== Neo4j
+
+[NOTE]
+Apache Syncope {docVersion} is verified with Neo4j Graph Database >= {neo4j}).
+
+[WARNING]
+While completely functional, the code is not considered stable for production environments.
+
+Replace
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+    </dependency>
+....
+
+with
+
+[source,xml]
+....
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-starter</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa</artifactId>          
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-neo4j</artifactId>
+      <version>${syncope.version}</version>
+    </dependency>
+....
+
+in `core/pom.xml`.
+
+Create
+
+[source]
+....
+persistence.domain[0].key=Master
+persistence.domain[0].uri=bolt://localhost:7687/
+persistence.domain[0].username=neo4j
+persistence.domain[0].password=null
+persistence.domain[0].maxConnectionPoolSize=100
+....
+
+as `core/src/main/resources/core-neo4j.properties`.
+
+Do not forget to include `neo4j` as 
+https://docs.spring.io/spring-boot/3.5/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+[WARNING]
+This assumes that you have a Neo4j instance running on localhost, listening on its default port 7687,
+fully accessible by user `neo4j` with no password set.

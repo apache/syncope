@@ -101,7 +101,7 @@ When defining a pull task, the following information must be provided:
 * <<pull-templates,entity templates>>
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/6.2/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/7.0/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [NOTE]
 ====
@@ -189,7 +189,7 @@ When defining a push task, the following information must be provided:
 * optional <<pushactions,push action(s)>>
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/6.2/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/7.0/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [NOTE]
 ====
@@ -258,7 +258,7 @@ When defining a macro task, the following information must be provided:
 list, update or execute the given macro task
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/6.2/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/7.0/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 ===== MacroActions
 
@@ -510,7 +510,7 @@ endif::[]
 providing the custom logic to execute
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/6.2/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/7.0/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [TIP]
 ====
