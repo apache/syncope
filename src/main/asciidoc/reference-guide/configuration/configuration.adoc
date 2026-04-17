@@ -46,7 +46,7 @@ was generated, the configuration files will be first searched in
 
 include::deployment.adoc[]
 
-include::dbms.adoc[]
+include::storage.adoc[]
 
 include::highavailability.adoc[]
 

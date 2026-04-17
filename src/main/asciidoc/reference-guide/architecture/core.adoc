@@ -88,7 +88,7 @@ provided by the Spring Framework.
 
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability
 with no code changes: PostgreSQL, MySQL, MariaDB and Oracle are fully supported
-<<dbms,deployment options>>.
+<<internal-storage,deployment options>>.
 
 <<domains>> allow to manage data belonging to different https://en.wikipedia.org/wiki/Multitenancy[tenants^] into
 separate database instances.

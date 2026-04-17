@@ -2341,6 +2341,7 @@ under the License.
                 <mysql>${docker.mysql.version}</mysql>
                 <mariadb>${docker.mariadb.version}</mariadb>
                 <oracle>${docker.oracle.version}</oracle>
+                <neo4j>${docker.neo4j.version}</neo4j>
                 <postgresqlJDBC>${jdbc.postgresql.version}</postgresqlJDBC>
                 <mysqlJDBC>${jdbc.mysql.version}</mysqlJDBC>
                 <mariadbJDBC>${jdbc.mariadb.version}</mariadbJDBC>

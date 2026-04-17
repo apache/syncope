@@ -38,7 +38,7 @@ Apache Syncope {docVersion} is verified with the following Jakarta EE containers
 
  . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
  . https://www.payara.fish/[Payara Server 6^]
- . https://www.wildfly.org/[Wildfly 38^]
+ . https://www.wildfly.org/[Wildfly 39^]
 
 === Internal Storage
 
@@ -48,3 +48,8 @@ Apache Syncope {docVersion} is verified with the recent versions of the followin
  . https://mariadb.org/[MariaDB^] (>= {mariadb}, JDBC driver >= {mariadbJDBC})
  . https://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
  . https://www.oracle.com/database/index.html[Oracle Database^] (>= {oracle}, JDBC driver >= ojdbc11 {oracleJDBC})
+
+[WARNING]
+Persistence support for https://neo4j.com/product/neo4j-graph-database/[Neo4j Graph Database^] (>= {neo4j}) is also
+available. +
+While completely functional, the code is not considered stable for production environments.
