@@ -31,7 +31,7 @@ Also, ensure to have a full backup of the existing database used as <<persistenc
 ==== Persistence Storage upgrade
 
 [CAUTION]
-Ensure to <<dbms,check the compatibility>> of the existing DBMS and upgrade, if needed.
+Ensure to <<internal-storage,check the compatibility>> of the existing DBMS and upgrade, if needed.
 
 Download https://syncope.apache.org/downloads[`syncope-core-persistence-jpa-upgrader-{docVersion}.jar`^]:
 this tool will generate the full set of SQL statements required to upgrade the internal storage to Syncope 4.1.

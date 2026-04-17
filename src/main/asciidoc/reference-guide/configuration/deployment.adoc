@@ -58,7 +58,7 @@ https://docs.spring.io/spring-boot/3.5/reference/features/spring-application.htm
 
 .Run Core application as standalone under GNU / Linux
 ====
-Assuming that the JDBC driver JAR file for the configured <<dbms>> is available under `/opt/syncope/lib`,
+Assuming that the JDBC driver JAR file for the configured <<internal-storage>> is available under `/opt/syncope/lib`,
 the Core application can be built and run as follows:
 
 [source,bash]
@@ -93,8 +93,8 @@ settings.
 ****
 The <<persistence,internal storage>> is the central place where all data of a given <<Core>> deployment are located.
 
-After choosing the appropriate <<DBMS>>, it is of fundamental importance to provide an adequate configuration for the
-related database https://en.wikipedia.org/wiki/Connection_pool[connection pool^]. 
+After choosing the appropriate technology for <<internal-storage>>, it is of fundamental importance to provide an
+adequate configuration for the related database https://en.wikipedia.org/wiki/Connection_pool[connection pool^]. 
 
 The database connection pool can be:
 
@@ -169,11 +169,11 @@ with
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-starter</artifactId>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-el</artifactId>
-          </exclusion>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-el</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>com.github.ben-manes.caffeine</groupId>
           <artifactId>jcache</artifactId>
@@ -217,7 +217,7 @@ For better performance under GNU / Linux, do not forget to include the system pr
 ....
 ====
 
-==== Wildfly 38
+==== Wildfly 39
 
 Add
 
