@@ -355,6 +355,15 @@ public class DefaultNotificationManager implements NotificationManager {
                             }
                         }
                     });
+                    if (any.isEmpty()) {
+                        if (before instanceof UserTO userTO) {
+                            jexlVars.put("user", userTO);
+                        } else if (before instanceof GroupTO groupTO) {
+                            jexlVars.put("group", groupTO);
+                        } else if (before instanceof AnyObjectTO anyObjectTO) {
+                            jexlVars.put("anyObject", anyObjectTO);
+                        }
+                    }
 
                     NotificationTask notificationTask = getNotificationTask(notification, any.orElse(null), jexlVars);
                     notificationTask = taskDAO.save(notificationTask);
