@@ -495,7 +495,7 @@ under the License.
     <byte-buddy.jdk25.version>1.17.8</byte-buddy.jdk25.version>
     <mockito.jdk25.version>5.20.0</mockito.jdk25.version>
 
-    <testcontainers.version>2.0.4</testcontainers.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.2.2</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.8.0</zonky.embedded-postgres-binaries.version>
