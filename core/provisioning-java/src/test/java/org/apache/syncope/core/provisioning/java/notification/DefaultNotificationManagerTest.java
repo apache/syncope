@@ -236,4 +236,52 @@ public class DefaultNotificationManagerTest {
         verify(task).setTextBody(textBody.capture());
         assertEquals("deleted-user@example.org", textBody.getValue());
     }
+
+    /**
+     * When {@code before} is {@code null} and the entity is not found, the empty branch of
+     * {@code ifPresentOrElse} must not throw {@link NullPointerException} (SYNCOPE-1744).
+     */
+    @Test
+    void nullBeforeWithMissingEntityDoesNotThrow() {
+        Notification notification = mock(Notification.class);
+        doReturn(Collections.singletonList(notification)).when(notificationDAO).findAll();
+        when(notification.isActive()).thenReturn(true);
+        when(notification.getEvents()).thenReturn(List.of(DELETE_SUCCESS));
+        when(notification.getRecipientsFIQL()).thenReturn(null);
+        when(notification.getStaticRecipients()).thenReturn(null);
+        when(notification.getRecipientsProvider()).thenReturn(null);
+        when(notification.getRecipientAttrName()).thenReturn("email");
+        when(notification.getTraceLevel()).thenReturn(TraceLevel.NONE);
+        when(notification.getSender()).thenReturn("noreply@syncope.org");
+        when(notification.getSubject()).thenReturn("User deleted");
+
+        MailTemplate mailTemplate = mock(MailTemplate.class);
+        when(mailTemplate.getTextTemplate()).thenReturn("${who}");
+        when(mailTemplate.getHTMLTemplate()).thenReturn(null);
+        when(notification.getTemplate()).thenReturn(mailTemplate);
+
+        when(confParamOps.list(anyString())).thenReturn(Map.of());
+
+        NotificationTask task = mock(NotificationTask.class);
+        when(entityFactory.newEntity(NotificationTask.class)).thenReturn(task);
+        when(taskDAO.save(any(NotificationTask.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        try (var auth = mockStatic(AuthContextUtils.class)) {
+            auth.when(AuthContextUtils::getDomain).thenReturn(SyncopeConstants.MASTER_DOMAIN);
+
+            manager.createTasks(
+                    "admin",
+                    OpEvent.CategoryType.LOGIC,
+                    "UserLogic",
+                    null,
+                    "delete",
+                    OpEvent.Outcome.SUCCESS,
+                    null,   // before is null
+                    null);
+        }
+
+        ArgumentCaptor<String> textBody = ArgumentCaptor.forClass(String.class);
+        verify(task).setTextBody(textBody.capture());
+        assertEquals("admin", textBody.getValue());
+    }
 }
