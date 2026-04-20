@@ -491,7 +491,7 @@ under the License.
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.5</zookeeper.version>
 
-    <testcontainers.version>2.0.4</testcontainers.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.2.2</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>18.3.0</zonky.embedded-postgres-binaries.version>
