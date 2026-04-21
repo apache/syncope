@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -1120,5 +1121,11 @@ public class SearchITCase extends AbstractITCase {
             assertTrue(
                     sce.getMessage().contains("IllegalArgumentException: Cannot search by encrypted schema obscure"));
         }
+    }
+
+    @Test
+    void issueSYNCOPE1963() {
+        assertDoesNotThrow(() -> ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().fiql(
+                SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).isNotNull("gManager").query()).build()));
     }
 }

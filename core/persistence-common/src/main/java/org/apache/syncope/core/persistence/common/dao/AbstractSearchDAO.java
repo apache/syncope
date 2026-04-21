@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -279,18 +280,20 @@ public abstract class AbstractSearchDAO {
             computed.setSchema(computed.getSchema() + "_id");
             schema.setType(AttrSchemaType.String);
 
-            if (!SyncopeConstants.UUID_PATTERN.matcher(computed.getExpression()).matches()) {
-                switch (StringUtils.substringBefore(computed.getSchema(), "_id")) {
-                    case "uManager" ->
-                        userDAO.findKey(computed.getExpression()).ifPresent(computed::setExpression);
+            Optional.ofNullable(computed.getExpression()).
+                    filter(expression -> !SyncopeConstants.UUID_PATTERN.matcher(expression).matches()).
+                    ifPresent(expression -> {
+                        switch (StringUtils.substringBefore(computed.getSchema(), "_id")) {
+                            case "uManager" ->
+                                userDAO.findKey(expression).ifPresent(computed::setExpression);
 
-                    case "gManager" ->
-                        groupDAO.findKey(computed.getExpression()).ifPresent(computed::setExpression);
+                            case "gManager" ->
+                                groupDAO.findKey(expression).ifPresent(computed::setExpression);
 
-                    default -> {
-                    }
-                }
-            }
+                            default -> {
+                            }
+                        }
+                    });
         }
 
         PlainAttrValue attrValue = new PlainAttrValue();
