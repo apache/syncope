@@ -257,7 +257,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                 buildForOIDCStandardScope(
                         clientApp,
                         policies,
-                        OidcPhoneScopeAttributeReleasePolicy::new,
+                        OidcAssuranceScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.assurance,
                         internal,
                         external.toString());
