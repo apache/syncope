@@ -358,15 +358,13 @@ public class DefaultNotificationManager implements NotificationManager {
                             },
                             () -> {
                                 switch (before) {
-                                    case null -> {
-                                    }
                                     case UserTO userTO ->
                                         jexlVars.put("user", userTO);
                                     case GroupTO groupTO ->
                                         jexlVars.put("group", groupTO);
                                     case AnyObjectTO anyObjectTO ->
                                         jexlVars.put("anyObject", anyObjectTO);
-                                    default -> {
+                                    case null, default -> {
                                     }
                                 }
                             });
