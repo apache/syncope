@@ -343,18 +343,33 @@ public class DefaultNotificationManager implements NotificationManager {
                     jexlVars.put("output", output);
                     jexlVars.put("input", input);
 
-                    any.ifPresent(a -> {
-                        switch (a) {
-                            case User user ->
-                                jexlVars.put("user", userDataBinder.getUserTO(user, true));
-                            case Group group ->
-                                jexlVars.put("group", groupDataBinder.getGroupTO(group, true));
-                            case AnyObject anyObject ->
-                                jexlVars.put("anyObject", anyObjectDataBinder.getAnyObjectTO(anyObject, true));
-                            default -> {
-                            }
-                        }
-                    });
+                    any.ifPresentOrElse(
+                            a -> {
+                                switch (a) {
+                                    case User user ->
+                                        jexlVars.put("user", userDataBinder.getUserTO(user, true));
+                                    case Group group ->
+                                        jexlVars.put("group", groupDataBinder.getGroupTO(group, true));
+                                    case AnyObject anyObject ->
+                                        jexlVars.put("anyObject", anyObjectDataBinder.getAnyObjectTO(anyObject, true));
+                                    default -> {
+                                    }
+                                }
+                            },
+                            () -> {
+                                switch (before) {
+                                    case null -> {
+                                    }
+                                    case UserTO userTO ->
+                                        jexlVars.put("user", userTO);
+                                    case GroupTO groupTO ->
+                                        jexlVars.put("group", groupTO);
+                                    case AnyObjectTO anyObjectTO ->
+                                        jexlVars.put("anyObject", anyObjectTO);
+                                    default -> {
+                                    }
+                                }
+                            });
 
                     NotificationTask notificationTask = getNotificationTask(notification, any.orElse(null), jexlVars);
                     notificationTask = taskDAO.save(notificationTask);
