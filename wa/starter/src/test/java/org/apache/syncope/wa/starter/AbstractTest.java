@@ -214,7 +214,7 @@ public abstract class AbstractTest {
                 }
 
                 @Override
-                public AttributeDefinitionStore store(final Resource resource) {
+                public AttributeDefinitionStore export(final Resource resource) {
                     return this;
                 }
             };
