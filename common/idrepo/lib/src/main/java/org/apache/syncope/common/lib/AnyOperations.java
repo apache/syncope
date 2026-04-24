@@ -128,10 +128,13 @@ public final class AnyOperations {
         result.setRealm(replacePatchItem(updated.getRealm(), original.getRealm(), new StringReplacePatchItem()));
 
         // 2. manager
-        result.setUManager(
-                replacePatchItem(updated.getUManager(), original.getUManager(), new StringReplacePatchItem()));
-        result.setGManager(
-                replacePatchItem(updated.getGManager(), original.getGManager(), new StringReplacePatchItem()));
+        if (!incremental || StringUtils.isNotBlank(updated.getUManager())
+                || StringUtils.isNotBlank(updated.getGManager())) {
+            result.setUManager(
+                    replacePatchItem(updated.getUManager(), original.getUManager(), new StringReplacePatchItem()));
+            result.setGManager(
+                    replacePatchItem(updated.getGManager(), original.getGManager(), new StringReplacePatchItem()));
+        }
 
         // 3. auxiliary classes
         result.getAuxClasses().clear();
