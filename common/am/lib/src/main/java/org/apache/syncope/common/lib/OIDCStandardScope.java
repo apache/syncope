@@ -24,6 +24,9 @@ public enum OIDCStandardScope {
     address,
     email,
     profile,
-    phone;
+    phone,
+    offline_access,
+    device_sso,
+    assurance;
 
 }

@@ -38,6 +38,7 @@ import org.apereo.cas.configuration.model.core.authentication.PrincipalAttribute
 import org.apereo.cas.configuration.support.TriStateBoolean;
 import org.apereo.cas.oidc.claims.BaseOidcScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcAssuranceScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
@@ -250,6 +251,14 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                         policies,
                         OidcPhoneScopeAttributeReleasePolicy::new,
                         OIDCStandardScope.phone,
+                        internal,
+                        external.toString());
+            } else if (OidcAssuranceScopeAttributeReleasePolicy.ALLOWED_CLAIMS.contains(external.toString())) {
+                buildForOIDCStandardScope(
+                        clientApp,
+                        policies,
+                        OidcAssuranceScopeAttributeReleasePolicy::new,
+                        OIDCStandardScope.assurance,
                         internal,
                         external.toString());
             } else {
