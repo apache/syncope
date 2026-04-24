@@ -1942,11 +1942,10 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> pr = createUser(userCR);
         assertEquals(ExecStatus.SUCCESS, pr.getPropagationStatuses().getFirst().getStatus());
         assertNotNull(pr.getEntity().getUManager());
-        // 2. pull from resource-ldap
+        // 2. pull from resource-testdb
         PullTaskTO pullTaskTO = new PullTaskTO();
         pullTaskTO.setPerformCreate(true);
         pullTaskTO.setPerformUpdate(true);
-        pullTaskTO.getActions().add("LDAPMembershipPullActions");
         pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
         pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
@@ -1954,6 +1953,33 @@ public class UserIssuesITCase extends AbstractITCase {
                 new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_TESTDB).anyKey(pr.getEntity().getKey())
                         .build(), pullTaskTO);
         // user manager should be kept
-        assertNotNull(USER_SERVICE.read(pr.getEntity().getKey()).getUManager());
+        UserTO updatedUser = USER_SERVICE.read(pr.getEntity().getKey());
+        assertNotNull(updatedUser.getUManager());
+        assertEquals(USER_SERVICE.read("puccini").getKey(), updatedUser.getUManager());
+
+        // perform the same check on a group
+        GroupCR groupCR = GroupITCase.getSample("issue1965grp");
+        groupCR.getResources().add(RESOURCE_NAME_LDAP);
+        groupCR.setGManager(GROUP_SERVICE.read("managingDirector").getKey());
+        ProvisioningResult<GroupTO> prGrp = createGroup(groupCR);
+        assertEquals(ExecStatus.SUCCESS, prGrp.getPropagationStatuses().getFirst().getStatus());
+        assertNotNull(prGrp.getEntity().getGManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), prGrp.getEntity().getGManager());
+
+        // 2. pull from resource-ldap
+        pullTaskTO = new PullTaskTO();
+        pullTaskTO.setPerformCreate(true);
+        pullTaskTO.setPerformUpdate(true);
+        pullTaskTO.getActions().add("LDAPMembershipPullActions");
+        pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+        pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+        RECONCILIATION_SERVICE.pull(
+                new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(pr.getEntity().getKey())
+                        .build(), pullTaskTO);
+        // group manager should be kept
+        GroupTO updatedGrp = GROUP_SERVICE.read(prGrp.getEntity().getKey());
+        assertNotNull(updatedGrp.getGManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), updatedGrp.getGManager());
     }
 }
