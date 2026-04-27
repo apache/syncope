@@ -981,6 +981,86 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void issueSYNCOPE1921() {
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        UserTO userTO = null;
+        try {
+            // 1. clone the LDAP resource (which has LDAPMembershipPropagationActions configured)
+            // but do NOT add ldapGroups to the user mapping - rely solely on the propagation action
+            Provision provisionGroup =
+                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
+            assertNotNull(provisionGroup);
+
+            Provision provisionUser =
+                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
+            assertNotNull(provisionUser);
+            provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
+
+            ldap.getProvisions().clear();
+            ldap.getProvisions().add(provisionUser);
+            ldap.getProvisions().add(provisionGroup);
+            ldap.setKey(RESOURCE_NAME_LDAP + "1921" + getUUIDString());
+            RESOURCE_SERVICE.create(ldap);
+
+            // 2. create group with the new resource assigned
+            GroupCR groupCR = new GroupCR();
+            groupCR.setName("SYNCOPEGROUP1921-" + getUUIDString());
+            groupCR.setRealm(SyncopeConstants.ROOT_REALM);
+            groupCR.getResources().add(ldap.getKey());
+
+            GroupTO groupTO = createGroup(groupCR).getEntity();
+            assertNotNull(groupTO);
+
+            // 3. create user with the new resource and group membership
+            UserCR userCR = UserITCase.getUniqueSample("syncope1921@syncope.apache.org");
+            userCR.getResources().clear();
+            userCR.getResources().add(ldap.getKey());
+            userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
+
+            userTO = createUser(userCR).getEntity();
+            assertNotNull(userTO);
+
+            // 4. deassociate and delete group from Syncope, leaving the LDAP group entry orphaned
+            ResourceDR resourceDR = new ResourceDR.Builder().key(groupTO.getKey()).
+                    action(ResourceDeassociationAction.UNLINK).resource(ldap.getKey()).build();
+
+            GROUP_SERVICE.deassociate(resourceDR);
+            GROUP_SERVICE.delete(groupTO.getKey());
+
+            // 5. create a new group and assign user to it
+            GroupCR newGroupCR = new GroupCR();
+            newGroupCR.setName("NEWSYNCOPEGROUP1921-" + getUUIDString());
+            newGroupCR.setRealm(SyncopeConstants.ROOT_REALM);
+            newGroupCR.getResources().add(ldap.getKey());
+
+            GroupTO newGroupTO = createGroup(newGroupCR).getEntity();
+            assertNotNull(newGroupTO);
+
+            UserUR userUR = new UserUR();
+            userUR.setKey(userTO.getKey());
+            userUR.getMemberships().add(
+                    new MembershipUR.Builder(newGroupTO.getKey()).operation(PatchOperation.ADD_REPLACE).build());
+            USER_SERVICE.update(userUR);
+
+            // 6. verify that the orphaned group membership was preserved during propagation
+            ConnObject connObject =
+                    RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
+            assertNotNull(connObject);
+            assertTrue(connObject.getAttr("ldapGroups").isPresent());
+            assertEquals(2, connObject.getAttr("ldapGroups").orElseThrow().getValues().size());
+        } finally {
+            try {
+                RESOURCE_SERVICE.delete(ldap.getKey());
+                if (userTO != null) {
+                    USER_SERVICE.delete(userTO.getKey());
+                }
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
+
+    @Test
     public void issueSYNCOPE1751() {
         // 1. Create a Group with a resource assigned
         GroupTO groupTO = createGroup(
