@@ -72,6 +72,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
@@ -1929,5 +1930,56 @@ public class UserIssuesITCase extends AbstractITCase {
                     .orderBy("ctype DESC")
                     .build()).getResult().forEach(u -> deleteUser(u.getKey()));
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1965() {
+        // 1. create a sample user with a manager and propagate on LDAP
+        UserCR userCR = UserITCase.getUniqueSample("issuesyncope1965@syncope.apache.org");
+        userCR.getResources().add(RESOURCE_NAME_TESTDB);
+        userCR.setPassword("Password123!");
+        userCR.setUManager(USER_SERVICE.read("puccini").getKey());
+        ProvisioningResult<UserTO> pr = createUser(userCR);
+        assertEquals(ExecStatus.SUCCESS, pr.getPropagationStatuses().getFirst().getStatus());
+        assertNotNull(pr.getEntity().getUManager());
+        // 2. pull from resource-testdb
+        PullTaskTO pullTaskTO = new PullTaskTO();
+        pullTaskTO.setPerformCreate(true);
+        pullTaskTO.setPerformUpdate(true);
+        pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+        pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+        RECONCILIATION_SERVICE.pull(
+                new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_TESTDB).anyKey(pr.getEntity().getKey())
+                        .build(), pullTaskTO);
+        // user manager should be kept
+        UserTO updatedUser = USER_SERVICE.read(pr.getEntity().getKey());
+        assertNotNull(updatedUser.getUManager());
+        assertEquals(USER_SERVICE.read("puccini").getKey(), updatedUser.getUManager());
+
+        // perform the same check on a group
+        GroupCR groupCR = GroupITCase.getSample("issue1965grp");
+        groupCR.getResources().add(RESOURCE_NAME_LDAP);
+        groupCR.setGManager(GROUP_SERVICE.read("managingDirector").getKey());
+        ProvisioningResult<GroupTO> prGrp = createGroup(groupCR);
+        assertEquals(ExecStatus.SUCCESS, prGrp.getPropagationStatuses().getFirst().getStatus());
+        assertNotNull(prGrp.getEntity().getGManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), prGrp.getEntity().getGManager());
+
+        // 2. pull from resource-ldap
+        pullTaskTO = new PullTaskTO();
+        pullTaskTO.setPerformCreate(true);
+        pullTaskTO.setPerformUpdate(true);
+        pullTaskTO.getActions().add("LDAPMembershipPullActions");
+        pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+        pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+        RECONCILIATION_SERVICE.pull(
+                new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(pr.getEntity().getKey())
+                        .build(), pullTaskTO);
+        // group manager should be kept
+        GroupTO updatedGrp = GROUP_SERVICE.read(prGrp.getEntity().getKey());
+        assertNotNull(updatedGrp.getGManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), updatedGrp.getGManager());
     }
 }
