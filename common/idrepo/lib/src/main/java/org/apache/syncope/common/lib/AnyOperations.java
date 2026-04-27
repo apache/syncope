@@ -128,10 +128,31 @@ public final class AnyOperations {
         result.setRealm(replacePatchItem(updated.getRealm(), original.getRealm(), new StringReplacePatchItem()));
 
         // 2. manager
-        result.setUManager(
-                replacePatchItem(updated.getUManager(), original.getUManager(), new StringReplacePatchItem()));
-        result.setGManager(
-                replacePatchItem(updated.getGManager(), original.getGManager(), new StringReplacePatchItem()));
+        if (updated.getUManager() != null || original.getUManager() != null) {
+            StringReplacePatchItem uManager = new StringReplacePatchItem();
+            if (updated.getUManager() == null) {
+                if (!incremental) {
+                    uManager.setOperation(PatchOperation.DELETE);
+                    result.setUManager(uManager);
+                }
+            } else if (!updated.getUManager().equals(original.getUManager())) {
+                uManager.setValue(updated.getUManager());
+                result.setUManager(uManager);
+            }
+        }
+
+        if (updated.getGManager() != null || original.getGManager() != null) {
+            StringReplacePatchItem gManager = new StringReplacePatchItem();
+            if (updated.getGManager() == null) {
+                if (!incremental) {
+                    gManager.setOperation(PatchOperation.DELETE);
+                    result.setGManager(gManager);
+                }
+            } else if (!updated.getGManager().equals(original.getGManager())) {
+                gManager.setValue(updated.getGManager());
+                result.setGManager(gManager);
+            }
+        }
 
         // 3. auxiliary classes
         result.getAuxClasses().clear();
