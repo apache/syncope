@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import dev.samstevens.totp.code.CodeVerifier;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -102,8 +103,8 @@ public class WebSecurityContext {
                 defaultCredentialChecker);
         http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
-        MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
-        http.addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class);
+        SinglePurposeEntitlementFilter speFilter = new SinglePurposeEntitlementFilter();
+        http.addFilterBefore(speFilter, AuthorizationFilter.class);
 
         http.authorizeHttpRequests(customizer -> customizer.
                 requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/**")).
@@ -121,18 +122,16 @@ public class WebSecurityContext {
     @ConditionalOnMissingBean
     @Bean
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
-            final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager,
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
-            final DefaultCredentialChecker credentialChecker) {
+            final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager) {
 
         return new UsernamePasswordAuthenticationProvider(
                 domainOps,
                 dataAccessor,
                 provisioningManager,
-                credentialChecker,
                 securityProperties,
                 encryptorManager);
     }
@@ -147,6 +146,7 @@ public class WebSecurityContext {
     public AuthDataAccessor authDataAccessor(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            final CodeVerifier totpCodeVerifier,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -159,11 +159,13 @@ public class WebSecurityContext {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
+            final DefaultCredentialChecker credentialChecker,
             final List<JWTSSOProvider> jwtSSOProviders) {
 
         return new AuthDataAccessor(
                 securityProperties,
                 encryptorManager,
+                totpCodeVerifier,
                 realmSearchDAO,
                 userDAO,
                 groupDAO,
@@ -176,6 +178,7 @@ public class WebSecurityContext {
                 connectorManager,
                 auditManager,
                 mappingManager,
+                credentialChecker,
                 jwtSSOProviders);
     }
 }

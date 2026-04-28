@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,6 +18,9 @@
  * under the License.
  */
 import java.util.Map
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams
+import org.apache.syncope.common.lib.SyncopeConstants
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.logic.SyncopeLogic
 import org.apache.syncope.core.provisioning.api.macro.Command
@@ -25,10 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired
 class GroovyCommand implements Command<CommandArgs> {
 
   @Autowired
-  SyncopeLogic logic;
+  ConfParamOps confParamOps;
 
   @Override
   Result run(CommandArgs args) {
-    return new Result("" + logic.isPwdResetAllowed(), Map.of())
+    boolean pwdResetAllowed = confParamOps.get(
+      SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_ALLOWED, false, boolean.class);
+    return new Result("" + pwdResetAllowed, Map.of())
   }
 }

@@ -21,11 +21,11 @@ package org.apache.syncope.client.enduser.panels.any;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.Strings;
-import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -46,7 +46,7 @@ public class UserDetails extends Details<UserTO> {
     private static final long serialVersionUID = 6592027822510220463L;
 
     @SpringBean
-    protected UserSelfRestClient restClient;
+    protected AnonymousRestClient restClient;
 
     protected final UserTO userTO;
 

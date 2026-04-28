@@ -27,16 +27,16 @@ under the License.
 
     <link rel="shortcut icon" href="ui-commons/img/favicon.png" type="image/png"/>
 
-    <link href="webjars/font-awesome/${font-awesome.version}/css/all.min.css" rel="stylesheet" type="text/css" />
-    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/all.min.css" rel="stylesheet" type="text/css"/>
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
     <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
 
-    <link href="ui-commons/css/login.css" rel="stylesheet" type="text/css" />
+    <link href="ui-commons/css/login.css" rel="stylesheet" type="text/css"/>
     <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
     <link href="css/syncopeEnduser.css" rel="stylesheet" type="text/css"/>
 
     <!-- accessibility -->
-    <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
+    <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css"/>
     <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
   </head>
 
@@ -55,17 +55,19 @@ under the License.
     </div>
     <div class="container">
       <div class="login-card card card-container">
-        <img class="login-logo" src="ui-commons/img/logo-green.png" />
+        <img class="login-logo" src="ui-commons/img/logo-green.png"/>
 
         <span wicket:id="feedback" role="alert"/>
 
         <form class="form-signin" wicket:id="login">
           <fieldset class="form-group">
-            <input type="text" wicket:id="username" class="form-control" 
-                   wicket:message="placeholder:username" required="required" autofocus="autofocus" />
+            <input type="text" wicket:id="username" class="form-control"
+                   wicket:message="placeholder:username" required="required" autofocus="autofocus"/>
 
-            <input type="password" wicket:id="password" class="form-control" 
-                   wicket:message="placeholder:password" required="required" />
+            <input type="password" wicket:id="password" class="form-control"
+                   wicket:message="placeholder:password" required="required"/>
+
+            <input type="text" wicket:id="mfa" class="form-control" placeholder="mfa"/>
 
             <div class="mb-3">
               <select class="form-control form-select select2bs4 select2-hidden-accessible" wicket:id="language"/>

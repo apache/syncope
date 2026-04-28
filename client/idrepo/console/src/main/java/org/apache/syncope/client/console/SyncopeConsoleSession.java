@@ -45,6 +45,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -58,6 +59,9 @@ import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.Mfa;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.MfaService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -187,8 +191,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         return gitAndBuildInfo;
     }
 
+    @Override
     public PlatformInfo getPlatformInfo() {
-        return platformInfo;
+        return Optional.ofNullable(platformInfo).orElseGet(() -> BaseSession.super.getPlatformInfo());
     }
 
     public SystemInfo getSystemInfo() {
@@ -220,6 +225,27 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
+    public Mfa generateMfa() {
+        String username = Optional.ofNullable(getAttribute(Constants.USERNAME_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find username"));
+        return anonymousClient.getService(MfaService.class).generate(username);
+    }
+
+    @Override
+    public void enrollMfa(final Mfa mfa) {
+        String username = Optional.ofNullable(getAttribute(Constants.USERNAME_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find username"));
+        removeAttribute(Constants.USERNAME_FIELD_NAME);
+        String password = Optional.ofNullable(getAttribute(Constants.PASSWORD_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find password"));
+        removeAttribute(Constants.PASSWORD_FIELD_NAME);
+
+        clientFactory.setDomain(getDomain()).
+                create(new BasicAuthenticationHandler(username, password)).
+                getService(MfaService.class).enroll(mfa);
+    }
+
+    @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
 
@@ -227,9 +253,24 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
             client = clientFactory.setDomain(getDomain()).create(username, password);
             jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
 
-            reloadSettings(username);
+            reloadSettings();
 
             authenticated = true;
+        } catch (ForbiddenException e) {
+            client = Optional.ofNullable(e.getResponse()).
+                    flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
+                    filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals).
+                    map(code -> clientFactory.setDomain(getDomain()).
+                    create(new BasicAuthenticationHandler(username, password))).
+                    orElse(null);
+            if (client != null) {
+                authenticated = true;
+
+                UserTO user = new UserTO();
+                user.setUsername(username);
+                user.setMustChangePassword(true);
+                self = new SyncopeClient.Self(user, Map.of(), List.of());
+            }
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }
@@ -245,7 +286,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
             client = clientFactory.setDomain(getDomain()).create(jwt);
             this.jwtExpiration = jwtExpiration;
 
-            reloadSettings(null);
+            reloadSettings();
 
             authenticated = true;
         } catch (Exception e) {
@@ -267,7 +308,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
             client.refresh();
             jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
 
-            reloadSettings(null);
+            reloadSettings();
 
             refreshed = true;
         } catch (Exception e) {
@@ -392,27 +433,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         this.delegatedBy = delegatedBy;
 
         this.client.delegatedBy(delegatedBy);
-
-        reloadSettings(null);
     }
 
-    public void reloadSettings(final String username) {
-        try {
-            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
-            gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
-            platformInfo = anonymousClient.platform();
-            systemInfo = anonymousClient.system();
+    public void reloadSettings() {
+        gitAndBuildInfo = getAnonymousClient().gitAndBuildInfo();
+        platformInfo = getAnonymousClient().platform();
+        systemInfo = getAnonymousClient().system();
 
-            self = client.self();
-            roles = null;
-        } catch (ForbiddenException e) {
-            LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
-
-            UserTO user = new UserTO();
-            user.setUsername(username);
-            user.setMustChangePassword(true);
-            self = new SyncopeClient.Self(user, Map.of(), List.of());
-        }
+        self = client.self();
+        roles = null;
     }
 
     @Override

@@ -28,7 +28,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -565,7 +565,7 @@ public class RouteProvider {
                     client = new SyncopeClientFactoryBean().
                             setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
                             setUseCompression(useGZIPCompression).
-                            create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey));
+                            create(new BasicAuthenticationHandler(anonymousUser, anonymousKey));
                 } catch (Exception e) {
                     LOG.error("Could not init SyncopeClient", e);
                     return List.of();

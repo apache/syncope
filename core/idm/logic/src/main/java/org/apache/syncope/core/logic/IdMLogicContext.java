@@ -107,9 +107,9 @@ public class IdMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public RemediationLogic remediationLogic(
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final RemediationDataBinder binder,
             final RemediationDAO remediationDAO) {
 

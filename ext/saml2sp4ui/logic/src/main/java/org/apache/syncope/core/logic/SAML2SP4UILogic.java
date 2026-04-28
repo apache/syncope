@@ -464,8 +464,10 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             SignedJWT jwt = SignedJWT.parse(accessToken);
             claimsSet = jwt.getJWTClaimsSet();
         } catch (ParseException e) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAccessToken);
-            sce.getElements().add(e.getMessage());
+            LOG.error("While parsing JWT", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ExecutionError);
+            sce.getElements().add("While parsing JWT: " + e.getMessage());
             throw sce;
         }
 

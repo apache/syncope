@@ -72,6 +72,11 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
+    public void setAdminMfaSecret(final String key, final String secret) {
+        logic.setAdminMfaSecret(key, secret);
+    }
+
+    @Override
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         logic.adjustPoolSize(key, poolMaxActive, poolMinIdle);
     }

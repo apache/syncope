@@ -31,7 +31,7 @@ public class EditUser extends BaseReauthPage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private static final String EDIT_USER = "page.edituser";
+    protected static final String EDIT_USER = "page.edituser";
 
     protected WebMarkupContainer content;
 
@@ -48,7 +48,7 @@ public class EditUser extends BaseReauthPage {
                 "editUserPanel",
                 userTO,
                 userTO,
-                SyncopeEnduserSession.get().getAnonymousClient().platform().getUserClasses(),
+                SyncopeEnduserSession.get().getPlatformInfo().userClasses(),
                 buildFormLayout(),
                 getPageReference());
         editUserPanel.setOutputMarkupId(true);

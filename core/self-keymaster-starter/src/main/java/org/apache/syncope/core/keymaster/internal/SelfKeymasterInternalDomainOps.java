@@ -44,7 +44,7 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
                 SyncopeConstants.MASTER_DOMAIN,
                 props.getUsername(),
                 List.of(),
-            logic::list);
+                logic::list);
     }
 
     @Override
@@ -76,6 +76,14 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
             logic.changeAdminPassword(key, password, cipherAlgorithm);
+            return null;
+        });
+    }
+
+    @Override
+    public void setAdminMfaSecret(final String key, final String secret) {
+        AuthContextUtils.callAs(SyncopeConstants.MASTER_DOMAIN, props.getUsername(), List.of(), () -> {
+            logic.setAdminMfaSecret(key, secret);
             return null;
         });
     }

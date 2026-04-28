@@ -18,27 +18,9 @@
  */
 package org.apache.syncope.common.lib.info;
 
-import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class JavaImplInfo implements BaseBean {
+public record JavaImplInfo(String type, Set<String> classes) implements BaseBean {
 
-    private static final long serialVersionUID = 4036793959111794959L;
-
-    private String type;
-
-    private final Set<String> classes = new HashSet<>();
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(final String type) {
-        this.type = type;
-    }
-
-    public Set<String> getClasses() {
-        return classes;
-    }
 }

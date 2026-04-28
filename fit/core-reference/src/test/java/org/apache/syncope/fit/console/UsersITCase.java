@@ -97,7 +97,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:10:action:action");
+                + "actions:actions:actionRepeater:11:action:action");
 
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:0:outer:form:content:form:view:usernameInnerForm:username:textField",
@@ -511,7 +511,7 @@ public class UsersITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void checkDeleteUsrLink() {
+    public void checkDeleteUserLink() {
         TESTER.clickLink(ANY_PAGE, false);
         TESTER.clickLink(USER_TAB);
 
@@ -522,7 +522,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.assertComponent(TAB_PANEL
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:11:action:action", IndicatingOnConfirmAjaxLink.class);
+                + "actions:actions:actionRepeater:12:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 
     @Disabled

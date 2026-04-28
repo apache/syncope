@@ -32,6 +32,21 @@ image::consoleLogin.png[console-login]
 
 You can use the <<set-admin-credentials,default admin credentials>> to login.
 
+[[admin-console-mfa]]
+==== MFA
+
+When <<authentiation-credentials,MFA is enabled>>, the login flow is slightly different.
+
+First, an app must be enrolled:
+
+image::console-mfa-enroll1.png[console-mfa-enroll1]
+image::console-mfa-enroll2.png[console-mfa-enroll2]
+
+Then, for subsequent logins, the form includes the additional `mfa` field:
+
+[.text-center]
+image::console-mfa-login.png[console-mfa-login]
+
 [[admin-console-accessibility]]
 ==== Accessibility
 

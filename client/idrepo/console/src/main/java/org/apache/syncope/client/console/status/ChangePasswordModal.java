@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
+import org.apache.syncope.client.console.rest.ConsoleAnonymousRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
@@ -48,6 +49,9 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
     @SpringBean
     protected UserRestClient userRestClient;
 
+    @SpringBean
+    protected ConsoleAnonymousRestClient anonymousRestClient;
+
     protected final IModel<List<StatusBean>> statusModel;
 
     protected final UserWrapper wrapper;
@@ -60,7 +64,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
         super(baseModal, pageRefer);
         this.wrapper = wrapper;
 
-        PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false, userRestClient);
+        PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false, anonymousRestClient);
         passwordPanel.setOutputMarkupId(true);
         add(passwordPanel);
 

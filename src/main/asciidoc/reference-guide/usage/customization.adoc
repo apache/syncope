@@ -30,10 +30,10 @@ adding new features or replacing existing components.
 
 In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.0/getting-started.html[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.1/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/4.0/getting-started.pdf[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.1/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
 for details) allows developers to work comfortably from a single workstation, with no need of additional setup; it is
 effectively implemented as the `all`
@@ -276,7 +276,7 @@ components:
 ===== Customize OpenJPA settings
 
 Apache OpenJPA is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
-aspects - including https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html[caching^] for
+aspects - including https://openjpa.apache.org/builds/4.1.1/apache-openjpa/docs/ref_guide_caching.html[caching^] for
 example, to best suit the various environments.
 
 The main configuration classes are:

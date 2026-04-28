@@ -56,7 +56,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).orElseThrow().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).orElseThrow().classes();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }

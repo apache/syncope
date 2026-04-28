@@ -20,7 +20,6 @@ package org.apache.syncope.core.starter;
 
 import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -148,7 +147,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final TaskDAO taskDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final PersistenceInfoDAO persistenceInfoDAO,
-            final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
             final ImplementationLookup implLookup) {
 
@@ -165,7 +163,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
                 taskDAO,
                 securityQuestionDAO,
                 persistenceInfoDAO,
-                confParamOps,
                 bundleManager,
                 implLookup);
     }

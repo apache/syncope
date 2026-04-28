@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.starter;
 
+import dev.samstevens.totp.code.CodeVerifier;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import org.apache.cxf.metrics.MetricsFeature;
@@ -55,6 +56,7 @@ import org.apache.syncope.core.provisioning.java.propagation.InstrumentedPriorit
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.InstrumentedAuthDataAccessor;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -86,6 +88,7 @@ public class MetricsContext {
     public AuthDataAccessor instrumentedAuthDataAccessor(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            final CodeVerifier totpCodeVerifier,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -98,12 +101,14 @@ public class MetricsContext {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
+            final DefaultCredentialChecker credentialChecker,
             final List<JWTSSOProvider> jwtSSOProviders,
             final MeterRegistry meterRegistry) {
 
         return new InstrumentedAuthDataAccessor(
                 securityProperties,
                 encryptorManager,
+                totpCodeVerifier,
                 realmSearchDAO,
                 userDAO,
                 groupDAO,
@@ -116,6 +121,7 @@ public class MetricsContext {
                 connectorManager,
                 auditManager,
                 mappingManager,
+                credentialChecker,
                 jwtSSOProviders,
                 meterRegistry);
     }

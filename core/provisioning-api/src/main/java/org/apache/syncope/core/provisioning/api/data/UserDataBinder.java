@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.Mfa;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -46,4 +47,12 @@ public interface UserDataBinder {
      * @return propagation information
      */
     UserWorkflowResult.PropagationInfo update(User toBeUpdated, UserUR userUR);
+
+    /**
+     * Set Mfa information for the given username.
+     *
+     * @param username user to be updated
+     * @param mfa MFA information
+     */
+    void setMfa(String username, Mfa mfa);
 }

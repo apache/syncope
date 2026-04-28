@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -483,10 +484,11 @@ public class JWTITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1420() throws ParseException {
-        Long orig = confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", null, Long.class);
+        Long orig = confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, null, Long.class);
         try {
             // set for immediate JWT expiration
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", 0);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, 0);
 
             UserCR userCR = UserITCase.getUniqueSample("syncope164@syncope.apache.org");
             UserTO user = createUser(userCR).getEntity();
@@ -515,7 +517,7 @@ public class JWTITCase extends AbstractITCase {
             String newJWT = CLIENT_FACTORY.create(user.getUsername(), "password123").jwtInfo().orElseThrow().value();
             assertNotEquals(jwtInfo.value(), newJWT);
         } finally {
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", orig);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, orig);
         }
     }
 }

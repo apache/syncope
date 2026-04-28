@@ -33,6 +33,8 @@ public final class RESTHeaders {
 
     public static final String OWNED_ENTITLEMENTS = "X-Syncope-Entitlements";
 
+    public static final String VERIFIED = "X-Syncope-Verfied";
+
     public static final String DELEGATED_BY = "X-Syncope-Delegated-By";
 
     public static final String DELEGATIONS = "X-Syncope-Delegations";

@@ -68,7 +68,7 @@ public class MustChangePassword extends AbstractChangePassword {
             LOG.error("While changing password for {}",
                     SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
             SyncopeEnduserSession.get().onException(e);
-            notificationPanel.refresh(target);
+            getNotificationPanel().refresh(target);
         }
     }
 

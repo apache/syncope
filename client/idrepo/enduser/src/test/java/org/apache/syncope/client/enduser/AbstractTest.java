@@ -19,7 +19,9 @@
 package org.apache.syncope.client.enduser;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -31,6 +33,9 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.core.sett
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.boot.actuator.WicketEndpointRepositoryDefault;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,10 +46,13 @@ import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.DynamicMenuStringResourceLoader;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.collections.CircularFifoQueue;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -102,6 +110,18 @@ public abstract class AbstractTest {
         }
 
         @Bean
+        public ConfParamOps confParamOps() {
+            ConfParamOps confParamOps = mock(ConfParamOps.class);
+            when(confParamOps.get(anyString(), anyString(), anyBoolean(), eq(boolean.class))).thenReturn(false);
+            return confParamOps;
+        }
+
+        @Bean
+        public AnonymousRestClient anonymousRestClient() {
+            return mock(AnonymousRestClient.class);
+        }
+
+        @Bean
         public GeneralSettingsProperties generalSettingsProperties() {
             return new GeneralSettingsProperties();
         }
@@ -127,7 +147,7 @@ public abstract class AbstractTest {
             lookup.load();
             return lookup;
         }
-        
+
         @Bean
         public DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader() {
             return new DynamicMenuStringResourceLoader();
@@ -208,30 +228,50 @@ public abstract class AbstractTest {
 
             when(client.self()).thenReturn(new SyncopeClient.Self(getUserTO(), Map.of(), List.of()));
 
-            when(anonymousClient.platform()).thenReturn(new PlatformInfo());
+            when(anonymousClient.platform()).thenReturn(new PlatformInfo(
+                    new HashSet<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new HashSet<>(),
+                    new HashSet<>(),
+                    new HashSet<>()));
             when(anonymousClient.numbers()).thenAnswer(ic -> {
-                NumbersInfo numbersInfo = new NumbersInfo();
+                NumbersInfo numbersInfo = new NumbersInfo(
+                        0,
+                        Map.of(),
+                        Map.of(),
+                        0,
+                        Map.of(),
+                        null,
+                        0,
+                        Map.of(),
+                        null,
+                        0,
+                        Map.of(),
+                        0,
+                        0,
+                        new HashMap<>());
 
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.PASSWORD_POLICY.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.NOTIFICATION.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.PULL_TASK.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.ANY_TYPE.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.SECURITY_QUESTION.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.RESOURCE.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.PASSWORD_POLICY.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.NOTIFICATION.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.PULL_TASK.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.ANY_TYPE.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.SECURITY_QUESTION.name(), false);
+                numbersInfo.confCompleteness().put(NumbersInfo.ConfItem.ROLE.name(), false);
 
                 return numbersInfo;
             });
-            when(anonymousClient.system()).thenReturn(new SystemInfo());
+            when(anonymousClient.system()).thenReturn(new SystemInfo(
+                    null,
+                    null,
+                    null,
+                    0,
+                    0,
+                    new CircularFifoQueue<>()));
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);

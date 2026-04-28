@@ -22,7 +22,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -70,8 +69,6 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     protected final RelationshipTypeDataBinder relationshipTypeDataBinder;
 
-    protected final ConfParamOps confParamOps;
-
     protected final ContentExporter exporter;
 
     public SyncopeLogic(
@@ -82,7 +79,6 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final AnySearchDAO anySearchDAO,
             final GroupDataBinder groupDataBinder,
             final RelationshipTypeDataBinder relationshipTypeDataBinder,
-            final ConfParamOps confParamOps,
             final ContentExporter exporter) {
 
         this.realmSearchDAO = realmSearchDAO;
@@ -92,20 +88,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         this.anySearchDAO = anySearchDAO;
         this.groupDataBinder = groupDataBinder;
         this.relationshipTypeDataBinder = relationshipTypeDataBinder;
-        this.confParamOps = confParamOps;
         this.exporter = exporter;
-    }
-
-    public boolean isSelfRegAllowed() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);
-    }
-
-    public boolean isPwdResetAllowed() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.allowed", false, Boolean.class);
-    }
-
-    public boolean isPwdResetRequiringSecurityQuestions() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.securityQuestion", true, Boolean.class);
     }
 
     @PreAuthorize("isAuthenticated()")

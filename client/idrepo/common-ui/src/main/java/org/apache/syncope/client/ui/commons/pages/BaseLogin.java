@@ -1,0 +1,332 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.ui.commons.pages;
+
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.HttpHeaders;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DomainDropDown;
+import org.apache.syncope.client.ui.commons.StyledNotificationBehavior;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
+import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.PasswordTextField;
+import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
+
+public abstract class BaseLogin extends WebPage {
+
+    private static final long serialVersionUID = 5889157642852559004L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
+
+    @SpringBean
+    protected DomainOps domainOps;
+
+    @SpringBean
+    protected ConfParamOps confParamOps;
+
+    @SpringBean
+    protected AnonymousRestClient anonymousRestClient;
+
+    protected final NotificationPanel notificationPanel;
+
+    protected final StatelessForm<Void> form;
+
+    protected final TextField<String> usernameField;
+
+    protected final TextField<String> passwordField;
+
+    protected final TextField<String> mfaField;
+
+    protected final LocaleDropDown languageSelect;
+
+    protected final DomainDropDown domainSelect;
+
+    protected String notificationMessage;
+
+    protected String notificationLevel;
+
+    protected final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            List<String> current = new ArrayList<>();
+            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().toList());
+            current.addFirst(SyncopeConstants.MASTER_DOMAIN);
+            return current;
+        }
+    };
+
+    public BaseLogin(final PageParameters parameters) {
+        super(parameters);
+        setStatelessHint(true);
+
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        add(notificationPanel);
+
+        if (!parameters.get(Constants.NOTIFICATION_MSG_PARAM).isNull()) {
+            notificationMessage = parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString();
+            notificationLevel = parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).isEmpty()
+                    ? Notification.SUCCESS
+                    : parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).toString();
+        }
+
+        form = new StatelessForm<>("login");
+
+        mfaField = new TextField<>("mfa", new Model<>());
+        mfaField.setVisible(false);
+        form.add(mfaField.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
+        usernameField = new TextField<>(Constants.USERNAME_FIELD_NAME, new Model<>());
+        usernameField.setMarkupId(Constants.USERNAME_FIELD_NAME);
+        usernameField.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -6139318907146065915L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (confParamOps.get(
+                        getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)
+                        && anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
+
+                    mfaField.setVisible(true);
+                    target.add(mfaField);
+                }
+            }
+        });
+        form.add(usernameField);
+
+        passwordField = new PasswordTextField(Constants.PASSWORD_FIELD_NAME, new Model<>());
+        passwordField.setMarkupId(Constants.PASSWORD_FIELD_NAME);
+        form.add(passwordField);
+
+        languageSelect = new LocaleDropDown("language");
+        languageSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                getLanguageOnChangeComponents().forEach(target::add);
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                getLanguageOnChangeComponents().forEach(target::add);
+            }
+        });
+        form.add(languageSelect.setOutputMarkupId(true));
+
+        domainSelect = new DomainDropDown("domain", domains);
+        domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                getDomainOnChangeComponents().forEach(target::add);
+            }
+        }).add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                getDomainOnChangeComponents().forEach(target::add);
+            }
+        });
+        form.add(domainSelect.setOutputMarkupId(true));
+
+        AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
+
+            private static final long serialVersionUID = 429178684321093953L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target) {
+                if (confParamOps.get(
+                        getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)) {
+
+                    if (anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
+                        authenticate(
+                                usernameField.getValue(),
+                                passwordField.getRawInput() + ":" + mfaField.getRawInput(),
+                                target);
+                    } else {
+                        getBaseSession().setAttribute(Constants.USERNAME_FIELD_NAME, usernameField.getValue());
+                        getBaseSession().setAttribute(Constants.PASSWORD_FIELD_NAME, passwordField.getValue());
+                        setResponsePage(getMfaEnrollPage());
+                    }
+                } else {
+                    authenticate(usernameField.getValue(), passwordField.getRawInput(), target);
+                }
+            }
+        };
+        submitButton.setDefaultFormProcessing(false);
+        form.add(submitButton);
+        form.setDefaultButton(submitButton);
+
+        ListView<BaseSSOLoginFormPanel> ssoLogins = new ListView<>("ssoLogins", getSSOLoginFormPanels()) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<BaseSSOLoginFormPanel> item) {
+                item.add(item.getModelObject());
+            }
+        };
+        form.add(ssoLogins);
+
+        add(form);
+    }
+
+    protected Collection<Component> getLanguageOnChangeComponents() {
+        return List.of(form);
+    }
+
+    protected Collection<Component> getDomainOnChangeComponents() {
+        return List.of(form);
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+
+        if (StringUtils.isNotBlank(notificationMessage)) {
+            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(
+                    StringEscapeUtils.escapeEcmaScript(notificationMessage),
+                    String.format("jQuery('#%s').data('kendoNotification')",
+                            notificationPanel.getNotificationMarkupId()),
+                    notificationLevel)));
+        }
+    }
+
+    protected abstract BaseSession getBaseSession();
+
+    protected abstract List<BaseSSOLoginFormPanel> getSSOLoginFormPanels();
+
+    protected abstract Class<? extends BaseMfaEnroll> getMfaEnrollPage();
+
+    protected abstract void authenticate(
+            String username,
+            String password,
+            AjaxRequestTarget target)
+            throws NotAuthorizedException;
+
+    /**
+     * Inner class which implements (custom) Locale DropDownChoice component.
+     */
+    protected class LocaleDropDown extends DropDownChoice<Locale> {
+
+        private static final long serialVersionUID = 2349382679992357202L;
+
+        protected class LocaleRenderer extends ChoiceRenderer<Locale> {
+
+            private static final long serialVersionUID = -3657529581555164741L;
+
+            @Override
+            public String getDisplayValue(final Locale locale) {
+                return locale.getDisplayName(getLocale());
+            }
+        }
+
+        protected LocaleDropDown(final String id) {
+            super(id, getBaseSession().getSupportedLocales());
+
+            setChoiceRenderer(new LocaleRenderer());
+            setModel(new IModel<>() {
+
+                private static final long serialVersionUID = -6985170095629312963L;
+
+                @Override
+                public Locale getObject() {
+                    return getSession().getLocale();
+                }
+
+                @Override
+                public void setObject(final Locale object) {
+                    getSession().setLocale(object);
+                }
+
+                @Override
+                public void detach() {
+                    // Empty.
+                }
+            });
+
+            // set default language selection
+            List<Locale> filtered = List.of();
+
+            String acceptLanguage = ((WebRequest) RequestCycle.get().getRequest()).
+                    getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+            if (StringUtils.isNotBlank(acceptLanguage)) {
+                try {
+                    filtered = Locale.filter(
+                            Locale.LanguageRange.parse(acceptLanguage),
+                            getBaseSession().getSupportedLocales());
+                } catch (Exception e) {
+                    LOG.debug("Could not parse {} HTTP header value '{}'",
+                            HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);
+                }
+            }
+
+            getModel().setObject(filtered.isEmpty()
+                    ? Locale.ENGLISH
+                    : filtered.getFirst());
+        }
+    }
+}

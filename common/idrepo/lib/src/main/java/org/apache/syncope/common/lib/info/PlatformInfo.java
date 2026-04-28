@@ -19,97 +19,23 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class PlatformInfo implements BaseBean {
-
-    private static final long serialVersionUID = -7941853999417673827L;
-
-    private boolean selfRegAllowed;
-
-    private boolean pwdResetAllowed;
-
-    private boolean pwdResetRequiringSecurityQuestions;
-
-    private final Set<String> connIdLocations = new HashSet<>();
-
-    private final List<String> anyTypes = new ArrayList<>();
-
-    private final List<String> userClasses = new ArrayList<>();
-
-    private final List<String> anyTypeClasses = new ArrayList<>();
-
-    private final List<String> resources = new ArrayList<>();
-
-    private final Set<String> entitlements = new HashSet<>();
-
-    private final Set<String> implementationTypes = new HashSet<>();
-
-    private final Set<JavaImplInfo> javaImplInfos = new HashSet<>();
-
-    public boolean isSelfRegAllowed() {
-        return selfRegAllowed;
-    }
-
-    public boolean isPwdResetAllowed() {
-        return pwdResetAllowed;
-    }
-
-    public boolean isPwdResetRequiringSecurityQuestions() {
-        return pwdResetRequiringSecurityQuestions;
-    }
-
-    public Set<String> getConnIdLocations() {
-        return connIdLocations;
-    }
-
-    public List<String> getAnyTypes() {
-        return anyTypes;
-    }
-
-    public List<String> getUserClasses() {
-        return userClasses;
-    }
-
-    public List<String> getAnyTypeClasses() {
-        return anyTypeClasses;
-    }
-
-    public List<String> getResources() {
-        return resources;
-    }
-
-    public Set<String> getEntitlements() {
-        return entitlements;
-    }
-
-    public Set<String> getImplementationTypes() {
-        return implementationTypes;
-    }
+public record PlatformInfo(
+        Set<String> connIdLocations,
+        List<String> anyTypes,
+        List<String> userClasses,
+        List<String> anyTypeClasses,
+        List<String> resources,
+        Set<String> entitlements,
+        Set<String> implementationTypes,
+        Set<JavaImplInfo> javaImplInfos) implements BaseBean {
 
     @JsonIgnore
     public Optional<JavaImplInfo> getJavaImplInfo(final String type) {
-        return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType().equals(type)).findFirst();
-    }
-
-    public Set<JavaImplInfo> getJavaImplInfos() {
-        return javaImplInfos;
-    }
-
-    public void setSelfRegAllowed(final boolean selfRegAllowed) {
-        this.selfRegAllowed = selfRegAllowed;
-    }
-
-    public void setPwdResetAllowed(final boolean pwdResetAllowed) {
-        this.pwdResetAllowed = pwdResetAllowed;
-    }
-
-    public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
-        this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
+        return javaImplInfos().stream().filter(javaImplInfo -> javaImplInfo.type().equals(type)).findFirst();
     }
 }

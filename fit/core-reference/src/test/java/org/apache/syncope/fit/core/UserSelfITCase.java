@@ -38,6 +38,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
@@ -90,7 +91,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void selfRegistrationAllowed() {
-        assertTrue(ANONYMOUS_CLIENT.platform().isSelfRegAllowed());
+        assertTrue(confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.SELF_REGISTRATION_ALLOWED, false, boolean.class));
     }
 
     @Test
@@ -323,7 +325,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordReset() throws Exception {
         // 0. ensure that password request DOES require security question
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, true);
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
@@ -398,7 +400,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void passwordResetWithoutSecurityQuestion() {
         // 0. disable security question for password reset
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", false);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false);
 
         // 1. create an user with security question and answer
         UserCR user = UserITCase.getUniqueSample("pwdResetNoSecurityQuestion@syncope.apache.org");
@@ -433,7 +435,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNull(read.getToken());
 
         // 7. re-enable security question for password reset
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, true);
     }
 
     @Test

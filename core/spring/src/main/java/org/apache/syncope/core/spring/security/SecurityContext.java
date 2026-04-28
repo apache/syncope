@@ -21,6 +21,13 @@ package org.apache.syncope.core.spring.security;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeyLengthException;
+import dev.samstevens.totp.code.CodeGenerator;
+import dev.samstevens.totp.code.CodeVerifier;
+import dev.samstevens.totp.code.DefaultCodeGenerator;
+import dev.samstevens.totp.code.DefaultCodeVerifier;
+import dev.samstevens.totp.code.HashingAlgorithm;
+import dev.samstevens.totp.time.SystemTimeProvider;
+import dev.samstevens.totp.time.TimeProvider;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -171,5 +178,19 @@ public class SecurityContext {
 
             return new Blacklist(reader);
         }
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public HashingAlgorithm totpHashingAlgorithm() {
+        return HashingAlgorithm.SHA512;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public CodeVerifier totpCodeVerifier(final HashingAlgorithm hashingAlgorithm) {
+        CodeGenerator codeGenerator = new DefaultCodeGenerator(hashingAlgorithm);
+        TimeProvider timeProvider = new SystemTimeProvider();
+        return new DefaultCodeVerifier(codeGenerator, timeProvider);
     }
 }

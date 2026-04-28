@@ -88,8 +88,16 @@ At this point an instance of `SyncopeClient` can be obtained by passing the logi
 ----
 SyncopeClient client = clientFactory.create("admin", "password");
 ----
+(when MFA is not enabled)
 
-Or you can combine into a single statement as:
+or
+
+----
+SyncopeClient client = clientFactory.create("admin", "password", "123456");
+----
+(with MFA enabled).
+
+You could also combine into a single statement as:
 
 [source,java]
 ----

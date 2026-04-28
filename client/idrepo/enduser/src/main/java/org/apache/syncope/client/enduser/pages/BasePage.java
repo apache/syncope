@@ -26,6 +26,8 @@ import org.apache.syncope.client.enduser.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -44,12 +46,19 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
+    @SpringBean
+    protected ConfParamOps confParamOps;
+
+    @SpringBean
+    protected AnonymousRestClient anonymousRestClient;
 
     protected final Sidebar sidebar;
 
@@ -70,8 +79,9 @@ public abstract class BasePage extends BaseWebPage {
         // sidebar
         Class<? extends Sidebar> clazz = SyncopeWebApplication.get().getSidebar();
         try {
-            sidebar = clazz.getConstructor(String.class, PageReference.class).
-                    newInstance("sidebar", getPageReference());
+            sidebar = clazz.getConstructor(
+                    String.class, ConfParamOps.class, AnonymousRestClient.class, PageReference.class).
+                    newInstance("sidebar", confParamOps, anonymousRestClient, getPageReference());
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not instantiate " + clazz.getName(), e);
         }

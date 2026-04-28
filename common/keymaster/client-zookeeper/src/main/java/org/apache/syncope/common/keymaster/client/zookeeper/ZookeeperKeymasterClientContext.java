@@ -134,7 +134,6 @@ public class ZookeeperKeymasterClientContext {
     @Bean
     public ServiceOps serviceOps() {
         return new ZookeeperServiceDiscoveryOps();
-        //return new ZookeeperServiceOps();
     }
 
     @Conditional(ZookeeperCondition.class)

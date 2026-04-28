@@ -57,7 +57,6 @@ abstract class SelfKeymasterOps {
         } else {
             synchronized (clientFactory) {
                 clientFactory.setServiceClass(serviceClass);
-                clientFactory.setHeaders(headers);
                 service = clientFactory.create(serviceClass);
             }
             services.put(serviceClass, service);
@@ -72,6 +71,10 @@ abstract class SelfKeymasterOps {
             HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
             httpConduit.setClient(httpClientPolicy);
         }
+
+        Client client = WebClient.client(service);
+        client.reset();
+        headers.forEach((name, value) -> client.header(name, value));
 
         return service;
     }

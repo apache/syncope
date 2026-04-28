@@ -42,16 +42,14 @@ public class SystemLoadReporterJob extends Job {
 
     @Override
     protected void execute(final JobExecutionContext context) {
-        SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
-
-        instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
-
-        instant.setUptime(ManagementFactory.getRuntimeMXBean().getUptime());
-
         Runtime runtime = Runtime.getRuntime();
-        instant.setTotalMemory(runtime.totalMemory() / MB);
-        instant.setMaxMemory(runtime.maxMemory() / MB);
-        instant.setFreeMemory(runtime.freeMemory() / MB);
+
+        SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant(
+                ManagementFactory.getRuntimeMXBean().getUptime(),
+                ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(),
+                runtime.totalMemory() / MB,
+                runtime.freeMemory() / MB,
+                runtime.maxMemory() / MB);
 
         publisher.publishEvent(instant);
     }

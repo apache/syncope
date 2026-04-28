@@ -63,10 +63,10 @@ public class DashboardSystemPanel extends Panel {
         add(version);
 
         SystemInfo systemInfo = SyncopeConsoleSession.get().getSystemInfo();
-        add(new Label("hostname", systemInfo.getHostname()));
-        add(new Label("processors", systemInfo.getAvailableProcessors()));
-        add(new Label("os", systemInfo.getOs()));
-        add(new Label("jvm", systemInfo.getJvm()));
+        add(new Label("hostname", systemInfo.hostname()));
+        add(new Label("processors", systemInfo.availableProcessors()));
+        add(new Label("os", systemInfo.os()));
+        add(new Label("jvm", systemInfo.jvm()));
 
         AjaxNumberFieldPanel<Integer> threshold = new AjaxNumberFieldPanel.Builder<Integer>().
                 min(0).step(10).enableOnChange().

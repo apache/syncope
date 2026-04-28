@@ -7,6 +7,7 @@
   "selfRegistration.allowed": true,
   "passwordReset.allowed": true,
   "passwordReset.securityQuestion": true,
+  "mfa.enabled": false,
   "authentication.attributes": ["username"],
   "authentication.statuses": ["created", "active"],
   "log.lastlogindate": true,

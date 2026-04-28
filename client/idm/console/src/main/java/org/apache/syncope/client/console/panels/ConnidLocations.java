@@ -144,13 +144,13 @@ public class ConnidLocations extends
 
         @Override
         public Iterator<String> iterator(final long first, final long count) {
-            List<String> result = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations());
+            List<String> result = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().connIdLocations());
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().size();
+            return SyncopeConsoleSession.get().getPlatformInfo().connIdLocations().size();
         }
 
         @Override

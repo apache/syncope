@@ -175,7 +175,7 @@ public class EditSecurityQuestion extends BaseReauthPage {
 
             @Override
             protected void onError(final AjaxRequestTarget target) {
-                notificationPanel.refresh(target);
+                getNotificationPanel().refresh(target);
             }
         };
         form.add(submitButton);

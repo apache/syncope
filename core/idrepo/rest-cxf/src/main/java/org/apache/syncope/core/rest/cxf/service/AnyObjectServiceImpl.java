@@ -30,8 +30,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
-import org.apache.syncope.core.logic.AbstractAnyLogic;
-import org.apache.syncope.core.logic.AnyObjectLogic;
+import org.apache.syncope.core.logic.AnyCRUDLogicOp;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
@@ -41,12 +41,12 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected final AnyObjectLogic logic;
+    protected final AnyObjectLogicOp logic;
 
     public AnyObjectServiceImpl(
             final AnySearchCondVisitor searchCondVisitor,
             final AnyObjectDAO anyObjectDAO,
-            final AnyObjectLogic logic) {
+            final AnyObjectLogicOp logic) {
 
         super(searchCondVisitor);
         this.anyObjectDAO = anyObjectDAO;
@@ -59,7 +59,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
-    protected AbstractAnyLogic<AnyObjectTO, AnyObjectCR, AnyObjectUR> getAnyLogic() {
+    protected AnyCRUDLogicOp<AnyObjectTO, AnyObjectCR, AnyObjectUR> getAnyLogic() {
         return logic;
     }
 

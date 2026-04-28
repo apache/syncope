@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -90,10 +91,10 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
     @Test
     public void notifyByMailWithRetry() throws Exception {
         // 1. Set higher number of retries
-        Long origMaxRetries = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "notification.maxRetries", null, Long.class);
+        Long origMaxRetries = confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.NOTIFICATION_MAX_RETRIES, null, Long.class);
 
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", 10);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.NOTIFICATION_MAX_RETRIES, 10);
 
         // 2. Stop mail server to force errors while sending out e-mails
         WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/greenMail/stop").post(null);
@@ -128,7 +129,8 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             // start mail server again
             WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/greenMail/start").post(null);
             // reset number of retries
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", origMaxRetries);
+            confParamOps.set(
+                    SyncopeConstants.MASTER_DOMAIN, StandardConfParams.NOTIFICATION_MAX_RETRIES, origMaxRetries);
         }
     }
 

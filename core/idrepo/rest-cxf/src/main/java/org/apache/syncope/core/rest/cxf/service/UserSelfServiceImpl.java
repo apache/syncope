@@ -20,46 +20,34 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.core.logic.SyncopeLogic;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.UserSelfLogic;
 
 public class UserSelfServiceImpl extends AbstractService implements UserSelfService {
 
-    protected final UserLogic logic;
+    protected final UserSelfLogic logic;
 
-    protected final SyncopeLogic syncopeLogic;
-
-    public UserSelfServiceImpl(final UserLogic logic, final SyncopeLogic syncopeLogic) {
+    public UserSelfServiceImpl(final UserSelfLogic logic) {
         this.logic = logic;
-        this.syncopeLogic = syncopeLogic;
     }
 
     @Override
     public Response create(final UserCR createReq) {
-        if (!syncopeLogic.isSelfRegAllowed()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
-            sce.getElements().add("Self registration forbidden by configuration");
-            throw sce;
-        }
-
-        ProvisioningResult<UserTO> created = logic.selfCreate(createReq, isNullPriorityAsync());
+        ProvisioningResult<UserTO> created = logic.create(createReq, isNullPriorityAsync());
         return createResponse(created);
     }
 
     @Override
     public Response read() {
-        UserLogic.Self self = logic.selfRead();
+        UserSelfLogic.Self self = logic.read();
         return Response.ok().
                 header(RESTHeaders.RESOURCE_KEY, self.user().getKey()).
                 header(RESTHeaders.OWNED_ENTITLEMENTS, self.entitlements()).
@@ -70,25 +58,25 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
     @Override
     public Response update(final UserUR updateReq) {
-        ProvisioningResult<UserTO> updated = logic.selfUpdate(updateReq, isNullPriorityAsync());
+        ProvisioningResult<UserTO> updated = logic.update(updateReq, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
     @Override
     public Response update(final UserTO user) {
-        UserLogic.Self self = logic.selfRead();
+        UserSelfLogic.Self self = logic.read();
         return update(AnyOperations.diff(user, self.user(), false));
     }
 
     @Override
     public Response status(final StatusR statusR) {
-        ProvisioningResult<UserTO> updated = logic.selfStatus(statusR, isNullPriorityAsync());
+        ProvisioningResult<UserTO> updated = logic.status(statusR, isNullPriorityAsync());
         return modificationResponse(updated);
     }
 
     @Override
     public Response delete() {
-        ProvisioningResult<UserTO> deleted = logic.selfDelete(isNullPriorityAsync());
+        ProvisioningResult<UserTO> deleted = logic.delete(isNullPriorityAsync());
         return modificationResponse(deleted);
     }
 
@@ -105,23 +93,11 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
     @Override
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        if (!syncopeLogic.isPwdResetAllowed()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
-            sce.getElements().add("Password reset forbidden by configuration");
-            throw sce;
-        }
-
         logic.requestPasswordReset(username, securityAnswer);
     }
 
     @Override
     public void confirmPasswordReset(final String token, final String password) {
-        if (!syncopeLogic.isPwdResetAllowed()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
-            sce.getElements().add("Password reset forbidden by configuration");
-            throw sce;
-        }
-
         logic.confirmPasswordReset(token, password);
     }
 }

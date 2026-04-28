@@ -122,7 +122,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
 
         // Click action menu to bring up merge window
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:6:action:action");
+                + "actions:actions:actionRepeater:7:action:action");
         // Search for user
         TESTER.executeAjaxEvent(USER_SEARCH_FORM.replace(":2:", ":0:") + "content:panelPlus:add", Constants.ON_CLICK);
         FormTester formTester = TESTER.newFormTester(USER_SEARCH_FORM.replace(":2:", ":0:"));

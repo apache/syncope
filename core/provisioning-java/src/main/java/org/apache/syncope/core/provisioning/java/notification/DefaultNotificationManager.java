@@ -33,6 +33,7 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -169,7 +170,8 @@ public class DefaultNotificationManager implements NotificationManager {
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
-        return confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "notification.maxRetries", 0L, Long.class);
+        return confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.NOTIFICATION_MAX_RETRIES, 0L, Long.class);
     }
 
     /**

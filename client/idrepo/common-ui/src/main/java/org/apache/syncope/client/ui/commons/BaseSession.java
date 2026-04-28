@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
+import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.types.Mfa;
+import org.apache.wicket.Session;
 import org.apache.wicket.model.ResourceModel;
 
 public interface BaseSession {
@@ -47,6 +51,10 @@ public interface BaseSession {
         }
     }
 
+    Session setAttribute(String name, Serializable value);
+
+    void error(Serializable message);
+
     void setDomain(String domain);
 
     String getDomain();
@@ -56,6 +64,10 @@ public interface BaseSession {
     boolean authenticate(String jwt, Instant jwtExpiration);
 
     SyncopeAnonymousClient getAnonymousClient();
+
+    default PlatformInfo getPlatformInfo() {
+        return getAnonymousClient().platform();
+    }
 
     <T> T getAnonymousService(Class<T> serviceClass);
 
@@ -88,4 +100,8 @@ public interface BaseSession {
                 Locale.of("pt", "BR"),
                 Locale.of("ru"));
     }
+
+    Mfa generateMfa();
+
+    void enrollMfa(Mfa mfa);
 }

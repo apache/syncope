@@ -31,6 +31,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.MembershipUR;
@@ -276,7 +277,8 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         assertTrue(userSchemas.stream().anyMatch(object -> "fullname".equals(object.getKey())));
 
-        assertFalse(userSchemas.stream().anyMatch(object -> "password.cipher.algorithm".equals(object.getKey())
+        assertFalse(userSchemas.stream().
+                anyMatch(object -> StandardConfParams.PASSWORD_CIPHER_ALGORITHM.equals(object.getKey())
                 || "rderived_dx".equals(object.getKey())
                 || "icon".equals(object.getKey())
                 || "mderived_sx".equals(object.getKey())

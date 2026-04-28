@@ -66,7 +66,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
         List<String> classes = List.of();
         if (viewMode == ViewMode.JAVA_CLASS) {
             classes = SyncopeConsoleSession.get().getPlatformInfo().getJavaImplInfo(implementation.getType()).
-                    map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses())).orElseGet(ArrayList::new);
+                    map(javaImplInfo -> new ArrayList<>(javaImplInfo.classes())).orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORT_DELEGATE:
