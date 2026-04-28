@@ -52,6 +52,8 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
+import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
@@ -247,7 +249,7 @@ public final class ImplementationManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Pair<Class<T>, Boolean> getClass(final Implementation impl) throws ClassNotFoundException {
+    public static <T> Pair<Class<T>, Boolean> getClass(final Implementation impl) throws ClassNotFoundException {
         if (CLASS_CACHE.containsKey(impl.getKey())) {
             return Pair.of((Class<T>) CLASS_CACHE.get(impl.getKey()), true);
         }
@@ -268,14 +270,22 @@ public final class ImplementationManager {
     }
 
     private static <T> T createBean(final Class<T> clazz, final ImplementationEngine engine) {
-        T bean = ApplicationContextProvider.getBeanFactory().createBean(clazz);
-        if (engine == ImplementationEngine.GROOVY) {
-            AspectJProxyFactory factory = new AspectJProxyFactory(bean);
-            factory.addAspect(new GroovySandbox(
-                    ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class)));
-            bean = factory.getProxy();
+        if (engine == ImplementationEngine.JAVA) {
+            return ApplicationContextProvider.getBeanFactory().createBean(clazz);
         }
-        return bean;
+
+        GroovyInterceptor interceptor = new SandboxInterceptor(
+                ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class));
+        try {
+            interceptor.register();
+
+            AspectJProxyFactory factory = new AspectJProxyFactory(
+                    ApplicationContextProvider.getBeanFactory().createBean(clazz));
+            factory.addAspect(new GroovySandbox(interceptor));
+            return factory.getProxy();
+        } finally {
+            interceptor.unregister();
+        }
     }
 
     @SuppressWarnings("unchecked")

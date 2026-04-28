@@ -21,8 +21,6 @@ package org.apache.syncope.core.spring.implementation;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,15 +30,14 @@ public class GroovySandbox {
 
     protected static final Logger LOG = LoggerFactory.getLogger(GroovySandbox.class);
 
-    protected final Whitelist whitelist;
+    protected final GroovyInterceptor interceptor;
 
-    public GroovySandbox(final Whitelist whitelist) {
-        this.whitelist = whitelist;
+    public GroovySandbox(final GroovyInterceptor interceptor) {
+        this.interceptor = interceptor;
     }
 
     @Around("execution(* *(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
-        GroovyInterceptor interceptor = new SandboxInterceptor(whitelist);
         try {
             interceptor.register();
 
