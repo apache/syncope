@@ -27,7 +27,6 @@ import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
@@ -53,9 +52,6 @@ public class SelfPasswordReset extends BaseNoSidebarPage {
     private static final long serialVersionUID = 164651008547631054L;
 
     protected static final String SELF_PWD_RESET = "page.selfPwdReset";
-
-    @SpringBean
-    protected ConfParamOps confParamOps;
 
     @SpringBean
     protected UserSelfRestClient userSelfRestClient;

@@ -35,6 +35,8 @@ For each of the identities above, Apache Syncope is capable of maintaining:
 . `name` (`username`, for Users) - string value uniquely identifying a specific user, group or any object instance;
 . `password` (Users only) - hashed or encrypted value, depending on the selected `password.cipher.algorithm` - see
 <<configuration-parameters, below>> for details - which can be used for authentication;
+. `mfa` (Users only) - encrypted value representing the enrolled MFA device to use during the authentication process,
+when <<authentiation-credentials,MFA is enabled>>;
 . set of attributes, with each attribute being a `(key,values)` pair where
 
  ** `key` is a string label (e.g. `surname`);

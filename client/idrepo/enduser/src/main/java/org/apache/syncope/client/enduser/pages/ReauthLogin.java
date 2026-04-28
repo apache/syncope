@@ -38,11 +38,9 @@ public class ReauthLogin extends Login {
         usernameField.setModelObject(session.getSelfTO().getUsername());
         usernameField.modelChanged();
 
-        if (confParamOps.get(getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)
-                && anonymousRestClient.isMfaEnrolled(usernameField.getValue())) {
-
-            mfaField.setVisible(true);
-        }
+        mfaField.setVisible(
+                confParamOps.get(getBaseSession().getDomain(), StandardConfParams.MFA_ENABLED, false, boolean.class)
+                && anonymousRestClient.isMfaEnrolled(usernameField.getValue()));
 
         languageSelect.setEnabled(false);
         languageSelect.setModelObject(session.getLocale());

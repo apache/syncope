@@ -31,6 +31,21 @@ self-service and <<password-reset,password reset>>.
 [.text-center]
 image::enduserLogin.png[enduser-login]
 
+[[enduser-mfa]]
+==== MFA
+
+When <<authentiation-credentials,MFA is enabled>>, the login flow is slightly different.
+
+First, an app must be enrolled:
+
+image::enduser-mfa-enroll1.png[enduser-mfa-enroll1]
+image::enduser-mfa-enroll2.png[enduser-mfa-enroll2]
+
+Then, for subsequent logins, the form includes the additional `mfa` field:
+
+[.text-center]
+image::enduser-mfa-login.png[enduser-mfa-login]
+
 [[enduser-accessibility]]
 ==== Accessibility
 
@@ -97,6 +112,7 @@ image::enduserHome.png[enduser-home]
 image::enduserEditProfile.png[enduser-edit-profile]
 image::enduserChangePassword.png[enduser-change-password]
 image::enduserSecurityQuestion.png[enduser-security-question]
+image::enduserDismissMFA.png[enduser-dismiss-mfa]
 
 [[enduser-user-requests]]
 [discrete]
