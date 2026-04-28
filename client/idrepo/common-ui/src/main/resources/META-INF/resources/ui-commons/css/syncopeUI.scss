@@ -440,7 +440,7 @@ td.checkGroupColumn {
 
 .pwstrengthProgress {
   position: absolute;
-  margin-top: 4.8%;
+  margin-top: 35px;
   width: 100%;
 }
 
@@ -1260,6 +1260,7 @@ select.form-select {
   -moz-appearance: menulist !important;
   -ms-appearance: menulist !important;
   -o-appearance: menulist !important;
+  --bs-form-select-bg-img: none !important;
   appearance: menulist !important;
   height: 2.35rem;
 }

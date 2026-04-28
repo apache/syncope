@@ -40,7 +40,7 @@ The pre-defined `health` endpoint is typically used for liveness and readiness p
 |===
 
 | `entityCache`
-a| Allows to work with https://docs.hibernate.org/orm/7.2/userguide/html_single/#caching-statistics[JPA cache statistics^]
+a| Allows to work with https://docs.hibernate.org/orm/7.3/userguide/html_single/#caching-statistics[JPA cache statistics^]
 
 * `GET` - shows JPA cache statistics
 * `POST {ENABLE,DISABLE,RESET}` - performs the requested operation onto JPA cache

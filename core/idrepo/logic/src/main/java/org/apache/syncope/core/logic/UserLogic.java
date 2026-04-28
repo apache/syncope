@@ -18,21 +18,12 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.lang.reflect.Method;
-import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -43,38 +34,23 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
-import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
-import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.policy.AccountPolicyException;
-import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,75 +61,34 @@ import org.springframework.transaction.annotation.Transactional;
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
  * Spring's Transactional logic at class level.
  */
-public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
-
-    public record Self(UserTO user, String entitlements, String delegations) {
-
-    }
-
-    protected final UserDAO userDAO;
+public class UserLogic extends AbstractUserLogic implements UserLogicOp {
 
     protected final GroupDAO groupDAO;
 
     protected final AnySearchDAO searchDAO;
-
-    protected final ExternalResourceDAO resourceDAO;
-
-    protected final AccessTokenDAO accessTokenDAO;
-
-    protected final DelegationDAO delegationDAO;
-
-    protected final ConfParamOps confParamOps;
-
-    protected final UserDataBinder binder;
-
-    protected final UserProvisioningManager provisioningManager;
-
-    protected final SyncopeLogic syncopeLogic;
-
-    protected final RuleProvider ruleEnforcer;
 
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final TemplateUtils templateUtils,
             final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnySearchDAO searchDAO,
-            final ExternalResourceDAO resourceDAO,
-            final AccessTokenDAO accessTokenDAO,
-            final DelegationDAO delegationDAO,
-            final ConfParamOps confParamOps,
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
-            final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleEnforcer) {
+            final EncryptorManager encryptorManager,
+            final ConfParamOps confParamOps,
+            final GroupDAO groupDAO,
+            final AnySearchDAO searchDAO) {
 
-        super(realmSearchDAO, anyTypeDAO, templateUtils);
-
-        this.userDAO = userDAO;
+        super(realmSearchDAO,
+                anyTypeDAO,
+                templateUtils,
+                userDAO,
+                binder,
+                provisioningManager,
+                encryptorManager,
+                confParamOps);
         this.groupDAO = groupDAO;
         this.searchDAO = searchDAO;
-        this.resourceDAO = resourceDAO;
-        this.accessTokenDAO = accessTokenDAO;
-        this.delegationDAO = delegationDAO;
-        this.confParamOps = confParamOps;
-        this.binder = binder;
-        this.provisioningManager = provisioningManager;
-        this.syncopeLogic = syncopeLogic;
-        this.ruleEnforcer = ruleEnforcer;
-    }
-
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    @Transactional(readOnly = true)
-    public Self selfRead() {
-        UserTO authenticatedUser = binder.getAuthenticatedUserTO();
-
-        return new Self(
-                authenticatedUser,
-                POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(delegationDAO.findValidDelegating(
-                        authenticatedUser.getKey(), OffsetDateTime.now())));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")
@@ -192,63 +127,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return new SyncopePage<>(result, pageable, count);
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public ProvisioningResult<UserTO> selfCreate(final UserCR createReq, final boolean nullPriorityAsync) {
-        return doCreate(createReq, true, nullPriorityAsync);
-    }
-
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_CREATE + "')")
+    @Override
     public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean nullPriorityAsync) {
         return doCreate(createReq, false, nullPriorityAsync);
-    }
-
-    protected ProvisioningResult<UserTO> doCreate(
-            final UserCR userCR,
-            final boolean self,
-            final boolean nullPriorityAsync) {
-
-        BeforeResult<UserCR> before = beforeCreate(userCR);
-
-        if (before.key().getRealm() == null) {
-            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-        }
-
-        if (!self) {
-            Set<String> authRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_CREATE),
-                    before.key().getRealm());
-            userDAO.securityChecks(
-                    authRealms,
-                    null,
-                    before.key().getRealm(),
-                    before.key().getMemberships().stream().filter(Objects::nonNull).
-                            map(MembershipTO::getGroupKey).filter(Objects::nonNull).
-                            collect(Collectors.toSet()));
-        }
-
-        ProvisioningManager.ProvisioningResult<String> created = provisioningManager.create(
-                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-
-        return afterCreate(binder.getUserTO(created.key()), created.statuses(), before.actions());
-    }
-
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "')) "
-            + "and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    public ProvisioningResult<UserTO> selfUpdate(final UserUR userUR, final boolean nullPriorityAsync) {
-        UserTO userTO = binder.getAuthenticatedUserTO();
-        userUR.setKey(userTO.getKey());
-        ProvisioningResult<UserTO> updated = doUpdate(userUR, true, nullPriorityAsync);
-
-        // Ensures that, if the self update above moves the user into a status from which no authentication
-        // is possible, the existing Access Token is clean up to avoid issues with future authentications
-        List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
-                "authentication.statuses", new String[] {}, String[].class));
-        if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            accessTokenDAO.deleteByOwner(updated.getEntity().getUsername());
-        }
-
-        return updated;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -257,74 +139,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return doUpdate(userUR, false, nullPriorityAsync);
     }
 
-    protected Set<String> groups(final UserTO userTO) {
-        return userTO.getMemberships().stream().filter(Objects::nonNull).
-                map(MembershipTO::getGroupKey).filter(Objects::nonNull).
-                collect(Collectors.toSet());
-    }
-
-    protected ProvisioningResult<UserTO> doUpdate(
-            final UserUR userUR, final boolean self, final boolean nullPriorityAsync) {
-
-        UserTO userTO = binder.getUserTO(userUR.getKey());
-        BeforeResult<UserUR> before = beforeUpdate(userUR, userTO.getRealm());
-
-        Set<String> authRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
-                userTO.getRealm());
-        if (!self) {
-            Set<String> groups = groups(userTO);
-            groups.removeAll(userUR.getMemberships().stream().filter(Objects::nonNull).
-                    filter(m -> m.getOperation() == PatchOperation.DELETE).
-                    map(MembershipUR::getGroup).filter(Objects::nonNull).
-                    collect(Collectors.toSet()));
-
-            userDAO.securityChecks(
-                    authRealms,
-                    before.key().getKey(),
-                    userTO.getRealm(),
-                    groups);
-        }
-
-        ProvisioningManager.ProvisioningResult<UserUR> after = provisioningManager.update(
-                before.key(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-
-        ProvisioningResult<UserTO> result = afterUpdate(
-                binder.getUserTO(after.key().getKey()),
-                after.statuses(),
-                before.actions());
-
-        return result;
-    }
-
-    protected ProvisioningManager.ProvisioningResult<String> setStatusOnWfAdapter(
-            final StatusR statusR, final boolean nullPriorityAsync) {
-
-        ProvisioningManager.ProvisioningResult<String> updated;
-
-        switch (statusR.getType()) {
-            case SUSPEND:
-                updated = provisioningManager.suspend(
-                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-                break;
-
-            case REACTIVATE:
-                updated = provisioningManager.reactivate(
-                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-                break;
-
-            case ACTIVATE:
-            default:
-                updated = provisioningManager.activate(
-                        statusR, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-                break;
-
-        }
-
-        return updated;
-    }
-
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
+    @Override
     public ProvisioningResult<UserTO> status(final StatusR statusR, final boolean nullPriorityAsync) {
         // security checks
         UserTO toUpdate = binder.getUserTO(statusR.getKey());
@@ -341,166 +157,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         // ensures the actual user key is effectively on the request - as the binder.getUserTO(statusR.getKey())
         // call above works with username as well
         statusR.setKey(toUpdate.getKey());
-        ProvisioningManager.ProvisioningResult<String> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
-        return afterUpdate(
-                binder.getUserTO(updated.key()),
-                updated.statuses(),
-                List.of());
-    }
-
-    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
-        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()).
-                orElseThrow(() -> new NotFoundException("Could not find authenticated user")));
-        ProvisioningManager.ProvisioningResult<String> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
-
-        return afterUpdate(
-                binder.getUserTO(updated.key()),
-                updated.statuses(),
-                List.of());
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
-    public ProvisioningResult<UserTO> mustChangePassword(
-            final PasswordPatch password, final boolean nullPriorityAsync) {
-
-        UserTO userTO = binder.getAuthenticatedUserTO();
-
-        password.setOnSyncope(true);
-        password.getResources().clear();
-        password.getResources().addAll(userDAO.findAllResourceKeys(userTO.getKey()));
-
-        UserUR userUR = new UserUR.Builder(userTO.getKey()).
-                password(password).
-                mustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build()).
-                build();
-        ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
-
-        accessTokenDAO.deleteByOwner(result.getEntity().getUsername());
-
-        return result;
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional(readOnly = true)
-    public void compliance(final ComplianceQuery query) {
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RESTValidation);
-
-        if (query.isEmpty()) {
-            sce.getElements().add("Nothing to check");
-            throw sce;
-        }
-
-        Realm realm = null;
-        if (StringUtils.isNotBlank(query.getRealm())) {
-            realm = realmSearchDAO.findByFullPath(query.getRealm()).
-                    orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
-        }
-        Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::findById).flatMap(Optional::stream).collect(Collectors.toSet());
-        if (realm == null && resources.isEmpty()) {
-            sce.getElements().add("Nothing to check");
-            throw sce;
-        }
-
-        if (StringUtils.isNotBlank(query.getUsername())) {
-            List<AccountPolicy> accountPolicies = ruleEnforcer.getAccountPolicies(realm, resources);
-            try {
-                if (accountPolicies.isEmpty()) {
-                    if (!Entity.ID_PATTERN.matcher(query.getUsername()).matches()) {
-                        throw new AccountPolicyException("Character(s) not allowed: " + query.getUsername());
-                    }
-                } else {
-                    for (AccountPolicy policy : accountPolicies) {
-                        ruleEnforcer.getAccountRules(policy).forEach(rule -> rule.enforce(query.getUsername()));
-                    }
-                }
-            } catch (AccountPolicyException e) {
-                throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
-            }
-        }
-
-        if (StringUtils.isNotBlank(query.getPassword())) {
-            try {
-                for (PasswordPolicy policy : ruleEnforcer.getPasswordPolicies(realm, resources)) {
-                    ruleEnforcer.getPasswordRules(policy).
-                            forEach(rule -> rule.enforce(query.getUsername(), query.getPassword()));
-                }
-            } catch (PasswordPolicyException e) {
-                throw new InvalidEntityException(User.class, EntityViolationType.InvalidPassword, e.getMessage());
-            }
-        }
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void requestPasswordReset(final String username, final String securityAnswer) {
-        String key = userDAO.findKey(username).
-                orElseThrow(() -> new NotFoundException("User " + username));
-
-        if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
-
-            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
-        }
-
-        provisioningManager.requestPasswordReset(key, AuthContextUtils.getUsername(), REST_CONTEXT);
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void confirmPasswordReset(final String token, final String password) {
-        String key = userDAO.findByToken(token).
-                orElseThrow(() -> new NotFoundException("User with token " + token));
-
-        provisioningManager.confirmPasswordReset(
-                key, token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
-    }
-
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "')) "
-            + "and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
-    public ProvisioningResult<UserTO> selfDelete(final boolean nullPriorityAsync) {
-        return doDelete(binder.getAuthenticatedUserTO(), true, nullPriorityAsync);
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_DELETE + "')")
-    @Override
-    public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
-        return doDelete(binder.getUserTO(key), false, nullPriorityAsync);
-    }
-
-    protected ProvisioningResult<UserTO> doDelete(
-            final UserTO userTO, final boolean self, final boolean nullPriorityAsync) {
-
-        BeforeResult<UserTO> before = beforeDelete(userTO);
-
-        if (!self) {
-            Set<String> authRealms = RealmUtils.getEffective(
-                    AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_DELETE),
-                    before.key().getRealm());
-            userDAO.securityChecks(
-                    authRealms,
-                    before.key().getKey(),
-                    before.key().getRealm(),
-                    groups(before.key()));
-        }
-
-        if (userDAO.isManager(before.key().getKey())) {
-            throw SyncopeClientException.build(ClientExceptionType.Management);
-        }
-
-        List<PropagationStatus> statuses = provisioningManager.delete(
-                before.key().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
-
-        UserTO deletedTO;
-        if (userDAO.existsById(before.key().getKey())) {
-            deletedTO = binder.getUserTO(before.key().getKey());
-        } else {
-            deletedTO = new UserTO();
-            deletedTO.setKey(before.key().getKey());
-        }
-
-        return afterDelete(deletedTO, statuses, before.actions());
+        return doStatus(statusR, nullPriorityAsync);
     }
 
     protected void updateChecks(final String key) {
@@ -626,47 +284,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
-    public void verifySecurityAnswer(final String username, final String securityAnswer) {
-        String key = userDAO.findKey(username).
-                orElseThrow(() -> new NotFoundException("User " + username));
-
-        if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
-
-            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
-        }
-    }
-
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_DELETE + "')")
     @Override
-    protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
-        String key = null;
-
-        if ("requestPasswordReset".equals(method.getName())) {
-            key = userDAO.findKey((String) args[0]).orElse(null);
-        } else if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String string) {
-                    key = string;
-                } else if (args[i] instanceof UserTO userTO) {
-                    key = userTO.getKey();
-                } else if (args[i] instanceof UserUR userUR) {
-                    key = userUR.getKey();
-                } else if (args[i] instanceof StatusR statusR) {
-                    key = statusR.getKey();
-                }
-            }
-        }
-
-        if (key != null) {
-            try {
-                return binder.getUserTO(key);
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
-        }
-
-        throw new UnresolvedReferenceException();
+    public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
+        return doDelete(binder.getUserTO(key), false, nullPriorityAsync);
     }
 }

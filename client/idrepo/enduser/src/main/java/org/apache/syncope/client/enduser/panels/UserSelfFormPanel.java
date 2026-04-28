@@ -60,6 +60,7 @@ public class UserSelfFormPanel extends UserFormPanel {
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageReference) {
+
         super(id, previousUserTO, userTO, anyTypeClasses, formLayoutInfo, pageReference);
     }
 

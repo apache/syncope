@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import dev.samstevens.totp.code.CodeVerifier;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -48,6 +52,8 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
 
     protected static final String MUST_CHANGE_PASSWORD_TYPE = ".failure";
 
+    protected static final String MFA_ENROLL_TYPE = ".failure";
+
     protected static final String NOT_FOUND_TYPE = ".notfound";
 
     protected static final String DISABLED_TYPE = ".disabled";
@@ -65,6 +71,9 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
     protected static final Function<String, String> MUST_CHANGE_PASSWORD_DESC =
             type -> "The total number of mustChangePassword users attempting to perform " + type + " login";
 
+    protected static final Function<String, String> MFA_ENROLL_DESC =
+            type -> "The total number of users attempting to perform " + type + " MFA enroll";
+
     protected static final Function<String, String> NOT_FOUND_DESC =
             type -> "The total number of not found users attempting to perform " + type + " login";
 
@@ -76,6 +85,7 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
     public InstrumentedAuthDataAccessor(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            final CodeVerifier totpCodeVerifier,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -88,25 +98,28 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
+            final DefaultCredentialChecker credentialChecker,
             final List<JWTSSOProvider> jwtSSOProviders,
             final MeterRegistry meterRegistry) {
 
-        super(securityProperties, encryptorManager, realmSearchDAO, userDAO, groupDAO, anySearchDAO, accessTokenDAO,
-                confParamOps, roleDAO, delegationDAO, resourceDAO, connectorManager, auditManager, mappingManager,
-                jwtSSOProviders);
+        super(securityProperties, encryptorManager, totpCodeVerifier, realmSearchDAO, userDAO, groupDAO, anySearchDAO,
+                accessTokenDAO, confParamOps, roleDAO, delegationDAO, resourceDAO, connectorManager,
+                auditManager, mappingManager, credentialChecker, jwtSSOProviders);
         this.meterRegistry = meterRegistry;
     }
 
     @Override
-    public UsernamePasswordAuthResult authenticate(final String domain, final Authentication authentication) {
+    public UsernamePasswordAuthResult authenticate(final Optional<Domain> domain, final Authentication authentication) {
         try {
             UsernamePasswordAuthResult result = super.authenticate(domain, authentication);
 
             Optional.ofNullable(result.user()).ifPresentOrElse(
                     user -> {
-                        Counter.builder(result.authenticated()
+                        boolean authenticated = result.passwordVerified()
+                        && BooleanUtils.isNotFalse(result.otpVerified());
+                        Counter.builder(authenticated
                                 ? USERNAME.apply(SUCCESS_TYPE) : USERNAME.apply(FAILURE_TYPE)).
-                                description(result.authenticated()
+                                description(authenticated
                                         ? SUCCESS_DESC.apply("username") : FAILURE_DESC.apply("username")).
                                 tag("realm", user.getRealm().getFullPath()).
                                 register(meterRegistry).
@@ -114,6 +127,14 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
                         if (user.isMustChangePassword()) {
                             Counter.builder(USERNAME.apply(MUST_CHANGE_PASSWORD_TYPE)).
                                     description(MUST_CHANGE_PASSWORD_DESC.apply("username")).
+                                    register(meterRegistry).
+                                    increment();
+                        }
+                        if (result.authorities().stream().
+                                anyMatch(auth -> IdRepoEntitlement.MFA_ENROLL.equals(auth.getAuthority()))) {
+
+                            Counter.builder(USERNAME.apply(MFA_ENROLL_TYPE)).
+                                    description(MFA_ENROLL_DESC.apply("username")).
                                     register(meterRegistry).
                                     increment();
                         }
@@ -141,6 +162,11 @@ public class InstrumentedAuthDataAccessor extends AuthDataAccessor {
             if (MUST_CHANGE_PASSWORD_AUTHORITIES.equals(result.authorities())) {
                 Counter.builder(JWT.apply(MUST_CHANGE_PASSWORD_TYPE)).
                         description(MUST_CHANGE_PASSWORD_DESC.apply("JWT")).
+                        register(meterRegistry).
+                        increment();
+            } else if (MFA_ENROLL_AUTHORITIES.equals(result.authorities())) {
+                Counter.builder(JWT.apply(MFA_ENROLL_TYPE)).
+                        description(MFA_ENROLL_DESC.apply("JWT")).
                         register(meterRegistry).
                         increment();
             } else {

@@ -147,6 +147,7 @@ import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
+import org.apache.syncope.common.rest.api.service.MfaService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
@@ -326,6 +327,8 @@ public abstract class AbstractITCase {
     protected static UserRequestService USER_REQUEST_SERVICE;
 
     protected static UserWorkflowTaskService USER_WORKFLOW_TASK_SERVICE;
+
+    protected static MfaService MFA_SERVICE;
 
     protected static GroupService GROUP_SERVICE;
 
@@ -576,6 +579,7 @@ public abstract class AbstractITCase {
         USER_SELF_SERVICE = ADMIN_CLIENT.getService(UserSelfService.class);
         USER_REQUEST_SERVICE = ADMIN_CLIENT.getService(UserRequestService.class);
         USER_WORKFLOW_TASK_SERVICE = ADMIN_CLIENT.getService(UserWorkflowTaskService.class);
+        MFA_SERVICE = ADMIN_CLIENT.getService(MfaService.class);
         GROUP_SERVICE = ADMIN_CLIENT.getService(GroupService.class);
         RESOURCE_SERVICE = ADMIN_CLIENT.getService(ResourceService.class);
         CONNECTOR_SERVICE = ADMIN_CLIENT.getService(ConnectorService.class);

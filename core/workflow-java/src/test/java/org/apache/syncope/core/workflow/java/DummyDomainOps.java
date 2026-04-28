@@ -59,6 +59,11 @@ public class DummyDomainOps implements DomainOps {
     }
 
     @Override
+    public void setAdminMfaSecret(final String key, final String secret) {
+        // nothing to do
+    }
+
+    @Override
     public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
         // nothing to do
     }

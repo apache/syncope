@@ -106,8 +106,7 @@ public class MacroTaskITCase extends AbstractITCase {
 
         ImplementationTO command = null;
         try {
-            command = IMPLEMENTATION_SERVICE.read(
-                    IdRepoImplementationType.COMMAND, "GroovyCommand");
+            command = IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.COMMAND, "GroovyCommand");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 command = new ImplementationTO();

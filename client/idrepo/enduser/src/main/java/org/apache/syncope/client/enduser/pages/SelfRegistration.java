@@ -33,7 +33,25 @@ public class SelfRegistration extends BaseNoSidebarPage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private static final String SELF_REGISTRATION = "page.selfRegistration";
+    protected static UserTO buildNewUserTO(final PageParameters parameters) {
+        UserTO userTO = null;
+        if (parameters != null && !parameters.get(NEW_USER_PARAM).isNull()) {
+            try {
+                userTO = MAPPER.readValue(parameters.get(NEW_USER_PARAM).toString(), UserTO.class);
+            } catch (Exception e) {
+                LOG.error("While reading user data from social registration", e);
+            }
+        }
+        if (userTO == null) {
+            userTO = new UserTO();
+        }
+        if (userTO.getRealm() == null) {
+            userTO.setRealm(SyncopeConstants.ROOT_REALM);
+        }
+        return userTO;
+    }
+
+    protected static final String SELF_REGISTRATION = "page.selfRegistration";
 
     public static final String NEW_USER_PARAM = "newUser";
 
@@ -51,9 +69,9 @@ public class SelfRegistration extends BaseNoSidebarPage {
 
         UserSelfFormPanel selfRegistrationPanel = new UserSelfFormPanel(
                 "selfRegistrationPanel",
+                null,
                 buildNewUserTO(parameters),
-                buildNewUserTO(parameters),
-                SyncopeEnduserSession.get().getAnonymousClient().platform().getUserClasses(),
+                SyncopeEnduserSession.get().getPlatformInfo().userClasses(),
                 buildFormLayout(),
                 getPageReference());
         selfRegistrationPanel.setOutputMarkupId(true);
@@ -63,23 +81,5 @@ public class SelfRegistration extends BaseNoSidebarPage {
     private UserFormLayoutInfo buildFormLayout() {
         UserFormLayoutInfo customlayoutInfo = SyncopeWebApplication.get().getCustomFormLayout();
         return customlayoutInfo != null ? customlayoutInfo : new UserFormLayoutInfo();
-    }
-
-    private static UserTO buildNewUserTO(final PageParameters parameters) {
-        UserTO userTO = null;
-        if (parameters != null) {
-            if (!parameters.get(NEW_USER_PARAM).isNull()) {
-                try {
-                    userTO = MAPPER.readValue(parameters.get(NEW_USER_PARAM).toString(), UserTO.class);
-                } catch (Exception e) {
-                    LOG.error("While reading user data from social registration", e);
-                }
-            }
-        }
-        if (userTO == null) {
-            userTO = new UserTO();
-        }
-        userTO.setRealm(SyncopeConstants.ROOT_REALM);
-        return userTO;
     }
 }

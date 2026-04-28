@@ -38,10 +38,10 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.logic.AnyObjectLogic;
-import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
+import org.apache.syncope.core.logic.GroupLogicOp;
 import org.apache.syncope.core.logic.SCIMDataBinder;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.UserLogicOp;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -74,9 +74,9 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager,
             final JexlTools jexlTools) {

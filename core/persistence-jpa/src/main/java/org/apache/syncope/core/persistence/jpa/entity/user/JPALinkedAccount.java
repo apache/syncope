@@ -31,6 +31,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -41,6 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.converters.PlainAttrListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 @Entity
 @Table(name = JPALinkedAccount.TABLE, uniqueConstraints =
@@ -149,7 +152,12 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
                 value,
                 Optional.ofNullable(cipherAlgorithm).
-                        orElseThrow(() -> new IllegalStateException("No cipherAlgorithm was set")));
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
     }
 
     @Override

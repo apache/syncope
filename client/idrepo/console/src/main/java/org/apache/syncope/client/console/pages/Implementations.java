@@ -52,7 +52,7 @@ public class Implementations extends BasePage {
     }
 
     protected List<ITab> buildTabList() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getImplementationTypes().stream().sorted().
+        return SyncopeConsoleSession.get().getPlatformInfo().implementationTypes().stream().sorted().
                 map(type -> new AbstractTab(Model.of(type)) {
 
             private static final long serialVersionUID = -5861786415855103549L;

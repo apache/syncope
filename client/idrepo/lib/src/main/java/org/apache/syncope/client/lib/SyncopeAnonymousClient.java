@@ -38,12 +38,12 @@ import tools.jackson.databind.JsonNode;
 
 public class SyncopeAnonymousClient extends SyncopeClient {
 
-    protected final AnonymousAuthenticationHandler anonymousAuthHandler;
+    protected final BasicAuthenticationHandler anonymousAuthHandler;
 
     public SyncopeAnonymousClient(
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
-            final AnonymousAuthenticationHandler anonymousAuthHandler,
+            final BasicAuthenticationHandler anonymousAuthHandler,
             final boolean useCompression,
             final HTTPClientPolicy httpClientPolicy,
             final TLSClientParameters tlsClientParameters) {

@@ -47,7 +47,7 @@ public class SCIMLogicContext {
     @Bean
     public SCIMDataBinder scimDataBinder(
             final SCIMConfManager confManager,
-            final UserLogic userLogic,
+            final UserLogicOp userLogic,
             final AuthDataAccessor authDataAccessor,
             final GroupDAO groupDAO,
             final JexlTools jexlTools) {

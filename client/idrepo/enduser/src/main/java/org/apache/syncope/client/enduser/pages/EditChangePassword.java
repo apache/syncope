@@ -56,7 +56,8 @@ public class EditChangePassword extends AbstractChangePassword {
                                     resources(userTO.getResources()).
                                     build()).
                             build());
-            setResponsePage(new SelfResult(provisioningResult,
+            setResponsePage(new SelfResult(
+                    provisioningResult,
                     ProvisioningUtils.managePageParams(
                             EditChangePassword.this,
                             "pwd.change",
@@ -66,7 +67,7 @@ public class EditChangePassword extends AbstractChangePassword {
         } catch (Exception e) {
             LOG.error("While changing password for {}", SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
             SyncopeEnduserSession.get().onException(e);
-            notificationPanel.refresh(target);
+            getNotificationPanel().refresh(target);
         }
     }
 

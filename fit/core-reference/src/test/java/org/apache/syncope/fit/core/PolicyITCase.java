@@ -411,7 +411,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void getInboundCorrelationRuleJavaClasses() {
         Set<String> classes = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.INBOUND_CORRELATION_RULE).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.INBOUND_CORRELATION_RULE).get().classes();
         assertEquals(1, classes.size());
         assertEquals(DummyInboundCorrelationRule.class.getName(), classes.iterator().next());
     }
@@ -419,7 +419,7 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void getPushCorrelationRuleJavaClasses() {
         Set<String> classes = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.PUSH_CORRELATION_RULE).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PUSH_CORRELATION_RULE).get().classes();
         assertEquals(1, classes.size());
         assertEquals(DummyPushCorrelationRule.class.getName(), classes.iterator().next());
     }

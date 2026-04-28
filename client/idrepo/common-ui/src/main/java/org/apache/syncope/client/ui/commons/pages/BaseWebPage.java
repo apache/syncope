@@ -35,7 +35,7 @@ public abstract class BaseWebPage extends WebPage implements IAjaxIndicatorAware
 
     protected final WebMarkupContainer body;
 
-    protected NotificationPanel notificationPanel;
+    private NotificationPanel notificationPanel;
 
     public BaseWebPage() {
         this(null);
@@ -59,5 +59,4 @@ public abstract class BaseWebPage extends WebPage implements IAjaxIndicatorAware
     public String getAjaxIndicatorMarkupId() {
         return Constants.VEIL_INDICATOR_MARKUP_ID;
     }
-
 }

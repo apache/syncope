@@ -442,6 +442,8 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
+    <zxing.version>3.5.4</zxing.version>
+
     <groovy.version>5.0.5</groovy.version>
 
     <flowable.version>8.0.0</flowable.version>
@@ -460,6 +462,7 @@ under the License.
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-jexl.version>3.6.2</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
+    <commons-codec.version>1.22.0</commons-codec.version>
 
     <pac4j.version>6.4.3</pac4j.version>
 
@@ -550,7 +553,7 @@ under the License.
     <jwsKey>ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f</jwsKey>
 
     <!--
-    Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacaco-maven-plugin
+    Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacoco-maven-plugin
     https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html
     -->
     <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
@@ -929,6 +932,11 @@ under the License.
         <version>${commons-text.version}</version>
       </dependency>
       <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>${commons-codec.version}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <scope>provided</scope>
@@ -960,6 +968,23 @@ under the License.
         <groupId>org.jasypt</groupId>
         <artifactId>jasypt</artifactId>
         <version>${jasypt.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>dev.samstevens.totp</groupId>
+        <artifactId>totp</artifactId>
+        <version>1.7.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>${zxing.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>javase</artifactId>
+        <version>${zxing.version}</version>
       </dependency>
 
       <dependency>

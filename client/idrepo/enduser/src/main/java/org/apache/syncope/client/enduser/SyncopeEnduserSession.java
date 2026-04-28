@@ -41,18 +41,21 @@ import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.Mfa;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.MfaService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -106,7 +109,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     protected SyncopeAnonymousClient anonymousClient;
 
-    protected UserTO selfTO;
+    protected UserTO self;
 
     protected OffsetDateTime lastReauth;
 
@@ -126,10 +129,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     public void setLastReauth() {
         this.lastReauth = OffsetDateTime.now();
-    }
-
-    public void clearLastReauth() {
-        this.lastReauth = null;
     }
 
     protected String message(final SyncopeClientException sce) {
@@ -209,24 +208,51 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public PlatformInfo getPlatformInfo() {
-        return getAnonymousClient().platform();
+    @Override
+    public Mfa generateMfa() {
+        String username = Optional.ofNullable(getAttribute(Constants.USERNAME_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find username"));
+        return anonymousClient.getService(MfaService.class).generate(username);
+    }
+
+    @Override
+    public void enrollMfa(final Mfa mfa) {
+        String username = Optional.ofNullable(getAttribute(Constants.USERNAME_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find username"));
+        removeAttribute(Constants.USERNAME_FIELD_NAME);
+        String password = Optional.ofNullable(getAttribute(Constants.PASSWORD_FIELD_NAME)).
+                map(String.class::cast).orElseThrow(() -> new IllegalStateException("Could not find password"));
+        removeAttribute(Constants.PASSWORD_FIELD_NAME);
+
+        clientFactory.setDomain(getDomain()).
+                create(new BasicAuthenticationHandler(username, password)).
+                getService(MfaService.class).enroll(mfa);
     }
 
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
-        if (SyncopeWebApplication.get().getAdminUser().equalsIgnoreCase(username)) {
-            return authenticated;
-        }
-
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
             jwtExpiration = client.jwtInfo().map(jwtInfo -> jwtInfo.expiration().toInstant()).orElse(null);
 
-            refreshAuth(username);
+            refreshSelf();
 
             authenticated = true;
+        } catch (ForbiddenException e) {
+            client = Optional.ofNullable(e.getResponse()).
+                    flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
+                    filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals).
+                    map(code -> clientFactory.setDomain(getDomain()).
+                    create(new BasicAuthenticationHandler(username, password))).
+                    orElse(null);
+            if (client != null) {
+                authenticated = true;
+
+                self = new UserTO();
+                self.setUsername(username);
+                self.setMustChangePassword(true);
+            }
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }
@@ -242,7 +268,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
             client = clientFactory.setDomain(getDomain()).create(jwt);
             this.jwtExpiration = jwtExpiration;
 
-            refreshAuth(null);
+            refreshSelf();
 
             authenticated = true;
         } catch (Exception e) {
@@ -252,18 +278,8 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return authenticated;
     }
 
-    protected void refreshAuth(final String username) {
-        try {
-            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
-
-            selfTO = client.self().user();
-        } catch (ForbiddenException e) {
-            LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
-
-            selfTO = new UserTO();
-            selfTO.setUsername(username);
-            selfTO.setMustChangePassword(true);
-        }
+    protected void refreshSelf() {
+        self = client.self().user();
 
         // bind explicitly this session to have a stateful behavior during http requests, unless session will
         // expire at each request
@@ -275,7 +291,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     protected boolean isMustChangePassword() {
-        return Optional.ofNullable(selfTO).map(UserTO::isMustChangePassword).orElse(false);
+        return Optional.ofNullable(self).map(UserTO::isMustChangePassword).orElse(false);
     }
 
     public void cleanup() {
@@ -283,7 +299,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
         client = null;
         jwtExpiration = null;
-        selfTO = null;
+        self = null;
         services.clear();
     }
 
@@ -305,9 +321,9 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     public UserTO getSelfTO(final boolean reload) {
         if (reload) {
-            refreshAuth(selfTO.getUsername());
+            refreshSelf();
         }
-        return selfTO;
+        return self;
     }
 
     @Override
@@ -340,9 +356,9 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public <T> T getService(final Class<T> serviceClass) {
-        T service = (client == null || !isAuthenticated())
-                ? getAnonymousClient().getService(serviceClass)
-                : client.getService(serviceClass);
+        T service = Optional.ofNullable(client).
+                map(c -> c.getService(serviceClass)).
+                orElseGet(() -> getAnonymousClient().getService(serviceClass));
         WebClient.client(service).header(RESTHeaders.DOMAIN, getDomain());
         return service;
     }

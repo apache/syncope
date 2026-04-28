@@ -37,6 +37,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.InboundPolicyTO;
@@ -210,7 +211,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     @Test
     public void createWithoutLinkedAccountThenAddAndUpdatePassword() {
         // 1. set the return value parameter to true
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", true);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, true);
 
         // 2. create user without linked account
         UserCR userCR = UserITCase.getSample(
@@ -306,7 +307,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         user = updateUser(userUR).getEntity();
         assertNull(user.getLinkedAccounts().getFirst().getPassword());
 
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", false);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, false);
     }
 
     @Test
@@ -314,11 +315,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         // 0a. read configured cipher algorithm in order to be able to restore it at the end of test
-        String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "password.cipher.algorithm", null, String.class);
+        String origpwdCipherAlgo = confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
 
         // 0b. set AES password cipher algorithm
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", "AES");
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, "AES");
 
         String userKey = null;
         String connObjectKeyValue = UUID.randomUUID().toString();
@@ -393,7 +394,8 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         } finally {
             // restore initial cipher algorithm
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", origpwdCipherAlgo);
+            confParamOps.set(
+                    SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, origpwdCipherAlgo);
 
             // delete user and accounts
             if (userKey != null) {

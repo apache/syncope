@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.core.logic.AnyObjectLogic;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
 import org.apache.syncope.core.logic.RealmLogic;
 import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class TestCommand implements Command<TestCommandArgs> {
     private RealmLogic realmLogic;
 
     @Autowired
-    private AnyObjectLogic anyObjectLogic;
+    private AnyObjectLogicOp anyObjectLogic;
 
     private Optional<RealmTO> getRealm(final String fullPath) {
         return realmLogic.search(Set.of(fullPath), null, Pageable.unpaged()).get().

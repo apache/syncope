@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.sra.actuate;
 
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -61,7 +61,7 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
                 service = new SyncopeClientFactoryBean().
                         setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
                         setUseCompression(useGZIPCompression).
-                        create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
+                        create(new BasicAuthenticationHandler(anonymousUser, anonymousKey)).
                         getService(SRARouteService.class);
             }
         }

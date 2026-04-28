@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -355,7 +356,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 String result = StringUtils.EMPTY;
 
                 String conf = confParamOps.get(
-                        SyncopeConstants.MASTER_DOMAIN, "notificationjob.cronExpression", null, String.class);
+                        SyncopeConstants.MASTER_DOMAIN,
+                        StandardConfParams.NOTIFICATION_JOB_CRON_EXPRESSION, null, String.class);
                 if (conf == null) {
                     result = NotificationJob.DEFAULT_CRON_EXP;
                 } else if (!StringUtils.EMPTY.equals(conf)) {

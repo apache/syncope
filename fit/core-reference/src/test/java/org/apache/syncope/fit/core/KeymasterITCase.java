@@ -42,6 +42,7 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
@@ -69,23 +70,22 @@ public class KeymasterITCase extends AbstractITCase {
     @Test
     public void confParamGet() {
         String stringValue = confParamOps.get(
-                SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", null, String.class);
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
         assertNotNull(stringValue);
         assertEquals("SHA1", stringValue);
 
         Long longValue = confParamOps.get(
-                SyncopeConstants.MASTER_DOMAIN, "jwt.lifetime.minutes", null, Long.class);
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, null, Long.class);
         assertNotNull(longValue);
         assertEquals(120L, longValue.longValue());
 
         Boolean booleanValue = confParamOps.get(
-                SyncopeConstants.MASTER_DOMAIN, "return.password.value", null, Boolean.class);
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, null, Boolean.class);
         assertNotNull(booleanValue);
         assertEquals(false, booleanValue);
 
-        List<String> stringValues =
-                List.of(confParamOps.get(
-                        SyncopeConstants.MASTER_DOMAIN, "authentication.attributes", null, String[].class));
+        List<String> stringValues = List.of(confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.AUTHENTICATION_ATTRIBUTES, null, String[].class));
         assertNotNull(stringValues);
         List<String> actualStringValues = new ArrayList<>();
         actualStringValues.add("username");
@@ -126,8 +126,8 @@ public class KeymasterITCase extends AbstractITCase {
         stringValues.add("stringValue1");
         stringValues.add("stringValue2");
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, key, stringValues);
-        List<String> actualStringValues =
-                List.of(confParamOps.get(SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
+        List<String> actualStringValues = List.of(confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, key, null, String[].class));
         assertEquals(stringValues, actualStringValues);
 
         confParamOps.remove(SyncopeConstants.MASTER_DOMAIN, key);
@@ -335,12 +335,9 @@ public class KeymasterITCase extends AbstractITCase {
                     CipherAlgorithm.BCRYPT);
 
             // 2. attempt to access with old pwd -> fail
-            try {
-                new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).setDomain(two.getKey()).create(ADMIN_UNAME, "password2").self();
-            } catch (NotAuthorizedException e) {
-                assertNotNull(e);
-            }
+            assertThrows(NotAuthorizedException.class,
+                    () -> new SyncopeClientFactoryBean().
+                            setAddress(ADDRESS).setDomain(two.getKey()).create(ADMIN_UNAME, "password2").self());
 
             // 3. access with new pwd -> succeed
             new SyncopeClientFactoryBean().

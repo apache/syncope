@@ -63,13 +63,13 @@ public class LoadWidget extends BaseWidget {
         scales.setY(y);
         line.getOptions().setScales(scales);
 
-        systeminfo.getLoad().forEach(instant -> {
+        systeminfo.load().forEach(instant -> {
             line.getData().getLabels().add(
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(
-                            systeminfo.getStartTime() + instant.getUptime()));
+                            systeminfo.startTime() + instant.uptime()));
 
-            cpuValues.add(instant.getSystemLoadAverage() * 1000);
-            memValues.add(instant.getTotalMemory());
+            cpuValues.add(instant.systemLoadAverage() * 1000);
+            memValues.add(instant.totalMemory());
         });
 
         LineDataSet cpuDataSet = new LineDataSet(cpuValues);

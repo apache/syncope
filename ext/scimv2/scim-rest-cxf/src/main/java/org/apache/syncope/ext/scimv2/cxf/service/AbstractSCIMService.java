@@ -34,11 +34,11 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.logic.AbstractAnyLogic;
-import org.apache.syncope.core.logic.AnyObjectLogic;
-import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.AnyCRUDLogicOp;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
+import org.apache.syncope.core.logic.GroupLogicOp;
 import org.apache.syncope.core.logic.SCIMDataBinder;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.UserLogicOp;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.logic.scim.SearchCondConverter;
 import org.apache.syncope.core.logic.scim.SearchCondVisitor;
@@ -78,11 +78,11 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected final UserLogic userLogic;
+    protected final UserLogicOp userLogic;
 
-    protected final GroupLogic groupLogic;
+    protected final GroupLogicOp groupLogic;
 
-    protected final AnyObjectLogic anyObjectLogic;
+    protected final AnyObjectLogicOp anyObjectLogic;
 
     protected final SCIMDataBinder binder;
 
@@ -92,9 +92,9 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
@@ -124,7 +124,7 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
         }
     }
 
-    protected AbstractAnyLogic<?, ?, ?> anyLogic(final String type) {
+    protected AnyCRUDLogicOp<?, ?, ?> anyLogic(final String type) {
         switch (type) {
             case "User" -> {
                 return userLogic;

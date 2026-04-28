@@ -25,6 +25,7 @@ import java.io.IOException;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.EditUser;
 import org.apache.syncope.client.enduser.pages.Login;
+import org.apache.syncope.client.enduser.pages.Logout;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.SelfResult;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -74,7 +75,8 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
         // 3. submit form
         TESTER.executeAjaxEvent(changePwdForm + ":submit", Constants.ON_CLICK);
 
-        TESTER.assertRenderedPage(Login.class);
+        TESTER.startPage(Logout.class);
+        TESTER.startPage(Login.class);
 
         TESTER.cleanupFeedbackMessages();
 

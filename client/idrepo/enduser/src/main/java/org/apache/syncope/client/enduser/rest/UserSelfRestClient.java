@@ -19,17 +19,14 @@
 package org.apache.syncope.client.enduser.rest;
 
 import jakarta.ws.rs.core.GenericType;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.ui.commons.rest.UserComplianceRestClient;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
-public class UserSelfRestClient extends BaseRestClient implements UserComplianceRestClient {
+public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
@@ -39,11 +36,6 @@ public class UserSelfRestClient extends BaseRestClient implements UserCompliance
 
     public void requestPasswordReset(final String username, final String securityAnswer) {
         getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
-    }
-
-    @Override
-    public void compliance(final ComplianceQuery query) {
-        SyncopeEnduserSession.get().getAnonymousService(UserSelfService.class).compliance(query);
     }
 
     public ProvisioningResult<UserTO> create(final UserCR createReq) {

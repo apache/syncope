@@ -25,6 +25,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -51,7 +52,10 @@ public class UserDetails extends Details<UserTO> {
     private static final long serialVersionUID = 6592027822510220463L;
 
     @SpringBean
-    protected UserRestClient restClient;
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected AnonymousRestClient anonymousRestClient;
 
     public UserDetails(
             final UserWrapper wrapper,
@@ -103,7 +107,7 @@ public class UserDetails extends Details<UserTO> {
                             resources(wrapper.getInnerObject().getResources()).
                             build();
                     try {
-                        restClient.compliance(quey);
+                        anonymousRestClient.compliance(quey);
                     } catch (Exception e) {
                         username.getField().error(e.getMessage());
                     }
@@ -176,7 +180,7 @@ public class UserDetails extends Details<UserTO> {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
-            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode, restClient));
+            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode, anonymousRestClient));
         }
     }
 }

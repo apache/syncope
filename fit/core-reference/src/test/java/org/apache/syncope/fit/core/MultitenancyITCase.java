@@ -28,12 +28,10 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -78,10 +76,6 @@ public class MultitenancyITCase extends AbstractITCase {
     @BeforeEach
     public void multitenancyCheck() {
         assumeTrue(domainOps.list().stream().anyMatch(d -> "Two".equals(d.getKey())));
-
-        List<Domain> initial = domainOps.list();
-        assertNotNull(initial);
-        assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 

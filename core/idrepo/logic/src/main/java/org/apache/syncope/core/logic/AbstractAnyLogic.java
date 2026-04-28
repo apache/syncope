@@ -35,16 +35,12 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
-public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
-        extends AbstractResourceAssociator<TO> {
+abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR> extends AbstractLogic<TO> {
 
     protected record BeforeResult<T>(T key, List<LogicActions> actions) {
 
@@ -60,7 +56,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     protected final Map<String, LogicActions> perContextActions = new ConcurrentHashMap<>();
 
-    public AbstractAnyLogic(
+    protected AbstractAnyLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final TemplateUtils templateUtils) {
@@ -215,17 +211,4 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         return result;
     }
-
-    public abstract TO read(String key);
-
-    public abstract Page<TO> search(
-            SearchCond searchCond,
-            Pageable pageable,
-            String realm,
-            boolean recursive,
-            boolean details);
-
-    public abstract ProvisioningResult<TO> update(U updateReq, boolean nullPriorityAsync);
-
-    public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
 }

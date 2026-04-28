@@ -134,7 +134,7 @@ public class SCIMDataBinder {
 
     protected final SCIMConfManager confManager;
 
-    protected final UserLogic userLogic;
+    protected final UserLogicOp userLogic;
 
     protected final AuthDataAccessor authDataAccessor;
 
@@ -144,7 +144,7 @@ public class SCIMDataBinder {
 
     public SCIMDataBinder(
             final SCIMConfManager confManager,
-            final UserLogic userLogic,
+            final UserLogicOp userLogic,
             final AuthDataAccessor authDataAccessor,
             final GroupDAO groupDAO,
             final JexlTools jexlTools) {

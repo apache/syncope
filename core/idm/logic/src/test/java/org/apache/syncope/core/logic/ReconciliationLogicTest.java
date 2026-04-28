@@ -53,7 +53,7 @@ public class ReconciliationLogicTest extends AbstractTest {
     private ReconciliationLogic reconciliationLogic;
 
     @Autowired
-    private UserLogic userLogic;
+    private UserLogicOp userLogic;
 
     @Test
     public void pullFromCSV() {

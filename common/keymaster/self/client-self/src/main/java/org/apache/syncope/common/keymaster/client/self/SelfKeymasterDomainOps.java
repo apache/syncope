@@ -83,6 +83,17 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     }
 
     @Override
+    public void setAdminMfaSecret(final String key, final String secret) {
+        try {
+            client(DomainService.class, Map.of()).setAdminMfaSecret(key, secret);
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
     public void adjustPoolSize(final String key, final int maxPoolSize, final int minIdle) {
         try {
             client(DomainService.class, Map.of()).adjustPoolSize(key, maxPoolSize, minIdle);

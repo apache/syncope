@@ -28,6 +28,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Mfa;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -218,7 +220,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
     protected void setCipherAlgorithm(final User user) {
         if (user.getCipherAlgorithm() == null) {
             user.setCipherAlgorithm(CipherAlgorithm.valueOf(confParamOps.get(AuthContextUtils.getDomain(),
-                    "password.cipher.algorithm", CipherAlgorithm.AES.name(), String.class)));
+                    StandardConfParams.PASSWORD_CIPHER_ALGORITHM, CipherAlgorithm.AES.name(), String.class)));
         }
     }
 
@@ -524,6 +526,16 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         return new PropagationInfo(propByRes, propByLinkedAccount);
     }
 
+    @Transactional
+    @Override
+    public void setMfa(final String username, final Mfa mfa) {
+        User user = userDAO.findByUsername(username).
+                orElseThrow(() -> new NotFoundException("User " + username));
+
+        user.setMfa(mfa);
+        userDAO.save(user);
+    }
+
     protected LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
@@ -548,7 +560,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
     @Override
     public UserTO getUserTO(final User user, final boolean details) {
         Boolean returnPasswordValue = confParamOps.get(AuthContextUtils.getDomain(),
-                "return.password.value", Boolean.FALSE, Boolean.class);
+                StandardConfParams.RETURN_PASSWORD_VALUE, Boolean.FALSE, Boolean.class);
 
         UserTO userTO = new UserTO();
         userTO.setKey(user.getKey());

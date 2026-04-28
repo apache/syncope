@@ -44,11 +44,10 @@ public abstract class CodeConsumerResource extends AbstractResource {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CodeConsumerResource.class);
 
-    protected static final JsonMapper MAPPER =
-            JsonMapper.builder().findAndAddModules().
-                    changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY)).
-                    changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY)).
-                    build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().
+            changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY)).
+            changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_EMPTY)).
+            build();
 
     protected abstract Class<? extends WebPage> getLoginPageClass();
 

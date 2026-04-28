@@ -24,6 +24,7 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.xml.ws.WebServiceException;
 import java.util.Optional;
 import org.apache.commons.lang3.Strings;
+import org.apache.syncope.client.ui.commons.pages.BaseLogin;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;

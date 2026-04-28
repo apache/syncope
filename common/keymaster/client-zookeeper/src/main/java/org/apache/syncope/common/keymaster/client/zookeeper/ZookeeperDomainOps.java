@@ -168,14 +168,26 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
     }
 
     @Override
-    public void changeAdminPassword(
-            final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
-
+    public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         try {
             Domain domain = read(key);
 
             domain.setAdminPassword(password);
             domain.setAdminCipherAlgorithm(cipherAlgorithm);
+            client.setData().forPath(buildDomainPath(key), MAPPER.writeValueAsBytes(domain));
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public void setAdminMfaSecret(final String key, final String secret) {
+        try {
+            Domain domain = read(key);
+
+            domain.setAdminMfaSecret(secret);
             client.setData().forPath(buildDomainPath(key), MAPPER.writeValueAsBytes(domain));
         } catch (KeymasterException e) {
             throw e;

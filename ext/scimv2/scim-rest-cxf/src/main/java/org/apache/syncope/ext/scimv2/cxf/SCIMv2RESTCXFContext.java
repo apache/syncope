@@ -26,11 +26,11 @@ import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.Spring
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
-import org.apache.syncope.core.logic.AnyObjectLogic;
-import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
+import org.apache.syncope.core.logic.GroupLogicOp;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.SCIMLogic;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.UserLogicOp;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -116,9 +116,9 @@ public class SCIMv2RESTCXFContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager,
             final SCIMLogic scimLogic) {
@@ -141,9 +141,9 @@ public class SCIMv2RESTCXFContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager,
             final JexlTools jexlTools) {
@@ -166,9 +166,9 @@ public class SCIMv2RESTCXFContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
@@ -189,9 +189,9 @@ public class SCIMv2RESTCXFContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final UserLogic userLogic,
-            final GroupLogic groupLogic,
-            final AnyObjectLogic anyObjectLogic,
+            final UserLogicOp userLogic,
+            final GroupLogicOp groupLogic,
+            final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 

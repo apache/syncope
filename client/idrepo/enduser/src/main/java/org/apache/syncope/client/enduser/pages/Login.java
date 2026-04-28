@@ -22,13 +22,14 @@ import jakarta.ws.rs.NotAuthorizedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.pages.BaseLogin;
+import org.apache.syncope.client.ui.commons.pages.BaseMfaEnroll;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -47,12 +48,14 @@ public class Login extends BaseLogin {
 
         selfPwdReset = new BookmarkablePageLink<>("self-pwd-reset", SelfPasswordReset.class);
         selfPwdReset.getPageParameters().add("domain", SyncopeEnduserSession.get().getDomain());
-        selfPwdReset.setVisible(SyncopeEnduserSession.get().getPlatformInfo().isPwdResetAllowed());
+        selfPwdReset.setVisible(confParamOps.get(
+                getBaseSession().getDomain(), StandardConfParams.PASSWORD_RESET_ALLOWED, false, boolean.class));
         add(selfPwdReset.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
         selfRegistration = new BookmarkablePageLink<>("self-registration", SelfRegistration.class);
         selfRegistration.getPageParameters().add("domain", SyncopeEnduserSession.get().getDomain());
-        selfRegistration.setVisible(SyncopeEnduserSession.get().getPlatformInfo().isSelfRegAllowed());
+        selfRegistration.setVisible(confParamOps.get(
+                getBaseSession().getDomain(), StandardConfParams.SELF_REGISTRATION_ALLOWED, false, boolean.class));
         add(selfRegistration.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 
@@ -61,12 +64,17 @@ public class Login extends BaseLogin {
         return Stream.concat(
                 super.getLanguageOnChangeComponents().stream(),
                 Stream.of(selfRegistration, selfPwdReset)).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
     protected BaseSession getBaseSession() {
         return SyncopeEnduserSession.get();
+    }
+
+    @Override
+    protected Class<? extends BaseMfaEnroll> getMfaEnrollPage() {
+        return MfaEnroll.class;
     }
 
     @Override
@@ -81,11 +89,6 @@ public class Login extends BaseLogin {
             }
         });
         return ssoLoginFormPanels;
-    }
-
-    @Override
-    protected void sendError(final String error) {
-        SyncopeEnduserSession.get().error(error);
     }
 
     protected void onAuthenticateSuccess(final AjaxRequestTarget target) {

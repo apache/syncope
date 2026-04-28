@@ -97,8 +97,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 message = env.getProperty("errMessage." + messageKey);
             }
         } else if (isExtityExists(ex)) {
-
-            message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
+            if (ex instanceof DuplicateException) {
+                message = throwable.getMessage();
+            } else {
+                message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
+            }
         }
 
         return Optional.ofNullable(message).

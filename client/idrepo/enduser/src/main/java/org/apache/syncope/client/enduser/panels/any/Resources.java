@@ -74,11 +74,11 @@ public class Resources extends Panel {
     @Override
     protected void onInitialize() {
         super.onInitialize();
-        available.setObject(SyncopeEnduserSession.get().getAnonymousClient().platform().getResources());
+        available.setObject(SyncopeEnduserSession.get().getPlatformInfo().resources());
     }
 
     public boolean evaluate() {
-        available.setObject(SyncopeEnduserSession.get().getAnonymousClient().platform().getResources());
+        available.setObject(SyncopeEnduserSession.get().getPlatformInfo().resources());
         return !available.getObject().isEmpty();
     }
 }

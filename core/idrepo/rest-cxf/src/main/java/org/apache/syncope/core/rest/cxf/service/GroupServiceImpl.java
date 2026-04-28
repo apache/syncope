@@ -27,8 +27,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.apache.syncope.common.rest.api.service.GroupService;
-import org.apache.syncope.core.logic.AbstractAnyLogic;
-import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.logic.AnyCRUDLogicOp;
+import org.apache.syncope.core.logic.GroupLogicOp;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
@@ -37,12 +37,12 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, Group
 
     protected final GroupDAO groupDAO;
 
-    protected final GroupLogic logic;
+    protected final GroupLogicOp logic;
 
     public GroupServiceImpl(
             final AnySearchCondVisitor searchCondVisitor,
             final GroupDAO groupDAO,
-            final GroupLogic logic) {
+            final GroupLogicOp logic) {
 
         super(searchCondVisitor);
         this.groupDAO = groupDAO;
@@ -55,7 +55,7 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, Group
     }
 
     @Override
-    protected AbstractAnyLogic<GroupTO, GroupCR, GroupUR> getAnyLogic() {
+    protected AnyCRUDLogicOp<GroupTO, GroupCR, GroupUR> getAnyLogic() {
         return logic;
     }
 

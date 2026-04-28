@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.panels;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -28,12 +29,16 @@ import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.layout.SidebarLayout;
 import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.pages.Dashboard;
+import org.apache.syncope.client.enduser.pages.DismissMfa;
 import org.apache.syncope.client.enduser.pages.EditChangePassword;
 import org.apache.syncope.client.enduser.pages.EditSecurityQuestion;
 import org.apache.syncope.client.enduser.pages.EditUser;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.IdMPage;
+import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -62,14 +67,25 @@ public class Sidebar extends Panel {
         return linkId + "UL";
     }
 
+    protected final ConfParamOps confParamOps;
+
+    protected final AnonymousRestClient anonymousRestClient;
+
     protected WebMarkupContainer dashboardLIContainer;
 
     protected WebMarkupContainer profileULContainer;
 
     protected WebMarkupContainer profileLIContainer;
 
-    public Sidebar(final String id, final PageReference pageRef) {
+    public Sidebar(
+            final String id,
+            final ConfParamOps confParamOps,
+            final AnonymousRestClient anonymousRestClient,
+            final PageReference pageRef) {
+
         super(id);
+        this.confParamOps = confParamOps;
+        this.anonymousRestClient = anonymousRestClient;
 
         buildBaseSidebar();
 
@@ -258,7 +274,8 @@ public class Sidebar extends Panel {
         profileLIContainer.setVisible(layout.isEditUserEnabled()
                 || layout.isPasswordManagementEnabled()
                 || (layout.isSecurityQuestionManagementEnabled()
-                && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()));
+                && confParamOps.get(SyncopeEnduserSession.get().getDomain(),
+                        StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class)));
 
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
         profileULContainer.add(liContainer);
@@ -275,6 +292,16 @@ public class Sidebar extends Panel {
         liContainer.add(BookmarkablePageLinkBuilder.build("editsecurityquestion", EditSecurityQuestion.class));
         liContainer.setOutputMarkupPlaceholderTag(true);
         liContainer.setVisible(layout.isSecurityQuestionManagementEnabled()
-                && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions());
+                && confParamOps.get(SyncopeEnduserSession.get().getDomain(),
+                        StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class));
+
+        liContainer = new WebMarkupContainer(getLIContainerId("dismissmfa"));
+        profileULContainer.add(liContainer);
+        liContainer.add(BookmarkablePageLinkBuilder.build("dismissmfa", DismissMfa.class));
+        liContainer.setOutputMarkupPlaceholderTag(true);
+        liContainer.setVisible(layout.isDismissMfaEnabled()
+                && Optional.ofNullable(SyncopeEnduserSession.get().getSelfTO()).
+                        map(self -> anonymousRestClient.isMfaEnrolled(self.getUsername())).
+                        orElse(false));
     }
 }

@@ -187,7 +187,21 @@ public class SyncopeClientFactoryBean {
      * @return client instance with the given credentials
      */
     public SyncopeClient create(final String username, final String password) {
-        return create(new BasicAuthenticationHandler(username, password));
+        return create(new ObtainingJWTAuthenticationHandler(username, password));
+    }
+
+    /**
+     * Builds client instance with the given credentials.
+     * Such credentials will be used only to obtain a valid JWT in the
+     * {@link jakarta.ws.rs.core.HttpHeaders#AUTHORIZATION} header;
+     *
+     * @param username username
+     * @param password password
+     * @param otp TOTP value
+     * @return client instance with the given credentials
+     */
+    public SyncopeClient create(final String username, final String password, final String otp) {
+        return create(new ObtainingJWTAuthenticationHandler(username, password + ":" + otp));
     }
 
     /**
@@ -229,7 +243,7 @@ public class SyncopeClientFactoryBean {
         return new SyncopeAnonymousClient(
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
-                new AnonymousAuthenticationHandler(username, password),
+                new BasicAuthenticationHandler(username, password),
                 useCompression,
                 getHttpClientPolicy(),
                 tlsClientParameters);

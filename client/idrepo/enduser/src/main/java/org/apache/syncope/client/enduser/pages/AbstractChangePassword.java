@@ -48,21 +48,18 @@ abstract class AbstractChangePassword extends BaseReauthPage {
     }
 
     protected ChangePasswordPanel getPasswordPanel() {
-        ChangePasswordPanel changePasswordPanel = new ChangePasswordPanel("changePasswordPanel", notificationPanel) {
+        ChangePasswordPanel changePasswordPanel = new ChangePasswordPanel(
+                "changePasswordPanel", getNotificationPanel()) {
 
             private static final long serialVersionUID = 5195544218030499386L;
 
             @Override
             protected void doSubmit(final AjaxRequestTarget target, final AjaxPasswordFieldPanel passwordField) {
-                boolean checked = true;
-                if (SyncopeWebApplication.get().isCaptchaEnabled()) {
-                    checked = captcha.check();
-                }
-                if (!checked) {
+                if (SyncopeWebApplication.get().isCaptchaEnabled() ? captcha.check() : true) {
+                    doPwdSubmit(target, passwordField);
+                } else {
                     SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
                     getNotificationPanel().refresh(target);
-                } else {
-                    doPwdSubmit(target, passwordField);
                 }
             }
 

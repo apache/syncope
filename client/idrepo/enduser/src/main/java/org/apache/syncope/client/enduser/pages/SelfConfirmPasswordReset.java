@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
-import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
@@ -36,7 +35,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class SelfConfirmPasswordReset extends BasePage {
@@ -44,9 +42,6 @@ public class SelfConfirmPasswordReset extends BasePage {
     private static final long serialVersionUID = -2166782304542750726L;
 
     private static final String CONFIRM_PASSWORD_RESET = "confirmPasswordReset";
-
-    @SpringBean
-    protected UserSelfRestClient restClient;
 
     public SelfConfirmPasswordReset(final PageParameters parameters) {
         super(parameters, CONFIRM_PASSWORD_RESET);
@@ -77,7 +72,7 @@ public class SelfConfirmPasswordReset extends BasePage {
                 new UserWrapper(fakeUserTO),
                 false,
                 false,
-                restClient);
+                anonymousRestClient);
         passwordPanel.setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<PasswordPanel>()
@@ -114,7 +109,7 @@ public class SelfConfirmPasswordReset extends BasePage {
 
             @Override
             protected void onError(final AjaxRequestTarget target) {
-                notificationPanel.refresh(target);
+                getNotificationPanel().refresh(target);
             }
         };
         form.setDefaultButton(submit);

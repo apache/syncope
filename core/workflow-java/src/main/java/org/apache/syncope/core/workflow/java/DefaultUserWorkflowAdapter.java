@@ -20,6 +20,7 @@ package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -188,8 +189,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final User user, final String updater, final String context) {
         user.generateToken(
-                confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
-                confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
+                confParamOps.get(AuthContextUtils.getDomain(), StandardConfParams.TOKEN_LENGTH, 256, int.class),
+                confParamOps.get(AuthContextUtils.getDomain(), StandardConfParams.TOKEN_EXPIRE_TIME, 60, int.class));
 
         notificationManager.createTasks(
                 updater,

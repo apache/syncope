@@ -104,7 +104,7 @@ Environment variables:
 * `DB_POOL_MIN`: internal storage connection pool: floor
 * `HIBERNATE_JCACHE_PROVIDER`: configure multiple instances, with high availability; valid values are the ones accepted by
 Hibernate for
-https://docs.hibernate.org/orm/7.2/userguide/html_single/#caching-provider-jcache-cache-manager[JCache CacheManager^]
+https://docs.hibernate.org/orm/7.3/userguide/html_single/#caching-provider-jcache-cache-manager[JCache CacheManager^]
 including the default value `com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider` (single instance)
 
 ===== Console
@@ -564,10 +564,10 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 Before actual deployment as executable or onto a Jakarta EE container, you need to further check the **Customization**
 chapter of the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.0/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/5.0/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/4.0/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/5.0/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
@@ -595,10 +595,10 @@ configured for the embedded mode.
 When building for production, instead, it is recommended to check the **Customization** chapter of
 the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.0/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/5.0/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/4.0/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/5.0/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 

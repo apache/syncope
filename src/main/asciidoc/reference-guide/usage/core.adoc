@@ -33,7 +33,7 @@ where `protocol`, `host` and `port` reflect your deployment.
 .REST Reference
 ====
 A complete REST reference generated from https://swagger.io/specification/[OpenAPI specification 3.0^] is
-https://syncope.apache.org/rest/3.0/openapi.json[published^] as well as made available with each deployment at
+https://syncope.apache.org/rest/5.0/openapi.json[published^] as well as made available with each deployment at
 
 ....
 protocol://host:port/syncope/rest/openapi.json
@@ -52,29 +52,13 @@ protocol://host:port/syncope/
 
 The <<core>> authentication and authorization is based on https://spring.io/projects/spring-security[Spring Security^].
 
-As an initial step, authentication is required to obtain, in the `X-Syncope-Token` HTTP header, the
-unique signed https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] to include in all subsequent requests.
+As an initial step, https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is required to
+obtain, in the `X-Syncope-Token` HTTP header, the unique signed
+https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^].
 
-By providing the token received in the initial exchange, the requester can be identified and checked for authorization,
-based on owned <<entitlements,entitlements>>.
-
-[NOTE]
-Users can examine their own entitlements looking at the `<<x-syncope-entitlements,X-Syncope-Entitlements>>`
-header value.
-
-[TIP]
-====
-The relevant security configuration lies in
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/WebSecurityContext.java[WebSecurityContext^];
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/WebSecurityContext.java[WebSecurityContext^];
-endif::[]
-while normally not needed, this configuration can be anyway <<extending-configuration,customized>>.
-
-https://en.wikipedia.org/wiki/Basic_access_authentication[HTTP Basic Authentication] is set for use by default.
-====
+By providing the token received in the initial exchange for
+https://en.wikipedia.org/wiki/Access_token[HTTP Bearer Token Authentication], the requester can be identified and
+checked for authorization, based on owned <<entitlements,entitlements>>.
 
 ===== JWTSSOProvider
 
@@ -86,10 +70,29 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/JWTSSOProvider.java[JWTSSOProvider^]
 endif::[]
-interface.
+interface. +
+An example implementation is provided by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/MSEntraJWTSSOProvider.java[MSEntraJWTSSOProvider^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/4_1_X/core/spring/src/main/java/org/apache/syncope/core/spring/security/MSEntraJWTSSOProvider.java[MSEntraJWTSSOProvider^]
+endif::[]
+, to support authentication via Microsoft Entra.
 
-[[authorization-summary]]
-.Authorization Summary
+===== Authentiation Credentials
+
+By default, Basic Authentication requires username and password.
+
+When https://en.wikipedia.org/wiki/multi-factor_authentication[multi-factor authentication^] (MFA) is enabled via the
+`mfa.enabled` <<configuration-parameters,parameter>>, however, an additional OTP value shall be provided, following the
+https://en.wikipedia.org/wiki/Time-based_one-time_password[TOTP] algorithm.
+
+One of apps supporting TOTP, such as https://freeotp.github.io/[FreeOTP^] (or any proprietary or open source
+alternative), shall be enrolled first by each User, in order to be able to provide all the credentials requested.
+
+[[rest-authorization-summary]]
+.REST Authorization Summary
 ****
 The set of RESTful services provided by Apache Syncope can be divided as:
 
@@ -97,7 +100,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 <<password-reset,password reset>>;
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
 <<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
-`anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
+`security.anonymousKey` Spring Boot property value - for more information, read about Spring Security's
 https://docs.spring.io/spring-security/reference/7.0/servlet/authentication/anonymous.html#page-title[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
 . endpoints for administrative operations, requiring user authentication with authorization granted by the related
@@ -127,12 +130,24 @@ requester to be checked for authorization, as part of the standard https://tools
 ....
 curl -I -u admin:password -X POST http://localhost:9080/syncope/rest/accessTokens/login
 ....
+(when MFA is not enabled)
+
+or
+
+....
+curl -I -u admin:password:123456 -X POST http://localhost:9080/syncope/rest/accessTokens/login
+....
+(with MFA enabled)
+
 returns
+
 ....
 HTTP/1.1 204 
 X-Syncope-Token: eyJ0e..
 ....
+
 which can then be used to make a call to the REST API
+
 .....
 curl -I -H "Authorization: Bearer eyJ0e.." http://localhost:9080/syncope/rest/users/self
 .....
@@ -172,6 +187,10 @@ User, either by their username or key.
 
 When set to `true`, this request header instructs the <<propagation,propagation process>> not to wait for completion
 when communicating with <<external-resource-details,External Resources>> with no priority set.
+
+===== X-Syncope-Verfied
+
+This response header bears the boolean result of a verification operation.
 
 ===== Prefer and Preference-Applied
 

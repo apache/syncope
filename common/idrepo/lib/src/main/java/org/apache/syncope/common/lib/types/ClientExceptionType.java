@@ -29,7 +29,6 @@ public enum ClientExceptionType {
     DataIntegrityViolation(Response.Status.CONFLICT),
     EntityExists(Response.Status.CONFLICT),
     GenericPersistence(Response.Status.BAD_REQUEST),
-    InvalidAccessToken(Response.Status.INTERNAL_SERVER_ERROR),
     InvalidImplementation(Response.Status.BAD_REQUEST),
     InvalidImplementationType(Response.Status.NOT_FOUND),
     InvalidSecurityAnswer(Response.Status.BAD_REQUEST),
@@ -74,7 +73,7 @@ public enum ClientExceptionType {
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),
     Reconciliation(Response.Status.BAD_REQUEST),
-    RunError(Response.Status.INTERNAL_SERVER_ERROR),
+    ExecutionError(Response.Status.INTERNAL_SERVER_ERROR),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
 

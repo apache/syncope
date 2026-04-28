@@ -63,7 +63,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.rest.api.DateParamConverterProvider;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
-import org.apache.syncope.core.logic.AnyObjectLogic;
+import org.apache.syncope.core.logic.AnyObjectLogicOp;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
@@ -117,7 +117,7 @@ public class AnyObjectServiceTest {
         if (SERVER == null) {
             AnyObjectDAO anyObjectDAO = mock(AnyObjectDAO.class);
 
-            AnyObjectLogic logic = mock(AnyObjectLogic.class);
+            AnyObjectLogicOp logic = mock(AnyObjectLogicOp.class);
             when(logic.search(
                     any(SearchCond.class), any(Pageable.class), anyString(), anyBoolean(), anyBoolean())).
                     thenAnswer(ic -> {

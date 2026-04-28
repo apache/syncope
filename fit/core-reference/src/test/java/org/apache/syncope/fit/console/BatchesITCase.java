@@ -82,7 +82,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         // manage resource
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:"
                 + "action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
@@ -134,7 +134,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         // enable
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
                 + "action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
@@ -200,7 +200,7 @@ public class BatchesITCase extends AbstractConsoleITCase {
         // enable
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:1"
-                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
+                + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
                 + "action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"

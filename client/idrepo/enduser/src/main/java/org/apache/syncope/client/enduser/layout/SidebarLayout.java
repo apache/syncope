@@ -32,6 +32,8 @@ public class SidebarLayout implements Serializable {
 
     private boolean securityQuestionManagementEnabled = true;
 
+    private boolean dismissMfaEnabled = true;
+
     private final Map<String, Boolean> extensionsEnabled = new HashMap<>();
 
     public boolean isEditUserEnabled() {
@@ -56,6 +58,14 @@ public class SidebarLayout implements Serializable {
 
     public void setSecurityQuestionManagementEnabled(final boolean securityQuestionManagementEnabled) {
         this.securityQuestionManagementEnabled = securityQuestionManagementEnabled;
+    }
+
+    public boolean isDismissMfaEnabled() {
+        return dismissMfaEnabled;
+    }
+
+    public void setDismissMfaEnabled(final boolean dismissMfaEnabled) {
+        this.dismissMfaEnabled = dismissMfaEnabled;
     }
 
     public Map<String, Boolean> getExtensionsEnabled() {

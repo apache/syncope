@@ -268,7 +268,7 @@ public interface UserSelfService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
-    @Path("requestPasswordReset")
+    @Path("passwordReset/request")
     @Produces({ MediaType.APPLICATION_JSON })
     void requestPasswordReset(@NotNull @QueryParam("username") String username, String securityAnswer);
 
@@ -284,7 +284,7 @@ public interface UserSelfService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
-    @Path("confirmPasswordReset")
+    @Path("passwordReset/confirm")
     @Produces({ MediaType.APPLICATION_JSON })
     void confirmPasswordReset(@NotNull @QueryParam("token") String token, String password);
 }

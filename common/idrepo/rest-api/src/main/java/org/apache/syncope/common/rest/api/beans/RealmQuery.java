@@ -80,7 +80,7 @@ public class RealmQuery extends AbstractQuery {
             + "feed.", example = "name==department1", schema =
             @Schema(implementation = String.class, externalDocs =
                     @ExternalDocumentation(description = "Apache Syncope Reference Guide",
-                            url = "https://syncope.apache.org/docs/4.0/reference-guide.html#search")))
+                            url = "https://syncope.apache.org/docs/4.1/reference-guide.html#search")))
     @QueryParam(JAXRSService.PARAM_FIQL)
     public void setFiql(final String fiql) {
         this.fiql = fiql;

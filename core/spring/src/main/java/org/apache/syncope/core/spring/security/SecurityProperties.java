@@ -88,6 +88,8 @@ public class SecurityProperties {
 
     private CipherAlgorithm adminPasswordAlgorithm;
 
+    private String adminMfaSecret;
+
     private String anonymousUser;
 
     private String anonymousKey;
@@ -126,6 +128,14 @@ public class SecurityProperties {
 
     public void setAdminPasswordAlgorithm(final CipherAlgorithm adminPasswordAlgorithm) {
         this.adminPasswordAlgorithm = adminPasswordAlgorithm;
+    }
+
+    public String getAdminMfaSecret() {
+        return adminMfaSecret;
+    }
+
+    public void setAdminMfaSecret(final String adminMfaSecret) {
+        this.adminMfaSecret = adminMfaSecret;
     }
 
     public String getAnonymousUser() {

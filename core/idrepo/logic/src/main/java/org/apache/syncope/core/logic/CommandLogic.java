@@ -140,7 +140,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
         } catch (Exception e) {
             LOG.error("While running {} on {}", command.getKey(), command.getArgs(), e);
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RunError);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.ExecutionError);
             sce.getElements().add(e.getMessage());
             throw sce;
         }

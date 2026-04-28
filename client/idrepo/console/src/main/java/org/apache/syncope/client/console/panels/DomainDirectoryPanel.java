@@ -57,11 +57,11 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     private static final long serialVersionUID = -1039907608594680220L;
 
     @SpringBean
-    private DomainOps domainOps;
+    protected DomainOps domainOps;
 
-    private final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
+    protected final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
 
-    private Class<? extends Domain> domainClass = JPADomain.class;
+    protected Class<? extends Domain> domainClass = JPADomain.class;
 
     public DomainDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, null, pageRef);
@@ -164,13 +164,32 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Domain ignore) {
-                final Domain domain = model.getObject();
                 try {
-                    domainOps.delete(domain.getKey());
+                    domainOps.setAdminMfaSecret(model.getObject().getKey(), null);
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (KeymasterException e) {
-                    LOG.error("While deleting {}", domain.getKey(), e);
+                    LOG.error("While dismissing MFA for {}'s admin", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DISMISS_MFA, IdRepoEntitlement.KEYMASTER, true);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Domain ignore) {
+                try {
+                    domainOps.delete(model.getObject().getKey());
+
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (KeymasterException e) {
+                    LOG.error("While deleting {}", model.getObject().getKey(), e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);

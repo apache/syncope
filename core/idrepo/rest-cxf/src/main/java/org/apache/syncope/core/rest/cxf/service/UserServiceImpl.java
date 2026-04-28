@@ -20,17 +20,14 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.logic.AbstractAnyLogic;
-import org.apache.syncope.core.logic.SyncopeLogic;
-import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.logic.AnyCRUDLogicOp;
+import org.apache.syncope.core.logic.UserLogicOp;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.search.AnySearchCondVisitor;
@@ -39,20 +36,16 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
 
     protected final UserDAO userDAO;
 
-    protected final UserLogic logic;
-
-    protected final SyncopeLogic syncopeLogic;
+    protected final UserLogicOp logic;
 
     public UserServiceImpl(
             final AnySearchCondVisitor searchCondVisitor,
             final UserDAO userDAO,
-            final UserLogic logic,
-            final SyncopeLogic syncopeLogic) {
+            final UserLogicOp logic) {
 
         super(searchCondVisitor);
         this.userDAO = userDAO;
         this.logic = logic;
-        this.syncopeLogic = syncopeLogic;
     }
 
     @Override
@@ -61,7 +54,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
     }
 
     @Override
-    protected AbstractAnyLogic<UserTO, UserCR, UserUR> getAnyLogic() {
+    protected AnyCRUDLogicOp<UserTO, UserCR, UserUR> getAnyLogic() {
         return logic;
     }
 
@@ -88,16 +81,5 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
 
         ProvisioningResult<UserTO> updated = logic.status(statusR, isNullPriorityAsync());
         return modificationResponse(updated);
-    }
-
-    @Override
-    public void verifySecurityAnswer(final String username, final String securityAnswer) {
-        if (!syncopeLogic.isPwdResetAllowed()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
-            sce.getElements().add("Password reset forbidden by configuration");
-            throw sce;
-        }
-
-        logic.verifySecurityAnswer(username, securityAnswer);
     }
 }

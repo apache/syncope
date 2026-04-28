@@ -25,13 +25,15 @@ import java.lang.management.RuntimeMXBean;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.collections.CircularFifoQueue;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -89,22 +91,24 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
 
-            SYSTEM_INFO = new SystemInfo();
+            String hostname = null;
             try {
-                SYSTEM_INFO.setHostname(InetAddress.getLocalHost().getHostName());
+                hostname = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
                 LOG.error("Could not get host name", e);
             }
 
-            SYSTEM_INFO.setOs(operatingSystemMXBean.getName()
+            SYSTEM_INFO = new SystemInfo(
+                    hostname,
+                    operatingSystemMXBean.getName()
                     + ' ' + operatingSystemMXBean.getVersion()
-                    + ' ' + operatingSystemMXBean.getArch());
-            SYSTEM_INFO.setAvailableProcessors(operatingSystemMXBean.getAvailableProcessors());
-            SYSTEM_INFO.setJvm(
+                    + ' ' + operatingSystemMXBean.getArch(),
                     runtimeMXBean.getVmName()
                     + ' ' + System.getProperty("java.version")
-                    + ' ' + runtimeMXBean.getVmVendor());
-            SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
+                    + ' ' + runtimeMXBean.getVmVendor(),
+                    operatingSystemMXBean.getAvailableProcessors(),
+                    runtimeMXBean.getStartTime(),
+                    new CircularFifoQueue<>(10));
         }
     }
 
@@ -135,8 +139,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     protected final PersistenceInfoDAO persistenceInfoDAO;
 
-    protected final ConfParamOps confParamOps;
-
     protected final ConnIdBundleManager bundleManager;
 
     protected final ImplementationLookup implLookup;
@@ -154,7 +156,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             final TaskDAO taskDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final PersistenceInfoDAO persistenceInfoDAO,
-            final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
             final ImplementationLookup implLookup) {
 
@@ -170,68 +171,54 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         this.taskDAO = taskDAO;
         this.securityQuestionDAO = securityQuestionDAO;
         this.persistenceInfoDAO = persistenceInfoDAO;
-        this.confParamOps = confParamOps;
         this.bundleManager = bundleManager;
         this.implLookup = implLookup;
-    }
-
-    protected boolean isSelfRegAllowed() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "selfRegistration.allowed", false, Boolean.class);
-    }
-
-    protected boolean isPwdResetAllowed() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.allowed", false, Boolean.class);
-    }
-
-    protected boolean isPwdResetRequiringSecurityQuestions() {
-        return confParamOps.get(AuthContextUtils.getDomain(), "passwordReset.securityQuestion", true, Boolean.class);
     }
 
     protected void buildPlatform() {
         synchronized (this) {
             if (PLATFORM_INFO == null) {
-                PLATFORM_INFO = new PlatformInfo();
+                PLATFORM_INFO = new PlatformInfo(
+                        new HashSet<>(),
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        new HashSet<>(),
+                        new HashSet<>(),
+                        new HashSet<>());
 
-                PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
-                        map(URI::toASCIIString).toList());
+                PLATFORM_INFO.connIdLocations().addAll(
+                        bundleManager.getLocations().stream().map(URI::toASCIIString).toList());
 
                 ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
-                    Set<String> classNames = implLookup.getClassNames(typeName);
-                    if (classNames != null) {
-                        JavaImplInfo javaImplInfo = new JavaImplInfo();
-                        javaImplInfo.setType(typeName);
-                        javaImplInfo.getClasses().addAll(classNames);
-
-                        PLATFORM_INFO.getJavaImplInfos().add(javaImplInfo);
-                    }
+                    Optional.ofNullable(implLookup.getClassNames(typeName)).
+                            ifPresent(classNames -> PLATFORM_INFO.javaImplInfos().
+                            add(new JavaImplInfo(typeName, classNames)));
                 });
             }
 
-            PLATFORM_INFO.setSelfRegAllowed(isSelfRegAllowed());
-            PLATFORM_INFO.setPwdResetAllowed(isPwdResetAllowed());
-            PLATFORM_INFO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
+            PLATFORM_INFO.entitlements().clear();
+            PLATFORM_INFO.entitlements().addAll(EntitlementsHolder.getInstance().getValues());
 
-            PLATFORM_INFO.getEntitlements().clear();
-            PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
-
-            PLATFORM_INFO.getImplementationTypes().clear();
-            PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
+            PLATFORM_INFO.implementationTypes().clear();
+            PLATFORM_INFO.implementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
 
             AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
-                PLATFORM_INFO.getAnyTypes().clear();
-                PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
+                PLATFORM_INFO.anyTypes().clear();
+                PLATFORM_INFO.anyTypes().addAll(anyTypeDAO.findAll().stream().
                         map(AnyType::getKey).toList());
 
-                PLATFORM_INFO.getUserClasses().clear();
-                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.getUser().getClasses().stream().
+                PLATFORM_INFO.userClasses().clear();
+                PLATFORM_INFO.userClasses().addAll(anyTypeDAO.getUser().getClasses().stream().
                         map(AnyTypeClass::getKey).toList());
 
-                PLATFORM_INFO.getAnyTypeClasses().clear();
-                PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
+                PLATFORM_INFO.anyTypeClasses().clear();
+                PLATFORM_INFO.anyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
                         map(AnyTypeClass::getKey).toList());
 
-                PLATFORM_INFO.getResources().clear();
-                PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
+                PLATFORM_INFO.resources().clear();
+                PLATFORM_INFO.resources().addAll(resourceDAO.findAll().stream().
                         map(ExternalResource::getKey).toList());
             });
         }
@@ -239,14 +226,12 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     protected NumbersInfo buildNumbers(final String domain) {
         return AuthContextUtils.callAsAdmin(domain, () -> {
-            NumbersInfo numbersInfo = new NumbersInfo();
-
-            numbersInfo.setTotalUsers(userDAO.count());
-            numbersInfo.getUsersByRealm().putAll(userDAO.countByRealm());
-            numbersInfo.getUsersByStatus().putAll(userDAO.countByStatus());
-
-            numbersInfo.setTotalGroups(groupDAO.count());
-            numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
+            String anyType1 = null;
+            long totalAny1 = 0;
+            Map<String, Long> any1ByRealm = Map.of();
+            String anyType2 = null;
+            long totalAny2 = 0;
+            Map<String, Long> any2ByRealm = Map.of();
 
             Map<String, Long> anyObjectNumbers = anyObjectDAO.countByType();
             int i = 0;
@@ -255,36 +240,48 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
                 Map.Entry<String, Long> entry = itor.next();
                 if (i == 0) {
-                    numbersInfo.setAnyType1(entry.getKey());
-                    numbersInfo.setTotalAny1(entry.getValue());
-                    numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+                    anyType1 = entry.getKey();
+                    totalAny1 = entry.getValue();
+                    any1ByRealm = anyObjectDAO.countByRealm(entry.getKey());
                 } else {
-                    numbersInfo.setAnyType2(entry.getKey());
-                    numbersInfo.setTotalAny2(entry.getValue());
-                    numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+                    anyType2 = entry.getKey();
+                    totalAny2 = entry.getValue();
+                    any2ByRealm = anyObjectDAO.countByRealm(entry.getKey());
                 }
             }
 
-            numbersInfo.setTotalResources(resourceDAO.count());
+            NumbersInfo numbersInfo = new NumbersInfo(
+                    userDAO.count(),
+                    userDAO.countByRealm(),
+                    userDAO.countByStatus(),
+                    groupDAO.count(),
+                    groupDAO.countByRealm(),
+                    anyType1,
+                    totalAny1,
+                    any1ByRealm,
+                    anyType2,
+                    totalAny2,
+                    any2ByRealm,
+                    resourceDAO.count(),
+                    roleDAO.count(),
+                    new HashMap<>());
 
-            numbersInfo.setTotalRoles(roleDAO.count());
-
-            numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
+                    NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.totalResources() > 0);
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.findAll(AccountPolicy.class).isEmpty());
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.findAll(PasswordPolicy.class).isEmpty());
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.PULL_TASK.name(), !taskDAO.findAll(TaskType.PULL).isEmpty());
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.ANY_TYPE.name(), !anyObjectNumbers.isEmpty());
-            numbersInfo.getConfCompleteness().put(
+            numbersInfo.confCompleteness().put(
                     NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
-            numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
+            numbersInfo.confCompleteness().put(
+                    NumbersInfo.ConfItem.ROLE.name(), numbersInfo.totalRoles() > 0);
 
             return numbersInfo;
         });
@@ -317,7 +314,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
     public void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
         synchronized (MONITOR) {
             initSystemInfo();
-            SYSTEM_INFO.getLoad().add(event.getPayload());
+            SYSTEM_INFO.load().add(event.getPayload());
         }
     }
 }

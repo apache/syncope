@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -398,8 +399,8 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test()
     public void issueSYNCOPE51() {
         String originalCA = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "password.cipher.algorithm", null, String.class);
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", "MD5");
+                StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, "MD5");
 
         UserCR userCR = UserITCase.getSample("syncope51@syncope.apache.org");
         userCR.setPassword("password");
@@ -411,7 +412,7 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getElements().iterator().next().contains("MD5"));
         } finally {
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", originalCA);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, originalCA);
         }
     }
 
@@ -515,10 +516,10 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE136AES() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
         String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "password.cipher.algorithm", null, String.class);
+                StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
 
         // 2. set AES password cipher algorithm
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", "AES");
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, "AES");
 
         UserTO userTO = null;
         try {
@@ -547,7 +548,8 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, prop.getStatus());
         } finally {
             // restore initial cipher algorithm
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", origpwdCipherAlgo);
+            confParamOps.set(
+                    SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, origpwdCipherAlgo);
 
             if (userTO != null) {
                 deleteUser(userTO.getKey());
@@ -1235,10 +1237,10 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE686() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
         String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "password.cipher.algorithm", null, String.class);
+                StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
 
         // 2. set AES password cipher algorithm
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", "AES");
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, "AES");
 
         try {
             // 3. create group with LDAP resource assigned
@@ -1272,7 +1274,8 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, prop.getStatus());
         } finally {
             // restore initial cipher algorithm
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", origpwdCipherAlgo);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                    origpwdCipherAlgo);
         }
     }
 
@@ -1370,10 +1373,12 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1337() {
         // 0. save current cipher algorithm and set it to something salted
-        String original =
-                confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", null, String.class);
+        String original = confParamOps.get(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, null, String.class);
 
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", CipherAlgorithm.SSHA512.name());
+        confParamOps.set(
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                CipherAlgorithm.SSHA512.name());
 
         // 1. ensure that password policy is properly set for /even/two
         PasswordPolicyTO pwdPolicy = POLICY_SERVICE.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
@@ -1412,7 +1417,7 @@ public class UserIssuesITCase extends AbstractITCase {
             assertDoesNotThrow(() -> updateUser(req).getEntity());
         } finally {
             // finally revert the cipher algorithm
-            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", original);
+            confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_CIPHER_ALGORITHM, original);
         }
     }
 

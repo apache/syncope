@@ -74,19 +74,20 @@ public class SelfResult extends BasePage {
         content.add(new Label("resultMessage", parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString()));
         Fragment statusFragment = new Fragment("statusIcon",
                 provisioningResult != null
-                        && SyncopeWebApplication.get().isReportPropagationErrors()
-                        && provisioningResult.getPropagationStatuses().stream()
-                        .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
-                        ? "errorIcon" : "successIcon", content);
+                && SyncopeWebApplication.get().isReportPropagationErrors()
+                && provisioningResult.getPropagationStatuses().stream().
+                        anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
+                ? "errorIcon" : "successIcon", content);
         // add also details about failed propagations, if enbaled by property enduser.showPropErrors
         if (provisioningResult != null
-                && provisioningResult.getPropagationStatuses().stream()
-                .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
+                && provisioningResult.getPropagationStatuses().stream().
+                        anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
+
             statusFragment.add(new ResultPanel("propagationErrors",
                     (Serializable) provisioningResult.getPropagationStatuses().stream()
                             .filter(ps -> ExecStatus.SUCCESS != ps.getStatus())
                             .map(ps -> StatusUtils.getStatusBean(provisioningResult.getEntity(), ps.getResource(),
-                                    ps.getAfterObj(), false)).collect(Collectors.toList()), getPageReference())
+                            ps.getAfterObj(), false)).collect(Collectors.toList()), getPageReference())
                     .setOutputMarkupId(true)
                     .setVisible(SyncopeWebApplication.get().isReportPropagationErrorDetails()));
         }
