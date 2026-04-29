@@ -50,32 +50,42 @@ public class DefaultAuditManager implements AuditManager {
     protected static final String MASKED_VALUE = "<MASKED>";
 
     protected static Object maskSensitive(final Object object) {
-        Object masked;
+        return switch (object) {
+            case UserTO userTO -> {
+                UserTO clone = SerializationUtils.clone(userTO);
+                if (clone.getPassword() != null) {
+                    clone.setPassword(MASKED_VALUE);
+                }
+                yield clone;
+            }
 
-        if (object instanceof UserTO userTO) {
-            masked = SerializationUtils.clone(userTO);
-            if (((UserTO) masked).getPassword() != null) {
-                ((UserTO) masked).setPassword(MASKED_VALUE);
+            case UserCR userCR -> {
+                UserCR clone = SerializationUtils.clone(userCR);
+                if (clone.getPassword() != null) {
+                    clone.setPassword(MASKED_VALUE);
+                }
+                if (clone.getSecurityAnswer() != null) {
+                    clone.setSecurityAnswer(MASKED_VALUE);
+                }
+                yield clone;
             }
-            if (((UserTO) masked).getSecurityAnswer() != null) {
-                ((UserTO) masked).setSecurityAnswer(MASKED_VALUE);
-            }
-        } else if (object instanceof UserCR userCR) {
-            masked = SerializationUtils.clone(userCR);
-            if (((UserCR) masked).getPassword() != null) {
-                ((UserCR) masked).setPassword(MASKED_VALUE);
-            }
-            if (((UserCR) masked).getSecurityAnswer() != null) {
-                ((UserCR) masked).setSecurityAnswer(MASKED_VALUE);
-            }
-        } else if (object instanceof final UserUR userUR && userUR.getPassword() != null) {
-            masked = SerializationUtils.clone(userUR);
-            ((UserUR) masked).getPassword().setValue(MASKED_VALUE);
-        } else {
-            masked = object;
-        }
 
-        return masked;
+            case UserUR userUR -> {
+                UserUR clone = SerializationUtils.clone(userUR);
+                if (clone.getPassword() != null) {
+                    clone.getPassword().setValue(MASKED_VALUE);
+                }
+                if (clone.getSecurityAnswer() != null) {
+                    clone.getSecurityAnswer().setValue(MASKED_VALUE);
+                }
+                yield clone;
+            }
+
+            case null ->
+                null;
+            default ->
+                object;
+        };
     }
 
     protected final AuditConfDAO auditConfDAO;

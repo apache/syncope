@@ -68,4 +68,9 @@ public class CoreReferenceContext {
 
         return new CustomJWTSSOProvider(anySearchDAO, authDataAccessor);
     }
+
+    @Bean
+    public TestSecurityEndpoint testSecurityEndpoint(final UserDAO userDAO) {
+        return new TestSecurityEndpoint(userDAO);
+    }
 }

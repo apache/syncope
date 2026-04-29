@@ -67,9 +67,10 @@ public class ZookeeperConfParamOpsITCase {
         assertNotNull(dateValue);
         assertEquals(new Date(1554982140000L), dateValue);
 
-        Boolean booleanValue = confParamOps.get(DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, null, Boolean.class);
+        Boolean booleanValue = confParamOps.get(
+                DOMAIN, StandardConfParams.SELF_REGISTRATION_ALLOWED, null, Boolean.class);
         assertNotNull(booleanValue);
-        assertEquals(false, booleanValue);
+        assertEquals(true, booleanValue);
 
         List<String> stringValues = List.of(confParamOps.get(
                 DOMAIN, StandardConfParams.AUTHENTICATION_STATUSES, null, String[].class));

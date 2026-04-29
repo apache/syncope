@@ -34,8 +34,6 @@ public final class StandardConfParams {
 
     public static final String PASSWORD_CIPHER_ALGORITHM = "password.cipher.algorithm";
 
-    public static final String RETURN_PASSWORD_VALUE = "return.password.value";
-
     public static final String AUTHENTICATION_ATTRIBUTES = "authentication.attributes";
 
     public static final String AUTHENTICATION_STATUSES = "authentication.statuses";

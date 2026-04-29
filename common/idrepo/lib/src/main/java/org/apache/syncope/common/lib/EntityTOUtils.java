@@ -76,7 +76,6 @@ public final class EntityTOUtils {
             userCR.setUsername(userTO.getUsername());
             userCR.setPassword(userTO.getPassword());
             userCR.setSecurityQuestion(userTO.getSecurityQuestion());
-            userCR.setSecurityAnswer(userTO.getSecurityAnswer());
             userCR.setMustChangePassword(userTO.isMustChangePassword());
             userCR.getMemberships().addAll(userTO.getMemberships());
             userCR.getRoles().addAll(userTO.getRoles());
@@ -103,7 +102,6 @@ public final class EntityTOUtils {
             userTO.setUsername(userCR.getUsername());
             userTO.setPassword(userCR.getPassword());
             userTO.setSecurityQuestion(userCR.getSecurityQuestion());
-            userTO.setSecurityAnswer(userCR.getSecurityAnswer());
             userTO.setMustChangePassword(userCR.isMustChangePassword());
             userTO.getMemberships().addAll(userCR.getMemberships());
             userTO.getRoles().addAll(userCR.getRoles());

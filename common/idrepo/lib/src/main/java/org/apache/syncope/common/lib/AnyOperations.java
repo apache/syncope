@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -300,13 +299,9 @@ public final class AnyOperations {
         if (updated.getSecurityQuestion() == null) {
             result.setSecurityQuestion(null);
             result.setSecurityAnswer(null);
-        } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
-                || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
-
+        } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())) {
             result.setSecurityQuestion(new StringReplacePatchItem.Builder().
                     value(updated.getSecurityQuestion()).build());
-            result.setSecurityAnswer(
-                    new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
         }
 
         result.setMustChangePassword(replacePatchItem(

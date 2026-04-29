@@ -11,7 +11,6 @@
   "authentication.attributes": ["username", "userId"],
   "authentication.statuses": ["created", "active"],
   "log.lastlogindate": true,
-  "return.password.value": false,
   "jwt.lifetime.minutes": 120,
   "connector.conf.history.size": 10,
   "resource.conf.history.size": 10

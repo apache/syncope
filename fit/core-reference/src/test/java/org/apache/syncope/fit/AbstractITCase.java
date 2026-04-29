@@ -22,6 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -1133,6 +1134,38 @@ public abstract class AbstractITCase {
                 return false;
             }
         });
+    }
+
+    protected static String getPassword(final String key) throws JsonProcessingException {
+        String response = WebClient.create(
+                StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/testSecurity/PASSWORD/" + key,
+                ANONYMOUS_UNAME,
+                ANONYMOUS_KEY,
+                null).
+                accept(MediaType.APPLICATION_JSON).get().readEntity(String.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> payload = MAPPER.readValue(response, Map.class);
+        return payload.isEmpty()
+                ? null
+                : Optional.ofNullable(payload.get("password")).map(Object::toString).orElse(null);
+    }
+
+    protected static Map<String, Object> getToken(final String key) {
+        String response = WebClient.create(
+                StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/testSecurity/TOKEN/" + key,
+                ANONYMOUS_UNAME,
+                ANONYMOUS_KEY,
+                null).
+                accept(MediaType.APPLICATION_JSON).get().readEntity(String.class);
+
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> payload = MAPPER.readValue(response, Map.class);
+            return payload;
+        } catch (Exception e) {
+            LOG.error("Could not parse {}", response, e);
+            return Map.of();
+        }
     }
 
     @Autowired

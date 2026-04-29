@@ -528,11 +528,12 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         userDAO.save(user);
     }
 
-    protected LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
+    @Transactional(readOnly = true)
+    @Override
+    public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
                 username(account.getUsername()).
-                password(returnPasswordValue ? account.getPassword() : null).
                 suspended(BooleanUtils.isTrue(account.isSuspended())).
                 build();
 
@@ -544,16 +545,7 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
 
     @Transactional(readOnly = true)
     @Override
-    public LinkedAccountTO getLinkedAccountTO(final LinkedAccount account) {
-        return getLinkedAccountTO(account, true);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public UserTO getUserTO(final User user, final boolean details) {
-        Boolean returnPasswordValue = confParamOps.get(AuthContextUtils.getDomain(),
-                StandardConfParams.RETURN_PASSWORD_VALUE, Boolean.FALSE, Boolean.class);
-
         UserTO userTO = new UserTO();
         userTO.setKey(user.getKey());
         userTO.setUsername(user.getUsername());
@@ -561,10 +553,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
         userTO.setMustChangePassword(user.isMustChangePassword());
 
-        if (returnPasswordValue) {
-            userTO.setPassword(user.getPassword());
-            userTO.setSecurityAnswer(user.getSecurityAnswer());
-        }
         Optional.ofNullable(user.getSecurityQuestion()).
                 map(SecurityQuestion::getKey).
                 ifPresent(userTO::setSecurityQuestion);
@@ -580,8 +568,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         userTO.setChangePwdDate(user.getChangePwdDate());
         userTO.setFailedLogins(user.getFailedLogins());
         userTO.setLastLoginDate(user.getLastLoginDate());
-        userTO.setToken(user.getToken());
-        userTO.setTokenExpireTime(user.getTokenExpireTime());
 
         fillTO(user, userTO, derAttrHandler.getValues(user), userDAO.findAllResources(user));
 
@@ -604,8 +590,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                     membership)).toList());
 
             // linked accounts
-            userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
-                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).toList());
+            userTO.getLinkedAccounts().addAll(
+                    user.getLinkedAccounts().stream().map(this::getLinkedAccountTO).toList());
 
             // delegations
             userTO.getDelegatingDelegations().addAll(

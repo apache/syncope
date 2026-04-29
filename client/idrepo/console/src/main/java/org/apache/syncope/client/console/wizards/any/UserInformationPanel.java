@@ -53,21 +53,5 @@ public class UserInformationPanel extends AnnotatedBeanPanel {
         // ------------------------
         add(new Label("failedLogins", new Model<>(userTO.getFailedLogins())));
         // ------------------------
-
-        // ------------------------
-        // Token
-        // ------------------------
-        add(new Label("token", new Model<>(userTO.getToken() == null
-                ? StringUtils.EMPTY
-                : userTO.getToken())));
-        // ------------------------
-
-        // ------------------------
-        // Token expire time
-        // ------------------------
-        add(new Label("tokenExpireTime", new Model<>(userTO.getTokenExpireTime() == null
-                ? StringUtils.EMPTY
-                : SyncopeConsoleSession.get().getDateFormat().format(userTO.getTokenExpireTime()))));
-        // ------------------------
     }
 }

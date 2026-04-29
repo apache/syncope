@@ -34,13 +34,9 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 
-    private String password;
-
-    private String token;
-
-    private OffsetDateTime tokenExpireTime;
-
     private String username;
+
+    private String password;
 
     private OffsetDateTime lastLoginDate;
 
@@ -49,8 +45,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     private Integer failedLogins;
 
     private String securityQuestion;
-
-    private String securityAnswer;
 
     private boolean suspended;
 
@@ -84,30 +78,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         // fixed
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(final String token) {
-        this.token = token;
-    }
-
-    public OffsetDateTime getTokenExpireTime() {
-        return tokenExpireTime;
-    }
-
-    public void setTokenExpireTime(final OffsetDateTime tokenExpireTime) {
-        this.tokenExpireTime = tokenExpireTime;
-    }
-
     @JsonProperty(required = true)
     public String getUsername() {
         return username;
@@ -115,6 +85,14 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 
     public OffsetDateTime getChangePwdDate() {
@@ -147,14 +125,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     public void setSecurityQuestion(final String securityQuestion) {
         this.securityQuestion = securityQuestion;
-    }
-
-    public String getSecurityAnswer() {
-        return securityAnswer;
-    }
-
-    public void setSecurityAnswer(final String securityAnswer) {
-        this.securityAnswer = securityAnswer;
     }
 
     public boolean isSuspended() {
@@ -208,13 +178,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 appendSuper(super.hashCode()).
                 append(username).
                 append(roles).
-                append(token).
-                append(tokenExpireTime).
                 append(lastLoginDate).
                 append(changePwdDate).
                 append(failedLogins).
                 append(securityQuestion).
-                append(securityAnswer).
                 append(suspended).
                 append(mustChangePassword).
                 append(memberships).
@@ -240,13 +207,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 appendSuper(super.equals(obj)).
                 append(username, other.username).
                 append(roles, other.roles).
-                append(token, other.token).
-                append(tokenExpireTime, other.tokenExpireTime).
                 append(lastLoginDate, other.lastLoginDate).
                 append(changePwdDate, other.changePwdDate).
                 append(failedLogins, other.failedLogins).
                 append(securityQuestion, other.securityQuestion).
-                append(securityAnswer, other.securityAnswer).
                 append(suspended, other.suspended).
                 append(mustChangePassword, other.mustChangePassword).
                 append(memberships, other.memberships).

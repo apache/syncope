@@ -28,11 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -80,6 +82,21 @@ import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
+
+    protected static String getFirstLinkedAccountPassword(final String key) throws JsonProcessingException {
+        String response = WebClient.create(
+                StringUtils.substringBeforeLast(ADDRESS, "/")
+                + "/actuator/testSecurity/FIRST_LINKED_ACCOUNT_PASSWORD/" + key,
+                ANONYMOUS_UNAME,
+                ANONYMOUS_KEY,
+                null).
+                accept(MediaType.APPLICATION_JSON).get().readEntity(String.class);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> payload = MAPPER.readValue(response, Map.class);
+        return payload.isEmpty()
+                ? null
+                : Optional.ofNullable(payload.get("password")).map(Object::toString).orElse(null);
+    }
 
     @Test
     public void createWithLinkedAccountThenUpdateThenRemove() {
@@ -209,11 +226,8 @@ public class LinkedAccountITCase extends AbstractITCase {
     }
 
     @Test
-    public void createWithoutLinkedAccountThenAddAndUpdatePassword() {
-        // 1. set the return value parameter to true
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, true);
-
-        // 2. create user without linked account
+    public void createWithoutLinkedAccountThenAddAndUpdatePassword() throws JsonProcessingException {
+        // 1. create user without linked account
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
@@ -222,7 +236,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertNotNull(user.getKey());
         assertTrue(user.getLinkedAccounts().isEmpty());
 
-        // 3. add linked account to user without password
+        // 2. add linked account to user without password
         UserUR userUR = new UserUR();
         userUR.setKey(user.getKey());
 
@@ -231,15 +245,15 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         user = updateUser(userUR).getEntity();
         assertEquals(1, user.getLinkedAccounts().size());
-        assertNull(user.getLinkedAccounts().getFirst().getPassword());
+        assertNull(getFirstLinkedAccountPassword(user.getKey()));
 
-        // 4. update linked account with adding a password
+        // 3. update linked account with adding a password
         account.setPassword("Password123");
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
 
-        // 4.1 SYNCOPE-1824 update with a wrong password, a error must be raised
+        // 3.1 SYNCOPE-1824 update with a wrong password, a error must be raised
         account.setPassword("password");
         try {
             updateUser(userUR);
@@ -258,7 +272,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         // set a correct password
         account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
-        assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
+        assertNotNull(getFirstLinkedAccountPassword(user.getKey()));
 
         PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
@@ -271,8 +285,8 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertTrue(propagationData.getAttributes().stream().
                 anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
 
-        // 5. update linked account password
-        String beforeUpdatePassword = user.getLinkedAccounts().getFirst().getPassword();
+        // 4. update linked account password
+        String beforeUpdatePassword = getFirstLinkedAccountPassword(user.getKey());
         account.setPassword("Password123Updated");
         userUR = new UserUR();
         userUR.setKey(user.getKey());
@@ -284,8 +298,8 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
-        assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
-        assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().getFirst().getPassword());
+        assertNotNull(getFirstLinkedAccountPassword(user.getKey()));
+        assertNotEquals(beforeUpdatePassword, getFirstLinkedAccountPassword(user.getKey()));
 
         tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
@@ -298,16 +312,14 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertTrue(propagationData.getAttributes().stream().
                 anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
 
-        // 6. set linked account password to null
+        // 5. set linked account password to null
         account.setPassword(null);
         userUR = new UserUR();
         userUR.setKey(user.getKey());
 
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
-        assertNull(user.getLinkedAccounts().getFirst().getPassword());
-
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, false);
+        assertNull(getFirstLinkedAccountPassword(user.getKey()));
     }
 
     @Test

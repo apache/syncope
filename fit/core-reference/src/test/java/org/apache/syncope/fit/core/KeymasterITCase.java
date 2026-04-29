@@ -80,9 +80,9 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(120L, longValue.longValue());
 
         Boolean booleanValue = confParamOps.get(
-                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.RETURN_PASSWORD_VALUE, null, Boolean.class);
+                SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_ALLOWED, null, Boolean.class);
         assertNotNull(booleanValue);
-        assertEquals(false, booleanValue);
+        assertEquals(true, booleanValue);
 
         List<String> stringValues = List.of(confParamOps.get(
                 SyncopeConstants.MASTER_DOMAIN, StandardConfParams.AUTHENTICATION_ATTRIBUTES, null, String[].class));
