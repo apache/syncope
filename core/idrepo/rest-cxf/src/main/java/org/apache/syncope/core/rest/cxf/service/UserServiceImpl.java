@@ -82,4 +82,9 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
         ProvisioningResult<UserTO> updated = logic.status(statusR, isNullPriorityAsync());
         return modificationResponse(updated);
     }
+
+    @Override
+    public void verifySecurityAnswer(final String username, final String securityAnswer) {
+        logic.verifySecurityAnswer(username, securityAnswer);
+    }
 }

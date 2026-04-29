@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -34,6 +36,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -288,5 +291,29 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
     @Override
     public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
         return doDelete(binder.getUserTO(key), false, nullPriorityAsync);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
+    @Transactional(readOnly = true)
+    @Override
+    public void verifySecurityAnswer(final String username, final String securityAnswer) {
+        if (!confParamOps.get(
+                AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_ALLOWED, false, boolean.class)) {
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
+            sce.getElements().add("Password reset forbidden by configuration");
+            throw sce;
+        }
+
+        User user = userDAO.findByUsername(username).
+                orElseThrow(() -> new NotFoundException("User " + username));
+
+        if (confParamOps.get(
+                AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class)
+                && (securityAnswer == null || !encryptorManager.getInstance().
+                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
+
+            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
+        }
     }
 }
