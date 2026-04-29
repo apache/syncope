@@ -47,6 +47,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
+import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -1392,5 +1393,33 @@ public class UserITCase extends AbstractITCase {
         userCR.setPassword('1' + RandomStringUtils.insecure().nextAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
+    }
+
+    @Test
+    public void verifySecurityAnswer() {
+        // 0. ensure that password request DOES require security question
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, true);
+
+        // 1. create an user with security question and answer
+        UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
+        user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        user.setSecurityAnswer("Rossi");
+        createUser(user);
+
+        // 2. verify wrong security answer
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "WRONG");
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+        }
+
+        // 3. verify the expected security answer
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "Rossi");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+            fail("This should not happen");
+        }
     }
 }

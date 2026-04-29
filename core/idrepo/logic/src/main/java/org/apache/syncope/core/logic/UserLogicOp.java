@@ -27,4 +27,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 public interface UserLogicOp extends AnyCRUDLogicOp<UserTO, UserCR, UserUR> {
 
     ProvisioningResult<UserTO> status(StatusR statusR, boolean nullPriorityAsync);
+
+    void verifySecurityAnswer(String username, String securityAnswer);
 }
