@@ -2206,13 +2206,13 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.2.3/api/</link>
+            <link>https://tika.apache.org/3.3.0/api/</link>
             <link>https://docs.hibernate.org/orm/7.2/javadocs/</link>
             <link>https://docs.spring.io/spring-boot/4.0/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/7.0.x/api/</link>
-            <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.1/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.43/apidocs/</link>
+            <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.2/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.49/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>

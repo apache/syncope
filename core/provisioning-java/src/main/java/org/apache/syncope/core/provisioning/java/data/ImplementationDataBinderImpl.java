@@ -74,25 +74,24 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
         implementation.setType(implementationTO.getType());
         implementation.setBody(implementationTO.getBody());
 
+        Class<?> baseClazz = Optional.ofNullable(
+                ImplementationTypesHolder.getInstance().getValues().get(implementation.getType())).
+                map(intf -> {
+                    try {
+                        return Class.forName(intf);
+                    } catch (ClassNotFoundException e) {
+                        LOG.error("While resolving interface {} for implementation type {}",
+                                intf, implementation.getType());
+                        return null;
+                    }
+                }).
+                orElse(null);
+        if (baseClazz == null) {
+            sce.getElements().add("No Java interface found for " + implementation.getType());
+            throw sce;
+        }
+
         if (implementation.getEngine() == ImplementationEngine.JAVA) {
-            Class<?> baseClazz = Optional.ofNullable(
-                    ImplementationTypesHolder.getInstance().getValues().get(implementation.getType())).
-                    map(intf -> {
-                        try {
-                            return Class.forName(intf);
-                        } catch (ClassNotFoundException e) {
-                            LOG.error("While resolving interface {} for implementation type {}",
-                                    intf, implementation.getType());
-                            return null;
-                        }
-                    }).
-                    orElse(null);
-
-            if (baseClazz == null) {
-                sce.getElements().add("No Java interface found for " + implementation.getType());
-                throw sce;
-            }
-
             switch (implementation.getType()) {
                 case IdRepoImplementationType.REPORT_DELEGATE:
                     ReportConf conf = POJOHelper.deserialize(implementation.getBody(), ReportConf.class);
@@ -109,32 +108,43 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
                     if (rule == null) {
                         sce.getElements().add("Could not deserialize as neither "
-                                + "Account, Password, Pull nor Push Correlation RuleConf");
+                                + "Account, Password, Inbound nor Push Correlation RuleConf");
                         throw sce;
                     }
                     break;
 
                 default:
-                    Class<?> clazz = null;
-                    try {
-                        clazz = Class.forName(implementation.getBody());
-                    } catch (Exception e) {
-                        LOG.error("Class '{}' not found", implementation.getBody(), e);
-                        sce.getElements().add("No Java class found: " + implementation.getBody());
-                        throw sce;
-                    }
-                    if (!baseClazz.isAssignableFrom(clazz)) {
-                        sce.getElements().add(
-                                "Java class " + implementation.getBody() + " must comply with " + baseClazz.getName());
-                        throw sce;
-                    }
-                    if (Modifier.isAbstract(clazz.getModifiers())) {
-                        sce.getElements().add("Java class " + implementation.getBody() + " is abstract");
-                        throw sce;
-                    }
-                    break;
+                    check(implementation, baseClazz, sce);
             }
-        } else if (implementation.getEngine() == ImplementationEngine.GROOVY) {
+        } else {
+            check(implementation, baseClazz, sce);
+        }
+    }
+
+    protected void check(
+            final Implementation implementation,
+            final Class<?> baseClazz,
+            final SyncopeClientException sce) {
+
+        Class<?> clazz = null;
+        try {
+            clazz = ImplementationManager.getClass(implementation).getLeft();
+        } catch (Exception e) {
+            LOG.error("Could not get Class", e);
+            sce.getElements().add("No " + implementation.getKey() + " class found");
+            throw sce;
+        }
+        if (!baseClazz.isAssignableFrom(clazz)) {
+            sce.getElements().add(
+                    implementation.getKey() + " class must comply with " + baseClazz.getName());
+            throw sce;
+        }
+        if (Modifier.isAbstract(clazz.getModifiers())) {
+            sce.getElements().add(implementation.getKey() + " class is abstract");
+            throw sce;
+        }
+
+        if (implementation.getEngine() == ImplementationEngine.GROOVY) {
             try {
                 ImplementationManager.build(implementation);
             } catch (Exception e) {

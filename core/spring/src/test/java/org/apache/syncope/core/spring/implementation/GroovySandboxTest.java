@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -31,6 +32,7 @@ import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
@@ -65,5 +67,18 @@ class GroovySandboxTest {
         SecurityException e = assertThrows(
                 SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new java.io.File java.lang.String'"));
+    }
+
+    @Test
+    void staticMacroActions() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("staticMacroActions");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                getClass().getResourceAsStream("/StaticMacroActions.groovy")));
+
+        BeanCreationException e = assertThrows(BeanCreationException.class, () -> ImplementationManager.build(impl));
+        SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
+        assertTrue(sec.getMessage().startsWith("Insecure call to 'new java.lang.ProcessBuilder java.util.List'"));
     }
 }
