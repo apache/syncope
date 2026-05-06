@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,9 +29,10 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 
-public class AuthProfileTO implements EntityTO {
+public class AuthProfileTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -6543425997956703057L;
 
@@ -45,6 +47,23 @@ public class AuthProfileTO implements EntityTO {
 
         public AuthProfileTO.Builder owner(final String owner) {
             instance.setOwner(owner);
+            return this;
+        }
+
+        public AuthProfileTO.Builder impersonationAccount(final ImpersonationAccount impersonationAccount) {
+            instance.getImpersonationAccounts().add(impersonationAccount);
+            return this;
+        }
+
+        public AuthProfileTO.Builder impersonationAccounts(final ImpersonationAccount... impersonationAccounts) {
+            instance.getImpersonationAccounts().addAll(List.of(impersonationAccounts));
+            return this;
+        }
+
+        public AuthProfileTO.Builder impersonationAccounts(
+                final Collection<ImpersonationAccount> impersonationAccounts) {
+
+            instance.getImpersonationAccounts().addAll(impersonationAccounts);
             return this;
         }
 
@@ -93,18 +112,33 @@ public class AuthProfileTO implements EntityTO {
             return this;
         }
 
-        public AuthProfileTO.Builder credential(final WebAuthnDeviceCredential credential) {
+        public AuthProfileTO.Builder webAuthnDeviceCredential(final WebAuthnDeviceCredential credential) {
             instance.getWebAuthnDeviceCredentials().add(credential);
             return this;
         }
 
-        public AuthProfileTO.Builder credentials(final WebAuthnDeviceCredential... credentials) {
+        public AuthProfileTO.Builder webAuthnDeviceCredentials(final WebAuthnDeviceCredential... credentials) {
             instance.getWebAuthnDeviceCredentials().addAll(List.of(credentials));
             return this;
         }
 
-        public AuthProfileTO.Builder credentials(final Collection<WebAuthnDeviceCredential> credentials) {
+        public AuthProfileTO.Builder webAuthnDeviceCredentials(final Collection<WebAuthnDeviceCredential> credentials) {
             instance.getWebAuthnDeviceCredentials().addAll(credentials);
+            return this;
+        }
+
+        public AuthProfileTO.Builder consentDecision(final WAConsentDecision consentDecision) {
+            instance.getConsentDecisions().add(consentDecision);
+            return this;
+        }
+
+        public AuthProfileTO.Builder consentDecisions(final WAConsentDecision... consentDecisions) {
+            instance.getConsentDecisions().addAll(List.of(consentDecisions));
+            return this;
+        }
+
+        public AuthProfileTO.Builder consentDecisions(final Collection<WAConsentDecision> consentDecisions) {
+            instance.getConsentDecisions().addAll(consentDecisions);
             return this;
         }
 
@@ -127,6 +161,8 @@ public class AuthProfileTO implements EntityTO {
 
     private final List<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new ArrayList<>();
 
+    private final List<WAConsentDecision> consentDecisions = new ArrayList<>();
+
     @Override
     public String getKey() {
         return key;
@@ -144,6 +180,18 @@ public class AuthProfileTO implements EntityTO {
 
     public void setOwner(final String owner) {
         this.owner = owner;
+    }
+
+    @JsonIgnore
+    @Override
+    public String getName() {
+        return getOwner();
+    }
+
+    @JsonIgnore
+    @Override
+    public void setName(final String name) {
+        throw new UnsupportedOperationException();
     }
 
     public List<ImpersonationAccount> getImpersonationAccounts() {
@@ -166,6 +214,10 @@ public class AuthProfileTO implements EntityTO {
         return webAuthnDeviceCredentials;
     }
 
+    public List<WAConsentDecision> getConsentDecisions() {
+        return consentDecisions;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -176,6 +228,7 @@ public class AuthProfileTO implements EntityTO {
                 append(googleMfaAuthAccounts).
                 append(mfaTrustedDevices).
                 append(webAuthnDeviceCredentials).
+                append(consentDecisions).
                 build();
     }
 
@@ -199,6 +252,7 @@ public class AuthProfileTO implements EntityTO {
                 append(googleMfaAuthAccounts, other.googleMfaAuthAccounts).
                 append(mfaTrustedDevices, other.mfaTrustedDevices).
                 append(webAuthnDeviceCredentials, other.webAuthnDeviceCredentials).
+                append(consentDecisions, other.consentDecisions).
                 build();
     }
 }

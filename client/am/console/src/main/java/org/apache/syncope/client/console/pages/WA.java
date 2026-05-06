@@ -264,7 +264,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AuthProfilePanel(panelId, authProfileRestClient, getPageReference());
+                    return new AuthProfilePanel(panelId, serviceOps, authProfileRestClient, getPageReference());
                 }
             });
         }

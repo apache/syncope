@@ -23,20 +23,26 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.rest.AuthProfileRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
+import org.apache.syncope.client.ui.commons.markup.html.form.AlertBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.IndicatingOnConfirmAjaxLink;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -48,6 +54,9 @@ public class AuthProfile extends BaseReauthPage {
     protected static final String AUTH_PROFILE = "page.authProfile";
 
     protected static final int ROWS_PER_PAGE = 5;
+
+    @SpringBean
+    protected ServiceOps serviceOps;
 
     @SpringBean
     protected AuthProfileRestClient restClient;
@@ -216,5 +225,61 @@ public class AuthProfile extends BaseReauthPage {
         webAuthnDeviceCredentials.setItemsPerPage(ROWS_PER_PAGE);
         container.add(webAuthnDeviceCredentials.setOutputMarkupPlaceholderTag(true));
         container.add(new AjaxPagingNavigator("webAuthnDeviceCredentialsNavigator", webAuthnDeviceCredentials));
+
+        DataView<WAConsentDecision> consentDecisions = new DataView<>(
+                "consentDecisions", new ListDataProvider<>(
+                        authProfile == null ? List.of() : authProfile.getConsentDecisions())) {
+
+            private static final long serialVersionUID = 6127875313385810666L;
+
+            @Override
+            public void populateItem(final Item<WAConsentDecision> item) {
+                String attributes = "{}";
+                try {
+                    attributes = restClient.readConsentAttributes(
+                            serviceOps.get(NetworkService.Type.WA),
+                            item.getModelObject().getPrincipal(),
+                            item.getModelObject().getId());
+                } catch (Exception e) {
+                    LOG.error("While attempting to fetch consent attributes for principal {} and id {}",
+                            item.getModelObject().getPrincipal(), item.getModelObject().getId(), e);
+                }
+
+                item.add(new Label("id", item.getModelObject().getId()));
+                item.add(new Label("service", item.getModelObject().getService()));
+                item.add(new Label("createdDate", item.getModelObject().getCreatedDate()));
+                AjaxLink<String> consentAttributes = new AjaxLink<>("consentAttributes", Model.of()) {
+
+                    private static final long serialVersionUID = 2706290656177366584L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        // nothing to do
+                    }
+                };
+                item.add(consentAttributes.add(new AlertBehavior(
+                        consentAttributes,
+                        getString("attributes"),
+                        "<pre>' + JSON.stringify(JSON.parse('"
+                        + attributes.replace("'", "\'") + "'), null, 2) + '</pre>")));
+                item.add(new IndicatingOnConfirmAjaxLink<>(
+                        "consentDecisionDelete", Constants.CONFIRM_DELETE, true) {
+
+                    private static final long serialVersionUID = 1632838687547839512L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        if (authProfile != null) {
+                            authProfile.getConsentDecisions().remove(item.getModelObject());
+                            restClient.update(authProfile);
+                            target.add(container);
+                        }
+                    }
+                });
+            }
+        };
+        consentDecisions.setItemsPerPage(ROWS_PER_PAGE);
+        container.add(consentDecisions.setOutputMarkupPlaceholderTag(true));
+        container.add(new AjaxPagingNavigator("consentDecisionsNavigator", consentDecisions));
     }
 }

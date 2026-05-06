@@ -33,15 +33,16 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
 
     @Override
     public AuthProfileTO getAuthProfileTO(final AuthProfile authProfile) {
-        AuthProfileTO authProfileTO = new AuthProfileTO();
-        authProfileTO.setKey(authProfile.getKey());
-        authProfileTO.setOwner(authProfile.getOwner());
-        authProfileTO.getImpersonationAccounts().addAll(authProfile.getImpersonationAccounts());
-        authProfileTO.getGoogleMfaAuthTokens().addAll(authProfile.getGoogleMfaAuthTokens());
-        authProfileTO.getGoogleMfaAuthAccounts().addAll(authProfile.getGoogleMfaAuthAccounts());
-        authProfileTO.getMfaTrustedDevices().addAll(authProfile.getMfaTrustedDevices());
-        authProfileTO.getWebAuthnDeviceCredentials().addAll(authProfile.getWebAuthnDeviceCredentials());
-        return authProfileTO;
+        return new AuthProfileTO.Builder().
+                key(authProfile.getKey()).
+                owner(authProfile.getOwner()).
+                impersonationAccounts(authProfile.getImpersonationAccounts()).
+                googleMfaAuthTokens(authProfile.getGoogleMfaAuthTokens()).
+                googleMfaAuthAccounts(authProfile.getGoogleMfaAuthAccounts()).
+                mfaTrustedDevices(authProfile.getMfaTrustedDevices()).
+                webAuthnDeviceCredentials(authProfile.getWebAuthnDeviceCredentials()).
+                consentDecisions(authProfile.getConsentDecisions()).
+                build();
     }
 
     @Override
@@ -58,6 +59,7 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         authProfile.setGoogleMfaAuthAccounts(authProfileTO.getGoogleMfaAuthAccounts());
         authProfile.setMfaTrustedDevices(authProfileTO.getMfaTrustedDevices());
         authProfile.setWebAuthnDeviceCredentials(authProfileTO.getWebAuthnDeviceCredentials());
+        authProfile.setConsentDecisions(authProfileTO.getConsentDecisions());
         return authProfile;
     }
 }

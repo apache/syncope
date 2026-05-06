@@ -451,7 +451,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.3.3</elasticsearch.version>
+    <elasticsearch.version>9.3.4</elasticsearch.version>
     <opensearch.version>3.6.0</opensearch.version>
     <opensearch-java.version>3.8.0</opensearch-java.version>
 
@@ -484,7 +484,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.4.3</chartjs.version>
 
-    <wicket.version>10.8.0</wicket.version>
+    <wicket.version>10.9.0</wicket.version>
     <wicketstuff.version>10.8.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.1.1</wicket-spring-boot.version>
@@ -654,7 +654,7 @@ under the License.
       <dependency>
         <groupId>co.elastic.clients</groupId>
         <artifactId>elasticsearch-java</artifactId>
-        <version>9.3.4</version>
+        <version>${elasticsearch.version}</version>
       </dependency>
 
       <dependency>

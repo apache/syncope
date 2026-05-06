@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
@@ -65,6 +66,10 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
             new TypeReference<List<WebAuthnDeviceCredential>>() {
     };
 
+    protected static final TypeReference<List<WAConsentDecision>> WA_CONSENT_DECISION_TYPEREF =
+            new TypeReference<List<WAConsentDecision>>() {
+    };
+
     @Column(nullable = false)
     private String owner;
 
@@ -82,6 +87,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     @Lob
     private String webAuthnDeviceCredentials;
+
+    @Lob
+    private String waConsentDecisions;
 
     @Override
     public String getOwner() {
@@ -146,5 +154,16 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void setWebAuthnDeviceCredentials(final List<WebAuthnDeviceCredential> credentials) {
         webAuthnDeviceCredentials = POJOHelper.serialize(credentials);
+    }
+
+    @Override
+    public List<WAConsentDecision> getConsentDecisions() {
+        return Optional.ofNullable(waConsentDecisions).
+                map(v -> POJOHelper.deserialize(v, WA_CONSENT_DECISION_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+    }
+
+    @Override
+    public void setConsentDecisions(final List<WAConsentDecision> consentDecisions) {
+        waConsentDecisions = POJOHelper.serialize(consentDecisions);
     }
 }

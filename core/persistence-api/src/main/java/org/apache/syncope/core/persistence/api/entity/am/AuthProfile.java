@@ -23,6 +23,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
@@ -51,4 +52,8 @@ public interface AuthProfile extends Entity {
     List<ImpersonationAccount> getImpersonationAccounts();
 
     void setImpersonationAccounts(List<ImpersonationAccount> accounts);
+
+    List<WAConsentDecision> getConsentDecisions();
+
+    void setConsentDecisions(List<WAConsentDecision> consentDecisions);
 }

@@ -42,6 +42,7 @@ import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
 import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
+import org.apache.syncope.wa.starter.consent.WAConsentRepository;
 import org.apache.syncope.wa.starter.events.WAEventRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
@@ -77,6 +78,7 @@ import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
+import org.apereo.cas.consent.ConsentRepository;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
@@ -541,6 +543,12 @@ public class WAContext {
             final WARestClient waRestClient) {
 
         return new WAWebAuthnCredentialRepository(casProperties, waRestClient);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public ConsentRepository consentRepository(final WARestClient waRestClient) {
+        return new WAConsentRepository(waRestClient);
     }
 
     @Bean

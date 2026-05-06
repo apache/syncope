@@ -247,6 +247,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-consent-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-aup-webflow</artifactId>
     </dependency>
     <dependency>

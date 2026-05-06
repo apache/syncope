@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.KeywordSearchEvent;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -37,6 +38,7 @@ public class AuthProfilePanel extends Panel {
 
     public AuthProfilePanel(
             final String id,
+            final ServiceOps serviceOps,
             final AuthProfileRestClient authProfileRestClient,
             final PageReference pageRef) {
 
@@ -66,6 +68,7 @@ public class AuthProfilePanel extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        add(new AuthProfileDirectoryPanel("authProfiles", authProfileRestClient, pageRef).setOutputMarkupId(true));
+        add(new AuthProfileDirectoryPanel("authProfiles", serviceOps, authProfileRestClient, pageRef).
+                setOutputMarkupId(true));
     }
 }
