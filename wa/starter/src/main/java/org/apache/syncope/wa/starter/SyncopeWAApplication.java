@@ -24,6 +24,7 @@ import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
 import org.apereo.cas.config.CasGoogleAuthenticatorLdapAutoConfiguration;
+import org.apereo.cas.config.CasJdbcPasswordManagementAutoConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.metadata.CasConfigurationPropertiesValidator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
@@ -57,9 +58,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
-    /*
-     * List of Spring Boot classes that we want to disable and remove from auto-configuration.
-     */
     HibernateJpaAutoConfiguration.class,
     JerseyAutoConfiguration.class,
     GroovyTemplateAutoConfiguration.class,
@@ -73,7 +71,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     MongoAutoConfiguration.class,
     MongoDataAutoConfiguration.class,
     CassandraAutoConfiguration.class,
-    CasGoogleAuthenticatorLdapAutoConfiguration.class
+    CasGoogleAuthenticatorLdapAutoConfiguration.class,
+    CasJdbcPasswordManagementAutoConfiguration.class
 })
 @EnableConfigurationProperties({ WAProperties.class, CasConfigurationProperties.class })
 @EnableAsync(proxyTargetClass = false)
