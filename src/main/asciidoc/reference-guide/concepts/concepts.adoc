@@ -54,6 +54,8 @@ include::passwordmanagement.adoc[]
 
 include::clientapplications.adoc[]
 
+include::authprofile.adoc[]
+
 include::domains.adoc[]
 
 include::implementations.adoc[]

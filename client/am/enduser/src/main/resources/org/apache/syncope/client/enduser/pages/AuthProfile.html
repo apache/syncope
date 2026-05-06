@@ -208,7 +208,8 @@ under the License.
                     </div>
                   </div>
                 </div>
-              </div> <div class="box-body">
+              </div>
+              <div class="box-body">
                 <div class="box-header formcard">
                   <header class="card-container bg-danger">
                     <label class="form-label card-header-style">
@@ -247,7 +248,54 @@ under the License.
                     </div>
                   </div>
                 </div>
-              </div>   
+              </div>
+              <div class="box-body">
+                <div class="box-header formcard">
+                  <header class="card-container bg-danger">
+                    <label class="form-label card-header-style">
+                      <wicket:message key="consent.decisions.title"/>
+                    </label>
+                  </header>
+                  <div class="card-container-body">
+                    <div>
+                      <div class="col-xs-12">
+                        <div class="form-group">
+                          <table class="table table-striped table-bordered">
+                            <thead>
+                              <tr>
+                                <th><wicket:message key="id"/></th>
+                                <th><wicket:message key="service"/></th>
+                                <th><wicket:message key="createdDate"/></th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr wicket:id="consentDecisions">
+                                <td><span wicket:id="id"/></td>
+                                <td><span wicket:id="service"/></td>
+                                <td><span wicket:id="createdDate"/></td>
+                                <td style="width: 20px;">
+                                  <a href="#" wicket:id="consentAttributes"><i class="fas fa-search-plus"></i></a>
+                                </td>                                
+                                <td style="width: 20px;">
+                                  <a href="#" wicket:id="consentDecisionDelete"><i class="fas fa-trash"></i></a>
+                                </td>                                
+                              </tr>
+                            </tbody>
+                          </table>
+                          <table class="paginator">
+                            <tfoot>
+                              <tr>
+                                <td wicket:id="consentDecisionsNavigator"></td>
+                              </tr>
+                            </tfoot>
+                          </table>                          
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>              
             </div>
           </div>
         </div>
