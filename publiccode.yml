@@ -1,0 +1,92 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+publiccodeYmlVersion: 0.5.0
+name: Apache Syncope
+applicationSuite: Identity and Access Managenent
+url: https://github.com/apache/syncope
+landingURL: https://syncope.apache.org
+logo: https://syncope.apache.org/images/apache-syncope-logo-medium.png
+platforms:
+  - web
+  - windows
+  - mac
+  - linux
+  - ios
+  - android
+categories:
+  - identity-management
+organisation:
+  name: The Apache Software Foundation
+  uri: https://www.apache.org/
+developmentStatus: stable
+softwareType: standalone/web
+description:
+  en:
+    localisedName: Apache Syncope
+    shortDescription: The mission of Apache Syncope is the creation and maintenance
+      of software related to managing digital identities in enterprise
+      environments.
+    longDescription: >-
+      The mission of Apache Syncope is the creation and maintenance of software
+      related to managing digital identities in enterprise environments.
+
+      Apache Syncope is a full-fledged IAM system covering provisioning,
+      reconciliation and reporting needs, access management and API management.
+    documentation: https://syncope.apache.org/docs/
+    apiDocumentation: https://syncope.apache.org/rest/4.1/index.html
+    features:
+      - identity provisioning
+      - identity governance
+      - reconciliation
+      - reporting
+      - authentication
+      - authorization
+      - single sign-on
+      - multi-factor authentication
+      - api management
+      - scim
+    screenshots:
+      - https://syncope.apache.org/docs/4.1/images/consoleLogin.png
+      - https://syncope.apache.org/docs/4.1/images/consoleDashboard.png
+      - https://syncope.apache.org/docs/4.1/images/consoleTopology.png
+      - https://syncope.apache.org/docs/4.1/images/realmsUser.png
+      - https://syncope.apache.org/docs/4.1/images/enduserLogin.png
+      - https://syncope.apache.org/docs/4.1/images/enduserEditProfile.png
+      - https://syncope.apache.org/docs/4.1/images/enduserChangePassword.png
+      - https://syncope.apache.org/docs/4.1/images/passwordreset.png
+      - https://syncope.apache.org/docs/4.1/images/enduser_userrequests_started.png
+legal:
+  license: Apache-2.0
+maintenance:
+  type: community
+  contacts:
+    - name: The Apache Syncope Community
+      email: user@syncope.apache.org
+      affiliation: General inquiries
+    - name: Tirasa
+      email: sales@tirasa.net
+      affiliation: Professional Services
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - it
+    - fr-CA
+    - ru
+    - ja
+    - en
+    - pt-BR
