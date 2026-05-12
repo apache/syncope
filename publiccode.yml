@@ -17,7 +17,7 @@
 
 publiccodeYmlVersion: 0.5.0
 name: Apache Syncope
-applicationSuite: Identity and Access Managenent
+applicationSuite: Identity and Access Management
 url: https://github.com/apache/syncope
 landingURL: https://syncope.apache.org
 logo: https://syncope.apache.org/images/apache-syncope-logo-medium.png
