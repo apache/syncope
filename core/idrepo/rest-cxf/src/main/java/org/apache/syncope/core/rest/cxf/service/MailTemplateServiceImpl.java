@@ -21,12 +21,10 @@ package org.apache.syncope.core.rest.cxf.service;
 import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -78,8 +76,8 @@ public class MailTemplateServiceImpl extends AbstractService implements MailTemp
     @Override
     public void setFormat(final String key, final MailTemplateFormat format, final InputStream templateIn) {
         try {
-            logic.setFormat(key, format, IOUtils.toString(templateIn, StandardCharsets.UTF_8));
-        } catch (final IOException e) {
+            logic.setFormat(key, format, new String(templateIn.readAllBytes(), StandardCharsets.UTF_8));
+        } catch (Exception e) {
             LOG.error("While setting format {} for mail template {}", format, key, e);
             throw new InternalServerErrorException("Could not read entity", e);
         }
