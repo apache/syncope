@@ -22,12 +22,10 @@ import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -83,8 +81,8 @@ public class RoleServiceImpl extends AbstractService implements RoleService {
     @Override
     public void setAnyLayout(final String key, final InputStream anyLayoutIn) {
         try {
-            logic.setAnyLayout(key, IOUtils.toString(anyLayoutIn, StandardCharsets.UTF_8.name()));
-        } catch (final IOException e) {
+            logic.setAnyLayout(key, new String(anyLayoutIn.readAllBytes(), StandardCharsets.UTF_8.name()));
+        } catch (Exception e) {
             LOG.error("While setting console layout info for role {}", key, e);
             throw new InternalServerErrorException("Could not read entity", e);
         }
