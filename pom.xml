@@ -444,7 +444,7 @@ under the License.
 
     <zxing.version>3.5.4</zxing.version>
 
-    <groovy.version>5.0.5</groovy.version>
+    <groovy.version>6.0.0-alpha-1</groovy.version>
 
     <flowable.version>8.0.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -945,7 +945,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.3.0</version>
+        <version>4.0.0-alpha-1</version>
       </dependency>
 
       <dependency>
@@ -2206,8 +2206,8 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.3.0/api/</link>
-            <link>https://docs.hibernate.org/orm/7.2/javadocs/</link>
+            <link>https://tika.apache.org/4.0.0-alpha-1/api/</link>
+            <link>https://docs.hibernate.org/orm/7.3/javadocs/</link>
             <link>https://docs.spring.io/spring-boot/4.0/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/7.0.x/api/</link>
