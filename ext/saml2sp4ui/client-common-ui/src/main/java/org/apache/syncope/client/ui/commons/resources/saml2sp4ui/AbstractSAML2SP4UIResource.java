@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
@@ -84,9 +85,10 @@ public abstract class AbstractSAML2SP4UIResource extends AbstractResource {
             response.setIdpEntityID(attributes.getRequest().getQueryParameters().
                     getParameterValue(SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID).toOptionalString());
             if (StringUtils.isBlank(response.getIdpEntityID())) {
-                Stream.of(((HttpServletRequest) attributes.getRequest().getContainerRequest()).getCookies()).
+                Optional.ofNullable(((HttpServletRequest) attributes.getRequest().getContainerRequest()).getCookies()).
+                        ifPresent(cookies -> Stream.of(cookies).
                         filter(cookie -> SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID.equals(cookie.getName())).
-                        findFirst().ifPresent(cookie -> response.setIdpEntityID(cookie.getValue()));
+                        findFirst().ifPresent(cookie -> response.setIdpEntityID(cookie.getValue())));
             }
         }
 
