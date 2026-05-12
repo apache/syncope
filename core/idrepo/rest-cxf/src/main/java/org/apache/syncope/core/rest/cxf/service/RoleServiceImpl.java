@@ -81,7 +81,7 @@ public class RoleServiceImpl extends AbstractService implements RoleService {
     @Override
     public void setAnyLayout(final String key, final InputStream anyLayoutIn) {
         try {
-            logic.setAnyLayout(key, new String(anyLayoutIn.readAllBytes(), StandardCharsets.UTF_8.name()));
+            logic.setAnyLayout(key, new String(anyLayoutIn.readAllBytes(), StandardCharsets.UTF_8));
         } catch (Exception e) {
             LOG.error("While setting console layout info for role {}", key, e);
             throw new InternalServerErrorException("Could not read entity", e);
