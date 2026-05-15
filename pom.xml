@@ -465,8 +465,9 @@ under the License.
     <commons-codec.version>1.22.0</commons-codec.version>
 
     <pac4j.version>6.3.3</pac4j.version>
+    <opensaml.version>5.2.2</opensaml.version>
 
-    <cas.version>7.3.6</cas.version>
+    <cas.version>7.3.7-SNAPSHOT</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.50</swagger-core.version>
@@ -1119,6 +1120,74 @@ under the License.
         </exclusions>
       </dependency>
       <!-- PAC4J -->
+
+      <!-- OpenSAML -->
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-core-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-soap-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-profile-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-profile-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-security-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-security-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-messaging-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-messaging-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-storage-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-xmlsec-api</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-xmlsec-impl</artifactId>
+        <version>${opensaml.version}</version>
+      </dependency>
+      <!-- OpenSAML -->
 
       <!-- CAS -->
       <dependency>

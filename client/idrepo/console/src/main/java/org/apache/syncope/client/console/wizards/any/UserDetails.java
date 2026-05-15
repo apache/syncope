@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
 import org.apache.commons.lang3.Strings;
-import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -50,9 +49,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
-
-    @SpringBean
-    protected UserRestClient userRestClient;
 
     @SpringBean
     protected AnonymousRestClient anonymousRestClient;
