@@ -22,7 +22,7 @@ github:
     - request-routing
     - service-mesh
     - microservices
-  dependabot_alerts:  false
+  dependabot_alerts: false
   dependabot_updates: true
   enabled_merge_buttons:
     squash: true
@@ -30,10 +30,23 @@ github:
     merge: false
     rebase: true
 
+  rulesets:
+    - name: "Default Branch Protection"
+      type: branch
+      branches:
+        includes:
+          - "~DEFAULT_BRANCH"
+          - "release/*"
+          - "rel/*"
+        excludes: []
+      bypass_teams:
+        - root
+      restrict_deletion: true
+      restrict_force_push: true
 notifications:
-  commits:              commits@syncope.apache.org
-  issues:               dev@syncope.apache.org
-  pullrequests_status:  dev@syncope.apache.org
+  commits: commits@syncope.apache.org
+  issues: dev@syncope.apache.org
+  pullrequests_status: dev@syncope.apache.org
   pullrequests_comment: dev@syncope.apache.org
   pullrequests_bot_dependabot: dev@syncope.apache.org
-  jira_options:         link label worklog
+  jira_options: link label worklog
