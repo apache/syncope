@@ -43,6 +43,7 @@ import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
 import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
 import org.apache.syncope.wa.starter.consent.WAConsentRepository;
+import org.apache.syncope.wa.starter.events.WACasConfigurationEventListener;
 import org.apache.syncope.wa.starter.events.WAEventRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
@@ -76,6 +77,7 @@ import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
+import org.apereo.cas.configuration.CasConfigurationPropertiesEnvironmentManager;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
@@ -94,6 +96,7 @@ import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
+import org.apereo.cas.support.events.listener.CasConfigurationEventListener;
 import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
@@ -115,11 +118,14 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.ConfigurationPropertiesBindingPostProcessor;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.core.userdetails.User;
@@ -140,6 +146,20 @@ public class WAContext {
 
     private static String version(final ConfigurableApplicationContext ctx) {
         return ctx.getEnvironment().getProperty("version");
+    }
+
+    @ConditionalOnMissingBean(name = "casConfigurationEventListener")
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    @Lazy(false)
+    public CasConfigurationEventListener casConfigurationEventListener(
+            @Qualifier("configurationPropertiesEnvironmentManager")
+            final CasConfigurationPropertiesEnvironmentManager manager,
+            final ConfigurationPropertiesBindingPostProcessor binder,
+            final ContextRefresher contextRefresher,
+            final ConfigurableApplicationContext applicationContext) {
+
+        return new WACasConfigurationEventListener(manager, binder, contextRefresher, applicationContext);
     }
 
     @ConditionalOnMissingBean
