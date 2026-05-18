@@ -161,9 +161,7 @@ public abstract class ReportDirectoryPanel
                     JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, ReportDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s",
-                                    IdRepoEntitlement.REPORT_EXECUTE,
-                                    IdRepoEntitlement.REPORT_UPDATE));
+                            "%s,%s".formatted(IdRepoEntitlement.REPORT_EXECUTE, IdRepoEntitlement.REPORT_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for report {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());

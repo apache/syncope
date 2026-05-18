@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +99,7 @@ public class AnyByRealmWidget extends BaseWidget {
             realmSet.addAll(any2ByRealm.keySet());
         }
         List<String> realms = new ArrayList<>(realmSet);
-        Collections.sort(realms);
+        realms.sort(Comparator.naturalOrder());
 
         Bar bar = new Bar();
         bar.getOptions().setBarShowStroke(true);

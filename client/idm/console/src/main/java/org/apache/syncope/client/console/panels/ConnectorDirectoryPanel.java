@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -127,7 +126,7 @@ public class ConnectorDirectoryPanel extends
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.singletonList(ActionLink.ActionType.DELETE);
+        return List.of(ActionLink.ActionType.DELETE);
     }
 
     @Override
@@ -158,7 +157,7 @@ public class ConnectorDirectoryPanel extends
                 target.add(modal);
             }
 
-        }, ActionLink.ActionType.CREATE_RESOURCE, String.format("%s", IdMEntitlement.RESOURCE_CREATE));
+        }, ActionLink.ActionType.CREATE_RESOURCE, "%s".formatted(IdMEntitlement.RESOURCE_CREATE));
 
         panel.add(new ActionLink<>() {
 
@@ -183,8 +182,8 @@ public class ConnectorDirectoryPanel extends
                 modal.show(true);
 
             }
-        }, ActionLink.ActionType.EDIT, String.format("%s,%s", IdMEntitlement.CONNECTOR_READ,
-                IdMEntitlement.CONNECTOR_UPDATE));
+        }, ActionLink.ActionType.EDIT,
+                "%s,%s".formatted(IdMEntitlement.CONNECTOR_READ, IdMEntitlement.CONNECTOR_UPDATE));
 
         panel.add(new ActionLink<>() {
 
@@ -226,7 +225,7 @@ public class ConnectorDirectoryPanel extends
             }
 
         }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
+                "%s,%s".formatted(IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 
@@ -236,7 +235,7 @@ public class ConnectorDirectoryPanel extends
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
                     restClient.delete(((ConnInstanceTO) model.getObject()).getKey());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');",
+                    target.appendJavaScript("jsPlumb.remove('%s');".formatted(
                             ((ConnInstanceTO) model.getObject()).getKey()));
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.events;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -110,7 +110,7 @@ public class SelectedEventsPanel extends Panel {
                     filter(toBeAdded -> !model.getObject().contains(toBeAdded.toString())).
                     forEach(toBeAdded -> model.getObject().add(toBeAdded.toString()));
 
-            Collections.sort(model.getObject());
+            model.getObject().sort(Comparator.naturalOrder());
             eventSelectionChanged.getTarget().add(selectionContainer);
         }
     }

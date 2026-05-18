@@ -76,7 +76,7 @@ public class MSEntraJWTSSOProvider implements JWTSSOProvider {
 
     @Override
     public String getIssuer() {
-        return String.format("https://sts.windows.net/%s/", tenantId);
+        return "https://sts.windows.net/%s/".formatted(tenantId);
     }
 
     @Override

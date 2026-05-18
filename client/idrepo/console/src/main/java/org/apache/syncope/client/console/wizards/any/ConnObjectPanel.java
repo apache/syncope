@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +73,7 @@ public class ConnObjectPanel extends Panel {
 
                 List<String> schemas = ListUtils.sum(right.stream().map(Attr::getSchema).collect(Collectors.toList()),
                         left.stream().map(Attr::getSchema).collect(Collectors.toList()));
-                Collections.sort(schemas);
+                schemas.sort(Comparator.naturalOrder());
                 return schemas;
             }
         };

@@ -66,7 +66,7 @@ public final class SearchUtils implements Serializable {
     };
 
     public static Pattern getTypeConditionPattern(final String type) {
-        return Pattern.compile(String.format(";\\$type==%s|\\$type==%s;", type, type));
+        return Pattern.compile(";\\$type==%s|\\$type==%s;".formatted(type, type));
     }
 
     public static Map<String, List<SearchClause>> getSearchClauses(final Map<String, String> fiql) {

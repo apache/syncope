@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.events;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -199,7 +199,7 @@ public abstract class EventSelectionPanel extends Panel {
                 ops.add(eventCategoryTO.getCategory());
             }
         } else {
-            Collections.sort(ops);
+            ops.sort(Comparator.naturalOrder());
         }
 
         return ops;

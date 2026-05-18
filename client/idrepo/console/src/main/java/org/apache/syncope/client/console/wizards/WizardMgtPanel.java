@@ -200,8 +200,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     target.ifPresent(t -> t.add(modal.setContent(modalPanel)));
 
                     modal.header(Optional.ofNullable(newItemEvent.getTitleModel()).
-                        orElseGet(() -> new StringResourceModel(
-                            String.format("any.%s", newItemEvent.getEventDescription()),
+                            orElseGet(() -> new StringResourceModel(
+                            "any.%s".formatted(newItemEvent.getEventDescription()),
                             this,
                             Model.of(modalPanel.getItem()))));
                     modal.show(true);
@@ -211,7 +211,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                     fragment.add(new Label(
                             "title",
                             Optional.ofNullable(newItemEvent.getTitleModel()).
-                                orElseGet(() -> Model.of(StringUtils.EMPTY))));
+                                    orElseGet(() -> Model.of(StringUtils.EMPTY))));
 
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);

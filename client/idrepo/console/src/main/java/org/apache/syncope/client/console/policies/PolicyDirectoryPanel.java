@@ -211,8 +211,8 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", IdRepoEntitlement.POLICY_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                "%s,%s".formatted(IdRepoEntitlement.POLICY_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

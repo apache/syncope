@@ -362,7 +362,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
         Class<? extends TaskTO> taskTOClass = taskUtils.getType().getToClass();
         if (!taskTOClass.equals(taskTO.getClass())) {
-            throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
+            throw new IllegalArgumentException("Expected %s, found %s".formatted(taskTOClass, taskTO.getClass()));
         }
 
         SchedTask task = taskUtils.newTask();
@@ -413,7 +413,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
         Class<? extends TaskTO> taskTOClass = taskUtils.getType().getToClass();
         if (!taskTOClass.equals(taskTO.getClass())) {
-            throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
+            throw new IllegalArgumentException("Expected %s, found %s".formatted(taskTOClass, taskTO.getClass()));
         }
 
         if (StringUtils.isBlank(taskTO.getName())) {

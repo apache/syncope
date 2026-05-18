@@ -106,13 +106,13 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
-        if (SyncopeConsoleSession.get().owns(String.format("%s_CREATE", builder.type), builder.realm)
+        if (SyncopeConsoleSession.get().owns("%s_CREATE".formatted(builder.type), builder.realm)
                 && builder.realm.startsWith(SyncopeConstants.ROOT_REALM)) {
             MetaDataRoleAuthorizationStrategy.authorizeAll(addAjaxLink, RENDER);
         } else {
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(addAjaxLink, RENDER);
         }
-        setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type), builder.realm));
+        setReadOnly(!SyncopeConsoleSession.get().owns("%s_UPDATE".formatted(builder.type), builder.realm));
 
         realm = builder.realm;
         type = builder.type;

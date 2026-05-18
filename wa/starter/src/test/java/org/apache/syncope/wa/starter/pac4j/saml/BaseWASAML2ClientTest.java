@@ -40,7 +40,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Date;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -137,9 +136,9 @@ public abstract class BaseWASAML2ClientTest {
     }
 
     protected static String getSPMetadata() throws IOException {
-        return Base64.getEncoder().encodeToString(
-                IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8).
-                        getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(new String(
+                new ClassPathResource("sp-metadata.xml").getInputStream().readAllBytes(), StandardCharsets.UTF_8).
+                getBytes(StandardCharsets.UTF_8));
     }
 
     protected static WARestClient getWARestClient() throws Exception {

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.saml2;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -112,7 +111,7 @@ public class SAML2SP4UIUserManager {
         }
         if (idp.getConnObjectKeyItem().isEmpty()) {
             LOG.warn("Unable to determine conn object key item for  IdP: {}", idpKey);
-            return Collections.emptyList();
+            return List.of();
         }
         return inboundMatcher.matchByConnObjectKeyValue(
                 idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, null, false).stream().

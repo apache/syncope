@@ -124,12 +124,12 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
             }
         } catch (InterruptedException | TimeoutException e) {
             LOG.warn("Connection with {} timed out", checker.key);
-            response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                    TopologyNode.Status.UNREACHABLE, checker.key);
+            response = "{ \"status\": \"%s\", \"target\": \"%s\"}".
+                    formatted(TopologyNode.Status.UNREACHABLE, checker.key);
         } catch (Exception e) {
             LOG.error("Unexpected exception connecting to {}", checker.key, e);
-            response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                    TopologyNode.Status.FAILURE, checker.key);
+            response = "{ \"status\": \"%s\", \"target\": \"%s\"}".
+                    formatted(TopologyNode.Status.FAILURE, checker.key);
         }
 
         Optional.ofNullable(response).ifPresent(r -> responses.put(checker.key, r));
@@ -148,8 +148,8 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
                     if (connectors.containsKey(ckey)) {
                         handler.push(connectors.get(ckey));
                     } else {
-                        handler.push(String.format(
-                                "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, ckey));
+                        handler.push("{ \"status\": \"%s\", \"target\": \"%s\"}".
+                                formatted(TopologyNode.Status.UNKNOWN, ckey));
                     }
 
                     if (runningConnCheck.contains(ckey)) {
@@ -172,8 +172,8 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
                     if (resources.containsKey(rkey)) {
                         handler.push(resources.get(rkey));
                     } else {
-                        handler.push(String.format(
-                                "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, rkey));
+                        handler.push("{ \"status\": \"%s\", \"target\": \"%s\"}".
+                                formatted(TopologyNode.Status.UNKNOWN, rkey));
                     }
 
                     if (runningResCheck.contains(rkey)) {
@@ -191,7 +191,7 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
                 }
 
                 case ADD_ENDPOINT ->
-                    handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
+                    handler.appendJavaScript("addEndpoint('%s', '%s', '%s');".formatted(
                             obj.get("source").asString(),
                             obj.get("target").asString(),
                             obj.get("scope").asString()));
@@ -230,12 +230,12 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         @Override
         public String call() {
             try {
-                return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(
                         connectorRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
-                return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
+                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(TopologyNode.Status.FAILURE, key);
             }
         }
     }
@@ -249,12 +249,12 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         @Override
         public String call() {
             try {
-                return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(
                         resourceRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
-                return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
+                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(TopologyNode.Status.FAILURE, key);
             }
         }
     }

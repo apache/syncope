@@ -117,16 +117,14 @@ public class ProvisioningReport implements BaseBean {
         if (level == TraceLevel.SUMMARY) {
             // No per entry log in this case.
             return null;
-        } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
-            // only report failures
-            return String.format("Failed %s (key/name): %s/%s with message: %s", operation, key, name, message);
-        } else {
-            // All
-            return String.format("%s %s (key/name): %s/%s %s", operation, status, key, name,
-                    StringUtils.isBlank(message)
-                    ? ""
-                    : "with message: " + message);
         }
+        if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
+            // only report failures
+            return "Failed %s (key/name): %s/%s with message: %s".formatted(operation, key, name, message);
+        }
+        // ALL
+        return "%s %s (key/name): %s/%s %s".formatted(
+                operation, status, key, name, StringUtils.isBlank(message) ? "" : "with message: " + message);
     }
 
     /**

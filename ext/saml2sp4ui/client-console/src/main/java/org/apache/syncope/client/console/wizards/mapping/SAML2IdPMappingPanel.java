@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.mapping;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -72,7 +72,7 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
 
     @Override
     protected IModel<List<String>> getExtAttrNames() {
-        return Model.ofList(Collections.singletonList("NameID"));
+        return Model.ofList(List.of("NameID"));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
                     choices.addAll(anyTypeClassTO.getDerSchemas());
                 });
 
-        Collections.sort(choices);
+        choices.sort(Comparator.naturalOrder());
         toBeUpdated.setChoices(choices);
     }
 }

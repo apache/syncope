@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -169,7 +168,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
-        return Collections.singletonList(ActionLink.ActionType.DELETE);
+        return List.of(ActionLink.ActionType.DELETE);
     }
 
     @Override
@@ -201,7 +200,7 @@ public class ResourceDirectoryPanel extends
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT,
-                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
+                "%s,%s".formatted(IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
 
         panel.add(new ActionLink<>() {
 
@@ -231,7 +230,7 @@ public class ResourceDirectoryPanel extends
                 provisionModal.show(true);
             }
         }, ActionLink.ActionType.MAPPING,
-                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
+                "%s,%s".formatted(IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
 
         panel.add(new ActionLink<>() {
 
@@ -347,7 +346,7 @@ public class ResourceDirectoryPanel extends
                 historyModal.show(true);
             }
         }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
+                "%s,%s".formatted(IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

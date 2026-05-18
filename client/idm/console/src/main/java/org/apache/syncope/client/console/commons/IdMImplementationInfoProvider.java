@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -67,7 +67,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
                 default:
             }
-            Collections.sort(classes);
+            classes.sort(Comparator.naturalOrder());
         } else {
             classes = super.getClasses(implementation, viewMode);
         }
