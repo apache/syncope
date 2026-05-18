@@ -213,7 +213,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
      * @param toggle toggle action.
      */
     public void toggle(final AjaxRequestTarget target, final boolean toggle) {
-        String selector = String.format("$(\"div#%s\")", activeId);
+        String selector = "$(\"div#%s\")".formatted(activeId);
         if (toggle) {
             if (status == Status.INACTIVE) {
                 target.add(TogglePanel.this.container);

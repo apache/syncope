@@ -191,7 +191,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
         super.renderHead(response);
         if (getModelObject().isEmpty()) {
             response.render(OnDomReadyHeaderItem.forScript(
-                    String.format("$('#emptyPlaceholder').append(\"%s\")", getString("property.empty.list"))));
+                    "$('#emptyPlaceholder').append(\"%s\")".formatted(getString("property.empty.list"))));
         }
     }
 }

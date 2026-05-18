@@ -221,7 +221,7 @@ public class Ownership extends WizardStep implements ICondition {
                     return StringUtils.EMPTY;
                 }
 
-                return String.format("[%s] %s", userTO.getKey(), userTO.getUsername());
+                return "[%s] %s".formatted(userTO.getKey(), userTO.getUsername());
             }
 
             @Override
@@ -272,7 +272,7 @@ public class Ownership extends WizardStep implements ICondition {
                     if (groupTO == null) {
                         return StringUtils.EMPTY;
                     } else {
-                        return String.format("[%s] %s", groupTO.getKey(), groupTO.getName());
+                        return "[%s] %s".formatted(groupTO.getKey(), groupTO.getName());
                     }
                 }
             }

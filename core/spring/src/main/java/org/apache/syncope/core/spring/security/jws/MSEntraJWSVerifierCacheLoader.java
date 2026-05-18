@@ -61,10 +61,9 @@ public class MSEntraJWSVerifierCacheLoader implements CacheLoader<String, JWSVer
     }
 
     protected String getOpenIDMetadataDocumentUrl() {
-        return String.format(
-                "https://login.microsoftonline.com/%s/.well-known/openid-configuration%s",
+        return "https://login.microsoftonline.com/%s/.well-known/openid-configuration%s".formatted(
                 Optional.ofNullable(tenantId).orElse("common"),
-                Optional.ofNullable(appId).map(i -> String.format("?appid=%s", i)).orElse(""));
+                Optional.ofNullable(appId).map(i -> "?appid=%s".formatted(i)).orElse(""));
     }
 
     protected String extractJwksUri(final String openIdMetadataDocument) {
@@ -83,13 +82,12 @@ public class MSEntraJWSVerifierCacheLoader implements CacheLoader<String, JWSVer
                     HttpRequest.newBuilder().uri(URI.create(url)).build(),
                     HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 400) {
-                throw new IllegalStateException(
-                        String.format("Received HTTP status code %d", response.statusCode()));
+                throw new IllegalStateException("Received HTTP status code %d".formatted(response.statusCode()));
             }
             return response.body();
         } catch (IOException | InterruptedException | IllegalStateException e) {
             throw new IllegalStateException(
-                    String.format("Fetching JSON document for Microsoft Entra from '%s' failed:", url), e);
+                    "Fetching JSON document for Microsoft Entra from '%s' failed:".formatted(url), e);
         }
     }
 

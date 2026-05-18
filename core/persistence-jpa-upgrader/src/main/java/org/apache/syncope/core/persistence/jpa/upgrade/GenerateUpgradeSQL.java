@@ -91,10 +91,10 @@ public class GenerateUpgradeSQL {
                     ifPresent(v -> cpc.put("minEvictableIdleTimeMillis", (Long) v));
             Optional.ofNullable(poolConf.get("minIdle")).ifPresent(v -> cpc.put("minIdle", (Integer) v));
 
-            result.append(String.format(
-                    "UPDATE ConnInstance SET poolConf='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(cpc),
-                    poolConf.get("id").toString()));
+            result.append(
+                    "UPDATE ConnInstance SET poolConf='%s' WHERE id='%s';\n".formatted(
+                            MAPPER.writeValueAsString(cpc),
+                            poolConf.get("id").toString()));
         }
 
         result.append("ALTER TABLE ConnInstance DROP COLUMN maxidle;\n");
@@ -124,18 +124,18 @@ public class GenerateUpgradeSQL {
                 }
             }
 
-            result.append(String.format(
-                    "UPDATE ExternalResource SET provisions='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(provisions).replace("'", "''"),
-                    resource.get("id").toString()));
+            result.append(
+                    "UPDATE ExternalResource SET provisions='%s' WHERE id='%s';\n".formatted(
+                            MAPPER.writeValueAsString(provisions).replace("'", "''"),
+                            resource.get("id").toString()));
         }
 
         List<Map<String, Object>> accountPolicyResources = jdbcTemplate.queryForList(
                 "SELECT accountpolicy_id, resource_id FROM AccountPolicy_ExternalResource");
-        accountPolicyResources.forEach(acp -> result.append(String.format(
-                "UPDATE ExternalResource SET accountPolicy_id='%s' WHERE id='%s';\n",
-                acp.get("accountpolicy_id").toString(),
-                acp.get("resource_id").toString())));
+        accountPolicyResources.forEach(acp -> result.append(
+                "UPDATE ExternalResource SET accountPolicy_id='%s' WHERE id='%s';\n".formatted(
+                        acp.get("accountpolicy_id").toString(),
+                        acp.get("resource_id").toString())));
 
         result.append("DROP TABLE AccountPolicy_ExternalResource;\n");
 
@@ -160,10 +160,10 @@ public class GenerateUpgradeSQL {
                 enumValues.put(keys[i], values.length > i ? values[i] : keys[i]);
             }
 
-            result.append(String.format(
-                    "UPDATE PlainSchema SET enumValues='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(enumValues),
-                    enumeration.get("id").toString()));
+            result.append(
+                    "UPDATE PlainSchema SET enumValues='%s' WHERE id='%s';\n".formatted(
+                            MAPPER.writeValueAsString(enumValues),
+                            enumeration.get("id").toString()));
         }
 
         result.append("ALTER TABLE PlainSchema DROP COLUMN enumerationKeys;\n");
@@ -178,10 +178,10 @@ public class GenerateUpgradeSQL {
         List<Map<String, Object>> dynMembershipConds = jdbcTemplate.queryForList(
                 "SELECT role_id AS id, fiql FROM DynRoleMembership");
 
-        dynMembershipConds.forEach(cond -> result.append(String.format(
-                "UPDATE SyncopeRole SET dynMembershipCond='%s' WHERE id='%s';\n",
-                cond.get("fiql").toString(),
-                cond.get("id").toString())));
+        dynMembershipConds.forEach(cond -> result.append(
+                "UPDATE SyncopeRole SET dynMembershipCond='%s' WHERE id='%s';\n".formatted(
+                        cond.get("fiql").toString(),
+                        cond.get("id").toString())));
 
         result.append("DROP TABLE DynRoleMembership;\n");
 
@@ -201,10 +201,10 @@ public class GenerateUpgradeSQL {
                 }
             }
 
-            result.append(String.format(
-                    "UPDATE SyncopeRole SET anyLayout='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(anyLayout).replace("'", "''"),
-                    role.get("id").toString()));
+            result.append(
+                    "UPDATE SyncopeRole SET anyLayout='%s' WHERE id='%s';\n".formatted(
+                            MAPPER.writeValueAsString(anyLayout).replace("'", "''"),
+                            role.get("id").toString()));
         }
 
         return result.toString();
@@ -272,12 +272,12 @@ public class GenerateUpgradeSQL {
                 "SELECT id, body from Implementation "
                 + "WHERE body LIKE 'org.apache.syncope.core.persistence.jpa.attrvalue.validation.%'");
 
-        implementations.forEach(implementation -> result.append(String.format(
-                "UPDATE Implementation SET body='%s' WHERE id='%s';\n",
-                implementation.get("body").toString().replace(
-                        "org.apache.syncope.core.persistence.jpa.attrvalue.validation.",
-                        "org.apache.syncope.core.persistence.common.attrvalue."),
-                implementation.get("id").toString())));
+        implementations.forEach(implementation -> result.append(
+                "UPDATE Implementation SET body='%s' WHERE id='%s';\n".formatted(
+                        implementation.get("body").toString().replace(
+                                "org.apache.syncope.core.persistence.jpa.attrvalue.validation.",
+                                "org.apache.syncope.core.persistence.common.attrvalue."),
+                        implementation.get("id").toString())));
 
         return result.toString();
     }
@@ -293,10 +293,10 @@ public class GenerateUpgradeSQL {
             if (t.has("virAttrs")) {
                 ((ObjectNode) t).remove("virAttrs");
 
-                result.append(String.format(
-                        "UPDATE AnyTemplateRealm SET template='%s' WHERE id='%s';\n",
-                        MAPPER.writeValueAsString(t).replace("'", "''"),
-                        template.get("id").toString()));
+                result.append(
+                        "UPDATE AnyTemplateRealm SET template='%s' WHERE id='%s';\n".formatted(
+                                MAPPER.writeValueAsString(t).replace("'", "''"),
+                                template.get("id").toString()));
             }
         }
 
@@ -308,10 +308,10 @@ public class GenerateUpgradeSQL {
             if (t.has("virAttrs")) {
                 ((ObjectNode) t).remove("virAttrs");
 
-                result.append(String.format(
-                        "UPDATE AnyTemplatePullTask SET template='%s' WHERE id='%s';\n",
-                        MAPPER.writeValueAsString(t).replace("'", "''"),
-                        template.get("id").toString()));
+                result.append(
+                        "UPDATE AnyTemplatePullTask SET template='%s' WHERE id='%s';\n".formatted(
+                                MAPPER.writeValueAsString(t).replace("'", "''"),
+                                template.get("id").toString()));
             }
         }
 
@@ -324,10 +324,10 @@ public class GenerateUpgradeSQL {
         List<Map<String, Object>> auditConf = jdbcTemplate.queryForList(
                 "SELECT id from AuditConf");
 
-        auditConf.forEach(conf -> result.append(String.format(
-                "UPDATE AuditConf SET id='%s' WHERE id='%s';\n",
-                conf.get("id").toString().replace("syncope.audit.", ""),
-                conf.get("id").toString())));
+        auditConf.forEach(conf -> result.append(
+                "UPDATE AuditConf SET id='%s' WHERE id='%s';\n".formatted(
+                        conf.get("id").toString().replace("syncope.audit.", ""),
+                        conf.get("id").toString())));
 
         return result.toString();
     }

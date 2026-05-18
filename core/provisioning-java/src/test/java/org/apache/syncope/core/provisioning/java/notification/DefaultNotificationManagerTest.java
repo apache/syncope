@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,7 +190,7 @@ public class DefaultNotificationManagerTest {
         when(userDAO.findById(beforeDelete.getKey())).thenReturn(Optional.empty());
 
         Notification notification = mock(Notification.class);
-        doReturn(Collections.singletonList(notification)).when(notificationDAO).findAll();
+        doReturn(List.of(notification)).when(notificationDAO).findAll();
         when(notification.isActive()).thenReturn(true);
         when(notification.getEvents()).thenReturn(List.of(DELETE_SUCCESS));
         when(notification.getRecipientsFIQL()).thenReturn(null);
@@ -239,7 +238,7 @@ public class DefaultNotificationManagerTest {
     @Test
     void nullBeforeWithMissingEntityDoesNotThrow() {
         Notification notification = mock(Notification.class);
-        doReturn(Collections.singletonList(notification)).when(notificationDAO).findAll();
+        doReturn(List.of(notification)).when(notificationDAO).findAll();
         when(notification.isActive()).thenReturn(true);
         when(notification.getEvents()).thenReturn(List.of(DELETE_SUCCESS));
         when(notification.getRecipientsFIQL()).thenReturn(null);

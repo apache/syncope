@@ -318,7 +318,7 @@ public class AnyPanel extends Panel implements ModalPanel {
 
             String precond = realmTO.getFullPath().startsWith(SyncopeConstants.ROOT_REALM)
                     ? StringUtils.EMPTY
-                    : String.format("$dynRealms=~%s;", realmTO.getKey());
+                    : "$dynRealms=~%s;".formatted(realmTO.getKey());
 
             switch (anyTypeTO.getKind()) {
                 case USER ->

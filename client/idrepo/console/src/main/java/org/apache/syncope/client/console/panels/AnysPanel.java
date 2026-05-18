@@ -117,7 +117,7 @@ public abstract class AnysPanel extends WizardMgtPanel<RealmTO> {
         for (AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
                     new ResourceModel("anyType." + anyType.getKey(), anyType.getKey()),
-                    String.format("%s_SEARCH", anyType.getKey())) {
+                    "%s_SEARCH".formatted(anyType.getKey())) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 

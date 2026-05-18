@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.notifications;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -415,7 +415,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
                 stream().map(DerSchemaTO::getKey).toList());
 
-        Collections.sort(result);
+        result.sort(Comparator.naturalOrder());
         return result;
     }
 }

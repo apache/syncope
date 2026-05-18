@@ -140,7 +140,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 new UserWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
+                "%s,%s".formatted(IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
         panel.add(new ActionLink<>() {
@@ -307,7 +307,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     altDefaultModal.show(true);
                 }
             }, ActionType.VIEW_AUDIT_HISTORY,
-                    String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
+                    "%s,%s".formatted(IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
                     setRealms(realm, model.getObject().getDynRealms());
         }
 

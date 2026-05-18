@@ -53,7 +53,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManager.class);
 
     protected static String getBeanName(final ExternalResource resource) {
-        return String.format("connInstance-%s-%S-%s",
+        return "connInstance-%s-%S-%s".formatted(
                 AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
     }
 

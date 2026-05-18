@@ -59,8 +59,8 @@ public class RoleRestClient extends BaseRestClient {
 
     public String readAnyLayout(final String role) {
         try {
-            return IOUtils.toString(InputStream.class.cast(
-                    getService(RoleService.class).getAnyLayout(role).getEntity()),
+            return new String(InputStream.class.cast(
+                    getService(RoleService.class).getAnyLayout(role).getEntity()).readAllBytes(),
                     StandardCharsets.UTF_8);
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {

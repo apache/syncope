@@ -26,7 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.WebClientBuilder;
@@ -57,7 +56,7 @@ public class ResourceRestClient extends BaseRestClient {
         Response response = client.path(key).get();
         if (response.getStatus() == Response.Status.OK.getStatusCode()) {
             response = client.back(false).path("check").
-                    post(IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+                    post(new String(((InputStream) response.getEntity()).readAllBytes(), StandardCharsets.UTF_8));
             return response.getStatus() == Response.Status.NO_CONTENT.getStatusCode();
         }
         return false;

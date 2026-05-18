@@ -75,10 +75,8 @@ public abstract class ChangePasswordPanel extends Panel {
                 String cssClass = getString(CssUtils.key(Form.class, "hidden-fields"));
 
                 // div that is not visible (but not display:none either)
-                buffer.append(String.format(
-                        "<div style=\"width:0px;height:0px;position:absolute;"
-                        + "left:-100px;top:-100px;overflow:hidden\" class=\"%s\">",
-                        cssClass));
+                buffer.append("<div style=\"width:0px;height:0px;position:absolute;"
+                        + "left:-100px;top:-100px;overflow:hidden\" class=\"%s\">".formatted(cssClass));
 
                 // add an empty textfield (otherwise IE doesn't work)
                 buffer.append("<input title=\"text_hidden\" "

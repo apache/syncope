@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -100,9 +99,9 @@ public abstract class AbstractAnyObjectWorkflowAdapter
         // ensure that requester's administration rights are still valid
         Set<String> authRealms = new HashSet<>();
         authRealms.addAll(AuthContextUtils.getAuthorizations().
-                getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Collections.emptySet()));
+                getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Set.of()));
         authRealms.addAll(AuthContextUtils.getAuthorizations().
-                getOrDefault(AnyEntitlement.UPDATE.getFor(anyObject.getType().getKey()), Collections.emptySet()));
+                getOrDefault(AnyEntitlement.UPDATE.getFor(anyObject.getType().getKey()), Set.of()));
         anyObjectDAO.securityChecks(
                 authRealms,
                 anyObject.getKey(),

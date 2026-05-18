@@ -74,8 +74,8 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
                     : new BadRequestException(message);
         } else {
             // 5. All other codes are mapped to runtime exception with HTTP code information
-            ex = new WebServiceException(String.format("Remote exception with status code: %s",
-                    Response.Status.fromStatusCode(statusCode).name()));
+            ex = new WebServiceException("Remote exception with status code: %s".
+                    formatted(Response.Status.fromStatusCode(statusCode).name()));
         }
 
         if (ex instanceof NotFoundException

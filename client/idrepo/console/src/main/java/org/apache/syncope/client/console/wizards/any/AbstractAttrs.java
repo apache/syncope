@@ -128,7 +128,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
         super.renderHead(response);
         if (CollectionUtils.isEmpty(attrs.getObject()) && CollectionUtils.isEmpty(memberships.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
-                    String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
+                    "$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();".formatted(
                             getString("attribute.empty.list"))));
         }
     }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.search;
 
-import java.util.Collections;
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.FiqlSearchConditionBuilder;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
@@ -46,7 +45,7 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
 
     @Override
     public String query() {
-        return new FiqlSearchConditionBuilder.Builder(Collections.emptyMap()).
+        return new FiqlSearchConditionBuilder.Builder(Map.of()).
                 is(SpecialAttr.TYPE.toString()).equalTo(type).query();
     }
 

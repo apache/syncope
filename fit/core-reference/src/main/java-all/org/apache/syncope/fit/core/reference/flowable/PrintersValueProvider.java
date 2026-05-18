@@ -60,7 +60,7 @@ public class PrintersValueProvider implements DropdownValueProvider {
                         AnyObject::getKey,
                         AnyObject::getName,
                         (u, v) -> {
-                            throw new IllegalStateException(String.format("Duplicate key %s", u));
+                            throw new IllegalStateException("Duplicate key %s".formatted(u));
                         },
                         LinkedHashMap::new));
     }

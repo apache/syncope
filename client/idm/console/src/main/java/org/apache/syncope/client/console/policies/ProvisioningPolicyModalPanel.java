@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.policies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -334,7 +334,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             choices.add(Constants.KEY_FIELD_NAME);
             choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name())
                     ? Constants.USERNAME_FIELD_NAME : Constants.NAME_FIELD_NAME);
-            Collections.sort(choices);
+            choices.sort(Comparator.naturalOrder());
             return choices;
         }
     }

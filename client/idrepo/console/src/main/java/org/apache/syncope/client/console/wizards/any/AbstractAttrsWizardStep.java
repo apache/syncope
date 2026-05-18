@@ -162,7 +162,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         super.renderHead(response);
         if (CollectionUtils.isEmpty(attrs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
-                    String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
+                    "$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();".formatted(
                             getString("attribute.empty.list"))));
         }
     }

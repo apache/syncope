@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -37,7 +36,7 @@ public interface PushActions extends ProvisioningActions {
      * @return additional attributes to include in the result from the underlying connector
      */
     default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, Entity entity) {
-        return Collections.emptySet();
+        return Set.of();
     }
 
     /**

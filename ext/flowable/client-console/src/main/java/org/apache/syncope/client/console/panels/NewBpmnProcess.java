@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import jakarta.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -60,8 +59,8 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
                     bpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
-                            IOUtils.toString(
-                                    NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml"),
+                            new String(
+                                    NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml").readAllBytes(),
                                     StandardCharsets.UTF_8).replaceAll("%KEY%", key.getModelObject()));
 
                     key.getModel().setObject(null);

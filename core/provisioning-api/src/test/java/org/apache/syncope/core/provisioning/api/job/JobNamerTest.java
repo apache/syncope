@@ -39,7 +39,7 @@ public class JobNamerTest extends AbstractTest {
         assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
         String uuid = UUID.randomUUID().toString();
-        name = String.format("taskJob%s", uuid);
+        name = "taskJob%s".formatted(uuid);
         assertEquals(uuid, JobNamer.getTaskKeyFromJobName(name).orElseThrow());
     }
 
@@ -49,7 +49,7 @@ public class JobNamerTest extends AbstractTest {
         assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
         String uuid = UUID.randomUUID().toString();
-        name = String.format("reportJob%s", uuid);
+        name = "reportJob%s".formatted(uuid);
         assertEquals(uuid, JobNamer.getReportKeyFromJobName(name).orElseThrow());
     }
 

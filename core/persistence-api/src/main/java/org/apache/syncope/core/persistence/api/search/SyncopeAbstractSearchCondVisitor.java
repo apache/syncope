@@ -62,8 +62,8 @@ public abstract class SyncopeAbstractSearchCondVisitor
     }
 
     protected static String getValue(final SearchCondition<SearchBean> sc) {
-        String value = SearchUtils.toSqlWildcardString(URLDecoder.decode(sc.getStatement().getValue().toString()
-                .replace("+", "%2B"), StandardCharsets.UTF_8), false);
+        String value = SearchUtils.toSqlWildcardString(URLDecoder.decode(sc.getStatement().getValue().
+                toString().replace("+", "%2B"), StandardCharsets.UTF_8), false);
         if (value.indexOf('%') == -1) {
             value = value.replaceAll("\\\\_", "_");
         }
@@ -87,7 +87,7 @@ public abstract class SyncopeAbstractSearchCondVisitor
 
                 default:
                     throw new IllegalArgumentException(
-                            String.format("Condition type %s is not supported", sfsc.getOperator()));
+                            "Condition type %s is not supported".formatted(sfsc.getOperator()));
             }
         }
 
@@ -190,7 +190,7 @@ public abstract class SyncopeAbstractSearchCondVisitor
 
                         default:
                             throw new IllegalArgumentException(
-                                    String.format("Special attr name %s is not supported", specialAttrName));
+                                    "Special attr name %s is not supported".formatted(specialAttrName));
                     }
                 }
                 if (ct == ConditionType.NOT_EQUALS) {
@@ -224,7 +224,7 @@ public abstract class SyncopeAbstractSearchCondVisitor
                 break;
 
             default:
-                throw new IllegalArgumentException(String.format("Condition type %s is not supported", ct.name()));
+                throw new IllegalArgumentException("Condition type %s is not supported".formatted(ct.name()));
         }
 
         // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
@@ -263,7 +263,7 @@ public abstract class SyncopeAbstractSearchCondVisitor
 
             default:
                 throw new IllegalArgumentException(
-                        String.format("Condition type %s is not supported", sc.getConditionType().name()));
+                        "Condition type %s is not supported".formatted(sc.getConditionType().name()));
         }
 
         return compound;

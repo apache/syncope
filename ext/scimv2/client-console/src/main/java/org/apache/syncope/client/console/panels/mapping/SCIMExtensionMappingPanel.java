@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels.mapping;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -284,7 +284,7 @@ public class SCIMExtensionMappingPanel extends Panel {
                     choices.addAll(anyTypeClassTO.getDerSchemas());
                 });
 
-        Collections.sort(choices);
+        choices.sort(Comparator.naturalOrder());
         return Model.ofList(choices);
     }
 }
