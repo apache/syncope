@@ -81,8 +81,7 @@ public class Flowable extends BaseExtPage {
                         userRequestRestClient.startRequest(bpmnProcessModel.getObject());
                     } catch (Exception e) {
                         LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
-                        SyncopeEnduserSession.get()
-                                .error(String.format("Unable to start bpmnProcess [%s]", e.getMessage()));
+                        SyncopeEnduserSession.get().error("Unable to start bpmnProcess [%s]".formatted(e.getMessage()));
                         getNotificationPanel().refresh(target);
                     }
                     target.add(container);

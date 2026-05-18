@@ -183,8 +183,8 @@ public class AttrRepoDirectoryPanel
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.ATTR_REPO_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                "%s,%s".formatted(AMEntitlement.ATTR_REPO_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

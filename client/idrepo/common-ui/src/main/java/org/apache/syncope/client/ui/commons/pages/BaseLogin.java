@@ -249,8 +249,7 @@ public abstract class BaseLogin extends WebPage {
         if (StringUtils.isNotBlank(notificationMessage)) {
             response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(
                     StringEscapeUtils.escapeEcmaScript(notificationMessage),
-                    String.format("jQuery('#%s').data('kendoNotification')",
-                            notificationPanel.getNotificationMarkupId()),
+                    "jQuery('#%s').data('kendoNotification')".formatted(notificationPanel.getNotificationMarkupId()),
                     notificationLevel)));
         }
     }

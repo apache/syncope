@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.mapping;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -105,7 +105,7 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
                     choices.addAll(anyTypeClassTO.getDerSchemas());
                 });
 
-        Collections.sort(choices);
+        choices.sort(Comparator.naturalOrder());
         toBeUpdated.setChoices(choices);
     }
 }

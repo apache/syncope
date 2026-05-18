@@ -61,15 +61,15 @@ public abstract class AnyDisplayAttributesModalPanel<T extends Serializable> ext
     }
 
     public static String getPrefDetailView(final String type) {
-        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
+        return Constants.PREF_ANY_DETAILS_VIEW.formatted(type);
     }
 
     public static String getPrefPlainAttributeView(final String type) {
-        return String.format(Constants.PREF_ANY_PLAIN_ATTRS_VIEW, type);
+        return Constants.PREF_ANY_PLAIN_ATTRS_VIEW.formatted(type);
     }
 
     public static String getPrefDerivedAttributeView(final String type) {
-        return String.format(Constants.PREF_ANY_DER_ATTRS_VIEW, type);
+        return Constants.PREF_ANY_DER_ATTRS_VIEW.formatted(type);
     }
 
     public static Class<? extends AnyTO> getTOClass(final String type) {

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -69,7 +68,7 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
     @Override
     public Iterator<ConnInstanceTO> iterator(final long first, final long count) {
-        List<ConnInstanceTO> result = Collections.emptyList();
+        List<ConnInstanceTO> result = List.of();
 
         try {
             currentPage = ((int) first / paginatorRows);

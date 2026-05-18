@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class MIMETypesLoader implements Serializable {
             LOG.debug("MIME types loaded: {}", mimeTypesMap);
 
             mimeTypes = new ArrayList<>(mimeTypesMap.keySet());
-            Collections.sort(mimeTypes);
+            mimeTypes.sort(Comparator.naturalOrder());
             mimeTypes = Collections.unmodifiableList(mimeTypes);
         } catch (Exception e) {
             LOG.error("Error reading file MIMETypes from resources", e);

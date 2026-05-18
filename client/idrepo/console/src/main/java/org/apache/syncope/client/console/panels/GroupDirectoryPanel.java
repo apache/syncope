@@ -249,7 +249,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                 restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
+                "%s,%s".formatted(IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealm(realm);
 
         actions.add(new ActionLink<>() {
@@ -305,7 +305,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 return false;
             }
         }, ActionType.MEMBERS,
-                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
+                "%s,%s".formatted(IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealm(realm);
 
         ActionLink<GroupTO> provisionMembers = new ActionLink<GroupTO>() {
@@ -328,7 +328,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         actions.add(
                 provisionMembers,
                 ActionType.PROVISION_MEMBERS,
-                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
+                "%s,%s".formatted(IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
                 true).setRealm(realm);
 
         ActionLink<GroupTO> deprovisionMembers = new ActionLink<GroupTO>() {
@@ -351,7 +351,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         actions.add(
                 deprovisionMembers,
                 ActionType.DEPROVISION_MEMBERS,
-                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
+                "%s,%s".formatted(IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
                 true).setRealm(realm);
 
         SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
@@ -430,7 +430,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 altDefaultModal.show(true);
             }
         }, ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
+                "%s,%s".formatted(IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
                 setRealm(realm);
 
         actions.add(new ActionLink<>() {

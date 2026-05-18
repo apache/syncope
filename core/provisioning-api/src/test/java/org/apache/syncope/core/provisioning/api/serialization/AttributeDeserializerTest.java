@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.serialization;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,7 +27,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -71,7 +71,8 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.isNull()).thenReturn(Boolean.TRUE);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(Collections.singletonList(null), attr.getValue());
+        assertEquals(1, attr.getValue().size());
+        assertNull(attr.getValue().getFirst());
     }
 
     @Test

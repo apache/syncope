@@ -179,7 +179,7 @@ public class BasePage extends BaseWebPage {
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("engagements", Engagements.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER,
-                String.format("%s,%s", IdRepoEntitlement.TASK_LIST, IdRepoEntitlement.IMPLEMENTATION_LIST));
+                "%s,%s".formatted(IdRepoEntitlement.TASK_LIST, IdRepoEntitlement.IMPLEMENTATION_LIST));
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));

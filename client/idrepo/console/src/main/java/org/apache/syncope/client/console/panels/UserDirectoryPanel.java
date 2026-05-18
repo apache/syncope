@@ -149,7 +149,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 new UserWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
+                "%s,%s".formatted(IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
                 setRealm(realm);
 
         panel.add(new ActionLink<>() {
@@ -339,7 +339,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     altDefaultModal.show(true);
                 }
             }, ActionType.VIEW_AUDIT_HISTORY,
-                    String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
+                    "%s,%s".formatted(IdRepoEntitlement.USER_READ, IdRepoEntitlement.AUDIT_LIST)).
                     setRealm(realm);
         }
 

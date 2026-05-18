@@ -259,8 +259,7 @@ public class CircularFifoQueue<E> extends AbstractCollection<E> implements Queue
         final int sz = size();
         if (index < 0 || index >= sz) {
             throw new NoSuchElementException(
-                    String.format("The specified index (%1$d) is outside the available range [0, %2$d)",
-                            index, Integer.valueOf(sz)));
+                    "The specified index (%1$d) is outside the available range [0, %2$d)".formatted(index, sz));
         }
 
         final int idx = (start + index) % maxElements;

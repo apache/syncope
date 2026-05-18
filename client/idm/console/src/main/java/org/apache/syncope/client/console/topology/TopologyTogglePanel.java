@@ -240,7 +240,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     connectorRestClient.delete(node.getKey());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
+                    target.appendJavaScript("jsPlumb.remove('%s');".formatted(node.getKey()));
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
@@ -359,7 +359,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
-                String.format("%s,%s", IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
+                "%s,%s".formatted(IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
         fragment.add(history);
 
         return fragment;
@@ -376,7 +376,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     resourceRestClient.delete(node.getKey());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
+                    target.appendJavaScript("jsPlumb.remove('%s');".formatted(node.getKey()));
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
@@ -622,7 +622,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(history, RENDER,
-                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
+                "%s,%s".formatted(IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
         fragment.add(history);
 
         AjaxLink<String> clone = new IndicatingAjaxLink<>("clone") {

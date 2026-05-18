@@ -187,8 +187,8 @@ public class AuthModuleDirectoryPanel
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.AUTH_MODULE_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                "%s,%s".formatted(AMEntitlement.AUTH_MODULE_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

@@ -136,12 +136,12 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
 
         row.add(new Label("relationship", relationshipTO.getType()));
         Label leftEnd = new Label("left_end", isLeftRelation
-                ? String.format("%s %s", anyTO.getType(), anyName)
-                : String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName()));
+                ? "%s %s".formatted(anyTO.getType(), anyName)
+                : "%s %s".formatted(relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName()));
 
         Label rightEnd = new Label("right_end", isLeftRelation
-                ? String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName())
-                : String.format("%s %s", anyTO.getType(), anyName));
+                ? "%s %s".formatted(relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName())
+                : "%s %s".formatted(anyTO.getType(), anyName));
 
         if (anyTO.getKey() != null && anyTO.getKey().equals(relationshipTO.getOtherEndKey())) {
             setBold(leftEnd, rightEnd);

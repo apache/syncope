@@ -37,14 +37,13 @@ public class MSEntraJWSVerifierCacheLoaderTest extends AbstractTest {
     void getOpenIDMetadataDocumentUrl() {
         // Tenant id and app id
         MSEntraJWSVerifierCacheLoader v1 = new MSEntraJWSVerifierCacheLoader(TENANT_ID, APP_ID);
-        assertEquals(String.format(
-                "https://login.microsoftonline.com/%s/.well-known/openid-configuration?appid=%s", TENANT_ID, APP_ID),
+        assertEquals("https://login.microsoftonline.com/%s/.well-known/openid-configuration?appid=%s".
+                formatted(TENANT_ID, APP_ID),
                 v1.getOpenIDMetadataDocumentUrl());
 
         // Tenant id, no app id
         MSEntraJWSVerifierCacheLoader v2 = new MSEntraJWSVerifierCacheLoader(TENANT_ID, null);
-        assertEquals(
-                String.format("https://login.microsoftonline.com/%s/.well-known/openid-configuration", TENANT_ID),
+        assertEquals("https://login.microsoftonline.com/%s/.well-known/openid-configuration".formatted(TENANT_ID),
                 v2.getOpenIDMetadataDocumentUrl());
 
         // No tenant id, no app id

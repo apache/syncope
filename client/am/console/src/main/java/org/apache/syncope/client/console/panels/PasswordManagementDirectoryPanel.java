@@ -213,8 +213,8 @@ public class PasswordManagementDirectoryPanel extends DirectoryPanel<
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.PASSWORD_MANAGEMENT_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                "%s,%s".formatted(AMEntitlement.PASSWORD_MANAGEMENT_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

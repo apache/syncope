@@ -81,8 +81,9 @@ public class NotificationRestClient extends BaseRestClient {
 
     public String readTemplateFormat(final String key, final MailTemplateFormat format) {
         try {
-            return IOUtils.toString(InputStream.class.cast(
-                    getService(MailTemplateService.class).getFormat(key, format).getEntity()), StandardCharsets.UTF_8);
+            return new String(InputStream.class.cast(
+                    getService(MailTemplateService.class).getFormat(key, format).getEntity()).readAllBytes(),
+                    StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error retrieving mail template {} as {}", key, format, e);
             return StringUtils.EMPTY;

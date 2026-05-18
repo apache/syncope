@@ -362,7 +362,7 @@ public class RealmDirectoryPanel
                 altDefaultModal.show(true);
             }
         }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.AUDIT_LIST)).
+                "%s,%s".formatted(IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.AUDIT_LIST)).
                 setRealm(model.getObject().getFullPath());
 
         panel.add(new ActionLink<>() {
