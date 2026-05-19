@@ -19,12 +19,15 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.openjpa.conf.OpenJPAConfiguration;
 import org.apache.openjpa.event.RemoteCommitEventManager;
@@ -41,6 +44,42 @@ public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PersistenceInfoDAO.class);
 
+    protected static final Set<String> UNSAFE_PROPERTIES = Set.of(
+            "openjpa.MetaDataFactory", "openjpa.EntityManagerFactory");
+
+    protected static boolean isJsonSafe(final String key, final Object value) {
+        if (UNSAFE_PROPERTIES.contains(key)) {
+            return false;
+        }
+
+        if (value == null) {
+            return true;
+        }
+        if (ClassUtils.isPrimitiveOrWrapper(value.getClass())) {
+            return true;
+        }
+        if (value instanceof Collection<?> collection) {
+            for (Object e : collection) {
+                if (!isJsonSafe(key, e)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (value instanceof Map<?, ?> map) {
+            for (Map.Entry<?, ?> e : map.entrySet()) {
+                if (!(e.getKey() instanceof String)) {
+                    return false; // JSON object keys must be strings
+                }
+                if (!isJsonSafe(key, e.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return value instanceof Serializable;
+    }
+
     protected final EntityManagerFactory entityManagerFactory;
 
     public JPAPersistenceInfoDAO(final EntityManagerFactory entityManagerFactory) {
@@ -55,9 +94,13 @@ public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
         OpenJPAConfiguration conf = emfspi.getConfiguration();
 
         Map<String, Object> properties = emfspi.getProperties();
-        result.put("vendor", properties.get("VendorName"));
-        result.put("version", properties.get("VersionNumber"));
-        result.put("platform", properties.get("Platform"));
+        properties.forEach((k, v) -> {
+            if (isJsonSafe(k, v)) {
+                result.put(k, v);
+            } else {
+                LOG.debug("Value for {} not JSON safe", k);
+            }
+        });
 
         Map<String, Object> remoteCommitProvider = new LinkedHashMap<>();
         result.put("remoteCommitProvider", remoteCommitProvider);
