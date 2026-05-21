@@ -421,7 +421,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public SyncopeAnonymousClient getAnonymousClient() {
-        if (anonymousClient == null) {
+        if (anonymousClient == null || !getDomain().equals(anonymousClient.getDomain())) {
             anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
         }
         return anonymousClient;

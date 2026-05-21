@@ -431,7 +431,7 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.5</cxf.version>
+    <cxf.version>4.1.6</cxf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
 
@@ -465,7 +465,7 @@ under the License.
     <pac4j.version>6.3.3</pac4j.version>
 
     <cas.version>7.2.7.1</cas.version>
-    <cas-client.version>4.0.4</cas-client.version>
+    <cas-client.version>4.1.1</cas-client.version>
 
     <swagger-core.version>2.2.50</swagger-core.version>
     <swagger-ui.version>5.32.5</swagger-ui.version>
@@ -482,7 +482,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.4.3</chartjs.version>
 
-    <wicket.version>10.9.0</wicket.version>
+    <wicket.version>10.9.1</wicket.version>
     <wicketstuff.version>10.8.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
@@ -688,7 +688,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.1.1</version>
+        <version>7.2.0</version>
       </dependency>
 
       <dependency>
