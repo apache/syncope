@@ -248,7 +248,8 @@ public abstract class AbstractITCase {
             final String password,
             final String body,
             final CloseableHttpClient httpclient,
-            final HttpClientContext context)
+            final HttpClientContext context,
+            final String... tenant)
             throws IOException {
 
         List<NameValuePair> form = new ArrayList<>();
@@ -258,7 +259,7 @@ public abstract class AbstractITCase {
         form.add(new BasicNameValuePair("password", password));
         form.add(new BasicNameValuePair("geolocation", ""));
 
-        HttpPost post = new HttpPost(WA_ADDRESS + "/login");
+        HttpPost post = new HttpPost(WA_ADDRESS + (tenant == null ? null : "/tenants/" + tenant[0]) + "/login");
         post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
