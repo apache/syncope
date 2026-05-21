@@ -22,11 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -57,7 +59,10 @@ public class MultitenancyITCase extends AbstractITCase {
     protected static final String MT_PASSWORD = "password";
 
     @BeforeAll
-    public static void multitenancyCheck() {
+    public static void multitenancySetup() {
+        assumeTrue(Optional.ofNullable(System.getProperties().getProperty("spring.profiles.active")).
+                map(profiles -> profiles.contains("multitenancy")).orElse(false));
+
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS).setDomain("Two");
 
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, "password2");
