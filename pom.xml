@@ -431,7 +431,7 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.2.0</cxf.version>
+    <cxf.version>4.2.1</cxf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
 
@@ -467,7 +467,7 @@ under the License.
     <pac4j.version>6.4.3</pac4j.version>
 
     <cas.version>8.0.0-RC4</cas.version>
-    <cas-client.version>4.1.0</cas-client.version>
+    <cas-client.version>4.1.1</cas-client.version>
 
     <swagger-core.version>2.2.50</swagger-core.version>
     <swagger-ui.version>5.32.5</swagger-ui.version>
