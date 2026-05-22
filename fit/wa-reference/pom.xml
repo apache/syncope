@@ -34,6 +34,8 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
+    <spring.profiles.active>embedded,https,all</spring.profiles.active>
+
     <ianal.phase>none</ianal.phase>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -241,7 +243,7 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                -Dspring.profiles.active=embedded,https,all
+                -Dspring.profiles.active=${spring.profiles.active}
                 -Dopenfga.api-url=http://${docker.container.openfga.ip}:8080
                 -Xmx1024m -Xms512m</cargo.jvmargs>
 
@@ -414,7 +416,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded,https,all
+                    -Dspring.profiles.active=${spring.profiles.active}
                     -Dopenfga.api-url=http://${docker.container.openfga.ip}:8080
                     -Dwicket.core.settings.general.configuration-type=development
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
@@ -427,72 +429,6 @@ under the License.
       </build>
     </profile>
     
-    <profile>
-      <id>hotswap</id>
-      
-      <build>
-        <defaultGoal>clean verify cargo:run</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>enableHotSwapForCoreAndConsoleAndEnduser</id>
-                <phase>package</phase>
-                <configuration>
-                  <target>                                               
-                    <copy file="${basedir}/../core-reference/target/test-classes/hotswap-agent.properties"
-                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
-                          overwrite="true"/>
-                    <copy file="${basedir}/../console-reference/target/test-classes/hotswap-agent.properties"
-                          tofile="${basedir}/../console-reference/target/syncope-fit-console-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
-                          overwrite="true"/>
-                    <copy file="${basedir}/../enduser-reference/target/test-classes/hotswap-agent.properties"
-                          tofile="${basedir}/../enduser-reference/target/syncope-fit-enduser-reference-${project.version}/WEB-INF/classes/hotswap-agent.properties"
-                          overwrite="true"/>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven3-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>
-                    -Dspring.profiles.active=embedded,all
-                    -Dwicket.core.settings.general.configuration-type=development
-                    -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
-                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
-                </properties>
-              </configuration>
-            </configuration>
-          </plugin>
-        </plugins>
-        
-        <resources>
-          <resource>
-            <directory>src/test/resources</directory>
-            <filtering>true</filtering>
-            <includes>
-              <include>hotswap-agent.properties</include>
-            </includes>
-          </resource>
-        </resources>
-      </build>
-    </profile>
-
     <profile>
       <id>apache-release</id>
 

@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -39,6 +40,8 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
 import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
@@ -62,6 +65,7 @@ import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
+import org.apache.syncope.wa.starter.multitenancy.WATenantsManager;
 import org.apache.syncope.wa.starter.oidc.WAOidcJsonWebKeystoreGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataCacheRefresher;
@@ -82,6 +86,7 @@ import org.apereo.cas.configuration.support.JpaBeans;
 import org.apereo.cas.consent.ConsentRepository;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
+import org.apereo.cas.multitenancy.TenantsManager;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.pm.LdapPasswordManagementService;
@@ -596,6 +601,23 @@ public class WAContext {
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();
         return new InMemoryUserDetailsManager(user);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @ConditionalOnProperty(
+            prefix = "cas.multitenancy.core", name = "enabled", havingValue = "true", matchIfMissing = false)
+    @Bean(name = TenantsManager.BEAN_NAME)
+    public TenantsManager tenantsManager(
+            final DomainOps domainOps,
+            final WARestClient waRestClient,
+            final AuthModulePropertySourceMapper authModulePropertySourceMapper,
+            final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper) {
+
+        return new WATenantsManager(
+                domainOps,
+                waRestClient,
+                authModulePropertySourceMapper,
+                attrRepoPropertySourceMapper);
     }
 
     @ConditionalOnProperty(

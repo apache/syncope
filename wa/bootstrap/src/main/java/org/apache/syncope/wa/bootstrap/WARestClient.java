@@ -29,6 +29,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,42 +90,6 @@ public class WARestClient {
         return Optional.empty();
     }
 
-    public SyncopeClient getSyncopeClient() {
-        synchronized (this) {
-            if (client == null) {
-                getCore().ifPresent(core -> {
-                    try {
-                        client = new SyncopeClientFactoryBean().
-                                setAddress(core.getAddress()).
-                                setUseCompression(useGZIPCompression).
-                                create(new BasicAuthenticationHandler(anonymousUser, anonymousKey));
-                    } catch (Exception e) {
-                        LOG.error("Could not init SyncopeClient", e);
-                    }
-                });
-            }
-
-            return client;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getService(final Class<T> serviceClass) {
-        if (!isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-
-        T service;
-        if (services.containsKey(serviceClass)) {
-            service = (T) services.get(serviceClass);
-        } else {
-            service = getSyncopeClient().getService(serviceClass);
-            services.put(serviceClass, service);
-        }
-
-        return service;
-    }
-
     public boolean isReady() {
         try {
             return getCore().isPresent();
@@ -132,5 +97,39 @@ public class WARestClient {
             LOG.trace("While checking Core's availability: {}", e.getMessage());
         }
         return false;
+    }
+
+    public Optional<SyncopeClient> getSyncopeClient(final String domain) {
+        return getCore().flatMap(core -> {
+            try {
+                return Optional.of(new SyncopeClientFactoryBean().
+                        setAddress(core.getAddress()).
+                        setUseCompression(useGZIPCompression).
+                        setDomain(domain).
+                        create(new BasicAuthenticationHandler(anonymousUser, anonymousKey)));
+            } catch (Exception e) {
+                LOG.error("Could not init SyncopeClient", e);
+                return Optional.empty();
+            }
+        });
+    }
+
+    public SyncopeClient getSyncopeClient() {
+        synchronized (this) {
+            if (client == null) {
+                client = getSyncopeClient(SyncopeConstants.MASTER_DOMAIN).orElse(null);
+            }
+        }
+
+        return client;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getService(final Class<T> serviceClass) {
+        if (!isReady()) {
+            throw new IllegalStateException("Syncope Core is not yet ready");
+        }
+
+        return (T) services.computeIfAbsent(serviceClass, k -> getSyncopeClient().getService(k));
     }
 }

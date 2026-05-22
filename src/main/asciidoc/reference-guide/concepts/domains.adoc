@@ -26,6 +26,10 @@ External Resources, Policies, Tasks, etc. from different domains (e.g. tenants) 
 
 By default, a single `Master` domain is defined, which also bears the configuration for additional domains.
 
+Every domain besides `Master` is mapped one-to-one with a
+https://apereo.github.io/cas/7.3.x/multitenancy/Multitenancy-Overview.html[CAS tenant^] having the same identifier; this
+allows for <<web-access>> configuration to relate only to the given domain's database instance.
+
 [.text-center]
 image::domains.png[title="Domains",alt="Domains"]
 
