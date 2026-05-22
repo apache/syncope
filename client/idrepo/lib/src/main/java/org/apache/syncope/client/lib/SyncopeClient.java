@@ -264,7 +264,7 @@ public class SyncopeClient {
      * Currently supports:
      * <ul>
      * <li>{@link JWTAuthenticationHandler}</li>
-     * <li>{@link AnonymousAuthenticationHandler}</li>
+     * <li>{@link ObtainingJWTAuthenticationHandler}</li>
      * <li>{@link BasicAuthenticationHandler}</li>
      * </ul>
      * More can be supported by subclasses.
@@ -371,7 +371,7 @@ public class SyncopeClient {
      * Returns the JWT in use by this instance and its expiration timestamp.
      *
      * @return the JWT in use by this instance and its expiration timestamp, or empty if
-     * {@link AnonymousAuthenticationHandler} was used.
+     * {@link ObtainingJWTAuthenticationHandler} was used.
      */
     public Optional<JwtInfo> jwtInfo() {
         String value = Optional.ofNullable(restClientFactory.getHeaders().get(HttpHeaders.AUTHORIZATION)).

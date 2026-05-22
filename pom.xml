@@ -2281,7 +2281,7 @@ under the License.
             <link>https://cxf.apache.org/javadoc/latest/</link>
             <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-core/2.21.2/</link>
             <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-databind/2.21.2/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.21.2/</link>
+            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.21/</link>
             <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-csv/2.21.2/</link>
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
