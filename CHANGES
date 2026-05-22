@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.1.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1744] - Empty value in template when notification is sent on DELETE event
+    * [SYNCOPE-1921] - LDAPMembershipPropagationActions deletes memberships of groups not managed by Syncope
+    * [SYNCOPE-1959] - Error while editing group relationships in admin console
+    * [SYNCOPE-1960] - Cannot remove aux class from user, group or any object
+    * [SYNCOPE-1962] - Error during database upgrade procedure on Oracle 23
+    * [SYNCOPE-1963] - Error while searching for user or group manager not null or null on user, group and any objects
+    * [SYNCOPE-1965] - Manager is going to be removed after pull
+
+** New Feature
+    * [SYNCOPE-1961] - MFA
+    * [SYNCOPE-1967] - Add support for CAS Attribute Release Consent to WA
+
+** Improvement
+    * [SYNCOPE-1958] - Fail early on invalid password
+    * [SYNCOPE-1964] - Add new OIDC scopes to default set
+
+** Task
+    * [SYNCOPE-1966] - Do not include security sensitive information in returned UserTO payloads
+
 Release Notes - Syncope - Version 4.1.0
 ================================================================================
 
