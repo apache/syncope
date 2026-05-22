@@ -2,6 +2,17 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.6
+================================================================================
+
+** Bug
+    * [SYNCOPE-1744] - Empty value in template when notification is sent on DELETE event
+    * [SYNCOPE-1921] - LDAPMembershipPropagationActions deletes memberships of groups not managed by Syncope
+    * [SYNCOPE-1960] - Cannot remove aux class from user, group or any object
+
+** Improvement
+    * [SYNCOPE-1958] - Fail early on invalid password
+
 Release Notes - Syncope - Version 4.0.5
 ================================================================================
 
