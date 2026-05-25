@@ -70,6 +70,32 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         service.setSignResponses(TriStateBoolean.fromBoolean(sp.isSignResponses()));
         service.setEncryptionOptional(sp.isEncryptionOptional());
         service.setEncryptAssertions(sp.isEncryptAssertions());
+        service.setSubjectLocality(sp.getSubjectLocality());
+        service.setLogoutResponseBinding(
+            Optional.ofNullable(sp.getLogoutResponseBinding()).map(Enum::name).orElse(null));
+        service.setMetadataCriteriaDirection(sp.getMetadataCriteriaDirection().name());
+        service.setMetadataCriteriaPattern(sp.getMetadataCriteriaPattern());
+        service.setSigningCredentialType(
+            Optional.ofNullable(sp.getSigningCredentialType()).map(Enum::name).orElse(null));
+        service.setEncryptAttributes(sp.isEncryptAttributes());
+        service.setRequireSignedRoot(sp.isRequireSignedRoot());
+        service.setLogoutResponseEnabled(sp.isLogoutResponseEnabled());
+        service.setSkipGeneratingAssertionNameId(sp.isSkipGeneratingAssertionNameId());
+        service.setSkipGeneratingSubjectConfirmationInResponseTo(sp.isSkipGeneratingSubjectConfirmationInResponseTo());
+        service.setSkipGeneratingResponseInResponseTo(sp.isSkipGeneratingResponseInResponseTo());
+        service.setSkipGeneratingSubjectConfirmationNotOnOrAfter(sp.isSkipGeneratingSubjectConfirmationNotOnOrAfter());
+        service.setSkipGeneratingSubjectConfirmationRecipient(sp.isSkipGeneratingSubjectConfirmationRecipient());
+        service.setSkipGeneratingSubjectConfirmationAddress(sp.isSkipGeneratingSubjectConfirmationAddress());
+        service.setSkipGeneratingSubjectConfirmationNotBefore(sp.isSkipGeneratingSubjectConfirmationNotBefore());
+        service.setSkipGeneratingSubjectConfirmationNameId(sp.isSkipGeneratingSubjectConfirmationNameId());
+        service.setSkipGeneratingNameIdQualifiers(sp.isSkipGeneratingNameIdQualifiers());
+        service.setSkipGeneratingTransientNameId(sp.isSkipGeneratingTransientNameId());
+        service.setSkipValidatingAuthnRequest(sp.isSkipValidatingAuthnRequest());
+        service.setSkipGeneratingServiceProviderNameIdQualifier(sp.isSkipGeneratingServiceProviderNameIdQualifier());
+        service.setSkipGeneratingAuthenticatingAuthority(sp.isSkipGeneratingAuthenticatingAuthority());
+        service.setSkipGeneratingNameIdQualifier(sp.isSkipGeneratingNameIdQualifier());
+        service.setSkipGeneratingSessionNotOnOrAfter(sp.isSkipGeneratingSessionNotOnOrAfter());
+        service.setValidateMetadataCertificates(sp.isValidateMetadataCertificates());
         service.setRequiredAuthenticationContextClass(sp.getRequiredAuthenticationContextClass());
         service.setRequiredNameIdFormat(sp.getRequiredNameIdFormat().getNameId());
         service.setSkewAllowance(Optional.ofNullable(sp.getSkewAllowance()).orElse(0));
