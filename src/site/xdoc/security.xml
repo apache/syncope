@@ -36,6 +36,90 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2026-42797: Apache Syncope: JexlContextBuilder Information Disclosure">
+        <p>Exposure of Sensitive Information Through Data Queries vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements for Derived Schemas can create a malicious JEXL expression which allows any administrator with sufficient entitlements for User read to access User-related security-sensitive information.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1 through 4.1.0</li>
+            <li>4.0 through 4.0.5</li>
+            <li>3.0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.1 / 4.0.6 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.1</li>
+            <li>Release 4.0.6</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-42797">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-42782: Apache Syncope: Post-auth RCE via Groovy static">
+        <p>Improper Isolation or Compartmentalization vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements for Implementations can create a malicious Groovy class containing untrusted code reaching a non-sandboxed execution path via the class static initializer.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1 through 4.1.0</li>
+            <li>4.0 through 4.0.5</li>
+            <li>3.0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.1 / 4.0.6 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.1</li>
+            <li>Release 4.0.6</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-42782">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2026-23795: Apache Syncope: Console XXE on Keymaster parameters">
         <p>Improper Restriction of XML External Entity Reference vulnerability in Apache Syncope Console.</p>
         <p>An administrator with adequate entitlements to create or edit Keymaster parameters via Console can construct malicious XML text to launch an XXE attack, thereby causing sensitive data leakage occurs.</p>
