@@ -21,7 +21,10 @@ package org.apache.syncope.core.persistence.api.entity.am;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.MetadataCriteriaDirection;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
+import org.apache.syncope.common.lib.types.SigningCredentialType;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 
 public interface SAML2SPClientApp extends ClientApp {
@@ -57,6 +60,102 @@ public interface SAML2SPClientApp extends ClientApp {
     void setEncryptAssertions(boolean location);
 
     boolean isEncryptAssertions();
+
+    void setMetadataCriteriaPattern(String metadataCriteriaPattern);
+
+    String getMetadataCriteriaPattern();
+
+    void setSubjectLocality(String subjectLocality);
+
+    String getSubjectLocality();
+
+    void setMetadataCriteriaDirection(MetadataCriteriaDirection metadataCriteriaDirection);
+
+    MetadataCriteriaDirection getMetadataCriteriaDirection();
+
+    void setSigningCredentialType(SigningCredentialType signingCredentialType);
+
+    SigningCredentialType getSigningCredentialType();
+
+    void setLogoutResponseBinding(SAML2BindingType logoutResponseBinding);
+
+    SAML2BindingType getLogoutResponseBinding();
+
+    void setRequireSignedRoot(boolean requireSignedRoot);
+
+    boolean isRequireSignedRoot();
+
+    void setLogoutResponseEnabled(boolean logoutResponseEnabled);
+
+    boolean isLogoutResponseEnabled();
+
+    boolean isEncryptAttributes();
+
+    void setEncryptAttributes(boolean encryptAttributes);
+
+    boolean isSkipGeneratingAssertionNameId();
+
+    void setSkipGeneratingAssertionNameId(boolean skipGeneratingAssertionNameId);
+
+    boolean isSkipGeneratingSubjectConfirmationInResponseTo();
+
+    void setSkipGeneratingSubjectConfirmationInResponseTo(boolean skipGeneratingSubjectConfirmationInResponseTo);
+ 
+    boolean isSkipGeneratingResponseInResponseTo();
+
+    void setSkipGeneratingResponseInResponseTo(boolean skipGeneratingResponseInResponseTo);
+
+    boolean isSkipGeneratingSubjectConfirmationNotOnOrAfter();
+
+    void setSkipGeneratingSubjectConfirmationNotOnOrAfter(boolean skipGeneratingSubjectConfirmationNotOnOrAfter);
+
+    boolean isSkipGeneratingSubjectConfirmationRecipient();
+
+    void setSkipGeneratingSubjectConfirmationRecipient(boolean skipGeneratingSubjectConfirmationRecipient);
+
+    boolean isSkipGeneratingSubjectConfirmationAddress();
+
+    void setSkipGeneratingSubjectConfirmationAddress(boolean skipGeneratingSubjectConfirmationAddress);
+
+    boolean isSkipGeneratingSubjectConfirmationNotBefore();
+
+    void setSkipGeneratingSubjectConfirmationNotBefore(boolean skipGeneratingSubjectConfirmationNotBefore);
+
+    boolean isSkipGeneratingSubjectConfirmationNameId();
+
+    void setSkipGeneratingSubjectConfirmationNameId(boolean skipGeneratingSubjectConfirmationNameId);
+
+    boolean isSkipGeneratingNameIdQualifiers();
+
+    void setSkipGeneratingNameIdQualifiers(boolean skipGeneratingNameIdQualifiers);
+
+    boolean isSkipGeneratingTransientNameId();
+
+    void setSkipGeneratingTransientNameId(boolean skipGeneratingTransientNameId);
+
+    boolean isSkipValidatingAuthnRequest();
+
+    void setSkipValidatingAuthnRequest(boolean skipValidatingAuthnRequest);
+
+    boolean isSkipGeneratingServiceProviderNameIdQualifier();
+
+    void setSkipGeneratingServiceProviderNameIdQualifier(boolean skipGeneratingServiceProviderNameIdQualifier);
+
+    boolean isSkipGeneratingAuthenticatingAuthority();
+
+    void setSkipGeneratingAuthenticatingAuthority(boolean skipGeneratingAuthenticatingAuthority);
+
+    boolean isSkipGeneratingNameIdQualifier();
+
+    void setSkipGeneratingNameIdQualifier(boolean skipGeneratingNameIdQualifier);
+
+    boolean isSkipGeneratingSessionNotOnOrAfter();
+
+    void setSkipGeneratingSessionNotOnOrAfter(boolean skipGeneratingSessionNotOnOrAfter);
+
+    boolean isValidateMetadataCertificates();
+
+    void setValidateMetadataCertificates(boolean validateMetadataCertificates);
 
     void setRequiredAuthenticationContextClass(String location);
 

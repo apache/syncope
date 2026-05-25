@@ -64,6 +64,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
+import org.apache.syncope.common.lib.types.MetadataCriteriaDirection;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -73,7 +74,9 @@ import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
+import org.apache.syncope.common.lib.types.SigningCredentialType;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.wicket.Component;
@@ -518,6 +521,46 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "metadataSignatureLocation",
                             new PropertyModel<>(clientAppTO, "metadataSignatureLocation"), false));
 
+                    AjaxDropDownChoicePanel<MetadataCriteriaDirection> metadataCriteriaDirection =
+                        new AjaxDropDownChoicePanel<>(
+                            "field", "metadataCriteriaDirection",
+                            new PropertyModel<>(clientAppTO, "metadataCriteriaDirection"),
+                            false);
+                    metadataCriteriaDirection.setChoices(List.of(MetadataCriteriaDirection.values()));
+                    fields.add(metadataCriteriaDirection);
+
+                    fields.add(new AjaxTextFieldPanel(
+                        "field", "metadataCriteriaPattern",
+                        new PropertyModel<>(clientAppTO, "metadataCriteriaPattern"), false));
+
+                    fields.add(new AjaxTextFieldPanel(
+                        "field", "subjectLocality",
+                        new PropertyModel<>(clientAppTO, "subjectLocality"), false));
+
+                    AjaxDropDownChoicePanel<SigningCredentialType> signingCredentialType =
+                        new AjaxDropDownChoicePanel<>(
+                        "field", "signingCredentialType",
+                            new PropertyModel<>(clientAppTO, "signingCredentialType"),
+                        false);
+                    signingCredentialType.setChoices(List.of(SigningCredentialType.values()));
+                    fields.add(signingCredentialType);
+
+                    AjaxDropDownChoicePanel<SAML2BindingType> logoutResponseBinding =
+                        new AjaxDropDownChoicePanel<>(
+                            "field", "logoutResponseBinding",
+                            new PropertyModel<>(clientAppTO, "logoutResponseBinding"),
+                            false);
+                    logoutResponseBinding.setChoices(List.of(SAML2BindingType.values()));
+                    fields.add(logoutResponseBinding);
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "logoutResponseEnabled",
+                        new PropertyModel<>(clientAppTO, "logoutResponseEnabled")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "requireSignedRoot",
+                        new PropertyModel<>(clientAppTO, "requireSignedRoot")));
+
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "signAssertions", new PropertyModel<>(clientAppTO, "signAssertions")));
 
@@ -529,6 +572,78 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "encryptAssertions", new PropertyModel<>(clientAppTO, "encryptAssertions")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "encryptAttributes",
+                        new PropertyModel<>(clientAppTO, "encryptAttributes")));
+                    
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingAssertionNameId",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingAssertionNameId")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationInResponseTo",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationInResponseTo")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingResponseInResponseTo",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingResponseInResponseTo")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationNotOnOrAfter",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationNotOnOrAfter")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationRecipient",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationRecipient")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationRecipient",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationRecipient")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field", "skipGeneratingSubjectConfirmationAddress", 
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationAddress")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationNotBefore",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationNotBefore")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSubjectConfirmationNameId",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSubjectConfirmationNameId")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingNameIdQualifiers",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingNameIdQualifiers")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingTransientNameId",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingTransientNameId")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipValidatingAuthnRequest",
+                        new PropertyModel<>(clientAppTO, "skipValidatingAuthnRequest")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingServiceProviderNameIdQualifier",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingServiceProviderNameIdQualifier")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingAuthenticatingAuthority",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingAuthenticatingAuthority")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingNameIdQualifier",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingNameIdQualifier")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "skipGeneratingSessionNotOnOrAfter",
+                        new PropertyModel<>(clientAppTO, "skipGeneratingSessionNotOnOrAfter")));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                        "field", "validateMetadataCertificates",
+                        new PropertyModel<>(clientAppTO, "validateMetadataCertificates")));
 
                     fields.add(new AjaxTextFieldPanel(
                             "field", "requiredAuthenticationContextClass",
