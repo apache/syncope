@@ -20,17 +20,7 @@ package org.apache.syncope.common.lib.types;
 
 public enum SigningCredentialType {
 
-    X509("X509"),
+    X509,
 
-    BASIC("BASIC");
-
-    private final String credentialType;
-
-    SigningCredentialType(final String credentialType) {
-        this.credentialType = credentialType;
-    }
-
-    public String getCredentialType() {
-        return credentialType;
-    }
+    BASIC
 }

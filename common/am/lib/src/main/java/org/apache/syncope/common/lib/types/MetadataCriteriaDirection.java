@@ -20,18 +20,7 @@ package org.apache.syncope.common.lib.types;
 
 public enum MetadataCriteriaDirection {
 
-    INCLUDE("INCLUDE"),
+    INCLUDE,
 
-    EXCLUDE("EXCLUDE");
-
-    private final String direction;
-
-    MetadataCriteriaDirection(final String direction) {
-        this.direction = direction;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
+    EXCLUDE
 }

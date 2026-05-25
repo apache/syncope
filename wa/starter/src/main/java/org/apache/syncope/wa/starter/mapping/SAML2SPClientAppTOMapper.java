@@ -72,9 +72,9 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         service.setEncryptAssertions(sp.isEncryptAssertions());
         service.setSubjectLocality(sp.getSubjectLocality());
         service.setLogoutResponseBinding(sp.getLogoutResponseBinding().getUri());
-        service.setMetadataCriteriaDirection(sp.getMetadataCriteriaDirection().getDirection());
+        service.setMetadataCriteriaDirection(sp.getMetadataCriteriaDirection().name());
         service.setMetadataCriteriaPattern(sp.getMetadataCriteriaPattern());
-        service.setSigningCredentialType(sp.getSigningCredentialType().getCredentialType());
+        service.setSigningCredentialType(sp.getSigningCredentialType().name());
         service.setEncryptAttributes(sp.isEncryptAttributes());
         service.setRequireSignedRoot(sp.isRequireSignedRoot());
         service.setLogoutResponseEnabled(sp.isLogoutResponseEnabled());
