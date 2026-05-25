@@ -229,8 +229,7 @@ public class JPATaskDAO implements TaskDAO {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Task<T>> List<T> findToExec(final TaskType type) {
+    public long countToExec(final TaskType type) {
         StringBuilder queryString = buildFindAllQuery(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
@@ -238,9 +237,82 @@ public class JPATaskDAO implements TaskDAO {
         } else {
             queryString.append("t.executions IS EMPTY ");
         }
-        queryString.append("ORDER BY t.id DESC");
+
+        Query query = entityManager.createQuery(Strings.CS.replaceOnce(
+                queryString.toString(),
+                "SELECT t FROM ",
+                "SELECT COUNT(t) FROM "));
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    protected String toOrderByStatement(
+            final Class<? extends Task<?>> beanClass,
+            final Stream<Sort.Order> orderByClauses,
+            final String prefix) {
+
+        StringBuilder subStatement = new StringBuilder();
+        orderByClauses.forEach(clause -> {
+            String field = clause.getProperty().trim();
+            switch (field) {
+                case "latestExecStatus":
+                    field = "status";
+                    break;
+
+                case "start":
+                    field = "startDate";
+                    break;
+
+                case "end":
+                    field = "endDate";
+                    break;
+
+                default:
+                    Field beanField = ReflectionUtils.findField(beanClass, field);
+                    if (beanField != null
+                            && (beanField.getAnnotation(ManyToOne.class) != null
+                            || beanField.getAnnotation(OneToMany.class) != null
+                            || beanField.getAnnotation(OneToOne.class) != null)) {
+
+                        field += "_id";
+                    }
+            }
+
+            subStatement.append(prefix).append(field).append(' ').append(clause.getDirection().name()).append(',');
+        });
+
+        StringBuilder statement = new StringBuilder(" ORDER BY ");
+        if (subStatement.length() == 0) {
+            statement.append(prefix).append("id DESC");
+        } else {
+            subStatement.deleteCharAt(subStatement.length() - 1);
+            statement.append(subStatement);
+        }
+
+        return statement.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends Task<T>> List<T> findToExec(final TaskType type, final Pageable pageable) {
+        StringBuilder queryString = buildFindAllQuery(type).append("AND ");
+
+        if (type == TaskType.NOTIFICATION) {
+            queryString.append("t.executed = false ");
+        } else {
+            queryString.append("t.executions IS EMPTY ");
+        }
+
+        queryString.append(toOrderByStatement(
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream(), "t."));
 
         Query query = entityManager.createQuery(queryString.toString());
+
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
+        }
+
         return query.getResultList();
     }
 
@@ -350,54 +422,6 @@ public class JPATaskDAO implements TaskDAO {
         return queryString;
     }
 
-    protected String toOrderByStatement(
-            final Class<? extends Task<?>> beanClass,
-            final Stream<Sort.Order> orderByClauses) {
-
-        StringBuilder statement = new StringBuilder();
-
-        statement.append(" ORDER BY ");
-
-        StringBuilder subStatement = new StringBuilder();
-        orderByClauses.forEach(clause -> {
-            String field = clause.getProperty().trim();
-            switch (field) {
-                case "latestExecStatus":
-                    field = "status";
-                    break;
-
-                case "start":
-                    field = "startDate";
-                    break;
-
-                case "end":
-                    field = "endDate";
-                    break;
-
-                default:
-                    Field beanField = ReflectionUtils.findField(beanClass, field);
-                    if (beanField != null
-                            && (beanField.getAnnotation(ManyToOne.class) != null
-                            || beanField.getAnnotation(OneToMany.class) != null
-                            || beanField.getAnnotation(OneToOne.class) != null)) {
-
-                        field += "_id";
-                    }
-            }
-
-            subStatement.append(field).append(' ').append(clause.getDirection().name()).append(',');
-        });
-
-        if (subStatement.length() == 0) {
-            statement.append("id DESC");
-        } else {
-            subStatement.deleteCharAt(subStatement.length() - 1);
-            statement.append(subStatement);
-        }
-
-        return statement.toString();
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Task<T>> List<T> findAll(
@@ -446,7 +470,7 @@ public class JPATaskDAO implements TaskDAO {
         }
 
         queryString.append(toOrderByStatement(
-                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream()));
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream(), ""));
 
         Query query = entityManager.createNativeQuery(queryString.toString());
 

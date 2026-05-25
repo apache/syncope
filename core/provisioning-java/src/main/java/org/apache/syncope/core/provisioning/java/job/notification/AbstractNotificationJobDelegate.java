@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -32,15 +33,18 @@ import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractNotificationJobDelegate implements NotificationJobDelegate {
+public abstract class AbstractNotificationJobDelegate implements NotificationJobDelegate, StoppableJobDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
@@ -53,6 +57,8 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     protected final NotificationManager notificationManager;
 
     protected final ApplicationEventPublisher publisher;
+
+    protected boolean stopRequested = false;
 
     protected AbstractNotificationJobDelegate(
             final TaskDAO taskDAO,
@@ -68,6 +74,11 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
         this.publisher = publisher;
     }
 
+    @Override
+    public void stop() {
+        stopRequested = true;
+    }
+
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
                 this, AuthContextUtils.getDomain(), JobManager.NOTIFICATION_JOB, status));
@@ -80,7 +91,6 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     @Override
     public TaskExec<NotificationTask> executeSingle(final NotificationTask task, final String executor) {
         TaskExec<NotificationTask> execution = taskUtilsFactory.getInstance(TaskType.NOTIFICATION).newTaskExec();
-        execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor(executor);
         boolean retryPossible = true;
@@ -109,9 +119,9 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
             setStatus("Sending notifications to " + task.getRecipients());
 
-            for (String to : task.getRecipients()) {
+            for (String recipient : task.getRecipients()) {
                 try {
-                    notify(to, task, execution);
+                    notify(recipient, task, execution);
 
                     notificationManager.createTasks(
                             AuthContextUtils.getWho(),
@@ -123,9 +133,9 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                             null,
                             null,
                             task,
-                            "Successfully sent notification to " + to);
+                            "Successfully sent notification to " + recipient);
                 } catch (Exception e) {
-                    LOG.error("Could not send out notification", e);
+                    LOG.error("Could not send out notification to {}", recipient, e);
 
                     execution.setStatus(NotificationJob.Status.NOT_SENT.name());
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
@@ -142,22 +152,22 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                             null,
                             null,
                             task,
-                            "Could not send notification to " + to, e);
+                            "Could not send notification to " + recipient, e);
                 }
 
                 execution.setEnd(OffsetDateTime.now());
             }
         }
 
-        if (hasToBeRegistered(execution)) {
-            execution = notificationManager.storeExec(execution);
+        if (hasToBeRegistered(task, execution)) {
+            execution = notificationManager.storeExec(task.getKey(), execution);
             if (retryPossible
-                    && (NotificationJob.Status.valueOf(execution.getStatus()) == NotificationJob.Status.NOT_SENT)) {
+                    && NotificationJob.Status.valueOf(execution.getStatus()) == NotificationJob.Status.NOT_SENT) {
 
-                handleRetries(execution);
+                handleRetries(task, execution);
             }
         } else {
-            notificationManager.setTaskExecuted(execution.getTask().getKey(), true);
+            notificationManager.setTaskExecuted(task.getKey(), true);
         }
 
         return execution;
@@ -166,20 +176,32 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     @Transactional
     @Override
     public void execute(final String executor) {
-        List<NotificationTask> tasks = taskDAO.findToExec(TaskType.NOTIFICATION);
+        stopRequested = false;
 
-        setStatus("Sending out " + tasks.size() + " notifications");
+        long count = taskDAO.countToExec(TaskType.NOTIFICATION);
+        long pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+        for (int page = 0; page < pages && !stopRequested; page++) {
+            List<NotificationTask> tasks = taskDAO.findToExec(
+                    TaskType.NOTIFICATION,
+                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, Sort.Direction.ASC, "id"));
 
-        for (int i = 0; i < tasks.size(); i++) {
-            LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
-            executeSingle(tasks.get(i), executor);
-            LOG.debug("Notification task {} executed", tasks.get(i));
+            setStatus("Sending out " + tasks.size() + " notifications");
+
+            for (int i = 0; i < tasks.size() && !stopRequested; i++) {
+                LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
+                executeSingle(tasks.get(i), executor);
+                LOG.debug("Notification task {} executed", tasks.get(i));
+            }
         }
+
+        if (stopRequested) {
+            LOG.debug("Notification job interrupted");
+        }
+
+        setStatus(null);
     }
 
-    protected static boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {
-        NotificationTask task = execution.getTask();
-
+    protected boolean hasToBeRegistered(final NotificationTask task, final TaskExec<NotificationTask> execution) {
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
         return (NotificationJob.Status.valueOf(execution.getStatus()) == NotificationJob.Status.NOT_SENT
@@ -187,18 +209,18 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                 || task.getTraceLevel() == TraceLevel.ALL;
     }
 
-    protected void handleRetries(final TaskExec<NotificationTask> execution) {
+    protected void handleRetries(final NotificationTask task, final TaskExec<NotificationTask> execution) {
         if (notificationManager.getMaxRetries() <= 0) {
             return;
         }
 
         long failedExecutionsCount = notificationManager.countExecutionsWithStatus(
-                execution.getTask().getKey(), NotificationJob.Status.NOT_SENT.name());
+                task.getKey(), NotificationJob.Status.NOT_SENT.name());
 
         if (failedExecutionsCount <= notificationManager.getMaxRetries()) {
             LOG.debug("Execution of notification task {} will be retried [{}/{}]",
-                    execution.getTask(), failedExecutionsCount, notificationManager.getMaxRetries());
-            notificationManager.setTaskExecuted(execution.getTask().getKey(), false);
+                    task, failedExecutionsCount, notificationManager.getMaxRetries());
+            notificationManager.setTaskExecuted(task.getKey(), false);
 
             auditManager.audit(
                     AuthContextUtils.getDomain(),
@@ -211,9 +233,9 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                     null,
                     null,
                     execution,
-                    "Notification task " + execution.getTask().getKey() + " will be retried");
+                    "Notification task " + task.getKey() + " will be retried");
         } else {
-            LOG.error("Maximum number of retries reached for task {} - giving up", execution.getTask());
+            LOG.error("Maximum number of retries reached for task {} - giving up", task);
 
             auditManager.audit(
                     AuthContextUtils.getDomain(),
@@ -226,7 +248,7 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                     null,
                     null,
                     execution,
-                    "Giving up retries on notification task " + execution.getTask().getKey());
+                    "Giving up retries on notification task " + task.getKey());
         }
     }
 }
