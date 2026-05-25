@@ -44,10 +44,10 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     private String metadataSignatureLocation;
 
     private String metadataCriteriaPattern;
-    
+
     private String subjectLocality;
 
-    private MetadataCriteriaDirection metadataCriteriaDirection;
+    private MetadataCriteriaDirection metadataCriteriaDirection = MetadataCriteriaDirection.INCLUDE;
 
     private SigningCredentialType signingCredentialType;
 
@@ -61,9 +61,9 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private boolean encryptAssertions;
 
-    private boolean requireSignedRoot;
+    private boolean requireSignedRoot = true;
 
-    private boolean logoutResponseEnabled;
+    private boolean logoutResponseEnabled = true;
 
     private boolean encryptAttributes;
 
@@ -79,9 +79,9 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private boolean skipGeneratingSubjectConfirmationAddress;
 
-    private boolean skipGeneratingSubjectConfirmationNotBefore;
+    private boolean skipGeneratingSubjectConfirmationNotBefore = true;
 
-    private boolean skipGeneratingSubjectConfirmationNameId;
+    private boolean skipGeneratingSubjectConfirmationNameId = true;
 
     private boolean skipGeneratingNameIdQualifiers;
 

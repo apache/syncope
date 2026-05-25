@@ -555,11 +555,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                     fields.add(new AjaxCheckBoxPanel(
                         "field", "logoutResponseEnabled",
-                        new PropertyModel<>(clientAppTO, "logoutResponseEnabled"), false));
+                        new PropertyModel<>(clientAppTO, "logoutResponseEnabled")));
 
                     fields.add(new AjaxCheckBoxPanel(
                         "field", "requireSignedRoot",
-                        new PropertyModel<>(clientAppTO, "requireSignedRoot"), false));
+                        new PropertyModel<>(clientAppTO, "requireSignedRoot")));
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "signAssertions", new PropertyModel<>(clientAppTO, "signAssertions")));

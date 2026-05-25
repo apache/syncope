@@ -82,6 +82,8 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     private boolean encryptAttributes;
 
     private boolean skipGeneratingAssertionNameId;
+    
+    private boolean logoutResponseEnable;
 
     @Column(name = "skipGeneSubjectConfInRespTo")
     private boolean skipGeneratingSubjectConfirmationInResponseTo;
@@ -287,7 +289,6 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     @Override
     public void setSubjectLocality(final String subjectLocality) {
         this.subjectLocality =  subjectLocality;
-
     }
 
     @Override
@@ -298,7 +299,6 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     @Override
     public void setMetadataCriteriaDirection(final MetadataCriteriaDirection metadataCriteriaDirection) {
         this.metadataCriteriaDirection = metadataCriteriaDirection;
-        
     }
 
     @Override
@@ -319,7 +319,6 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     @Override
     public void setLogoutResponseBinding(final SAML2BindingType logoutResponseBinding) {
         this.logoutResponseBinding = logoutResponseBinding;
-
     }
 
     @Override
@@ -333,23 +332,23 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     }
 
     @Override
+    public void setRequireSignedRoot(final boolean requireSignedRoot) {
+        this.requireSignedRoot = requireSignedRoot;
+    }
+
+    @Override
     public boolean isRequireSignedRoot() {
         return requireSignedRoot;
     }
 
     @Override
     public void setLogoutResponseEnabled(final boolean logoutResponseEnabled) {
-
+        this.logoutResponseEnable = logoutResponseEnabled;
     }
 
     @Override
     public boolean isLogoutResponseEnabled() {
-        return false;
-    }
-
-    @Override
-    public void setRequireSignedRoot(final boolean requireSignedRoot) {
-        this.requireSignedRoot = requireSignedRoot;
+        return logoutResponseEnable;
     }
 
     @Override

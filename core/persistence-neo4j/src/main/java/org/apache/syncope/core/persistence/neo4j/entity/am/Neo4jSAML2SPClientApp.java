@@ -309,8 +309,6 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
     public void setEncryptAssertions(final boolean encryptAssertions) {
         this.encryptAssertions = encryptAssertions;
     }
-    
-    
 
     @Override
     public boolean isEncryptAttributes() {
@@ -327,6 +325,7 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
         return skipGeneratingAssertionNameId;
     }
 
+    @Override
     public void setSkipGeneratingAssertionNameId(final boolean skipGeneratingAssertionNameId) {
         this.skipGeneratingAssertionNameId = skipGeneratingAssertionNameId;
     }
