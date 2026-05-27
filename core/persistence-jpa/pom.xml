@@ -143,7 +143,7 @@ under the License.
             <groupId>org.apache.syncope.core</groupId>
             <artifactId>syncope-core-persistence-common</artifactId>
             <version>${project.version}</version>
-          </dependency>          
+          </dependency>
         </dependencies>
         <executions>
           <execution>
