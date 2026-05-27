@@ -83,6 +83,8 @@ method java.net.URL openStream
 # NIO file operations must start with a Path:
 staticMethod java.nio.file.Paths get java.lang.String java.lang.String[]
 staticMethod java.nio.file.Paths get java.net.URI
+staticMethod java.nio.file.Path of java.lang.String java.lang.String[]
+staticMethod java.nio.file.Path of java.net.URI
 
 # More process execution, Groovy-style:
 staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String

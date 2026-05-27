@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -32,11 +34,19 @@ import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 class GroovySandboxTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GroovySandboxTest.class);
+
+    @TempDir
+    private Path tempDir;
 
     @Test
     void processBuilder() throws Exception {
@@ -80,5 +90,46 @@ class GroovySandboxTest {
         BeanCreationException e = assertThrows(BeanCreationException.class, () -> ImplementationManager.build(impl));
         SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
         assertTrue(sec.getMessage().startsWith("Insecure call to 'new java.lang.ProcessBuilder java.util.List'"));
+    }
+
+    @Test
+    void pathOfFilesReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-read.txt");
+        Files.writeString(testFile, "sandbox-read-ok");
+        LOG.info("pathOfFilesReadString: Created sandbox test file {} with content: {}",
+                testFile, Files.readString(testFile));
+
+        final Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("pathOfFilesReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                getClass().getResourceAsStream("/PathOfFilesReadStringMacroActions.groovy")));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Path of java.lang.String java.lang.String[]'"));
+    }
+
+    @Test
+    void pathOfFilesWriteString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-write.txt");
+
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("pathOfFilesWriteString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                getClass().getResourceAsStream("/PathOfFilesWriteStringMacroActions.groovy")));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Path of java.lang.String java.lang.String[]'"));
     }
 }
