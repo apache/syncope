@@ -245,10 +245,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         return neo4jTemplate.count(query.toString());
     }
 
-    protected String toOrderByStatement(
-            final Class<? extends Task<?>> beanClass,
-            final Stream<Sort.Order> orderByClauses) {
-
+    protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
             String field = clause.getProperty().trim();
@@ -295,7 +292,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         }
 
         query.append("RETURN n.id ").
-                append(toOrderByStatement(taskUtils.getTaskEntity(), pageable.getSort().get()));
+                append(toOrderByStatement(pageable.getSort().get()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -467,7 +464,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
         query.append(" WITH n ");
 
-        query.append(toOrderByStatement(taskUtils.getTaskEntity(), pageable.getSort().get()));
+        query.append(toOrderByStatement(pageable.getSort().get()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
