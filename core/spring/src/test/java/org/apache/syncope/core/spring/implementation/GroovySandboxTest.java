@@ -25,6 +25,8 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -50,7 +52,7 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("processBuilder");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy")));
+                Objects.requireNonNull(getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy"))));
 
         MacroActions actions = ImplementationManager.build(impl);
 
@@ -66,7 +68,7 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("bash");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                getClass().getResourceAsStream("/BashMacroActions.groovy")));
+                Objects.requireNonNull(getClass().getResourceAsStream("/BashMacroActions.groovy"))));
 
         MacroActions actions = ImplementationManager.build(impl);
 
@@ -81,7 +83,7 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("staticMacroActions");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                getClass().getResourceAsStream("/StaticMacroActions.groovy")));
+                Objects.requireNonNull(getClass().getResourceAsStream("/StaticMacroActions.groovy"))));
 
         BeanCreationException e = assertThrows(BeanCreationException.class, () -> ImplementationManager.build(impl));
         SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
@@ -97,7 +99,8 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("pathOfFilesReadString");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                getClass().getResourceAsStream("/PathOfFilesReadStringMacroActions.groovy")));
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/PathOfFilesReadStringMacroActions.groovy"))));
 
         final MacroActions actions = ImplementationManager.build(impl);
 
@@ -116,7 +119,8 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("pathOfFilesWriteString");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                getClass().getResourceAsStream("/PathOfFilesWriteStringMacroActions.groovy")));
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/PathOfFilesWriteStringMacroActions.groovy"))));
 
         final MacroActions actions = ImplementationManager.build(impl);
 
