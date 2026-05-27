@@ -940,7 +940,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
       </dependency>
 
       <dependency>
@@ -2286,7 +2286,7 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.3.0/api/</link>
+            <link>https://tika.apache.org/3.3.1/api/</link>
             <link>https://docs.spring.io/spring-boot/3.5/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/6.5.x/api/</link>
