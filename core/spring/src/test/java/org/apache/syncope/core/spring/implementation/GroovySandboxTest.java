@@ -43,8 +43,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 class GroovySandboxTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GroovySandboxTest.class);
-
     @TempDir
     private Path tempDir;
 
@@ -96,8 +94,6 @@ class GroovySandboxTest {
     void pathOfFilesReadString() throws Exception {
         final Path testFile = tempDir.resolve("sandbox-read.txt");
         Files.writeString(testFile, "sandbox-read-ok");
-        LOG.info("pathOfFilesReadString: Created sandbox test file {} with content: {}",
-                testFile, Files.readString(testFile));
 
         final Implementation impl = mock(Implementation.class);
         when(impl.getKey()).thenReturn("pathOfFilesReadString");
