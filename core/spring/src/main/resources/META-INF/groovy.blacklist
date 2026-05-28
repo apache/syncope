@@ -16,17 +16,90 @@
 # under the License.
 
 # Reflective access to Groovy
+new groovy.lang.GroovyClassLoader
+new groovy.lang.GroovyClassLoader java.lang.ClassLoader
+new groovy.lang.GroovyClassLoader groovy.lang.GroovyClassLoader
+new groovy.lang.GroovyClassLoader java.lang.ClassLoader org.codehaus.groovy.control.CompilerConfiguration
+new groovy.lang.GroovyClassLoader java.lang.ClassLoader org.codehaus.groovy.control.CompilerConfiguration boolean
+new groovy.lang.GroovyShell
+new groovy.lang.GroovyShell groovy.lang.Binding
+new groovy.lang.GroovyShell groovy.lang.Binding org.codehaus.groovy.control.CompilerConfiguration
+new groovy.lang.GroovyShell groovy.lang.GroovyShell
+new groovy.lang.GroovyShell java.lang.ClassLoader
+new groovy.lang.GroovyShell java.lang.ClassLoader groovy.lang.Binding
+new groovy.lang.GroovyShell java.lang.ClassLoader groovy.lang.Binding org.codehaus.groovy.control.CompilerConfiguration
+new groovy.lang.GroovyShell java.lang.ClassLoader org.codehaus.groovy.control.CompilerConfiguration
+new groovy.lang.GroovyShell org.codehaus.groovy.control.CompilerConfiguration
+method groovy.lang.GroovyClassLoader addClasspath java.lang.String
+method groovy.lang.GroovyClassLoader addURL java.net.URL
+method groovy.lang.GroovyClassLoader defineClass java.lang.String byte[]
+method groovy.lang.GroovyClassLoader parseClass groovy.lang.GroovyCodeSource
+method groovy.lang.GroovyClassLoader parseClass groovy.lang.GroovyCodeSource boolean
+method groovy.lang.GroovyClassLoader parseClass java.io.File
+method groovy.lang.GroovyClassLoader parseClass java.io.Reader java.lang.String
+method groovy.lang.GroovyClassLoader parseClass java.lang.String
+method groovy.lang.GroovyClassLoader parseClass java.lang.String java.lang.String
+method groovy.lang.GroovyShell evaluate groovy.lang.GroovyCodeSource
+method groovy.lang.GroovyShell evaluate java.io.File
+method groovy.lang.GroovyShell evaluate java.io.Reader
+method groovy.lang.GroovyShell evaluate java.io.Reader java.lang.String
+method groovy.lang.GroovyShell evaluate java.lang.String
+method groovy.lang.GroovyShell evaluate java.lang.String java.lang.String
+method groovy.lang.GroovyShell evaluate java.lang.String java.lang.String java.lang.String
+method groovy.lang.GroovyShell evaluate java.net.URI
+method groovy.lang.GroovyShell parse groovy.lang.GroovyCodeSource
+method groovy.lang.GroovyShell parse groovy.lang.GroovyCodeSource groovy.lang.Binding
+method groovy.lang.GroovyShell parse java.io.File
+method groovy.lang.GroovyShell parse java.io.Reader
+method groovy.lang.GroovyShell parse java.io.Reader groovy.lang.Binding
+method groovy.lang.GroovyShell parse java.io.Reader java.lang.String
+method groovy.lang.GroovyShell parse java.io.Reader java.lang.String groovy.lang.Binding
+method groovy.lang.GroovyShell parse java.lang.String
+method groovy.lang.GroovyShell parse java.lang.String groovy.lang.Binding
+method groovy.lang.GroovyShell parse java.lang.String java.lang.String
+method groovy.lang.GroovyShell parse java.lang.String java.lang.String groovy.lang.Binding
+method groovy.lang.GroovyShell parse java.net.URI
+method groovy.lang.GroovyShell run groovy.lang.GroovyCodeSource java.lang.String[]
+method groovy.lang.GroovyShell run groovy.lang.GroovyCodeSource java.util.List
+method groovy.lang.GroovyShell run java.io.File java.lang.String[]
+method groovy.lang.GroovyShell run java.io.File java.util.List
+method groovy.lang.GroovyShell run java.io.Reader java.lang.String java.lang.String[]
+method groovy.lang.GroovyShell run java.io.Reader java.lang.String java.util.List
+method groovy.lang.GroovyShell run java.lang.String java.lang.String java.lang.String[]
+method groovy.lang.GroovyShell run java.lang.String java.lang.String java.util.List
+method groovy.lang.GroovyShell run java.net.URI java.lang.String[]
+method groovy.lang.GroovyShell run java.net.URI java.util.List
+staticMethod groovy.lang.GroovyShell withConfig groovy.lang.Closure
+staticMethod groovy.util.Eval me java.lang.String
+staticMethod groovy.util.Eval me java.lang.String java.lang.Object java.lang.String
+staticMethod groovy.util.Eval x java.lang.Object java.lang.String
+staticMethod groovy.util.Eval xy java.lang.Object java.lang.Object java.lang.String
+staticMethod groovy.util.Eval xyz java.lang.Object java.lang.Object java.lang.Object java.lang.String
 method groovy.lang.GroovyObject getMetaClass
 method groovy.lang.GroovyObject getProperty java.lang.String
 method groovy.lang.GroovyObject invokeMethod java.lang.String java.lang.Object
 method groovy.lang.GroovyObject setMetaClass groovy.lang.MetaClass
 method groovy.lang.GroovyObject setProperty java.lang.String java.lang.Object
 
+# Runtime script engines could evaluate code outside the Groovy sandbox transformer.
+new javax.script.ScriptEngineManager
+new javax.script.ScriptEngineManager java.lang.ClassLoader
+method javax.script.ScriptEngine eval java.io.Reader
+method javax.script.ScriptEngine eval java.io.Reader javax.script.Bindings
+method javax.script.ScriptEngine eval java.io.Reader javax.script.ScriptContext
+method javax.script.ScriptEngine eval java.lang.String
+method javax.script.ScriptEngine eval java.lang.String javax.script.Bindings
+method javax.script.ScriptEngine eval java.lang.String javax.script.ScriptContext
+method javax.script.ScriptEngineManager getEngineByExtension java.lang.String
+method javax.script.ScriptEngineManager getEngineByMimeType java.lang.String
+method javax.script.ScriptEngineManager getEngineByName java.lang.String
+
 # Raw file operations
 staticMethod java.io.File createTempFile java.lang.String java.lang.String
 staticMethod java.io.File createTempFile java.lang.String java.lang.String java.io.File
 new java.io.File java.lang.String
 new java.io.File java.lang.String java.lang.String
+new java.io.File java.io.File java.lang.String
 new java.io.File java.net.URI
 staticMethod java.io.File listRoots
 new java.io.FileInputStream java.lang.String
@@ -61,8 +134,19 @@ method java.lang.Class newInstance
 # Same for local process execution.
 new java.lang.ProcessBuilder java.lang.String[]
 new java.lang.ProcessBuilder java.util.List
+staticMethod java.lang.ProcessBuilder startPipeline java.util.List
 method java.lang.Process start
 staticMethod java.lang.Runtime getRuntime
+method java.lang.Runtime exec java.lang.String
+method java.lang.Runtime exec java.lang.String java.lang.String[]
+method java.lang.Runtime exec java.lang.String java.lang.String[] java.io.File
+method java.lang.Runtime exec java.lang.String[]
+method java.lang.Runtime exec java.lang.String[] java.lang.String[]
+method java.lang.Runtime exec java.lang.String[] java.lang.String[] java.io.File
+method java.lang.Runtime exit int
+method java.lang.Runtime halt int
+method java.lang.Runtime load java.lang.String
+method java.lang.Runtime loadLibrary java.lang.String
 staticMethod java.lang.System exit int
 
 # Leak information.
@@ -85,6 +169,60 @@ staticMethod java.nio.file.Paths get java.lang.String java.lang.String[]
 staticMethod java.nio.file.Paths get java.net.URI
 staticMethod java.nio.file.Path of java.lang.String java.lang.String[]
 staticMethod java.nio.file.Path of java.net.URI
+staticMethod java.nio.file.FileSystems getDefault
+staticMethod java.nio.file.FileSystems getFileSystem java.net.URI
+staticMethod java.nio.file.FileSystems newFileSystem java.net.URI java.util.Map
+staticMethod java.nio.file.FileSystems newFileSystem java.net.URI java.util.Map java.lang.ClassLoader
+staticMethod java.nio.file.FileSystems newFileSystem java.nio.file.Path
+staticMethod java.nio.file.FileSystems newFileSystem java.nio.file.Path java.lang.ClassLoader
+staticMethod java.nio.file.FileSystems newFileSystem java.nio.file.Path java.util.Map
+staticMethod java.nio.file.FileSystems newFileSystem java.nio.file.Path java.util.Map java.lang.ClassLoader
+method java.nio.file.FileSystem getPath java.lang.String java.lang.String[]
+staticMethod java.nio.file.Files createTempDirectory java.lang.String java.nio.file.attribute.FileAttribute[]
+staticMethod java.nio.file.Files createTempFile java.lang.String java.lang.String java.nio.file.attribute.FileAttribute[]
+staticMethod java.nio.file.spi.FileSystemProvider installedProviders
+method java.nio.file.spi.FileSystemProvider getFileSystem java.net.URI
+method java.nio.file.spi.FileSystemProvider getPath java.net.URI
+method java.nio.file.spi.FileSystemProvider newFileSystem java.net.URI java.util.Map
+method java.nio.file.spi.FileSystemProvider newFileSystem java.nio.file.Path java.util.Map
+
+# Indirect method invocation
+staticMethod java.lang.invoke.MethodHandles lookup
+staticMethod java.lang.invoke.MethodHandles privateLookupIn java.lang.Class java.lang.invoke.MethodHandles$Lookup
+staticMethod java.lang.invoke.MethodHandles publicLookup
+staticMethod java.lang.invoke.MethodHandles reflectAs java.lang.Class java.lang.invoke.MethodHandle
+method java.lang.invoke.MethodHandle invoke java.lang.Object[]
+method java.lang.invoke.MethodHandle invokeExact java.lang.Object[]
+method java.lang.invoke.MethodHandle invokeWithArguments java.lang.Object[]
+method java.lang.invoke.MethodHandle invokeWithArguments java.util.List
+method java.lang.invoke.MethodHandles$Lookup bind java.lang.Object java.lang.String java.lang.invoke.MethodType
+method java.lang.invoke.MethodHandles$Lookup defineClass byte[]
+method java.lang.invoke.MethodHandles$Lookup defineHiddenClass byte[] boolean java.lang.invoke.MethodHandles$Lookup$ClassOption[]
+method java.lang.invoke.MethodHandles$Lookup defineHiddenClassWithClassData byte[] java.lang.Object boolean java.lang.invoke.MethodHandles$Lookup$ClassOption[]
+method java.lang.invoke.MethodHandles$Lookup findClass java.lang.String
+method java.lang.invoke.MethodHandles$Lookup findConstructor java.lang.Class java.lang.invoke.MethodType
+method java.lang.invoke.MethodHandles$Lookup findGetter java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findSetter java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findSpecial java.lang.Class java.lang.String java.lang.invoke.MethodType java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findStatic java.lang.Class java.lang.String java.lang.invoke.MethodType
+method java.lang.invoke.MethodHandles$Lookup findStaticGetter java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findStaticSetter java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findStaticVarHandle java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findVarHandle java.lang.Class java.lang.String java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup findVirtual java.lang.Class java.lang.String java.lang.invoke.MethodType
+method java.lang.invoke.MethodHandles$Lookup unreflect java.lang.reflect.Method
+method java.lang.invoke.MethodHandles$Lookup unreflectConstructor java.lang.reflect.Constructor
+method java.lang.invoke.MethodHandles$Lookup unreflectGetter java.lang.reflect.Field
+method java.lang.invoke.MethodHandles$Lookup unreflectSetter java.lang.reflect.Field
+method java.lang.invoke.MethodHandles$Lookup unreflectSpecial java.lang.reflect.Method java.lang.Class
+method java.lang.invoke.MethodHandles$Lookup unreflectVarHandle java.lang.reflect.Field
+new java.beans.Expression java.lang.Object java.lang.String java.lang.Object[]
+new java.beans.Expression java.lang.Object java.lang.Object java.lang.String java.lang.Object[]
+new java.beans.Statement java.lang.Object java.lang.String java.lang.Object[]
+method java.beans.Expression execute
+method java.beans.Expression getValue
+method java.beans.Expression setValue java.lang.Object
+method java.beans.Statement execute
 
 # More process execution, Groovy-style:
 staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String

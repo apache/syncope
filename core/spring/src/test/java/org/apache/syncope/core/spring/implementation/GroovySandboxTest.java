@@ -25,8 +25,9 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -129,5 +130,289 @@ class GroovySandboxTest {
                 () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
         assertTrue(e.getMessage().contains(
                 "Insecure call to 'staticMethod java.nio.file.Path of java.lang.String java.lang.String[]'"));
+    }
+
+    @Test
+    void pathOfUriFilesReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-read-uri.txt");
+        Files.writeString(testFile, "sandbox-read-uri-ok");
+
+        final Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("pathOfUriFilesReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/PathOfUriFilesReadStringMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Path of java.net.URI'"));
+    }
+
+    @Test
+    void pathsGetFilesReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-paths-get-read.txt");
+        Files.writeString(testFile, "sandbox-paths-get-read-ok");
+
+        final Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("pathsGetFilesReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/PathsGetFilesReadStringMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Paths get java.lang.String java.lang.String[]'"));
+    }
+
+    @Test
+    void pathsGetUriFilesReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-paths-get-uri-read.txt");
+        Files.writeString(testFile, "sandbox-paths-get-uri-read-ok");
+
+        final Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("pathsGetUriFilesReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/PathsGetUriFilesReadStringMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Paths get java.net.URI'"));
+    }
+
+    @Test
+    void fileSystemsReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-filesystems-read.txt");
+        Files.writeString(testFile, "sandbox-filesystems-read-ok");
+
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("fileSystemsReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/FileSystemsReadStringMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.FileSystems getDefault'"));
+    }
+
+    @Test
+    void fileSystemProviderReadString() throws Exception {
+        final Path testFile = tempDir.resolve("sandbox-filesystem-provider-read.txt");
+        Files.writeString(testFile, "sandbox-filesystem-provider-read-ok");
+
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("fileSystemProviderReadString");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/FileSystemProviderReadStringMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.spi.FileSystemProvider installedProviders'"));
+    }
+
+    @Test
+    void filesCreateTempFile() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("filesCreateTempFile");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/FilesCreateTempFileMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Files createTempFile "
+                + "java.lang.String java.lang.String java.nio.file.attribute.FileAttribute[]'"));
+    }
+
+    @Test
+    void filesCreateTempDirectory() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("filesCreateTempDirectory");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/FilesCreateTempDirectoryMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.nio.file.Files createTempDirectory "
+                + "java.lang.String java.nio.file.attribute.FileAttribute[]'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void processBuilderStartPipeline() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("processBuilderStartPipeline");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/ProcessBuilderStartPipelineMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        @SuppressWarnings("unchecked")
+        final Map<String, java.io.Serializable> ctx =
+                (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of(
+                        "builders",
+                        List.of(new ProcessBuilder("/bin/sh", "-c", "printf sandbox-start-pipeline-ok")));
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(ctx, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.lang.ProcessBuilder startPipeline java.util.List'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void runtimeExec() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("runtimeExec");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/RuntimeExecMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        @SuppressWarnings("unchecked")
+        final Map<String, java.io.Serializable> ctx =
+                (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("runtime", Runtime.getRuntime());
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(ctx, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'method java.lang.Runtime exec java.lang.String[]'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void beansExpressionRuntimeExec() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("beansExpressionRuntimeExec");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/BeansExpressionRuntimeExecMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'new java.beans.Expression java.lang.Object java.lang.String java.lang.Object[]'"));
+    }
+
+    @Test
+    void beansStatementSystemExit() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("beansStatementSystemExit");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/BeansStatementSystemExitMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'new java.beans.Statement java.lang.Object java.lang.String java.lang.Object[]'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void groovyShellRuntimeExec() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("groovyShellRuntimeExec");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/GroovyShellRuntimeExecMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyShell'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void evalRuntimeExec() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("evalRuntimeExec");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/EvalRuntimeExecMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod groovy.util.Eval me java.lang.String'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void methodHandlesRuntimeExec() throws Exception {
+        Implementation impl = mock(Implementation.class);
+        when(impl.getKey()).thenReturn("methodHandlesRuntimeExec");
+        when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
+        when(impl.getBody()).thenReturn(IOUtils.toString(
+                Objects.requireNonNull(getClass().getResourceAsStream(
+                        "/MethodHandlesRuntimeExecMacroActions.groovy"))));
+
+        final MacroActions actions = ImplementationManager.build(impl);
+
+        final SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod java.lang.invoke.MethodHandles publicLookup'"));
     }
 }
