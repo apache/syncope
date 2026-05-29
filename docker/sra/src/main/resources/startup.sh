@@ -17,4 +17,4 @@
 # specific language governing permissions and limitations
 # under the License.
 
-java $JAVA_OPTS -jar /opt/syncope/lib/syncope-sra.jar
+exec java $JAVA_OPTS -jar /opt/syncope/lib/syncope-sra.jar
