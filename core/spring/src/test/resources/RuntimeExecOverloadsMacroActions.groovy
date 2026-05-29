@@ -25,7 +25,7 @@ abstract class RuntimeExecOverloadsMacroActions extends Script implements MacroA
 
 @Override
 StringBuilder afterAll(Map<String, Serializable> ctx, StringBuilder output) {
-  def runtime = java.lang.Runtime.getRuntime()
+  def runtime = ctx.runtime as java.lang.Runtime
   def append = { Process process ->
     process.waitFor()
     output.append(process.inputStream.text)

@@ -25,7 +25,7 @@ abstract class FileSystemProviderOverloadsMacroActions extends Script implements
 
 @Override
 StringBuilder afterAll(Map<String, Serializable> ctx, StringBuilder output) {
-  def provider = java.nio.file.spi.FileSystemProvider.installedProviders().find { it.scheme == 'file' }
+  def provider = ctx.provider as java.nio.file.spi.FileSystemProvider
   def path = ctx.path as java.nio.file.Path
 
   provider.getFileSystem(java.net.URI.create('file:///'))
