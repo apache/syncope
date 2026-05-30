@@ -51,7 +51,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private SigningCredentialType signingCredentialType;
 
-    private SAML2BindingType logoutResponseBinding; 
+    private SAML2BindingType logoutResponseBinding;
 
     private boolean signAssertions;
 
@@ -103,7 +103,15 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private SAML2SPNameId requiredNameIdFormat;
 
-    private Integer skewAllowance;
+    /**
+     * This settings supports the java.time.Duration syntax.
+     */
+    private String skewAllowance;
+
+    /**
+     * This settings supports the java.time.Duration syntax.
+     */
+    private String validityUntil;
 
     private String nameIdQualifier;
 
@@ -272,7 +280,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     }
 
     public void setSkipGeneratingSubjectConfirmationInResponseTo(
-        final boolean skipGeneratingSubjectConfirmationInResponseTo) {
+            final boolean skipGeneratingSubjectConfirmationInResponseTo) {
         this.skipGeneratingSubjectConfirmationInResponseTo = skipGeneratingSubjectConfirmationInResponseTo;
     }
 
@@ -289,7 +297,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     }
 
     public void setSkipGeneratingSubjectConfirmationNotOnOrAfter(
-        final boolean skipGeneratingSubjectConfirmationNotOnOrAfter) {
+            final boolean skipGeneratingSubjectConfirmationNotOnOrAfter) {
         this.skipGeneratingSubjectConfirmationNotOnOrAfter = skipGeneratingSubjectConfirmationNotOnOrAfter;
     }
 
@@ -298,7 +306,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     }
 
     public void setSkipGeneratingSubjectConfirmationRecipient(
-        final boolean skipGeneratingSubjectConfirmationRecipient) {
+            final boolean skipGeneratingSubjectConfirmationRecipient) {
         this.skipGeneratingSubjectConfirmationRecipient = skipGeneratingSubjectConfirmationRecipient;
     }
 
@@ -315,7 +323,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     }
 
     public void setSkipGeneratingSubjectConfirmationNotBefore(
-        final boolean skipGeneratingSubjectConfirmationNotBefore) {
+            final boolean skipGeneratingSubjectConfirmationNotBefore) {
         this.skipGeneratingSubjectConfirmationNotBefore = skipGeneratingSubjectConfirmationNotBefore;
     }
 
@@ -356,7 +364,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
     }
 
     public void setSkipGeneratingServiceProviderNameIdQualifier(
-        final boolean skipGeneratingServiceProviderNameIdQualifier) {
+            final boolean skipGeneratingServiceProviderNameIdQualifier) {
         this.skipGeneratingServiceProviderNameIdQualifier = skipGeneratingServiceProviderNameIdQualifier;
     }
 
@@ -408,12 +416,20 @@ public class SAML2SPClientAppTO extends ClientAppTO {
         this.requiredNameIdFormat = requiredNameIdFormat;
     }
 
-    public Integer getSkewAllowance() {
+    public String getSkewAllowance() {
         return skewAllowance;
     }
 
-    public void setSkewAllowance(final Integer skewAllowance) {
+    public void setSkewAllowance(final String skewAllowance) {
         this.skewAllowance = skewAllowance;
+    }
+
+    public String getValidityUntil() {
+        return validityUntil;
+    }
+
+    public void setValidityUntil(final String validityUntil) {
+        this.validityUntil = validityUntil;
     }
 
     public String getNameIdQualifier() {
@@ -490,10 +506,10 @@ public class SAML2SPClientAppTO extends ClientAppTO {
                 .append(this.encryptAttributes, rhs.encryptAttributes)
                 .append(this.skipGeneratingAssertionNameId, rhs.skipGeneratingAssertionNameId)
                 .append(this.skipGeneratingSubjectConfirmationInResponseTo,
-                    rhs.skipGeneratingSubjectConfirmationInResponseTo)
+                        rhs.skipGeneratingSubjectConfirmationInResponseTo)
                 .append(this.skipGeneratingResponseInResponseTo, rhs.skipGeneratingResponseInResponseTo)
                 .append(this.skipGeneratingSubjectConfirmationNotOnOrAfter,
-                    rhs.skipGeneratingSubjectConfirmationNotOnOrAfter)
+                        rhs.skipGeneratingSubjectConfirmationNotOnOrAfter)
                 .append(this.skipGeneratingSubjectConfirmationRecipient, rhs.skipGeneratingSubjectConfirmationRecipient)
                 .append(this.skipGeneratingSubjectConfirmationAddress, rhs.skipGeneratingSubjectConfirmationAddress)
                 .append(this.skipGeneratingSubjectConfirmationNotBefore, rhs.skipGeneratingSubjectConfirmationNotBefore)
@@ -502,7 +518,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
                 .append(this.skipGeneratingTransientNameId, rhs.skipGeneratingTransientNameId)
                 .append(this.skipValidatingAuthnRequest, rhs.skipValidatingAuthnRequest)
                 .append(this.skipGeneratingServiceProviderNameIdQualifier,
-                    rhs.skipGeneratingServiceProviderNameIdQualifier)
+                        rhs.skipGeneratingServiceProviderNameIdQualifier)
                 .append(this.skipGeneratingAuthenticatingAuthority, rhs.skipGeneratingAuthenticatingAuthority)
                 .append(this.skipGeneratingNameIdQualifier, rhs.skipGeneratingNameIdQualifier)
                 .append(this.skipGeneratingSessionNotOnOrAfter, rhs.skipGeneratingSessionNotOnOrAfter)
@@ -511,6 +527,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
                 .append(this.requiredAuthenticationContextClass, rhs.requiredAuthenticationContextClass)
                 .append(this.requiredNameIdFormat, rhs.requiredNameIdFormat)
                 .append(this.skewAllowance, rhs.skewAllowance)
+                .append(this.validityUntil, rhs.validityUntil)
                 .append(this.nameIdQualifier, rhs.nameIdQualifier)
                 .append(this.assertionAudiences, rhs.assertionAudiences)
                 .append(this.serviceProviderNameIdQualifier, rhs.serviceProviderNameIdQualifier)
@@ -561,6 +578,7 @@ public class SAML2SPClientAppTO extends ClientAppTO {
                 .append(requiredAuthenticationContextClass)
                 .append(requiredNameIdFormat)
                 .append(skewAllowance)
+                .append(validityUntil)
                 .append(nameIdQualifier)
                 .append(assertionAudiences)
                 .append(serviceProviderNameIdQualifier)

@@ -72,11 +72,11 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         service.setEncryptAssertions(sp.isEncryptAssertions());
         service.setSubjectLocality(sp.getSubjectLocality());
         service.setLogoutResponseBinding(
-            Optional.ofNullable(sp.getLogoutResponseBinding()).map(Enum::name).orElse(null));
+                Optional.ofNullable(sp.getLogoutResponseBinding()).map(Enum::name).orElse(null));
         service.setMetadataCriteriaDirection(sp.getMetadataCriteriaDirection().name());
         service.setMetadataCriteriaPattern(sp.getMetadataCriteriaPattern());
         service.setSigningCredentialType(
-            Optional.ofNullable(sp.getSigningCredentialType()).map(Enum::name).orElse(null));
+                Optional.ofNullable(sp.getSigningCredentialType()).map(Enum::name).orElse(null));
         service.setEncryptAttributes(sp.isEncryptAttributes());
         service.setRequireSignedRoot(sp.isRequireSignedRoot());
         service.setLogoutResponseEnabled(sp.isLogoutResponseEnabled());
@@ -98,7 +98,8 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         service.setValidateMetadataCertificates(sp.isValidateMetadataCertificates());
         service.setRequiredAuthenticationContextClass(sp.getRequiredAuthenticationContextClass());
         service.setRequiredNameIdFormat(sp.getRequiredNameIdFormat().getNameId());
-        service.setSkewAllowance(Optional.ofNullable(sp.getSkewAllowance()).orElse(0));
+        service.setSkewAllowance(Optional.ofNullable(sp.getSkewAllowance()).orElse(null));
+        service.setValidityUntil(Optional.ofNullable(sp.getValidityUntil()).orElse(null));
         service.setNameIdQualifier(sp.getNameIdQualifier());
         if (!sp.getAssertionAudiences().isEmpty()) {
             service.setAssertionAudiences(String.join(",", sp.getAssertionAudiences()));

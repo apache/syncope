@@ -123,4 +123,21 @@ public class WATenantsManager implements TenantsManager {
         domainOps.list().forEach(domain -> findTenant(domain.getKey()).ifPresent(tenants::add));
         return tenants;
     }
+
+    @Override
+    public TenantDefinition save(final TenantDefinition tenantDefinition) {
+        // Syncope Domains are managed by Core
+        return tenantDefinition;
+    }
+
+    @Override
+    public boolean delete(final String tenantId) {
+        // Syncope Domains are managed by Core
+        return false;
+    }
+
+    @Override
+    public void load() {
+        // nothing to do
+    }
 }

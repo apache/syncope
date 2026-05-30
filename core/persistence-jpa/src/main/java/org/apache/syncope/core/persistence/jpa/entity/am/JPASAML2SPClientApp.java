@@ -70,7 +70,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     private boolean encryptAttributes;
 
     private boolean skipGeneratingAssertionNameId;
-    
+
     private boolean logoutResponseEnable;
 
     @Column(name = "skipGeneSubjectConfInRespTo")
@@ -118,7 +118,9 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     private SAML2SPNameId requiredNameIdFormat;
 
-    private Integer skewAllowance;
+    private String skewAllowance;
+
+    private String validityUntil;
 
     private String nameIdQualifier;
 
@@ -262,7 +264,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSubjectLocality(final String subjectLocality) {
-        this.subjectLocality =  subjectLocality;
+        this.subjectLocality = subjectLocality;
     }
 
     @Override
@@ -352,7 +354,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSkipGeneratingSubjectConfirmationInResponseTo(
-        final boolean skipGeneratingSubjectConfirmationInResponseTo) {
+            final boolean skipGeneratingSubjectConfirmationInResponseTo) {
         this.skipGeneratingSubjectConfirmationInResponseTo = skipGeneratingSubjectConfirmationInResponseTo;
     }
 
@@ -373,7 +375,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSkipGeneratingSubjectConfirmationNotOnOrAfter(
-        final boolean skipGeneratingSubjectConfirmationNotOnOrAfter) {
+            final boolean skipGeneratingSubjectConfirmationNotOnOrAfter) {
         this.skipGeneratingSubjectConfirmationNotOnOrAfter = skipGeneratingSubjectConfirmationNotOnOrAfter;
     }
 
@@ -384,7 +386,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSkipGeneratingSubjectConfirmationRecipient(
-        final boolean skipGeneratingSubjectConfirmationRecipient) {
+            final boolean skipGeneratingSubjectConfirmationRecipient) {
         this.skipGeneratingSubjectConfirmationRecipient = skipGeneratingSubjectConfirmationRecipient;
     }
 
@@ -405,7 +407,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSkipGeneratingSubjectConfirmationNotBefore(
-        final boolean skipGeneratingSubjectConfirmationNotBefore) {
+            final boolean skipGeneratingSubjectConfirmationNotBefore) {
         this.skipGeneratingSubjectConfirmationNotBefore = skipGeneratingSubjectConfirmationNotBefore;
     }
 
@@ -456,7 +458,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public void setSkipGeneratingServiceProviderNameIdQualifier(
-        final boolean skipGeneratingServiceProviderNameIdQualifier) {
+            final boolean skipGeneratingServiceProviderNameIdQualifier) {
         this.skipGeneratingServiceProviderNameIdQualifier = skipGeneratingServiceProviderNameIdQualifier;
     }
 
@@ -521,13 +523,23 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     }
 
     @Override
-    public Integer getSkewAllowance() {
+    public String getSkewAllowance() {
         return skewAllowance;
     }
 
     @Override
-    public void setSkewAllowance(final Integer skewAllowance) {
+    public void setSkewAllowance(final String skewAllowance) {
         this.skewAllowance = skewAllowance;
+    }
+
+    @Override
+    public String getValidityUntil() {
+        return validityUntil;
+    }
+
+    @Override
+    public void setValidityUntil(final String validityUntil) {
+        this.validityUntil = validityUntil;
     }
 
     @Override

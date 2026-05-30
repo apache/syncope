@@ -100,7 +100,7 @@ public interface SAML2SPClientApp extends ClientApp {
     boolean isSkipGeneratingSubjectConfirmationInResponseTo();
 
     void setSkipGeneratingSubjectConfirmationInResponseTo(boolean skipGeneratingSubjectConfirmationInResponseTo);
- 
+
     boolean isSkipGeneratingResponseInResponseTo();
 
     void setSkipGeneratingResponseInResponseTo(boolean skipGeneratingResponseInResponseTo);
@@ -165,9 +165,13 @@ public interface SAML2SPClientApp extends ClientApp {
 
     SAML2SPNameId getRequiredNameIdFormat();
 
-    void setSkewAllowance(Integer location);
+    void setSkewAllowance(String skewAllowance);
 
-    Integer getSkewAllowance();
+    String getSkewAllowance();
+
+    void setValidityUntil(String validityUntil);
+
+    String getValidityUntil();
 
     void setNameIdQualifier(String location);
 
