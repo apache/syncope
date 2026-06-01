@@ -379,7 +379,6 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
                 responseBody = EntityUtils.toString(response.getEntity());
 
                 // check WA reset password screen
-                assertTrue(responseBody.contains("currentPassword"));
                 assertTrue(responseBody.contains("password"));
                 assertTrue(responseBody.contains("confirmedPassword"));
                 assertTrue(responseBody.contains("execution"));
@@ -392,7 +391,6 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "submit"));
             form.add(new BasicNameValuePair("execution", execution));
-            form.add(new BasicNameValuePair("currentPassword", password));
             form.add(new BasicNameValuePair("password", newpassword));
             form.add(new BasicNameValuePair("confirmedPassword", newpassword));
 

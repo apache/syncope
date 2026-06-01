@@ -148,21 +148,21 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setEncryptAttributes(clientAppTO.isEncryptAttributes());
         clientApp.setSkipGeneratingAssertionNameId(clientAppTO.isSkipGeneratingAssertionNameId());
         clientApp.setSkipGeneratingSubjectConfirmationInResponseTo(
-            clientAppTO.isSkipGeneratingSubjectConfirmationInResponseTo());
+                clientAppTO.isSkipGeneratingSubjectConfirmationInResponseTo());
         clientApp.setSkipGeneratingResponseInResponseTo(clientAppTO.isSkipGeneratingResponseInResponseTo());
         clientApp.setSkipGeneratingSubjectConfirmationNotOnOrAfter(
-            clientAppTO.isSkipGeneratingSubjectConfirmationNotOnOrAfter());
+                clientAppTO.isSkipGeneratingSubjectConfirmationNotOnOrAfter());
         clientApp.setSkipGeneratingSubjectConfirmationRecipient(
-            clientAppTO.isSkipGeneratingSubjectConfirmationRecipient());
+                clientAppTO.isSkipGeneratingSubjectConfirmationRecipient());
         clientApp.setSkipGeneratingSubjectConfirmationAddress(clientAppTO.isSkipGeneratingSubjectConfirmationAddress());
         clientApp.setSkipGeneratingSubjectConfirmationNotBefore(
-            clientAppTO.isSkipGeneratingSubjectConfirmationNotBefore());
+                clientAppTO.isSkipGeneratingSubjectConfirmationNotBefore());
         clientApp.setSkipGeneratingSubjectConfirmationNameId(clientAppTO.isSkipGeneratingSubjectConfirmationNameId());
         clientApp.setSkipGeneratingNameIdQualifiers(clientAppTO.isSkipGeneratingNameIdQualifiers());
         clientApp.setSkipGeneratingTransientNameId(clientAppTO.isSkipGeneratingTransientNameId());
         clientApp.setSkipValidatingAuthnRequest(clientAppTO.isSkipValidatingAuthnRequest());
         clientApp.setSkipGeneratingServiceProviderNameIdQualifier(
-            clientAppTO.isSkipGeneratingServiceProviderNameIdQualifier());
+                clientAppTO.isSkipGeneratingServiceProviderNameIdQualifier());
         clientApp.setSkipGeneratingAuthenticatingAuthority(clientAppTO.isSkipGeneratingAuthenticatingAuthority());
         clientApp.setSkipGeneratingNameIdQualifier(clientAppTO.isSkipGeneratingNameIdQualifier());
         clientApp.setSkipGeneratingSessionNotOnOrAfter(clientAppTO.isSkipGeneratingSessionNotOnOrAfter());
@@ -170,6 +170,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setRequiredAuthenticationContextClass(clientAppTO.getRequiredAuthenticationContextClass());
         clientApp.setRequiredNameIdFormat(clientAppTO.getRequiredNameIdFormat());
         clientApp.setSkewAllowance(clientAppTO.getSkewAllowance());
+        clientApp.setValidityUntil(clientAppTO.getValidityUntil());
         clientApp.setNameIdQualifier(clientAppTO.getNameIdQualifier());
         clientApp.getAssertionAudiences().clear();
         clientApp.getAssertionAudiences().addAll(clientAppTO.getAssertionAudiences());
@@ -244,21 +245,21 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setEncryptAttributes(clientApp.isEncryptAttributes());
         clientAppTO.setSkipGeneratingAssertionNameId(clientApp.isSkipGeneratingAssertionNameId());
         clientAppTO.setSkipGeneratingSubjectConfirmationInResponseTo(
-            clientApp.isSkipGeneratingSubjectConfirmationInResponseTo());
+                clientApp.isSkipGeneratingSubjectConfirmationInResponseTo());
         clientAppTO.setSkipGeneratingResponseInResponseTo(clientApp.isSkipGeneratingResponseInResponseTo());
         clientAppTO.setSkipGeneratingSubjectConfirmationNotOnOrAfter(
-            clientApp.isSkipGeneratingSubjectConfirmationNotOnOrAfter());
+                clientApp.isSkipGeneratingSubjectConfirmationNotOnOrAfter());
         clientAppTO.setSkipGeneratingSubjectConfirmationRecipient(
-            clientApp.isSkipGeneratingSubjectConfirmationRecipient());
+                clientApp.isSkipGeneratingSubjectConfirmationRecipient());
         clientAppTO.setSkipGeneratingSubjectConfirmationAddress(clientApp.isSkipGeneratingSubjectConfirmationAddress());
         clientAppTO.setSkipGeneratingSubjectConfirmationNotBefore(
-            clientApp.isSkipGeneratingSubjectConfirmationNotBefore());
+                clientApp.isSkipGeneratingSubjectConfirmationNotBefore());
         clientAppTO.setSkipGeneratingSubjectConfirmationNameId(clientApp.isSkipGeneratingSubjectConfirmationNameId());
         clientAppTO.setSkipGeneratingNameIdQualifiers(clientApp.isSkipGeneratingNameIdQualifiers());
         clientAppTO.setSkipGeneratingTransientNameId(clientApp.isSkipGeneratingTransientNameId());
         clientAppTO.setSkipValidatingAuthnRequest(clientApp.isSkipValidatingAuthnRequest());
         clientAppTO.setSkipGeneratingServiceProviderNameIdQualifier(
-            clientApp.isSkipGeneratingServiceProviderNameIdQualifier());
+                clientApp.isSkipGeneratingServiceProviderNameIdQualifier());
         clientAppTO.setSkipGeneratingAuthenticatingAuthority(clientApp.isSkipGeneratingAuthenticatingAuthority());
         clientAppTO.setSkipGeneratingNameIdQualifier(clientApp.isSkipGeneratingNameIdQualifier());
         clientAppTO.setSkipGeneratingSessionNotOnOrAfter(clientApp.isSkipGeneratingSessionNotOnOrAfter());
@@ -266,6 +267,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setRequiredAuthenticationContextClass(clientApp.getRequiredAuthenticationContextClass());
         clientAppTO.setRequiredNameIdFormat(clientApp.getRequiredNameIdFormat());
         clientAppTO.setSkewAllowance(clientApp.getSkewAllowance());
+        clientAppTO.setValidityUntil(clientApp.getValidityUntil());
         clientAppTO.setNameIdQualifier(clientApp.getNameIdQualifier());
         clientAppTO.getAssertionAudiences().addAll(clientApp.getAssertionAudiences());
         clientAppTO.setServiceProviderNameIdQualifier(clientApp.getServiceProviderNameIdQualifier());

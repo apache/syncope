@@ -66,7 +66,7 @@ class OAUTH2SRAITCase extends AbstractOIDCITCase {
 
     @Override
     protected void checkLogout(final CloseableHttpResponse response) {
-        assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
     }
 
     @Override

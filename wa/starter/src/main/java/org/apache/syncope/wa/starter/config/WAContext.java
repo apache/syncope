@@ -83,7 +83,7 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.configuration.support.JpaBeans;
-import org.apereo.cas.consent.ConsentRepository;
+import org.apereo.cas.consent.ConsentRepositoryBuilder;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.multitenancy.TenantsManager;
@@ -111,6 +111,7 @@ import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustS
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.util.spring.CasApplicationReadyListener;
+import org.apereo.cas.util.spring.beans.BeanSupplier;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.ldaptive.ConnectionFactory;
 import org.pac4j.core.client.Client;
@@ -572,8 +573,11 @@ public class WAContext {
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
-    public ConsentRepository consentRepository(final WARestClient waRestClient) {
-        return new WAConsentRepository(waRestClient);
+    public ConsentRepositoryBuilder waConsentRepositoryBuilder(final WARestClient waRestClient) {
+        return BeanSupplier.of(ConsentRepositoryBuilder.class).
+                supply(() -> () -> new WAConsentRepository(waRestClient)).
+                otherwiseProxy().
+                get();
     }
 
     @Bean
