@@ -18,19 +18,26 @@
  */
 package org.apache.syncope.client.console.chartjs;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ChartJSPanel extends Panel {
 
     private static final long serialVersionUID = -8670277955339192068L;
 
+    private static final Logger LOG = LoggerFactory.getLogger(ChartJSPanel.class);
+
+    private static final JsonMapper MAPPER = JsonMapper.builder().
+            findAndAddModules().defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL).build();
+
     private final IModel<Chart> model;
 
     private final WebMarkupContainer container;
-
-    private final ChartJSRenderer renderer = new ChartJSRenderer();
 
     public ChartJSPanel(final String id, final IModel<Chart> model) {
         super(id, model);
@@ -49,6 +56,20 @@ public class ChartJSPanel extends Panel {
     }
 
     public String generateChart(final String markupId) {
-        return renderer.render(markupId, model.getObject());
+        try {
+            String data = MAPPER.writeValueAsString(model.getObject().getData());
+            String options = MAPPER.writeValueAsString(model.getObject().getOptions());
+
+            return "WicketCharts['" + markupId + "'] = new Chart("
+                    + "getChartCtx('" + markupId + "'),"
+                    + "{"
+                    + "type: '" + model.getObject().getType() + "',"
+                    + "data: " + data + ","
+                    + "options: " + options
+                    + "});";
+        } catch (Exception e) {
+            LOG.error("Error rendering chart JS", e);
+            return "";
+        }
     }
 }
