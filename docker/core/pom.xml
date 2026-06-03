@@ -152,7 +152,7 @@ under the License.
               <goal>copy</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/bundles</outputDirectory>          
+              <outputDirectory>${project.build.directory}/tmp/bundles</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -168,10 +168,10 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
-                <copy file="${settings.localRepository}/com/mysql/mysql-connector-j/${jdbc.mysql.version}/mysql-connector-j-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
-                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
-                <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/com/mysql/mysql-connector-j/${jdbc.mysql.version}/mysql-connector-j-${jdbc.mysql.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -194,7 +194,7 @@ under the License.
               <goal>repackage</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+              <outputDirectory>${project.build.directory}/tmp/lib</outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -209,7 +209,7 @@ under the License.
             <image>
               <name>apache/syncope:%v</name>
               <build>
-                <dockerFileDir>${project.build.outputDirectory}</dockerFileDir>
+                <dockerFileDir>${project.build.directory}/tmp</dockerFileDir>
                 <buildx>
                   <platforms>
                     <platform>linux/amd64</platform>
@@ -243,6 +243,7 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <targetPath>${project.build.directory}/tmp</targetPath>
       </resource>
 
       <resource>
@@ -251,6 +252,7 @@ under the License.
           <include>saml.keystore.jks</include>
         </includes>
         <filtering>false</filtering>
+        <targetPath>${project.build.directory}/tmp</targetPath>
       </resource>
     </resources>
   </build>
