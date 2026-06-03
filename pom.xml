@@ -433,7 +433,7 @@ under the License.
 
     <cxf.version>4.1.6</cxf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.5.14</spring-boot.version>
     <spring-cloud-gateway.version>4.3.4</spring-cloud-gateway.version>
@@ -451,7 +451,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.3.4</elasticsearch.version>
+    <elasticsearch.version>9.3.5</elasticsearch.version>
     <opensearch.version>3.6.0</opensearch.version>
     <opensearch-java.version>3.8.0</opensearch-java.version>
 
@@ -2073,7 +2073,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.3.1</version>
+        <version>5.0.0</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
