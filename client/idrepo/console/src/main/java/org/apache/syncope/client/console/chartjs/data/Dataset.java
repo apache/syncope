@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class Dataset implements Serializable {
+public class Dataset implements Serializable {
 
     private static final long serialVersionUID = -9143409945075593686L;
 
