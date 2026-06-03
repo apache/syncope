@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.console.chartjs.Chart;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
-import org.apache.syncope.client.console.chartjs.Doughnut;
-import org.apache.syncope.client.console.chartjs.DoughnutAndPieChartData;
+import org.apache.syncope.client.console.chartjs.ChartType;
+import org.apache.syncope.client.console.chartjs.data.ChartData;
+import org.apache.syncope.client.console.chartjs.data.Dataset;
 import org.apache.wicket.model.Model;
 
 public class UsersByStatusWidget extends BaseWidget {
@@ -43,27 +47,38 @@ public class UsersByStatusWidget extends BaseWidget {
         add(chart);
     }
 
-    private static Doughnut build(final Map<String, Long> usersByStatus) {
-        Doughnut doughnut = new Doughnut();
-        doughnut.getOptions().setResponsive(true);
-        doughnut.getOptions().setMaintainAspectRatio(true);
+    private static Chart build(final Map<String, Long> usersByStatus) {
+        final List<String> labels = new ArrayList<>();
+        final List<Long> values = new ArrayList<>();
 
-        DoughnutAndPieChartData data = new DoughnutAndPieChartData();
-        doughnut.setData(data);
-
-        DoughnutAndPieChartData.DataSet dataset = new DoughnutAndPieChartData.DataSet();
-        data.getDatasets().add(dataset);
-
-        int i = 0;
         for (Map.Entry<String, Long> entry : usersByStatus.entrySet()) {
-            dataset.getData().add(entry.getValue());
-            dataset.getBackgroundColor().add(COLORS[i % 5]);
-            data.getLabels().add(entry.getKey());
-
-            i++;
+            labels.add(entry.getKey());
+            values.add(entry.getValue());
         }
 
-        return doughnut;
+        final List<String> colors = new ArrayList<>();
+        for (int i = 0; i < values.size(); i++) {
+            colors.add(COLORS[i % COLORS.length]);
+        }
+
+        Dataset dataset = new Dataset() {
+        };
+        dataset.setData(values);
+        dataset.setBackgroundColor(colors);
+        dataset.setBorderColor(colors);
+
+        List<Dataset> datasets = new ArrayList<>();
+        datasets.add(dataset);
+
+        ChartData<Dataset> data = new ChartData<>();
+        data.setLabels(labels);
+        data.setDatasets(datasets);
+
+        Chart chart = new Chart();
+        chart.setType(ChartType.doughnut);
+        chart.setData(data);
+
+        return chart;
     }
 
     public boolean refresh(final Map<String, Long> usersByStatus) {

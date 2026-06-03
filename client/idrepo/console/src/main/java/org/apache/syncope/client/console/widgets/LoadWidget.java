@@ -21,10 +21,17 @@ package org.apache.syncope.client.console.widgets;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.syncope.client.console.chartjs.Chart;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
-import org.apache.syncope.client.console.chartjs.ChartOptions;
-import org.apache.syncope.client.console.chartjs.Line;
-import org.apache.syncope.client.console.chartjs.LineDataSet;
+import org.apache.syncope.client.console.chartjs.ChartType;
+import org.apache.syncope.client.console.chartjs.data.ChartData;
+import org.apache.syncope.client.console.chartjs.data.Dataset;
+import org.apache.syncope.client.console.chartjs.options.ChartOptions;
+import org.apache.syncope.client.console.chartjs.options.Plugins;
+import org.apache.syncope.client.console.chartjs.options.Scale;
+import org.apache.syncope.client.console.chartjs.options.Scales;
+import org.apache.syncope.client.console.chartjs.options.TooltipCallback;
+import org.apache.syncope.client.console.chartjs.options.TooltipOptions;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.wicket.model.Model;
 
@@ -42,49 +49,72 @@ public class LoadWidget extends BaseWidget {
         add(chart);
     }
 
-    private static Line build(final SystemInfo systeminfo) {
-        List<Double> cpuValues = new ArrayList<>();
-        List<Long> memValues = new ArrayList<>();
+    private static Chart build(final SystemInfo systeminfo) {
 
-        Line line = new Line();
-        line.getOptions().setPointDot(false);
-        line.getOptions().setDatasetFill(false);
-        line.getOptions().setResponsive(true);
-        line.getOptions().setMaintainAspectRatio(true);
-        line.getOptions().setTension(0.4);
-        line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
-
-        ChartOptions.Axis x = new ChartOptions.Axis();
-        x.setDisplay(false);
-        ChartOptions.Axis y = new ChartOptions.Axis();
-        y.setDisplay(false);
-        ChartOptions.Scales scales = new ChartOptions.Scales();
-        scales.setX(x);
-        scales.setY(y);
-        line.getOptions().setScales(scales);
+        final List<Double> cpuValues = new ArrayList<>();
+        final List<Long> memValues = new ArrayList<>();
+        final List<String> labels = new ArrayList<>();
 
         systeminfo.load().forEach(instant -> {
-            line.getData().getLabels().add(
-                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(
-                            systeminfo.startTime() + instant.uptime()));
+
+            labels.add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(
+                    systeminfo.startTime() + instant.uptime()
+            ));
 
             cpuValues.add(instant.systemLoadAverage() * 1000);
             memValues.add(instant.totalMemory());
         });
 
-        LineDataSet cpuDataSet = new LineDataSet(cpuValues);
-        cpuDataSet.setLabel("CPU");
-        cpuDataSet.setPointColor("purple");
-        cpuDataSet.setBorderColor("purple");
-        line.getData().getDatasets().add(cpuDataSet);
+        Dataset cpu = new Dataset() {
+        };
+        cpu.setLabel("CPU");
+        cpu.setData(cpuValues);
+        cpu.setBorderColor("purple");
+        cpu.setBackgroundColor("purple");
+        cpu.setTension(0.4);
 
-        LineDataSet memDataSet = new LineDataSet(memValues);
-        memDataSet.setLabel("MEM");
-        memDataSet.setPointColor("grey");
-        memDataSet.setBorderColor("grey");
-        line.getData().getDatasets().add(memDataSet);
+        Dataset mem = new Dataset() {
+        };
+        mem.setLabel("MEM");
+        mem.setData(memValues);
+        mem.setBorderColor("grey");
+        mem.setBackgroundColor("grey");
+        mem.setTension(0.4);
 
-        return line;
+        ChartData<Dataset> data = new ChartData<>();
+        data.setLabels(labels);
+        data.setDatasets(List.of(cpu, mem));
+
+        TooltipOptions tooltip = new TooltipOptions();
+        tooltip.setEnabled(true);
+        tooltip.setCallbacks(new TooltipCallback().setLabel(
+                "function(context) {return context.dataset.label + ': ' + context.formattedValue;}"));
+
+        Plugins plugins = new Plugins();
+        plugins.setTooltip(tooltip);
+
+        Scale x = new Scale();
+        x.setDisplay(false);
+
+        Scale y = new Scale();
+        y.setDisplay(false);
+
+        Scales scales = new Scales();
+        scales.setX(x);
+        scales.setY(y);
+
+        ChartOptions options = new ChartOptions();
+        options.setResponsive(true);
+        options.setMaintainAspectRatio(true);
+        options.setPlugins(plugins);
+        options.setScales(scales);
+
+        Chart chart = new Chart();
+        chart.setType(ChartType.line);
+        chart.setData(data);
+        chart.setOptions(options);
+
+        return chart;
     }
 
     public void refresh(final SystemInfo systeminfo) {
