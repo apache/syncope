@@ -127,7 +127,7 @@ public class AnyByRealmWidget extends BaseWidget {
         final Chart chart = new Chart();
         chart.setType(ChartType.bar);
 
-        chart.getData().setLabels(labels);
+        chart.getData().getLabels().addAll(labels);
 
         chart.getOptions().setResponsive(true);
         chart.getOptions().setMaintainAspectRatio(true);
@@ -174,10 +174,10 @@ public class AnyByRealmWidget extends BaseWidget {
     private static Dataset dataset(final String label, final String color, final List<Long> values) {
         final Dataset ds = new Dataset() {
         };
-        ds.setLabel(label);
-        ds.setBackgroundColor(color);
-        ds.setBorderColor(color);
-        ds.setData(values);
+        ds.getLabel().add(label);
+        ds.getBackgroundColor().add(color);
+        ds.getBorderColor().add(color);
+        ds.getData().addAll(values);
         return ds;
     }
 

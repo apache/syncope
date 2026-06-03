@@ -28,13 +28,13 @@ public abstract class Dataset implements Serializable {
 
     private static final long serialVersionUID = -9143409945075593686L;
 
-    private List<? extends Number> data = new ArrayList<>();
+    private final List<Number> data = new ArrayList<>();
 
-    private List<String> label;
+    private final List<String> label = new ArrayList<>();
 
-    private List<String> backgroundColor;
+    private final List<String> backgroundColor = new ArrayList<>();
 
-    private List<String> borderColor;
+    private final List<String> borderColor = new ArrayList<>();
 
     private Boolean hidden;
 
@@ -48,48 +48,20 @@ public abstract class Dataset implements Serializable {
         this.tension = tension;
     }
 
-    public List<? extends Number> getData() {
+    public List<Number> getData() {
         return data;
-    }
-
-    public void setData(final List<? extends Number> data) {
-        this.data = data;
     }
 
     public List<String> getLabel() {
         return label;
     }
 
-    public void setLabel(final List<String> label) {
-        this.label = label;
-    }
-
-    public void setLabel(final String... label) {
-        this.label = List.of(label);
-    }
-
     public List<String> getBackgroundColor() {
         return backgroundColor;
     }
 
-    public void setBackgroundColor(final List<String> backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
-    public void setBackgroundColor(final String... backgroundColor) {
-        this.backgroundColor = List.of(backgroundColor);
-    }
-
     public List<String> getBorderColor() {
         return borderColor;
-    }
-
-    public void setBorderColor(final List<String> borderColor) {
-        this.borderColor = borderColor;
-    }
-
-    public void setBorderColor(final String... borderColor) {
-        this.borderColor = List.of(borderColor);
     }
 
     public Boolean getHidden() {

@@ -28,23 +28,15 @@ public class ChartData<T extends Dataset> implements Serializable {
 
     private static final long serialVersionUID = -8489073681001237058L;
 
-    private List<String> labels = new ArrayList<>();
+    private final List<String> labels = new ArrayList<>();
 
-    private List<Dataset> datasets = new ArrayList<>();
+    private final List<Dataset> datasets = new ArrayList<>();
 
     public List<String> getLabels() {
         return labels;
     }
 
-    public void setLabels(final List<String> labels) {
-        this.labels = labels;
-    }
-
     public List<Dataset> getDatasets() {
         return datasets;
-    }
-
-    public void setDatasets(final List<Dataset> datasets) {
-        this.datasets = datasets;
     }
 }

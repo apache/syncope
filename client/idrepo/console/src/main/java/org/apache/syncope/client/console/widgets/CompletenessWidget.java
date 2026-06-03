@@ -147,13 +147,15 @@ public class CompletenessWidget extends BaseWidget {
 
         final Dataset ds = new Dataset() {
         };
-        ds.setBackgroundColor("green", "red");
-        ds.setBorderColor("green", "red");
-        ds.setData(java.util.List.of(done, todo));
+        ds.getBackgroundColor().add("green");
+        ds.getBackgroundColor().add("red");
+        ds.getBorderColor().add("green");
+        ds.getBorderColor().add("red");
+        ds.getData().add(done);
+        ds.getData().add(todo);
 
-        resultChart.getData().setLabels(java.util.List.of(
-                getString("done") + " (" + donePercentage + "%)",
-                getString("todo") + " (" + todoPercentage + "%)"));
+        resultChart.getData().getLabels().add(getString("done") + " (" + donePercentage + "%)");
+        resultChart.getData().getLabels().add(getString("todo") + " (" + todoPercentage + "%)");
         resultChart.getData().getDatasets().add(ds);
         return Pair.of(resultChart, todo);
     }

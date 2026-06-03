@@ -67,23 +67,23 @@ public class LoadWidget extends BaseWidget {
 
         Dataset cpu = new Dataset() {
         };
-        cpu.setLabel("CPU");
-        cpu.setData(cpuValues);
-        cpu.setBorderColor("purple");
-        cpu.setBackgroundColor("purple");
+        cpu.getLabel().add("CPU");
+        cpu.getData().addAll(cpuValues);
+        cpu.getBorderColor().add("purple");
+        cpu.getBackgroundColor().add("purple");
         cpu.setTension(0.4);
 
         Dataset mem = new Dataset() {
         };
-        mem.setLabel("MEM");
-        mem.setData(memValues);
-        mem.setBorderColor("grey");
-        mem.setBackgroundColor("grey");
+        mem.getLabel().add("MEM");
+        mem.getData().addAll(memValues);
+        mem.getBorderColor().add("grey");
+        mem.getBackgroundColor().add("grey");
         mem.setTension(0.4);
 
         ChartData<Dataset> data = new ChartData<>();
-        data.setLabels(labels);
-        data.setDatasets(List.of(cpu, mem));
+        data.getLabels().addAll(labels);
+        data.getDatasets().addAll(List.of(cpu, mem));
 
         TooltipOptions tooltip = new TooltipOptions();
         tooltip.setEnabled(true);
