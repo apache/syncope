@@ -433,7 +433,7 @@ under the License.
 
     <cxf.version>4.1.6</cxf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.9</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
 
     <spring-framework.version>6.2.18</spring-framework.version>
     <spring-boot.version>3.4.13</spring-boot.version>
@@ -1996,7 +1996,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.3.1</version>
+        <version>5.0.0</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
