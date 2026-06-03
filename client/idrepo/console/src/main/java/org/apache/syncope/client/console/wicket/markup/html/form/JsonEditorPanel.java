@@ -34,10 +34,6 @@ public class JsonEditorPanel extends AbstractModalPanel<String> {
 
     private final boolean readOnly;
 
-    public JsonEditorPanel(final IModel<String> content) {
-        this(null, content, false, null);
-    }
-
     public JsonEditorPanel(
             final BaseModal<String> modal,
             final IModel<String> content,

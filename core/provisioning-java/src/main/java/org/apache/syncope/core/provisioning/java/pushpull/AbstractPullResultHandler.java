@@ -321,7 +321,7 @@ public abstract class AbstractPullResultHandler
         AnyTO before = getAnyTO(match.getAny());
         if (before == null) {
             result.setStatus(ProvisioningReport.Status.FAILURE);
-            result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType(), match));
+            result.setMessage("Any '%s(%s)' not found".formatted(provision.getAnyType(), match));
         } else {
             result.setName(getName(before));
         }
@@ -450,7 +450,7 @@ public abstract class AbstractPullResultHandler
 
         if (before == null) {
             result.setStatus(ProvisioningReport.Status.FAILURE);
-            result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType(), match));
+            result.setMessage("Any '%s(%s)' not found".formatted(provision.getAnyType(), match));
         }
 
         OpEvent.Outcome resultStatus = OpEvent.Outcome.SUCCESS;
@@ -566,7 +566,7 @@ public abstract class AbstractPullResultHandler
 
         if (before == null) {
             result.setStatus(ProvisioningReport.Status.FAILURE);
-            result.setMessage(String.format("Any '%s(%s)' not found", provision.getAnyType(), match));
+            result.setMessage("Any '%s(%s)' not found".formatted(provision.getAnyType(), match));
         }
 
         OpEvent.Outcome resultStatus = OpEvent.Outcome.SUCCESS;

@@ -394,7 +394,6 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertNotNull(passwordResetBody);
 
             // check WA reset password screen
-            assertTrue(passwordResetBody.contains("currentPassword"));
             assertTrue(passwordResetBody.contains("password"));
             assertTrue(passwordResetBody.contains("confirmedPassword"));
             assertTrue(passwordResetBody.contains("execution"));
@@ -406,7 +405,6 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             List<NameValuePair> form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "submit"));
             form.add(new BasicNameValuePair("execution", execution));
-            form.add(new BasicNameValuePair("currentPassword", password));
             form.add(new BasicNameValuePair("password", newpassword));
             form.add(new BasicNameValuePair("confirmedPassword", newpassword));
 

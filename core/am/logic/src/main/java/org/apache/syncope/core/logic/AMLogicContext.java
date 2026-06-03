@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.core.logic.init.AMEntitlementLoader;
+import org.apache.syncope.core.logic.wa.ConsentDecisionLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
@@ -179,6 +180,16 @@ public class AMLogicContext {
             final EntityFactory entityFactory) {
 
         return new ImpersonationLogic(authProfileDataBinder, authProfileDAO, entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConsentDecisionLogic consentDecisionLogic(
+            final AuthProfileDataBinder authProfileDataBinder,
+            final AuthProfileDAO authProfileDAO,
+            final EntityFactory entityFactory) {
+
+        return new ConsentDecisionLogic(authProfileDataBinder, authProfileDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

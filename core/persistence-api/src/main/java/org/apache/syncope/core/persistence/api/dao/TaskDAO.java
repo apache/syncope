@@ -54,7 +54,9 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     List<MacroTask> findByRealm(Realm realm);
 
-    <T extends Task<T>> List<T> findToExec(TaskType type);
+    long countToExec(TaskType type);
+
+    <T extends Task<T>> List<T> findToExec(TaskType type, Pageable pageable);
 
     <T extends Task<T>> List<T> findAll(TaskType type);
 

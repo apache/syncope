@@ -80,6 +80,7 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
@@ -438,17 +439,22 @@ public class DefaultNotificationManager implements NotificationManager {
         return email;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public TaskExec<NotificationTask> storeExec(final TaskExec<NotificationTask> execution) {
-        NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, execution.getTask().getKey()).
+    public TaskExec<NotificationTask> storeExec(final String taskKey, final TaskExec<NotificationTask> execution) {
+        NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, taskKey).
                 map(NotificationTask.class::cast).
                 orElseThrow(() -> new NotFoundException("NotificationTask " + execution.getTask().getKey()));
+        execution.setTask(task);
         task.add(execution);
         task.setExecuted(true);
         taskDAO.save(task);
+
+        execution.setTask(null);
         return execution;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void setTaskExecuted(final String taskKey, final boolean executed) {
         NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, taskKey).

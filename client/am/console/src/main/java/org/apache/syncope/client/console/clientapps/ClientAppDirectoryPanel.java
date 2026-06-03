@@ -232,8 +232,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.CLIENTAPP_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                "%s,%s".formatted(AMEntitlement.CLIENTAPP_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

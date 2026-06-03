@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -44,7 +44,7 @@ public class CollectionPropertyColumn<T> extends PropertyColumn<T, String> {
 
         if (value instanceof final Collection collection) {
             List values = new ArrayList(collection);
-            Collections.sort(values);
+            values.sort(Comparator.naturalOrder());
             cellItem.add(new CollectionPanel(componentId, values));
         }
     }

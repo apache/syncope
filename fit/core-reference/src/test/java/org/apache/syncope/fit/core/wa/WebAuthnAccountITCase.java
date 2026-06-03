@@ -45,7 +45,7 @@ public class WebAuthnAccountITCase extends AbstractITCase {
                 + "    \"username\" : \"%s\""
                 + "  } ]";
         WebAuthnDeviceCredential credential = new WebAuthnDeviceCredential.Builder().
-                json(String.format(record, id, id, id)).
+                json(record.formatted(id, id, id)).
                 identifier("fFGyV3K5x1").
                 build();
         return new WebAuthnAccount.Builder().credential(credential).build();

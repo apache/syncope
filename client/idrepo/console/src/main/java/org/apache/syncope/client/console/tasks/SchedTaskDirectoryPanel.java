@@ -197,7 +197,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.ENABLE,
-                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
+                            "%s,%s".formatted(IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());

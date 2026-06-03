@@ -31,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.form.FormProperty;
@@ -113,8 +112,9 @@ public class MacroTaskITCase extends AbstractITCase {
                 command.setKey("GroovyCommand");
                 command.setEngine(ImplementationEngine.GROOVY);
                 command.setType(IdRepoImplementationType.COMMAND);
-                command.setBody(IOUtils.toString(
-                        MacroTaskITCase.class.getResourceAsStream("/GroovyCommand.groovy"), StandardCharsets.UTF_8));
+                command.setBody(new String(
+                        MacroTaskITCase.class.getResourceAsStream("/GroovyCommand.groovy").readAllBytes(),
+                        StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(command);
                 command = IMPLEMENTATION_SERVICE.read(
                         command.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -281,8 +281,9 @@ public class MacroTaskITCase extends AbstractITCase {
         createMacroActionsIfNeeded(
                 "ProcessBuilderMacroActions",
                 ImplementationEngine.GROOVY,
-                IOUtils.toString(
-                        getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy"), StandardCharsets.UTF_8));
+                new String(
+                        getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy").readAllBytes(),
+                        StandardCharsets.UTF_8));
 
         MacroTaskTO task = new MacroTaskTO();
         task.setName("groovySecuritySandbox" + UUID.randomUUID().toString());
@@ -308,8 +309,9 @@ public class MacroTaskITCase extends AbstractITCase {
         createMacroActionsIfNeeded(
                 "BashMacroActions",
                 ImplementationEngine.GROOVY,
-                IOUtils.toString(
-                        getClass().getResourceAsStream("/BashMacroActions.groovy"), StandardCharsets.UTF_8));
+                new String(
+                        getClass().getResourceAsStream("/BashMacroActions.groovy").readAllBytes(),
+                        StandardCharsets.UTF_8));
 
         task = new MacroTaskTO();
         task.setName("groovySecuritySandbox" + UUID.randomUUID().toString());

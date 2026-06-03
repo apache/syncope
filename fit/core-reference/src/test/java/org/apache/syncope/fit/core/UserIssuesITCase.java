@@ -789,8 +789,9 @@ public class UserIssuesITCase extends AbstractITCase {
             logicActions.setKey("DoubleValueLogicActions");
             logicActions.setEngine(ImplementationEngine.GROOVY);
             logicActions.setType(IdRepoImplementationType.LOGIC_ACTIONS);
-            logicActions.setBody(org.apache.commons.io.IOUtils.toString(
-                    getClass().getResourceAsStream("/DoubleValueLogicActions.groovy"), StandardCharsets.UTF_8));
+            logicActions.setBody(new String(
+                    getClass().getResourceAsStream("/DoubleValueLogicActions.groovy").readAllBytes(),
+                    StandardCharsets.UTF_8));
             Response response = IMPLEMENTATION_SERVICE.create(logicActions);
             logicActions = IMPLEMENTATION_SERVICE.read(
                     logicActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));

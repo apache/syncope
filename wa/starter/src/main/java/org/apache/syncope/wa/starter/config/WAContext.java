@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
@@ -39,9 +40,12 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
 import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
+import org.apache.syncope.wa.starter.consent.WAConsentRepository;
 import org.apache.syncope.wa.starter.events.WAEventRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
@@ -61,6 +65,7 @@ import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
+import org.apache.syncope.wa.starter.multitenancy.WATenantsManager;
 import org.apache.syncope.wa.starter.oidc.WAOidcJsonWebKeystoreGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataCacheRefresher;
@@ -77,8 +82,11 @@ import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
+import org.apereo.cas.configuration.support.JpaBeans;
+import org.apereo.cas.consent.ConsentRepositoryBuilder;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
+import org.apereo.cas.multitenancy.TenantsManager;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
 import org.apereo.cas.pm.LdapPasswordManagementService;
@@ -103,9 +111,12 @@ import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustS
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.util.spring.CasApplicationReadyListener;
+import org.apereo.cas.util.spring.beans.BeanSupplier;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.ldaptive.ConnectionFactory;
 import org.pac4j.core.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -116,15 +127,19 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(WAContext.class);
 
     public static final String CUSTOM_GOOGLE_AUTHENTICATOR_ACCOUNT_REGISTRY =
             "customGoogleAuthenticatorAccountRegistry";
@@ -422,24 +437,39 @@ public class WAContext {
     public PasswordManagementService jdbcPasswordChangeService(
             final CasConfigurationProperties casProperties,
             final ConfigurableApplicationContext ctx,
-            @Qualifier("jdbcPasswordManagementDataSource")
-            final DataSource jdbcPasswordManagementDataSource,
-            @Qualifier("jdbcPasswordManagementTransactionTemplate")
-            final TransactionOperations jdbcPasswordManagementTransactionTemplate,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
 
         PasswordManagementProperties pm = casProperties.getAuthn().getPm();
-        if (pm.getCore().isEnabled() && StringUtils.isNotBlank(pm.getJdbc().getUrl())) {
-            return new JdbcPasswordManagementService(
-                    passwordManagementCipherExecutor,
-                    casProperties,
-                    jdbcPasswordManagementDataSource,
-                    jdbcPasswordManagementTransactionTemplate,
-                    passwordHistoryService,
-                    PasswordEncoderUtils.newPasswordEncoder(pm.getJdbc().getPasswordEncoder(), ctx));
+        if (pm.getCore().isEnabled()) {
+            try {
+                Class.forName(pm.getJdbc().getDriverClass());
+
+                DataSource jdbcPasswordManagementDataSource = JpaBeans.newDataSource(pm.getJdbc());
+                DataSourceTransactionManager jdbcPasswordManagementTransactionManager =
+                        new DataSourceTransactionManager(jdbcPasswordManagementDataSource);
+                TransactionTemplate jdbcPasswordManagementTransactionTemplate =
+                        new TransactionTemplate(jdbcPasswordManagementTransactionManager);
+                jdbcPasswordManagementTransactionTemplate.setIsolationLevelName(
+                        pm.getJdbc().getIsolationLevelName());
+                jdbcPasswordManagementTransactionTemplate.setPropagationBehaviorName(
+                        pm.getJdbc().getPropagationBehaviorName());
+
+                PasswordEncoder encoder = PasswordEncoderUtils.newPasswordEncoder(
+                        pm.getJdbc().getPasswordEncoder(), ctx);
+
+                return new JdbcPasswordManagementService(
+                        passwordManagementCipherExecutor,
+                        casProperties,
+                        jdbcPasswordManagementDataSource,
+                        jdbcPasswordManagementTransactionTemplate,
+                        passwordHistoryService,
+                        encoder);
+            } catch (ClassNotFoundException e) {
+                LOG.debug("{} is not available, disabling jdbcPasswordChangeService", pm.getJdbc().getDriverClass(), e);
+            }
         }
 
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
@@ -541,6 +571,15 @@ public class WAContext {
         return new WAWebAuthnCredentialRepository(casProperties, waRestClient);
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public ConsentRepositoryBuilder waConsentRepositoryBuilder(final WARestClient waRestClient) {
+        return BeanSupplier.of(ConsentRepositoryBuilder.class).
+                supply(() -> () -> new WAConsentRepository(waRestClient)).
+                otherwiseProxy().
+                get();
+    }
+
     @Bean
     public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient waRestClient) {
         return new WASurrogateAuthenticationService(waRestClient);
@@ -566,6 +605,23 @@ public class WAContext {
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();
         return new InMemoryUserDetailsManager(user);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @ConditionalOnProperty(
+            prefix = "cas.multitenancy.core", name = "enabled", havingValue = "true", matchIfMissing = false)
+    @Bean(name = TenantsManager.BEAN_NAME)
+    public TenantsManager tenantsManager(
+            final DomainOps domainOps,
+            final WARestClient waRestClient,
+            final AuthModulePropertySourceMapper authModulePropertySourceMapper,
+            final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper) {
+
+        return new WATenantsManager(
+                domainOps,
+                waRestClient,
+                authModulePropertySourceMapper,
+                attrRepoPropertySourceMapper);
     }
 
     @ConditionalOnProperty(

@@ -60,7 +60,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
 
         ConditionType ct = sc.getConditionType();
         if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
-            && sc.getConditionType() == ConditionType.CUSTOM) {
+                && sc.getConditionType() == ConditionType.CUSTOM) {
             switch (sfsc.getOperator()) {
                 case SyncopeFiqlParser.IEQ:
                     ct = ConditionType.EQUALS;
@@ -72,7 +72,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
 
                 default:
                     throw new IllegalArgumentException(
-                            String.format("Condition type %s is not supported", sfsc.getOperator()));
+                            "Condition type %s is not supported".formatted(sfsc.getOperator()));
             }
         }
 
@@ -104,8 +104,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
                             leaf = FilterBuilder.startsWith(
                                     AttributeBuilder.build(name, value.substring(0, value.length() - 1)));
                         } else {
-                            throw new IllegalArgumentException(
-                                    String.format("Unsupported search value %s", value));
+                            throw new IllegalArgumentException("Unsupported search value %s".formatted(value));
                         }
 
                         if (ct == ConditionType.NOT_EQUALS) {
@@ -114,7 +113,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
                     }
                 } else {
                     throw new IllegalArgumentException(
-                            String.format("Special attr name %s is not supported", specialAttrName));
+                            "Special attr name %s is not supported".formatted(specialAttrName));
                 }
                 break;
 
@@ -135,7 +134,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
                 break;
 
             default:
-                throw new IllegalArgumentException(String.format("Condition type %s is not supported", ct.name()));
+                throw new IllegalArgumentException("Condition type %s is not supported".formatted(ct.name()));
         }
 
         return leaf;
@@ -161,7 +160,7 @@ public class FilterVisitor extends AbstractSearchConditionVisitor<SearchBean, Fi
 
             default:
                 throw new IllegalArgumentException(
-                        String.format("Condition type %s is not supported", sc.getConditionType().name()));
+                        "Condition type %s is not supported".formatted(sc.getConditionType().name()));
         }
 
         return compound;

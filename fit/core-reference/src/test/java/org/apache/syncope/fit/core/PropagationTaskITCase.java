@@ -609,7 +609,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                         page(1).
                         size(10).
                         build());
-        Collections.sort(unorderedTasks.getResult(), (t1, t2) -> t1.getStart().compareTo(t2.getStart()));
+        unorderedTasks.getResult().sort((t1, t2) -> t1.getStart().compareTo(t2.getStart()));
         assertNotNull(unorderedTasks);
         assertFalse(unorderedTasks.getResult().isEmpty());
         assertEquals(10, unorderedTasks.getResult().size());

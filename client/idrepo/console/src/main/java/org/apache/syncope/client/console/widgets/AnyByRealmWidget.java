@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -103,9 +103,8 @@ public class AnyByRealmWidget extends BaseWidget {
         if (any2ByRealm != null) {
             realmSet.addAll(any2ByRealm.keySet());
         }
-
-        final List<String> realms = new ArrayList<>(realmSet);
-        Collections.sort(realms);
+        List<String> realms = new ArrayList<>(realmSet);
+        realms.sort(Comparator.naturalOrder());
 
         final int limit = Math.min(realms.size(), MAX_REALMS);
 

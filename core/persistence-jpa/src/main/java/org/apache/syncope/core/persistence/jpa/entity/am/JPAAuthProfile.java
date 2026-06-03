@@ -30,12 +30,14 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.converters.GoogleMfaAuthAccountListConverter;
 import org.apache.syncope.core.persistence.jpa.converters.GoogleMfaAuthTokenListConverter;
 import org.apache.syncope.core.persistence.jpa.converters.ImpersonationAccountListConverter;
 import org.apache.syncope.core.persistence.jpa.converters.MfaTrustedDeviceListConverter;
+import org.apache.syncope.core.persistence.jpa.converters.WAConsentDecisionListConverter;
 import org.apache.syncope.core.persistence.jpa.converters.WebAuthnDeviceCredentialListConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
@@ -70,6 +72,10 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Convert(converter = WebAuthnDeviceCredentialListConverter.class)
     @Lob
     private List<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new ArrayList<>();
+
+    @Convert(converter = WAConsentDecisionListConverter.class)
+    @Lob
+    private List<WAConsentDecision> waConsentDecisions = new ArrayList<>();
 
     @Override
     public String getOwner() {
@@ -134,5 +140,16 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
         return webAuthnDeviceCredentials;
+    }
+
+    @Override
+    public boolean add(final WAConsentDecision consentDecision) {
+        return !waConsentDecisions.contains(consentDecision)
+                && waConsentDecisions.add(consentDecision);
+    }
+
+    @Override
+    public List<WAConsentDecision> getConsentDecisions() {
+        return waConsentDecisions;
     }
 }

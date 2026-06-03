@@ -66,8 +66,8 @@ public class SelfKeymasterClientExceptionMapper implements ResponseExceptionMapp
                     : new BadRequestException(message);
         } else {
             // 5. All other codes are mapped to runtime exception with HTTP code information
-            ex = new WebServiceException(String.format("Remote exception with status code: %s",
-                    Response.Status.fromStatusCode(statusCode).name()));
+            ex = new WebServiceException("Remote exception with status code: %s".
+                    formatted(Response.Status.fromStatusCode(statusCode).name()));
         }
         LOG.error("Exception thrown", ex);
         return ex;

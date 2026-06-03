@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -182,7 +182,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
         }
 
         List<String> names = new ArrayList<>(choices);
-        Collections.sort(names);
+        names.sort(Comparator.naturalOrder());
         toBeUpdated.setChoices(names);
     }
 }

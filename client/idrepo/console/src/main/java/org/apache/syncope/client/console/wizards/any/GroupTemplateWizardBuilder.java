@@ -53,7 +53,7 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
         } else {
             GroupTO groupTO = new GroupTO();
             if (templatable instanceof final RealmTO realmTO) {
-                groupTO.setRealm(String.format("'%s'", RealmsUtils.getFullPath(realmTO.getFullPath())));
+                groupTO.setRealm("'%s'".formatted(RealmsUtils.getFullPath(realmTO.getFullPath())));
             }
             setItem(new GroupWrapper(groupTO));
         }

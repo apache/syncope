@@ -37,9 +37,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,7 +49,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
@@ -477,7 +476,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(userConnObject);
         assertEquals("odd", userConnObject.getAttr("title").orElseThrow().getValues().getFirst());
         Attr userDn = userConnObject.getAttr(Name.NAME).orElseThrow();
-        updateLdapRemoteObject(userDn.getValues().getFirst(), Collections.singletonMap("title", null));
+        Map<String, String> attributes = new HashMap<>();
+        attributes.put("title", null);
+        updateLdapRemoteObject(userDn.getValues().getFirst(), attributes);
 
         // SYNCOPE-317
         execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
@@ -545,8 +546,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 transformer.setKey("PrefixItemTransformer");
                 transformer.setEngine(ImplementationEngine.GROOVY);
                 transformer.setType(IdRepoImplementationType.ITEM_TRANSFORMER);
-                transformer.setBody(IOUtils.toString(
-                        getClass().getResourceAsStream("/PrefixItemTransformer.groovy"), StandardCharsets.UTF_8));
+                transformer.setBody(new String(
+                        getClass().getResourceAsStream("/PrefixItemTransformer.groovy").readAllBytes(),
+                        StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(transformer);
                 transformer = IMPLEMENTATION_SERVICE.read(
                         transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -648,8 +650,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
             reconFilterBuilder.setKey("TestReconFilterBuilder");
             reconFilterBuilder.setEngine(ImplementationEngine.GROOVY);
             reconFilterBuilder.setType(IdMImplementationType.RECON_FILTER_BUILDER);
-            reconFilterBuilder.setBody(IOUtils.toString(
-                    getClass().getResourceAsStream("/TestReconFilterBuilder.groovy"), StandardCharsets.UTF_8));
+            reconFilterBuilder.setBody(new String(
+                    getClass().getResourceAsStream("/TestReconFilterBuilder.groovy").readAllBytes(),
+                    StandardCharsets.UTF_8));
             Response response = IMPLEMENTATION_SERVICE.create(reconFilterBuilder);
             reconFilterBuilder = IMPLEMENTATION_SERVICE.read(
                     reconFilterBuilder.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -1113,8 +1116,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 corrRule.setKey("TestPullRule");
                 corrRule.setEngine(ImplementationEngine.GROOVY);
                 corrRule.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
-                corrRule.setBody(IOUtils.toString(
-                        getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
+                corrRule.setBody(new String(
+                        getClass().getResourceAsStream("/TestPullRule.groovy").readAllBytes(), StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(corrRule);
                 corrRule = IMPLEMENTATION_SERVICE.read(
                         corrRule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -1560,8 +1563,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 pullActions.setKey("AddResourcePullActions");
                 pullActions.setEngine(ImplementationEngine.GROOVY);
                 pullActions.setType(IdMImplementationType.INBOUND_ACTIONS);
-                pullActions.setBody(IOUtils.toString(
-                        getClass().getResourceAsStream("/AddResourcePullActions.groovy"), StandardCharsets.UTF_8));
+                pullActions.setBody(new String(
+                        getClass().getResourceAsStream("/AddResourcePullActions.groovy").readAllBytes(),
+                        StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(pullActions);
                 pullActions = IMPLEMENTATION_SERVICE.read(
                         pullActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));

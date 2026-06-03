@@ -188,6 +188,20 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-jdbc-authentication</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apereo.cas</groupId>
+          <artifactId>cas-server-support-jdbc-drivers</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-rest-authentication</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-syncope-authentication</artifactId>
     </dependency>
     <dependency>
@@ -253,6 +267,10 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-consent-webflow</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-consent-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>

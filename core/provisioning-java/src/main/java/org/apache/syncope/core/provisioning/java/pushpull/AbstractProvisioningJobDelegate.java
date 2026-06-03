@@ -145,18 +145,18 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             if (level == TraceLevel.SUMMARY) {
                 // No per entry log in this case.
                 return null;
-            } else if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
-                // only report failures
-                return String.format("Failed %s (key/name): %s/%s with message: %s",
-                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
-            } else {
-                // All
-                return String.format("%s %s (key/name): %s/%s %s",
-                        result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
-                        StringUtils.isBlank(result.getMessage())
-                        ? StringUtils.EMPTY
-                        : "with message: " + result.getMessage());
             }
+            if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                // only report failures
+                return "Failed %s (key/name): %s/%s with message: %s".formatted(
+                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
+            }
+            // ALL
+            return "%s %s (key/name): %s/%s %s".formatted(
+                    result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
+                    StringUtils.isBlank(result.getMessage())
+                    ? StringUtils.EMPTY
+                    : "with message: " + result.getMessage());
         }).filter(Objects::nonNull).forEach(report -> sb.append(report).append('\n'));
 
         return sb.toString();

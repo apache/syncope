@@ -67,7 +67,7 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
         } else {
             UserTO userTO = new UserTO();
             if (templatable instanceof final RealmTO realmTO) {
-                userTO.setRealm(String.format("'%s'", RealmsUtils.getFullPath(realmTO.getFullPath())));
+                userTO.setRealm("'%s'".formatted(RealmsUtils.getFullPath(realmTO.getFullPath())));
             }
             setItem(new UserWrapper(userTO));
         }

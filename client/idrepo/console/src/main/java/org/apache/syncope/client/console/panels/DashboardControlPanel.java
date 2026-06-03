@@ -34,7 +34,7 @@ public class DashboardControlPanel extends Panel {
 
         JobWidget job = new JobWidget("job", pageRef);
         MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
-                String.format("%s,%s,%s",
+                "%s,%s,%s".formatted(
                         IdRepoEntitlement.NOTIFICATION_LIST,
                         IdRepoEntitlement.TASK_LIST,
                         IdRepoEntitlement.REPORT_LIST));

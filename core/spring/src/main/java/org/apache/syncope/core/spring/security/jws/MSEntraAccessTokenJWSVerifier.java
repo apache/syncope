@@ -101,7 +101,7 @@ public class MSEntraAccessTokenJWSVerifier implements JWSVerifier {
         String keyId = header.getKeyID();
         JWSVerifier delegate = Optional.ofNullable(verifiersCache.get(keyId)).
                 orElseThrow(() -> new JOSEException(
-                String.format("JSON Web Key Set cache could not retrieve a public key for given key id '%s'", keyId)));
+                "JSON Web Key Set cache could not retrieve a public key for given key id '%s'".formatted(keyId)));
 
         return delegate.verify(header, signingInput, signature);
     }

@@ -42,12 +42,14 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -66,14 +68,20 @@ public class AuthProfileDirectoryPanel
 
     private static final long serialVersionUID = 2018518567549153364L;
 
-    private String keyword;
+    private final ServiceOps serviceOps;
 
     private final BaseModal<AuthProfileTO> authProfileModal;
 
+    private String keyword;
+
     public AuthProfileDirectoryPanel(
-            final String id, final AuthProfileRestClient restClient, final PageReference pageRef) {
+            final String id,
+            final ServiceOps serviceOps,
+            final AuthProfileRestClient restClient,
+            final PageReference pageRef) {
 
         super(id, restClient, pageRef);
+        this.serviceOps = serviceOps;
 
         authProfileModal = new BaseModal<>(Constants.OUTER) {
 
@@ -162,6 +170,15 @@ public class AuthProfileDirectoryPanel
                 return CollectionUtils.isNotEmpty(rowModel.getObject().getWebAuthnDeviceCredentials());
             }
         });
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("consentDecisions")) {
+
+            private static final long serialVersionUID = -8236820422411536323L;
+
+            @Override
+            protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getConsentDecisions());
+            }
+        });
 
         return columns;
     }
@@ -180,7 +197,7 @@ public class AuthProfileDirectoryPanel
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<ImpersonationAccount>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+                                "panel", serviceOps, restClient, authProfileModal, model.getObject(), null, pageRef) {
 
                     private static final long serialVersionUID = -5380664539000792237L;
 
@@ -227,7 +244,7 @@ public class AuthProfileDirectoryPanel
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<GoogleMfaAuthToken>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+                                "panel", serviceOps, restClient, authProfileModal, model.getObject(), null, pageRef) {
 
                     private static final long serialVersionUID = 7332357430197837993L;
 
@@ -276,7 +293,7 @@ public class AuthProfileDirectoryPanel
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<GoogleMfaAuthAccount>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+                                "panel", serviceOps, restClient, authProfileModal, model.getObject(), null, pageRef) {
 
                     private static final long serialVersionUID = -670769282358547044L;
 
@@ -325,7 +342,7 @@ public class AuthProfileDirectoryPanel
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<MfaTrustedDevice>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+                                "panel", serviceOps, restClient, authProfileModal, model.getObject(), null, pageRef) {
 
                     private static final long serialVersionUID = 5788448799796630011L;
 
@@ -376,7 +393,7 @@ public class AuthProfileDirectoryPanel
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<WebAuthnDeviceCredential>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+                                "panel", serviceOps, restClient, authProfileModal, model.getObject(), null, pageRef) {
 
                     private static final long serialVersionUID = 6820212423488933184L;
 
@@ -414,6 +431,55 @@ public class AuthProfileDirectoryPanel
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.HTML, AMEntitlement.AUTH_PROFILE_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
+                model.setObject(restClient.read(model.getObject().getKey()));
+                target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
+                        authProfileModal,
+                        new AuthProfileItemDirectoryPanel<WAConsentDecision>("panel", serviceOps,
+                                restClient, authProfileModal, model.getObject(), List.of("attributes"), pageRef) {
+
+                    private static final long serialVersionUID = -670769282358547044L;
+
+                    @Override
+                    protected List<WAConsentDecision> getItems() {
+                        return model.getObject().getConsentDecisions();
+                    }
+
+                    @Override
+                    protected WAConsentDecision defaultItem() {
+                        return new WAConsentDecision();
+                    }
+
+                    @Override
+                    protected String sortProperty() {
+                        return "id";
+                    }
+
+                    @Override
+                    protected String paginatorRowsKey() {
+                        return AMConstants.PREF_AUTHPROFILE_CONSENT_DECISION_PAGINATOR_ROWS;
+                    }
+
+                    @Override
+                    protected List<IColumn<WAConsentDecision, String>> getColumns() {
+                        List<IColumn<WAConsentDecision, String>> columns = new ArrayList<>();
+                        columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
+                        columns.add(new PropertyColumn<>(new ResourceModel("service"), "service", "service"));
+                        columns.add(new DatePropertyColumn<>(
+                                new ResourceModel("createdDate"), "createdDate", "createdDate"));
+                        return columns;
+                    }
+                }, pageRef)));
+                authProfileModal.header(new Model<>(getString("consentDecisions", model)));
+                authProfileModal.show(true);
+            }
+        }, ActionLink.ActionType.ASSIGN, AMEntitlement.AUTH_PROFILE_UPDATE);
 
         panel.add(new ActionLink<>() {
 

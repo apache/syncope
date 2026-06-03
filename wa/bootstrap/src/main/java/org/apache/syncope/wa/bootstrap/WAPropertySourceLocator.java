@@ -53,6 +53,26 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(WAPropertySourceLocator.class);
 
+    public static Map<String, Object> index(final Map<String, Object> map, final Map<String, Integer> prefixes) {
+        Map<String, Object> indexed = map;
+
+        if (!map.isEmpty()) {
+            String prefix = map.keySet().iterator().next();
+            if (prefix.contains("[]")) {
+                prefix = StringUtils.substringBefore(prefix, "[]");
+                Integer index = prefixes.getOrDefault(prefix, 0);
+
+                indexed = map.entrySet().stream().
+                        map(e -> Pair.of(e.getKey().replace("[]", "[" + index + "]"), e.getValue())).
+                        collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+
+                prefixes.put(prefix, index + 1);
+            }
+        }
+
+        return indexed;
+    }
+
     protected final WARestClient waRestClient;
 
     protected final AuthModulePropertySourceMapper authModulePropertySourceMapper;
@@ -75,26 +95,6 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
         this.passwordManagementPropertySourceMapper = passwordManagementPropertySourceMapper;
         this.configurationCipher = configurationCipher;
-    }
-
-    protected Map<String, Object> index(final Map<String, Object> map, final Map<String, Integer> prefixes) {
-        Map<String, Object> indexed = map;
-
-        if (!map.isEmpty()) {
-            String prefix = map.keySet().iterator().next();
-            if (prefix.contains("[]")) {
-                prefix = StringUtils.substringBefore(prefix, "[]");
-                Integer index = prefixes.getOrDefault(prefix, 0);
-
-                indexed = map.entrySet().stream().
-                        map(e -> Pair.of(e.getKey().replace("[]", "[" + index + "]"), e.getValue())).
-                        collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-
-                prefixes.put(prefix, index + 1);
-            }
-        }
-
-        return indexed;
     }
 
     @Override

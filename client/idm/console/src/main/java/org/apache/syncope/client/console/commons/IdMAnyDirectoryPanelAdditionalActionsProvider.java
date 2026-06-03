@@ -164,7 +164,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         };
         csvPushLink.setOutputMarkupPlaceholderTag(true).setVisible(wizardInModal).setEnabled(wizardInModal);
         MetaDataRoleAuthorizationStrategy.authorize(csvPushLink, Component.RENDER,
-                String.format("%s,%s", IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
+                "%s,%s".formatted(IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
         panel.addInnerObject(csvPushLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
         csvPullLink = new AjaxLink<>("csvPull") {
 
@@ -185,7 +185,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
         };
         csvPullLink.setOutputMarkupPlaceholderTag(true).setVisible(wizardInModal).setEnabled(wizardInModal);
         MetaDataRoleAuthorizationStrategy.authorize(csvPullLink, Component.RENDER,
-                String.format("%s,%s", IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
+                "%s,%s".formatted(IdRepoEntitlement.IMPLEMENTATION_LIST, IdRepoEntitlement.TASK_EXECUTE));
         panel.addInnerObject(csvPullLink.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
     }
 

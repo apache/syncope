@@ -276,7 +276,8 @@ public class AnyStatusDirectoryPanel
                         AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
                     }
                 }, ActionLink.ActionType.MANAGE_ACCOUNTS,
-                        String.format("%s,%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE,
+                        "%s,%s,%s".formatted(
+                                IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE,
                                 IdMEntitlement.RESOURCE_GET_CONNOBJECT));
             }
         }

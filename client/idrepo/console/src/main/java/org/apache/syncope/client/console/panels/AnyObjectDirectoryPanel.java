@@ -120,7 +120,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                                 new AnyObjectWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
-                String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
+                "%s,%s".formatted(AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
                 setRealm(realm);
 
         if (wizardInModal) {
@@ -202,7 +202,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 altDefaultModal.show(true);
             }
         }, ActionType.VIEW_AUDIT_HISTORY,
-                String.format("%s,%s", AnyEntitlement.READ.getFor(type), IdRepoEntitlement.AUDIT_LIST)).
+                "%s,%s".formatted(AnyEntitlement.READ.getFor(type), IdRepoEntitlement.AUDIT_LIST)).
                 setRealm(realm);
 
         panel.add(new ActionLink<>() {

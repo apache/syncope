@@ -52,7 +52,7 @@ public class StyledNotificationBehavior extends NotificationBehavior {
                 ? Notification.ERROR
                 : Notification.WARNING;
 
-        return String.format("%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');",
+        return "%s.options.autoHideAfter = %s; %s.show( { message: '%s' } , '%s');".formatted(
                 widget,
                 Notification.SUCCESS.equals(actual) || Notification.INFO.equals(actual)
                 ? AUTOHIDEAFTER_GOOD : AUTOHIDEAFTER_BAD,

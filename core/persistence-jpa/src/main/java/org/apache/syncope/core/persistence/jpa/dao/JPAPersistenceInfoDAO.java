@@ -19,8 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.hibernate.Version;
 import org.slf4j.Logger;
@@ -29,6 +33,44 @@ import org.slf4j.LoggerFactory;
 public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PersistenceInfoDAO.class);
+
+    protected static final Set<String> UNSAFE_PROPERTIES = Set.of(
+            "hibernate.connection.datasource",
+            "javax.persistence.nonJtaDataSource",
+            "jakarta.persistence.nonJtaDataSource");
+
+    protected static boolean isJsonSafe(final String key, final Object value) {
+        if (UNSAFE_PROPERTIES.contains(key)) {
+            return false;
+        }
+
+        if (value == null) {
+            return true;
+        }
+        if (ClassUtils.isPrimitiveOrWrapper(value.getClass())) {
+            return true;
+        }
+        if (value instanceof Collection<?> collection) {
+            for (Object e : collection) {
+                if (!isJsonSafe(key, e)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (value instanceof Map<?, ?> map) {
+            for (Map.Entry<?, ?> e : map.entrySet()) {
+                if (!(e.getKey() instanceof String)) {
+                    return false; // JSON object keys must be strings
+                }
+                if (!isJsonSafe((String) e.getKey(), e.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return value instanceof Serializable;
+    }
 
     protected final EntityManagerFactory entityManagerFactory;
 
@@ -43,6 +85,17 @@ public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
         result.put("vendor", Version.class.getPackage().getImplementationVendor());
         result.put("version", Version.class.getPackage().getImplementationVersion());
         result.put("title", Version.class.getPackage().getImplementationTitle());
+
+        Map<String, Object> properties = entityManagerFactory.getProperties();
+        properties.forEach((k, v) -> {
+            if (k.startsWith("hibernate") || k.startsWith("jakarta.persistence")) {
+                if (isJsonSafe(k, v)) {
+                    result.put(k, v);
+                } else {
+                    LOG.debug("Value for {} not JSON safe", k);
+                }
+            }
+        });
 
         return result;
     }

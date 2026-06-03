@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
+import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
@@ -62,6 +63,10 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
             new TypeReference<List<WebAuthnDeviceCredential>>() {
     };
 
+    protected static final TypeReference<List<WAConsentDecision>> WA_CONSENT_DECISION_TYPEREF =
+            new TypeReference<List<WAConsentDecision>>() {
+    };
+
     @NotNull
     private String owner;
 
@@ -89,6 +94,11 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
 
     @Transient
     private List<WebAuthnDeviceCredential> webAuthnDeviceCredentialsList = new ArrayList<>();
+
+    private String waConsentDecisions;
+
+    @Transient
+    private List<WAConsentDecision> waConsentDecisionsList = new ArrayList<>();
 
     @Override
     public String getOwner() {
@@ -150,6 +160,16 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
         return webAuthnDeviceCredentialsList;
     }
 
+    @Override
+    public boolean add(final WAConsentDecision consentDecision) {
+        return waConsentDecisionsList.contains(consentDecision);
+    }
+
+    @Override
+    public List<WAConsentDecision> getConsentDecisions() {
+        return waConsentDecisionsList;
+    }
+
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getGoogleMfaAuthTokens().clear();
@@ -157,6 +177,7 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
             getMfaTrustedDevices().clear();
             getImpersonationAccounts().clear();
             getWebAuthnDeviceCredentials().clear();
+            getConsentDecisions().clear();
         }
         Optional.ofNullable(googleMfaAuthTokens).ifPresent(v -> getGoogleMfaAuthTokens().
                 addAll(POJOHelper.deserialize(v, GOOGLE_MFA_TOKENS_TYPEREF)));
@@ -168,6 +189,8 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
                 addAll(POJOHelper.deserialize(v, IMPERSONATION_TYPEREF)));
         Optional.ofNullable(webAuthnDeviceCredentials).ifPresent(v -> getWebAuthnDeviceCredentials().
                 addAll(POJOHelper.deserialize(v, WEBAUTHN_TYPEREF)));
+        Optional.ofNullable(waConsentDecisions).ifPresent(v -> getConsentDecisions().
+                addAll(POJOHelper.deserialize(v, WA_CONSENT_DECISION_TYPEREF)));
     }
 
     @PostLoad
@@ -185,5 +208,6 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
         mfaTrustedDevices = POJOHelper.serialize(getMfaTrustedDevices());
         impersonationAccounts = POJOHelper.serialize(getImpersonationAccounts());
         webAuthnDeviceCredentials = POJOHelper.serialize(getWebAuthnDeviceCredentials());
+        waConsentDecisions = POJOHelper.serialize(getConsentDecisions());
     }
 }
