@@ -22,9 +22,13 @@ import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.chartjs.Chart;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
-import org.apache.syncope.client.console.chartjs.Doughnut;
-import org.apache.syncope.client.console.chartjs.DoughnutAndPieChartData;
+import org.apache.syncope.client.console.chartjs.ChartType;
+import org.apache.syncope.client.console.chartjs.data.Dataset;
+import org.apache.syncope.client.console.chartjs.options.Plugins;
+import org.apache.syncope.client.console.chartjs.options.TooltipCallback;
+import org.apache.syncope.client.console.chartjs.options.TooltipOptions;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Security;
@@ -62,7 +66,7 @@ public class CompletenessWidget extends BaseWidget {
         this.confCompleteness = confCompleteness;
         setOutputMarkupId(true);
 
-        Pair<Doughnut, Integer> built = build(confCompleteness);
+        Pair<Chart, Long> built = build(confCompleteness);
 
         chart = new ChartJSPanel("chart", Model.of(built.getLeft()));
         add(chart);
@@ -70,97 +74,110 @@ public class CompletenessWidget extends BaseWidget {
         actions = new WebMarkupContainer("actions");
         actions.setOutputMarkupPlaceholderTag(true);
         actions.setVisible(built.getRight() > 0);
-
         add(actions);
 
         policies = BookmarkablePageLinkBuilder.build("policies", Policies.class);
-        policies.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, IdRepoEntitlement.POLICY_LIST);
         actions.add(policies);
-        policies.setVisible(
-                !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
-                || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
 
         notifications = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
-        notifications.setOutputMarkupPlaceholderTag(true);
-        MetaDataRoleAuthorizationStrategy.authorize(
-                notifications, WebPage.ENABLE, IdRepoEntitlement.NOTIFICATION_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(notifications, WebPage.ENABLE, IdRepoEntitlement.NOTIFICATION_LIST);
         actions.add(notifications);
-        notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
         types = BookmarkablePageLinkBuilder.build("types", Types.class);
-        types.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.ANYTYPECLASS_LIST);
         actions.add(types);
-        types.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
         securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", Security.class);
-        securityquestions.setOutputMarkupPlaceholderTag(true);
         actions.add(securityquestions);
-        securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 
         roles = BookmarkablePageLinkBuilder.build("roles", Security.class);
-        roles.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, IdRepoEntitlement.ROLE_LIST);
         actions.add(roles);
-        roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
+
+        notifications.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name())));
+        types.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name())));
+        securityquestions.setVisible(!Boolean.TRUE.equals(confCompleteness.get(
+                NumbersInfo.ConfItem.SECURITY_QUESTION.name())));
+        roles.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ROLE.name())));
+        policies.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name()))
+                || !Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name())));
     }
 
-    private Pair<Doughnut, Integer> build(final Map<String, Boolean> confCompleteness) {
-        Doughnut doughnut = new Doughnut();
-        doughnut.getOptions().setResponsive(true);
-        doughnut.getOptions().setMaintainAspectRatio(true);
-        doughnut.getOptions().setTooltipTemplate("<%= label %>");
-
-        int done = 0;
-        int todo = 0;
-        for (Map.Entry<String, Boolean> entry : confCompleteness.entrySet()) {
-            if (BooleanUtils.isTrue(entry.getValue())) {
-                done += NumbersInfo.ConfItem.getScore(entry.getKey());
-            } else {
-                todo++;
+    private static Pair<Long, Long> buildWeights(final Map<String, Boolean> confCompleteness) {
+        long done = 0;
+        long total = 0;
+        for (NumbersInfo.ConfItem item : NumbersInfo.ConfItem.values()) {
+            long score = NumbersInfo.ConfItem.getScore(item);
+            if (score <= 0) {
+                continue;
+            }
+            total += score;
+            if (BooleanUtils.isTrue(confCompleteness.get(item.name()))) {
+                done += score;
             }
         }
+        return Pair.of(done, total);
+    }
 
-        DoughnutAndPieChartData data = new DoughnutAndPieChartData();
-        doughnut.setData(data);
+    private Pair<Chart, Long> build(final Map<String, Boolean> confCompleteness) {
+        Pair<Long, Long> weights = buildWeights(confCompleteness);
+        long done = weights.getLeft();
+        long total = weights.getRight();
+        long todo = Math.max(0, total - done);
+        long donePercentage = total == 0 ? 0 : Math.round((double) done * 100 / total);
+        long todoPercentage = total == 0 ? 0 : 100 - donePercentage;
 
-        DoughnutAndPieChartData.DataSet dataset = new DoughnutAndPieChartData.DataSet();
-        data.getDatasets().add(dataset);
+        final Chart resultChart = new Chart();
+        resultChart.setType(ChartType.doughnut);
+        resultChart.getOptions().setResponsive(true);
+        resultChart.getOptions().setMaintainAspectRatio(true);
 
-        dataset.getData().add(done);
-        dataset.getData().add(100 - done);
+        final TooltipOptions tooltip = new TooltipOptions();
+        tooltip.setEnabled(true);
 
-        dataset.getBackgroundColor().add("green");
-        dataset.getBackgroundColor().add("red");
+        final TooltipCallback callbacks = new TooltipCallback();
+        callbacks.setLabel("function(context) {return context.label;}");
 
-        data.getLabels().add(getString("done"));
-        data.getLabels().add(getString("todo") + ": " + todo);
+        tooltip.setCallbacks(callbacks);
 
-        return Pair.of(doughnut, todo);
+        final Plugins plugins = new Plugins();
+        plugins.setTooltip(tooltip);
+        resultChart.getOptions().setPlugins(plugins);
+
+        final Dataset ds = new Dataset() {
+        };
+        ds.getBackgroundColor().add("green");
+        ds.getBackgroundColor().add("red");
+        ds.getBorderColor().add("green");
+        ds.getBorderColor().add("red");
+        ds.getData().add(done);
+        ds.getData().add(todo);
+
+        resultChart.getData().getLabels().add(getString("done") + " (" + donePercentage + "%)");
+        resultChart.getData().getLabels().add(getString("todo") + " (" + todoPercentage + "%)");
+        resultChart.getData().getDatasets().add(ds);
+        return Pair.of(resultChart, todo);
     }
 
     public boolean refresh(final Map<String, Boolean> confCompleteness) {
+
         if (!this.confCompleteness.equals(confCompleteness)) {
             this.confCompleteness = confCompleteness;
 
-            Pair<Doughnut, Integer> built = build(confCompleteness);
+            Pair<Chart, Long> built = build(confCompleteness);
 
             chart.setDefaultModelObject(built.getLeft());
-
             actions.setVisible(built.getRight() > 0);
 
-            policies.setVisible(
-                    !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
-                    || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
-
-            notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
-
-            types.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
-
-            securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
-
-            roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
+            notifications.setVisible(
+                    !Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name())));
+            types.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name())));
+            securityquestions.setVisible(!Boolean.TRUE.equals(confCompleteness.get(
+                    NumbersInfo.ConfItem.SECURITY_QUESTION.name())));
+            roles.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ROLE.name())));
+            policies.setVisible(!Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name()))
+                    || !Boolean.TRUE.equals(confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name())));
 
             return true;
         }
