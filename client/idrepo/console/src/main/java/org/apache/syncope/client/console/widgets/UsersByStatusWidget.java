@@ -61,8 +61,7 @@ public class UsersByStatusWidget extends BaseWidget {
             colors.add(COLORS[i % COLORS.length]);
         }
 
-        Dataset dataset = new Dataset() {
-        };
+        Dataset dataset = new Dataset();
         dataset.getData().addAll(values);
         dataset.getBackgroundColor().addAll(colors);
         dataset.getBorderColor().addAll(colors);
@@ -70,7 +69,7 @@ public class UsersByStatusWidget extends BaseWidget {
         List<Dataset> datasets = new ArrayList<>();
         datasets.add(dataset);
 
-        ChartData<Dataset> data = new ChartData<>();
+        ChartData data = new ChartData();
         data.getLabels().addAll(labels);
         data.getDatasets().addAll(datasets);
 

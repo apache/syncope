@@ -50,9 +50,9 @@ public class LoadWidget extends BaseWidget {
     }
 
     private static Chart build(final SystemInfo systeminfo) {
-        final List<Double> cpuValues = new ArrayList<>();
-        final List<Long> memValues = new ArrayList<>();
-        final List<String> labels = new ArrayList<>();
+        List<Double> cpuValues = new ArrayList<>();
+        List<Long> memValues = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
 
         systeminfo.getLoad().forEach(instant -> {
             labels.add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(
@@ -62,29 +62,21 @@ public class LoadWidget extends BaseWidget {
             memValues.add(instant.getTotalMemory());
         });
 
-        Dataset cpu = new Dataset() {
-
-            private static final long serialVersionUID = 5636572627689425575L;
-
-        };
+        Dataset cpu = new Dataset();
         cpu.getLabel().add("CPU");
         cpu.getData().addAll(cpuValues);
         cpu.getBorderColor().add("purple");
         cpu.getBackgroundColor().add("purple");
         cpu.setTension(0.4);
 
-        Dataset mem = new Dataset() {
-
-            private static final long serialVersionUID = 5636572627689425575L;
-
-        };
+        Dataset mem = new Dataset();
         mem.getLabel().add("MEM");
         mem.getData().addAll(memValues);
         mem.getBorderColor().add("grey");
         mem.getBackgroundColor().add("grey");
         mem.setTension(0.4);
 
-        ChartData<Dataset> data = new ChartData<>();
+        ChartData data = new ChartData();
         data.getLabels().addAll(labels);
         data.getDatasets().addAll(List.of(cpu, mem));
 

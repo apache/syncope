@@ -128,25 +128,24 @@ public class CompletenessWidget extends BaseWidget {
         long donePercentage = total == 0 ? 0 : Math.round((double) done * 100 / total);
         long todoPercentage = total == 0 ? 0 : 100 - donePercentage;
 
-        final Chart resultChart = new Chart();
+        Chart resultChart = new Chart();
         resultChart.setType(ChartType.doughnut);
         resultChart.getOptions().setResponsive(true);
         resultChart.getOptions().setMaintainAspectRatio(true);
 
-        final TooltipOptions tooltip = new TooltipOptions();
+        TooltipOptions tooltip = new TooltipOptions();
         tooltip.setEnabled(true);
 
-        final TooltipCallback callbacks = new TooltipCallback();
+        TooltipCallback callbacks = new TooltipCallback();
         callbacks.setLabel("function(context) {return context.label;}");
 
         tooltip.setCallbacks(callbacks);
 
-        final Plugins plugins = new Plugins();
+        Plugins plugins = new Plugins();
         plugins.setTooltip(tooltip);
         resultChart.getOptions().setPlugins(plugins);
 
-        final Dataset ds = new Dataset() {
-        };
+        Dataset ds = new Dataset();
         ds.getBackgroundColor().add("green");
         ds.getBackgroundColor().add("red");
         ds.getBorderColor().add("green");
@@ -157,6 +156,7 @@ public class CompletenessWidget extends BaseWidget {
         resultChart.getData().getLabels().add(getString("done") + " (" + donePercentage + "%)");
         resultChart.getData().getLabels().add(getString("todo") + " (" + todoPercentage + "%)");
         resultChart.getData().getDatasets().add(ds);
+
         return Pair.of(resultChart, todo);
     }
 
