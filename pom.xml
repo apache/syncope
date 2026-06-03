@@ -483,7 +483,7 @@ under the License.
     <codemirror.version>5.62.2</codemirror.version>
     <googlediffmatchpath.version>20121119-1</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
-    <chartjs.version>4.4.3</chartjs.version>
+    <chartjs.version>4.5.1</chartjs.version>
 
     <wicket.version>10.9.1</wicket.version>
     <wicketstuff.version>10.9.2</wicketstuff.version>

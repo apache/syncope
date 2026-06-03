@@ -18,69 +18,37 @@
  */
 package org.apache.syncope.client.console.chartjs;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ChartJSPanel extends Panel {
 
-    private static final long serialVersionUID = -3844680585650585253L;
+    private static final long serialVersionUID = -8670277955339192068L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ChartJSPanel.class);
-
-    private static final JsonMapper MAPPER = JsonMapper.builder().
-            findAndAddModules().defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL).build();
-
-    private final IModel<? extends Chart<?>> model;
+    private final IModel<Chart> model;
 
     private final WebMarkupContainer container;
 
-    public ChartJSPanel(
-            final String id,
-            final IModel<? extends Chart<?>> model) {
+    private final ChartJSRenderer renderer = new ChartJSRenderer();
 
+    public ChartJSPanel(final String id, final IModel<Chart> model) {
         super(id, model);
 
         this.model = model;
-        this.container = new WebMarkupContainer("chart");
-    }
 
-    @Override
-    protected void onInitialize() {
-        super.onInitialize();
+        this.container = new WebMarkupContainer("chart");
+        this.container.setOutputMarkupId(true);
+
         add(container);
-        container.setOutputMarkupId(true);
         container.add(new ChartJSBehavior());
     }
 
-    public Chart<?> getChart() {
+    public Chart getChart() {
         return model.getObject();
     }
 
     public String generateChart(final String markupId) {
-        String dataString = null;
-        String optionString = null;
-        try {
-            Object data = (model.getObject() instanceof final SimpleChart simpleChart)
-                    ? simpleChart.getData()
-                    : ((DataSetChart) model.getObject()).getData();
-            dataString = MAPPER.writeValueAsString(data);
-            optionString = MAPPER.writeValueAsString(model.getObject().getOptions());
-        } catch (JsonProcessingException e) {
-            LOG.error("Unexpected error during JSON serialization", e);
-        }
-
-        return "WicketCharts['" + markupId + "'] = new Chart("
-                + "getChartCtx('" + markupId + "'),"
-                + "{"
-                + "type: '" + model.getObject().getClass().getSimpleName().toLowerCase() + "',"
-                + "data: " + dataString + ","
-                + "options:" + optionString
-                + "})";
+        return renderer.render(markupId, model.getObject());
     }
 }

@@ -16,23 +16,49 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.apache.syncope.client.console.chartjs;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
+import org.apache.syncope.client.console.chartjs.data.ChartData;
+import org.apache.syncope.client.console.chartjs.options.ChartOptions;
 
-/**
- * Provides chart options and a pojo-json mapper to communicate with javascript.
- *
- * @param <O> the generic type of options
- */
-public abstract class Chart<O extends ChartOptions> implements Serializable {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class Chart implements Serializable {
 
-    private static final long serialVersionUID = 4733939203616971674L;
+    private static final long serialVersionUID = -1787318832624463674L;
 
-    /** The options. */
-    protected O options;
+    private ChartType type;
 
-    public O getOptions() {
+    private ChartData<?> data = new ChartData<>();
+
+    private ChartOptions options;
+
+    public ChartType getType() {
+        return type;
+    }
+
+    public void setType(final ChartType type) {
+        this.type = type;
+    }
+
+    public ChartData<?> getData() {
+        return data;
+    }
+
+    public void setData(final ChartData<?> data) {
+        this.data = data;
+    }
+
+    public ChartOptions getOptions() {
+        if (options == null) {
+            options = new ChartOptions();
+        }
         return options;
+    }
+
+    public void setOptions(final ChartOptions options) {
+        this.options = options;
     }
 }

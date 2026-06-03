@@ -16,26 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.chartjs;
+package org.apache.syncope.client.console.chartjs.data;
 
-/**
- * Provides chart data and options.
- *
- * @param <D> the generic type of chart data
- * @param <O> the generic type of chart options
- */
-public abstract class SimpleChart<D extends DoughnutAndPieChartData, O extends ChartOptions> extends Chart<O> {
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final long serialVersionUID = 4176838766615656412L;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ChartData<T extends Dataset> implements Serializable {
 
-    /** The data. */
-    protected D data;
+    private static final long serialVersionUID = -8489073681001237058L;
 
-    public D getData() {
-        return data;
+    private final List<String> labels = new ArrayList<>();
+
+    private final List<Dataset> datasets = new ArrayList<>();
+
+    public List<String> getLabels() {
+        return labels;
     }
 
-    public void setData(final D data) {
-        this.data = data;
+    public List<Dataset> getDatasets() {
+        return datasets;
     }
 }
