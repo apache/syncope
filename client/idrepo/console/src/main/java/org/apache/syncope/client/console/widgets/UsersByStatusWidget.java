@@ -48,21 +48,20 @@ public class UsersByStatusWidget extends BaseWidget {
     }
 
     private static Chart build(final Map<String, Long> usersByStatus) {
-        final List<String> labels = new ArrayList<>();
-        final List<Long> values = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Long> values = new ArrayList<>();
 
         for (Map.Entry<String, Long> entry : usersByStatus.entrySet()) {
             labels.add(entry.getKey());
             values.add(entry.getValue());
         }
 
-        final List<String> colors = new ArrayList<>();
+        List<String> colors = new ArrayList<>();
         for (int i = 0; i < values.size(); i++) {
             colors.add(COLORS[i % COLORS.length]);
         }
 
-        Dataset dataset = new Dataset() {
-        };
+        Dataset dataset = new Dataset();
         dataset.getData().addAll(values);
         dataset.getBackgroundColor().addAll(colors);
         dataset.getBorderColor().addAll(colors);
@@ -70,7 +69,7 @@ public class UsersByStatusWidget extends BaseWidget {
         List<Dataset> datasets = new ArrayList<>();
         datasets.add(dataset);
 
-        ChartData<Dataset> data = new ChartData<>();
+        ChartData data = new ChartData();
         data.getLabels().addAll(labels);
         data.getDatasets().addAll(datasets);
 

@@ -39,7 +39,7 @@ public class ChartJSBehavior extends AbstractDefaultAjaxBehavior {
     public void renderHead(final Component component, final IHeaderResponse response) {
         super.renderHead(component, response);
 
-        if (component.getParent() instanceof final ChartJSPanel components) {
+        if (component.getParent() instanceof ChartJSPanel components) {
             response.render(OnDomReadyHeaderItem.forScript(
                     components.generateChart(component.getMarkupId())));
         }

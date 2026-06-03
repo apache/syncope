@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ChartData<T extends Dataset> implements Serializable {
+public class ChartData implements Serializable {
 
     private static final long serialVersionUID = -8489073681001237058L;
 

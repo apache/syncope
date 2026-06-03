@@ -31,7 +31,7 @@ public class Chart implements Serializable {
 
     private ChartType type;
 
-    private ChartData<?> data = new ChartData<>();
+    private ChartData data = new ChartData();
 
     private ChartOptions options;
 
@@ -43,11 +43,11 @@ public class Chart implements Serializable {
         this.type = type;
     }
 
-    public ChartData<?> getData() {
+    public ChartData getData() {
         return data;
     }
 
-    public void setData(final ChartData<?> data) {
+    public void setData(final ChartData data) {
         this.data = data;
     }
 

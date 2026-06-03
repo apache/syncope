@@ -88,13 +88,13 @@ public class AnyByRealmWidget extends BaseWidget {
             final String anyType2,
             final Map<String, Long> any2ByRealm) {
 
-        final List<String> labels = new ArrayList<>();
-        final List<Long> userValues = new ArrayList<>();
-        final List<Long> groupValues = new ArrayList<>();
-        final List<Long> any1Values = new ArrayList<>();
-        final List<Long> any2Values = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        List<Long> userValues = new ArrayList<>();
+        List<Long> groupValues = new ArrayList<>();
+        List<Long> any1Values = new ArrayList<>();
+        List<Long> any2Values = new ArrayList<>();
 
-        final Set<String> realmSet = new HashSet<>();
+        Set<String> realmSet = new HashSet<>();
         realmSet.addAll(usersByRealm.keySet());
         realmSet.addAll(groupsByRealm.keySet());
         if (any1ByRealm != null) {
@@ -106,10 +106,10 @@ public class AnyByRealmWidget extends BaseWidget {
         List<String> realms = new ArrayList<>(realmSet);
         realms.sort(Comparator.naturalOrder());
 
-        final int limit = Math.min(realms.size(), MAX_REALMS);
+        int limit = Math.min(realms.size(), MAX_REALMS);
 
         for (int i = 0; i < limit; i++) {
-            final String realm = realms.get(i);
+            String realm = realms.get(i);
 
             labels.add(StringUtils.substringAfterLast(realm, "/"));
 
@@ -124,7 +124,7 @@ public class AnyByRealmWidget extends BaseWidget {
             }
         }
 
-        final Chart chart = new Chart();
+        Chart chart = new Chart();
         chart.setType(ChartType.bar);
 
         chart.getData().getLabels().addAll(labels);
@@ -132,27 +132,27 @@ public class AnyByRealmWidget extends BaseWidget {
         chart.getOptions().setResponsive(true);
         chart.getOptions().setMaintainAspectRatio(true);
 
-        final TooltipOptions tooltip = new TooltipOptions();
+        TooltipOptions tooltip = new TooltipOptions();
         tooltip.setEnabled(true);
 
-        final TooltipCallback callbacks = new TooltipCallback();
+        TooltipCallback callbacks = new TooltipCallback();
         callbacks.setLabel("function(context) {return context.dataset.label + ': ' + context.formattedValue;}");
 
         tooltip.setCallbacks(callbacks);
 
-        final Plugins plugins = new Plugins();
+        Plugins plugins = new Plugins();
         plugins.setTooltip(tooltip);
 
         chart.getOptions().setPlugins(plugins);
 
-        final Scale x = new Scale();
+        Scale x = new Scale();
         x.setDisplay(true);
 
-        final Scale y = new Scale();
+        Scale y = new Scale();
         y.setDisplay(true);
         y.setMin(0);
 
-        final Scales scales = new Scales();
+        Scales scales = new Scales();
         scales.setX(x);
         scales.setY(y);
 
@@ -172,8 +172,7 @@ public class AnyByRealmWidget extends BaseWidget {
     }
 
     private static Dataset dataset(final String label, final String color, final List<Long> values) {
-        final Dataset ds = new Dataset() {
-        };
+        Dataset ds = new Dataset();
         ds.getLabel().add(label);
         ds.getBackgroundColor().add(color);
         ds.getBorderColor().add(color);
