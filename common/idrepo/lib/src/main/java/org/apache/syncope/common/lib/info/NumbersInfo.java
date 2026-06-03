@@ -45,14 +45,8 @@ public class NumbersInfo implements BaseBean {
             this.score = score;
         }
 
-        public static int getScore(final String name) {
-            int score = 0;
-            for (ConfItem value : values()) {
-                if (value.name().equals(name)) {
-                    score = value.score;
-                }
-            }
-            return score;
+        public static int getScore(final ConfItem item) {
+            return item == null ? 0 : item.score;
         }
     }
 
