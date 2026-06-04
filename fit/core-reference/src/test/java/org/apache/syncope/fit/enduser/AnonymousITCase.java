@@ -125,12 +125,17 @@ public class AnonymousITCase extends AbstractEnduserITCase {
                 pwdResetForm + ":selfPasswordResetPanelCard:contentPanel:securityQuestion",
                 question.getContent());
 
-        // 3. submit form and receive an error
+        // 3. submit form with missing answer and receive the generic success page
         TESTER.executeAjaxEvent(pwdResetForm + ":submit", Constants.ON_CLICK);
-        TESTER.assertErrorMessages("Invalid Security Answer");
+        TESTER.assertRenderedPage(SelfResult.class);
         TESTER.cleanupFeedbackMessages();
 
         // 3.1 set the correct answer
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
+        TESTER.clickLink("self-pwd-reset");
+        TESTER.assertRenderedPage(SelfPasswordReset.class);
+
         formTester = TESTER.newFormTester(pwdResetForm);
         formTester.setValue("selfPasswordResetPanelCard:contentPanel:username", "selfpwdreset");
         TESTER.executeAjaxEvent(

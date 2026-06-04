@@ -68,6 +68,19 @@ public class SecurityProperties {
         }
     }
 
+    public static class PasswordResetProperties {
+
+        private boolean hideDetails = true;
+
+        public boolean isHideDetails() {
+            return hideDetails;
+        }
+
+        public void setHideDetails(final boolean hideDetails) {
+            this.hideDetails = hideDetails;
+        }
+    }
+
     public static class DigesterProperties {
 
         private int saltIterations = 1;
@@ -148,6 +161,8 @@ public class SecurityProperties {
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
     private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
+
+    private final PasswordResetProperties passwordReset = new PasswordResetProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
 
@@ -241,6 +256,10 @@ public class SecurityProperties {
 
     public AuthenticationThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
+    }
+
+    public PasswordResetProperties getPasswordReset() {
+        return passwordReset;
     }
 
     public DigesterProperties getDigester() {
