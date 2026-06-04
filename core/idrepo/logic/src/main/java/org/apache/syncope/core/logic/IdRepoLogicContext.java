@@ -26,6 +26,8 @@ import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import jakarta.validation.Validator;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
@@ -103,6 +105,7 @@ import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -523,7 +526,10 @@ public class IdRepoLogicContext {
             final DelegationDAO delegationDAO,
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final SecurityProperties securityProperties,
+            @Qualifier(PasswordResetRequestThrottler.CACHE_NAME)
+            final Cache<String, PasswordResetRequestThrottler.Attempts> passwordResetRequestCache) {
 
         return new UserSelfLogic(
                 realmSearchDAO,
@@ -537,7 +543,21 @@ public class IdRepoLogicContext {
                 delegationDAO,
                 accessTokenDAO,
                 resourceDAO,
-                ruleProvider);
+                ruleProvider,
+                securityProperties,
+                passwordResetRequestCache);
+    }
+
+    @ConditionalOnMissingBean(name = PasswordResetRequestThrottler.CACHE_NAME)
+    @Bean(name = PasswordResetRequestThrottler.CACHE_NAME)
+    public Cache<String, PasswordResetRequestThrottler.Attempts> passwordResetRequestCache(
+            final CacheManager cacheManager,
+            final SecurityProperties securityProperties) {
+
+        return cacheManager.createCache(
+                PasswordResetRequestThrottler.CACHE_NAME,
+                PasswordResetRequestThrottler.cacheConfiguration(
+                        securityProperties.getPasswordReset().getThrottle()));
     }
 
     @ConditionalOnMissingBean
