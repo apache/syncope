@@ -32,11 +32,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
  */
 public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
+    public static final String AUTHENTICATION_FAILED = "Authentication failed";
+
     @Override
     public void commence(final HttpServletRequest request, final HttpServletResponse response,
             final AuthenticationException authException) throws IOException {
 
-        response.addHeader(RESTHeaders.ERROR_INFO, authException.getMessage());
+        response.addHeader(RESTHeaders.ERROR_INFO, AUTHENTICATION_FAILED);
         if (authException instanceof RateLimitAuthenticationException rateLimit) {
             response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(rateLimit.getRetryAfterSeconds()));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), authException.getMessage());
