@@ -294,6 +294,8 @@ public abstract class AbstractITCase {
 
     protected static String ANONYMOUS_KEY;
 
+    protected static int AUTHENTICATION_THROTTLE_MAX_ATTEMPTS;
+
     protected static String JWS_KEY;
 
     protected static String JWT_ISSUER;
@@ -487,6 +489,8 @@ public abstract class AbstractITCase {
             JWT_ISSUER = props.getProperty("security.jwtIssuer");
             JWS_ALGORITHM = JWSAlgorithm.parse(props.getProperty("security.jwsAlgorithm"));
             JWS_KEY = props.getProperty("security.jwsKey");
+            AUTHENTICATION_THROTTLE_MAX_ATTEMPTS = Integer.parseInt(
+                    props.getProperty("security.authenticationThrottle.maxAttempts"));
         } catch (Exception e) {
             LOG.error("Could not read core.properties", e);
         }

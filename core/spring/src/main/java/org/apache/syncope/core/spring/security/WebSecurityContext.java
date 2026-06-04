@@ -20,6 +20,8 @@ package org.apache.syncope.core.spring.security;
 
 import dev.samstevens.totp.code.CodeVerifier;
 import java.util.List;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -36,6 +38,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -126,14 +129,28 @@ public class WebSecurityContext {
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            @Qualifier(AuthenticationAttemptThrottler.CACHE_NAME)
+            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache) {
 
         return new UsernamePasswordAuthenticationProvider(
                 domainOps,
                 dataAccessor,
                 provisioningManager,
                 securityProperties,
-                encryptorManager);
+                encryptorManager,
+                authenticationAttemptCache);
+    }
+
+    @ConditionalOnMissingBean(name = AuthenticationAttemptThrottler.CACHE_NAME)
+    @Bean(name = AuthenticationAttemptThrottler.CACHE_NAME)
+    public Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache(
+            final CacheManager cacheManager,
+            final SecurityProperties securityProperties) {
+
+        return cacheManager.createCache(
+                AuthenticationAttemptThrottler.CACHE_NAME,
+                AuthenticationAttemptThrottler.cacheConfiguration(securityProperties.getAuthenticationThrottle()));
     }
 
     @Bean
