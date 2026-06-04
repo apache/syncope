@@ -68,6 +68,31 @@ public class SecurityProperties {
         }
     }
 
+    public static class AuthenticationErrorProperties {
+
+        public static final String DEFAULT_GENERIC_MESSAGE = "Authentication failed";
+
+        private boolean exposeDetails = false;
+
+        private String genericMessage = DEFAULT_GENERIC_MESSAGE;
+
+        public boolean isExposeDetails() {
+            return exposeDetails;
+        }
+
+        public void setExposeDetails(final boolean exposeDetails) {
+            this.exposeDetails = exposeDetails;
+        }
+
+        public String getGenericMessage() {
+            return genericMessage;
+        }
+
+        public void setGenericMessage(final String genericMessage) {
+            this.genericMessage = genericMessage;
+        }
+    }
+
     public static class DigesterProperties {
 
         private int saltIterations = 1;
@@ -148,6 +173,8 @@ public class SecurityProperties {
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
     private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
+
+    private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
 
@@ -241,6 +268,10 @@ public class SecurityProperties {
 
     public AuthenticationThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
+    }
+
+    public AuthenticationErrorProperties getAuthenticationError() {
+        return authenticationError;
     }
 
     public DigesterProperties getDigester() {
