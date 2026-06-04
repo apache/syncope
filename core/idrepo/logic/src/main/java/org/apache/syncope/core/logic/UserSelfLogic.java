@@ -62,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +86,8 @@ public class UserSelfLogic extends AbstractUserLogic {
 
     protected final RuleProvider ruleProvider;
 
+    protected final SecurityProperties securityProperties;
+
     public UserSelfLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -97,7 +100,8 @@ public class UserSelfLogic extends AbstractUserLogic {
             final DelegationDAO delegationDAO,
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final SecurityProperties securityProperties) {
 
         super(realmSearchDAO,
                 anyTypeDAO,
@@ -111,6 +115,7 @@ public class UserSelfLogic extends AbstractUserLogic {
         this.accessTokenDAO = accessTokenDAO;
         this.resourceDAO = resourceDAO;
         this.ruleProvider = ruleProvider;
+        this.securityProperties = securityProperties;
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -274,17 +279,29 @@ public class UserSelfLogic extends AbstractUserLogic {
             throw sce;
         }
 
-        String key = userDAO.findKey(username).
-                orElseThrow(() -> new NotFoundException("User " + username));
+        Optional<String> key = userDAO.findKey(username);
+        if (key.isEmpty()) {
+            if (!securityProperties.getPasswordReset().isHideDetails()) {
+                throw new NotFoundException("User " + username);
+            }
+            LOG.warn("Ignoring password reset request for unknown user [{}] in domain [{}]",
+                    username, AuthContextUtils.getDomain());
+            return;
+        }
 
         if (confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class)
-                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
+                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key.get(), securityAnswer))) {
 
-            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
+            if (!securityProperties.getPasswordReset().isHideDetails()) {
+                throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
+            }
+            LOG.warn("Ignoring password reset request for user [{}] in domain [{}]: missing or invalid security answer",
+                    username, AuthContextUtils.getDomain());
+            return;
         }
 
-        provisioningManager.requestPasswordReset(key, AuthContextUtils.getUsername(), REST_CONTEXT);
+        provisioningManager.requestPasswordReset(key.get(), AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -298,7 +315,9 @@ public class UserSelfLogic extends AbstractUserLogic {
         }
 
         String key = userDAO.findByToken(token).
-                orElseThrow(() -> new NotFoundException("User with token " + token));
+                orElseThrow(() -> new NotFoundException(securityProperties.getPasswordReset().isHideDetails()
+                ? "Invalid password reset token"
+                : "User with token " + token));
 
         provisioningManager.confirmPasswordReset(
                 key, token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
