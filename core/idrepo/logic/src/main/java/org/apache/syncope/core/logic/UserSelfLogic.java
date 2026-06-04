@@ -284,8 +284,7 @@ public class UserSelfLogic extends AbstractUserLogic {
             if (!securityProperties.getPasswordReset().isHideDetails()) {
                 throw new NotFoundException("User " + username);
             }
-            LOG.warn("Ignoring password reset request for unknown user [{}] in domain [{}]",
-                    username, AuthContextUtils.getDomain());
+            LOG.warn("Ignoring password reset request for unknown user");
             return;
         }
 
@@ -296,8 +295,7 @@ public class UserSelfLogic extends AbstractUserLogic {
             if (!securityProperties.getPasswordReset().isHideDetails()) {
                 throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
             }
-            LOG.warn("Ignoring password reset request for user [{}] in domain [{}]: missing or invalid security answer",
-                    username, AuthContextUtils.getDomain());
+            LOG.warn("Ignoring password reset request with missing or invalid security answer");
             return;
         }
 
