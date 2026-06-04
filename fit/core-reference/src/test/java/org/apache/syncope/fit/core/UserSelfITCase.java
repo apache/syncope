@@ -406,8 +406,8 @@ public class UserSelfITCase extends AbstractITCase {
             Properties props = new Properties();
             props.load(propStream);
             maxAttempts = Integer.parseInt(props.getProperty("security.passwordReset.throttle.maxAttempts", "5"));
-        } catch (IOException e) {
-            throw new IllegalStateException("Could not read core.properties", e);
+        } catch (IOException | NumberFormatException e) {
+            throw new IllegalStateException("Could not read password reset throttle max attempts from core.props", e);
         }
 
         for (int i = 0; i < maxAttempts; i++) {
@@ -420,7 +420,7 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClientException e = assertThrows(
                 SyncopeClientException.class,
                 () -> userSelfService.requestPasswordReset(username, "answer"));
-        assertEquals(ClientExceptionType.TooManyRequests, e.getType());
+        assertEquals(Response.Status.TOO_MANY_REQUESTS, e.getType().getResponseStatus());
     }
 
     @Test
