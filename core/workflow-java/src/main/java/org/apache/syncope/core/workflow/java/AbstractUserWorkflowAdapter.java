@@ -211,7 +211,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                     });
 
                     suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
-                            && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
+                            && user.getFailedLogins() >= policy.getMaxAuthenticationAttempts() && !user.isSuspended();
                     propagateSuspension |= policy.isPropagateSuspension();
                 }
             }
@@ -380,10 +380,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         Pair<Boolean, Boolean> enforce = enforcePolicies(user, true, null);
         if (enforce.getKey()) {
-            LOG.debug("User {} {} is over the max failed logins", user.getKey(), user.getUsername());
-
-            // reduce failed logins number to avoid multiple request       
-            user.setFailedLogins(user.getFailedLogins() - 1);
+            LOG.debug("User {} {} reached the max failed logins", user.getKey(), user.getUsername());
 
             // set suspended flag
             user.setSuspended(Boolean.TRUE);
