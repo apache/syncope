@@ -124,6 +124,7 @@ public class UserDetails extends Details<UserTO> {
                     wrapper,
                     wrapper.getInnerObject().getKey() == null,
                     false,
+                    null,
                     restClient));
         }
     }

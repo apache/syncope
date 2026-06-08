@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -212,12 +213,21 @@ public class UserSelfLogic extends AbstractUserLogic {
         }
 
         Realm realm = null;
-        if (StringUtils.isNotBlank(query.getRealm())) {
-            realm = realmSearchDAO.findByFullPath(query.getRealm()).
-                    orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
+        Set<ExternalResource> resources;
+        if (StringUtils.isNotBlank(query.getToken())) {
+            User user = userDAO.findByToken(query.getToken()).
+                    orElseThrow(() -> new NotFoundException("User with token " + query.getToken()));
+            realm = user.getRealm();
+            resources = new HashSet<>(user.getResources());
+        } else {
+            if (StringUtils.isNotBlank(query.getRealm())) {
+                realm = realmSearchDAO.findByFullPath(query.getRealm()).
+                        orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
+            }
+            resources = query.getResources().stream().
+                    map(resourceDAO::findById).flatMap(Optional::stream).collect(Collectors.toSet());
         }
-        Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::findById).flatMap(Optional::stream).collect(Collectors.toSet());
+
         if (realm == null && resources.isEmpty()) {
             sce.getElements().add("Nothing to check");
             throw sce;

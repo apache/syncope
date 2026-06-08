@@ -72,6 +72,7 @@ public class SelfConfirmPasswordReset extends BasePage {
                 new UserWrapper(fakeUserTO),
                 false,
                 false,
+                parameters.get("token").toString(),
                 anonymousRestClient);
         passwordPanel.setOutputMarkupId(true);
 
