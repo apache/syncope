@@ -44,6 +44,7 @@ public class PasswordPanel extends Panel {
             final UserWrapper wrapper,
             final Boolean storePasswordInSyncope,
             final boolean templateMode,
+            final String token,
             final AnonymousRestClient restClient) {
 
         super(id);
@@ -95,6 +96,7 @@ public class PasswordPanel extends Panel {
                     ComplianceQuery quey = new ComplianceQuery.Builder().
                             realm(wrapper.getInnerObject().getRealm()).
                             password(password.getField().getInput()).
+                            token(token).
                             resources(wrapper.getInnerObject().getResources()).
                             build();
                     try {
