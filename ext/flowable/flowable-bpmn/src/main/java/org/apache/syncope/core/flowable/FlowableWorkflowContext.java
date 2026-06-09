@@ -19,6 +19,8 @@
 package org.apache.syncope.core.flowable;
 
 import java.util.List;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
@@ -48,14 +50,19 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
+import org.apache.syncope.core.spring.implementation.GroovySandboxScriptEngineImpl;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.flowable.common.engine.api.FlowableException;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
 import org.flowable.common.engine.impl.cfg.IdGenerator;
 import org.flowable.common.engine.impl.persistence.StrongUuidGenerator;
+import org.flowable.common.engine.impl.scripting.JSR223FlowableScriptEngine;
+import org.flowable.common.engine.impl.scripting.ScriptingEngines;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -140,9 +147,10 @@ public class FlowableWorkflowContext {
     public SpringProcessEngineConfiguration processEngineConfiguration(
             final WorkflowFlowableProperties props,
             final SpringIdmEngineConfigurator syncopeIdmEngineConfigurator,
-            final IdGenerator idGenerator,
             final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
-            final SyncopeFormHandlerHelper syncopeFormHandlerHelper) {
+            final SyncopeFormHandlerHelper syncopeFormHandlerHelper,
+            final IdGenerator idGenerator,
+            final Blacklist groovyBlackList) {
 
         SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
@@ -154,6 +162,22 @@ public class FlowableWorkflowContext {
         conf.setFormHandlerHelper(syncopeFormHandlerHelper);
         conf.setIdGenerator(idGenerator);
         conf.setPreBpmnParseHandlers(List.of(new ShellServiceTaskDisablingBpmnParseHandler()));
+
+        ScriptEngine groovyScriptEngine = new GroovySandboxScriptEngineImpl(groovyBlackList);
+        groovyScriptEngine.getContext().
+                setAttribute("#jsr223.groovy.engine.keep.globals", "weak", ScriptContext.ENGINE_SCOPE);
+        conf.setScriptEngine(new JSR223FlowableScriptEngine() {
+
+            @Override
+            protected ScriptEngine getEngineByName(final String language) {
+                if (ScriptingEngines.GROOVY_SCRIPTING_LANGUAGE.equals(language)) {
+                    return groovyScriptEngine;
+                }
+
+                throw new FlowableException("Can't find scripting engine for '" + language + "'");
+            }
+        });
+
         return conf;
     }
 
