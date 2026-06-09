@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -227,6 +229,27 @@ public class IdRepoRESTCXFContext {
         return new AddETagFilter();
     }
 
+    @ConditionalOnMissingBean
+    @Bean
+    public CXFRateLimitFilter cxfRateLimitFilter(
+            final RESTProperties props,
+            @Qualifier(CXFRateLimitFilter.CACHE_NAME)
+            final Cache<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCache) {
+
+        return new CXFRateLimitFilter(props, cxfRateLimitCache);
+    }
+
+    @ConditionalOnMissingBean(name = CXFRateLimitFilter.CACHE_NAME)
+    @Bean(name = CXFRateLimitFilter.CACHE_NAME)
+    public Cache<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCache(
+            final CacheManager cacheManager,
+            final RESTProperties props) {
+
+        return cacheManager.createCache(
+                CXFRateLimitFilter.CACHE_NAME,
+                CXFRateLimitFilter.cacheConfiguration(props.getRateLimit()));
+    }
+
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
     @Bean
     public OpenApiCustomizer openApiCustomizer(final DomainHolder<?> domainHolder, final Environment env) {
@@ -278,6 +301,7 @@ public class IdRepoRESTCXFContext {
             final List<JAXRSService> services,
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
+            final CXFRateLimitFilter cxfRateLimitFilter,
             final ContextProvider<SearchContext> searchContextProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
@@ -308,6 +332,7 @@ public class IdRepoRESTCXFContext {
                 jsonProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
+                cxfRateLimitFilter,
                 addDomainFilter,
                 addETagFilter));
 

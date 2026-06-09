@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.core.provisioning.java.ExecutorProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -28,7 +31,79 @@ public class RESTProperties {
     @NestedConfigurationProperty
     private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
+    @NestedConfigurationProperty
+    private final RateLimit rateLimit = new RateLimit();
+
     public ExecutorProperties getBatchExecutor() {
         return batchExecutor;
+    }
+
+    public RateLimit getRateLimit() {
+        return rateLimit;
+    }
+
+    public static class RateLimit {
+
+        private boolean enabled;
+
+        private int maxRequests = 300;
+
+        private Duration window = Duration.ofMinutes(1);
+
+        private Duration lock = Duration.ofMinutes(1);
+
+        private String forwardedForHeader = "X-Forwarded-For";
+
+        private final Set<String> excludedAddresses = new HashSet<>();
+
+        private final Set<String> trustedProxies = new HashSet<>();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(final boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getMaxRequests() {
+            return maxRequests;
+        }
+
+        public void setMaxRequests(final int maxRequests) {
+            this.maxRequests = maxRequests;
+        }
+
+        public Duration getWindow() {
+            return window;
+        }
+
+        public void setWindow(final Duration window) {
+            this.window = window;
+        }
+
+        public Duration getLock() {
+            return lock;
+        }
+
+        public void setLock(final Duration lock) {
+            this.lock = lock;
+        }
+
+        public String getForwardedForHeader() {
+            return forwardedForHeader;
+        }
+
+        public void setForwardedForHeader(final String forwardedForHeader) {
+            this.forwardedForHeader = forwardedForHeader;
+        }
+
+        public Set<String> getExcludedAddresses() {
+            return excludedAddresses;
+        }
+
+        public Set<String> getTrustedProxies() {
+            return trustedProxies;
+        }
     }
 }
