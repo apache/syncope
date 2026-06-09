@@ -70,10 +70,15 @@ public class EditSecurityQuestion extends BaseReauthPage {
 
     protected final UserTO userTO;
 
+    protected final UserUR userUR;
+
     public EditSecurityQuestion(final PageParameters parameters) {
         super(parameters, EDIT_SECURITY_QUESTION);
 
         userTO = SyncopeEnduserSession.get().getSelfTO(true);
+        userUR = new UserUR.Builder(userTO.getKey()).
+                securityQuestion(new StringReplacePatchItem.Builder().value(userTO.getSecurityQuestion()).build()).
+                build();
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
@@ -84,7 +89,7 @@ public class EditSecurityQuestion extends BaseReauthPage {
         content.add(form);
 
         securityQuestion = new AjaxDropDownChoicePanel<>("securityQuestion",
-                "securityQuestion", new PropertyModel<>(userTO, "securityQuestion"));
+                "securityQuestion", new PropertyModel<>(userUR, "securityQuestion.value"));
         securityQuestion.setNullValid(true);
         securityQuestion.setRequired(true);
 
@@ -126,7 +131,7 @@ public class EditSecurityQuestion extends BaseReauthPage {
         form.add(securityQuestion);
 
         securityAnswer = new AjaxTextFieldPanel("securityAnswer", "securityAnswer",
-                new PropertyModel<>(userTO, "securityAnswer"), false);
+                new PropertyModel<>(userUR, "securityAnswer.value"), false);
         form.add(securityAnswer.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).
                 setEnabled(StringUtils.isNotBlank(securityQuestion.getModelObject())));
         securityAnswer.setRequired(true);
@@ -151,13 +156,7 @@ public class EditSecurityQuestion extends BaseReauthPage {
                 } else {
                     try {
                         ProvisioningResult<UserTO> provisioningResult =
-                                userSelfRestClient.update(
-                                        userTO.getETagValue(),
-                                        new UserUR.Builder(userTO.getKey())
-                                                .securityQuestion(new StringReplacePatchItem.Builder().
-                                                        value(securityQuestion.getModelObject()).build())
-                                                .securityAnswer(new StringReplacePatchItem.Builder().
-                                                        value(securityAnswer.getModelObject()).build()).build());
+                                userSelfRestClient.update(userTO.getETagValue(), userUR);
                         setResponsePage(new SelfResult(provisioningResult,
                                 ProvisioningUtils.managePageParams(EditSecurityQuestion.this,
                                         "securityquestion.change",
