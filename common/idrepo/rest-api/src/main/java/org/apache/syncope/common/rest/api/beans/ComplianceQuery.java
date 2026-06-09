@@ -46,6 +46,11 @@ public class ComplianceQuery implements Serializable {
             return this;
         }
 
+        public Builder token(final String token) {
+            instance.setToken(token);
+            return this;
+        }
+
         public Builder realm(final String realm) {
             instance.setRealm(realm);
             return this;
@@ -79,6 +84,8 @@ public class ComplianceQuery implements Serializable {
 
     private String password;
 
+    private String token;
+
     private String realm;
 
     private Set<String> resources = new HashSet<>();
@@ -97,6 +104,14 @@ public class ComplianceQuery implements Serializable {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(final String token) {
+        this.token = token;
     }
 
     public String getRealm() {
@@ -120,7 +135,7 @@ public class ComplianceQuery implements Serializable {
         if (StringUtils.isBlank(username) && StringUtils.isBlank(password)) {
             return true;
         }
-        return StringUtils.isEmpty(realm) && resources.isEmpty();
+        return StringUtils.isEmpty(token) && StringUtils.isEmpty(realm) && resources.isEmpty();
     }
 
     @Override
@@ -138,6 +153,7 @@ public class ComplianceQuery implements Serializable {
         return new EqualsBuilder().
                 append(username, other.username).
                 append(password, other.password).
+                append(token, other.token).
                 append(realm, other.realm).
                 append(resources, other.resources).
                 build();
@@ -148,6 +164,7 @@ public class ComplianceQuery implements Serializable {
         return new HashCodeBuilder().
                 append(username).
                 append(password).
+                append(token).
                 append(realm).
                 append(resources).
                 build();

@@ -176,7 +176,7 @@ public class UserDetails extends Details<UserTO> {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
-            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode, anonymousRestClient));
+            add(new PasswordPanel("passwordPanel", wrapper, false, templateMode, null, anonymousRestClient));
         }
     }
 }
