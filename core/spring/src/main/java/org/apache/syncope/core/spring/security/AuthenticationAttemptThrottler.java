@@ -93,14 +93,14 @@ public class AuthenticationAttemptThrottler {
 
         String key = key(domain, username);
         long now = clock.getAsLong();
-        RateLimitAuthenticationException blocked = attempts.invoke(key, (entry, args) -> {
+        Long retryAfter = attempts.invoke(key, (entry, args) -> {
             if (!entry.exists()) {
                 return null;
             }
 
             Attempts state = entry.getValue();
             if (state.blockedUntil() > now) {
-                return blocked(state.blockedUntil(), now);
+                return retryAfterSeconds(state.blockedUntil(), now);
             }
 
             Deque<Long> failures = prune(state.failures(), now);
@@ -111,8 +111,8 @@ public class AuthenticationAttemptThrottler {
             }
             return null;
         });
-        if (blocked != null) {
-            throw blocked;
+        if (retryAfter != null) {
+            throw blocked(retryAfter);
         }
     }
 
@@ -133,7 +133,7 @@ public class AuthenticationAttemptThrottler {
         }
 
         long now = clock.getAsLong();
-        RateLimitAuthenticationException blocked = attempts.invoke(key(domain, username), (entry, args) -> {
+        Long retryAfter = attempts.invoke(key(domain, username), (entry, args) -> {
             Attempts state = entry.exists()
                     ? entry.getValue()
                     : new Attempts();
@@ -143,14 +143,14 @@ public class AuthenticationAttemptThrottler {
             if (failures.size() >= throttle.getMaxAttempts()) {
                 long blockedUntil = now + TimeUnit.SECONDS.toMillis(throttle.getLockSeconds());
                 entry.setValue(new Attempts(failures, blockedUntil));
-                return blocked(blockedUntil, now);
+                return retryAfterSeconds(blockedUntil, now);
             }
 
             entry.setValue(new Attempts(failures, state.blockedUntil()));
             return null;
         });
-        if (blocked != null) {
-            throw blocked;
+        if (retryAfter != null) {
+            throw blocked(retryAfter);
         }
     }
 
@@ -163,8 +163,11 @@ public class AuthenticationAttemptThrottler {
         return failures;
     }
 
-    protected static RateLimitAuthenticationException blocked(final long blockedUntil, final long now) {
-        long retryAfter = Math.max(1, TimeUnit.MILLISECONDS.toSeconds(blockedUntil - now));
+    protected static long retryAfterSeconds(final long blockedUntil, final long now) {
+        return Math.max(1, TimeUnit.MILLISECONDS.toSeconds(blockedUntil - now));
+    }
+
+    protected static RateLimitAuthenticationException blocked(final long retryAfter) {
         return new RateLimitAuthenticationException("Too many authentication failures", retryAfter);
     }
 }
