@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
@@ -27,12 +25,13 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.opensearch.client.json.jackson.JacksonJsonpMapper;
+import org.opensearch.client.json.jackson3.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Spring {@link FactoryBean} for getting the {@link OpenSearchClient} singleton instance.
@@ -97,8 +96,7 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
             if (client == null) {
                 ApacheHttpClient5TransportBuilder builder = ApacheHttpClient5TransportBuilder.
                         builder(hosts.toArray(HttpHost[]::new)).
-                        setMapper(new JacksonJsonpMapper(JsonMapper.builder().
-                                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()));
+                        setMapper(new JacksonJsonpMapper(JsonMapper.builder().findAndAddModules().build()));
                 if (username != null && password != null) {
                     String encodedAuth = Base64.getEncoder().
                             encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
