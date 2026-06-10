@@ -25,6 +25,49 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("security")
 public class SecurityProperties {
 
+    public static class AuthenticationThrottleProperties {
+
+        private boolean enabled = true;
+
+        private int maxAttempts = 5;
+
+        private long windowSeconds = 60;
+
+        private long lockSeconds = 60;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(final boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getMaxAttempts() {
+            return maxAttempts;
+        }
+
+        public void setMaxAttempts(final int maxAttempts) {
+            this.maxAttempts = maxAttempts;
+        }
+
+        public long getWindowSeconds() {
+            return windowSeconds;
+        }
+
+        public void setWindowSeconds(final long windowSeconds) {
+            this.windowSeconds = windowSeconds;
+        }
+
+        public long getLockSeconds() {
+            return lockSeconds;
+        }
+
+        public void setLockSeconds(final long lockSeconds) {
+            this.lockSeconds = lockSeconds;
+        }
+    }
+
     public static class DigesterProperties {
 
         private int saltIterations = 1;
@@ -103,6 +146,8 @@ public class SecurityProperties {
     private String aesSecretKey;
 
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
+
+    private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
 
@@ -192,6 +237,10 @@ public class SecurityProperties {
 
     public void setGroovyBlacklist(final String groovyBlacklist) {
         this.groovyBlacklist = groovyBlacklist;
+    }
+
+    public AuthenticationThrottleProperties getAuthenticationThrottle() {
+        return authenticationThrottle;
     }
 
     public DigesterProperties getDigester() {
