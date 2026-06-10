@@ -136,14 +136,14 @@ security.authenticationThrottle.windowSeconds=60
 security.authenticationThrottle.lockSeconds=60
 ----
 
-When enabled, Syncope tracks failed username / password authentication attempts for each authentication identifier in the current domain.
+When enabled, Syncope tracks failed username / password authentication attempts for each authentication identifier in the current Domain.
 
 Once `security.authenticationThrottle.maxAttempts` failures are reached within `security.authenticationThrottle.windowSeconds`, further authentication attempts for the same identifier are rejected for `security.authenticationThrottle.lockSeconds`.
 
 During the lock interval, the requester receives an HTTP `429 Too Many Requests` response. Successful authentication clears the recorded failures for the related identifier.
 
 [NOTE]
-This mechanism is independent from Account Policy suspension based on `maxAuthenticationAttempts`: throttling is a temporary rate-limiting measure, while Account Policy suspension changes the user status according to the configured policy.
+This mechanism is independent from <<policies-account,Account Policy>>: while throttling is a temporary rate-limiting measure, the latter is triggering user suspension in case one of the configured conditions are met.
 
 ==== REST Headers
 
