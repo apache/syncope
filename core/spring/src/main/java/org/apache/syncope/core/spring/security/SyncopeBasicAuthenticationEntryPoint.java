@@ -22,6 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
@@ -35,6 +37,11 @@ public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
             final AuthenticationException authException) throws IOException {
 
         response.addHeader(RESTHeaders.ERROR_INFO, authException.getMessage());
+        if (authException instanceof RateLimitAuthenticationException rateLimit) {
+            response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(rateLimit.getRetryAfterSeconds()));
+            response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), authException.getMessage());
+            return;
+        }
 
         super.commence(request, response, authException);
     }

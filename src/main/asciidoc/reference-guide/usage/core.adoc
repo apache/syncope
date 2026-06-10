@@ -107,6 +107,44 @@ https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/anon
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.
 ****
 
+===== Authentication Throttling
+This functionality can throttle repeated failed username / password authentication attempts, to reduce the effectiveness of automated guessing attacks.
+
+This protection is configured in `core.properties` via the following properties:
+
+[cols="1,3"]
+|===
+|Property |Description
+|`security.authenticationThrottle.enabled`
+|Whether authentication throttling is enabled. When set to `false`, failed authentication attempts are not rate-limited by this mechanism.
+|`security.authenticationThrottle.maxAttempts`
+|Maximum number of failed username / password authentication
+attempts allowed for the same authentication identifier within
+the configured time window.
+|`security.authenticationThrottle.windowSeconds`
+|Time window, in seconds, used to count failed authentication attempts.
+|`security.authenticationThrottle.lockSeconds`
+|Time, in seconds, during which further authentication attempts for the same identifier are rejected after the maximum number of failures has been reached.
+|===
+
+The default configuration is:
+[source,properties]
+----
+security.authenticationThrottle.enabled=true
+security.authenticationThrottle.maxAttempts=5
+security.authenticationThrottle.windowSeconds=60
+security.authenticationThrottle.lockSeconds=60
+----
+
+When enabled, Syncope tracks failed username / password authentication attempts for each authentication identifier in the current Domain.
+
+Once `security.authenticationThrottle.maxAttempts` failures are reached within `security.authenticationThrottle.windowSeconds`, further authentication attempts for the same identifier are rejected for `security.authenticationThrottle.lockSeconds`.
+
+During the lock interval, the requester receives an HTTP `429 Too Many Requests` response. Successful authentication clears the recorded failures for the related identifier.
+
+[NOTE]
+This mechanism is independent from <<policies-account,Account Policy>>: while throttling is a temporary rate-limiting measure, the latter is triggering user suspension in case one of the configured conditions are met.
+
 ==== REST Headers
 
 Apache Syncope supports a number of HTTP headers as detailed below, in addition to the common HTTP headers such as

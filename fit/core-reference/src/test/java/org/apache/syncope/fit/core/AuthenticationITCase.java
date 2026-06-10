@@ -21,12 +21,14 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -391,6 +393,30 @@ public class AuthenticationITCase extends AbstractITCase {
 
         SyncopeClient goodPwdClient = CLIENT_FACTORY.create(userTO.getUsername(), "password123");
         assertEquals(0, goodPwdClient.self().user().getFailedLogins().intValue());
+    }
+
+    @Test
+    public void authenticationThrottle() {
+        UserCR userCR = UserITCase.getUniqueSample("authThrottle@syncope.apache.org");
+        userCR.getRoles().add("User manager");
+
+        UserTO userTO = createUser(userCR).getEntity();
+        assertNotNull(userTO);
+
+        for (int i = 0; i < AUTHENTICATION_THROTTLE_MAX_ATTEMPTS - 1; i++) {
+            assertThrows(NotAuthorizedException.class,
+                    () -> CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd").self());
+        }
+
+        WebApplicationException e = assertThrows(
+                WebApplicationException.class,
+                () -> CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd").self());
+        assertEquals(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), e.getResponse().getStatus());
+
+        e = assertThrows(
+                WebApplicationException.class,
+                () -> CLIENT_FACTORY.create(userTO.getUsername(), "password123").self());
+        assertEquals(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), e.getResponse().getStatus());
     }
 
     @Test

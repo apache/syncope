@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.keymaster.rest.security;
 
+import javax.cache.Cache;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.AuthenticationAttemptThrottler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
@@ -38,9 +40,16 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache,
             final KeymasterProperties keymasterProperties) {
 
-        super(domainOps, dataAccessor, provisioningManager, securityProperties, encryptorManager);
+        super(
+                domainOps,
+                dataAccessor,
+                provisioningManager,
+                securityProperties,
+                encryptorManager,
+                authenticationAttemptCache);
         this.keymasterProperties = keymasterProperties;
     }
 
@@ -49,6 +58,7 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
         if (keymasterProperties.getUsername().equals(authentication.getName())) {
             return finalizeAuthentication(
                     SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(),
+                    keymasterProperties.getUsername(),
                     keymasterProperties.getUsername(),
                     new AuthDataAccessor.UsernamePasswordAuthResult(
                             null,

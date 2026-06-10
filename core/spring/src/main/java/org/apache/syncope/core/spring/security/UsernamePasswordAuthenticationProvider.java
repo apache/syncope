@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Objects;
 import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -53,23 +55,31 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected final EncryptorManager encryptorManager;
 
+    protected final AuthenticationAttemptThrottler authenticationAttemptThrottler;
+
     public UsernamePasswordAuthenticationProvider(
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache) {
 
         this.domainOps = domainOps;
         this.dataAccessor = dataAccessor;
         this.provisioningManager = provisioningManager;
         this.securityProperties = securityProperties;
         this.encryptorManager = encryptorManager;
+        this.authenticationAttemptThrottler =
+                new AuthenticationAttemptThrottler(securityProperties, authenticationAttemptCache);
     }
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
-        String domainKey = SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain();
+        String domainKey = ((SyncopeAuthenticationDetails) authentication.getDetails()).getDomain();
+        String authenticatingPrincipal = Objects.requireNonNull(authentication.getPrincipal()).toString();
+        authenticationAttemptThrottler.checkAllowed(domainKey, authenticatingPrincipal);
+
         Optional<Domain> domain;
         if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
             domain = Optional.empty();
@@ -96,11 +106,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         }
 
         if (username.get() == null) {
-            username.setValue(authentication.getPrincipal().toString());
+            username.setValue(authenticatingPrincipal);
         }
 
         return finalizeAuthentication(
                 domainKey,
+                authenticatingPrincipal,
                 username.get(),
                 authResult,
                 authentication);
@@ -108,11 +119,13 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected Authentication finalizeAuthentication(
             final String domain,
+            final String login,
             final String username,
             final AuthDataAccessor.UsernamePasswordAuthResult authResult,
             final Authentication authentication) {
 
         if (authResult.isSuccess()) {
+            authenticationAttemptThrottler.clearFailures(domain, login);
             UsernamePasswordAuthenticationToken token = AuthContextUtils.callAsAdmin(domain, () -> {
                 UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(
                         username,
@@ -144,6 +157,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 "Not authenticated");
 
         LOG.debug("User {} not authenticated", username);
+
+        authenticationAttemptThrottler.recordFailure(domain, login);
 
         if (!authResult.passwordVerified()) {
             throw new BadCredentialsException(username + ": invalid password provided");

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -73,12 +74,14 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.JavaDocUtils;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.AuthenticationAttemptThrottler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.apache.syncope.core.starter.SelfKeymasterContext.SelfKeymasterCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
@@ -222,6 +225,8 @@ public class SelfKeymasterContext {
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
+            @Qualifier(AuthenticationAttemptThrottler.CACHE_NAME)
+            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache,
             final KeymasterProperties keymasterProperties) {
 
         return new SelfKeymasterUsernamePasswordAuthenticationProvider(
@@ -230,6 +235,7 @@ public class SelfKeymasterContext {
                 provisioningManager,
                 securityProperties,
                 encryptorManager,
+                authenticationAttemptCache,
                 keymasterProperties);
     }
 
