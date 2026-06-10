@@ -31,6 +31,7 @@ import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
 import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -96,7 +97,9 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
             if (client == null) {
                 ApacheHttpClient5TransportBuilder builder = ApacheHttpClient5TransportBuilder.
                         builder(hosts.toArray(HttpHost[]::new)).
-                        setMapper(new JacksonJsonpMapper(JsonMapper.builder().findAndAddModules().build()));
+                        setMapper(new JacksonJsonpMapper(JsonMapper.builder().
+                                configure(DeserializationFeature.FAIL_ON_TRAILING_TOKENS, false).
+                                findAndAddModules().build()));
                 if (username != null && password != null) {
                     String encodedAuth = Base64.getEncoder().
                             encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));

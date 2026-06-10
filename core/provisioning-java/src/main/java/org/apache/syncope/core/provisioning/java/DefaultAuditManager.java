@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -182,17 +183,19 @@ public class DefaultAuditManager implements AuditManager {
                     auditEvent.setOpEvent(opEvent.toString());
                     auditEvent.setWho(who);
                     auditEvent.setWhen(OffsetDateTime.now());
-                    auditEvent.setBefore(POJOHelper.serialize((maskSensitive(before))));
+                    Optional.ofNullable(before).
+                            ifPresent(b -> auditEvent.setBefore(POJOHelper.serialize((maskSensitive(b)))));
 
                     Optional.ofNullable(input).ifPresent(in -> auditEvent.setInputs(Arrays.stream(in).
-                            map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                            filter(Objects::nonNull).map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
                             toList()));
 
                     if (output instanceof Throwable throwable) {
                         auditEvent.setOutput(throwable.getMessage());
                         auditEvent.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
                     } else {
-                        auditEvent.setOutput(POJOHelper.serialize((maskSensitive(output))));
+                        Optional.ofNullable(output).
+                                ifPresent(out -> auditEvent.setOutput(POJOHelper.serialize((maskSensitive(out)))));
                     }
 
                     auditEventDAO.save(auditEvent);

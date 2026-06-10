@@ -275,16 +275,16 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 build();
         LOG.debug("Search request: {}", request);
 
-        List<Hit<Void>> esResult = null;
+        List<Hit<Void>> osResult = null;
         try {
-            esResult = client.search(request, Void.class).hits().hits();
+            osResult = client.search(request, Void.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch with request {}", request, e);
         }
 
-        return CollectionUtils.isEmpty(esResult)
+        return CollectionUtils.isEmpty(osResult)
                 ? List.of()
-                : buildResult(esResult.stream().map(Hit::id).collect(Collectors.toList()), kind);
+                : buildResult(osResult.stream().map(Hit::id).collect(Collectors.toList()), kind);
     }
 
     protected Query getQuery(final SearchCond cond, final AnyTypeKind kind) {
