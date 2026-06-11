@@ -431,11 +431,11 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.6</cxf.version>
+    <cxf.version>4.1.7</cxf.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.5.14</spring-boot.version>
+    <spring-boot.version>3.5.15</spring-boot.version>
     <spring-cloud-gateway.version>4.3.4</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
