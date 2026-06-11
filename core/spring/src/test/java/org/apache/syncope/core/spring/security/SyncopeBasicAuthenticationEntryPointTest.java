@@ -27,17 +27,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-public class SyncopeBasicAuthenticationEntryPointTest {
+class SyncopeBasicAuthenticationEntryPointTest {
 
     @Test
-    public void rateLimitAuthenticationExceptionReturnsTooManyRequests() throws Exception {
+    void rateLimitAuthenticationExceptionReturnsTooManyRequests() throws Exception {
         SyncopeBasicAuthenticationEntryPoint entryPoint = new SyncopeBasicAuthenticationEntryPoint();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         entryPoint.commence(
                 new MockHttpServletRequest(),
                 response,
-                new RateLimitAuthenticationException("Too many authentication failures", 30));
+                new RateLimitAuthenticationException(30));
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS.value(), response.getStatus());
         assertEquals("30", response.getHeader(HttpHeaders.RETRY_AFTER));

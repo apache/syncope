@@ -225,7 +225,7 @@ public class SelfKeymasterContext {
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            @Qualifier(AuthenticationAttemptThrottler.CACHE_NAME)
+            @Qualifier(AuthenticationAttemptThrottler.CACHE)
             final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache,
             final KeymasterProperties keymasterProperties) {
 

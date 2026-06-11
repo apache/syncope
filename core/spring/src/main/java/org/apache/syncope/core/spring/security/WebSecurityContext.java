@@ -20,8 +20,12 @@ package org.apache.syncope.core.spring.security;
 
 import dev.samstevens.totp.code.CodeVerifier;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -130,7 +134,7 @@ public class WebSecurityContext {
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            @Qualifier(AuthenticationAttemptThrottler.CACHE_NAME)
+            @Qualifier(AuthenticationAttemptThrottler.CACHE)
             final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache) {
 
         return new UsernamePasswordAuthenticationProvider(
@@ -142,15 +146,20 @@ public class WebSecurityContext {
                 authenticationAttemptCache);
     }
 
-    @ConditionalOnMissingBean(name = AuthenticationAttemptThrottler.CACHE_NAME)
-    @Bean(name = AuthenticationAttemptThrottler.CACHE_NAME)
+    @ConditionalOnMissingBean(name = AuthenticationAttemptThrottler.CACHE)
+    @Bean(name = AuthenticationAttemptThrottler.CACHE)
     public Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache(
             final CacheManager cacheManager,
             final SecurityProperties securityProperties) {
 
-        return cacheManager.createCache(
-                AuthenticationAttemptThrottler.CACHE_NAME,
-                AuthenticationAttemptThrottler.cacheConfiguration(securityProperties.getAuthenticationThrottle()));
+        return cacheManager.createCache(AuthenticationAttemptThrottler.CACHE,
+                new MutableConfiguration<String, AuthenticationAttemptThrottler.Attempts>().
+                        setTypes(String.class, AuthenticationAttemptThrottler.Attempts.class).
+                        setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(
+                                TimeUnit.SECONDS,
+                                Math.max(1, Math.max(
+                                        securityProperties.getAuthenticationThrottle().getWindowSeconds(),
+                                        securityProperties.getAuthenticationThrottle().getLockSeconds()))))));
     }
 
     @Bean
