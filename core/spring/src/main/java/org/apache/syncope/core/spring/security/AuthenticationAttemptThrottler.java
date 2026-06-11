@@ -24,14 +24,9 @@ import java.util.Deque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 import javax.cache.Cache;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.commons.lang3.StringUtils;
 
 public class AuthenticationAttemptThrottler {
-
-    public static final String CACHE_NAME =
-            "org.apache.syncope.core.spring.security.AuthenticationAttemptThrottler";
 
     public record Attempts(Deque<Long> failures, long blockedUntil) implements Serializable {
 
@@ -46,9 +41,19 @@ public class AuthenticationAttemptThrottler {
         }
     }
 
+    public static final String CACHE = "AuthenticationAttemptCache";
+
+    protected static String key(final String domain, final String username) {
+        return StringUtils.defaultString(domain) + ':' + StringUtils.defaultString(username);
+    }
+
+    protected static long retryAfterSeconds(final long blockedUntil, final long now) {
+        return Math.max(1, TimeUnit.MILLISECONDS.toSeconds(blockedUntil - now));
+    }
+
     protected final SecurityProperties.AuthenticationThrottleProperties throttle;
 
-    protected final LongSupplier clock;
+    protected final LongSupplier clock = System::currentTimeMillis;
 
     protected final Cache<String, Attempts> attempts;
 
@@ -56,34 +61,8 @@ public class AuthenticationAttemptThrottler {
             final SecurityProperties securityProperties,
             final Cache<String, Attempts> attempts) {
 
-        this(securityProperties, System::currentTimeMillis, attempts);
-    }
-
-    protected AuthenticationAttemptThrottler(
-            final SecurityProperties securityProperties,
-            final LongSupplier clock,
-            final Cache<String, Attempts> attempts) {
-
         this.throttle = securityProperties.getAuthenticationThrottle();
-        this.clock = clock;
         this.attempts = attempts;
-    }
-
-    public static MutableConfiguration<String, Attempts> cacheConfiguration(
-            final SecurityProperties.AuthenticationThrottleProperties throttle) {
-
-        return new MutableConfiguration<String, Attempts>().
-                setTypes(String.class, Attempts.class).
-                setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
-                        new javax.cache.expiry.Duration(TimeUnit.SECONDS, cacheExpirySeconds(throttle))));
-    }
-
-    protected static long cacheExpirySeconds(final SecurityProperties.AuthenticationThrottleProperties throttle) {
-        return Math.max(1, Math.max(throttle.getWindowSeconds(), throttle.getLockSeconds()));
-    }
-
-    protected static String key(final String domain, final String username) {
-        return StringUtils.defaultString(domain) + ':' + StringUtils.defaultString(username);
     }
 
     public void checkAllowed(final String domain, final String username) {
@@ -112,7 +91,7 @@ public class AuthenticationAttemptThrottler {
             return null;
         });
         if (retryAfter != null) {
-            throw blocked(retryAfter);
+            throw new RateLimitAuthenticationException(retryAfter);
         }
     }
 
@@ -150,7 +129,7 @@ public class AuthenticationAttemptThrottler {
             return null;
         });
         if (retryAfter != null) {
-            throw blocked(retryAfter);
+            throw new RateLimitAuthenticationException(retryAfter);
         }
     }
 
@@ -161,13 +140,5 @@ public class AuthenticationAttemptThrottler {
             failures.removeFirst();
         }
         return failures;
-    }
-
-    protected static long retryAfterSeconds(final long blockedUntil, final long now) {
-        return Math.max(1, TimeUnit.MILLISECONDS.toSeconds(blockedUntil - now));
-    }
-
-    protected static RateLimitAuthenticationException blocked(final long retryAfter) {
-        return new RateLimitAuthenticationException("Too many authentication failures", retryAfter);
     }
 }

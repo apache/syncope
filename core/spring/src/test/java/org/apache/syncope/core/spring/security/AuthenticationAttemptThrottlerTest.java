@@ -21,14 +21,19 @@ package org.apache.syncope.core.spring.security;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 import javax.cache.Cache;
 import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.TouchedExpiryPolicy;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
-public class AuthenticationAttemptThrottlerTest {
+class AuthenticationAttemptThrottlerTest {
 
     private static SecurityProperties securityProperties() {
         SecurityProperties securityProperties = new SecurityProperties();
@@ -43,55 +48,61 @@ public class AuthenticationAttemptThrottlerTest {
             final SecurityProperties securityProperties,
             final LongSupplier clock) {
 
-        Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache =
-                Caching.getCachingProvider().getCacheManager().createCache(
-                        AuthenticationAttemptThrottlerTest.class.getName() + '-' + UUID.randomUUID(),
-                        AuthenticationAttemptThrottler.cacheConfiguration(
-                                securityProperties.getAuthenticationThrottle()));
+        Cache<String, AuthenticationAttemptThrottler.Attempts> cache =
+                Caching.getCachingProvider().getCacheManager().getCache(AuthenticationAttemptThrottler.CACHE);
+        if (cache == null) {
+            cache = Caching.getCachingProvider().getCacheManager().createCache(
+                    AuthenticationAttemptThrottler.CACHE,
+                    new MutableConfiguration<String, AuthenticationAttemptThrottler.Attempts>().
+                            setTypes(String.class, AuthenticationAttemptThrottler.Attempts.class).
+                            setExpiryPolicyFactory(
+                                    TouchedExpiryPolicy.factoryOf(new Duration(TimeUnit.SECONDS, 30))));
+        } else {
+            cache.clear();
+        }
 
-        return new AuthenticationAttemptThrottler(securityProperties, clock, authenticationAttemptCache);
+        AuthenticationAttemptThrottler throttler = new AuthenticationAttemptThrottler(securityProperties, cache);
+        ReflectionTestUtils.setField(throttler, "clock", clock);
+        return throttler;
     }
 
     @Test
-    public void blocksAfterConfiguredFailures() {
+    void blocksAfterConfiguredFailures() {
         AtomicLong now = new AtomicLong();
         SecurityProperties securityProperties = securityProperties();
-        AuthenticationAttemptThrottler throttler =
-                throttler(securityProperties, now::get);
+        AuthenticationAttemptThrottler throttler = throttler(securityProperties, now::get);
 
         for (int i = 1; i < securityProperties.getAuthenticationThrottle().getMaxAttempts(); i++) {
-            assertDoesNotThrow(() -> throttler.recordFailure("Master", "rossini"));
+            assertDoesNotThrow(() -> throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini"));
         }
         assertThrows(RateLimitAuthenticationException.class,
-                () -> throttler.recordFailure("Master", "rossini"));
+                () -> throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini"));
         assertThrows(RateLimitAuthenticationException.class,
-                () -> throttler.checkAllowed("Master", "rossini"));
+                () -> throttler.checkAllowed(SyncopeConstants.MASTER_DOMAIN, "rossini"));
 
         now.addAndGet(30_000);
-        assertDoesNotThrow(() -> throttler.checkAllowed("Master", "rossini"));
+        assertDoesNotThrow(() -> throttler.checkAllowed(SyncopeConstants.MASTER_DOMAIN, "rossini"));
     }
 
     @Test
-    public void successResetsFailures() {
+    void successResetsFailures() {
         AtomicLong now = new AtomicLong();
-        AuthenticationAttemptThrottler throttler =
-                throttler(securityProperties(), now::get);
+        AuthenticationAttemptThrottler throttler = throttler(securityProperties(), now::get);
 
-        throttler.recordFailure("Master", "rossini");
-        throttler.clearFailures("Master", "rossini");
+        throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini");
+        throttler.clearFailures(SyncopeConstants.MASTER_DOMAIN, "rossini");
 
-        assertDoesNotThrow(() -> throttler.recordFailure("Master", "rossini"));
+        assertDoesNotThrow(() -> throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini"));
     }
 
     @Test
-    public void expiredFailuresAreIgnored() {
+    void expiredFailuresAreIgnored() {
         AtomicLong now = new AtomicLong();
-        AuthenticationAttemptThrottler throttler =
-                throttler(securityProperties(), now::get);
+        AuthenticationAttemptThrottler throttler = throttler(securityProperties(), now::get);
 
-        throttler.recordFailure("Master", "rossini");
+        throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini");
         now.addAndGet(61_000);
 
-        assertDoesNotThrow(() -> throttler.recordFailure("Master", "rossini"));
+        assertDoesNotThrow(() -> throttler.recordFailure(SyncopeConstants.MASTER_DOMAIN, "rossini"));
     }
 }
