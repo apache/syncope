@@ -32,17 +32,17 @@ public class RESTProperties {
     private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
     @NestedConfigurationProperty
-    private final RateLimit rateLimit = new RateLimit();
+    private final RateLimitProperties rateLimitProperties = new RateLimitProperties();
 
     public ExecutorProperties getBatchExecutor() {
         return batchExecutor;
     }
 
-    public RateLimit getRateLimit() {
-        return rateLimit;
+    public RateLimitProperties getRateLimit() {
+        return rateLimitProperties;
     }
 
-    public static class RateLimit {
+    public static class RateLimitProperties {
 
         private boolean enabled;
 

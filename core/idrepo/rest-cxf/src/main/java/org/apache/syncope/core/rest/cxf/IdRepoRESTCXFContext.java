@@ -20,12 +20,17 @@ package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -247,7 +252,22 @@ public class IdRepoRESTCXFContext {
 
         return cacheManager.createCache(
                 CXFRateLimitFilter.CACHE_NAME,
-                CXFRateLimitFilter.cacheConfiguration(props.getRateLimit()));
+                cxfRateLimitCacheConfiguration(props.getRateLimit()));
+    }
+
+    protected MutableConfiguration<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCacheConfiguration(
+            final RESTProperties.RateLimitProperties props) {
+
+        return new MutableConfiguration<String, CXFRateLimitFilter.ClientWindow>().
+                setTypes(String.class, CXFRateLimitFilter.ClientWindow.class).
+                setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
+                        new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, cxfRateLimitCacheExpiryMillis(props))));
+    }
+
+    protected long cxfRateLimitCacheExpiryMillis(final RESTProperties.RateLimitProperties props) {
+        long windowMillis = Optional.ofNullable(props.getWindow()).orElse(Duration.ofMinutes(1)).toMillis();
+        long lockMillis = Optional.ofNullable(props.getLock()).orElse(Duration.ofMinutes(1)).toMillis();
+        return Math.max(1L, Math.max(windowMillis, lockMillis));
     }
 
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })

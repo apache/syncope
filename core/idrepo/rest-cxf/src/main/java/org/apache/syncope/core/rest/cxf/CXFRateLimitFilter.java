@@ -32,10 +32,7 @@ import java.io.Serializable;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.commons.lang3.StringUtils;
 
 @Provider
@@ -54,14 +51,7 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
         private static final long serialVersionUID = -473897805205955157L;
     }
 
-    public static MutableConfiguration<String, ClientWindow> cacheConfiguration(final RESTProperties.RateLimit props) {
-        return new MutableConfiguration<String, ClientWindow>().
-                setTypes(String.class, ClientWindow.class).
-                setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
-                        new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, cacheExpiryMillis(props))));
-    }
-
-    protected final RESTProperties.RateLimit props;
+    protected final RESTProperties.RateLimitProperties props;
 
     protected final Cache<String, ClientWindow> clients;
 
@@ -163,12 +153,6 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
 
     protected long toMillis(final Duration duration) {
         return Math.max(1L, Optional.ofNullable(duration).orElse(Duration.ofMinutes(1)).toMillis());
-    }
-
-    protected static long cacheExpiryMillis(final RESTProperties.RateLimit props) {
-        long windowMillis = Optional.ofNullable(props.getWindow()).orElse(Duration.ofMinutes(1)).toMillis();
-        long lockMillis = Optional.ofNullable(props.getLock()).orElse(Duration.ofMinutes(1)).toMillis();
-        return Math.max(1L, Math.max(windowMillis, lockMillis));
     }
 
     protected static long retryAfterSeconds(final long millis) {
