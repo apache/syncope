@@ -1111,6 +1111,12 @@ under the License.
           <artifactId>syncope-core-persistence-neo4j</artifactId>
           <version>${project.version}</version>
         </dependency>
+        <!-- keep until https://github.com/spring-projects/spring-data-commons/issues/3500 -->
+        <dependency>
+          <groupId>org.springframework.data</groupId>
+          <artifactId>spring-data-commons</artifactId>
+          <version>3.5.11</version>
+        </dependency>
       </dependencies>
 
       <build>
