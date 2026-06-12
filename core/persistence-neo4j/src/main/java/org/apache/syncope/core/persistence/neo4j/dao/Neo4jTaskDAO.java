@@ -265,7 +265,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 default:
             }
 
-            subStatement.append("p.").append(field).append(' ').append(clause.getDirection().name()).append(',');
+            subStatement.append("n.").append(field).append(' ').append(clause.getDirection().name()).append(',');
         });
 
         StringBuilder statement = new StringBuilder(" ORDER BY ");
