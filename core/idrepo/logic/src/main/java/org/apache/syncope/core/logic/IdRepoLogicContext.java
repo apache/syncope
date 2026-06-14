@@ -523,7 +523,8 @@ public class IdRepoLogicContext {
             final DelegationDAO delegationDAO,
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final SecurityProperties securityProperties) {
 
         return new UserSelfLogic(
                 realmSearchDAO,
@@ -537,7 +538,8 @@ public class IdRepoLogicContext {
                 delegationDAO,
                 accessTokenDAO,
                 resourceDAO,
-                ruleProvider);
+                ruleProvider,
+                securityProperties);
     }
 
     @ConditionalOnMissingBean
