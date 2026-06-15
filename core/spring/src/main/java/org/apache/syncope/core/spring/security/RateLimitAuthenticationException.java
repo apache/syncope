@@ -26,8 +26,8 @@ public class RateLimitAuthenticationException extends AuthenticationException {
 
     private final long retryAfterSeconds;
 
-    public RateLimitAuthenticationException(final String msg, final long retryAfterSeconds) {
-        super(msg);
+    public RateLimitAuthenticationException(final long retryAfterSeconds) {
+        super("Too many authentication failures");
         this.retryAfterSeconds = retryAfterSeconds;
     }
 

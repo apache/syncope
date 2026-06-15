@@ -31,14 +31,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-public class SyncopeBasicAuthenticationEntryPointTest {
+class SyncopeBasicAuthenticationEntryPointTest {
 
     private SyncopeBasicAuthenticationEntryPoint entryPoint;
 
     private SecurityProperties securityProperties;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         securityProperties = new SecurityProperties();
         entryPoint = new SyncopeBasicAuthenticationEntryPoint(securityProperties);
         entryPoint.setRealmName("Apache Syncope authentication");
@@ -46,22 +46,23 @@ public class SyncopeBasicAuthenticationEntryPointTest {
     }
 
     @Test
-    public void rateLimitAuthenticationExceptionReturnsTooManyRequests() throws Exception {
+    void rateLimitAuthenticationExceptionReturnsTooManyRequests() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         entryPoint.commence(
                 new MockHttpServletRequest(),
                 response,
-                new RateLimitAuthenticationException("Too many authentication failures", 30));
+                new RateLimitAuthenticationException(30));
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS.value(), response.getStatus());
         assertEquals("30", response.getHeader(HttpHeaders.RETRY_AFTER));
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 response.getHeader(RESTHeaders.ERROR_INFO));
     }
 
     @Test
-    public void badCredentialsExposeGenericErrorInfo() throws Exception {
+    void badCredentialsExposeGenericErrorInfo() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         entryPoint.commence(
@@ -70,12 +71,13 @@ public class SyncopeBasicAuthenticationEntryPointTest {
                 new BadCredentialsException("rossini: invalid password provided"));
 
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 response.getHeader(RESTHeaders.ERROR_INFO));
     }
 
     @Test
-    public void missingUserExposeGenericErrorInfo() throws Exception {
+    void missingUserExposeGenericErrorInfo() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         entryPoint.commence(
@@ -84,12 +86,13 @@ public class SyncopeBasicAuthenticationEntryPointTest {
                 new UsernameNotFoundException("not-a-user"));
 
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 response.getHeader(RESTHeaders.ERROR_INFO));
     }
 
     @Test
-    public void disabledUserExposeGenericErrorInfo() throws Exception {
+    void disabledUserExposeGenericErrorInfo() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         entryPoint.commence(
@@ -98,12 +101,13 @@ public class SyncopeBasicAuthenticationEntryPointTest {
                 new DisabledException("User rossini is suspended"));
 
         assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatus());
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 response.getHeader(RESTHeaders.ERROR_INFO));
     }
 
     @Test
-    public void genericErrorInfoCanBeConfigured() throws Exception {
+    void genericErrorInfoCanBeConfigured() throws Exception {
         securityProperties.getAuthenticationError().setGenericMessage("Login failed");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -117,7 +121,7 @@ public class SyncopeBasicAuthenticationEntryPointTest {
     }
 
     @Test
-    public void detailsCanBeExposedWhenConfigured() throws Exception {
+    void detailsCanBeExposedWhenConfigured() throws Exception {
         securityProperties.getAuthenticationError().setExposeDetails(true);
         MockHttpServletResponse response = new MockHttpServletResponse();
 

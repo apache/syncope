@@ -248,7 +248,8 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public org.neo4j.cypherdsl.core.renderer.Configuration cypherDslConfiguration() {
-        return org.neo4j.cypherdsl.core.renderer.Configuration.newConfig().withDialect(Dialect.NEO4J_5).build();
+        return org.neo4j.cypherdsl.core.renderer.Configuration.newConfig().
+                withDialect(Dialect.NEO4J_5_DEFAULT_CYPHER).build();
     }
 
     @ConditionalOnMissingBean

@@ -270,7 +270,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
         StringBuilder statement = new StringBuilder(" ORDER BY ");
         if (subStatement.length() == 0) {
-            statement.append("n.id DESC");
+            statement.append("p.id DESC");
         } else {
             subStatement.deleteCharAt(subStatement.length() - 1);
             statement.append(subStatement);
@@ -283,16 +283,15 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     @Override
     public <T extends Task<T>> List<T> findToExec(final TaskType type, final Pageable pageable) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
-        StringBuilder query = new StringBuilder("MATCH (n:" + taskUtils.getTaskStorage() + ") WHERE ");
+        StringBuilder query = new StringBuilder("MATCH (p:" + taskUtils.getTaskStorage() + ") WHERE ");
 
         if (type == TaskType.NOTIFICATION) {
-            query.append("n.executed = false ");
+            query.append("p.executed = false ");
         } else {
-            query.append("(n)-[:").append(execRelationship(type)).append("]-() ");
+            query.append("(p)-[:").append(execRelationship(type)).append("]-() ");
         }
 
-        query.append("RETURN n.id ").
-                append(toOrderByStatement(pageable.getSort().get()));
+        query.append("RETURN p.id ").append(toOrderByStatement(pageable.getSort().get()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -300,7 +299,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         }
 
         return toList(neo4jClient.query(query.toString()).fetch().all(),
-                "n.id",
+                "p.id",
                 (Class<AbstractTask<?>>) taskUtils.getTaskEntity(),
                 null);
     }
