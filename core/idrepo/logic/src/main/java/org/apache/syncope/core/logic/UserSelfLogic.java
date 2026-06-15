@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -62,6 +63,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,6 +87,8 @@ public class UserSelfLogic extends AbstractUserLogic {
 
     protected final RuleProvider ruleProvider;
 
+    protected final PasswordResetRequestThrottler passwordResetRequestThrottler;
+
     public UserSelfLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -97,7 +101,9 @@ public class UserSelfLogic extends AbstractUserLogic {
             final DelegationDAO delegationDAO,
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final SecurityProperties securityProperties,
+            final Cache<String, PasswordResetRequestThrottler.Attempts> passwordResetRequestCache) {
 
         super(realmSearchDAO,
                 anyTypeDAO,
@@ -111,6 +117,9 @@ public class UserSelfLogic extends AbstractUserLogic {
         this.accessTokenDAO = accessTokenDAO;
         this.resourceDAO = resourceDAO;
         this.ruleProvider = ruleProvider;
+        this.passwordResetRequestThrottler = new PasswordResetRequestThrottler(
+                securityProperties,
+                passwordResetRequestCache);
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -265,7 +274,11 @@ public class UserSelfLogic extends AbstractUserLogic {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void requestPasswordReset(final String username, final String securityAnswer) {
+    public void requestPasswordReset(
+            final String username,
+            final String securityAnswer,
+            final String clientAddress) {
+
         if (!confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_ALLOWED, false, boolean.class)) {
 
@@ -274,8 +287,10 @@ public class UserSelfLogic extends AbstractUserLogic {
             throw sce;
         }
 
+        passwordResetRequestThrottler.recordAndCheck(AuthContextUtils.getDomain(), username, clientAddress);
+
         String key = userDAO.findKey(username).
-                orElseThrow(() -> new NotFoundException("User " + username));
+                orElseThrow(() -> new NotFoundException("User"));
 
         if (confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class)

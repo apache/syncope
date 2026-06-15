@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.logic.PasswordResetThrottleException;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -136,6 +137,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
+        } else if (ex instanceof PasswordResetThrottleException prte) {
+            builder = builder(ClientExceptionType.TooManyRequests, prte.getMessage()).
+                    header(HttpHeaders.RETRY_AFTER, prte.getRetryAfterSeconds());
         } else if (ex instanceof DelegatedAdministrationException
                 || ExceptionUtils.getRootCause(ex) instanceof DelegatedAdministrationException) {
 

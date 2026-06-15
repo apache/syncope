@@ -93,7 +93,7 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
 
     @Override
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        logic.requestPasswordReset(username, securityAnswer);
+        logic.requestPasswordReset(username, securityAnswer, messageContext.getHttpServletRequest().getRemoteAddr());
     }
 
     @Override
