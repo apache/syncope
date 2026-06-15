@@ -71,6 +71,7 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -322,6 +323,27 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService4 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
         assertEquals(0, userService4.read(userKey).getFailedLogins());
+    }
+
+    @Test
+    public void authenticationFailureErrorInfoIsGeneric() {
+        NotAuthorizedException e = assertThrows(
+                NotAuthorizedException.class,
+                () -> CLIENT_FACTORY.create(getUUIDString(), "anypassword").self());
+        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+                e.getResponse().getHeaderString(RESTHeaders.ERROR_INFO));
+
+        UserCR userCR = UserITCase.getUniqueSample("genericAuthError@syncope.apache.org");
+        userCR.getRoles().add("User manager");
+
+        UserTO userTO = createUser(userCR).getEntity();
+        assertNotNull(userTO);
+
+        e = assertThrows(
+                NotAuthorizedException.class,
+                () -> CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd"));
+        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+                e.getResponse().getHeaderString(RESTHeaders.ERROR_INFO));
     }
 
     @Test
