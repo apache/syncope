@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.apache.syncope.fit.AbstractITCase;
@@ -142,7 +143,7 @@ public class JWTITCase extends AbstractITCase {
             jwtUserSelfService.read();
             fail("Failure expected on a modified token");
         } catch (NotAuthorizedException e) {
-            assertEquals("Invalid signature found in JWT", e.getMessage());
+            assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE, e.getMessage());
         }
     }
 
