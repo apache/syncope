@@ -84,7 +84,8 @@ public class WebSecurityContext {
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
             final AccessDeniedHandler accessDeniedHandler,
             final AuthDataAccessor dataAccessor,
-            final DefaultCredentialChecker defaultCredentialChecker) throws Exception {
+            final DefaultCredentialChecker defaultCredentialChecker,
+            final SecurityProperties securityProperties) throws Exception {
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
                 parentAuthenticationManager(null).
@@ -96,7 +97,7 @@ public class WebSecurityContext {
                 new SyncopeAuthenticationDetailsSource();
 
         SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
-                new SyncopeBasicAuthenticationEntryPoint();
+                new SyncopeBasicAuthenticationEntryPoint(securityProperties);
         basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
         http.httpBasic(customizer -> customizer.
                 authenticationEntryPoint(basicAuthenticationEntryPoint).
