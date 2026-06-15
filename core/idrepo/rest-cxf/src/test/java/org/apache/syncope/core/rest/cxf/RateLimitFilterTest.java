@@ -19,6 +19,8 @@
 package org.apache.syncope.core.rest.cxf;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -58,11 +60,11 @@ class RateLimitFilterTest {
         request.setRemoteAddr("10.0.0.10");
 
         RateLimitFilter filter = filter(request);
-        ContainerRequestContext requestContext = org.mockito.Mockito.mock(ContainerRequestContext.class);
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
 
         filter.filter(requestContext);
         filter.filter(requestContext);
-        verify(requestContext, never()).abortWith(org.mockito.Mockito.any());
+        verify(requestContext, never()).abortWith(any());
 
         filter.filter(requestContext);
 
@@ -108,11 +110,11 @@ class RateLimitFilterTest {
 
         RateLimitFilter filter = new RateLimitFilter(props, CACHE);
         ReflectionTestUtils.setField(filter, "request", request);
-        ContainerRequestContext requestContext = org.mockito.Mockito.mock(ContainerRequestContext.class);
+        ContainerRequestContext requestContext = mock(ContainerRequestContext.class);
 
         filter.filter(requestContext);
         filter.filter(requestContext);
 
-        verify(requestContext, never()).abortWith(org.mockito.Mockito.any());
+        verify(requestContext, never()).abortWith(any());
     }
 }
