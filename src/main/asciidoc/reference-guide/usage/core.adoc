@@ -48,6 +48,73 @@ protocol://host:port/syncope/
 ....
 ====
 
+[NOTE]
+.REST Rate Limiting
+====
+Syncope can apply rate limiting to REST requests before
+authentication and
+request processing.
+
+This feature is disabled by default and can be enabled with the following properties:
+
+[cols="1,1,3",options="header"]
+|===
+|Property
+|Default
+|Description
+|`rest.rateLimit.enabled`
+|`false`
+|Enables or disables REST request rate limiting.
+|`rest.rateLimit.maxRequests`
+|`300`
+|Maximum number of requests allowed from the same client address within the configured time window.
+|`rest.rateLimit.window`
+|`1m`
+|Time window used to count requests from the same client address.
+|`rest.rateLimit.lock`
+|`1m`
+|Amount of time for which the client address is blocked after exceeding the configured request limit.
+|`rest.rateLimit.forwardedForHeader`
+|`X-Forwarded-For`
+|HTTP header used to resolve the original client address when the request comes from a trusted proxy.
+|`rest.rateLimit.trustedProxies`
+|Empty
+|Set of proxy addresses whose `X-Forwarded-For` header value is
+trusted. The header is ignored for requests not coming from one of these addresses.
+|`rest.rateLimit.excludedAddresses`
+|Empty
+|Set of client addresses excluded from rate limiting. This is where addresses for trusted internal clients,
+such as Admin Console or Enduser instances calling the Core REST API, should be configured when their
+traffic must not be rate limited.
+|===
+
+Addresses are matched exactly as reported by the servlet request remote address. CIDR ranges and wildcard
+patterns are not supported.
+
+When Syncope is deployed behind a reverse proxy, configure the proxy address under
+`rest.rateLimit.trustedProxies` to let Syncope identify the original client from the configured forwarded-for
+header. Add addresses to `rest.rateLimit.excludedAddresses` only for callers that should bypass rate limiting
+entirely, for example trusted Console instances or internal monitoring clients.
+
+Example:
+[source,properties]
+----
+rest.rateLimit.enabled=true
+rest.rateLimit.maxRequests=300
+rest.rateLimit.window=1m
+rest.rateLimit.lock=1m
+rest.rateLimit.trustedProxies=127.0.0.1
+rest.rateLimit.excludedAddresses=127.0.0.1,10.0.0.10
+----
+When the limit is exceeded, Syncope returns:
+[source]
+----
+HTTP/1.1 429 Too Many Requests
+Retry-After: <seconds>
+----
+The rate limit state is stored through the configured JCache provider. With a distributed JCache provider, limits can be shared across cluster nodes; with a local provider, limits apply only to the current JVM.
+====
+
 ==== REST Authentication and Authorization
 
 The <<core>> authentication and authorization is based on https://spring.io/projects/spring-security[Spring Security^].
