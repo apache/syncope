@@ -236,38 +236,31 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CXFRateLimitFilter cxfRateLimitFilter(
+    public RateLimitFilter rateLimitFilter(
             final RESTProperties props,
-            @Qualifier(CXFRateLimitFilter.CACHE_NAME)
-            final Cache<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCache) {
+            @Qualifier(RateLimitFilter.CACHE)
+            final Cache<String, RateLimitFilter.ClientWindow> cxfRateLimitCache) {
 
-        return new CXFRateLimitFilter(props, cxfRateLimitCache);
+        return new RateLimitFilter(props, cxfRateLimitCache);
     }
 
-    @ConditionalOnMissingBean(name = CXFRateLimitFilter.CACHE_NAME)
-    @Bean(name = CXFRateLimitFilter.CACHE_NAME)
-    public Cache<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCache(
+    @ConditionalOnMissingBean(name = RateLimitFilter.CACHE)
+    @Bean(name = RateLimitFilter.CACHE)
+    public Cache<String, RateLimitFilter.ClientWindow> rateLimitCache(
             final CacheManager cacheManager,
-            final RESTProperties props) {
+            final RESTProperties restProperties) {
 
-        return cacheManager.createCache(
-                CXFRateLimitFilter.CACHE_NAME,
-                cxfRateLimitCacheConfiguration(props.getRateLimit()));
-    }
+        long windowMillis = Optional.ofNullable(restProperties.getRateLimit().getWindow()).
+                orElse(Duration.ofMinutes(1)).toMillis();
+        long lockMillis = Optional.ofNullable(restProperties.getRateLimit().getLock()).
+                orElse(Duration.ofMinutes(1)).toMillis();
+        long expiry = Math.max(1L, Math.max(windowMillis, lockMillis));
 
-    protected MutableConfiguration<String, CXFRateLimitFilter.ClientWindow> cxfRateLimitCacheConfiguration(
-            final RESTProperties.RateLimitProperties props) {
-
-        return new MutableConfiguration<String, CXFRateLimitFilter.ClientWindow>().
-                setTypes(String.class, CXFRateLimitFilter.ClientWindow.class).
-                setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
-                        new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, cxfRateLimitCacheExpiryMillis(props))));
-    }
-
-    protected long cxfRateLimitCacheExpiryMillis(final RESTProperties.RateLimitProperties props) {
-        long windowMillis = Optional.ofNullable(props.getWindow()).orElse(Duration.ofMinutes(1)).toMillis();
-        long lockMillis = Optional.ofNullable(props.getLock()).orElse(Duration.ofMinutes(1)).toMillis();
-        return Math.max(1L, Math.max(windowMillis, lockMillis));
+        return cacheManager.createCache(RateLimitFilter.CACHE,
+                new MutableConfiguration<String, RateLimitFilter.ClientWindow>().
+                        setTypes(String.class, RateLimitFilter.ClientWindow.class).
+                        setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
+                                new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, expiry))));
     }
 
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
@@ -321,7 +314,7 @@ public class IdRepoRESTCXFContext {
             final List<JAXRSService> services,
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
-            final CXFRateLimitFilter cxfRateLimitFilter,
+            final RateLimitFilter rateLimitFilter,
             final ContextProvider<SearchContext> searchContextProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
@@ -352,7 +345,7 @@ public class IdRepoRESTCXFContext {
                 jsonProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
-                cxfRateLimitFilter,
+                rateLimitFilter,
                 addDomainFilter,
                 addETagFilter));
 

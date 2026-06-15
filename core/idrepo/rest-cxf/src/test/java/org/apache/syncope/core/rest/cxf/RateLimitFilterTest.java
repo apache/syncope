@@ -26,49 +26,28 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.time.Duration;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import javax.cache.Cache;
 import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.TouchedExpiryPolicy;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
-class CXFRateLimitPropertiesFilterTest {
+class RateLimitFilterTest {
 
-    private static Cache<String, CXFRateLimitFilter.ClientWindow> cache(final RESTProperties props) {
-        return Caching.getCachingProvider().getCacheManager().createCache(
-                CXFRateLimitPropertiesFilterTest.class.getName() + '-' + UUID.randomUUID(),
-                cacheConfiguration(props.getRateLimit()));
-    }
+    private static final Cache<String, RateLimitFilter.ClientWindow> CACHE =
+            Caching.getCachingProvider().getCacheManager().createCache(
+                    RateLimitFilter.CACHE, new MutableConfiguration<>());
 
-    private static MutableConfiguration<String, CXFRateLimitFilter.ClientWindow> cacheConfiguration(
-            final RESTProperties.RateLimitProperties props) {
-
-        return new MutableConfiguration<String, CXFRateLimitFilter.ClientWindow>().
-                setTypes(String.class, CXFRateLimitFilter.ClientWindow.class).
-                setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
-                        new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, cacheExpiryMillis(props))));
-    }
-
-    private static long cacheExpiryMillis(final RESTProperties.RateLimitProperties props) {
-        long windowMillis = Optional.ofNullable(props.getWindow()).orElse(Duration.ofMinutes(1)).toMillis();
-        long lockMillis = Optional.ofNullable(props.getLock()).orElse(Duration.ofMinutes(1)).toMillis();
-        return Math.max(1L, Math.max(windowMillis, lockMillis));
-    }
-
-    private static CXFRateLimitFilter filter(final MockHttpServletRequest request) {
+    private static RateLimitFilter filter(final MockHttpServletRequest request) {
         RESTProperties props = new RESTProperties();
         props.getRateLimit().setEnabled(true);
         props.getRateLimit().setMaxRequests(2);
         props.getRateLimit().setWindow(Duration.ofMinutes(1));
         props.getRateLimit().setLock(Duration.ofSeconds(30));
 
-        CXFRateLimitFilter filter = new CXFRateLimitFilter(props, cache(props));
+        RateLimitFilter filter = new RateLimitFilter(props, CACHE);
         ReflectionTestUtils.setField(filter, "request", request);
         return filter;
     }
@@ -78,7 +57,7 @@ class CXFRateLimitPropertiesFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("10.0.0.10");
 
-        CXFRateLimitFilter filter = filter(request);
+        RateLimitFilter filter = filter(request);
         ContainerRequestContext requestContext = org.mockito.Mockito.mock(ContainerRequestContext.class);
 
         filter.filter(requestContext);
@@ -104,7 +83,7 @@ class CXFRateLimitPropertiesFilterTest {
         trustedProxyRequest.setRemoteAddr("127.0.0.1");
         trustedProxyRequest.addHeader("X-Forwarded-For", "203.0.113.10, 198.51.100.20");
 
-        CXFRateLimitFilter trustedProxyFilter = new CXFRateLimitFilter(props, cache(props));
+        RateLimitFilter trustedProxyFilter = new RateLimitFilter(props, CACHE);
         ReflectionTestUtils.setField(trustedProxyFilter, "request", trustedProxyRequest);
         assertEquals("203.0.113.10", trustedProxyFilter.clientAddress());
 
@@ -112,7 +91,7 @@ class CXFRateLimitPropertiesFilterTest {
         untrustedRequest.setRemoteAddr("198.51.100.30");
         untrustedRequest.addHeader("X-Forwarded-For", "203.0.113.10");
 
-        CXFRateLimitFilter untrustedFilter = new CXFRateLimitFilter(props, cache(props));
+        RateLimitFilter untrustedFilter = new RateLimitFilter(props, CACHE);
         ReflectionTestUtils.setField(untrustedFilter, "request", untrustedRequest);
         assertEquals("198.51.100.30", untrustedFilter.clientAddress());
     }
@@ -127,7 +106,7 @@ class CXFRateLimitPropertiesFilterTest {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRemoteAddr("10.0.0.20");
 
-        CXFRateLimitFilter filter = new CXFRateLimitFilter(props, cache(props));
+        RateLimitFilter filter = new RateLimitFilter(props, CACHE);
         ReflectionTestUtils.setField(filter, "request", request);
         ContainerRequestContext requestContext = org.mockito.Mockito.mock(ContainerRequestContext.class);
 

@@ -38,17 +38,18 @@ import org.apache.commons.lang3.StringUtils;
 @Provider
 @PreMatching
 @Priority(Priorities.AUTHENTICATION - 100)
-public class CXFRateLimitFilter implements ContainerRequestFilter {
+public class RateLimitFilter implements ContainerRequestFilter {
 
-    public static final String CACHE_NAME =
-            "org.apache.syncope.core.rest.cxf.CXFRateLimitFilter";
+    public static final String CACHE = "RateLimitFilterCache";
 
     protected record RateLimitDecision(boolean allowed, long retryAfterSeconds) {
+
     }
 
     public record ClientWindow(long windowStartMillis, int count, long lockedUntilMillis) implements Serializable {
 
         private static final long serialVersionUID = -473897805205955157L;
+
     }
 
     protected final RESTProperties.RateLimitProperties props;
@@ -58,7 +59,7 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
     @Context
     protected HttpServletRequest request;
 
-    public CXFRateLimitFilter(final RESTProperties props, final Cache<String, ClientWindow> clients) {
+    public RateLimitFilter(final RESTProperties props, final Cache<String, ClientWindow> clients) {
         this.props = props.getRateLimit();
         this.clients = clients;
     }
@@ -116,7 +117,7 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
         if (props.getTrustedProxies().contains(remoteAddress)) {
             String forwardedFor = Optional.ofNullable(request).
                     map(req -> req.getHeader(props.getForwardedForHeader())).
-                    flatMap(CXFRateLimitFilter::firstForwardedFor).
+                    flatMap(RateLimitFilter::firstForwardedFor).
                     orElse(null);
             if (StringUtils.isNotBlank(forwardedFor)) {
                 return forwardedFor;
@@ -137,11 +138,7 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
     }
 
     protected Optional<String> requestRemoteAddress() {
-        try {
-            return Optional.ofNullable(request).map(HttpServletRequest::getRemoteAddr);
-        } catch (NullPointerException e) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(request).map(HttpServletRequest::getRemoteAddr);
     }
 
     protected static Optional<String> firstForwardedFor(final String header) {
@@ -151,7 +148,7 @@ public class CXFRateLimitFilter implements ContainerRequestFilter {
                 findFirst();
     }
 
-    protected long toMillis(final Duration duration) {
+    protected static long toMillis(final Duration duration) {
         return Math.max(1L, Optional.ofNullable(duration).orElse(Duration.ofMinutes(1)).toMillis());
     }
 

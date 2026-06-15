@@ -28,6 +28,8 @@ import org.apache.commons.lang3.StringUtils;
 
 public class AuthenticationAttemptThrottler {
 
+    public static final String CACHE = "AuthenticationAttemptCache";
+
     public record Attempts(Deque<Long> failures, long blockedUntil) implements Serializable {
 
         private static final long serialVersionUID = 8023582605543650484L;
@@ -40,8 +42,6 @@ public class AuthenticationAttemptThrottler {
             this(new ArrayDeque<>(), 0);
         }
     }
-
-    public static final String CACHE = "AuthenticationAttemptCache";
 
     protected static String key(final String domain, final String username) {
         return StringUtils.defaultString(domain) + ':' + StringUtils.defaultString(username);

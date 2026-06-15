@@ -28,20 +28,6 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @ConfigurationProperties("rest")
 public class RESTProperties {
 
-    @NestedConfigurationProperty
-    private final ExecutorProperties batchExecutor = new ExecutorProperties();
-
-    @NestedConfigurationProperty
-    private final RateLimitProperties rateLimitProperties = new RateLimitProperties();
-
-    public ExecutorProperties getBatchExecutor() {
-        return batchExecutor;
-    }
-
-    public RateLimitProperties getRateLimit() {
-        return rateLimitProperties;
-    }
-
     public static class RateLimitProperties {
 
         private boolean enabled;
@@ -105,5 +91,19 @@ public class RESTProperties {
         public Set<String> getTrustedProxies() {
             return trustedProxies;
         }
+    }
+
+    @NestedConfigurationProperty
+    private final ExecutorProperties batchExecutor = new ExecutorProperties();
+
+    @NestedConfigurationProperty
+    private final RateLimitProperties rateLimitProperties = new RateLimitProperties();
+
+    public ExecutorProperties getBatchExecutor() {
+        return batchExecutor;
+    }
+
+    public RateLimitProperties getRateLimit() {
+        return rateLimitProperties;
     }
 }
