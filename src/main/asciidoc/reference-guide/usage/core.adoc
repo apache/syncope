@@ -107,6 +107,39 @@ https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/anon
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.
 ****
 
+[[authentication-error-details]]
+===== Authentication Error Details
+Since 4.1.2 version, by default, authentication failures return a generic error message in the `X-Syncope-Error-Info` response header.
+
+This avoids exposing details that could help distinguish between different authentication failure causes, such as an unknown user, invalid credentials, disabled account, invalid domain or invalid token.
+
+The behavior can be configured with the following properties:
+[cols="1,1,3",options="header"]
+|===
+|Property
+|Default
+|Description
+|`security.authenticationError.exposeDetails`
+|`false`
+|When `false`, authentication failures expose the configured generic message.  When `true`, the original authentication exception message is exposed. Setting this to `true` restores the previous, more detailed behavior.
+|`security.authenticationError.genericMessage`
+|`Authentication failed`
+|Message returned for authentication failures when `security.authenticationError.exposeDetails` is `false`. If left empty, Syncope
+  falls back to `Authentication failed`.
+|===
+Example:
+[source,properties]
+----
+security.authenticationError.exposeDetails=false
+security.authenticationError.genericMessage=Authentication failed
+----
+
+For compatibility with previous behavior, administrators can enable detailed messages:
+[source,properties]
+----
+security.authenticationError.exposeDetails=true
+----
+
 ===== Authentication Throttling
 This functionality can throttle repeated failed username / password authentication attempts, to reduce the effectiveness of automated guessing attacks.
 
