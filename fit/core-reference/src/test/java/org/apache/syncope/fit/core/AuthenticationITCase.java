@@ -336,19 +336,19 @@ public class AuthenticationITCase extends AbstractITCase {
         NotAuthorizedException e = assertThrows(
                 NotAuthorizedException.class,
                 () -> CLIENT_FACTORY.create(getUUIDString(), "anypassword").self());
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 e.getResponse().getHeaderString(RESTHeaders.ERROR_INFO));
 
         UserCR userCR = UserITCase.getUniqueSample("genericAuthError@syncope.apache.org");
         userCR.getRoles().add("User manager");
-
         UserTO userTO = createUser(userCR).getEntity();
-        assertNotNull(userTO);
 
         e = assertThrows(
                 NotAuthorizedException.class,
                 () -> CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd"));
-        assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
+        assertEquals(
+                SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE,
                 e.getResponse().getHeaderString(RESTHeaders.ERROR_INFO));
     }
 
