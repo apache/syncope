@@ -33,10 +33,10 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
  */
 public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
-    private final SecurityProperties securityProperties;
+    protected final SecurityProperties.AuthenticationErrorProperties props;
 
     public SyncopeBasicAuthenticationEntryPoint(final SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
+        this.props = securityProperties.getAuthenticationError();
     }
 
     @Override
@@ -45,10 +45,10 @@ public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
 
         response.addHeader(
                 RESTHeaders.ERROR_INFO,
-                securityProperties.getAuthenticationError().isExposeDetails()
+                props.isExposeDetails()
                 ? authException.getMessage()
                 : StringUtils.defaultIfBlank(
-                        securityProperties.getAuthenticationError().getGenericMessage(),
+                        props.getGenericMessage(),
                         SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE));
         if (authException instanceof RateLimitAuthenticationException rateLimit) {
             response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(rateLimit.getRetryAfterSeconds()));
