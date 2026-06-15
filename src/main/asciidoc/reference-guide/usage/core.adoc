@@ -48,12 +48,8 @@ protocol://host:port/syncope/
 ....
 ====
 
-[NOTE]
-.REST Rate Limiting
-====
-Syncope can apply rate limiting to REST requests before
-authentication and
-request processing.
+==== REST Rate Limiting
+Rate limiting can be applied to REST requests before authentication and request processing.
 
 This feature is disabled by default and can be enabled with the following properties:
 
@@ -91,9 +87,10 @@ traffic must not be rate limited.
 Addresses are matched exactly as reported by the servlet request remote address. CIDR ranges and wildcard
 patterns are not supported.
 
-When Syncope is deployed behind a reverse proxy, configure the proxy address under
-`rest.rateLimit.trustedProxies` to let Syncope identify the original client from the configured forwarded-for
-header. Add addresses to `rest.rateLimit.excludedAddresses` only for callers that should bypass rate limiting
+When Core is deployed behind a reverse proxy, configure the proxy address under
+`rest.rateLimit.trustedProxies` to allow for the original client from the configured `rest.rateLimit.forwardedForHeader`
+to be identified. +
+Add addresses to `rest.rateLimit.excludedAddresses` only for callers that should bypass rate limiting
 entirely, for example trusted Console instances or internal monitoring clients.
 
 Example:
@@ -106,14 +103,12 @@ rest.rateLimit.lock=1m
 rest.rateLimit.trustedProxies=127.0.0.1
 rest.rateLimit.excludedAddresses=127.0.0.1,10.0.0.10
 ----
-When the limit is exceeded, Syncope returns:
+When the limit is exceeded, the following HTTP response is returned:
 [source]
 ----
 HTTP/1.1 429 Too Many Requests
 Retry-After: <seconds>
 ----
-The rate limit state is stored through the configured JCache provider. With a distributed JCache provider, limits can be shared across cluster nodes; with a local provider, limits apply only to the current JVM.
-====
 
 ==== REST Authentication and Authorization
 
