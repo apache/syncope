@@ -21,6 +21,7 @@ package org.apache.syncope.core.spring.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.spring.security.throttle.AuthenticationThrottleException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -49,10 +50,9 @@ class SyncopeBasicAuthenticationEntryPointTest {
     void rateLimitAuthenticationExceptionReturnsTooManyRequests() throws Exception {
         MockHttpServletResponse response = new MockHttpServletResponse();
 
-        entryPoint.commence(
-                new MockHttpServletRequest(),
+        entryPoint.commence(new MockHttpServletRequest(),
                 response,
-                new RateLimitAuthenticationException(30));
+                new AuthenticationThrottleException(30));
 
         assertEquals(HttpStatus.TOO_MANY_REQUESTS.value(), response.getStatus());
         assertEquals("30", response.getHeader(HttpHeaders.RETRY_AFTER));

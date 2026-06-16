@@ -42,6 +42,9 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.spring.security.throttle.AuthenticationThrottler;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -135,8 +138,8 @@ public class WebSecurityContext {
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            @Qualifier(AuthenticationAttemptThrottler.CACHE)
-            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache) {
+            @Qualifier(AuthenticationThrottler.CACHE)
+            final Cache<String, ThrottlerAttempts> authenticationThrottlerCache) {
 
         return new UsernamePasswordAuthenticationProvider(
                 domainOps,
@@ -144,23 +147,39 @@ public class WebSecurityContext {
                 provisioningManager,
                 securityProperties,
                 encryptorManager,
-                authenticationAttemptCache);
+                authenticationThrottlerCache);
     }
 
-    @ConditionalOnMissingBean(name = AuthenticationAttemptThrottler.CACHE)
-    @Bean(name = AuthenticationAttemptThrottler.CACHE)
-    public Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache(
+    @ConditionalOnMissingBean(name = AuthenticationThrottler.CACHE)
+    @Bean(name = AuthenticationThrottler.CACHE)
+    public Cache<String, ThrottlerAttempts> authenticationThrottlerCache(
             final CacheManager cacheManager,
             final SecurityProperties securityProperties) {
 
-        return cacheManager.createCache(AuthenticationAttemptThrottler.CACHE,
-                new MutableConfiguration<String, AuthenticationAttemptThrottler.Attempts>().
-                        setTypes(String.class, AuthenticationAttemptThrottler.Attempts.class).
+        return cacheManager.createCache(AuthenticationThrottler.CACHE,
+                new MutableConfiguration<String, ThrottlerAttempts>().
+                        setTypes(String.class, ThrottlerAttempts.class).
                         setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(
                                 TimeUnit.SECONDS,
                                 Math.max(1, Math.max(
                                         securityProperties.getAuthenticationThrottle().getWindowSeconds(),
                                         securityProperties.getAuthenticationThrottle().getLockSeconds()))))));
+    }
+
+    @ConditionalOnMissingBean(name = PasswordResetRequestThrottler.CACHE)
+    @Bean(name = PasswordResetRequestThrottler.CACHE)
+    public Cache<String, ThrottlerAttempts> passwordResetRequestThrottlerCache(
+            final CacheManager cacheManager,
+            final SecurityProperties securityProperties) {
+
+        return cacheManager.createCache(PasswordResetRequestThrottler.CACHE,
+                new MutableConfiguration<String, ThrottlerAttempts>().
+                        setTypes(String.class, ThrottlerAttempts.class).
+                        setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(new Duration(
+                                TimeUnit.SECONDS,
+                                Math.max(1, Math.max(
+                                        securityProperties.getPasswordResetThrottle().getWindowSeconds(),
+                                        securityProperties.getPasswordResetThrottle().getLockSeconds()))))));
     }
 
     @Bean

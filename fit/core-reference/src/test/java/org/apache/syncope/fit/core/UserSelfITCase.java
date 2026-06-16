@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -32,8 +33,11 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -390,6 +394,33 @@ public class UserSelfITCase extends AbstractITCase {
                 MAX_WAIT_SECONDS, "SELECT password FROM test WHERE id=?", String.class, user.getUsername());
         assertTrue(StringUtils.isNotBlank(newPwdOnResource));
         assertNotEquals(pwdOnResource, newPwdOnResource);
+    }
+
+    @Test
+    public void passwordResetThrottle() {
+        String username = "missing-" + UUID.randomUUID() + "@syncope.apache.org";
+        UserSelfService userSelfService = ANONYMOUS_CLIENT.getService(UserSelfService.class);
+
+        int maxAttempts;
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
+            Properties props = new Properties();
+            props.load(propStream);
+            maxAttempts = Integer.parseInt(props.getProperty("security.passwordReset.throttle.maxAttempts", "5"));
+        } catch (IOException | NumberFormatException e) {
+            throw new IllegalStateException("Could not read password reset throttle max attempts from core.props", e);
+        }
+
+        for (int i = 0; i < maxAttempts; i++) {
+            SyncopeClientException e = assertThrows(
+                    SyncopeClientException.class,
+                    () -> userSelfService.requestPasswordReset(username, "answer"));
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> userSelfService.requestPasswordReset(username, "answer"));
+        assertEquals(Response.Status.TOO_MANY_REQUESTS, e.getType().getResponseStatus());
     }
 
     @Test

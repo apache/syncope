@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("security")
 public class SecurityProperties {
 
-    public static class AuthenticationThrottleProperties {
+    public static class ThrottleProperties {
 
         private boolean enabled = true;
 
@@ -172,7 +172,9 @@ public class SecurityProperties {
 
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
-    private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
+    private final ThrottleProperties authenticationThrottle = new ThrottleProperties();
+
+    private final ThrottleProperties passwordResetThrottle = new ThrottleProperties();
 
     private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
 
@@ -266,8 +268,12 @@ public class SecurityProperties {
         this.groovyBlacklist = groovyBlacklist;
     }
 
-    public AuthenticationThrottleProperties getAuthenticationThrottle() {
+    public SecurityProperties.ThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
+    }
+
+    public ThrottleProperties getPasswordResetThrottle() {
+        return passwordResetThrottle;
     }
 
     public AuthenticationErrorProperties getAuthenticationError() {
