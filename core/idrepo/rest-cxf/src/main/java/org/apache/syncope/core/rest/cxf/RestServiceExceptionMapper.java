@@ -137,7 +137,13 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
-        } else if (ex instanceof PasswordResetThrottleException prte) {
+        } else if (ex instanceof PasswordResetThrottleException
+                || ExceptionUtils.getRootCause(ex) instanceof PasswordResetThrottleException) {
+
+            PasswordResetThrottleException prte = ex instanceof PasswordResetThrottleException
+                    ? (PasswordResetThrottleException) ex
+                    : (PasswordResetThrottleException) ExceptionUtils.getRootCause(ex);
+
             builder = builder(ClientExceptionType.TooManyRequests, prte.getMessage()).
                     header(HttpHeaders.RETRY_AFTER, prte.getRetryAfterSeconds());
         } else if (ex instanceof DelegatedAdministrationException
