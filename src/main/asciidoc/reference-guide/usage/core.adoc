@@ -231,7 +231,7 @@ security.authenticationThrottle.windowSeconds=60
 security.authenticationThrottle.lockSeconds=60
 ----
 
-When enabled, the core tracks failed username / password authentication attempts for each authentication identifier in the current Domain.
+When enabled, Core tracks failed username / password authentication attempts for each authentication identifier in the current Domain.
 
 Once `security.authenticationThrottle.maxAttempts` failures are reached within `security.authenticationThrottle.windowSeconds`, further authentication attempts for the same identifier are rejected for `security.authenticationThrottle.lockSeconds`.
 
