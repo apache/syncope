@@ -51,8 +51,8 @@ public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
                 : StringUtils.defaultIfBlank(
                         props.getGenericMessage(),
                         SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE));
-        if (authException instanceof AuthenticationThrottleException rateLimit) {
-            response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(rateLimit.getRetryAfterSeconds()));
+        if (authException instanceof AuthenticationThrottleException ate) {
+            response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(ate.getRetryAfterSeconds()));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), authException.getMessage());
             return;
         }
