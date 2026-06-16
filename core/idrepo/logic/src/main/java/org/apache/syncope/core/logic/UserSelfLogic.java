@@ -64,6 +64,8 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,7 +105,7 @@ public class UserSelfLogic extends AbstractUserLogic {
             final ExternalResourceDAO resourceDAO,
             final RuleProvider ruleProvider,
             final SecurityProperties securityProperties,
-            final Cache<String, PasswordResetRequestThrottler.Attempts> passwordResetRequestCache) {
+            final Cache<String, ThrottlerAttempts> passwordResetRequestCache) {
 
         super(realmSearchDAO,
                 anyTypeDAO,

@@ -25,7 +25,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.logic.PasswordResetThrottleException;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetThrottleException;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.Environment;
 

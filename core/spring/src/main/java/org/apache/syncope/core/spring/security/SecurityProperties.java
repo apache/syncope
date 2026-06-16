@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("security")
 public class SecurityProperties {
 
-    public static class AuthenticationThrottleProperties {
+    public static class ThrottleProperties {
 
         private boolean enabled = true;
 
@@ -68,55 +68,28 @@ public class SecurityProperties {
         }
     }
 
-    public static class PasswordResetProperties {
+    public static class AuthenticationErrorProperties {
 
-        public static class ThrottleProperties {
+        public static final String DEFAULT_GENERIC_MESSAGE = "Authentication failed";
 
-            private boolean enabled = true;
+        private boolean exposeDetails = false;
 
-            private int maxAttempts = 5;
+        private String genericMessage = DEFAULT_GENERIC_MESSAGE;
 
-            private int windowSeconds = 300;
-
-            private int lockSeconds = 300;
-
-            public boolean isEnabled() {
-                return enabled;
-            }
-
-            public void setEnabled(final boolean enabled) {
-                this.enabled = enabled;
-            }
-
-            public int getMaxAttempts() {
-                return maxAttempts;
-            }
-
-            public void setMaxAttempts(final int maxAttempts) {
-                this.maxAttempts = maxAttempts;
-            }
-
-            public int getWindowSeconds() {
-                return windowSeconds;
-            }
-
-            public void setWindowSeconds(final int windowSeconds) {
-                this.windowSeconds = windowSeconds;
-            }
-
-            public int getLockSeconds() {
-                return lockSeconds;
-            }
-
-            public void setLockSeconds(final int lockSeconds) {
-                this.lockSeconds = lockSeconds;
-            }
+        public boolean isExposeDetails() {
+            return exposeDetails;
         }
 
-        private final ThrottleProperties throttle = new ThrottleProperties();
+        public void setExposeDetails(final boolean exposeDetails) {
+            this.exposeDetails = exposeDetails;
+        }
 
-        public ThrottleProperties getThrottle() {
-            return throttle;
+        public String getGenericMessage() {
+            return genericMessage;
+        }
+
+        public void setGenericMessage(final String genericMessage) {
+            this.genericMessage = genericMessage;
         }
     }
 
@@ -199,9 +172,11 @@ public class SecurityProperties {
 
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
-    private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
+    private final ThrottleProperties authenticationThrottle = new ThrottleProperties();
 
-    private final PasswordResetProperties passwordReset = new PasswordResetProperties();
+    private final ThrottleProperties passwordResetThrottle = new ThrottleProperties();
+
+    private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
 
@@ -293,12 +268,16 @@ public class SecurityProperties {
         this.groovyBlacklist = groovyBlacklist;
     }
 
-    public AuthenticationThrottleProperties getAuthenticationThrottle() {
+    public SecurityProperties.ThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
     }
 
-    public PasswordResetProperties getPasswordReset() {
-        return passwordReset;
+    public ThrottleProperties getPasswordResetThrottle() {
+        return passwordResetThrottle;
+    }
+
+    public AuthenticationErrorProperties getAuthenticationError() {
+        return authenticationError;
     }
 
     public DigesterProperties getDigester() {

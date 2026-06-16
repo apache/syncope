@@ -16,20 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic;
+package org.apache.syncope.core.spring.security.throttle;
 
-public class PasswordResetThrottleException extends RuntimeException {
+import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
-    private static final long serialVersionUID = 7640084563260847773L;
+public record ThrottlerAttempts(Deque<Long> failures, long blockedUntil) implements Serializable {
 
-    private final long retryAfterSeconds;
+    private static final long serialVersionUID = 8023582605543650484L;
 
-    public PasswordResetThrottleException(final long retryAfterSeconds) {
-        super("Too many password reset requests");
-        this.retryAfterSeconds = retryAfterSeconds;
+    public ThrottlerAttempts {
+        failures = new ArrayDeque<>(failures);
     }
 
-    public long getRetryAfterSeconds() {
-        return retryAfterSeconds;
+    public ThrottlerAttempts() {
+        this(new ArrayDeque<>(), 0);
     }
 }

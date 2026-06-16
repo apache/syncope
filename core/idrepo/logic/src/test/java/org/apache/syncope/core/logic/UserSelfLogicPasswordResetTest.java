@@ -25,9 +25,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import java.util.UUID;
 import javax.cache.Cache;
 import javax.cache.Caching;
+import javax.cache.configuration.MutableConfiguration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -43,10 +43,17 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetThrottleException;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class UserSelfLogicPasswordResetTest {
+
+    private static final Cache<String, ThrottlerAttempts> CACHE =
+            Caching.getCachingProvider().getCacheManager().createCache(
+                    UserSelfLogicPasswordResetTest.class.getName(),
+                    new MutableConfiguration<>());
 
     private UserDAO userDAO;
 
@@ -55,19 +62,13 @@ public class UserSelfLogicPasswordResetTest {
     private UserSelfLogic logic;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ConfParamOps confParamOps = mock(ConfParamOps.class);
         userDAO = mock(UserDAO.class);
         securityProperties = new SecurityProperties();
 
         when(confParamOps.get(any(), eq(StandardConfParams.PASSWORD_RESET_ALLOWED), eq(false), eq(boolean.class))).
                 thenReturn(true);
-
-        Cache<String, PasswordResetRequestThrottler.Attempts> passwordResetRequestCache =
-                Caching.getCachingProvider().getCacheManager().createCache(
-                        UserSelfLogicPasswordResetTest.class.getName() + '-' + UUID.randomUUID(),
-                        PasswordResetRequestThrottler.cacheConfiguration(
-                                securityProperties.getPasswordReset().getThrottle()));
 
         logic = new UserSelfLogic(
                 mock(RealmSearchDAO.class),
@@ -83,12 +84,12 @@ public class UserSelfLogicPasswordResetTest {
                 mock(ExternalResourceDAO.class),
                 mock(RuleProvider.class),
                 securityProperties,
-                passwordResetRequestCache);
+                CACHE);
     }
 
     @Test
-    public void passwordResetRequestsAreThrottled() {
-        securityProperties.getPasswordReset().getThrottle().setMaxAttempts(1);
+    void passwordResetRequestsAreThrottled() {
+        securityProperties.getPasswordResetThrottle().setMaxAttempts(1);
         when(userDAO.findKey("missing")).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> logic.requestPasswordReset("missing", "answer", "192.0.2.1"));
@@ -99,9 +100,9 @@ public class UserSelfLogicPasswordResetTest {
     }
 
     @Test
-    public void passwordResetThrottlingCanBeDisabled() {
-        securityProperties.getPasswordReset().getThrottle().setEnabled(false);
-        securityProperties.getPasswordReset().getThrottle().setMaxAttempts(1);
+    void passwordResetThrottlingCanBeDisabled() {
+        securityProperties.getPasswordResetThrottle().setEnabled(false);
+        securityProperties.getPasswordResetThrottle().setMaxAttempts(1);
         when(userDAO.findKey("missing")).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> logic.requestPasswordReset("missing", "answer", "192.0.2.1"));

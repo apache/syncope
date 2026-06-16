@@ -31,6 +31,8 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.spring.security.throttle.AuthenticationThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -55,7 +57,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected final EncryptorManager encryptorManager;
 
-    protected final AuthenticationAttemptThrottler authenticationAttemptThrottler;
+    protected final AuthenticationThrottler authenticationThrottler;
 
     public UsernamePasswordAuthenticationProvider(
             final DomainOps domainOps,
@@ -63,22 +65,21 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache) {
+            final Cache<String, ThrottlerAttempts> authenticationThrottlerCache) {
 
         this.domainOps = domainOps;
         this.dataAccessor = dataAccessor;
         this.provisioningManager = provisioningManager;
         this.securityProperties = securityProperties;
         this.encryptorManager = encryptorManager;
-        this.authenticationAttemptThrottler =
-                new AuthenticationAttemptThrottler(securityProperties, authenticationAttemptCache);
+        this.authenticationThrottler = new AuthenticationThrottler(securityProperties, authenticationThrottlerCache);
     }
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
         String domainKey = ((SyncopeAuthenticationDetails) authentication.getDetails()).getDomain();
         String authenticatingPrincipal = Objects.requireNonNull(authentication.getPrincipal()).toString();
-        authenticationAttemptThrottler.checkAllowed(domainKey, authenticatingPrincipal);
+        authenticationThrottler.checkAllowed(domainKey, authenticatingPrincipal);
 
         Optional<Domain> domain;
         if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
@@ -125,7 +126,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             final Authentication authentication) {
 
         if (authResult.isSuccess()) {
-            authenticationAttemptThrottler.clearFailures(domain, login);
+            authenticationThrottler.clearFailures(domain, login);
             UsernamePasswordAuthenticationToken token = AuthContextUtils.callAsAdmin(domain, () -> {
                 UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(
                         username,
@@ -158,7 +159,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         LOG.debug("User {} not authenticated", username);
 
-        authenticationAttemptThrottler.recordFailure(domain, login);
+        authenticationThrottler.recordFailure(domain, login);
 
         if (!authResult.passwordVerified()) {
             throw new BadCredentialsException(username + ": invalid password provided");

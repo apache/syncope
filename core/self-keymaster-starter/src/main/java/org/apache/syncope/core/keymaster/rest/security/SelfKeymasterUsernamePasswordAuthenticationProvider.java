@@ -24,10 +24,10 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.AuthenticationAttemptThrottler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.springframework.security.core.Authentication;
 
 public class SelfKeymasterUsernamePasswordAuthenticationProvider extends UsernamePasswordAuthenticationProvider {
@@ -40,7 +40,7 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache,
+            final Cache<String, ThrottlerAttempts> authenticationAttemptCache,
             final KeymasterProperties keymasterProperties) {
 
         super(

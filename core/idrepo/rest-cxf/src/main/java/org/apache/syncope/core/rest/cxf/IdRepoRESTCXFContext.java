@@ -20,10 +20,17 @@ package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.Feature;
@@ -227,6 +234,35 @@ public class IdRepoRESTCXFContext {
         return new AddETagFilter();
     }
 
+    @ConditionalOnMissingBean
+    @Bean
+    public RateLimitFilter rateLimitFilter(
+            final RESTProperties props,
+            @Qualifier(RateLimitFilter.CACHE)
+            final Cache<String, RateLimitFilter.ClientWindow> cxfRateLimitCache) {
+
+        return new RateLimitFilter(props, cxfRateLimitCache);
+    }
+
+    @ConditionalOnMissingBean(name = RateLimitFilter.CACHE)
+    @Bean(name = RateLimitFilter.CACHE)
+    public Cache<String, RateLimitFilter.ClientWindow> rateLimitCache(
+            final CacheManager cacheManager,
+            final RESTProperties restProperties) {
+
+        long windowMillis = Optional.ofNullable(restProperties.getRateLimit().getWindow()).
+                orElse(Duration.ofMinutes(1)).toMillis();
+        long lockMillis = Optional.ofNullable(restProperties.getRateLimit().getLock()).
+                orElse(Duration.ofMinutes(1)).toMillis();
+        long expiry = Math.max(1L, Math.max(windowMillis, lockMillis));
+
+        return cacheManager.createCache(RateLimitFilter.CACHE,
+                new MutableConfiguration<String, RateLimitFilter.ClientWindow>().
+                        setTypes(String.class, RateLimitFilter.ClientWindow.class).
+                        setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
+                                new javax.cache.expiry.Duration(TimeUnit.MILLISECONDS, expiry))));
+    }
+
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
     @Bean
     public OpenApiCustomizer openApiCustomizer(final DomainHolder<?> domainHolder, final Environment env) {
@@ -278,6 +314,7 @@ public class IdRepoRESTCXFContext {
             final List<JAXRSService> services,
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
+            final RateLimitFilter rateLimitFilter,
             final ContextProvider<SearchContext> searchContextProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
@@ -308,6 +345,7 @@ public class IdRepoRESTCXFContext {
                 jsonProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
+                rateLimitFilter,
                 addDomainFilter,
                 addETagFilter));
 
