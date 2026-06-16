@@ -16,32 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.security;
+package org.apache.syncope.core.spring.security.throttle;
 
-import java.io.Serializable;
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
 import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 
-public class AuthenticationAttemptThrottler {
+public class AuthenticationThrottler extends AbstractThrottler {
 
-    public static final String CACHE = "AuthenticationAttemptCache";
-
-    public record Attempts(Deque<Long> failures, long blockedUntil) implements Serializable {
-
-        private static final long serialVersionUID = 8023582605543650484L;
-
-        public Attempts {
-            failures = new ArrayDeque<>(failures);
-        }
-
-        private Attempts() {
-            this(new ArrayDeque<>(), 0);
-        }
-    }
+    public static final String CACHE = "AuthenticationThrottlerCache";
 
     protected static String key(final String domain, final String username) {
         return StringUtils.defaultString(domain) + ':' + StringUtils.defaultString(username);
@@ -51,18 +36,11 @@ public class AuthenticationAttemptThrottler {
         return Math.max(1, TimeUnit.MILLISECONDS.toSeconds(blockedUntil - now));
     }
 
-    protected final SecurityProperties.AuthenticationThrottleProperties throttle;
-
-    protected final LongSupplier clock = System::currentTimeMillis;
-
-    protected final Cache<String, Attempts> attempts;
-
-    public AuthenticationAttemptThrottler(
+    public AuthenticationThrottler(
             final SecurityProperties securityProperties,
-            final Cache<String, Attempts> attempts) {
+            final Cache<String, ThrottlerAttempts> attempts) {
 
-        this.throttle = securityProperties.getAuthenticationThrottle();
-        this.attempts = attempts;
+        super(securityProperties.getAuthenticationThrottle(), attempts);
     }
 
     public void checkAllowed(final String domain, final String username) {
@@ -77,7 +55,7 @@ public class AuthenticationAttemptThrottler {
                 return null;
             }
 
-            Attempts state = entry.getValue();
+            ThrottlerAttempts state = entry.getValue();
             if (state.blockedUntil() > now) {
                 return retryAfterSeconds(state.blockedUntil(), now);
             }
@@ -86,20 +64,13 @@ public class AuthenticationAttemptThrottler {
             if (failures.isEmpty()) {
                 entry.remove();
             } else {
-                entry.setValue(new Attempts(failures, state.blockedUntil()));
+                entry.setValue(new ThrottlerAttempts(failures, state.blockedUntil()));
             }
             return null;
         });
         if (retryAfter != null) {
-            throw new RateLimitAuthenticationException(retryAfter);
+            throw new AuthenticationThrottleException(retryAfter);
         }
-    }
-
-    protected boolean isEnabled() {
-        return throttle.isEnabled()
-                && throttle.getMaxAttempts() > 0
-                && throttle.getWindowSeconds() > 0
-                && throttle.getLockSeconds() > 0;
     }
 
     public void clearFailures(final String domain, final String username) {
@@ -113,32 +84,23 @@ public class AuthenticationAttemptThrottler {
 
         long now = clock.getAsLong();
         Long retryAfter = attempts.invoke(key(domain, username), (entry, args) -> {
-            Attempts state = entry.exists()
+            ThrottlerAttempts state = entry.exists()
                     ? entry.getValue()
-                    : new Attempts();
+                    : new ThrottlerAttempts();
             Deque<Long> failures = prune(state.failures(), now);
             failures.addLast(now);
 
             if (failures.size() >= throttle.getMaxAttempts()) {
                 long blockedUntil = now + TimeUnit.SECONDS.toMillis(throttle.getLockSeconds());
-                entry.setValue(new Attempts(failures, blockedUntil));
+                entry.setValue(new ThrottlerAttempts(failures, blockedUntil));
                 return retryAfterSeconds(blockedUntil, now);
             }
 
-            entry.setValue(new Attempts(failures, state.blockedUntil()));
+            entry.setValue(new ThrottlerAttempts(failures, state.blockedUntil()));
             return null;
         });
         if (retryAfter != null) {
-            throw new RateLimitAuthenticationException(retryAfter);
+            throw new AuthenticationThrottleException(retryAfter);
         }
-    }
-
-    protected Deque<Long> prune(final Deque<Long> attempts, final long now) {
-        Deque<Long> failures = new ArrayDeque<>(attempts);
-        long threshold = now - TimeUnit.SECONDS.toMillis(throttle.getWindowSeconds());
-        while (!failures.isEmpty() && failures.peekFirst() < threshold) {
-            failures.removeFirst();
-        }
-        return failures;
     }
 }

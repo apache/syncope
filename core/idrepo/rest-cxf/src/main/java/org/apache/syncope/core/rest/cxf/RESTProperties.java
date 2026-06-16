@@ -96,7 +96,6 @@ public class RESTProperties {
     @NestedConfigurationProperty
     private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
-    @NestedConfigurationProperty
     private final RateLimitProperties rateLimitProperties = new RateLimitProperties();
 
     public ExecutorProperties getBatchExecutor() {

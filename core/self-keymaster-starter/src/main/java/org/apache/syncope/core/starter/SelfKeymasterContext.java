@@ -74,10 +74,11 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.JavaDocUtils;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.AuthenticationAttemptThrottler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
+import org.apache.syncope.core.spring.security.throttle.AuthenticationThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.apache.syncope.core.starter.SelfKeymasterContext.SelfKeymasterCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -225,8 +226,8 @@ public class SelfKeymasterContext {
             final UserProvisioningManager provisioningManager,
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
-            @Qualifier(AuthenticationAttemptThrottler.CACHE)
-            final Cache<String, AuthenticationAttemptThrottler.Attempts> authenticationAttemptCache,
+            @Qualifier(AuthenticationThrottler.CACHE)
+            final Cache<String, ThrottlerAttempts> authenticationAttemptCache,
             final KeymasterProperties keymasterProperties) {
 
         return new SelfKeymasterUsernamePasswordAuthenticationProvider(

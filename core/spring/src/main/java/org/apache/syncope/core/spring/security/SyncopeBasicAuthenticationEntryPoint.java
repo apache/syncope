@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.spring.security.throttle.AuthenticationThrottleException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -50,8 +51,8 @@ public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEnt
                 : StringUtils.defaultIfBlank(
                         props.getGenericMessage(),
                         SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE));
-        if (authException instanceof RateLimitAuthenticationException rateLimit) {
-            response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(rateLimit.getRetryAfterSeconds()));
+        if (authException instanceof AuthenticationThrottleException ate) {
+            response.addHeader(HttpHeaders.RETRY_AFTER, Long.toString(ate.getRetryAfterSeconds()));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), authException.getMessage());
             return;
         }
