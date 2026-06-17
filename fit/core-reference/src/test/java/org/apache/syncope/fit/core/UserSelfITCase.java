@@ -351,12 +351,12 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
-        try {
-            ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        requestPasswordReset(user.getUsername(), "WRONG"));
+        assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+
         ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
         awaitIfExtSearchEnabled();
@@ -372,13 +372,13 @@ public class UserSelfITCase extends AbstractITCase {
                 StringUtils::isNotBlank);
 
         // 5. confirm password reset
-        try {
-            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertTrue(e.getMessage().contains("WRONG TOKEN"));
-        }
+        e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        confirmPasswordReset("WRONG TOKEN", "newPassword"));
+        assertEquals(ClientExceptionType.NotFound, e.getType());
+        assertFalse(e.getMessage().contains("WRONG TOKEN"));
+
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         if (!IS_NEO4J_PERSISTENCE) {
@@ -445,13 +445,13 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(token);
 
         // 5. confirm password reset
-        try {
-            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertTrue(e.getMessage().contains("WRONG TOKEN"));
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        confirmPasswordReset("WRONG TOKEN", "newPassword"));
+        assertEquals(ClientExceptionType.NotFound, e.getType());
+        assertFalse(e.getMessage().contains("WRONG TOKEN"));
+
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
