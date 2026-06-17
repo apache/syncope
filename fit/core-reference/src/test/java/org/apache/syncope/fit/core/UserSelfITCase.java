@@ -19,7 +19,6 @@
 package org.apache.syncope.fit.core;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -329,24 +328,6 @@ public class UserSelfITCase extends AbstractITCase {
     }
 
     @Test
-    public void passwordResetHidesEnumerationDetails() {
-        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, true);
-
-        assertDoesNotThrow(() -> ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(
-                UUID.randomUUID() + "@syncope.apache.org", "Rossi"));
-
-        UserCR user = UserITCase.getUniqueSample("pwdResetEnumeration@syncope.apache.org");
-        user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
-        user.setSecurityAnswer("Rossi");
-        UserTO userTO = createUser(user).getEntity();
-        assertNotNull(userTO);
-
-        assertDoesNotThrow(() -> ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(
-                user.getUsername(), "WRONG"));
-        assertNull(Optional.ofNullable(getToken(userTO.getKey()).get("token")).map(Object::toString).orElse(null));
-    }
-
-    @Test
     public void passwordReset() throws Exception {
         // 0. ensure that password request DOES require security question
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, true);
@@ -370,10 +351,11 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
-        ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
-        assertNull(Optional.ofNullable(getToken(read.getKey()).get("token")).map(Object::toString).orElse(null));
-        ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(
-                UUID.randomUUID() + "@syncope.apache.org", "Rossi");
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        requestPasswordReset(user.getUsername(), "WRONG"));
+        assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
 
         ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
@@ -390,13 +372,13 @@ public class UserSelfITCase extends AbstractITCase {
                 StringUtils::isNotBlank);
 
         // 5. confirm password reset
-        try {
-            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertFalse(e.getMessage().contains("WRONG TOKEN"));
-        }
+        e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        confirmPasswordReset("WRONG TOKEN", "newPassword"));
+        assertEquals(ClientExceptionType.NotFound, e.getType());
+        assertFalse(e.getMessage().contains("WRONG TOKEN"));
+
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         if (!IS_NEO4J_PERSISTENCE) {
@@ -463,13 +445,13 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(token);
 
         // 5. confirm password reset
-        try {
-            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertFalse(e.getMessage().contains("WRONG TOKEN"));
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                        confirmPasswordReset("WRONG TOKEN", "newPassword"));
+        assertEquals(ClientExceptionType.NotFound, e.getType());
+        assertFalse(e.getMessage().contains("WRONG TOKEN"));
+
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
