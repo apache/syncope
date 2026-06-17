@@ -1348,7 +1348,7 @@ under the License.
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>7.0.2</version>
+        <version>7.1.0</version>
       </dependency>
 
       <dependency>
