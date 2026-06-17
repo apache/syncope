@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("security")
 public class SecurityProperties {
 
-    public static class AuthenticationThrottleProperties {
+    public static class ThrottleProperties {
 
         private boolean enabled = true;
 
@@ -68,16 +68,28 @@ public class SecurityProperties {
         }
     }
 
-    public static class PasswordResetProperties {
+    public static class AuthenticationErrorProperties {
 
-        private boolean hideDetails = true;
+        public static final String DEFAULT_GENERIC_MESSAGE = "Authentication failed";
 
-        public boolean isHideDetails() {
-            return hideDetails;
+        private boolean exposeDetails = false;
+
+        private String genericMessage = DEFAULT_GENERIC_MESSAGE;
+
+        public boolean isExposeDetails() {
+            return exposeDetails;
         }
 
-        public void setHideDetails(final boolean hideDetails) {
-            this.hideDetails = hideDetails;
+        public void setExposeDetails(final boolean exposeDetails) {
+            this.exposeDetails = exposeDetails;
+        }
+
+        public String getGenericMessage() {
+            return genericMessage;
+        }
+
+        public void setGenericMessage(final String genericMessage) {
+            this.genericMessage = genericMessage;
         }
     }
 
@@ -160,9 +172,13 @@ public class SecurityProperties {
 
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
-    private final AuthenticationThrottleProperties authenticationThrottle = new AuthenticationThrottleProperties();
+    private final ThrottleProperties authenticationThrottle = new ThrottleProperties();
 
-    private final PasswordResetProperties passwordReset = new PasswordResetProperties();
+    private boolean passwordResetHideDetails = true;
+
+    private final ThrottleProperties passwordResetThrottle = new ThrottleProperties();
+
+    private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
 
@@ -254,12 +270,24 @@ public class SecurityProperties {
         this.groovyBlacklist = groovyBlacklist;
     }
 
-    public AuthenticationThrottleProperties getAuthenticationThrottle() {
+    public SecurityProperties.ThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
     }
 
-    public PasswordResetProperties getPasswordReset() {
-        return passwordReset;
+    public boolean isPasswordResetHideDetails() {
+        return passwordResetHideDetails;
+    }
+
+    public void setPasswordResetHideDetails(final boolean passwordResetHideDetails) {
+        this.passwordResetHideDetails = passwordResetHideDetails;
+    }
+
+    public ThrottleProperties getPasswordResetThrottle() {
+        return passwordResetThrottle;
+    }
+
+    public AuthenticationErrorProperties getAuthenticationError() {
+        return authenticationError;
     }
 
     public DigesterProperties getDigester() {

@@ -21,7 +21,6 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -66,6 +65,7 @@ import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.BeforeEach;
@@ -238,7 +238,7 @@ public class MultitenancyITCase extends AbstractITCase {
                     create(UserITCase.getUniqueSample("syncope1377@syncope.apache.org"));
             fail("This should not happen");
         } catch (NotAuthorizedException e) {
-            assertTrue(e.getMessage().contains("Could not find domain NotExisting"));
+            assertEquals(SecurityProperties.AuthenticationErrorProperties.DEFAULT_GENERIC_MESSAGE, e.getMessage());
         }
     }
 }

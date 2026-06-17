@@ -16,18 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.security;
+package org.apache.syncope.core.spring.security.throttle;
 
-import org.springframework.security.core.AuthenticationException;
+public class PasswordResetThrottleException extends RuntimeException {
 
-public class RateLimitAuthenticationException extends AuthenticationException {
-
-    private static final long serialVersionUID = 3829921857697051591L;
+    private static final long serialVersionUID = 7640084563260847773L;
 
     private final long retryAfterSeconds;
 
-    public RateLimitAuthenticationException(final long retryAfterSeconds) {
-        super("Too many authentication failures");
+    public PasswordResetThrottleException(final long retryAfterSeconds) {
+        super("Too many password reset requests");
         this.retryAfterSeconds = retryAfterSeconds;
     }
 

@@ -26,6 +26,7 @@ import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import jakarta.validation.Validator;
+import javax.cache.Cache;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
@@ -101,8 +102,11 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -524,7 +528,9 @@ public class IdRepoLogicContext {
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
             final RuleProvider ruleProvider,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            @Qualifier(PasswordResetRequestThrottler.CACHE)
+            final Cache<String, ThrottlerAttempts> passwordResetRequestCache) {
 
         return new UserSelfLogic(
                 realmSearchDAO,
@@ -539,7 +545,8 @@ public class IdRepoLogicContext {
                 accessTokenDAO,
                 resourceDAO,
                 ruleProvider,
-                securityProperties);
+                securityProperties,
+                passwordResetRequestCache);
     }
 
     @ConditionalOnMissingBean

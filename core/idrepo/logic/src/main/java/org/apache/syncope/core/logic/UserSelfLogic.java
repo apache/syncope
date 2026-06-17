@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -63,6 +64,8 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
+import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,7 +89,7 @@ public class UserSelfLogic extends AbstractUserLogic {
 
     protected final RuleProvider ruleProvider;
 
-    protected final SecurityProperties securityProperties;
+    protected final PasswordResetRequestThrottler passwordResetRequestThrottler;
 
     public UserSelfLogic(
             final RealmSearchDAO realmSearchDAO,
@@ -101,7 +104,8 @@ public class UserSelfLogic extends AbstractUserLogic {
             final AccessTokenDAO accessTokenDAO,
             final ExternalResourceDAO resourceDAO,
             final RuleProvider ruleProvider,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final Cache<String, ThrottlerAttempts> passwordResetRequestCache) {
 
         super(realmSearchDAO,
                 anyTypeDAO,
@@ -115,7 +119,9 @@ public class UserSelfLogic extends AbstractUserLogic {
         this.accessTokenDAO = accessTokenDAO;
         this.resourceDAO = resourceDAO;
         this.ruleProvider = ruleProvider;
-        this.securityProperties = securityProperties;
+        this.passwordResetRequestThrottler = new PasswordResetRequestThrottler(
+                securityProperties,
+                passwordResetRequestCache);
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -270,7 +276,11 @@ public class UserSelfLogic extends AbstractUserLogic {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void requestPasswordReset(final String username, final String securityAnswer) {
+    public void requestPasswordReset(
+            final String username,
+            final String securityAnswer,
+            final String clientAddress) {
+
         if (!confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_ALLOWED, false, boolean.class)) {
 
@@ -279,27 +289,19 @@ public class UserSelfLogic extends AbstractUserLogic {
             throw sce;
         }
 
-        Optional<String> key = userDAO.findKey(username);
-        if (key.isEmpty()) {
-            if (!securityProperties.getPasswordReset().isHideDetails()) {
-                throw new NotFoundException("User " + username);
-            }
-            LOG.warn("Ignoring password reset request for unknown user");
-            return;
-        }
+        passwordResetRequestThrottler.recordAndCheck(AuthContextUtils.getDomain(), username, clientAddress);
+
+        String key = userDAO.findKey(username).
+                orElseThrow(() -> new NotFoundException("User"));
 
         if (confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.PASSWORD_RESET_SECURITY_QUESTION, false, boolean.class)
-                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key.get(), securityAnswer))) {
+                && (securityAnswer == null || !provisioningManager.checkSecurityAnswer(key, securityAnswer))) {
 
-            if (!securityProperties.getPasswordReset().isHideDetails()) {
-                throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
-            }
-            LOG.warn("Ignoring password reset request with missing or invalid security answer");
-            return;
+            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
         }
 
-        provisioningManager.requestPasswordReset(key.get(), AuthContextUtils.getUsername(), REST_CONTEXT);
+        provisioningManager.requestPasswordReset(key, AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -313,9 +315,7 @@ public class UserSelfLogic extends AbstractUserLogic {
         }
 
         String key = userDAO.findByToken(token).
-                orElseThrow(() -> new NotFoundException(securityProperties.getPasswordReset().isHideDetails()
-                ? "Invalid password reset token"
-                : "User with token " + token));
+                orElseThrow(() -> new NotFoundException("User with token " + token));
 
         provisioningManager.confirmPasswordReset(
                 key, token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
