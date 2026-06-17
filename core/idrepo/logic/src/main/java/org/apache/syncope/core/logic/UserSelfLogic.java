@@ -316,7 +316,7 @@ public class UserSelfLogic extends AbstractUserLogic {
         }
 
         User user = userDAO.findByToken(token).
-                orElseThrow(() -> new NotFoundException("User with token " + token));
+                orElseThrow(() -> new NotFoundException("User"));
 
         provisioningManager.confirmPasswordReset(
                 user.getKey(), token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
