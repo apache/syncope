@@ -1425,12 +1425,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>7.0.2</version>
-      </dependency>
-
-      <dependency>
         <groupId>io.zonky.test</groupId>
         <artifactId>embedded-postgres</artifactId>
         <version>${zonky.embedded-postgres.version}</version>
