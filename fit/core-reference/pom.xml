@@ -1119,7 +1119,7 @@ under the License.
         <dependency>
           <groupId>org.springframework.data</groupId>
           <artifactId>spring-data-commons</artifactId>
-          <version>4.0.5</version>
+          <version>4.1.0</version>
         </dependency>
       </dependencies>
 
