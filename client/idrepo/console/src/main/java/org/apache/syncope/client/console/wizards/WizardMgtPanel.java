@@ -146,7 +146,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         utilityAjaxLink.setVisible(false);
         initialFragment.addOrReplace(utilityAjaxLink);
 
-        utilityIcon = new Label("utilityIcon");
+        utilityIcon = new Label("utilityIcon", Model.of());
         utilityAjaxLink.add(utilityIcon);
 
         add(new ListView<>("outerObjectsRepeater", outerObjects) {
