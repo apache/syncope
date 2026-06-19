@@ -45,10 +45,7 @@ public class Neo4jOIDCOpEntityDAO implements OIDCOpEntityDAO {
 
     @Override
     public OIDCOpEntity save(final OIDCOpEntity oidcOp) {
-        ((Neo4jOIDCOpEntity) oidcOp).map2json();
-        OIDCOpEntity saved = neo4jTemplate.save(nodeValidator.validate(oidcOp));
-        ((Neo4jOIDCOpEntity) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(oidcOp));
     }
 
     @Override

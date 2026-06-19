@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAttrRepo;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
@@ -36,9 +35,6 @@ public class AttrRepoRepoExtImpl implements AttrRepoRepoExt {
 
     @Override
     public AttrRepo save(final AttrRepo attrRepo) {
-        ((Neo4jAttrRepo) attrRepo).list2json();
-        AttrRepo saved = neo4jTemplate.save(nodeValidator.validate(attrRepo));
-        ((Neo4jAttrRepo) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(attrRepo));
     }
 }

@@ -28,13 +28,12 @@ import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.common.validation.FormPropertyDefCheck;
+import org.apache.syncope.core.persistence.neo4j.converters.Locale2StringMapConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.String2StringMapConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jFormPropertyDef.NODE)
 @FormPropertyDefCheck
@@ -44,14 +43,6 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
 
     public static final String NODE = "FormPropertyDef";
 
-    protected static final TypeReference<Map<String, String>> ENUMVALUES_TYPEREF =
-            new TypeReference<Map<String, String>>() {
-    };
-
-    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
-            new TypeReference<HashMap<Locale, String>>() {
-    };
-
     @NotNull
     @Relationship(type = Neo4jMacroTask.MACRO_TASK_FORM_PROPERTY_DEF_REL,
             direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
@@ -60,10 +51,8 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     @NotNull
     private String name;
 
-    private String labels;
-
-    @Transient
-    private Map<Locale, String> labelMap = new HashMap<>();
+    @ConvertWith(converter = Locale2StringMapConverter.class)
+    private Map<Locale, String> labels = new HashMap<>();
 
     @NotNull
     private FormPropertyType type;
@@ -81,7 +70,8 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
 
     private String datePattern;
 
-    private String enumValues;
+    @ConvertWith(converter = String2StringMapConverter.class)
+    private Map<String, String> enumValues = new HashMap<>();
 
     @NotNull
     private Boolean dropdownSingleSelection = Boolean.TRUE;
@@ -114,12 +104,12 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
 
     @Override
     public Optional<String> getLabel(final Locale locale) {
-        return Optional.ofNullable(labelMap.get(locale));
+        return Optional.ofNullable(labels.get(locale));
     }
 
     @Override
     public Map<Locale, String> getLabels() {
-        return labelMap;
+        return labels;
     }
 
     @Override
@@ -184,13 +174,12 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).
-                orElseGet(Map::of);
+        return enumValues;
     }
 
     @Override
     public void setEnumValues(final Map<String, String> enumValues) {
-        this.enumValues = Optional.ofNullable(enumValues).map(POJOHelper::serialize).orElse(null);
+        this.enumValues = enumValues;
     }
 
     @Override
@@ -221,27 +210,5 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     @Override
     public void setMimeType(final String mimeType) {
         this.mimeType = mimeType;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getLabels().clear();
-        }
-        if (labels != null) {
-            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    public void postSave() {
-        json2map(true);
-    }
-
-    public void map2json() {
-        labels = POJOHelper.serialize(getLabels());
     }
 }

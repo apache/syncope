@@ -29,12 +29,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.StringListConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jNotification.NODE)
 public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notification {
@@ -45,23 +43,16 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
 
     public static final String NOTIFICATION_ABOUT_REL = "NOTIFICATION_ABOUT";
 
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
-    private String events;
-
-    @Transient
-    private List<String> eventsList = new ArrayList<>();
+    @ConvertWith(converter = StringListConverter.class)
+    private List<String> events = new ArrayList<>();
 
     @Relationship(type = NOTIFICATION_ABOUT_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyAbout> abouts = new ArrayList<>();
 
     private String recipientsFIQL;
 
-    private String staticRecipients;
-
-    @Transient
-    private List<String> staticRecipientsList = new ArrayList<>();
+    @ConvertWith(converter = StringListConverter.class)
+    private List<String> staticRecipients = new ArrayList<>();
 
     @NotNull
     private String recipientAttrName;
@@ -122,7 +113,7 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
 
     @Override
     public List<String> getEvents() {
-        return eventsList;
+        return events;
     }
 
     @Override
@@ -143,7 +134,7 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
 
     @Override
     public List<String> getStaticRecipients() {
-        return staticRecipientsList;
+        return staticRecipients;
     }
 
     @Override
@@ -206,32 +197,5 @@ public class Neo4jNotification extends AbstractGeneratedKeyNode implements Notif
     @Override
     public void setActive(final boolean active) {
         this.active = active;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getEvents().clear();
-            getStaticRecipients().clear();
-        }
-        if (events != null) {
-            getEvents().addAll(POJOHelper.deserialize(events, TYPEREF));
-        }
-        if (staticRecipients != null) {
-            getStaticRecipients().addAll(POJOHelper.deserialize(staticRecipients, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        events = POJOHelper.serialize(getEvents());
-        staticRecipients = POJOHelper.serialize(getStaticRecipients());
     }
 }

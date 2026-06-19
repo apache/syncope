@@ -25,12 +25,10 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.common.validation.RoleCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.StringSetConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jRole.NODE)
 @RoleCheck
@@ -42,13 +40,8 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
 
     public static final String ROLE_REALM_REL = "ROLE_REALM";
 
-    protected static final TypeReference<Set<String>> TYPEREF = new TypeReference<Set<String>>() {
-    };
-
-    private String entitlements;
-
-    @Transient
-    private Set<String> entitlementsSet = new HashSet<>();
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> entitlements = new HashSet<>();
 
     private String anyLayout;
 
@@ -57,7 +50,7 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
 
     @Override
     public Set<String> getEntitlements() {
-        return entitlementsSet;
+        return entitlements;
     }
 
     @Override
@@ -79,27 +72,5 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
     @Override
     public void setAnyLayout(final String anyLayout) {
         this.anyLayout = anyLayout;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getEntitlements().clear();
-        }
-        if (entitlements != null) {
-            getEntitlements().addAll(POJOHelper.deserialize(entitlements, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        entitlements = POJOHelper.serialize(getEntitlements());
     }
 }

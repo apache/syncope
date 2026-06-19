@@ -24,11 +24,9 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.common.validation.SchemaKeyCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.Locale2StringMapConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jSchema.NODE)
 @SchemaKeyCheck
@@ -38,44 +36,16 @@ public abstract class Neo4jSchema extends AbstractProvidedKeyNode implements Sch
 
     public static final String NODE = "Schema";
 
-    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
-            new TypeReference<HashMap<Locale, String>>() {
-    };
-
-    private String labels;
-
-    @Transient
-    private Map<Locale, String> labelMap = new HashMap<>();
+    @ConvertWith(converter = Locale2StringMapConverter.class)
+    private Map<Locale, String> labels = new HashMap<>();
 
     @Override
     public Optional<String> getLabel(final Locale locale) {
-        return Optional.ofNullable(labelMap.get(locale));
+        return Optional.ofNullable(labels.get(locale));
     }
 
     @Override
     public Map<Locale, String> getLabels() {
-        return labelMap;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getLabels().clear();
-        }
-        if (labels != null) {
-            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    public void postSave() {
-        json2map(true);
-    }
-
-    public void map2json() {
-        labels = POJOHelper.serialize(getLabels());
+        return labels;
     }
 }

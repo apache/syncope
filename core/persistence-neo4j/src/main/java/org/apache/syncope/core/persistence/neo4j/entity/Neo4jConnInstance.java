@@ -30,12 +30,12 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.common.validation.ConnInstanceCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.ConnConfPropertyListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ConnPoolConfConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ConnectorCapabilitySetConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jConnInstance.NODE)
 @ConnInstanceCheck
@@ -44,14 +44,6 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
     private static final long serialVersionUID = -2294708794497208872L;
 
     public static final String NODE = "ConnInstance";
-
-    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
-            new TypeReference<Set<ConnectorCapability>>() {
-    };
-
-    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
-            new TypeReference<List<ConnConfProperty>>() {
-    };
 
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
@@ -77,10 +69,8 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
     @NotNull
     private String version;
 
-    private String capabilities;
-
-    @Transient
-    private Set<ConnectorCapability> capabilitiesSet = new HashSet<>();
+    @ConvertWith(converter = ConnectorCapabilitySetConverter.class)
+    private Set<ConnectorCapability> capabilities = new HashSet<>();
 
     /**
      * The main configuration for the connector instance. This is directly implemented by the Configuration bean class
@@ -88,10 +78,8 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
      *
      * @see org.identityconnectors.framework.api.ConfigurationProperty
      */
-    private String jsonConf;
-
-    @Transient
-    private List<ConnConfProperty> conf = new ArrayList<>();
+    @ConvertWith(converter = ConnConfPropertyListConverter.class)
+    private List<ConnConfProperty> jsonConf = new ArrayList<>();
 
     private String displayName;
 
@@ -102,7 +90,8 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
      */
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
-    private String poolConf;
+    @ConvertWith(converter = ConnPoolConfConverter.class)
+    private ConnPoolConf poolConf;
 
     @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm adminRealm;
@@ -160,7 +149,7 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Override
     public List<ConnConfProperty> getConf() {
-        return conf;
+        return jsonConf;
     }
 
     @Override
@@ -175,7 +164,7 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Override
     public Set<ConnectorCapability> getCapabilities() {
-        return capabilitiesSet;
+        return capabilities;
     }
 
     @Override
@@ -190,36 +179,11 @@ public class Neo4jConnInstance extends AbstractGeneratedKeyNode implements ConnI
 
     @Override
     public ConnPoolConf getPoolConf() {
-        return Optional.ofNullable(poolConf).map(pc -> POJOHelper.deserialize(pc, ConnPoolConf.class)).orElse(null);
+        return poolConf;
     }
 
     @Override
     public void setPoolConf(final ConnPoolConf poolConf) {
-        this.poolConf = Optional.ofNullable(poolConf).map(POJOHelper::serialize).orElse(null);
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getCapabilities().clear();
-            getConf().clear();
-        }
-        Optional.ofNullable(capabilities).
-                ifPresent(v -> getCapabilities().addAll(POJOHelper.deserialize(v, CONNECTOR_CAPABILITY_TYPEREF)));
-        Optional.ofNullable(jsonConf).
-                ifPresent(v -> getConf().addAll(POJOHelper.deserialize(v, CONN_CONF_PROPS_TYPEREF)));
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        capabilities = POJOHelper.serialize(getCapabilities());
-        jsonConf = POJOHelper.serialize(getConf());
+        this.poolConf = poolConf;
     }
 }

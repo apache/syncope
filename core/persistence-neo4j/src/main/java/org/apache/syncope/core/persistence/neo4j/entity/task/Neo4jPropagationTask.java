@@ -83,7 +83,7 @@ public class Neo4jPropagationTask extends AbstractTask<PropagationTask> implemen
     private Neo4jExternalResource resource;
 
     @Relationship(type = PROPAGATION_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jPropagationTaskExec> executions = new ArrayList<>();
+    private List<Neo4jPropagationTaskExec> propagationTaskExecs = new ArrayList<>();
 
     @Override
     public String getConnObjectKey() {
@@ -188,7 +188,7 @@ public class Neo4jPropagationTask extends AbstractTask<PropagationTask> implemen
 
     @Override
     protected boolean doAdd(final TaskExec<PropagationTask> exec) {
-        return executions.add((Neo4jPropagationTaskExec) exec);
+        return propagationTaskExecs.add((Neo4jPropagationTaskExec) exec);
     }
 
     @Override
@@ -198,6 +198,6 @@ public class Neo4jPropagationTask extends AbstractTask<PropagationTask> implemen
 
     @Override
     protected List<? extends AbstractTaskExec<PropagationTask>> executions() {
-        return executions;
+        return propagationTaskExecs;
     }
 }

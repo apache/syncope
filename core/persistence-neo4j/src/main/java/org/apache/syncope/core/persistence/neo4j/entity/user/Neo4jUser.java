@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
+import org.apache.syncope.core.persistence.neo4j.converters.StringListConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGroupableRelatable;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
@@ -54,10 +55,10 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jUser.NODE)
 @AttributableCheck
@@ -79,9 +80,6 @@ public class Neo4jUser
 
     public static final String USER_SECURITYQUESTION_REL = "USER_SECURITY_QUESTION";
 
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
     protected String password;
 
     @CompositeProperty(converterRef = "plainAttrsConverter")
@@ -93,7 +91,8 @@ public class Neo4jUser
 
     protected CipherAlgorithm cipherAlgorithm;
 
-    protected String passwordHistory;
+    @ConvertWith(converter = StringListConverter.class)
+    protected List<String> passwordHistory = new ArrayList<>();
 
     /**
      * Subsequent failed logins.
@@ -282,22 +281,18 @@ public class Neo4jUser
 
     @Override
     public void addToPasswordHistory(final String password) {
-        List<String> ph = getPasswordHistory();
-        ph.add(password);
-        passwordHistory = POJOHelper.serialize(ph);
+        passwordHistory.add(password);
     }
 
     @Override
     public void removeOldestEntriesFromPasswordHistory(final int n) {
-        List<String> ph = getPasswordHistory();
-        passwordHistory = POJOHelper.serialize(ph.subList(Math.min(n, ph.size()), ph.size()));
+        passwordHistory = new ArrayList<>(
+                passwordHistory.subList(Math.min(n, passwordHistory.size()), passwordHistory.size()));
     }
 
     @Override
     public List<String> getPasswordHistory() {
-        return passwordHistory == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(passwordHistory, TYPEREF);
+        return passwordHistory;
     }
 
     @Override

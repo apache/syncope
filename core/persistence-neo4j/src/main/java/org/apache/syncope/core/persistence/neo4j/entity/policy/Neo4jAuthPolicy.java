@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.neo4j.converters.AuthPolicyConfConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4jAuthPolicy.NODE)
@@ -31,17 +31,16 @@ public class Neo4jAuthPolicy extends Neo4jPolicy implements AuthPolicy {
 
     public static final String NODE = "AuthPolicy";
 
-    private String jsonConf;
+    @ConvertWith(converter = AuthPolicyConfConverter.class)
+    private AuthPolicyConf jsonConf;
 
     @Override
     public AuthPolicyConf getConf() {
-        return jsonConf == null
-                ? null
-                : POJOHelper.deserialize(jsonConf, AuthPolicyConf.class);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AuthPolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

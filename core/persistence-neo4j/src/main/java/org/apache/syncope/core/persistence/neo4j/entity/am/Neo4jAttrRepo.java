@@ -22,17 +22,15 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.neo4j.converters.AttrRepoConfConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ItemListConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jAttrRepo.NODE)
 public class Neo4jAttrRepo extends AbstractProvidedKeyNode implements AttrRepo {
@@ -40,9 +38,6 @@ public class Neo4jAttrRepo extends AbstractProvidedKeyNode implements AttrRepo {
     private static final long serialVersionUID = 7337970107878689617L;
 
     public static final String NODE = "AttrRepo";
-
-    protected static final TypeReference<List<Item>> TYPEREF = new TypeReference<List<Item>>() {
-    };
 
     private String description;
 
@@ -52,12 +47,11 @@ public class Neo4jAttrRepo extends AbstractProvidedKeyNode implements AttrRepo {
     @NotNull
     private Integer attrRepoOrder = 0;
 
-    private String items;
+    @ConvertWith(converter = ItemListConverter.class)
+    private List<Item> items = new ArrayList<>();
 
-    @Transient
-    private final List<Item> itemList = new ArrayList<>();
-
-    private String jsonConf;
+    @ConvertWith(converter = AttrRepoConfConverter.class)
+    private AttrRepoConf jsonConf;
 
     @Override
     public String getDescription() {
@@ -91,43 +85,16 @@ public class Neo4jAttrRepo extends AbstractProvidedKeyNode implements AttrRepo {
 
     @Override
     public List<Item> getItems() {
-        return itemList;
+        return items;
     }
 
     @Override
     public AttrRepoConf getConf() {
-        AttrRepoConf conf = null;
-        if (!StringUtils.isBlank(jsonConf)) {
-            conf = POJOHelper.deserialize(jsonConf, AttrRepoConf.class);
-        }
-
-        return conf;
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AttrRepoConf conf) {
-        jsonConf = POJOHelper.serialize(conf);
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getItems().clear();
-        }
-        if (items != null) {
-            getItems().addAll(POJOHelper.deserialize(items, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        items = POJOHelper.serialize(getItems());
+        jsonConf = conf;
     }
 }

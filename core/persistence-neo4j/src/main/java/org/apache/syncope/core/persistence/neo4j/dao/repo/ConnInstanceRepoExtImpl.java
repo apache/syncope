@@ -110,9 +110,7 @@ public class ConnInstanceRepoExtImpl extends AbstractDAO implements ConnInstance
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
-        ((Neo4jConnInstance) connector).list2json();
         ConnInstance saved = neo4jTemplate.save(nodeValidator.validate(connector));
-        ((Neo4jConnInstance) saved).postSave();
 
         resourceDAO.findByConnInstance(saved.getKey()).
                 forEach(resource -> resourceCache.remove(EntityCacheKey.of(resource.getKey())));

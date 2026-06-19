@@ -66,9 +66,6 @@ public class AuthProfileRepoExtImpl extends AbstractDAO implements AuthProfileRe
 
     @Override
     public AuthProfile save(final AuthProfile connector) {
-        ((Neo4jAuthProfile) connector).list2json();
-        AuthProfile saved = neo4jTemplate.save(nodeValidator.validate(connector));
-        ((Neo4jAuthProfile) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(connector));
     }
 }

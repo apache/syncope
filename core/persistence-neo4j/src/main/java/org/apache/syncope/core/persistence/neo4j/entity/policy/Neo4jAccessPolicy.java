@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.neo4j.converters.AccessPolicyConfConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4jAccessPolicy.NODE)
@@ -31,15 +31,16 @@ public class Neo4jAccessPolicy extends Neo4jPolicy implements AccessPolicy {
 
     public static final String NODE = "AccessPolicy";
 
-    private String jsonConf;
+    @ConvertWith(converter = AccessPolicyConfConverter.class)
+    private AccessPolicyConf jsonConf;
 
     @Override
     public AccessPolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).map(c -> POJOHelper.deserialize(c, AccessPolicyConf.class)).orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AccessPolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

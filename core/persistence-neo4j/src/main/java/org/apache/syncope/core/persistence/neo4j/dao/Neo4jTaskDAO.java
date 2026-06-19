@@ -484,21 +484,9 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     public <T extends Task<?>> T save(final T task) {
         task.getExecs().forEach(exec -> neo4jTemplate.save(nodeValidator.validate(exec)));
 
-        switch (task) {
-            case Neo4jNotificationTask notificationTask ->
-                notificationTask.list2json();
-            case Neo4jPushTask pushTask ->
-                pushTask.map2json();
-            default -> {
-            }
-        }
-
         T saved = neo4jTemplate.save(nodeValidator.validate(task));
 
         switch (saved) {
-            case Neo4jNotificationTask notificationTask ->
-                notificationTask.postSave();
-
             case Neo4jPullTask pullTask ->
                 neo4jTemplate.findById(pullTask.getKey(), Neo4jPullTask.class).ifPresent(t -> {
                     if (t.getReconFilterBuilder() != null && pullTask.getReconFilterBuilder() == null) {
@@ -519,8 +507,6 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 });
 
             case Neo4jPushTask pushTask -> {
-                pushTask.postSave();
-
                 neo4jTemplate.findById(pushTask.getKey(), Neo4jPushTask.class).
                         ifPresent(t -> t.getActions().stream().filter(act -> !pushTask.getActions().contains(act)).
                         forEach(impl -> deleteRelationship(

@@ -19,12 +19,12 @@
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.common.validation.PasswordManagementCheck;
+import org.apache.syncope.core.persistence.neo4j.converters.PasswordManagementConfConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4JPasswordManagement.NODE)
@@ -40,7 +40,8 @@ public class Neo4JPasswordManagement extends AbstractProvidedKeyNode implements 
     @NotNull
     private boolean enabled;
 
-    private String jsonConf;
+    @ConvertWith(converter = PasswordManagementConfConverter.class)
+    private PasswordManagementConf jsonConf;
 
     @Override
     public String getDescription() {
@@ -64,16 +65,11 @@ public class Neo4JPasswordManagement extends AbstractProvidedKeyNode implements 
 
     @Override
     public PasswordManagementConf getConf() {
-        PasswordManagementConf conf = null;
-        if (!StringUtils.isBlank(jsonConf)) {
-            conf = POJOHelper.deserialize(jsonConf, PasswordManagementConf.class);
-        }
-
-        return conf;
+        return jsonConf;
     }
 
     @Override
     public void setConf(final PasswordManagementConf conf) {
-        jsonConf = POJOHelper.serialize(conf);
+        jsonConf = conf;
     }
 }

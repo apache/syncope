@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -77,9 +76,7 @@ public class DerSchemaRepoExtImpl extends AbstractSchemaRepoExt implements DerSc
 
     @Override
     public DerSchema save(final DerSchema schema) {
-        ((Neo4jSchema) schema).map2json();
         DerSchema saved = neo4jTemplate.save(nodeValidator.validate(schema));
-        ((Neo4jSchema) saved).postSave();
 
         derSchemaCache.put(EntityCacheKey.of(schema.getKey()), (Neo4jDerSchema) saved);
 

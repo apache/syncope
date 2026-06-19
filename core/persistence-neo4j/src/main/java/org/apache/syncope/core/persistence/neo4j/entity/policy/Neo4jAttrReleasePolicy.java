@@ -21,7 +21,8 @@ package org.apache.syncope.core.persistence.neo4j.entity.policy;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.neo4j.converters.AttrReleasePolicyConfConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4jAttrReleasePolicy.NODE)
@@ -35,7 +36,8 @@ public class Neo4jAttrReleasePolicy extends Neo4jPolicy implements AttrReleasePo
 
     private Boolean status;
 
-    private String jsonConf;
+    @ConvertWith(converter = AttrReleasePolicyConfConverter.class)
+    private AttrReleasePolicyConf jsonConf;
 
     @Override
     public int getOrder() {
@@ -59,12 +61,11 @@ public class Neo4jAttrReleasePolicy extends Neo4jPolicy implements AttrReleasePo
 
     @Override
     public AttrReleasePolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).
-                map(c -> POJOHelper.deserialize(c, AttrReleasePolicyConf.class)).orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final AttrReleasePolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

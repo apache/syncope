@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j.entity.am;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
@@ -29,12 +28,15 @@ import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.WAConsentDecision;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.apache.syncope.core.persistence.neo4j.converters.GoogleMfaAuthAccountListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.GoogleMfaAuthTokenListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ImpersonationAccountListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.MfaTrustedDeviceListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.WAConsentDecisionListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.WebAuthnDeviceCredentialListConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jAuthProfile.NODE)
 public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthProfile {
@@ -43,62 +45,26 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
 
     public static final String NODE = "AuthProfile";
 
-    protected static final TypeReference<List<GoogleMfaAuthToken>> GOOGLE_MFA_TOKENS_TYPEREF =
-            new TypeReference<List<GoogleMfaAuthToken>>() {
-    };
-
-    protected static final TypeReference<List<GoogleMfaAuthAccount>> GOOGLE_MFA_ACCOUNTS_TYPEREF =
-            new TypeReference<List<GoogleMfaAuthAccount>>() {
-    };
-
-    protected static final TypeReference<List<MfaTrustedDevice>> MFA_TRUSTED_DEVICE_TYPEREF =
-            new TypeReference<List<MfaTrustedDevice>>() {
-    };
-
-    protected static final TypeReference<List<ImpersonationAccount>> IMPERSONATION_TYPEREF =
-            new TypeReference<List<ImpersonationAccount>>() {
-    };
-
-    protected static final TypeReference<List<WebAuthnDeviceCredential>> WEBAUTHN_TYPEREF =
-            new TypeReference<List<WebAuthnDeviceCredential>>() {
-    };
-
-    protected static final TypeReference<List<WAConsentDecision>> WA_CONSENT_DECISION_TYPEREF =
-            new TypeReference<List<WAConsentDecision>>() {
-    };
-
     @NotNull
     private String owner;
 
-    private String googleMfaAuthAccounts;
+    @ConvertWith(converter = GoogleMfaAuthAccountListConverter.class)
+    private List<GoogleMfaAuthAccount> googleMfaAuthAccounts = new ArrayList<>();
 
-    @Transient
-    private List<GoogleMfaAuthAccount> googleMfaAuthAccountsList = new ArrayList<>();
+    @ConvertWith(converter = GoogleMfaAuthTokenListConverter.class)
+    private List<GoogleMfaAuthToken> googleMfaAuthTokens = new ArrayList<>();
 
-    private String googleMfaAuthTokens;
+    @ConvertWith(converter = MfaTrustedDeviceListConverter.class)
+    private List<MfaTrustedDevice> mfaTrustedDevices = new ArrayList<>();
 
-    @Transient
-    private List<GoogleMfaAuthToken> googleMfaAuthTokensList = new ArrayList<>();
+    @ConvertWith(converter = ImpersonationAccountListConverter.class)
+    private List<ImpersonationAccount> impersonationAccounts = new ArrayList<>();
 
-    private String mfaTrustedDevices;
+    @ConvertWith(converter = WebAuthnDeviceCredentialListConverter.class)
+    private List<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new ArrayList<>();
 
-    @Transient
-    private List<MfaTrustedDevice> mfaTrustedDevicesList = new ArrayList<>();
-
-    private String impersonationAccounts;
-
-    @Transient
-    private List<ImpersonationAccount> impersonationAccountsList = new ArrayList<>();
-
-    private String webAuthnDeviceCredentials;
-
-    @Transient
-    private List<WebAuthnDeviceCredential> webAuthnDeviceCredentialsList = new ArrayList<>();
-
-    private String waConsentDecisions;
-
-    @Transient
-    private List<WAConsentDecision> waConsentDecisionsList = new ArrayList<>();
+    @ConvertWith(converter = WAConsentDecisionListConverter.class)
+    private List<WAConsentDecision> waConsentDecisions = new ArrayList<>();
 
     @Override
     public String getOwner() {
@@ -112,102 +78,61 @@ public class Neo4jAuthProfile extends AbstractGeneratedKeyNode implements AuthPr
 
     @Override
     public boolean add(final GoogleMfaAuthToken googleMfaAuthToken) {
-        return googleMfaAuthTokensList.add(googleMfaAuthToken);
+        return googleMfaAuthTokens.add(googleMfaAuthToken);
     }
 
     @Override
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
-        return googleMfaAuthTokensList;
+        return googleMfaAuthTokens;
     }
 
     @Override
     public boolean add(final GoogleMfaAuthAccount googleMfaAuthAccount) {
-        return googleMfaAuthAccountsList.add(googleMfaAuthAccount);
+        return googleMfaAuthAccounts.add(googleMfaAuthAccount);
     }
 
     @Override
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
-        return googleMfaAuthAccountsList;
+        return googleMfaAuthAccounts;
     }
 
     @Override
     public boolean add(final MfaTrustedDevice mfaTrustedDevice) {
-        return mfaTrustedDevicesList.add(mfaTrustedDevice);
+        return mfaTrustedDevices.add(mfaTrustedDevice);
     }
 
     @Override
     public List<MfaTrustedDevice> getMfaTrustedDevices() {
-        return mfaTrustedDevicesList;
+        return mfaTrustedDevices;
     }
 
     @Override
     public boolean add(final ImpersonationAccount impersonationAccount) {
-        return impersonationAccountsList.add(impersonationAccount);
+        return impersonationAccounts.add(impersonationAccount);
     }
 
     @Override
     public List<ImpersonationAccount> getImpersonationAccounts() {
-        return impersonationAccountsList;
+        return impersonationAccounts;
     }
 
     @Override
     public boolean add(final WebAuthnDeviceCredential webAuthnDeviceCredential) {
-        return webAuthnDeviceCredentialsList.add(webAuthnDeviceCredential);
+        return webAuthnDeviceCredentials.add(webAuthnDeviceCredential);
     }
 
     @Override
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
-        return webAuthnDeviceCredentialsList;
+        return webAuthnDeviceCredentials;
     }
 
     @Override
     public boolean add(final WAConsentDecision consentDecision) {
-        return waConsentDecisionsList.contains(consentDecision);
+        return waConsentDecisions.contains(consentDecision);
     }
 
     @Override
     public List<WAConsentDecision> getConsentDecisions() {
-        return waConsentDecisionsList;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getGoogleMfaAuthTokens().clear();
-            getGoogleMfaAuthAccounts().clear();
-            getMfaTrustedDevices().clear();
-            getImpersonationAccounts().clear();
-            getWebAuthnDeviceCredentials().clear();
-            getConsentDecisions().clear();
-        }
-        Optional.ofNullable(googleMfaAuthTokens).ifPresent(v -> getGoogleMfaAuthTokens().
-                addAll(POJOHelper.deserialize(v, GOOGLE_MFA_TOKENS_TYPEREF)));
-        Optional.ofNullable(googleMfaAuthAccounts).ifPresent(v -> getGoogleMfaAuthAccounts().
-                addAll(POJOHelper.deserialize(v, GOOGLE_MFA_ACCOUNTS_TYPEREF)));
-        Optional.ofNullable(mfaTrustedDevices).ifPresent(v -> getMfaTrustedDevices().
-                addAll(POJOHelper.deserialize(v, MFA_TRUSTED_DEVICE_TYPEREF)));
-        Optional.ofNullable(impersonationAccounts).ifPresent(v -> getImpersonationAccounts().
-                addAll(POJOHelper.deserialize(v, IMPERSONATION_TYPEREF)));
-        Optional.ofNullable(webAuthnDeviceCredentials).ifPresent(v -> getWebAuthnDeviceCredentials().
-                addAll(POJOHelper.deserialize(v, WEBAUTHN_TYPEREF)));
-        Optional.ofNullable(waConsentDecisions).ifPresent(v -> getConsentDecisions().
-                addAll(POJOHelper.deserialize(v, WA_CONSENT_DECISION_TYPEREF)));
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        googleMfaAuthTokens = POJOHelper.serialize(getGoogleMfaAuthTokens());
-        googleMfaAuthAccounts = POJOHelper.serialize(getGoogleMfaAuthAccounts());
-        mfaTrustedDevices = POJOHelper.serialize(getMfaTrustedDevices());
-        impersonationAccounts = POJOHelper.serialize(getImpersonationAccounts());
-        webAuthnDeviceCredentials = POJOHelper.serialize(getWebAuthnDeviceCredentials());
-        waConsentDecisions = POJOHelper.serialize(getConsentDecisions());
+        return waConsentDecisions;
     }
 }

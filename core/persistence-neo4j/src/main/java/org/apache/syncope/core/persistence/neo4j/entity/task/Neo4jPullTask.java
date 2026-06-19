@@ -73,7 +73,7 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
     private List<Neo4jAnyTemplatePullTask> templates = new ArrayList<>();
 
     @Relationship(type = PULL_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jPullTaskExec> executions = new ArrayList<>();
+    private List<Neo4jPullTaskExec> pullTaskExecs = new ArrayList<>();
 
     @Override
     public PullMode getPullMode() {
@@ -129,7 +129,7 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jPullTaskExec) exec);
+        return pullTaskExecs.add((Neo4jPullTaskExec) exec);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
+        return pullTaskExecs;
     }
 
     @PostLoad

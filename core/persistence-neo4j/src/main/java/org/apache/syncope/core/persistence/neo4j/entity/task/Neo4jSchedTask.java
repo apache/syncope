@@ -58,7 +58,7 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
     private Boolean active = true;
 
     @Relationship(type = SCHED_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jSchedTaskExec> executions = new ArrayList<>();
+    private List<Neo4jSchedTaskExec> schedTaskExecs = new ArrayList<>();
 
     @Override
     public Implementation getJobDelegate() {
@@ -114,7 +114,7 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jSchedTaskExec) exec);
+        return schedTaskExecs.add((Neo4jSchedTaskExec) exec);
     }
 
     @Override
@@ -124,6 +124,6 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
+        return schedTaskExecs;
     }
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j.entity.am;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 import org.apache.syncope.common.lib.types.LogoutType;
@@ -31,22 +30,20 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
+import org.apache.syncope.core.persistence.neo4j.converters.AttrListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.UsernameAttributeProviderConfConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 public abstract class AbstractClientApp extends AbstractGeneratedKeyNode implements ClientApp {
 
     private static final long serialVersionUID = 7422422526695279794L;
-
-    protected static final TypeReference<List<Attr>> ATTR_TYPEREF = new TypeReference<List<Attr>>() {
-    };
 
     @NotNull
     private String name;
@@ -60,7 +57,8 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
 
     private String logo;
 
-    private String usernameAttributeProviderConf;
+    @ConvertWith(converter = UsernameAttributeProviderConfConverter.class)
+    private UsernameAttributeProviderConf usernameAttributeProviderConf;
 
     private String theme;
 
@@ -83,7 +81,8 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
     @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jTicketExpirationPolicy ticketExpirationPolicy;
 
-    private String properties;
+    @ConvertWith(converter = AttrListConverter.class)
+    private List<Attr> properties = new ArrayList<>();
 
     private LogoutType logoutType;
 
@@ -169,13 +168,12 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
 
     @Override
     public UsernameAttributeProviderConf getUsernameAttributeProviderConf() {
-        return Optional.ofNullable(usernameAttributeProviderConf).
-                map(conf -> POJOHelper.deserialize(conf, UsernameAttributeProviderConf.class)).orElse(null);
+        return usernameAttributeProviderConf;
     }
 
     @Override
     public void setUsernameAttributeProviderConf(final UsernameAttributeProviderConf conf) {
-        this.usernameAttributeProviderConf = conf == null ? null : POJOHelper.serialize(conf);
+        usernameAttributeProviderConf = conf;
     }
 
     @Override
@@ -235,14 +233,12 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
 
     @Override
     public List<Attr> getProperties() {
-        return properties == null
-                ? new ArrayList<>(0)
-                : POJOHelper.deserialize(properties, ATTR_TYPEREF);
+        return properties;
     }
 
     @Override
     public void setProperties(final List<Attr> properties) {
-        this.properties = POJOHelper.serialize(properties);
+        this.properties = properties;
     }
 
     @Override

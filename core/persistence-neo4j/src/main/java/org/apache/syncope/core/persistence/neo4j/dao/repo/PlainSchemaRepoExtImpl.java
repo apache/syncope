@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
@@ -180,9 +179,7 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
             }
         });
 
-        ((Neo4jSchema) schema).map2json();
         PlainSchema saved = neo4jTemplate.save(nodeValidator.validate(schema));
-        ((Neo4jSchema) saved).postSave();
 
         plainSchemaCache.put(EntityCacheKey.of(schema.getKey()), (Neo4jPlainSchema) saved);
 
