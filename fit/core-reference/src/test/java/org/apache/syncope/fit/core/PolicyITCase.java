@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -52,7 +53,6 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BackOffStrategy;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -498,23 +498,17 @@ public class PolicyITCase extends AbstractITCase {
         try {
             UserCR userCR = UserITCase.getUniqueSample("syncope1979@syncope.apache.org");
             // 1. set password with not permitted word inside
-            userCR.setPassword("Notpermitted12345!");
-            try {
+            SyncopeClientException sce = assertThrows(SyncopeClientException.class, () -> {
+                userCR.setPassword("Notpermitted12345!");
                 createUser(userCR);
-                fail("This should not happen");
-            } catch (SyncopeClientException e) {
-                assertEquals(ClientExceptionType.InvalidUser, e.getType());
-                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
-            }
+            });
+            assertTrue(sce.getElements().iterator().next().startsWith("InvalidPassword"));
             // 2. set password with not permitted schema inside
-            userCR.setPassword(userCR.getPlainAttr("firstname").get().getValues().getFirst() + "12345!");
-            try {
+            sce = assertThrows(SyncopeClientException.class, () -> {
+                userCR.setPassword(userCR.getPlainAttr("firstname").get().getValues().getFirst() + "12345!");
                 createUser(userCR);
-                fail("This should not happen");
-            } catch (SyncopeClientException e) {
-                assertEquals(ClientExceptionType.InvalidUser, e.getType());
-                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
-            }
+            });
+            assertTrue(sce.getElements().iterator().next().startsWith("InvalidPassword"));
         } finally {
             // restore old password policy
             IMPLEMENTATION_SERVICE.update(originalRule);

@@ -41,6 +41,7 @@ import org.passay.ValidationResult;
 import org.passay.dictionary.ArrayWordList;
 import org.passay.dictionary.WordListDictionary;
 import org.passay.resolver.PropertiesMessageResolver;
+import org.passay.rule.DictionaryRule;
 import org.passay.rule.DictionarySubstringRule;
 import org.passay.rule.Rule;
 import org.slf4j.Logger;
@@ -89,9 +90,13 @@ public class DefaultPasswordRule implements PasswordRule {
     protected void enforce(final String username, final String clearPassword, final Collection<String> notPermitted) {
         List<Rule> rules = PasswordGenerator.conf2Rules(conf);
         if (!notPermitted.isEmpty()) {
-            rules.add(new DictionarySubstringRule(new WordListDictionary(new ArrayWordList(
-                    notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new), false)),
-                    true));
+            rules.add(conf.isCheckWordsNotPermittedAsSubstrings()
+                    ? new DictionarySubstringRule(new WordListDictionary(new ArrayWordList(
+                    notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new),
+                    conf.isCheckWordsNotPermittedCaseSensitive())))
+                    : new DictionaryRule(new WordListDictionary(new ArrayWordList(
+                            notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new),
+                            conf.isCheckWordsNotPermittedCaseSensitive())), true));
         }
 
         PasswordValidator passwordValidator = new DefaultPasswordValidator(messageResolver, rules);

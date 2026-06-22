@@ -97,7 +97,8 @@ public interface PasswordGenerator {
         if (!conf.getWordsNotPermitted().isEmpty()) {
             conf.getWordsNotPermitted().sort(Comparator.naturalOrder());
             rules.add(new DictionarySubstringRule((new WordListDictionary(
-                    new ArrayWordList(conf.getWordsNotPermitted().toArray(String[]::new), false))), true));
+                    new ArrayWordList(conf.getWordsNotPermitted().toArray(String[]::new),
+                            conf.isCheckWordsNotPermittedCaseSensitive()))), true));
         }
 
         return rules;

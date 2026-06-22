@@ -65,6 +65,10 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
             type = { SchemaType.PLAIN, SchemaType.DERIVED })
     private final List<String> schemasNotPermitted = new ArrayList<>();
 
+    private final boolean checkWordsNotPermittedCaseSensitive = false;
+    
+    private final boolean checkWordsNotPermittedAsSubstrings = true;
+    
     public int getMaxLength() {
         return maxLength;
     }
@@ -151,5 +155,13 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
 
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
+    }
+
+    public boolean isCheckWordsNotPermittedCaseSensitive() {
+        return checkWordsNotPermittedCaseSensitive;
+    }
+
+    public boolean isCheckWordsNotPermittedAsSubstrings() {
+        return checkWordsNotPermittedAsSubstrings;
     }
 }
