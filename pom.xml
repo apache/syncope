@@ -469,7 +469,7 @@ under the License.
     <cas.version>8.0.0-RC5</cas.version>
     <cas-client.version>4.1.1</cas-client.version>
 
-    <swagger-core.version>2.2.51</swagger-core.version>
+    <swagger-core.version>2.2.52</swagger-core.version>
     <swagger-ui.version>5.32.6</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -2214,7 +2214,7 @@ under the License.
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/7.0.x/api/</link>
             <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.2/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.51/apidocs/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.52/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>
