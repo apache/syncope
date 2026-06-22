@@ -438,7 +438,7 @@ under the License.
     <spring-boot.version>4.1.0</spring-boot.version>
     <spring-cloud-version>5.0.2</spring-cloud-version>
 
-    <hibernate.version>7.4.1.Final</hibernate.version>
+    <hibernate.version>7.4.2.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -526,13 +526,13 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>11.0.22</tomcat.version>
-    <wildfly.version>40.0.0.Final</wildfly.version>
+    <tomcat.version>11.0.23</tomcat.version>
+    <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>7.2026.5</payara.version>
     <jakarta.faces.version>4.1.9</jakarta.faces.version>
 
     <docker.postgresql.version>18-alpine</docker.postgresql.version>
-    <docker.mysql.version>9.0</docker.mysql.version>
+    <docker.mysql.version>9</docker.mysql.version>
     <docker.mariadb.version>12</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
