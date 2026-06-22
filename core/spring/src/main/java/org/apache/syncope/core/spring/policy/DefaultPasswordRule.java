@@ -41,7 +41,7 @@ import org.passay.ValidationResult;
 import org.passay.dictionary.ArrayWordList;
 import org.passay.dictionary.WordListDictionary;
 import org.passay.resolver.PropertiesMessageResolver;
-import org.passay.rule.DictionaryRule;
+import org.passay.rule.DictionarySubstringRule;
 import org.passay.rule.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,8 +89,8 @@ public class DefaultPasswordRule implements PasswordRule {
     protected void enforce(final String username, final String clearPassword, final Collection<String> notPermitted) {
         List<Rule> rules = PasswordGenerator.conf2Rules(conf);
         if (!notPermitted.isEmpty()) {
-            rules.add(new DictionaryRule(new WordListDictionary(new ArrayWordList(
-                    notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new), true)),
+            rules.add(new DictionarySubstringRule(new WordListDictionary(new ArrayWordList(
+                    notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new), false)),
                     true));
         }
 
