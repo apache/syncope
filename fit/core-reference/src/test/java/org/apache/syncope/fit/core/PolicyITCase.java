@@ -493,6 +493,8 @@ public class PolicyITCase extends AbstractITCase {
         DefaultPasswordRuleConf defaultPasswordRuleConf =
                 POJOHelper.deserialize(originalRule.getBody(), DefaultPasswordRuleConf.class);
         defaultPasswordRuleConf.getSchemasNotPermitted().add("firstname");
+        defaultPasswordRuleConf.getSchemasNotPermitted().add("surname");
+        defaultPasswordRuleConf.getSchemasNotPermitted().add("changePwdDate");
         defaultPasswordRuleConf.setNotPermittedAsSubstrings(true);
         originalRule.setBody(POJOHelper.serialize(defaultPasswordRuleConf));
         IMPLEMENTATION_SERVICE.update(originalRule);
