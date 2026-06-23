@@ -470,7 +470,7 @@ under the License.
     <cas.version>7.3.7.3</cas.version>
     <cas-client.version>4.1.1</cas-client.version>
 
-    <swagger-core.version>2.2.51</swagger-core.version>
+    <swagger-core.version>2.2.52</swagger-core.version>
     <swagger-ui.version>5.32.6</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -527,7 +527,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.55</tomcat.version>
+    <tomcat.version>10.1.56</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>6.2025.11</payara.version>
     <jakarta.faces.version>4.1.9</jakarta.faces.version>
@@ -2285,7 +2285,7 @@ under the License.
             <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/6.5.x/api/</link>
             <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.1/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.51/apidocs/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.52/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>
