@@ -74,7 +74,7 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
     private List<Neo4jAnyTemplateLiveSyncTask> templates = new ArrayList<>();
 
     @Relationship(type = LIVE_SYNC_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jLiveSyncTaskExec> executions = new ArrayList<>();
+    private List<Neo4jLiveSyncTaskExec> liveSyncTaskExecs = new ArrayList<>();
 
     @Override
     public int getDelaySecondsAcrossInvocations() {
@@ -130,7 +130,7 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jLiveSyncTaskExec) exec);
+        return liveSyncTaskExecs.add((Neo4jLiveSyncTaskExec) exec);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
+        return liveSyncTaskExecs;
     }
 
     @PostLoad

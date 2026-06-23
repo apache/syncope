@@ -76,7 +76,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
             actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = PUSH_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jPushTaskExec> executions = new ArrayList<>();
+    private List<Neo4jPushTaskExec> pushTaskExecs = new ArrayList<>();
 
     @Override
     public Neo4jRealm getSourceRealm() {
@@ -113,7 +113,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jPushTaskExec) exec);
+        return pushTaskExecs.add((Neo4jPushTaskExec) exec);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
+        return pushTaskExecs;
     }
 
     protected void json2map(final boolean clearFirst) {

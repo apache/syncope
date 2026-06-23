@@ -62,7 +62,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
     private Set<String> recipientsSet = new HashSet<>();
 
     @Relationship(type = NOTIFICATION_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jNotificationTaskExec> executions = new ArrayList<>();
+    private List<Neo4jNotificationTaskExec> notificationTaskExecs = new ArrayList<>();
 
     @NotNull
     private String sender;
@@ -180,7 +180,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     @Override
     protected boolean doAdd(final TaskExec<NotificationTask> exec) {
-        return executions.add((Neo4jNotificationTaskExec) exec);
+        return notificationTaskExecs.add((Neo4jNotificationTaskExec) exec);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     @Override
     protected List<? extends AbstractTaskExec<NotificationTask>> executions() {
-        return executions;
+        return notificationTaskExecs;
     }
 
     protected void json2list(final boolean clearFirst) {

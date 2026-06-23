@@ -43,12 +43,6 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-neo4j</artifactId>
     </dependency>
-    <!-- keep until https://github.com/spring-projects/spring-data-commons/issues/3500 -->
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-commons</artifactId>
-      <version>3.5.11</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.core</groupId>

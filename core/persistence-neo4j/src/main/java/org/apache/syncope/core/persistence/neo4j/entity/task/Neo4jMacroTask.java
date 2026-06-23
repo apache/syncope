@@ -86,7 +86,7 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     private Neo4jImplementation macroActions;
 
     @Relationship(type = MACRO_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jMacroTaskExec> executions = new ArrayList<>();
+    private List<Neo4jMacroTaskExec> macroTaskExecs = new ArrayList<>();
 
     @Override
     public Realm getRealm() {
@@ -121,7 +121,7 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jMacroTaskExec) exec);
+        return macroTaskExecs.add((Neo4jMacroTaskExec) exec);
     }
 
     @Override
@@ -131,7 +131,7 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
+        return macroTaskExecs;
     }
 
     @Override
