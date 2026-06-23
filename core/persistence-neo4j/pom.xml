@@ -101,6 +101,10 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <!-- TMP until https://github.com/spring-projects/spring-data-neo4j/issues/3109 gets fixed -->
+        <configuration>
+          <excludes>**/Neo4jMappingContext**</excludes>
+        </configuration>
       </plugin>
     </plugins>
 
