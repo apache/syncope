@@ -90,13 +90,12 @@ public class DefaultPasswordRule implements PasswordRule {
     protected void enforce(final String username, final String clearPassword, final Collection<String> notPermitted) {
         List<Rule> rules = PasswordGenerator.conf2Rules(conf);
         if (!notPermitted.isEmpty()) {
-            rules.add(conf.isCheckWordsNotPermittedAsSubstrings()
-                    ? new DictionarySubstringRule(new WordListDictionary(new ArrayWordList(
+            WordListDictionary wld = new WordListDictionary(new ArrayWordList(
                     notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new),
-                    conf.isCheckWordsNotPermittedCaseSensitive())))
-                    : new DictionaryRule(new WordListDictionary(new ArrayWordList(
-                            notPermitted.stream().distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new),
-                            conf.isCheckWordsNotPermittedCaseSensitive())), true));
+                    conf.isNotPermittedCaseSensitive()));
+            rules.add(conf.isNotPermittedAsSubstrings()
+                    ? new DictionarySubstringRule(wld, conf.isNotPermittedBackwards())
+                    : new DictionaryRule(wld, conf.isNotPermittedBackwards()));
         }
 
         PasswordValidator passwordValidator = new DefaultPasswordValidator(messageResolver, rules);

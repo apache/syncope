@@ -493,6 +493,7 @@ public class PolicyITCase extends AbstractITCase {
         DefaultPasswordRuleConf defaultPasswordRuleConf =
                 POJOHelper.deserialize(originalRule.getBody(), DefaultPasswordRuleConf.class);
         defaultPasswordRuleConf.getSchemasNotPermitted().add("firstname");
+        defaultPasswordRuleConf.setNotPermittedAsSubstrings(true);
         originalRule.setBody(POJOHelper.serialize(defaultPasswordRuleConf));
         IMPLEMENTATION_SERVICE.update(originalRule);
         try {
@@ -503,6 +504,7 @@ public class PolicyITCase extends AbstractITCase {
                 createUser(userCR);
             });
             assertTrue(sce.getElements().iterator().next().startsWith("InvalidPassword"));
+
             // 2. set password with not permitted schema inside
             sce = assertThrows(SyncopeClientException.class, () -> {
                 userCR.setPassword(userCR.getPlainAttr("firstname").get().getValues().getFirst() + "12345!");

@@ -32,6 +32,7 @@ import org.passay.data.EnglishCharacterData;
 import org.passay.dictionary.ArrayWordList;
 import org.passay.dictionary.WordListDictionary;
 import org.passay.rule.CharacterRule;
+import org.passay.rule.DictionaryRule;
 import org.passay.rule.DictionarySubstringRule;
 import org.passay.rule.IllegalCharacterRule;
 import org.passay.rule.LengthRule;
@@ -95,10 +96,13 @@ public interface PasswordGenerator {
         }
 
         if (!conf.getWordsNotPermitted().isEmpty()) {
-            conf.getWordsNotPermitted().sort(Comparator.naturalOrder());
-            rules.add(new DictionarySubstringRule((new WordListDictionary(
-                    new ArrayWordList(conf.getWordsNotPermitted().toArray(String[]::new),
-                            conf.isCheckWordsNotPermittedCaseSensitive()))), true));
+            WordListDictionary wld = new WordListDictionary(
+                    new ArrayWordList(conf.getWordsNotPermitted().stream().
+                            distinct().sorted(Comparator.naturalOrder()).toArray(String[]::new),
+                            conf.isNotPermittedCaseSensitive()));
+            rules.add(conf.isNotPermittedAsSubstrings()
+                    ? new DictionarySubstringRule(wld, conf.isNotPermittedBackwards())
+                    : new DictionaryRule(wld, conf.isNotPermittedBackwards()));
         }
 
         return rules;
