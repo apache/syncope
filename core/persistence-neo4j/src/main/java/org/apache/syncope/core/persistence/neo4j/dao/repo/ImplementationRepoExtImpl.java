@@ -26,11 +26,18 @@ import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -41,6 +48,10 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
 
     protected final ExternalResourceDAO resourceDAO;
 
+    protected final PolicyDAO policyDAO;
+    
+    protected final RealmDAO realmDAO;
+
     protected final EntityCacheDAO entityCacheDAO;
 
     protected final NodeValidator nodeValidator;
@@ -49,6 +60,8 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
 
     public ImplementationRepoExtImpl(
             final ExternalResourceDAO resourceDAO,
+            final PolicyDAO policyDAO,
+            final RealmDAO realmDAO,
             final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -57,6 +70,8 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
 
         super(neo4jTemplate, neo4jClient);
         this.resourceDAO = resourceDAO;
+        this.policyDAO = policyDAO;
+        this.realmDAO = realmDAO;
         this.entityCacheDAO = entityCacheDAO;
         this.nodeValidator = nodeValidator;
         this.cache = cache;
@@ -106,6 +121,25 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
 
         resourceDAO.findByProvisionSorter(saved).
                 forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
+
+        policyDAO.findByAccountRule(saved).forEach(policy -> {
+            entityCacheDAO.evict(Neo4jAccountPolicy.class, policy.getKey());
+            realmDAO.findByPolicy(policy).forEach(realm -> entityCacheDAO.evict(Neo4jRealm.class, realm.getKey()));
+        });
+        policyDAO.findByInboundCorrelationRule(saved).forEach(policy -> {
+            entityCacheDAO.evict(Neo4jInboundPolicy.class, policy.getKey());
+            resourceDAO.findByPolicy(policy)
+                    .forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
+        });
+        policyDAO.findByPasswordRule(saved).forEach(policy -> {
+            entityCacheDAO.evict(Neo4jPasswordPolicy.class, policy.getKey());
+            realmDAO.findByPolicy(policy).forEach(realm -> entityCacheDAO.evict(Neo4jRealm.class, realm.getKey()));
+        });
+        policyDAO.findByPushCorrelationRule(saved).forEach(policy -> {
+            entityCacheDAO.evict(Neo4jPushPolicy.class, policy.getKey());
+            resourceDAO.findByPolicy(policy)
+                    .forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
+        });
 
         return saved;
     }
