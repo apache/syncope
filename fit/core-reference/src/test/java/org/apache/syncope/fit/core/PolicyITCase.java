@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -47,6 +48,7 @@ import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -482,6 +484,40 @@ public class PolicyITCase extends AbstractITCase {
         } finally {
             ldap.setAccountPolicy(existingAP);
             RESOURCE_SERVICE.update(ldap);
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1979() {
+        // 1. Set a new password policy with not permitted schemas and not permitted words
+        ImplementationTO originalRule =
+                IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.PASSWORD_RULE, "DefaultPasswordRuleConf2");
+        DefaultPasswordRuleConf defaultPasswordRuleConf =
+                POJOHelper.deserialize(originalRule.getBody(), DefaultPasswordRuleConf.class);
+        defaultPasswordRuleConf.getSchemasNotPermitted().add("firstname");
+        defaultPasswordRuleConf.getSchemasNotPermitted().add("surname");
+        defaultPasswordRuleConf.getSchemasNotPermitted().add("changePwdDate");
+        defaultPasswordRuleConf.setNotPermittedAsSubstrings(true);
+        originalRule.setBody(POJOHelper.serialize(defaultPasswordRuleConf));
+        IMPLEMENTATION_SERVICE.update(originalRule);
+        try {
+            UserCR userCR = UserITCase.getUniqueSample("syncope1979@syncope.apache.org");
+            // 1. set password with not permitted word inside
+            SyncopeClientException sce = assertThrows(SyncopeClientException.class, () -> {
+                userCR.setPassword("Notpermitted12345!");
+                createUser(userCR);
+            });
+            assertTrue(sce.getElements().iterator().next().startsWith("InvalidPassword"));
+
+            // 2. set password with not permitted schema inside
+            sce = assertThrows(SyncopeClientException.class, () -> {
+                userCR.setPassword(userCR.getPlainAttr("firstname").get().getValues().getFirst() + "12345!");
+                createUser(userCR);
+            });
+            assertTrue(sce.getElements().iterator().next().startsWith("InvalidPassword"));
+        } finally {
+            // restore old password policy
+            IMPLEMENTATION_SERVICE.update(originalRule);
         }
     }
 }

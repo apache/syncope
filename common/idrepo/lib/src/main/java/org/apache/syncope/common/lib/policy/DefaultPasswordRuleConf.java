@@ -54,16 +54,21 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
     private boolean usernameAllowed;
 
     /**
-     * Substrings not permitted.
+     * Words not permitted.
      */
     private final List<String> wordsNotPermitted = new ArrayList<>();
 
     /**
      * User attribute values not permitted.
      */
-    @Schema(anyTypeKind = AnyTypeKind.USER,
-            type = { SchemaType.PLAIN, SchemaType.DERIVED })
+    @Schema(anyTypeKind = AnyTypeKind.USER, type = { SchemaType.PLAIN, SchemaType.DERIVED })
     private final List<String> schemasNotPermitted = new ArrayList<>();
+
+    private boolean notPermittedCaseSensitive;
+
+    private boolean notPermittedAsSubstrings;
+
+    private boolean notPermittedBackwards;
 
     public int getMaxLength() {
         return maxLength;
@@ -151,5 +156,29 @@ public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
 
     public List<String> getSchemasNotPermitted() {
         return schemasNotPermitted;
+    }
+
+    public boolean isNotPermittedCaseSensitive() {
+        return notPermittedCaseSensitive;
+    }
+
+    public void setNotPermittedCaseSensitive(final boolean notPermittedCaseSensitive) {
+        this.notPermittedCaseSensitive = notPermittedCaseSensitive;
+    }
+
+    public boolean isNotPermittedAsSubstrings() {
+        return notPermittedAsSubstrings;
+    }
+
+    public void setNotPermittedAsSubstrings(final boolean notPermittedAsSubstrings) {
+        this.notPermittedAsSubstrings = notPermittedAsSubstrings;
+    }
+
+    public boolean isNotPermittedBackwards() {
+        return notPermittedBackwards;
+    }
+
+    public void setNotPermittedBackwards(final boolean notPermittedBackwards) {
+        this.notPermittedBackwards = notPermittedBackwards;
     }
 }

@@ -982,14 +982,16 @@ public class PersistenceContext {
     @Bean
     public ImplementationRepoExt implementationRepoExt(
             final ExternalResourceDAO resourceDAO,
+            final PolicyDAO policyDAO,
+            final RealmDAO realmDAO,
             final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jImplementation> implementationCache) {
 
-        return new ImplementationRepoExtImpl(
-                resourceDAO, entityCacheDAO, neo4jTemplate, neo4jClient, nodeValidator, implementationCache);
+        return new ImplementationRepoExtImpl(resourceDAO, policyDAO, realmDAO, entityCacheDAO, neo4jTemplate,
+                neo4jClient, nodeValidator, implementationCache);
     }
 
     @ConditionalOnMissingBean
