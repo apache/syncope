@@ -291,7 +291,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             query.append("(n)-[:").append(execRelationship(type)).append("]-() ");
         }
 
-        query.append("RETURN n.id ").append(toOrderByStatement(pageable.getSort().get()));
+        query.append("RETURN n.id ").append(toOrderByStatement(pageable.getSort().stream()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -463,7 +463,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
         query.append(" WITH n ");
 
-        query.append(toOrderByStatement(pageable.getSort().get()));
+        query.append(toOrderByStatement(pageable.getSort().stream()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).

@@ -29,11 +29,13 @@ import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
+import org.apache.syncope.core.persistence.common.dao.AbstractAuditEventDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPAAuditEventDAO implements AuditEventDAO {
+public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEventDAO {
 
     protected static class AuditEventCriteriaBuilder {
 
@@ -168,8 +170,10 @@ public class JPAAuditEventDAO implements AuditEventDAO {
                         before(before, parameters).
                         after(after, parameters).
                         build();
-        if (!pageable.getSort().isEmpty()) {
-            queryString += " ORDER BY " + pageable.getSort().stream().
+
+        List<Sort.Order> orderBy = filterOrderBy(pageable.getSort().stream(), JPAAuditEvent.class);
+        if (!orderBy.isEmpty()) {
+            queryString += " ORDER BY " + orderBy.stream().
                     map(clause -> ("when".equals(clause.getProperty()) ? "event_date" : clause.getProperty())
                     + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(","));
