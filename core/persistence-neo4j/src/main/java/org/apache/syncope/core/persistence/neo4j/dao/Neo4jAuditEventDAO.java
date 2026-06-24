@@ -28,18 +28,16 @@ import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
+import org.apache.syncope.core.persistence.common.dao.AbstractAuditEventDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAuditEvent;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-public class Neo4jAuditEventDAO implements AuditEventDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AuditEventDAO.class);
+public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEventDAO {
 
     protected static class AuditEventCriteriaBuilder {
 
@@ -169,8 +167,9 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
                         build()
                 + " RETURN n.id");
 
-        if (!pageable.getSort().isEmpty()) {
-            query.append(" ORDER BY ").append(pageable.getSort().stream().
+        List<Sort.Order> orderBy = filterOrderBy(pageable.getSort().stream(), Neo4jAuditEvent.class);
+        if (!orderBy.isEmpty()) {
+            query.append(" ORDER BY ").append(orderBy.stream().
                     map(clause -> "n." + clause.getProperty() + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(",")));
         }
