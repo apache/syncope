@@ -2518,7 +2518,7 @@ under the License.
         <dependency>
           <groupId>net.bytebuddy</groupId>
           <artifactId>byte-buddy</artifactId>
-          <version>1.17.8</version>
+          <version>1.18.10</version>
         </dependency>
         <dependency>
           <groupId>net.bytebuddy</groupId>
