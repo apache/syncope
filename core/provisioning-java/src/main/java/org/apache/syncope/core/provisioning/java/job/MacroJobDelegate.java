@@ -274,6 +274,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
         } else {
             try {
                 actions = Optional.of(ImplementationManager.build(
+                        context.getDomain(),
                         task.getMacroActions(),
                         () -> perContextActions.get(task.getMacroActions().getKey()),
                         instance -> perContextActions.put(task.getMacroActions().getKey(), instance)));
@@ -296,6 +297,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
             Command<CommandArgs> runnable;
             try {
                 runnable = (Command<CommandArgs>) ImplementationManager.build(
+                        context.getDomain(),
                         command.getCommand(),
                         () -> perContextCommands.get(command.getCommand().getKey()),
                         instance -> perContextCommands.put(command.getCommand().getKey(), instance));
@@ -306,7 +308,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
             CommandArgs args;
             if (command.getArgs() == null) {
                 try {
-                    args = ImplementationManager.emptyArgs(command.getCommand());
+                    args = ImplementationManager.emptyArgs(context.getDomain(), command.getCommand());
                 } catch (Exception e) {
                     throw new JobExecutionException("While getting empty args from " + command.getKey(), e);
                 }

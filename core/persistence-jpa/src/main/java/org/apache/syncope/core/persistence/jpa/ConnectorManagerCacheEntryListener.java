@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * Takes care of connectors' Spring beans (un)registration in case HA is set up and the actual change is performed by
  * another node in the Hibernate cluster.
  */
-public class ConnectorManagerRemoteCommitListener
+public class ConnectorManagerCacheEntryListener
         implements CacheEntryCreatedListener<Object, Object>,
         CacheEntryUpdatedListener<Object, Object>,
         CacheEntryRemovedListener<Object, Object>,
@@ -47,7 +47,7 @@ public class ConnectorManagerRemoteCommitListener
 
     private static final long serialVersionUID = 5260753255454140460L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManagerRemoteCommitListener.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnectorManagerCacheEntryListener.class);
 
     protected final EntityManagerFactory entityManagerFactory;
 
@@ -57,7 +57,7 @@ public class ConnectorManagerRemoteCommitListener
 
     protected final String domain;
 
-    public ConnectorManagerRemoteCommitListener(
+    public ConnectorManagerCacheEntryListener(
             final EntityManagerFactory entityManagerFactory,
             final ConnectorManager connectorManager,
             final ExternalResourceDAO resourceDAO,

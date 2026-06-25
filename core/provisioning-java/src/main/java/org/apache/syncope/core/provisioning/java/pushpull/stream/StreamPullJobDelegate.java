@@ -51,6 +51,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,7 +186,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     taskType,
                     task,
                     conflictResolutionAction,
-                    getInboundActions(pullTaskTO.getActions().stream().
+                    getInboundActions(AuthContextUtils.getDomain(), pullTaskTO.getActions().stream().
                             map(implementationDAO::findById).flatMap(Optional::stream).
                             toList()),
                     executor,

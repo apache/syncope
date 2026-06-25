@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +129,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
         Class<?> clazz = null;
         try {
-            clazz = ImplementationManager.getClass(implementation).getLeft();
+            clazz = ImplementationManager.getClass(AuthContextUtils.getDomain(), implementation).getLeft();
         } catch (Exception e) {
             LOG.error("Could not get Class", e);
             sce.getElements().add("No " + implementation.getKey() + " class found");
@@ -146,7 +147,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
         if (implementation.getEngine() == ImplementationEngine.GROOVY) {
             try {
-                ImplementationManager.build(implementation);
+                ImplementationManager.build(AuthContextUtils.getDomain(), implementation);
             } catch (Exception e) {
                 LOG.error("While building Groovy class {}", implementation.getKey(), e);
 

@@ -60,6 +60,7 @@ import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -234,8 +235,8 @@ public class InboundMatcher {
             final boolean ignoreCaseMatch) {
 
         String finalConnObjectKeyValue = connObjectKeyValue;
-        for (ItemTransformer transformer
-                : MappingUtils.getItemTransformers(connObjectKeyItem, getTransformers(connObjectKeyItem))) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(
+                AuthContextUtils.getDomain(), connObjectKeyItem, getTransformers(connObjectKeyItem))) {
 
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem,
@@ -365,7 +366,9 @@ public class InboundMatcher {
         if (correlationRule.isPresent()) {
             Implementation impl = correlationRule.get().getImplementation();
             try {
-                rule = ImplementationManager.buildInboundCorrelationRule(impl,
+                rule = ImplementationManager.buildInboundCorrelationRule(
+                        AuthContextUtils.getDomain(),
+                        impl,
                         () -> perContextInboundCorrelationRules.get(impl.getKey()),
                         instance -> perContextInboundCorrelationRules.put(impl.getKey(), instance));
             } catch (Exception e) {
@@ -452,8 +455,8 @@ public class InboundMatcher {
             return List.of();
         }
 
-        for (ItemTransformer transformer
-                : MappingUtils.getItemTransformers(connObjectKeyItem, getTransformers(connObjectKeyItem))) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(
+                AuthContextUtils.getDomain(), connObjectKeyItem, getTransformers(connObjectKeyItem))) {
 
             List<Object> output = transformer.beforePull(
                     connObjectKeyItem,

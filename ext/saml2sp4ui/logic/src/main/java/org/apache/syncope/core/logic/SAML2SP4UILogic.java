@@ -256,6 +256,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         if (impl != null) {
             try {
                 return Optional.of(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextRACP.get(impl.getKey()),
                         instance -> perContextRACP.put(impl.getKey(), instance)));

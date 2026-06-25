@@ -41,8 +41,9 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.jpa.ConnectorManagerRemoteCommitListener;
+import org.apache.syncope.core.persistence.jpa.ConnectorManagerCacheEntryListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
+import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerCacheEntryListener;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -102,8 +103,10 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+        emf.setConnectorManagerCacheEntryListener(new ConnectorManagerCacheEntryListener(
                 this, connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
+        emf.setImplementationManagerCacheEntryListener(new ImplementationManagerCacheEntryListener(
+                this, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -131,8 +134,10 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+        emf.setConnectorManagerCacheEntryListener(new ConnectorManagerCacheEntryListener(
                 this, connectorManager, resourceDAO, domain.getKey()));
+        emf.setImplementationManagerCacheEntryListener(new ImplementationManagerCacheEntryListener(
+                this, domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getKey());
 

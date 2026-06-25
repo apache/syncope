@@ -53,8 +53,11 @@ public class PullJobDelegate
 
     protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
 
-    protected ReconFilterBuilder getReconFilterBuilder(final PullTask task) throws ClassNotFoundException {
+    protected ReconFilterBuilder getReconFilterBuilder(final String domain, final PullTask task)
+            throws ClassNotFoundException {
+
         return ImplementationManager.build(
+                domain,
                 task.getReconFilterBuilder(),
                 () -> perContextReconFilterBuilder.orElse(null),
                 instance -> perContextReconFilterBuilder = Optional.of(instance));
@@ -75,7 +78,7 @@ public class PullJobDelegate
                 Optional.ofNullable(task.getResource().getInboundPolicy()).
                         map(InboundPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getInboundActions(task.getActions()),
+                getInboundActions(context.getDomain(), task.getActions()),
                 executor,
                 context.isDryRun());
 
@@ -139,7 +142,7 @@ public class PullJobDelegate
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(
                                 new ObjectClass(orgUnit.getObjectClass()),
-                                getReconFilterBuilder(task),
+                                getReconFilterBuilder(context.getDomain(), task),
                                 dispatcher,
                                 options);
                         break;
@@ -214,7 +217,7 @@ public class PullJobDelegate
 
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(new ObjectClass(provision.getObjectClass()),
-                                getReconFilterBuilder(task),
+                                getReconFilterBuilder(context.getDomain(), task),
                                 dispatcher,
                                 options);
                         break;

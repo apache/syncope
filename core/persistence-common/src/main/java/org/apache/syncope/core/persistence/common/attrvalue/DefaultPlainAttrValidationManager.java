@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class DefaultPlainAttrValidationManager implements PlainAttrValidationMan
         if (schema.getValidator() != null) {
             try {
                 validator = ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         schema.getValidator(),
                         () -> perContextValidators.get(schema.getValidator().getKey()),
                         instance -> perContextValidators.put(schema.getValidator().getKey(), instance));

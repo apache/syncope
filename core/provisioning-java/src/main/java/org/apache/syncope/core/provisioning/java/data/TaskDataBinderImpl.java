@@ -306,7 +306,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     try {
                         CommandArgs args = command.getArgs();
                         if (args == null) {
-                            args = ImplementationManager.emptyArgs(impl);
+                            args = ImplementationManager.emptyArgs(AuthContextUtils.getDomain(), impl);
                         }
 
                         MacroTaskCommand macroTaskCommand = entityFactory.newEntity(MacroTaskCommand.class);
@@ -677,6 +677,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         } else {
             try {
                 actions = Optional.of(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         task.getMacroActions(),
                         () -> perContextMacroActions.get(task.getMacroActions().getKey()),
                         instance -> perContextMacroActions.put(task.getMacroActions().getKey(), instance)));

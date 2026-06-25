@@ -77,6 +77,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         for (Implementation impl : policy.getRules()) {
             try {
                 ImplementationManager.buildPasswordRule(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextPasswordRules.get(impl.getKey()),
                         instance -> perContextPasswordRules.put(impl.getKey(), instance)).

@@ -105,7 +105,7 @@ public class LiveSyncJobDelegate
                 orElseThrow(() -> new JobExecutionException(
                 "No " + LiveSyncDeltaMapper.class.getSimpleName() + " provided, aborting"));
         try {
-            mapper = ImplementationManager.build(impl);
+            mapper = ImplementationManager.build(context.getDomain(), impl);
         } catch (Exception e) {
             throw new JobExecutionException(
                     "Could not build " + IdMImplementationType.LIVE_SYNC_DELTA_MAPPER + " " + impl.getKey(), e);
@@ -140,7 +140,7 @@ public class LiveSyncJobDelegate
                 Optional.ofNullable(task.getResource().getInboundPolicy()).
                         map(InboundPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getInboundActions(task.getActions()),
+                getInboundActions(context.getDomain(), task.getActions()),
                 executor,
                 context.isDryRun()) {
 
