@@ -43,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -87,6 +88,7 @@ public class OutboundMatcher {
             Implementation impl = correlationRule.get().getImplementation();
             try {
                 rule = ImplementationManager.buildPushCorrelationRule(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextPushCorrelationRules.get(impl.getKey()),
                         instance -> perContextPushCorrelationRules.put(impl.getKey(), instance));
@@ -157,6 +159,7 @@ public class OutboundMatcher {
         resource.getPropagationActions().forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));

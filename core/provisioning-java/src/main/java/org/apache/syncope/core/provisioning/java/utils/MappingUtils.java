@@ -68,6 +68,7 @@ public final class MappingUtils {
     }
 
     public static List<ItemTransformer> getItemTransformers(
+            final String domain,
             final Item item,
             final List<Implementation> transformers) {
 
@@ -89,6 +90,7 @@ public final class MappingUtils {
         transformers.forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        domain,
                         impl,
                         () -> PER_CONTEXT_ITEM_TRANSFORMERS.get(impl.getKey()),
                         instance -> PER_CONTEXT_ITEM_TRANSFORMERS.put(impl.getKey(), instance)));

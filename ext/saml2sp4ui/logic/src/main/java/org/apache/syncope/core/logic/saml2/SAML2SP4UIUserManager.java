@@ -53,6 +53,7 @@ import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -126,6 +127,7 @@ public class SAML2SP4UIUserManager {
         idp.getActions().forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));
@@ -158,7 +160,9 @@ public class SAML2SP4UIUserManager {
                 values = samlAttr.get().getValues();
 
                 List<Object> transformed = new ArrayList<>(values);
-                for (ItemTransformer transformer : MappingUtils.getItemTransformers(item, getTransformers(item))) {
+                for (ItemTransformer transformer
+                        : MappingUtils.getItemTransformers(AuthContextUtils.getDomain(), item, getTransformers(item))) {
+
                     transformed = transformer.beforePull(null, userTO, transformed);
                 }
                 values.clear();

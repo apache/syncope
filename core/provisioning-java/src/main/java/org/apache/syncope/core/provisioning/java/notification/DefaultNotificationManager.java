@@ -218,6 +218,7 @@ public class DefaultNotificationManager implements NotificationManager {
         Optional.ofNullable(notification.getRecipientsProvider()).ifPresent(impl -> {
             try {
                 RecipientsProvider recipientsProvider = ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextRecipientsProvider.orElse(null),
                         instance -> perContextRecipientsProvider = Optional.of(instance));

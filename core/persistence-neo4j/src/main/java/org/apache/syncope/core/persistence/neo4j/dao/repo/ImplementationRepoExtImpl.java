@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPoli
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +50,7 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
     protected final ExternalResourceDAO resourceDAO;
 
     protected final PolicyDAO policyDAO;
-    
+
     protected final RealmDAO realmDAO;
 
     protected final EntityCacheDAO entityCacheDAO;
@@ -115,7 +116,7 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
     public Implementation save(final Implementation implementation) {
         Implementation saved = neo4jTemplate.save(nodeValidator.validate(implementation));
 
-        ImplementationManager.purge(saved.getKey());
+        ImplementationManager.purge(AuthContextUtils.getDomain(), saved.getKey());
 
         cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jImplementation) saved);
 
@@ -151,7 +152,7 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
 
             neo4jTemplate.deleteById(key, Neo4jImplementation.class);
 
-            ImplementationManager.purge(key);
+            ImplementationManager.purge(AuthContextUtils.getDomain(), key);
         });
     }
 }

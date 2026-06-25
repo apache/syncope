@@ -39,6 +39,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +74,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
                 taskType,
                 task,
                 ConflictResolutionAction.FIRSTMATCH,
-                getPushActions(pushTaskTO.getActions().stream().
+                getPushActions(AuthContextUtils.getDomain(), pushTaskTO.getActions().stream().
                         map(implementationDAO::findById).flatMap(Optional::stream).
                         toList()),
                 executor,

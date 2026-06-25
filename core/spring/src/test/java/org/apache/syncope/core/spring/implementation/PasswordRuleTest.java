@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
@@ -68,6 +69,7 @@ public class PasswordRuleTest {
                         }
                         try {
                             ImplementationManager.buildPasswordRule(
+                                    SyncopeConstants.MASTER_DOMAIN,
                                     impl,
                                     () -> null,
                                     instance -> {

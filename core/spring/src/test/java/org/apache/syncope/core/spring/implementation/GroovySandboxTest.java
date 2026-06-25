@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
@@ -63,7 +64,7 @@ class GroovySandboxTest {
         when(impl.getBody()).thenReturn(IOUtils.toString(
                 Objects.requireNonNull(getClass().getResourceAsStream(resource))));
 
-        return ImplementationManager.build(impl);
+        return ImplementationManager.build(SyncopeConstants.MASTER_DOMAIN, impl);
     }
 
     @EnabledOnOs(OS.LINUX)

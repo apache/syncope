@@ -95,12 +95,13 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
         return ctx.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
     }
 
-    protected List<InboundActions> getInboundActions(final List<? extends Implementation> impls) {
+    protected List<InboundActions> getInboundActions(final String domain, final List<? extends Implementation> impls) {
         List<InboundActions> result = new ArrayList<>();
 
         impls.forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        domain,
                         impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));
@@ -120,7 +121,7 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
         super.init(taskType, taskKey, context);
 
-        provisionSorter = getProvisionSorter(task);
+        provisionSorter = getProvisionSorter(context.getDomain(), task);
 
         latestSyncTokens.clear();
     }

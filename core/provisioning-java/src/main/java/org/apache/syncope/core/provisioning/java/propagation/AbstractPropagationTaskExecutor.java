@@ -172,6 +172,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         resource.getPropagationActions().forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));

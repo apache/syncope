@@ -138,12 +138,13 @@ public class PushJobDelegate
         return ctx.getBeanFactory().createBean(DefaultGroupPushResultHandler.class);
     }
 
-    protected List<PushActions> getPushActions(final List<? extends Implementation> impls) {
+    protected List<PushActions> getPushActions(final String domain, final List<? extends Implementation> impls) {
         List<PushActions> result = new ArrayList<>();
 
         impls.forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
+                        domain,
                         impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));
@@ -170,7 +171,7 @@ public class PushJobDelegate
                 Optional.ofNullable(task.getResource().getPushPolicy()).
                         map(PushPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getPushActions(task.getActions()),
+                getPushActions(context.getDomain(), task.getActions()),
                 executor,
                 context.isDryRun());
     }
@@ -226,7 +227,7 @@ public class PushJobDelegate
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = getProvisionSorter(task);
+        ProvisionSorter provisionSorter = getProvisionSorter(context.getDomain(), task);
 
         for (Provision provision : task.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).

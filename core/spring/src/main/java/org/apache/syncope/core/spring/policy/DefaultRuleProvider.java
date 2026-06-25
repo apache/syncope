@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.rules.AccountRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +83,7 @@ public class DefaultRuleProvider implements RuleProvider {
         for (Implementation impl : policy.getRules()) {
             try {
                 ImplementationManager.buildAccountRule(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextAccountRules.get(impl.getKey()),
                         instance -> perContextAccountRules.put(impl.getKey(), instance)).
@@ -124,6 +126,7 @@ public class DefaultRuleProvider implements RuleProvider {
         for (Implementation impl : policy.getRules()) {
             try {
                 ImplementationManager.buildPasswordRule(
+                        AuthContextUtils.getDomain(),
                         impl,
                         () -> perContextPasswordRules.get(impl.getKey()),
                         instance -> perContextPasswordRules.put(impl.getKey(), instance)).
