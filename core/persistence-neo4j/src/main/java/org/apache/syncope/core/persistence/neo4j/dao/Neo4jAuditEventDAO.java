@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
@@ -36,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class Neo4jAuditEventDAO implements AuditEventDAO {
 
@@ -56,6 +58,14 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
                         append("n.inputs =~ '.*key.*").append(entityKey).append(".*' OR ").
                         append("n.output =~ '.*key.*").append(entityKey).append(".*' OR ").
                         append("n.throwable =~ '.*key.*").append(entityKey).append(".*')");
+            }
+            return this;
+        }
+
+        public AuditEventCriteriaBuilder who(final Set<String> who, final Map<String, Object> parameters) {
+            if (!CollectionUtils.isEmpty(who)) {
+                parameters.put("who", List.copyOf(who));
+                query.append(andIfNeeded()).append("n.who IN $who");
             }
             return this;
         }
@@ -127,6 +137,7 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
     @Override
     public long count(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -138,6 +149,7 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
         Map<String, Object> parameters = new HashMap<>();
         String query = "MATCH (n:" + Neo4jAuditEvent.NODE + ") "
                 + " WHERE " + criteriaBuilder(entityKey).
+                        who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
@@ -150,6 +162,7 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
     @Override
     public List<AuditEventTO> search(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -163,6 +176,7 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
 
         StringBuilder query = new StringBuilder("MATCH (n:" + Neo4jAuditEvent.NODE + ") "
                 + "WHERE " + criteriaBuilder(entityKey).
+                        who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
