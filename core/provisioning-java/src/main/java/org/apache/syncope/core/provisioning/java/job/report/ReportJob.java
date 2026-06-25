@@ -75,6 +75,7 @@ public class ReportJob extends Job {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
             delegate = ImplementationManager.buildReportJobDelegate(
+                    context.getDomain(),
                     impl,
                     () -> perContextReportJobDelegates.get(impl.getKey()),
                     instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).

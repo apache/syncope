@@ -41,6 +41,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,6 +145,7 @@ abstract class AttributableDataBinder {
                             List<String> dropdownValues = List.of();
                             try {
                                 DropdownValueProvider provider = ImplementationManager.build(
+                                        AuthContextUtils.getDomain(),
                                         schema.getDropdownValueProvider(),
                                         () -> dropdownValueProviders.get(
                                                 schema.getDropdownValueProvider().getKey()),

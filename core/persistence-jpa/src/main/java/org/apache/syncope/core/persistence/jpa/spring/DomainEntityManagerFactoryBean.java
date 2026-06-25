@@ -20,6 +20,9 @@ package org.apache.syncope.core.persistence.jpa.spring;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitInfo;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.openjpa.event.RemoteCommitListener;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -31,6 +34,8 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerFactoryBean {
 
     private static final long serialVersionUID = 49152547930966545L;
+
+    protected final List<RemoteCommitListener> remoteCommitListeners = new ArrayList<>();
 
     protected ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener;
 
@@ -48,10 +53,8 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
         }
     }
 
-    public void setConnectorManagerRemoteCommitListener(
-            final ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener) {
-
-        this.connectorManagerRemoteCommitListener = connectorManagerRemoteCommitListener;
+    public void addRemoteCommitListener(final RemoteCommitListener remoteCommitListener) {
+        remoteCommitListeners.add(remoteCommitListener);
     }
 
     @Override
@@ -59,6 +62,6 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
         super.postProcessEntityManagerFactory(emf, pui);
 
         OpenJPAEntityManagerFactorySPI emfspi = emf.unwrap(OpenJPAEntityManagerFactorySPI.class);
-        emfspi.getConfiguration().getRemoteCommitEventManager().addListener(connectorManagerRemoteCommitListener);
+        remoteCommitListeners.forEach(rcl -> emfspi.getConfiguration().getRemoteCommitEventManager().addListener(rcl));
     }
 }

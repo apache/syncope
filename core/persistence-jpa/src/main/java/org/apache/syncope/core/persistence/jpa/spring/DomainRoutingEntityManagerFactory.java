@@ -37,6 +37,7 @@ import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
+import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerRemoteCommitListener;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +86,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
+        emf.addRemoteCommitListener(new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
+        emf.addRemoteCommitListener(new ImplementationManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -116,7 +117,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
+        emf.addRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
+        emf.addRemoteCommitListener(new ImplementationManagerRemoteCommitListener(domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm(), metadataFactory);
 

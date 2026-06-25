@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -72,7 +73,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
                 map(command -> {
                     try {
                         return new CommandTO.Builder(command.getKey()).
-                                args(ImplementationManager.emptyArgs(command)).build();
+                                args(ImplementationManager.emptyArgs(AuthContextUtils.getDomain(), command)).build();
                     } catch (Exception e) {
                         LOG.error("Could not get arg class for {}", command, e);
                         return null;
@@ -92,7 +93,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
         try {
             return new CommandTO.Builder(impl.getKey()).
-                    args(ImplementationManager.emptyArgs(impl)).build();
+                    args(ImplementationManager.emptyArgs(AuthContextUtils.getDomain(), impl)).build();
         } catch (Exception e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
             sce.getElements().add("Could not build " + impl.getKey());
@@ -109,6 +110,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
         Command<CommandArgs> runnable;
         try {
             runnable = (Command<CommandArgs>) ImplementationManager.build(
+                    AuthContextUtils.getDomain(),
                     impl,
                     () -> perContextCommands.get(impl.getKey()),
                     instance -> perContextCommands.put(impl.getKey(), instance));
@@ -135,7 +137,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
         try {
             return runnable.run(command.getArgs() == null
-                    ? ImplementationManager.emptyArgs(impl)
+                    ? ImplementationManager.emptyArgs(AuthContextUtils.getDomain(), impl)
                     : command.getArgs()).message();
         } catch (Exception e) {
             LOG.error("While running {} on {}", command.getKey(), command.getArgs(), e);

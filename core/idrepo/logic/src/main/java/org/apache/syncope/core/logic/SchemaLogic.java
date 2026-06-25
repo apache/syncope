@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -225,6 +226,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
         try {
             DropdownValueProvider provider = ImplementationManager.build(
+                    AuthContextUtils.getDomain(),
                     schema.getDropdownValueProvider(),
                     () -> perContextDropdownValueProviders.get(schema.getDropdownValueProvider().getKey()),
                     instance -> perContextDropdownValueProviders.put(

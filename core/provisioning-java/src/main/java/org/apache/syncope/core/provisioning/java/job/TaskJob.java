@@ -67,7 +67,7 @@ public class TaskJob extends Job {
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
-            delegate = ImplementationManager.build(impl);
+            delegate = ImplementationManager.build(context.getDomain(), impl);
             delegate.execute(
                     (TaskType) context.getData().get(JobManager.TASK_TYPE),
                     taskKey,

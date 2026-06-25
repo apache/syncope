@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -76,7 +77,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
         realm.getActions().forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(
-                        impl,
+                        AuthContextUtils.getDomain(), impl,
                         () -> perContextActions.get(impl.getKey()),
                         instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {

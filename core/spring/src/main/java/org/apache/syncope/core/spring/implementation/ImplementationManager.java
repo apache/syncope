@@ -61,7 +61,7 @@ public final class ImplementationManager {
 
     private static final GroovyClassLoader GROOVY_CLASSLOADER;
 
-    private static final Map<String, Class<?>> CLASS_CACHE = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<Pair<String, String>, Class<?>> CLASS_CACHE = Collections.synchronizedMap(new HashMap<>());
 
     static {
         CompilerConfiguration cc = new CompilerConfiguration();
@@ -73,6 +73,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static Optional<ReportJobDelegate> buildReportJobDelegate(
+            final String domain,
             final Implementation impl,
             final Supplier<ReportJobDelegate> cacheGetter,
             final Consumer<ReportJobDelegate> cachePutter)
@@ -80,7 +81,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
+                return Optional.of(build(domain, impl, cacheGetter, cachePutter));
 
             case JAVA:
             default:
@@ -101,6 +102,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static Optional<AccountRule> buildAccountRule(
+            final String domain,
             final Implementation impl,
             final Supplier<AccountRule> cacheGetter,
             final Consumer<AccountRule> cachePutter)
@@ -108,7 +110,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
+                return Optional.of(build(domain, impl, cacheGetter, cachePutter));
 
             case JAVA:
             default:
@@ -128,6 +130,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static Optional<PasswordRule> buildPasswordRule(
+            final String domain,
             final Implementation impl,
             final Supplier<PasswordRule> cacheGetter,
             final Consumer<PasswordRule> cachePutter)
@@ -135,7 +138,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
+                return Optional.of(build(domain, impl, cacheGetter, cachePutter));
 
             case JAVA:
             default:
@@ -155,6 +158,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static Optional<InboundCorrelationRule> buildInboundCorrelationRule(
+            final String domain,
             final Implementation impl,
             final Supplier<InboundCorrelationRule> cacheGetter,
             final Consumer<InboundCorrelationRule> cachePutter)
@@ -162,7 +166,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
+                return Optional.of(build(domain, impl, cacheGetter, cachePutter));
 
             case JAVA:
             default:
@@ -183,6 +187,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static Optional<PushCorrelationRule> buildPushCorrelationRule(
+            final String domain,
             final Implementation impl,
             final Supplier<PushCorrelationRule> cacheGetter,
             final Consumer<PushCorrelationRule> cachePutter)
@@ -190,7 +195,7 @@ public final class ImplementationManager {
 
         switch (impl.getEngine()) {
             case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
+                return Optional.of(build(domain, impl, cacheGetter, cachePutter));
 
             case JAVA:
             default:
@@ -229,12 +234,12 @@ public final class ImplementationManager {
         return null;
     }
 
-    public static CommandArgs emptyArgs(final Implementation impl) throws Exception {
+    public static CommandArgs emptyArgs(final String domain, final Implementation impl) throws Exception {
         if (!IdRepoImplementationType.COMMAND.equals(impl.getType())) {
             throw new IllegalArgumentException("This method can be only called on implementations");
         }
 
-        Class<Object> commandClass = getClass(impl).getLeft();
+        Class<Object> commandClass = getClass(domain, impl).getLeft();
 
         Class<? extends CommandArgs> commandArgsClass = findCommandArgsClass(commandClass);
         if (commandArgsClass != null
@@ -249,9 +254,12 @@ public final class ImplementationManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> Pair<Class<T>, Boolean> getClass(final Implementation impl) throws ClassNotFoundException {
-        if (CLASS_CACHE.containsKey(impl.getKey())) {
-            return Pair.of((Class<T>) CLASS_CACHE.get(impl.getKey()), true);
+    public static <T> Pair<Class<T>, Boolean> getClass(final String domain, final Implementation impl)
+            throws ClassNotFoundException {
+
+        Pair<String, String> cacheKey = Pair.of(domain, impl.getKey());
+        if (CLASS_CACHE.containsKey(cacheKey)) {
+            return Pair.of((Class<T>) CLASS_CACHE.get(cacheKey), true);
         }
 
         Class<?> clazz;
@@ -265,7 +273,7 @@ public final class ImplementationManager {
                 clazz = Class.forName(impl.getBody());
         }
 
-        CLASS_CACHE.put(impl.getKey(), clazz);
+        CLASS_CACHE.put(cacheKey, clazz);
         return Pair.of((Class<T>) clazz, false);
     }
 
@@ -289,8 +297,8 @@ public final class ImplementationManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T build(final Implementation impl) throws ClassNotFoundException {
-        return createBean((Class<T>) getClass(impl).getLeft(), impl.getEngine());
+    public static <T> T build(final String domain, final Implementation impl) throws ClassNotFoundException {
+        return createBean((Class<T>) getClass(domain, impl).getLeft(), impl.getEngine());
     }
 
     @SuppressWarnings("unchecked")
@@ -319,16 +327,20 @@ public final class ImplementationManager {
         return instance;
     }
 
-    public static <T> T build(final Implementation impl, final Supplier<T> cacheGetter, final Consumer<T> cachePutter)
+    public static <T> T build(
+            final String domain,
+            final Implementation impl,
+            final Supplier<T> cacheGetter,
+            final Consumer<T> cachePutter)
             throws ClassNotFoundException {
 
-        Pair<Class<T>, Boolean> clazz = getClass(impl);
+        Pair<Class<T>, Boolean> clazz = getClass(domain, impl);
 
         return build(clazz.getLeft(), clazz.getRight(), impl.getEngine(), cacheGetter, cachePutter);
     }
 
-    public static Class<?> purge(final String implementation) {
-        return CLASS_CACHE.remove(implementation);
+    public static Class<?> purge(final String domain, final String implementation) {
+        return CLASS_CACHE.remove(Pair.of(domain, implementation));
     }
 
     private ImplementationManager() {

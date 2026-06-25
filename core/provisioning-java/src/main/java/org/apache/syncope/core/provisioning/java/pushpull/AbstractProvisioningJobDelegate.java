@@ -113,10 +113,11 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
                 || task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
     }
 
-    protected ProvisionSorter getProvisionSorter(final T task) {
+    protected ProvisionSorter getProvisionSorter(final String domain, final T task) {
         if (task.getResource().getProvisionSorter() != null) {
             try {
                 return ImplementationManager.build(
+                        domain,
                         task.getResource().getProvisionSorter(),
                         () -> perContextProvisionSorter.orElse(null),
                         instance -> perContextProvisionSorter = Optional.of(instance));

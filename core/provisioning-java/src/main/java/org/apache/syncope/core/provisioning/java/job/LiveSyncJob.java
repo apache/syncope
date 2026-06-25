@@ -49,7 +49,7 @@ public class LiveSyncJob extends TaskJob {
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
-            delegate = ImplementationManager.build(impl);
+            delegate = ImplementationManager.build(context.getDomain(), impl);
             delegate.execute(
                     TaskType.LIVE_SYNC,
                     taskKey,

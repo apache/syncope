@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 public class ImplementationRepoExtImpl implements ImplementationRepoExt {
 
@@ -70,7 +71,7 @@ public class ImplementationRepoExtImpl implements ImplementationRepoExt {
     public Implementation save(final Implementation implementation) {
         Implementation merged = entityManager.merge(implementation);
 
-        ImplementationManager.purge(merged.getKey());
+        ImplementationManager.purge(AuthContextUtils.getDomain(), merged.getKey());
 
         resourceDAO.findByProvisionSorter(merged).
                 forEach(resource -> entityCacheDAO.evict(JPAExternalResource.class, resource.getKey()));
@@ -86,6 +87,6 @@ public class ImplementationRepoExtImpl implements ImplementationRepoExt {
         }
 
         entityManager.remove(implementation);
-        ImplementationManager.purge(key);
+        ImplementationManager.purge(AuthContextUtils.getDomain(), key);
     }
 }

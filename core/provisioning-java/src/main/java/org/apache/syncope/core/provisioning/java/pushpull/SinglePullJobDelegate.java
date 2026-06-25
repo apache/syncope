@@ -47,6 +47,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -112,7 +113,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     taskType,
                     task,
                     ConflictResolutionAction.FIRSTMATCH,
-                    getInboundActions(pullTaskTO.getActions().stream().
+                    getInboundActions(AuthContextUtils.getDomain(), pullTaskTO.getActions().stream().
                             map(implementationDAO::findById).flatMap(Optional::stream).
                             toList()),
                     executor,
