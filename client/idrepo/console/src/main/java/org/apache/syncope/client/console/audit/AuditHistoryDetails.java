@@ -341,7 +341,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 return Model.of();
             }
 
-            T entity = MAPPER.reader().
+            @SuppressWarnings("unchecked")
+            T entity = (T) MAPPER.readerFor(currentEntity.getClass()).
                     with(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
                     readValue(content);
             if (entity instanceof UserTO userTO) {
