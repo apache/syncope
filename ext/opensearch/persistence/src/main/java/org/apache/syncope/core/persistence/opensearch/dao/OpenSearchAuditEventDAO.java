@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
@@ -80,6 +81,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
 
     protected Query getQuery(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -96,6 +98,14 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
                             fields("before", "inputs", "output", "throwable").
                             type(TextQueryType.Phrase).
                             query("\"key\":\"" + entityKey + "\"").build()).build());
+        }
+
+        if (!CollectionUtils.isEmpty(who)) {
+            List<Query> whoQueries = who.stream().map(value -> new Query.Builder().
+                    term(QueryBuilders.term().field("who").value(v -> v.stringValue(value)).build()).build()).
+                    toList();
+            queries.add(new Query.Builder().
+                    bool(QueryBuilders.bool().should(whoQueries).minimumShouldMatch("1").build()).build());
         }
 
         queries.add(new Query.Builder().regexp(QueryBuilders.regexp().
@@ -126,6 +136,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
     @Override
     public long count(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -136,7 +147,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
 
         CountRequest request = new CountRequest.Builder().
                 index(OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
-                query(getQuery(entityKey, type, category, subcategory, op, outcome, before, after)).
+                query(getQuery(entityKey, who, type, category, subcategory, op, outcome, before, after)).
                 build();
         LOG.debug("Count request: {}", request);
 
@@ -160,6 +171,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
     @Override
     public List<AuditEventTO> search(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -172,7 +184,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
         SearchRequest request = new SearchRequest.Builder().
                 index(OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
-                query(getQuery(entityKey, type, category, subcategory, op, outcome, before, after)).
+                query(getQuery(entityKey, who, type, category, subcategory, op, outcome, before, after)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(sortBuilders(pageable.getSort().get())).

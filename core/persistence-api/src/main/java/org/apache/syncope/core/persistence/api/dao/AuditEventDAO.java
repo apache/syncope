@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
@@ -31,6 +32,7 @@ public interface AuditEventDAO {
 
     long count(
             String entityKey,
+            Set<String> who,
             OpEvent.CategoryType type,
             String category,
             String subcategory,
@@ -54,6 +56,7 @@ public interface AuditEventDAO {
 
     List<AuditEventTO> search(
             String entityKey,
+            Set<String> who,
             OpEvent.CategoryType type,
             String category,
             String subcategory,
