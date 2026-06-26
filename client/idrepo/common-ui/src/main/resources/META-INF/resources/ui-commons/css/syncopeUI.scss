@@ -1303,6 +1303,10 @@ select[name=rowsChooser] {
   background-color: #ffffff!important;
 }
 
+.btn-close{
+  background: transparent;
+}
+
 @media screen and (max-width: 500px) {
   .realm-choice #realm-choice-field{
     width: 100%;
