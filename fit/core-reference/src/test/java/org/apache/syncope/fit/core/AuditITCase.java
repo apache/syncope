@@ -163,6 +163,78 @@ public class AuditITCase extends AbstractITCase {
     }
 
     @Test
+    public void findByWho() {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("audit-who@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
+
+        // exact match on the author of the just-created user's create event
+        AuditQuery exact = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                who(ADMIN_UNAME).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertFalse(query(exact, MAX_WAIT_SECONDS).isEmpty());
+
+        // multiple who values are OR'ed: admin still matches alongside an unrelated author
+        AuditQuery multiple = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                who(ADMIN_UNAME).
+                who("non-existent-" + UUID.randomUUID()).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertFalse(AUDIT_SERVICE.search(multiple).getResult().isEmpty());
+
+        // the who filter excludes non-matching authors
+        AuditQuery noMatch = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                who("non-existent-" + UUID.randomUUID()).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertTrue(AUDIT_SERVICE.search(noMatch).getResult().isEmpty());
+
+        USER_SERVICE.delete(userTO.getKey());
+    }
+
+    @Test
+    public void findByWhoIsExactMatch() {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("audit-who-exact@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
+
+        // make sure the create event is there (matched exactly by the admin author)
+        AuditQuery exact = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                who(ADMIN_UNAME).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertFalse(query(exact, MAX_WAIT_SECONDS).isEmpty());
+
+        // who matches exactly: a '*' is treated literally, not as a wildcard
+        AuditQuery wildcard = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                who(ADMIN_UNAME.substring(0, 3) + '*').
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertTrue(AUDIT_SERVICE.search(wildcard).getResult().isEmpty());
+
+        USER_SERVICE.delete(userTO.getKey());
+    }
+
+    @Test
     public void findByGroup() {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroup")).getEntity();
         assertNotNull(groupTO.getKey());
