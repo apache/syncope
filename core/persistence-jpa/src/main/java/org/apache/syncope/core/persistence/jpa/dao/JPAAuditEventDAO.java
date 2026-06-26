@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEventDAO {
 
@@ -57,6 +59,17 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                         append("inputs LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
                         append("output LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
                         append("throwable LIKE '%\"key\":\"").append(entityKey).append("\"%')");
+            }
+            return this;
+        }
+
+        public AuditEventCriteriaBuilder who(final Set<String> who, final List<Object> parameters) {
+            if (!CollectionUtils.isEmpty(who)) {
+                query.append(andIfNeeded()).append("who IN (").
+                        append(who.stream().
+                                map(value -> "?" + setParameter(parameters, value)).
+                                collect(Collectors.joining(", "))).
+                        append(")");
             }
             return this;
         }
@@ -127,6 +140,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
     @Override
     public long count(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -139,6 +153,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + JPAAuditEvent.TABLE
                 + " WHERE" + criteriaBuilder(entityKey).
+                        who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
@@ -153,6 +168,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
     @Override
     public List<AuditEventTO> search(
             final String entityKey,
+            final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
@@ -166,6 +182,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         String queryString = "SELECT id"
                 + " FROM " + JPAAuditEvent.TABLE
                 + " WHERE" + criteriaBuilder(entityKey).
+                        who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
