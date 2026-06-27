@@ -78,7 +78,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                 query.append(andIfNeeded()).append("(").
                         append(username.stream().map(value -> {
                             String pattern = "%\"username\":\"" + escapeForLike(value) + "\"%";
-                            return "(beforeValue LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
+                            return "(before_value LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
                                     + " OR inputs LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
                                     + " OR output LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
                                     + " OR throwable LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#')";
