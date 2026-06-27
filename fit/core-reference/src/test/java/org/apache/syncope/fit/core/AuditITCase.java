@@ -234,6 +234,87 @@ public class AuditITCase extends AbstractITCase {
     }
 
     @Test
+    public void findByUsername() {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("audit-username@syncope.org")).getEntity();
+        assertNotNull(userTO.getKey());
+
+        // exact match on the username whose payload was logged for the create event
+        AuditQuery exact = new AuditQuery.Builder().
+                username(userTO.getUsername()).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        List<AuditEventTO> exactResult = query(exact, MAX_WAIT_SECONDS);
+        assertFalse(exactResult.isEmpty());
+        // the matched event genuinely carries this username in its payload (not matched by chance)
+        assertTrue(exactResult.stream().anyMatch(event -> (event.getOutput() != null
+                && event.getOutput().contains("\"username\":\"" + userTO.getUsername() + "\""))
+                || (event.getBefore() != null
+                && event.getBefore().contains("\"username\":\"" + userTO.getUsername() + "\""))));
+
+        // multiple username values are OR'ed
+        AuditQuery multiple = new AuditQuery.Builder().
+                username(userTO.getUsername()).
+                username("non-existent-" + UUID.randomUUID()).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertFalse(AUDIT_SERVICE.search(multiple).getResult().isEmpty());
+
+        // a non-matching username excludes the event
+        AuditQuery noMatch = new AuditQuery.Builder().
+                username("non-existent-" + UUID.randomUUID()).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertTrue(AUDIT_SERVICE.search(noMatch).getResult().isEmpty());
+
+        // the match is exact: a strict prefix of the username does not match
+        AuditQuery prefix = new AuditQuery.Builder().
+                username(userTO.getUsername().substring(0, userTO.getUsername().length() - 1)).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        assertTrue(AUDIT_SERVICE.search(prefix).getResult().isEmpty());
+
+        USER_SERVICE.delete(userTO.getKey());
+    }
+
+    @Test
+    public void findDeletedUserByUsername() {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("audit-username-deleted@syncope.org")).getEntity();
+        String username = userTO.getUsername();
+        assertNotNull(userTO.getKey());
+
+        AuditQuery deleteQuery = new AuditQuery.Builder().
+                username(username).
+                type(OpEvent.CategoryType.LOGIC).
+                category(UserLogic.class.getSimpleName()).
+                op("delete").
+                outcome(OpEvent.Outcome.SUCCESS).
+                build();
+        try {
+            AUDIT_SERVICE.setConf(buildAuditConf("[LOGIC]:[UserLogic]:[]:[delete]:[SUCCESS]", true));
+
+            USER_SERVICE.delete(userTO.getKey());
+
+            // the user is gone (its key can no longer be resolved), but the delete event's "before"
+            // snapshot still carries the username, so it remains searchable by username
+            assertFalse(query(deleteQuery, MAX_WAIT_SECONDS).isEmpty());
+        } finally {
+            AUDIT_SERVICE.setConf(buildAuditConf("[LOGIC]:[UserLogic]:[]:[delete]:[SUCCESS]", false));
+        }
+    }
+
+    @Test
     public void findByGroup() {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroup")).getEntity();
         assertNotNull(groupTO.getKey());
