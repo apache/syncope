@@ -32,6 +32,7 @@ public interface AuditEventDAO {
 
     long count(
             String entityKey,
+            Set<String> username,
             Set<String> who,
             OpEvent.CategoryType type,
             String category,
@@ -56,6 +57,7 @@ public interface AuditEventDAO {
 
     List<AuditEventTO> search(
             String entityKey,
+            Set<String> username,
             Set<String> who,
             OpEvent.CategoryType type,
             String category,

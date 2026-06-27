@@ -70,6 +70,7 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
     public PagedResult<AuditEventTO> search(final AuditQuery auditQuery) {
         Page<AuditEventTO> result = logic.search(
                 auditQuery.getEntityKey(),
+                auditQuery.getUsername(),
                 auditQuery.getWho(),
                 auditQuery.getType(),
                 auditQuery.getCategory(),
