@@ -63,6 +63,31 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
             return this;
         }
 
+        // Unlike the entityKey predicate above (a constrained UUID, concatenated), the free-form username
+        // is bound as a query parameter and its LIKE metacharacters are escaped, so '%'/'_' in a username
+        // match literally and there is no injection surface.
+        // '#' is used as the LIKE escape char (instead of '\') and applied uniformly: a single '\' in
+        // native SQL is mishandled by MySQL/MariaDB and Oracle has no default LIKE escape, whereas '#'
+        // works across every supported database (this DAO is not subclassed per-database).
+        protected static String escapeForLike(final String value) {
+            return value.replace("#", "##").replace("%", "#%").replace("_", "#_");
+        }
+
+        public AuditEventCriteriaBuilder username(final Set<String> username, final List<Object> parameters) {
+            if (!CollectionUtils.isEmpty(username)) {
+                query.append(andIfNeeded()).append("(").
+                        append(username.stream().map(value -> {
+                            String pattern = "%\"username\":\"" + escapeForLike(value) + "\"%";
+                            return "(beforeValue LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
+                                    + " OR inputs LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
+                                    + " OR output LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
+                                    + " OR throwable LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#')";
+                        }).collect(Collectors.joining(" OR "))).
+                        append(")");
+            }
+            return this;
+        }
+
         public AuditEventCriteriaBuilder who(final Set<String> who, final List<Object> parameters) {
             if (!CollectionUtils.isEmpty(who)) {
                 query.append(andIfNeeded()).append("who IN (").
@@ -140,6 +165,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
     @Override
     public long count(
             final String entityKey,
+            final Set<String> username,
             final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
@@ -153,6 +179,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + JPAAuditEvent.TABLE
                 + " WHERE" + criteriaBuilder(entityKey).
+                        username(username, parameters).
                         who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
@@ -168,6 +195,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
     @Override
     public List<AuditEventTO> search(
             final String entityKey,
+            final Set<String> username,
             final Set<String> who,
             final OpEvent.CategoryType type,
             final String category,
@@ -182,6 +210,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         String queryString = "SELECT id"
                 + " FROM " + JPAAuditEvent.TABLE
                 + " WHERE" + criteriaBuilder(entityKey).
+                        username(username, parameters).
                         who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
