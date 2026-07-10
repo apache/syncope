@@ -22,12 +22,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.common.dao.AbstractSearchDAO;
+import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
@@ -36,30 +35,38 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
     protected static final String HAS_ATTRS_QUERY = "SELECT COUNT(id) AS counts FROM %TABLE% "
             + "WHERE JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"%SCHEMA%\")')";
 
-    protected static String hasAttrQueryWithValue(final String table, final PlainSchema schema) {
-        return new StringBuilder("SELECT COUNT(id) FROM ").
-            append(table).
-            append(" WHERE JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
-            append(schema.getKey()).append("\" && @.uniqueValue.").append(AbstractSearchDAO.key(schema.getType())).
-            append(" == $value)' PASSING ?1 AS \"value\") AND id <> ?2").
-            toString();
-    }
-
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     public OraclePlainSchemaRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager) {
 
         super(anyUtilsFactory, resourceDAO, entityManager);
-        this.plainSchemaDAO = plainSchemaDAO;
     }
 
     @Override
     public boolean hasAttrs(final PlainSchema schema) {
         return hasAttrs(schema, HAS_ATTRS_QUERY, StringUtils.EMPTY);
+    }
+
+    protected boolean existsPlainAttrUniqueValue(
+            final String table,
+            final PlainSchema schema,
+            final String attrValue,
+            final String attrKey) {
+
+        String queryString = new StringBuilder("SELECT COUNT(id) FROM ").append(table).
+                append(" WHERE ").
+                append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(schema.getKey()).append("\" ").
+                append("&& @.uniqueValue.").append(OracleJPAAnySearchDAO.key(schema.getType())).append(" == $value)' ").
+                append("PASSING ?1 AS \"value\") AND id <> ?2").
+                toString();
+
+        Query query = entityManager.createNativeQuery(queryString);
+
+        query.setParameter(1, attrValue);
+        query.setParameter(2, attrKey);
+
+        return ((Number) query.getSingleResult()).longValue() > 0;
     }
 
     @Override
@@ -68,8 +75,11 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final PlainSchema schema,
             final PlainAttrValue attrValue) {
 
-        return doExistsPlainAttrUniqueValue(JPARealm.TABLE, schema,
-            attrValue.getValue(), realmKey);
+        return existsPlainAttrUniqueValue(
+                JPARealm.TABLE,
+                schema,
+                attrValue.getValue(),
+                realmKey);
     }
 
     @Override
@@ -79,18 +89,10 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final PlainSchema schema,
             final PlainAttrValue attrValue) {
 
-        return doExistsPlainAttrUniqueValue(new SearchSupport(anyUtils.anyTypeKind()).table().name(), schema,
-            attrValue.getValue(), anyKey);
-    }
-
-    protected boolean doExistsPlainAttrUniqueValue(final String table, final PlainSchema schema,
-        final String attrValue, final String attrKey) {
-
-        Query query = entityManager.createNativeQuery(hasAttrQueryWithValue(table, schema));
-
-        query.setParameter(1, attrValue);
-        query.setParameter(2, attrKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return existsPlainAttrUniqueValue(
+                new SearchSupport(anyUtils.anyTypeKind()).table().name(),
+                schema,
+                attrValue.getValue(),
+                anyKey);
     }
 }

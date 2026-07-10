@@ -103,9 +103,8 @@ public class OraclePersistenceContext {
     public PlainSchemaRepoExt plainSchemaRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy ExternalResourceDAO resourceDAO,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager) {
 
-        return new OraclePlainSchemaRepoExtImpl(anyUtilsFactory, resourceDAO, plainSchemaDAO, entityManager);
+        return new OraclePlainSchemaRepoExtImpl(anyUtilsFactory, resourceDAO, entityManager);
     }
 }
