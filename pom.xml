@@ -444,14 +444,14 @@ under the License.
 
     <zxing.version>3.5.4</zxing.version>
 
-    <groovy.version>5.0.6</groovy.version>
+    <groovy.version>5.0.7</groovy.version>
 
     <flowable.version>7.2.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.3.5</elasticsearch.version>
+    <elasticsearch.version>9.3.7</elasticsearch.version>
     <opensearch.version>3.7.0</opensearch.version>
     <opensearch-java.version>3.9.0</opensearch-java.version>
 
@@ -527,7 +527,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.56</tomcat.version>
+    <tomcat.version>10.1.57</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>6.2025.11</payara.version>
     <jakarta.faces.version>4.1.9</jakarta.faces.version>
@@ -538,7 +538,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.11</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.13</jdbc.postgresql.version>
     <jdbc.mysql.version>9.7.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.9</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.2.0.0</jdbc.oracle.version>
@@ -1864,7 +1864,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.27</version>
+          <version>1.10.28</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
