@@ -78,7 +78,7 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
         return existsPlainAttrUniqueValue(
                 JPARealm.TABLE,
                 schema,
-                attrValue.getValue(),
+                attrValue.getValue().toString(),
                 realmKey);
     }
 
@@ -92,7 +92,7 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
         return existsPlainAttrUniqueValue(
                 new SearchSupport(anyUtils.anyTypeKind()).table().name(),
                 schema,
-                attrValue.getValue(),
+                attrValue.getValue().toString(),
                 anyKey);
     }
 }
