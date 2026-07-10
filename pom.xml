@@ -438,13 +438,13 @@ under the License.
     <spring-boot.version>4.1.0</spring-boot.version>
     <spring-cloud-version>5.0.2</spring-cloud-version>
 
-    <hibernate.version>7.4.3.Final</hibernate.version>
+    <hibernate.version>7.4.4.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
     <zxing.version>3.5.4</zxing.version>
 
-    <groovy.version>6.0.0-alpha-1</groovy.version>
+    <groovy.version>6.0.0-alpha-2</groovy.version>
 
     <flowable.version>8.0.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -526,7 +526,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>11.0.23</tomcat.version>
+    <tomcat.version>11.0.24</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>7.2026.6</payara.version>
     <jakarta.faces.version>4.1.9</jakarta.faces.version>
@@ -537,7 +537,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.12</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.13</jdbc.postgresql.version>
     <jdbc.mysql.version>9.7.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.9</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.2.0.0</jdbc.oracle.version>
@@ -945,7 +945,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>4.0.0-alpha-1</version>
+        <version>4.0.0-beta-1</version>
       </dependency>
 
       <dependency>
@@ -1792,7 +1792,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.27</version>
+          <version>1.10.28</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -2208,7 +2208,7 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/4.0.0-alpha-1/api/</link>
+            <link>https://tika.apache.org/4.0.0-beta-1/api/</link>
             <link>https://docs.hibernate.org/orm/7.3/javadocs/</link>
             <link>https://docs.spring.io/spring-boot/4.0/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
