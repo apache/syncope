@@ -22,8 +22,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -31,27 +29,46 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
     protected static final String HAS_ATTRS_QUERY = "SELECT COUNT(id) AS counts FROM %TABLE% "
             + "WHERE JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"%SCHEMA%\")')";
 
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     public OraclePlainSchemaRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
-            final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager) {
 
         super(anyUtilsFactory, resourceDAO, entityManager);
-        this.plainSchemaDAO = plainSchemaDAO;
     }
 
     @Override
     public boolean hasAttrs(final PlainSchema schema) {
         return hasAttrs(schema, HAS_ATTRS_QUERY, StringUtils.EMPTY);
+    }
+
+    protected boolean existsPlainAttrUniqueValue(
+            final String table,
+            final String key,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
+
+        String queryString = new StringBuilder("SELECT COUNT(id) FROM ").append(table).
+                append(" WHERE ").
+                append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(schema.getKey()).append("\" ").
+                append("&& @.uniqueValue.").append(OracleJPAAnySearchDAO.key(schema.getType())).append(" == $value)' ").
+                append("PASSING ?1 AS \"value\") AND id <> ?2").
+                toString();
+
+        Query query = entityManager.createNativeQuery(queryString);
+
+        query.setParameter(1, StringUtils.stripEnd(StringUtils.stripStart(
+                POJOHelper.serialize(attrValue.getValue()), "\""), "\""));
+        query.setParameter(2, key);
+
+        return ((Number) query.getSingleResult()).longValue() > 0;
     }
 
     @Override
@@ -60,16 +77,11 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final PlainSchema schema,
             final PlainAttrValue attrValue) {
 
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM "
-                + JPARealm.TABLE + ","
-                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(schema.getKey()).
-                        orElseThrow(() -> new NotFoundException("PlainSchema " + schema.getKey())))
-                + " WHERE " + schema.getKey() + ".uniqueValue=?1 AND id <> ?2");
-        query.setParameter(1, attrValue.getValue());
-        query.setParameter(2, realmKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return existsPlainAttrUniqueValue(
+                JPARealm.TABLE,
+                realmKey,
+                schema,
+                attrValue);
     }
 
     @Override
@@ -79,15 +91,10 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final PlainSchema schema,
             final PlainAttrValue attrValue) {
 
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(id) FROM "
-                + new SearchSupport(anyUtils.anyTypeKind()).table().name() + ","
-                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(schema.getKey()).
-                        orElseThrow(() -> new NotFoundException("PlainSchema " + schema.getKey())))
-                + " WHERE " + schema.getKey() + ".uniqueValue=?1 AND id <> ?2");
-        query.setParameter(1, attrValue.getValue());
-        query.setParameter(2, anyKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
+        return existsPlainAttrUniqueValue(
+                new SearchSupport(anyUtils.anyTypeKind()).table().name(),
+                anyKey,
+                schema,
+                attrValue);
     }
 }
