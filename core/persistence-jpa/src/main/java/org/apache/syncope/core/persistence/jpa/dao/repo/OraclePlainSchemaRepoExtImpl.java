@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
@@ -50,9 +51,9 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
     protected boolean existsPlainAttrUniqueValue(
             final String table,
+            final String key,
             final PlainSchema schema,
-            final String attrValue,
-            final String attrKey) {
+            final PlainAttrValue attrValue) {
 
         String queryString = new StringBuilder("SELECT COUNT(id) FROM ").append(table).
                 append(" WHERE ").
@@ -63,8 +64,9 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         Query query = entityManager.createNativeQuery(queryString);
 
-        query.setParameter(1, attrValue);
-        query.setParameter(2, attrKey);
+        query.setParameter(1, StringUtils.stripEnd(StringUtils.stripStart(
+                POJOHelper.serialize(attrValue.getValue()), "\""), "\""));
+        query.setParameter(2, key);
 
         return ((Number) query.getSingleResult()).longValue() > 0;
     }
@@ -77,9 +79,9 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         return existsPlainAttrUniqueValue(
                 JPARealm.TABLE,
+                realmKey,
                 schema,
-                attrValue.getValue().toString(),
-                realmKey);
+                attrValue);
     }
 
     @Override
@@ -91,8 +93,8 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         return existsPlainAttrUniqueValue(
                 new SearchSupport(anyUtils.anyTypeKind()).table().name(),
+                anyKey,
                 schema,
-                attrValue.getValue().toString(),
-                anyKey);
+                attrValue);
     }
 }

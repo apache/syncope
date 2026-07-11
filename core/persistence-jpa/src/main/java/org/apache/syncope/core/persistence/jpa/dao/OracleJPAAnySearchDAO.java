@@ -49,7 +49,7 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
      * or JSON_TABLE(plainAttrs, '$[*]?(@.schema == "loginDate").values[*]' \
      * COLUMNS valuez PATH '$.dateValue') AS loginDate
      */
-    public static String from(final PlainSchema schema) {
+    protected static String from(final PlainSchema schema) {
         return new StringBuilder("JSON_TABLE(plainAttrs, '$[*]?(@.schema == \"").append(schema.getKey()).append("\").").
                 append(schema.isUniqueConstraint() ? "uniqueValue" : "values[*]").
                 append("' COLUMNS ").append(schema.isUniqueConstraint() ? "uniqueValue" : "valuez").
