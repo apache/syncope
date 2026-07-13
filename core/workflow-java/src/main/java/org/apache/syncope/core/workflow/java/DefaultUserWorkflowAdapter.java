@@ -80,6 +80,14 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         this.notificationManager = notificationManager;
     }
 
+    protected void throwApprovalRequired(final boolean condition) {
+        if (condition && confParamOps.get(
+                AuthContextUtils.getDomain(), "default.workflow.requires.approval", true, boolean.class)) {
+
+            throw new WorkflowException(new UnsupportedOperationException("This operation requires approval"));
+        }
+    }
+
     @Override
     protected UserWorkflowResult<Pair<String, Boolean>> doCreate(
             final UserCR userCR,
@@ -87,6 +95,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final Boolean enabled,
             final String creator,
             final String context) {
+
+        throwApprovalRequired(userCR.requiresApproval());
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userCR);
@@ -147,6 +157,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
             final User user, final UserUR userUR, final String updater, final String context) {
+
+        throwApprovalRequired(userUR.requiresApproval());
 
         UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 

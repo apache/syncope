@@ -129,17 +129,16 @@ public class UserSelfLogic extends AbstractUserLogic {
             + "and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     @Transactional(readOnly = true)
     public Self read() {
-        UserTO authenticatedUser = binder.getAuthenticatedUserTO();
+        UserTO authenticated = binder.getAuthenticatedUserTO();
 
         return new Self(
-                authenticatedUser,
+                authenticated,
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(delegationDAO.findValidDelegating(
-                        authenticatedUser.getKey(), OffsetDateTime.now())));
+                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticated.getKey(), OffsetDateTime.now())));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public ProvisioningResult<UserTO> create(final UserCR createReq, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> create(final UserCR userCR, final boolean nullPriorityAsync) {
         if (!confParamOps.get(
                 AuthContextUtils.getDomain(), StandardConfParams.SELF_REGISTRATION_ALLOWED, false, boolean.class)) {
 
@@ -148,7 +147,7 @@ public class UserSelfLogic extends AbstractUserLogic {
             throw sce;
         }
 
-        return doCreate(createReq, true, nullPriorityAsync);
+        return doCreate(userCR, true, nullPriorityAsync);
     }
 
     @PreAuthorize("isAuthenticated() "
