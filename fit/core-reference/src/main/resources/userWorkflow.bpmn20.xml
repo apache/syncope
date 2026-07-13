@@ -26,7 +26,7 @@ under the License.
              typeLanguage="http://www.w3.org/2001/XMLSchema" 
              expressionLanguage="http://www.w3.org/1999/XPath" 
              targetNamespace="http://www.flowable.org/processdef">
- 
+
   <process id="userWorkflow" name="User Workflow" isExecutable="true">
     <startEvent id="theStart"/>
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
@@ -99,7 +99,7 @@ try {
     <exclusiveGateway id="activeGw"/>
     <sequenceFlow id="active2UpdateApproval" sourceRef="activeGw" targetRef="updateApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'update' 
-        and (!userUR.getMemberships().isEmpty())}]]></conditionExpression>
+        and userUR.requiresApproval()}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="active2DeleteApproval" sourceRef="activeGw" targetRef="deleteApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'delete'}]]></conditionExpression>

@@ -195,6 +195,17 @@ public class UserUR extends AnyUR {
         return isEmptyNotConsideringPassword() && password == null;
     }
 
+    @JsonIgnore
+    public boolean requiresApproval() {
+        return getUManager() != null
+                || getGManager() != null
+                || !getResources().isEmpty()
+                || !getRelationships().isEmpty()
+                || !memberships.isEmpty()
+                || !roles.isEmpty()
+                || !linkedAccounts.isEmpty();
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
