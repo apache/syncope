@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -774,5 +775,88 @@ public class UserSelfITCase extends AbstractITCase {
     public void issueSYNCOPE373() {
         UserTO userTO = ADMIN_CLIENT.self().user();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
+    }
+
+    @Test
+    public void issueSYNCOPE1983Default() {
+        assumeFalse(IS_FLOWABLE_ENABLED);
+
+        // 1. create
+        UserCR userCR = UserITCase.getUniqueSample("issueSYNCOPE1983@syncope.apache.org");
+        userCR.getRoles().add("User manager");
+
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> ANONYMOUS_CLIENT.getService(UserSelfService.class).create(userCR));
+        assertEquals(ClientExceptionType.Workflow, e.getType());
+
+        // remove roles so self registration can proceed
+        userCR.getRoles().clear();
+
+        UserTO user = ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                create(userCR).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertNotNull(user);
+
+        // 2. update
+        UserUR userUR = new UserUR.Builder(user.getKey()).
+                username(new StringReplacePatchItem.Builder().value(user.getUsername() + getUUIDString()).build()).
+                role(new StringPatchItem.Builder().value("User manager").build()).
+                build();
+
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        e = assertThrows(
+                SyncopeClientException.class,
+                () -> authClient.getService(UserSelfService.class).update(userUR));
+        assertEquals(ClientExceptionType.Workflow, e.getType());
+
+        // remove roles so update can proceed
+        userUR.getRoles().clear();
+
+        user = authClient.getService(UserSelfService.class).
+                update(userUR).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertNotNull(user);
+    }
+
+    @Test
+    public void issueSYNCOPE1983Flowable() {
+        assumeTrue(IS_FLOWABLE_ENABLED);
+
+        // 1. create
+        UserCR userCR = UserITCase.getUniqueSample("issueSYNCOPE1983@syncope.apache.org");
+        userCR.getRoles().add("User manager");
+
+        UserTO user = ANONYMOUS_CLIENT.getService(UserSelfService.class).
+                create(userCR).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertNotNull(user);
+        assertEquals("createApproval", user.getStatus());
+
+        // approve
+        UserRequestForm form = USER_REQUEST_SERVICE.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
+        form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
+        user = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        }).getEntity();
+        assertNotNull(user);
+        assertEquals("active", user.getStatus());
+
+        // 2. update
+        UserUR userUR = new UserUR.Builder(user.getKey()).
+                username(new StringReplacePatchItem.Builder().value(user.getUsername() + getUUIDString()).build()).
+                role(new StringPatchItem.Builder().value("User manager").build()).
+                build();
+
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        user = authClient.getService(UserSelfService.class).
+                update(userUR).
+                readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+                }).getEntity();
+        assertEquals("updateApproval", user.getStatus());
     }
 }

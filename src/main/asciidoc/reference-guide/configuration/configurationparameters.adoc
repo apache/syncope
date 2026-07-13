@@ -75,7 +75,11 @@ or to completely disable connector connection testing.
 [NOTE]
 ====
 This parameter is useful to avoid waiting for the default resource timeout, by setting a shorter value; 
-or to completely disable resource connection testing.
+or to completely disable resource connection testing;
 ====
+
+* `default.workflow.requires.approval` - when using the default <<workflow,user workflow adapter>> (e.g. not
+<<flowable-user-workflow-adapter,Flowable>>), this option controls whether an exception shall be raised when any
+requested change requires admin approval.
 
 Besides this default set, new configuration parameters can be defined to support <<customization,custom>> code.

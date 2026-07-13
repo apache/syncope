@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import jakarta.ws.rs.core.GenericType;
@@ -122,6 +123,8 @@ public class DynRealmITCase extends AbstractITCase {
 
     @Test
     public void delegatedAdmin() {
+        assumeTrue(IS_FLOWABLE_ENABLED);
+
         DynRealmTO dynRealm = null;
         RoleTO role = null;
         try {

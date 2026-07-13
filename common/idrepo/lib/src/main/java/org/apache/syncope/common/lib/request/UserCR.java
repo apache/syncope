@@ -232,6 +232,15 @@ public class UserCR extends AnyCR implements GroupableRelatableTO {
         return linkedAccounts;
     }
 
+    @JsonIgnore
+    public boolean requiresApproval() {
+        return !getResources().isEmpty()
+                || !getRelationships().isEmpty()
+                || !memberships.isEmpty()
+                || !roles.isEmpty()
+                || !linkedAccounts.isEmpty();
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().

@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.GenericType;
@@ -165,7 +166,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 build();
 
         try {
-            userTO = updateUser(userUR).getEntity();
+            updateUser(userUR).getEntity();
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -188,9 +189,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.setPassword(new PasswordPatch.Builder().value("newPassword123456").build());
-        userUR.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_CSV).build());
-
+        userUR.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_CSV).build());
         updateUser(userUR);
     }
 
@@ -1608,6 +1607,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1793() {
+        assumeTrue(IS_FLOWABLE_ENABLED);
+
         RoleTO role = new RoleTO();
         role.setKey("syncope1793" + getUUIDString());
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
