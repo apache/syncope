@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -80,11 +81,17 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         this.notificationManager = notificationManager;
     }
 
-    protected void throwApprovalRequired(final String executor, final boolean condition) {
-        if (!securityProperties.getAdminUser().equals(executor)
+    protected void throwApprovalRequired(final String key, final boolean condition, final String executor) {
+        if (securityProperties.getAdminUser().equals(executor)) {
+            return;
+        }
+
+        boolean isSelf = securityProperties.getAnonymousUser().equals(executor)
+                || Optional.ofNullable(key).flatMap(userDAO::findUsername).map(executor::equals).orElse(false);
+        if (isSelf
+                && condition
                 && confParamOps.get(
-                        AuthContextUtils.getDomain(), "default.workflow.requires.approval", true, boolean.class)
-                && condition) {
+                        AuthContextUtils.getDomain(), "default.workflow.requires.approval", true, boolean.class)) {
 
             throw new WorkflowException(new UnsupportedOperationException("This operation requires approval"));
         }
@@ -98,7 +105,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final String creator,
             final String context) {
 
-        throwApprovalRequired(creator, userCR.requiresApproval());
+        throwApprovalRequired(null, userCR.requiresApproval(), creator);
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userCR);
@@ -160,7 +167,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
             final User user, final UserUR userUR, final String updater, final String context) {
 
-        throwApprovalRequired(updater, userUR.requiresApproval());
+        throwApprovalRequired(userUR.getKey(), userUR.requiresApproval(), updater);
 
         UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 
