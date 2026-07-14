@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
@@ -91,8 +90,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 "bundleName",
                 new PropertyModel<>(connInstanceTO, "bundleName"), false);
         bundleName.setEnabled(connInstanceTO.getKey() == null || connInstanceTO.isErrored());
-        bundleName.setChoices(bundles.stream().map(ConnIdBundle::getBundleName).
-                distinct().sorted().collect(Collectors.toList()));
+        bundleName.setChoices(bundles.stream().map(ConnIdBundle::getBundleName).distinct().sorted().toList());
         bundleName.getField().setOutputMarkupId(true);
         add(bundleName.addRequiredLabel().setOutputMarkupId(true));
 
@@ -123,7 +121,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 List<Pair<String, String>> connectors = bundles.stream().
                         filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())).
                         map(bundle -> Pair.of(bundle.getConnectorName(), bundle.getVersion())).
-                    toList();
+                        toList();
                 if (connectors.size() == 1) {
                     Pair<String, String> entry = connectors.getFirst();
 
@@ -135,11 +133,9 @@ public class ConnectorDetailsPanel extends WizardStep {
                     version.getField().setModelObject(entry.getRight());
                     version.setChoices(List.of(entry.getRight()));
                 } else {
-                    connectorName.setChoices(connectors.stream().
-                            map(Pair::getLeft).distinct().sorted().collect(Collectors.toList()));
+                    connectorName.setChoices(connectors.stream().map(Pair::getLeft).distinct().sorted().toList());
 
-                    List<String> versions = connectors.stream().
-                            map(Pair::getRight).distinct().sorted().collect(Collectors.toList());
+                    List<String> versions = connectors.stream().map(Pair::getRight).distinct().sorted().toList();
                     version.setChoices(versions);
 
                     if (versions.size() == 1) {
@@ -165,7 +161,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 List<String> versions = bundles.stream().
                         filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
                         && bundle.getConnectorName().equals(connInstanceTO.getConnectorName())).
-                        map(ConnIdBundle::getVersion).collect(Collectors.toList());
+                        map(ConnIdBundle::getVersion).toList();
                 if (versions.size() == 1) {
                     connInstanceTO.setVersion(versions.getFirst());
                     version.getField().setModelObject(versions.getFirst());

@@ -421,7 +421,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return Pair.of(searchResult, connObjects);
     }
 
-    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "') "
+            + "and (hasRole('" + IdMEntitlement.CONNECTOR_CREATE + "') "
+            + "or hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "'))")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.findById(resourceTO.getConnector()).

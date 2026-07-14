@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
@@ -53,7 +52,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
         super(defaultItem, pageRef);
 
         this.bundles = connectorRestClient.getAllBundles().stream().
-                filter(object -> object.getLocation().equals(defaultItem.getLocation())).collect(Collectors.toList());
+                filter(object -> object.getLocation().equals(defaultItem.getLocation())).toList();
         this.connectorRestClient = connectorRestClient;
     }
 
@@ -68,7 +67,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
                 ConnInstanceTO connInstanceTO = ConnInstanceTO.class.cast(modelObject);
-                ConnIdBundle bundleTO = ConnectorWizardBuilder.getBundle(connInstanceTO, bundles);
+                ConnIdBundle bundleTO = getBundle(connInstanceTO, bundles);
 
                 connInstanceTO.setConnectorName(bundleTO.getConnectorName());
                 connInstanceTO.setBundleName(bundleTO.getBundleName());
