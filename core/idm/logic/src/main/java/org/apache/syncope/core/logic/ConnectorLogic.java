@@ -239,7 +239,9 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }).toList();
     }
 
-    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
+    @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "') "
+            + "and (hasRole('" + IdMEntitlement.CONNECTOR_CREATE + "') "
+            + "or hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "'))")
     @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
         if (connInstanceTO.getAdminRealm() == null) {
