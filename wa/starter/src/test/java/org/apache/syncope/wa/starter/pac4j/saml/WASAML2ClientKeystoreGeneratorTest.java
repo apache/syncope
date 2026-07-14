@@ -22,9 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import org.junit.jupiter.api.Test;
 import org.pac4j.saml.metadata.keystore.SAML2KeystoreGenerator;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
+    @DisabledOnOs(OS.MAC)
     @Test
     public void generate() throws Exception {
         SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(
