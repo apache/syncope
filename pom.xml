@@ -417,8 +417,8 @@ under the License.
 
     <connid.version>1.7.0.0-SNAPSHOT</connid.version>
     <connid.soap.version>1.5.0</connid.soap.version>
-    <connid.rest.version>1.1.1</connid.rest.version>
-    <connid.db.version>2.4.1</connid.db.version>
+    <connid.rest.version>1.1.2</connid.rest.version>
+    <connid.db.version>2.4.2</connid.db.version>
     <connid.csvdir.version>0.8.10</connid.csvdir.version>
     <connid.ldap.version>1.5.10</connid.ldap.version>
     <connid.ad.version>1.4.0</connid.ad.version>
