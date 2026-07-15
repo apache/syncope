@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.enduser.layout.UserFormLayouts;
 import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.Login;
@@ -48,6 +49,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseLogin;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -92,7 +94,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected final List<IResource> resources;
 
-    protected UserFormLayoutInfo customFormLayout;
+    protected UserFormLayouts customFormLayout;
 
     protected final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader;
 
@@ -271,7 +273,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
     }
 
     public UserFormLayoutInfo getCustomFormLayout() {
-        return customFormLayout;
+        String userRealm = SyncopeEnduserSession.get().getSelfTO(true).getRealm();
+        return customFormLayout.getLayout(userRealm == null ? SyncopeConstants.ROOT_REALM : userRealm);
     }
 
     public Class<? extends Sidebar> getSidebar() {
