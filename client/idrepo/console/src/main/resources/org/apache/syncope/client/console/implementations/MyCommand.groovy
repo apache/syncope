@@ -18,6 +18,7 @@
  */
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.provisioning.api.macro.Command
+import org.apache.syncope.core.provisioning.api.macro.Command.Result
 
 class MyCommand implements Command<CommandArgs> {
 
