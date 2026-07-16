@@ -1,3 +1,21 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.syncope.client.enduser.layout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -14,10 +32,6 @@ public class UserFormLayouts implements Serializable {
 
     private final Map<String, UserFormLayoutInfo> layouts;
 
-    public UserFormLayouts() {
-        this(null);
-    }
-
     @JsonCreator
     public UserFormLayouts(@JsonProperty("layouts") final Map<String, UserFormLayoutInfo> layouts) {
         this.layouts = layouts == null ? new HashMap<>() : new HashMap<>(layouts);
@@ -29,20 +43,22 @@ public class UserFormLayouts implements Serializable {
     }
 
     public UserFormLayoutInfo getLayout(final String realm) {
-        if (StringUtils.isNotBlank(realm)) {
-            String current = realm;
+        if (!StringUtils.isBlank(realm)) {
+            UserFormLayoutInfo layout = layouts.get(realm);
+            if (layout != null) {
+                return layout;
+            }
 
-            while (current != null) {
-                UserFormLayoutInfo layout = layouts.get(current);
+            String current = StringUtils.substringBeforeLast(realm, "/");
+            while (!SyncopeConstants.ROOT_REALM.equals(current)) {
+                layout = layouts.get(current);
                 if (layout != null) {
                     return layout;
                 }
 
-                int lastSlash = current.lastIndexOf('/');
-                current = lastSlash <= 0 ? null : current.substring(0, lastSlash);
+                current = StringUtils.substringBeforeLast(current, "/");
             }
         }
-
         return layouts.get(SyncopeConstants.ROOT_REALM);
     }
 }
