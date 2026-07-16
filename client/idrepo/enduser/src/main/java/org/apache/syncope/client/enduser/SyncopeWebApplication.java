@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.enduser.layout.UserFormLayouts;
 import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.Login;
@@ -46,7 +47,9 @@ import org.apache.syncope.client.ui.commons.pages.BaseLogin;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -93,7 +96,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
 
     protected final List<IResource> resources;
 
-    protected UserFormLayoutInfo customFormLayout;
+    protected UserFormLayouts customFormLayouts;
 
     protected final DynamicMenuStringResourceLoader dynamicMenuStringResourceLoader;
 
@@ -229,7 +232,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
         getResourceSettings().getStringResourceLoaders().add(dynamicMenuStringResourceLoader);
 
         try (InputStream is = resourceLoader.getResource(props.getCustomFormLayout()).getInputStream()) {
-            customFormLayout = MAPPER.readValue(is, new TypeReference<>() {
+            customFormLayouts = MAPPER.readValue(is, new TypeReference<>() {
             });
         } catch (Exception e) {
             throw new WicketRuntimeException("Could not read " + props.getCustomFormLayout(), e);
@@ -272,7 +275,16 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication imple
     }
 
     public UserFormLayoutInfo getCustomFormLayout() {
-        return customFormLayout;
+        String userRealm = SyncopeConstants.ROOT_REALM;
+        try {
+            UserTO userTO = SyncopeEnduserSession.get().getSelfTO(true);
+            if (userTO != null) {
+                userRealm = userTO.getRealm();
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not get user realm from self", e);
+        }
+        return customFormLayouts.getLayout(userRealm);
     }
 
     public Class<? extends Sidebar> getSidebar() {

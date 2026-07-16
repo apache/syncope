@@ -1,19 +1,22 @@
 {
-  "formClass": "org.apache.syncope.client.enduser.panels.UserFormPanel",
-  "auxClasses": true,
-  "groups": true,
-  "plainAttrs": true,
-  "derAttrs": true,
-  "resources": true,
-  "whichPlainAttrs": {},
-  "whichDerAttrs": {},
-  "passwordManagement": true,
-  "detailsManagement": true,
-  "sidebarLayout": {
-    "editUserEnabled": true,
-    "passwordManagementEnabled": true,
-    "securityQuestionManagementEnabled": true,
-    "extensionsEnabled": {
+  "layouts": {
+    "/": {
+      "formClass": "org.apache.syncope.client.enduser.panels.UserFormPanel",
+      "auxClasses": true,
+      "groups": true,
+      "plainAttrs": true,
+      "derAttrs": true,
+      "resources": true,
+      "whichPlainAttrs": {},
+      "whichDerAttrs": {},
+      "passwordManagement": true,
+      "detailsManagement": true,
+      "sidebarLayout": {
+        "editUserEnabled": true,
+        "passwordManagementEnabled": true,
+        "securityQuestionManagementEnabled": true,
+        "extensionsEnabled": {}
+      }
     }
   }
 }
