@@ -43,14 +43,13 @@ public class UserFormLayouts implements Serializable {
     }
 
     public UserFormLayoutInfo getLayout(final String realm) {
-        if (StringUtils.isNotBlank(realm)) {
-            String current = realm;
-            while (StringUtils.isNotBlank(current)) {
-                UserFormLayoutInfo layout = layouts.get(current);
-                if (layout != null) {
-                    return layout;
-                }
-                current = StringUtils.substringBeforeLast(current, "/");
+        for (String current = StringUtils.isBlank(realm) ? SyncopeConstants.ROOT_REALM : realm;
+                StringUtils.isNotBlank(current);
+                current = StringUtils.substringBeforeLast(current, "/")) {
+
+            UserFormLayoutInfo layout = layouts.get(current);
+            if (layout != null) {
+                return layout;
             }
         }
         return layouts.get(SyncopeConstants.ROOT_REALM);
