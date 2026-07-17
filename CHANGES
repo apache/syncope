@@ -2,6 +2,30 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.1.2
+================================================================================
+
+** Bug
+    * [SYNCOPE-1970] - Scheduled task Groovy implementation not updated when running in cluster
+    * [SYNCOPE-1972] - Can't set security question/answer on enduser
+    * [SYNCOPE-1977] - Error after Macro compose
+    * [SYNCOPE-1979] - Password policy control over not permitted schemas and words does not work on substrings
+
+** New Feature
+    * [SYNCOPE-1984] - Support realm-based enduser formLayout configuration
+
+** Improvement
+    * [SYNCOPE-1969] - Improve setup SAML2 Client Service Provider
+    * [SYNCOPE-1971] - Add throttling for repeated failed username/password  authentication attempts
+    * [SYNCOPE-1973] -   Security auth user enumeration hardening
+    * [SYNCOPE-1974] -   Harden password reset errors against user enumeration
+    * [SYNCOPE-1975] -   Throttle password reset requests
+    * [SYNCOPE-1976] - Add configurable REST rate limiting
+    * [SYNCOPE-1978] - Search in auditevent based on username
+    * [SYNCOPE-1981] - Search audit events by who (the principal that performed the operation)
+    * [SYNCOPE-1982] - Slow query on OraclePlainSchemaRepoExtImpl
+    * [SYNCOPE-1983] - Make approval required for user self-operations
+
 Release Notes - Syncope - Version 4.1.1
 ================================================================================
 
