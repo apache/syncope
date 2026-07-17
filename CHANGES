@@ -2,6 +2,19 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.7
+================================================================================
+
+** Bug
+    * [SYNCOPE-1970] - Scheduled task Groovy implementation not updated when running in cluster
+    * [SYNCOPE-1977] - Error after Macro compose
+
+** Improvement
+    * [SYNCOPE-1978] - Search in auditevent based on username
+    * [SYNCOPE-1981] - Search audit events by who (the principal that performed the operation)
+    * [SYNCOPE-1982] - Slow query on OraclePlainSchemaRepoExtImpl
+    * [SYNCOPE-1983] - Make approval required for user self-operations
+
 Release Notes - Syncope - Version 4.0.6
 ================================================================================
 
