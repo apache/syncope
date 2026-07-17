@@ -80,7 +80,7 @@ public class AnyTypeRestClient extends BaseRestClient {
             if (AnyTypeKind.GROUP.name().equals(o1)) {
                 return -1;
             }
-            if (AnyTypeKind.GROUP.name().equals(2)) {
+            if (AnyTypeKind.GROUP.name().equals(o2)) {
                 return 1;
             }
             return ObjectUtils.compare(o1, o2);
