@@ -467,7 +467,7 @@ under the License.
     <pac4j.version>6.3.3</pac4j.version>
     <opensaml.version>5.2.2</opensaml.version>
 
-    <cas.version>7.3.7.3</cas.version>
+    <cas.version>7.3.8</cas.version>
     <cas-client.version>4.1.1</cas-client.version>
 
     <swagger-core.version>2.2.52</swagger-core.version>
@@ -1093,31 +1093,11 @@ under the License.
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-saml</artifactId>
         <version>${pac4j.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
         <version>${pac4j.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
-          </exclusion>          
-        </exclusions>
       </dependency>
       <!-- PAC4J -->
 
