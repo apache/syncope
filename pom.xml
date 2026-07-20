@@ -530,7 +530,7 @@ under the License.
     <tomcat.version>10.1.57</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>6.2025.11</payara.version>
-    <jakarta.faces.version>4.1.10</jakarta.faces.version>
+    <jakarta.faces.version>4.1.11</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9</docker.mysql.version>
