@@ -466,7 +466,7 @@ under the License.
 
     <pac4j.version>6.5.4</pac4j.version>
 
-    <cas.version>8.0.0-RC6</cas.version>
+    <cas.version>8.0.0</cas.version>
     <cas-client.version>4.1.1</cas-client.version>
 
     <swagger-core.version>2.2.52</swagger-core.version>
@@ -1091,15 +1091,7 @@ under the License.
         <exclusions>
           <exclusion>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
+            <artifactId>bcutil-jdk18on</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1107,12 +1099,6 @@ under the License.
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
         <version>${pac4j.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs-annotations</artifactId>
-          </exclusion>          
-        </exclusions>
       </dependency>
       <!-- PAC4J -->
 

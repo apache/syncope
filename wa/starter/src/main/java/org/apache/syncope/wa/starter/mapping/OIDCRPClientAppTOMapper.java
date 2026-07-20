@@ -73,6 +73,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
         service.setClientId(rp.getClientId());
         service.setClientSecret(rp.getClientSecret());
+        service.setClientSecretExpiration(rp.getClientSecretExpiration());
 
         service.setIdTokenIssuer(rp.getIdTokenIssuer());
         service.setSignIdToken(rp.isSignIdToken());

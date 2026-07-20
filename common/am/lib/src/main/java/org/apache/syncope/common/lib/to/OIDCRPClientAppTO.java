@@ -42,6 +42,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String clientSecret;
 
+    private long clientSecretExpiration;
+
     private String idTokenIssuer;
 
     private boolean signIdToken = true;
@@ -101,7 +103,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "org.apache.syncope.common.lib.to.client.OIDCRPTO")
+            example = "org.apache.syncope.common.lib.to.OIDCRPClientAppTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -121,6 +123,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     public void setClientSecret(final String clientSecret) {
         this.clientSecret = clientSecret;
+    }
+
+    public long getClientSecretExpiration() {
+        return clientSecretExpiration;
+    }
+
+    public void setClientSecretExpiration(final long clientSecretExpiration) {
+        this.clientSecretExpiration = clientSecretExpiration;
     }
 
     public List<String> getRedirectUris() {
@@ -348,6 +358,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .appendSuper(super.equals(obj))
                 .append(this.clientId, rhs.clientId)
                 .append(this.clientSecret, rhs.clientSecret)
+                .append(this.clientSecretExpiration, rhs.clientSecretExpiration)
                 .append(this.idTokenIssuer, rhs.idTokenIssuer)
                 .append(this.signIdToken, rhs.signIdToken)
                 .append(this.idTokenSigningAlg, rhs.idTokenSigningAlg)
@@ -385,6 +396,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .appendSuper(super.hashCode())
                 .append(clientId)
                 .append(clientSecret)
+                .append(clientSecretExpiration)
                 .append(idTokenIssuer)
                 .append(signIdToken)
                 .append(idTokenSigningAlg)

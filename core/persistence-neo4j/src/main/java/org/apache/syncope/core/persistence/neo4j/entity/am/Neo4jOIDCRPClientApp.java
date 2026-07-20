@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.neo4j.entity.am;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
@@ -62,6 +63,8 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     private String clientId;
 
     private String clientSecret;
+
+    private Long clientSecretExpiration;
 
     private String idTokenIssuer;
 
@@ -119,7 +122,6 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private String logoutUri;
 
-
     private String accessTokenMaxTimeToLive;
 
     private String accessTokenTimeToKill;
@@ -155,6 +157,16 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public void setClientSecret(final String clientSecret) {
         this.clientSecret = clientSecret;
+    }
+
+    @Override
+    public long getClientSecretExpiration() {
+        return Optional.ofNullable(clientSecretExpiration).orElse(0L);
+    }
+
+    @Override
+    public void setClientSecretExpiration(final long clientSecretExpiration) {
+        this.clientSecretExpiration = clientSecretExpiration;
     }
 
     @Override
@@ -413,7 +425,7 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
     }
-    
+
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getRedirectUris().clear();
