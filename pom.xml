@@ -1736,7 +1736,7 @@ under the License.
         <plugin>
           <groupId>org.openapitools</groupId>
           <artifactId>openapi-generator-maven-plugin</artifactId>
-          <version>7.23.0</version>
+          <version>7.24.0</version>
         </plugin>
 
         <plugin>
