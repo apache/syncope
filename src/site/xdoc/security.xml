@@ -36,6 +36,263 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2026-63071: Apache Syncope: RCE via Groovy Sandbox bypass">
+        <p>Improper Isolation or Compartmentalization vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements for Implementations can create a malicious Groovy class containing untrusted code bypassing the Groovy security sandbox.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-63071">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-62418: Apache Syncope: Low-privileged authenticated SSRF in Connectors and Resources check">
+        <p>Low-privileged authenticated Server-Side Request Forgery (SSRF) vulnerability in Apache Syncope via Connectors and Resources check.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-62418">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-62183: Apache Syncope: User self-service privilege escalation">
+        <p>Improper Privilege Management vulnerability in Apache Syncope.</p>
+        <p>When:</p>
+        <ul>
+          <li>the all-Java user workflow adapter is configured, or</li>
+          <li>>the Flowable user workflow adapter is configured, bearing a BPMN definition not requiring admin approval for user self registration of self update requests</li>
+        </ul>
+        <p>the following scenario could happen.<br/>
+        A REST API call can allow the user to grant themselves one or more of defined Roles, thus gaining their Entitlements and becoming in fact an administrator; the actual Entitlements gained depend on the Roles that are effectively defined on the specific Syncope deployment.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-62183">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-57308: Apache Syncope: SQL injection vulnerability in Audit Events search">
+        <p>Improper Neutralization of Special Elements used in an SQL Command ('SQL Injection') vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements can achieve execution of arbitrary SQL via stacked queries, leveraging unsanitized sort parameters.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>important</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-57308">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-53421: Apache Syncope: Remote Code Execution via Scripted Connector">
+        <p>Improper Isolation or Compartmentalization vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements can achieve remote code execution through the connector subsystem by relying on scripted connectors' (REST and SQL) capability to run Groovy scripts.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-53421">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2026-53405: Apache Syncope: Remote Code Execution via Flowable BPMN Groovy ScriptTask">
+        <p>Improper Isolation or Compartmentalization vulnerability in Apache Syncope.</p>
+        <p>An administrator with adequate entitlements can import arbitrary BPMN process definitions via the REST API and then start the process. When a BPMN process containing a Groovy scriptTask is imported and started, the Groovy script is executed directly on the server, with no sandbox.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.1.0-M0 through 4.1.1</li>
+            <li>4.0.0-M0 through 4.0.6</li>
+            <li>3.0.0-M0 through 3.0.16</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.1.2 / 4.0.7 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.1.2</li>
+            <li>Release 4.0.7</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2026-53405">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2026-42797: Apache Syncope: JexlContextBuilder Information Disclosure">
         <p>Exposure of Sensitive Information Through Data Queries vulnerability in Apache Syncope.</p>
         <p>An administrator with adequate entitlements for Derived Schemas can create a malicious JEXL expression which allows any administrator with sufficient entitlements for User read to access User-related security-sensitive information.</p>
