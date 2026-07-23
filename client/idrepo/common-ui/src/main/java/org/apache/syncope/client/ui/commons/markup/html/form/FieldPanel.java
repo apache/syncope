@@ -25,8 +25,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.AttributeModifier;
@@ -88,9 +89,9 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     public FieldPanel<T> setStyleSheet(final boolean replace, final String... classes) {
         if (replace) {
-            field.add(AttributeModifier.replace("class", StringUtils.join(classes, ' ')));
+            field.add(AttributeModifier.replace("class", Stream.of(classes).collect(Collectors.joining(" "))));
         } else {
-            field.add(AttributeModifier.append("class", StringUtils.join(classes, ' ')));
+            field.add(AttributeModifier.append("class", Stream.of(classes).collect(Collectors.joining(" "))));
         }
         return this;
     }
