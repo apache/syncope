@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -157,13 +159,14 @@ public class RemediationDirectoryPanel
         }, ActionLink.ActionType.VIEW_DETAILS, IdMEntitlement.REMEDIATION_READ);
 
         if (model.getObject().getOperation() == ResourceOperation.DELETE) {
-            String entitlements = StringUtils.join(new String[] {
-                IdMEntitlement.REMEDIATION_REMEDY,
-                AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.USER_DELETE
-                : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.GROUP_DELETE
-                : AnyEntitlement.DELETE.getFor(model.getObject().getAnyType()) }, ",");
+            String entitlements = Stream.of(
+                    IdMEntitlement.REMEDIATION_REMEDY,
+                    AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
+                    ? IdRepoEntitlement.USER_DELETE
+                    : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
+                    ? IdRepoEntitlement.GROUP_DELETE
+                    : AnyEntitlement.DELETE.getFor(model.getObject().getAnyType())).
+                    collect(Collectors.joining(","));
 
             panel.add(new ActionLink<>() {
 
@@ -185,20 +188,22 @@ public class RemediationDirectoryPanel
             }, ActionLink.ActionType.CLOSE, entitlements, true);
         } else {
             String entitlements = model.getObject().getOperation() == ResourceOperation.CREATE
-                    ? StringUtils.join(new String[] {
-                IdMEntitlement.REMEDIATION_REMEDY,
-                AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.USER_CREATE
-                : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.GROUP_CREATE
-                : AnyEntitlement.CREATE.getFor(model.getObject().getAnyType()) }, ",")
-                    : StringUtils.join(new String[] {
-                IdMEntitlement.REMEDIATION_REMEDY,
-                AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.USER_UPDATE
-                : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
-                ? IdRepoEntitlement.GROUP_UPDATE
-                : AnyEntitlement.UPDATE.getFor(model.getObject().getAnyType()) }, ",");
+                    ? Stream.of(
+                            IdMEntitlement.REMEDIATION_REMEDY,
+                            AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
+                            ? IdRepoEntitlement.USER_CREATE
+                            : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
+                            ? IdRepoEntitlement.GROUP_CREATE
+                            : AnyEntitlement.CREATE.getFor(model.getObject().getAnyType())).
+                            collect(Collectors.joining(","))
+                    : Stream.of(
+                            IdMEntitlement.REMEDIATION_REMEDY,
+                            AnyTypeKind.USER.name().equals(model.getObject().getAnyType())
+                            ? IdRepoEntitlement.USER_UPDATE
+                            : AnyTypeKind.GROUP.name().equals(model.getObject().getAnyType())
+                            ? IdRepoEntitlement.GROUP_UPDATE
+                            : AnyEntitlement.UPDATE.getFor(model.getObject().getAnyType())).
+                            collect(Collectors.joining(","));
 
             panel.add(new ActionLink<>() {
 
