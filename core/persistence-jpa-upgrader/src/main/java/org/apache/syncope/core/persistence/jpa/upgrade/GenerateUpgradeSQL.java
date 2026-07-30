@@ -33,9 +33,9 @@ public class GenerateUpgradeSQL {
             DROP TABLE TypeExtension_AnyTypeClass;
             DROP TABLE TypeExtension;
 
-            UPDATE SyncopeGroup SET userOwner_id=uManager_id;
+            UPDATE SyncopeGroup SET uManager_id=userOwner_id;
             ALTER TABLE SyncopeGroup DROP COLUMN userOwner_id;
-            UPDATE SyncopeGroup SET groupOwner_id=gManager_id;
+            UPDATE SyncopeGroup SET gManager_id=groupOwner_id;
             ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
 
             INSERT INTO OIDCOpEntity SELECT id,json AS jwks,'{}' AS customScopes FROM OIDCJWKS;

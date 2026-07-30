@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.upgrade;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
@@ -27,7 +28,10 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringJUnitConfig(classes = PersistenceUpgraderContext.class)
 class GenerateUpgradeSQLTest {
 
@@ -88,6 +93,7 @@ class GenerateUpgradeSQLTest {
     @Autowired
     private GenerateUpgradeSQL generateUpgradeSQL;
 
+    @Order(1)
     @Test
     void run() throws IOException, SQLException {
         StringWriter out = new StringWriter();
@@ -99,5 +105,19 @@ class GenerateUpgradeSQLTest {
         DatabasePopulatorUtils.execute(
                 new ResourceDatabasePopulator(new ByteArrayResource(out.toString().getBytes())),
                 SYNCOPE_DS);
+    }
+
+    @Order(2)
+    @Test
+    void issue1986() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(SYNCOPE_DS);
+        // root group has user owner rossini
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000",
+                jdbcTemplate.queryForObject("SELECT uManager_id FROM SyncopeGroup WHERE id = ?", String.class,
+                        "37d15e4c-cdc1-460b-a591-8505c8133806"));
+        // child group has group owner root
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806",
+                jdbcTemplate.queryForObject("SELECT gManager_id FROM SyncopeGroup WHERE id = ?", String.class,
+                        "b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
     }
 }
