@@ -462,7 +462,7 @@ under the License.
     <commons-lang3.version>3.20.0</commons-lang3.version>
     <commons-jexl.version>3.7.0</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
-    <commons-codec.version>1.22.0</commons-codec.version>
+    <commons-codec.version>1.22.1</commons-codec.version>
 
     <pac4j.version>6.3.3</pac4j.version>
     <opensaml.version>5.2.2</opensaml.version>
