@@ -443,7 +443,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.7</groovy.version>
+    <groovy.version>5.0.8</groovy.version>
 
     <flowable.version>7.2.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -483,7 +483,7 @@ under the License.
     <chartjs.version>4.5.1</chartjs.version>
 
     <wicket.version>10.10.0</wicket.version>
-    <wicketstuff.version>10.9.2</wicketstuff.version>
+    <wicketstuff.version>10.10.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
 
