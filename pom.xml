@@ -444,7 +444,7 @@ under the License.
 
     <zxing.version>3.5.4</zxing.version>
 
-    <groovy.version>5.0.7</groovy.version>
+    <groovy.version>5.0.8</groovy.version>
 
     <flowable.version>7.2.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -486,7 +486,7 @@ under the License.
     <chartjs.version>4.5.1</chartjs.version>
 
     <wicket.version>10.10.0</wicket.version>
-    <wicketstuff.version>10.9.2</wicketstuff.version>
+    <wicketstuff.version>10.10.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.14</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.1.1</wicket-spring-boot.version>
 
