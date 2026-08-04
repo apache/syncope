@@ -61,9 +61,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class SAML2SP4UIUserManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UIUserManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SAML2SP4UIUserManager.class);
 
-    private static final String SAML2SP_CONTEXT = "SAML 2.0 SP";
+    public static final String SAML2SP_CONTEXT = "SAML 2.0 SP";
 
     protected final SAML2SP4UIIdPDAO idpDAO;
 
