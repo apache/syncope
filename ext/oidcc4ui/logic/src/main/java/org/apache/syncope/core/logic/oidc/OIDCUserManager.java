@@ -62,7 +62,7 @@ public class OIDCUserManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCUserManager.class);
 
-    protected static final String OIDC_CLIENT_CONTEXT = "OIDC Client";
+    public static final String OIDC_CLIENT_CONTEXT = "OIDC Client";
 
     protected final InboundMatcher inboundMatcher;
 
