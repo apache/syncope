@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -75,7 +75,7 @@ public class RoleRestClient extends BaseRestClient {
 
     public void setAnyLayout(final String roleKey, final String content) {
         getService(RoleService.class).setAnyLayout(
-                roleKey, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
+                roleKey, new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
     }
 
     public void removeAnyLayout(final String roleKey) {

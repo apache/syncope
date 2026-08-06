@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -188,7 +187,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             // validation OK - application/pdf -> application/pdf
             userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
                     Base64.getEncoder().encodeToString(
-                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.pdf"))))).
+                            getClass().getResourceAsStream("/test.pdf").readAllBytes()))).
                     operation(PatchOperation.ADD_REPLACE).
                     build());
 
@@ -201,7 +200,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             try {
                 userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryPDF",
                         Base64.getEncoder().encodeToString(
-                                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.html"))))).
+                                getClass().getResourceAsStream("/test.html").readAllBytes()))).
                         operation(PatchOperation.ADD_REPLACE).
                         build());
 
@@ -216,7 +215,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             // validation ok - application/json -> application/json
             userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON",
                     Base64.getEncoder().encodeToString(
-                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.json"))))).
+                            getClass().getResourceAsStream("/test.json").readAllBytes()))).
                     operation(PatchOperation.ADD_REPLACE).
                     build());
 
@@ -228,7 +227,7 @@ public class PlainSchemaITCase extends AbstractITCase {
             // no validation - application/xml -> application/json
             userUR.getPlainAttrs().add(new AttrPatch.Builder(attr("BinaryJSON2",
                     Base64.getEncoder().encodeToString(
-                            IOUtils.readBytesFromStream(getClass().getResourceAsStream("/test.xml"))))).
+                            getClass().getResourceAsStream("/test.xml").readAllBytes()))).
                     operation(PatchOperation.ADD_REPLACE).
                     build());
 

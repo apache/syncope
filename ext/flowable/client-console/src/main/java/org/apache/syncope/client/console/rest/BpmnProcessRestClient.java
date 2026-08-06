@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.List;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -68,7 +67,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
         byte[] diagram;
         try {
-            diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
+            diagram = response.readEntity(String.class).getBytes();
         } catch (Exception e) {
             LOG.error("Could not get workflow diagram", e);
             diagram = new byte[0];

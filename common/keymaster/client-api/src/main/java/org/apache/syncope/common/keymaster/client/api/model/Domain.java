@@ -23,10 +23,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public abstract class Domain implements Serializable {
     protected static String read(final String filename) {
         String read = null;
         try {
-            read = IOUtils.toString(Domain.class.getResourceAsStream('/' + filename));
+            read = new String(Domain.class.getResourceAsStream('/' + filename).readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOG.error("Could not read {}", filename, e);
         }

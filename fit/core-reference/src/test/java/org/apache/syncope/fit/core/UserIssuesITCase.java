@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -696,7 +695,7 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope357@syncope.apache.org");
         userCR.getPlainAttrs().add(attr("obscure", "valueToBeObscured"));
         userCR.getPlainAttrs().add(attr("photo", Base64.getEncoder().encodeToString(
-                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
+                getClass().getResourceAsStream("/favicon.jpg").readAllBytes())));
         userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
         UserTO userTO = createUser(userCR).getEntity();

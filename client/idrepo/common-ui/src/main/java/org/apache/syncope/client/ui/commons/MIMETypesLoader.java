@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class MIMETypesLoader implements Serializable {
     public void load() {
         mimeTypesMap = new HashMap<>();
         try {
-            JsonNode jsonNode = MAPPER.readTree(IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json")));
+            JsonNode jsonNode = MAPPER.readTree(getClass().getResourceAsStream("/MIMETypes.json").readAllBytes());
             for (JsonNode node : jsonNode) {
                 JsonNode type = node.path("name");
                 JsonNode ext = node.path("extension");
