@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -30,7 +31,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.io.IOUtils;
 
 @BinaryPreview(mimeTypes = { MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML,
     "application/yaml", "application/x-yaml", "text/x-yaml", "text/yaml" })
@@ -51,7 +51,9 @@ public class BinaryTextPreviewer extends BinaryPreviewer {
             try {
                 fragment = new Fragment("preview", "previewFragment", this);
                 InputStream stream = new ByteArrayInputStream(uploadedBytes);
-                TextArea<String> previewer = new TextArea<>("previewer", Model.of(IOUtils.toString(stream)));
+                TextArea<String> previewer = new TextArea<>(
+                        "previewer",
+                        Model.of(new String(stream.readAllBytes(), StandardCharsets.UTF_8)));
                 previewer.setOutputMarkupPlaceholderTag(true);
                 previewerId = previewer.getMarkupId();
                 fragment.add(previewer);

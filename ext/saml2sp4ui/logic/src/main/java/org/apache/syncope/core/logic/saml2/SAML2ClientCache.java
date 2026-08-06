@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -71,7 +70,7 @@ public class SAML2ClientCache {
     public static SAML2SP4UIIdPTO importMetadata(
             final InputStream metadata, final SAML2Configuration cfg) throws IOException {
 
-        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(IOUtils.readBytesFromStream(metadata)));
+        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(metadata.readAllBytes()));
         SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
         metadataResolver.init();
         cfg.setIdentityProviderMetadataResolver(metadataResolver);

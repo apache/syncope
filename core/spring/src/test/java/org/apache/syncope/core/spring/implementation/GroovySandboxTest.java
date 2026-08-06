@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -80,12 +80,13 @@ class GroovySandboxTest {
         assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
     }
 
-    private MacroActions actions(final String key, final String resource) throws Exception {
-        final Implementation impl = mock(Implementation.class);
+    private static MacroActions actions(final String key, final String resource) throws Exception {
+        Implementation impl = mock(Implementation.class);
         when(impl.getKey()).thenReturn(key);
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
-        when(impl.getBody()).thenReturn(IOUtils.toString(
-                Objects.requireNonNull(getClass().getResourceAsStream(resource))));
+        when(impl.getBody()).thenReturn(new String(
+                Objects.requireNonNull(GroovySandboxTest.class.getResourceAsStream(resource)).readAllBytes(),
+                StandardCharsets.UTF_8));
 
         return ImplementationManager.build(SyncopeConstants.MASTER_DOMAIN, impl);
     }

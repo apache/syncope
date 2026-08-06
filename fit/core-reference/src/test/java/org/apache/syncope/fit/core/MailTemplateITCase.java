@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -83,7 +83,7 @@ public class MailTemplateITCase extends AbstractITCase {
         // 3. set TEXT
         String textTemplate = "Hi there, I am ${username}.";
         MAIL_TEMPLATE_SERVICE.setFormat(
-                key, MailTemplateFormat.TEXT, IOUtils.toInputStream(textTemplate, StandardCharsets.UTF_8));
+                key, MailTemplateFormat.TEXT, new ByteArrayInputStream(textTemplate.getBytes(StandardCharsets.UTF_8)));
 
         response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
@@ -93,7 +93,7 @@ public class MailTemplateITCase extends AbstractITCase {
         // 3. set HTML
         String htmlTemplate = "<html><body>Hi there, I am ${username}.</body></html>";
         MAIL_TEMPLATE_SERVICE.setFormat(
-                key, MailTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, StandardCharsets.UTF_8));
+                key, MailTemplateFormat.HTML, new ByteArrayInputStream(htmlTemplate.getBytes(StandardCharsets.UTF_8)));
 
         response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
