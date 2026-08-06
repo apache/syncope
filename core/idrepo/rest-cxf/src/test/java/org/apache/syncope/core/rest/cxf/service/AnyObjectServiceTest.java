@@ -42,7 +42,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.ext.MessageContext;
@@ -237,7 +236,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(MediaType.APPLICATION_JSON_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeJsonMapper().
-                readValue(IOUtils.toString(in), new TypeReference<>() {
+                readValue(in.readAllBytes(), new TypeReference<>() {
                 });
         checkList(list);
     }
@@ -247,7 +246,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(MediaType.APPLICATION_XML_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeXmlMapper().
-                readValue(IOUtils.toString(in), new TypeReference<>() {
+                readValue(in.readAllBytes(), new TypeReference<>() {
                 });
         checkList(list);
     }
@@ -257,7 +256,7 @@ public class AnyObjectServiceTest {
         InputStream in = list(RESTHeaders.APPLICATION_YAML_TYPE);
 
         PagedResult<AnyObjectTO> list = new SyncopeYAMLMapper().
-                readValue(IOUtils.toString(in), new TypeReference<>() {
+                readValue(in.readAllBytes(), new TypeReference<>() {
                 });
         checkList(list);
     }

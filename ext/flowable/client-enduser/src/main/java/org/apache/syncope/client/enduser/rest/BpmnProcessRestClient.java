@@ -19,15 +19,10 @@
 package org.apache.syncope.client.enduser.rest;
 
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import java.io.InputStream;
 import java.util.List;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 
 public class BpmnProcessRestClient extends BaseRestClient {
@@ -43,27 +38,5 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
-    }
-
-    public InputStream getDefinition(final MediaType mediaType, final String key) {
-        Response response = getService(mediaType).get(key);
-        SyncopeEnduserSession.get().resetClient(BpmnProcessService.class);
-
-        return (InputStream) response.getEntity();
-    }
-
-    public byte[] getDiagram(final String key) {
-        BpmnProcessService service = getService(BpmnProcessService.class);
-        WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        Response response = service.exportDiagram(key);
-
-        byte[] diagram;
-        try {
-            diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
-        } catch (Exception e) {
-            LOG.error("Could not get workflow diagram", e);
-            diagram = new byte[0];
-        }
-        return diagram;
     }
 }

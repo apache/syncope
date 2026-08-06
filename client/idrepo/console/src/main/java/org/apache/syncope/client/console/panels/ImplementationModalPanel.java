@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -44,7 +45,6 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.io.IOUtils;
 
 public class ImplementationModalPanel extends AbstractModalPanel<ImplementationTO> {
 
@@ -122,9 +122,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
             if (templateClassName != null) {
                 try {
                     implementation.setBody(StringUtils.substringAfter(
-                            IOUtils.toString(ImplementationModalPanel.class.getResourceAsStream(
+                            new String(ImplementationModalPanel.class.getResourceAsStream(
                                     "/org/apache/syncope/client/console/implementations/" + templateClassName
-                                    + ".groovy")),
+                                    + ".groovy").readAllBytes(), StandardCharsets.UTF_8),
                             "*/\n"));
                 } catch (IOException e) {
                     LOG.error("Could not load the expected Groovy template {} for {}",

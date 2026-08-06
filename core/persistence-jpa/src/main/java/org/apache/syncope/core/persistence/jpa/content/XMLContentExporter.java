@@ -63,7 +63,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -108,14 +107,14 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 case Types.LONGVARBINARY:
                     InputStream is = rs.getBinaryStream(columnName);
                     if (is != null) {
-                        value = DatatypeConverter.printHexBinary(IOUtils.toString(is).getBytes());
+                        value = DatatypeConverter.printHexBinary(is.readAllBytes());
                     }
                     break;
 
                 case Types.BLOB:
                     Blob blob = rs.getBlob(columnName);
                     if (blob != null) {
-                        value = DatatypeConverter.printHexBinary(IOUtils.toString(blob.getBinaryStream()).getBytes());
+                        value = DatatypeConverter.printHexBinary(blob.getBinaryStream().readAllBytes());
                     }
                     break;
 

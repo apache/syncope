@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -60,12 +60,15 @@ public class UserRequestITCase extends AbstractITCase {
         assumeTrue(IS_FLOWABLE_ENABLED);
 
         WebClient.client(BPMN_PROCESS_SERVICE).type(MediaType.APPLICATION_XML_TYPE);
-        BPMN_PROCESS_SERVICE.set("directorGroupRequest",
-                IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/directorGroupRequest.bpmn20.xml")));
-        BPMN_PROCESS_SERVICE.set("assignPrinterRequest",
-                IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml")));
-        BPMN_PROCESS_SERVICE.set("verifyAddedVariables",
-                IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
+        BPMN_PROCESS_SERVICE.set("directorGroupRequest", new String(
+                UserRequestITCase.class.getResourceAsStream("/directorGroupRequest.bpmn20.xml").readAllBytes(),
+                StandardCharsets.UTF_8));
+        BPMN_PROCESS_SERVICE.set("assignPrinterRequest", new String(
+                UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml").readAllBytes(),
+                StandardCharsets.UTF_8));
+        BPMN_PROCESS_SERVICE.set("verifyAddedVariables", new String(
+                UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml").readAllBytes(),
+                StandardCharsets.UTF_8));
 
         WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
                 getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
@@ -319,8 +322,9 @@ public class UserRequestITCase extends AbstractITCase {
     public void invalid() throws IOException {
         WebClient.client(BPMN_PROCESS_SERVICE).type(MediaType.APPLICATION_XML_TYPE);
         try {
-            BPMN_PROCESS_SERVICE.set("invalid",
-                    IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/invalidRequest.bpmn20.xml")));
+            BPMN_PROCESS_SERVICE.set("invalid", new String(
+                    UserRequestITCase.class.getResourceAsStream("/invalidRequest.bpmn20.xml").readAllBytes(),
+                    StandardCharsets.UTF_8));
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.Workflow, e.getType());

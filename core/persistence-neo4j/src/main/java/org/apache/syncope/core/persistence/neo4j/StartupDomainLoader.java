@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.neo4j;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
@@ -92,15 +92,15 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
                         maxConnectionPoolSize(domainProps.getMaxConnectionPoolSize());
 
                 try {
-                    builder.content(IOUtils.toString(
-                            resourceLoader.getResource(domainProps.getContent()).getInputStream()));
+                    builder.content(new String(resourceLoader.getResource(domainProps.getContent()).
+                            getInputStream().readAllBytes(), StandardCharsets.UTF_8));
                 } catch (IOException e) {
                     LOG.error("While loading {}", domainProps.getContent(), e);
                 }
 
                 try {
-                    builder.keymasterConfParams(IOUtils.toString(
-                            resourceLoader.getResource(domainProps.getKeymasterConfParams()).getInputStream()));
+                    builder.keymasterConfParams(new String(resourceLoader.getResource(domainProps.
+                            getKeymasterConfParams()).getInputStream().readAllBytes(), StandardCharsets.UTF_8));
                 } catch (IOException e) {
                     LOG.error("While loading {}", domainProps.getKeymasterConfParams(), e);
                 }

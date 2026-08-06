@@ -22,11 +22,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.cxf.common.util.UrlUtils;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.common.lib.to.BpmnProcess;
-import org.apache.wicket.util.io.IOUtils;
 
 /**
  * Mirror REST resource for setting BPMN process in JSON (used by Flowable Modeler).
@@ -45,7 +45,7 @@ public class BpmnProcessPUTResource extends AbstractBpmnProcessResource {
         String definition = null;
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
-            String requestBody = IOUtils.toString(request.getInputStream());
+            String requestBody = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
             String[] split = requestBody.split("&");
             for (int i = 0; i < split.length && definition == null; i++) {
                 String keyValue = split[i];

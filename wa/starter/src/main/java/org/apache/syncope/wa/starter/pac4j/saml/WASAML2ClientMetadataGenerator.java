@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.wa.starter.pac4j.saml;
 
+import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
@@ -111,7 +111,8 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
             try {
                 waRestClient.getService(WASAML2SPService.class).setSAML2SPMetadata(
-                        saml2Client.getName(), IOUtils.toInputStream(encodedMetadata, StandardCharsets.UTF_8));
+                        saml2Client.getName(),
+                        new ByteArrayInputStream(encodedMetadata.getBytes(StandardCharsets.UTF_8)));
             } catch (Exception e) {
                 LOG.error("While storing SP {} metadata", saml2Client.getName(), e);
             }

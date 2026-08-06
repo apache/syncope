@@ -431,7 +431,7 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.7</cxf.version>
+    <cxf.version>4.1.8</cxf.version>
     <bouncycastle.version>1.85</bouncycastle.version>
     <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
 
@@ -451,7 +451,7 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.2.8</elasticsearch.version>
-    <opensearch.version>3.7.0</opensearch.version>
+    <opensearch.version>3.8.0</opensearch.version>
     <opensearch-java.version>3.9.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>

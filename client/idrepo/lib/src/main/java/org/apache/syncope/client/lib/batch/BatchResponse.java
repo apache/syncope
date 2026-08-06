@@ -22,12 +22,9 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
@@ -80,7 +77,7 @@ public class BatchResponse {
      * @throws IOException if there are issues when reading the response body
      */
     public static List<BatchResponseItem> getItems(final Response response) throws IOException {
-        String body = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8.name());
+        String body = response.readEntity(String.class);
         LOG.debug("Batch response body:\n{}", body);
 
         return BatchPayloadParser.parse(
