@@ -38,9 +38,6 @@ public class GenerateUpgradeSQL {
             UPDATE SyncopeGroup SET gManager_id=groupOwner_id;
             ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
 
-            INSERT INTO OIDCOpEntity SELECT id,json AS jwks,'{}' AS customScopes FROM OIDCJWKS;
-            DROP TABLE OIDCJWKS;
-
             DROP TABLE SyncopeRole_DynRealm;
             DROP TABLE DynRealmMembership;
             DROP TABLE DynRealm;
@@ -67,7 +64,11 @@ public class GenerateUpgradeSQL {
             // run OpenJPA's SchemaTool to get the update statements
             schemaTool.run();
 
-            out.append('\n').append(INIT_SQL_STATEMENTS).append('\n');
+            UpgradeStatements statements = UpgradeStatementsFactory.forDatabase(jdbcConf.getDBDictionaryInstance());
+
+            out.append('\n');
+            out.append(statements.getStatements());
+            out.append('\n');
         }
     }
 }
