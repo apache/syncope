@@ -31,12 +31,19 @@ public final class UpgradeStatementsFactory {
 
     public static UpgradeStatements forDatabase(final DBDictionary dictionary) {
 
-        return switch (dictionary) {
-            case PostgresDictionary ignore -> new PostgreSQLUpgradeStatements();
-            case MySQLDictionary ignore -> new MySQLUpgradeStatements();
-            case MariaDBDictionary ignore -> new MariaDBUpgradeStatements();
-            case OracleDictionary ignore -> new OracleUpgradeStatements();
-            default -> throw new IllegalArgumentException(dictionary.platform);
-        };
+        if (dictionary instanceof PostgresDictionary) {
+            return new PostgreSQLUpgradeStatements();
+        }
+        if (dictionary instanceof MySQLDictionary) {
+            return new MySQLUpgradeStatements();
+        }
+        if (dictionary instanceof MariaDBDictionary) {
+            return new MariaDBUpgradeStatements();
+        }
+        if (dictionary instanceof OracleDictionary) {
+            return new OracleUpgradeStatements();
+        }
+
+        throw new IllegalArgumentException(dictionary.platform);
     }
 }
