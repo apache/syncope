@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.upgrade;
 
 public abstract class AbstractUpgradeStatements implements UpgradeStatements {
 
-    protected String commonStatements() {
+    protected static String commonStatements() {
         return """
                 INSERT INTO GroupTypeExtension SELECT * FROM TypeExtension;
                 INSERT INTO GroupTypeExtension_Class SELECT * FROM TypeExtension_AnyTypeClass;

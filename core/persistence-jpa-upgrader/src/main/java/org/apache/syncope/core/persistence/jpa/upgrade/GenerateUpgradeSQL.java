@@ -26,29 +26,6 @@ import org.apache.openjpa.jdbc.schema.SchemaTool;
 
 public class GenerateUpgradeSQL {
 
-    private static final String INIT_SQL_STATEMENTS =
-            """
-            INSERT INTO GroupTypeExtension SELECT * FROM TypeExtension;
-            INSERT INTO GroupTypeExtension_Class SELECT * FROM TypeExtension_AnyTypeClass;
-            DROP TABLE TypeExtension_AnyTypeClass;
-            DROP TABLE TypeExtension;
-
-            UPDATE SyncopeGroup SET uManager_id=userOwner_id;
-            ALTER TABLE SyncopeGroup DROP COLUMN userOwner_id;
-            UPDATE SyncopeGroup SET gManager_id=groupOwner_id;
-            ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
-
-            DROP TABLE SyncopeRole_DynRealm;
-            DROP TABLE DynRealmMembership;
-            DROP TABLE DynRealm;
-            DROP TABLE UDynGroupMembership;
-            DROP TABLE ADynGroupMembership;
-            DROP TABLE UDynGroupMembers;
-            DROP TABLE ADynGroupMembers;
-            DROP TABLE DynRoleMembers;
-            DROP TABLE DynRealmMembers;
-            """;
-
     private final JDBCConfiguration jdbcConf;
 
     public GenerateUpgradeSQL(final JDBCConfiguration jdbcConf) {
@@ -64,7 +41,7 @@ public class GenerateUpgradeSQL {
             // run OpenJPA's SchemaTool to get the update statements
             schemaTool.run();
 
-            UpgradeStatements statements = UpgradeStatementsFactory.forDatabase(jdbcConf.getDBDictionaryInstance());
+            UpgradeStatements statements = UpgradeStatementsFactory.getInstance(jdbcConf.getDBDictionaryInstance());
 
             out.append('\n');
             out.append(statements.getStatements());

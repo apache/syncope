@@ -22,8 +22,8 @@ public class MariaDBUpgradeStatements extends AbstractUpgradeStatements {
 
     @Override
     public String getStatements() {
-
-        String mariaDBUpgradeStatements = """
+        String mariaDBUpgradeStatements =
+                """
                 UPDATE SyncopeGroup SET uManager_id=userOwner_id;
 
                 SET @fk_name = (

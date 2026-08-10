@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.upgrade;
 
+@FunctionalInterface
 public interface UpgradeStatements {
 
     String getStatements();

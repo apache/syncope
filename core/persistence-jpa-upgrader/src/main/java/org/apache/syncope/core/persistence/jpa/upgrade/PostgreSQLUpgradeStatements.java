@@ -22,8 +22,8 @@ public class PostgreSQLUpgradeStatements extends AbstractUpgradeStatements {
 
     @Override
     public String getStatements() {
-
-        String postgreSQLUpgradeStatements = """
+        String postgreSQLUpgradeStatements =
+                """
                 UPDATE SyncopeGroup SET uManager_id=userOwner_id;
                 ALTER TABLE SyncopeGroup DROP COLUMN userOwner_id;
 

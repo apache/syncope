@@ -26,11 +26,7 @@ import org.apache.openjpa.jdbc.sql.PostgresDictionary;
 
 public final class UpgradeStatementsFactory {
 
-    private UpgradeStatementsFactory() {
-    }
-
-    public static UpgradeStatements forDatabase(final DBDictionary dictionary) {
-
+    public static UpgradeStatements getInstance(final DBDictionary dictionary) {
         if (dictionary instanceof PostgresDictionary) {
             return new PostgreSQLUpgradeStatements();
         }
@@ -45,5 +41,8 @@ public final class UpgradeStatementsFactory {
         }
 
         throw new IllegalArgumentException(dictionary.platform);
+    }
+
+    private UpgradeStatementsFactory() {
     }
 }

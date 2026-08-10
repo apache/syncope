@@ -20,28 +20,7 @@ package org.apache.syncope.core.persistence.jpa.upgrade;
 
 public class OracleUpgradeStatements extends AbstractUpgradeStatements {
 
-    @Override
-    public String getStatements() {
-
-        String postgreSQLUpgradeStatements = """
-                UPDATE SyncopeGroup SET uManager_id=userOwner_id;
-                ALTER TABLE SyncopeGroup DROP COLUMN userOwner_id;
-
-                UPDATE SyncopeGroup SET gManager_id=groupOwner_id;
-                ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
-
-                DELETE FROM ACCESSTOKEN;
-                ALTER TABLE ACCESSTOKEN MODIFY AUTHORITIES CLOB;
-                INSERT INTO OIDCOpEntity (id, jwks, customScopes)
-                      SELECT id, clob_to_blob(json),'{}' FROM OIDCJWKS;
-
-                DROP TABLE OIDCJWKS;
-                """;
-
-        return convertCLOBToBLOBFunction() + commonStatements() + postgreSQLUpgradeStatements;
-    }
-
-    private String convertCLOBToBLOBFunction() {
+    private static String convertCLOBToBLOBFunction() {
         return """
                 CREATE OR REPLACE FUNCTION clob_to_blob(
                     p_clob IN CLOB
@@ -73,5 +52,26 @@ public class OracleUpgradeStatements extends AbstractUpgradeStatements {
                 END;
 
                 """;
+    }
+
+    @Override
+    public String getStatements() {
+        String postgreSQLUpgradeStatements =
+                """
+                UPDATE SyncopeGroup SET uManager_id=userOwner_id;
+                ALTER TABLE SyncopeGroup DROP COLUMN userOwner_id;
+
+                UPDATE SyncopeGroup SET gManager_id=groupOwner_id;
+                ALTER TABLE SyncopeGroup DROP COLUMN groupOwner_id;
+
+                DELETE FROM ACCESSTOKEN;
+                ALTER TABLE ACCESSTOKEN MODIFY AUTHORITIES CLOB;
+                INSERT INTO OIDCOpEntity (id, jwks, customScopes)
+                      SELECT id, clob_to_blob(json),'{}' FROM OIDCJWKS;
+
+                DROP TABLE OIDCJWKS;
+                """;
+
+        return convertCLOBToBLOBFunction() + commonStatements() + postgreSQLUpgradeStatements;
     }
 }
