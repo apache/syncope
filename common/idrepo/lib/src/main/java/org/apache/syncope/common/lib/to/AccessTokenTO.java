@@ -28,8 +28,6 @@ public class AccessTokenTO implements EntityTO {
 
     private String key;
 
-    private String body;
-
     private OffsetDateTime expirationTime;
 
     private String owner;
@@ -42,14 +40,6 @@ public class AccessTokenTO implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(final String body) {
-        this.body = body;
     }
 
     public OffsetDateTime getExpirationTime() {
@@ -82,7 +72,6 @@ public class AccessTokenTO implements EntityTO {
         AccessTokenTO other = (AccessTokenTO) obj;
         return new EqualsBuilder().
                 append(key, other.key).
-                append(body, other.body).
                 append(expirationTime, other.expirationTime).
                 append(owner, other.owner).
                 build();
@@ -92,7 +81,6 @@ public class AccessTokenTO implements EntityTO {
     public int hashCode() {
         return new HashCodeBuilder().
                 append(key).
-                append(body).
                 append(expirationTime).
                 append(owner).
                 build();
