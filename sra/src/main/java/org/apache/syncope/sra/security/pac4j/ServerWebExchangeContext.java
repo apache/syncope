@@ -32,7 +32,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.ForwardedHeaderUtils;
 
 public class ServerWebExchangeContext implements WebContext {
 
@@ -144,20 +143,17 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getServerName() {
-        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
-                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getHost();
+        return exchange.getRequest().getURI().getHost();
     }
 
     @Override
     public int getServerPort() {
-        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
-                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getPort();
+        return exchange.getRequest().getURI().getPort();
     }
 
     @Override
     public String getScheme() {
-        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
-                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getScheme();
+        return exchange.getRequest().getURI().getScheme();
     }
 
     @Override
@@ -167,8 +163,7 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getFullRequestURL() {
-        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
-                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().toUriString();
+        return exchange.getRequest().getURI().toString();
     }
 
     @Override

@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.ForwardedHeaderUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 public final class CASUtils {
@@ -54,8 +54,7 @@ public final class CASUtils {
     }
 
     public static String constructServiceUrl(final ServerWebExchange exchange, final Protocol protocol) {
-        return ForwardedHeaderUtils.
-                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
+        return UriComponentsBuilder.fromUri(exchange.getRequest().getURI()).
                 replaceQueryParam(protocol.getArtifactParameterName()).
                 build().
                 toUriString();
