@@ -198,7 +198,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     public AccessTokenTO getAccessTokenTO(final AccessToken accessToken) {
         AccessTokenTO accessTokenTO = new AccessTokenTO();
         accessTokenTO.setKey(accessToken.getKey());
-        accessTokenTO.setBody(accessToken.getBody());
         accessTokenTO.setExpirationTime(accessToken.getExpirationTime());
         accessTokenTO.setOwner(accessToken.getOwner());
 

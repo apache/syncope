@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.nimbusds.jwt.SignedJWT;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -43,13 +40,9 @@ import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -89,28 +82,6 @@ public class AccessTokenDirectoryPanel
                 Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
-
-        columns.add(new AbstractColumn<>(new ResourceModel("issuedAt", "")) {
-
-            private static final long serialVersionUID = -1822504503325964706L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<AccessTokenTO>> cellItem,
-                    final String componentId,
-                    final IModel<AccessTokenTO> model) {
-
-                try {
-                    SignedJWT jwt = SignedJWT.parse(model.getObject().getBody());
-                    cellItem.add(new Label(
-                            componentId,
-                            SyncopeConsoleSession.get().getDateFormat().format(jwt.getJWTClaimsSet().getIssueTime())));
-                } catch (ParseException e) {
-                    LOG.error("Could not parse JWT {}", model.getObject().getBody(), e);
-                    cellItem.add(new Label(componentId, StringUtils.EMPTY));
-                }
-            }
-        });
 
         columns.add(new DatePropertyColumn<>(new ResourceModel("expirationTime"), "expirationTime", "expirationTime"));
 
