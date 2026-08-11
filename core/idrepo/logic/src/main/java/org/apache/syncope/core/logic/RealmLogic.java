@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -110,9 +111,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         this.taskExecutor = taskExecutor;
     }
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm) {
-        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
-        if (!authorized) {
+    protected void securityChecks(final Set<String> realms, final String realm) {
+        if (!RealmUtils.StartsWithPredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(
                     realm, User.class.getSimpleName(), AuthContextUtils.getUsername());
         }
@@ -143,7 +143,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
         List<RealmTO> result = realmSearchDAO.search(baseRealms, effectiveCond, pageable).stream().
                 map(realm -> binder.getRealmTO(
-                realm, authorizations.stream().anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
+                realm, RealmUtils.StartsWithPredicate.of(authorizations).test(realm.getFullPath()))).
                 sorted(Comparator.comparing(RealmTO::getFullPath)).
                 toList();
 

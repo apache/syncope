@@ -24,12 +24,14 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
@@ -58,9 +60,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         }
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
-        if (authRealms == null || authRealms.isEmpty()
-                || authRealms.stream().noneMatch(
-                        realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))) {
+        if (CollectionUtils.isEmpty(authRealms)
+                || !RealmUtils.StartsWithPredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -79,7 +80,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         }
 
         return neo4jTemplate.findAll(Neo4jConnInstance.class).stream().filter(connInstance -> authRealms.stream().
-                anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
+                anyMatch(realm -> RealmUtils.startsWith(connInstance.getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 
@@ -95,7 +96,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
     public void deleteById(final String key) {
         neo4jTemplate.findById(key, Neo4jConnInstance.class).ifPresent(connInstance -> {
             connInstance.getResources().stream().
-            map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
+                    map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
 
             neo4jTemplate.deleteById(key, Neo4jConnInstance.class);
         });

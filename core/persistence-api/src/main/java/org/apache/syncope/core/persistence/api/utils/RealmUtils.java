@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
@@ -53,9 +54,9 @@ public class RealmUtils {
         boolean dontAdd = false;
         Set<String> toRemove = new HashSet<>();
         for (String realm : realms) {
-            if (newRealm.startsWith(realm)) {
+            if (startsWith(newRealm, realm)) {
                 dontAdd = true;
-            } else if (realm.startsWith(newRealm)) {
+            } else if (startsWith(realm, newRealm)) {
                 toRemove.add(realm);
             }
         }
@@ -86,18 +87,27 @@ public class RealmUtils {
         }
     }
 
-    private static class StartsWithPredicate implements Predicate<String> {
+    public static final class StartsWithPredicate implements Predicate<String> {
+
+        public static StartsWithPredicate of(final Collection<String> targets) {
+            return new StartsWithPredicate(targets);
+        }
 
         private final Collection<String> targets;
 
-        StartsWithPredicate(final Collection<String> targets) {
+        private StartsWithPredicate(final Collection<String> targets) {
             this.targets = targets;
         }
 
         @Override
         public boolean test(final String realm) {
-            return targets.stream().anyMatch(realm::startsWith);
+            return targets.stream().anyMatch(target -> startsWith(realm, target));
         }
+    }
+
+    public static boolean startsWith(final String candidate, final String prefix) {
+        return candidate.equals(prefix) || candidate.startsWith(
+                SyncopeConstants.ROOT_REALM.equals(prefix) ? SyncopeConstants.ROOT_REALM : prefix + '/');
     }
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
@@ -105,8 +115,8 @@ public class RealmUtils {
 
         Set<String> requested = Set.of(requestedRealm);
 
-        StartsWithPredicate normalizedFilter = new StartsWithPredicate(normalized.realms());
-        StartsWithPredicate requestedFilter = new StartsWithPredicate(requested);
+        StartsWithPredicate normalizedFilter = StartsWithPredicate.of(normalized.realms());
+        StartsWithPredicate requestedFilter = StartsWithPredicate.of(requested);
 
         Set<String> effective = new HashSet<>();
         effective.addAll(requested.stream().filter(normalizedFilter).collect(Collectors.toSet()));
