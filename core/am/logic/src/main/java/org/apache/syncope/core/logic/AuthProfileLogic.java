@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.List;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -89,7 +90,8 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
                 filter(authProfile -> authProfile.getKey().equals(authProfileTO.getKey())
                 && authProfile.getOwner().equals(authProfileTO.getOwner())).
-                orElseThrow(() -> new DelegatedAdministrationException(AnyTypeKind.USER, authProfileTO.getOwner()));
+                orElseThrow(() -> new DelegatedAdministrationException(
+                SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), authProfileTO.getOwner()));
 
         update(authProfileTO);
     }
@@ -103,6 +105,6 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
     public void selfDelete() {
         authProfileDAO.deleteById(authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
                 orElseThrow(() -> new DelegatedAdministrationException(
-                AnyTypeKind.USER, AuthContextUtils.getUsername())).getKey());
+                SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), AuthContextUtils.getUsername())).getKey());
     }
 }
