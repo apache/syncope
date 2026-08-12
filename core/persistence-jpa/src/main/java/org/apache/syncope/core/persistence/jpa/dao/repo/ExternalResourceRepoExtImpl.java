@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -84,7 +85,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_READ);
         if (authRealms == null || authRealms.isEmpty()
                 || authRealms.stream().noneMatch(realm -> resource.getConnector() != null
-                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))) {
+                && RealmUtils.subtree(resource.getConnector().getAdminRealm().getFullPath(), realm))) {
 
             throw new DelegatedAdministrationException(
                     resource.getConnector().getAdminRealm().getFullPath(),
@@ -132,7 +133,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
 
         return query.getResultList().stream().filter(resource -> authRealms.stream().
                 anyMatch(realm -> resource.getConnector() != null
-                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))).
+                && RealmUtils.subtree(resource.getConnector().getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 

@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
@@ -53,9 +53,9 @@ public class RealmUtils {
         boolean dontAdd = false;
         Set<String> toRemove = new HashSet<>();
         for (String realm : realms) {
-            if (newRealm.startsWith(realm)) {
+            if (subtree(newRealm, realm)) {
                 dontAdd = true;
-            } else if (realm.startsWith(newRealm)) {
+            } else if (subtree(realm, newRealm)) {
                 toRemove.add(realm);
             }
         }
@@ -86,18 +86,26 @@ public class RealmUtils {
         }
     }
 
-    private static class StartsWithPredicate implements Predicate<String> {
+    public static final class SubtreePredicate implements Predicate<String> {
 
-        private final Collection<String> targets;
+        public static SubtreePredicate of(final Collection<String> targets) {
+            return new SubtreePredicate(targets);
+        }
 
-        StartsWithPredicate(final Collection<String> targets) {
-            this.targets = targets;
+        private final Collection<String> candidates;
+
+        private SubtreePredicate(final Collection<String> candidates) {
+            this.candidates = candidates;
         }
 
         @Override
         public boolean test(final String realm) {
-            return targets.stream().anyMatch(realm::startsWith);
+            return candidates.stream().anyMatch(candidate -> subtree(realm, candidate));
         }
+    }
+
+    public static boolean subtree(final String realm, final String prefix) {
+        return realm.equals(prefix) || realm.startsWith(Strings.CS.appendIfMissing(prefix, "/"));
     }
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
@@ -105,12 +113,9 @@ public class RealmUtils {
 
         Set<String> requested = Set.of(requestedRealm);
 
-        StartsWithPredicate normalizedFilter = new StartsWithPredicate(normalized.realms());
-        StartsWithPredicate requestedFilter = new StartsWithPredicate(requested);
-
         Set<String> effective = new HashSet<>();
-        effective.addAll(requested.stream().filter(normalizedFilter).collect(Collectors.toSet()));
-        effective.addAll(normalized.realms().stream().filter(requestedFilter).collect(Collectors.toSet()));
+        effective.addAll(requested.stream().filter(SubtreePredicate.of(normalized.realms())).toList());
+        effective.addAll(normalized.realms().stream().filter(SubtreePredicate.of(requested)).toList());
 
         // includes manager
         effective.addAll(normalized.managerRealms());
