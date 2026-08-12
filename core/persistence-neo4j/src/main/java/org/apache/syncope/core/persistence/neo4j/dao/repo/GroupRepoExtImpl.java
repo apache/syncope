@@ -165,7 +165,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
         // 1. check if AuthContextUtils.getUsername() is owner of the group, or
         // if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
-        boolean authorized = authRealms.stream().anyMatch(authRealm -> realm.startsWith(authRealm)
+        boolean authorized = authRealms.stream().anyMatch(authRealm -> RealmUtils.subtree(realm, authRealm)
                 || authRealm.equals(new RealmUtils.GroupOwnerRealm(realm, key).output()));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement

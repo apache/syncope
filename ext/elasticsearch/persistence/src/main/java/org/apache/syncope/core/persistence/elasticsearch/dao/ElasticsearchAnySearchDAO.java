@@ -160,7 +160,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
             });
         } else {
-            if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
+            if (RealmUtils.SubtreePredicate.of(adminRealms).test(base.getFullPath())) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
                         field("realm").value(base.getKey()).caseInsensitive(false).build()).
                         build());

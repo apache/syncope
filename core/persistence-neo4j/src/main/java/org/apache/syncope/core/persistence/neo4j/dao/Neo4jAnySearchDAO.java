@@ -231,7 +231,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 realmKeys.clear();
             }
         } else {
-            if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
+            if (RealmUtils.SubtreePredicate.of(adminRealms).test(base.getFullPath())) {
                 realmKeys.add(base.getKey());
             }
         }

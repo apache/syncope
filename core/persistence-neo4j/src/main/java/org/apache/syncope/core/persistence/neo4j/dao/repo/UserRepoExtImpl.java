@@ -177,7 +177,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
         // 3. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = authRealms.stream().anyMatch(realm::startsWith);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {

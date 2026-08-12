@@ -47,16 +47,16 @@ public class RealmUtilsTest extends AbstractTest {
     @Test
     public void normalizingAddTo() {
         Set<String> realms = new HashSet<>();
-        realms.add("realm1");
-        realms.add("realm2");
-        String newRealm = "realm123";
+        realms.add("/realm1");
+        realms.add("/realm2");
+        String newRealm = "/realm1/23";
         assertFalse(RealmUtils.normalizingAddTo(realms, newRealm));
         assertEquals(2, realms.size());
 
         realms.clear();
-        realms.add("testRealm1");
-        realms.add("realm2");
-        newRealm = "test";
+        realms.add("/test/realm1");
+        realms.add("/realm2");
+        newRealm = "/test";
         assertTrue(RealmUtils.normalizingAddTo(realms, newRealm));
         assertEquals(2, realms.size());
     }

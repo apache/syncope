@@ -107,9 +107,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
-        if (!authorized) {
+    protected void securityChecks(final Set<String> realms, final String realm, final String key) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
         }
     }
