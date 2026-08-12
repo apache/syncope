@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
@@ -78,9 +79,8 @@ public class ConnInstanceRepoExtImpl extends AbstractDAO implements ConnInstance
         }
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
-        if (authRealms == null || authRealms.isEmpty()
-                || authRealms.stream().noneMatch(
-                        realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))) {
+        if (CollectionUtils.isEmpty(authRealms)
+                || !RealmUtils.SubtreePredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -104,7 +104,7 @@ public class ConnInstanceRepoExtImpl extends AbstractDAO implements ConnInstance
                 Neo4jConnInstance.class,
                 cache);
         return all.stream().filter(connInstance -> authRealms.stream().
-                anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
+                anyMatch(realm -> RealmUtils.subtree(connInstance.getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 

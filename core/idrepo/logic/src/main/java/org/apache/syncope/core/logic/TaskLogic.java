@@ -65,6 +65,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
@@ -127,8 +128,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     protected void securityChecks(final String entitlement, final String realm) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().getOrDefault(entitlement, Set.of());
-        if (authRealms.isEmpty() || authRealms.stream().noneMatch(realm::startsWith)) {
+        Set<String> realms = AuthContextUtils.getAuthorizations().getOrDefault(entitlement, Set.of());
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(realm, MacroTask.class.getSimpleName(), null);
         }
     }

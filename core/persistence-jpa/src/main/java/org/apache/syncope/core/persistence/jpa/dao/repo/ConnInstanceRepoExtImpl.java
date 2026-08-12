@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -52,9 +53,8 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         }
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
-        if (authRealms == null || authRealms.isEmpty()
-                || authRealms.stream().noneMatch(
-                        realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))) {
+        if (CollectionUtils.isEmpty(authRealms)
+                || !RealmUtils.SubtreePredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -76,7 +76,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
                 "SELECT e FROM " + JPAConnInstance.class.getSimpleName() + " e", ConnInstance.class);
 
         return query.getResultList().stream().filter(connInstance -> authRealms.stream().
-                anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
+                anyMatch(realm -> RealmUtils.subtree(connInstance.getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 
