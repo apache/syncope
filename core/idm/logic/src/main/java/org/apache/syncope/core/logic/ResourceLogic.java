@@ -108,7 +108,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     }
 
     protected void securityChecks(final Set<String> realms, final String realm, final String key) {
-        if (!RealmUtils.StartsWithPredicate.of(realms).test(realm)) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
         }
     }

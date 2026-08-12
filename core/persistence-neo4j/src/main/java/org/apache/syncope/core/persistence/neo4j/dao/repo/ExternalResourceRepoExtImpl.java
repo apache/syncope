@@ -113,7 +113,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_READ);
         if (authRealms == null || authRealms.isEmpty()
                 || authRealms.stream().noneMatch(realm -> resource.getConnector() != null
-                && RealmUtils.startsWith(resource.getConnector().getAdminRealm().getFullPath(), realm))) {
+                && RealmUtils.subtree(resource.getConnector().getAdminRealm().getFullPath(), realm))) {
 
             throw new DelegatedAdministrationException(
                     resource.getConnector().getAdminRealm().getFullPath(),
@@ -197,7 +197,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 cache);
         return all.stream().filter(resource -> authRealms.stream().
                 anyMatch(realm -> resource.getConnector() != null
-                && RealmUtils.startsWith(resource.getConnector().getAdminRealm().getFullPath(), realm))).
+                && RealmUtils.subtree(resource.getConnector().getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 

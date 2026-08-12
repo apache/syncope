@@ -112,7 +112,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     }
 
     protected void securityChecks(final Set<String> realms, final String realm) {
-        if (!RealmUtils.StartsWithPredicate.of(realms).test(realm)) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(
                     realm, User.class.getSimpleName(), AuthContextUtils.getUsername());
         }
@@ -143,7 +143,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
         List<RealmTO> result = realmSearchDAO.search(baseRealms, effectiveCond, pageable).stream().
                 map(realm -> binder.getRealmTO(
-                realm, RealmUtils.StartsWithPredicate.of(authorizations).test(realm.getFullPath()))).
+                realm, RealmUtils.SubtreePredicate.of(authorizations).test(realm.getFullPath()))).
                 sorted(Comparator.comparing(RealmTO::getFullPath)).
                 toList();
 

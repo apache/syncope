@@ -131,7 +131,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
         // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = RealmUtils.StartsWithPredicate.of(authRealms).test(realm);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {

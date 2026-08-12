@@ -54,7 +54,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
         if (CollectionUtils.isEmpty(authRealms)
-                || !RealmUtils.StartsWithPredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
+                || !RealmUtils.SubtreePredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -76,7 +76,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
                 "SELECT e FROM " + JPAConnInstance.class.getSimpleName() + " e", ConnInstance.class);
 
         return query.getResultList().stream().filter(connInstance -> authRealms.stream().
-                anyMatch(realm -> RealmUtils.startsWith(connInstance.getAdminRealm().getFullPath(), realm))).
+                anyMatch(realm -> RealmUtils.subtree(connInstance.getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 

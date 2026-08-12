@@ -61,7 +61,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
         if (CollectionUtils.isEmpty(authRealms)
-                || !RealmUtils.StartsWithPredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
+                || !RealmUtils.SubtreePredicate.of(authRealms).test(connInstance.getAdminRealm().getFullPath())) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -80,7 +80,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
         }
 
         return neo4jTemplate.findAll(Neo4jConnInstance.class).stream().filter(connInstance -> authRealms.stream().
-                anyMatch(realm -> RealmUtils.startsWith(connInstance.getAdminRealm().getFullPath(), realm))).
+                anyMatch(realm -> RealmUtils.subtree(connInstance.getAdminRealm().getFullPath(), realm))).
                 toList();
     }
 

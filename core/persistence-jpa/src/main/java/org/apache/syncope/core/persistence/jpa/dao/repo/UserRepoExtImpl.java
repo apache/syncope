@@ -233,7 +233,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
         // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = RealmUtils.StartsWithPredicate.of(authRealms).test(realm);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {

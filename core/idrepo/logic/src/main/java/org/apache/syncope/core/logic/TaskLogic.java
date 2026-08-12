@@ -129,7 +129,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     protected void securityChecks(final String entitlement, final String realm) {
         Set<String> realms = AuthContextUtils.getAuthorizations().getOrDefault(entitlement, Set.of());
-        if (!RealmUtils.StartsWithPredicate.of(realms).test(realm)) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
             throw new DelegatedAdministrationException(realm, MacroTask.class.getSimpleName(), null);
         }
     }
