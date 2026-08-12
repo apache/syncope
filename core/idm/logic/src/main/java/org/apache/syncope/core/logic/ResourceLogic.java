@@ -107,12 +107,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    protected void securityChecks(final Set<String> realms, final String realm, final String key) {
-        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
-            throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
-        }
-    }
-
     protected ExternalResource doSave(final ExternalResource resource) {
         ExternalResource merged = resourceDAO.save(resource);
         try {
@@ -121,6 +115,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             LOG.error("While registering connector for resource", e);
         }
         return merged;
+    }
+
+    protected void securityChecks(final Set<String> realms, final String realm, final String resourceKey) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
+            throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), resourceKey);
+        }
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_CREATE + "')")
@@ -379,7 +379,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
-            resource = resourceDAO.findById(key).
+            resource = Optional.ofNullable(resourceDAO.authFind(key)).
                     orElseThrow(() -> new NotFoundException("Resource " + key));
             if (resource.getOrgUnit() == null) {
                 throw new NotFoundException("Realm provisioning for resource '" + key + '\'');

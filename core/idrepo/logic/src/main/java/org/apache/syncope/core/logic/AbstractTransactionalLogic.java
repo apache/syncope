@@ -19,9 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -32,7 +29,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractTransactionalLogic<T extends EntityTO> extends AbstractLogic<T> {
 
-    protected record ProvisioningInfo(AnyType anyType, ExternalResource resource, Provision provision) {
-
-    }
 }
