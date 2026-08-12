@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -219,12 +218,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
 
         // 2. remove all provisions not contained in the TO
-        for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
-            Provision provision = itor.next();
-            if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
-                itor.remove();
-            }
-        }
+        resource.getProvisions().removeIf(provision -> resourceTO.getProvision(provision.getAnyType()).isEmpty());
 
         // 3. orgUnit
         if (resourceTO.getOrgUnit() == null && resource.getOrgUnit() != null) {

@@ -20,7 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DelegationTO;
@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -55,12 +56,13 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
     }
 
     protected void securityChecks(final String delegating, final String entitlement) {
-        if (!AuthContextUtils.getAuthorizations().containsKey(entitlement)
+        Set<String> realms = AuthContextUtils.getAuthorizations().getOrDefault(entitlement, Set.of());
+
+        if (realms.isEmpty()
                 && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername()).
                         orElseThrow(() -> new NotFoundException("Could not find authenticated user"))))) {
 
-            throw new DelegatedAdministrationException(
-                    SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), delegating);
+            throw new DelegatedAdministrationException(realms.toString(), AnyTypeKind.USER.name(), delegating);
         }
     }
 
@@ -78,14 +80,14 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<DelegationTO> list() {
-        Stream<DelegationTO> delegations = delegationDAO.findAll().stream().map(binder::getDelegationTO);
-
-        if (!AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.DELEGATION_LIST)) {
-            String authUserKey = userDAO.findKey(AuthContextUtils.getUsername()).orElse(null);
-            delegations = delegations.filter(delegation -> delegation.getDelegating().equals(authUserKey));
+        if (AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.DELEGATION_LIST)) {
+            return delegationDAO.findAll().stream().map(binder::getDelegationTO).toList();
         }
 
-        return delegations.toList();
+        User delegating = userDAO.findByUsername(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername()));
+
+        return delegationDAO.findByDelegating(delegating).stream().map(binder::getDelegationTO).toList();
     }
 
     @PreAuthorize("isAuthenticated()")
