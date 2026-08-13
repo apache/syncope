@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
-import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
@@ -185,10 +184,9 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
     public ExternalResourcesHealthIndicator externalResourcesHealthIndicator(
             final DomainOps domainOps,
             final ExternalResourceDAO resourceDAO,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final ConnectorManager connectorManager) {
 
-        return new ExternalResourcesHealthIndicator(domainOps, resourceDAO, connInstanceDataBinder, connectorManager);
+        return new ExternalResourcesHealthIndicator(domainOps, resourceDAO, connectorManager);
     }
 
     @ConditionalOnMissingBean

@@ -46,7 +46,7 @@ public class ConnectorManagerTest extends AbstractTest {
 
     @BeforeEach
     public void before() {
-        connManager = new DefaultConnectorManager(connIdBundleManager, null, null, resourceDAO, null, null, null, ctx);
+        connManager = new DefaultConnectorManager(connIdBundleManager, resourceDAO, null, null, ctx);
 
         // Remove any other connector instance bean set up by standard ConnectorManager.load()
         connManager.unload();
