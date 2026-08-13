@@ -91,7 +91,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -401,6 +400,14 @@ public abstract class AbstractITCase {
 
     private static int POP3_PORT;
 
+    protected static String DB_PASSWORD;
+
+    private static int LDAP_PORT;
+
+    private static String LDAP_PRINCIPAL;
+
+    private static String LDAP_PASSWORD;
+
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
     protected static boolean IS_ELASTICSEARCH_ENABLED = false;
@@ -540,6 +547,16 @@ public abstract class AbstractITCase {
 
         POP3_PORT = Integer.parseInt(props.getProperty("testmail.pop3port"));
         assertNotNull(POP3_PORT);
+
+        DB_PASSWORD = props.getProperty("testdb.password");
+        assertNotNull(DB_PASSWORD);
+
+        LDAP_PORT = Integer.parseInt(props.getProperty("testds.port"));
+        assertNotNull(LDAP_PORT);
+        LDAP_PRINCIPAL = props.getProperty("testds.bindDn");
+        assertNotNull(LDAP_PRINCIPAL);
+        LDAP_PASSWORD = props.getProperty("testds.password");
+        assertNotNull(LDAP_PASSWORD);
     }
 
     @BeforeAll
@@ -794,12 +811,11 @@ public abstract class AbstractITCase {
     private static <T> T execOnLDAP(
             final String bindDn,
             final String bindPassword,
-            final ConnInstanceTO connInstance,
             final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
 
         try (LDAPConnection ldapConn = new LDAPConnection(
-                connInstance.getConf("host").orElseThrow().getValues().getFirst().toString(),
-                Integer.parseInt(connInstance.getConf("port").orElseThrow().getValues().getFirst().toString()),
+                "localhost",
+                LDAP_PORT,
                 bindDn,
                 bindPassword)) {
 
@@ -807,24 +823,8 @@ public abstract class AbstractITCase {
         }
     }
 
-    private static <T> T execOnLDAP(
-            final String bindDn,
-            final String bindPassword,
-            final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
-
-        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
-
-        return execOnLDAP(bindDn, bindPassword, connInstance, function);
-    }
-
     private static <T> T execOnLDAP(final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
-        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
-
-        return execOnLDAP(
-                connInstance.getConf("principal").orElseThrow().getValues().getFirst().toString(),
-                connInstance.getConf("credentials").orElseThrow().getValues().getFirst().toString(),
-                connInstance,
-                function);
+        return execOnLDAP(LDAP_PRINCIPAL, LDAP_PASSWORD, function);
     }
 
     protected static SearchResult ldapSearch(final String baseDn, final String filter) {
@@ -839,7 +839,7 @@ public abstract class AbstractITCase {
 
     protected static SearchResultEntry getLdapRemoteObject(final String objectDn) {
         try {
-            return execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+            return execOnLDAP(LDAP_PRINCIPAL, LDAP_PASSWORD, ldapConn -> ldapConn.searchForEntry(
                     new SearchRequest(objectDn, SearchScope.BASE, "objectClass=*")));
         } catch (LDAPException e) {
             LOG.error("While reading {}", objectDn, e);

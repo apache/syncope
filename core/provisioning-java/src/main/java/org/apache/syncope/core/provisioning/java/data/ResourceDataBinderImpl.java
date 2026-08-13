@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -58,9 +59,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -332,6 +335,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             Implementation.class.getSimpleName(), resourceTO.getProvisionSorter()));
         }
 
+        resourceTO.getConfOverride().ifPresentOrElse(
+                confOverride -> {
+                    List<ConnConfProperty> previousConf = resource.getConfOverride().orElseGet(() -> List.of());
+                    resource.setConfOverride(Optional.of(ConnInstanceDataBinder.newConf(previousConf, confOverride)));
+                },
+                () -> resource.setConfOverride(Optional.empty()));
+
         resource.setConfOverride(
                 Optional.ofNullable(resourceTO.getConfOverride()).orElseGet(Optional::empty));
 
@@ -591,6 +601,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 ? null : resource.getProvisionSorter().getKey());
 
         resourceTO.setConfOverride(resource.getConfOverride());
+        // do not export confidential property values
+        resourceTO.getConfOverride().ifPresent(conf -> conf.stream().
+                filter(property -> property.getSchema().isConfidential()
+                || GuardedString.class.getName().equals(property.getSchema().getType())).
+                forEach(property -> property.getValues().clear()));
 
         resourceTO.setCapabilitiesOverride(resource.getCapabilitiesOverride());
 

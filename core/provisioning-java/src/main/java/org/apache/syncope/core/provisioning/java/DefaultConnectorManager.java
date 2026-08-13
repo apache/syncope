@@ -25,13 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -39,7 +35,6 @@ import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
@@ -60,13 +55,7 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     protected final ConnIdBundleManager connIdBundleManager;
 
-    protected final RealmDAO realmDAO;
-
-    protected final RealmSearchDAO realmSearchDAO;
-
     protected final ExternalResourceDAO resourceDAO;
-
-    protected final ConnInstanceDataBinder connInstanceDataBinder;
 
     protected final AsyncConnectorFacade asyncFacade;
 
@@ -76,19 +65,13 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     public DefaultConnectorManager(
             final ConnIdBundleManager connIdBundleManager,
-            final RealmDAO realmDAO,
-            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final AsyncConnectorFacade asyncFacade,
             final EntityFactory entityFactory,
             final ConfigurableApplicationContext ctx) {
 
         this.connIdBundleManager = connIdBundleManager;
-        this.realmDAO = realmDAO;
-        this.realmSearchDAO = realmSearchDAO;
         this.resourceDAO = resourceDAO;
-        this.connInstanceDataBinder = connInstanceDataBinder;
         this.asyncFacade = asyncFacade;
         this.entityFactory = entityFactory;
         this.ctx = ctx;
@@ -104,18 +87,15 @@ public class DefaultConnectorManager implements ConnectorManager {
                 });
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ConnInstance buildConnInstanceOverride(
-            final ConnInstanceTO connInstance,
+            final ConnInstance connInstance,
             final Optional<List<ConnConfProperty>> confOverride,
             final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
-        override.setAdminRealm(realmSearchDAO.findByFullPath(connInstance.getAdminRealm()).orElseGet(() -> {
-            LOG.warn("Could not find admin Realm {}, reverting to {}",
-                    connInstance.getAdminRealm(), SyncopeConstants.ROOT_REALM);
-            return realmDAO.getRoot();
-        }));
+        override.setAdminRealm(connInstance.getAdminRealm());
         override.setConnectorName(connInstance.getConnectorName());
         override.setDisplayName(connInstance.getDisplayName());
         override.setBundleName(connInstance.getBundleName());
@@ -179,7 +159,7 @@ public class DefaultConnectorManager implements ConnectorManager {
             }
 
             ConnInstance connInstance = buildConnInstanceOverride(
-                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                    resource.getConnector(),
                     resource.getConfOverride(),
                     resource.getCapabilitiesOverride());
             Connector connector = createConnector(connInstance);

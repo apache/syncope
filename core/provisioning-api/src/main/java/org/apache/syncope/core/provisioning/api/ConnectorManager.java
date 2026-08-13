@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -43,7 +42,7 @@ public interface ConnectorManager {
      * @return connector instance override over base connector instance, configuration and capabilities
      */
     ConnInstance buildConnInstanceOverride(
-            ConnInstanceTO connInstance,
+            ConnInstance connInstance,
             Optional<List<ConnConfProperty>> confOverride,
             Optional<Set<ConnectorCapability>> capabilitiesOverride);
 

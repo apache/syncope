@@ -124,7 +124,6 @@ public class IdMLogicContext {
             final AnyTypeDAO anyTypeDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDAO connInstanceDAO,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final ConnectorManager connectorManager,
             final OutboundMatcher outboundMatcher,
             final MappingManager mappingManager) {
@@ -134,7 +133,6 @@ public class IdMLogicContext {
                 anyTypeDAO,
                 connInstanceDAO,
                 resourceDataBinder,
-                connInstanceDataBinder,
                 outboundMatcher,
                 mappingManager,
                 connectorManager,
