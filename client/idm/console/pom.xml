@@ -69,6 +69,7 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <args>
+            <arg>--load-path=${rootpom.basedir}/client/idrepo/common-ui/src/main/resources/META-INF/resources/ui-commons/css</arg>
             <arg>${basedir}/src/main/resources/META-INF/resources/css:${project.build.outputDirectory}/META-INF/resources/css</arg>
           </args>
         </configuration>

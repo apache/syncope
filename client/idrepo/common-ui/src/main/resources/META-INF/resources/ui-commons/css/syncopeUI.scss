@@ -17,7 +17,12 @@
  * under the License.
  */
 
+@import 'theme';
 @import 'utils';
+
+[data-bs-theme=dark] .sidebar-wrapper {
+  background-color: rgba(var(--bs-secondary-bg-rgb), var(--bs-bg-opacity)) !important;
+}
 
 pre {
   @include white_space_pre_wrap;
@@ -29,7 +34,7 @@ body {
 
 #veil {
   display: none;
-  color: #28a745 !important;
+  color: var(--app-primary) !important;
   position: fixed;
   z-index: 99999;
   height: 2em;
@@ -47,7 +52,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--app-overlay);
   }
 
   /* :not(:required) hides these rules from IE9 and below */
@@ -61,14 +66,16 @@ body {
       border-radius: 0.5em;
 
       @include animation(spinner 2000ms infinite linear);
-      @include shadow(rgba(0, 0, 0, 0.75) 1.5em 0 0 0,
-      rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0,
-      rgba(0, 0, 0, 0.75) 0 1.5em 0 0,
-      rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0,
-      rgba(0, 0, 0, 0.5) -1.5em 0 0 0,
-      rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0,
-      rgba(0, 0, 0, 0.75) 0 -1.5em 0 0,
-      rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0);
+      @include shadow(
+        var(--app-shadow-strong) 1.5em 0 0 0,
+        var(--app-shadow-strong) 1.1em 1.1em 0 0,
+        var(--app-shadow-strong) 0 1.5em 0 0,
+        var(--app-shadow-strong) -1.1em 1.1em 0 0,
+        var(--app-shadow) -1.5em 0 0 0,
+        var(--app-shadow) -1.1em -1.1em 0 0,
+        var(--app-shadow-strong) 0 -1.5em 0 0,
+        var(--app-shadow-strong) 1.1em -1.1em 0 0
+      );
     }
   }
 }
@@ -76,12 +83,12 @@ body {
 /* General
 ============================================================================= */
 
-.sidebar-brand{
+.sidebar-brand {
   border: none !important;
-  padding: 5px!important;
+  padding: 5px !important;
 }
 
-.brand-image{
+.brand-image {
   max-height: 50px !important;
 }
 
@@ -100,13 +107,13 @@ body {
 }
 
 .content-margin-layout {
-  margin: 0px 230px 0px 0px !important;
+  margin: 0 230px 0 0 !important;
   padding: 20px !important;
 }
 
 .admin-content-page {
   padding: 20px;
-  background: #ecf0f5;
+  background: var(--app-bg);
 }
 
 .realms {
@@ -149,7 +156,7 @@ body {
 .block-footer {
   position: fixed !important;
   width: 100% !important;
-  bottom: 0px !important;
+  bottom: 0 !important;
 }
 
 .logo-pos {
@@ -180,7 +187,7 @@ body {
 }
 
 .wicket-modal div.w_content_3 {
-  border: 1px solid #eee;
+  border: 1px solid var(--app-border-subtle);
   border-radius: 20px;
   padding: 5px;
 }
@@ -191,7 +198,7 @@ body {
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 20px 20px 5px 20px;
+  padding: 20px 20px 5px;
 }
 
 .modal-body .tab-content .information {
@@ -217,10 +224,9 @@ a.help {
   span {
     position: absolute;
     width: 19em;
-    color: #000000;
-    background: whitesmoke;
-    visibility: hidden;
-    border-radius: 0px;
+    color: var(--app-tooltip-text);
+    background: var(--app-tooltip-bg);
+    border-radius: 0;
     padding: 3px;
     &:after {
       position: absolute;
@@ -236,36 +242,38 @@ a.help {
     top: 50%;
     margin-right: 4px;
     margin-top: -11px;
-    border: 1px solid black;
+    border: 1px solid var(--app-tooltip-border);
     z-index: 1000000;
     a {
-      color: #463;
+      color: var(--app-text-link);
       text-decoration: none;
     }
   }
 }
 
 a {
-  color: #28a745;
+  color: var(--app-text-link);
   text-decoration: none;
 }
 
 .nav-link {
-  color: #28a745;
+  color: var(--app-text-link);
+
   &:hover, &:active, &:focus {
-    color: #146c43;
+    color: var(--app-text-link-hover);
   }
 }
 
-.breadcrumb-item>a {
-  color: #28a745;
+.breadcrumb-item > a {
+  color: var(--app-text-link);
+
   &:hover, &:active, &:focus {
-    color: #146c43!important;
+    color: var(--app-text-link-hover) !important;
   }
 }
 
 a:hover, .nav-link:hover {
-  color: #146c43;
+  color: var(--app-text-link-hover);
 }
 
 .modal-open {
@@ -281,7 +289,7 @@ a:hover, .nav-link:hover {
 }
 
 .modal {
-  background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+  background: transparent;
   z-index: 7000 !important;
 }
 
@@ -296,7 +304,7 @@ a:hover, .nav-link:hover {
   height: 380px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 50px 20px 50px 20px;
+  padding: 50px 20px;
 }
 
 .wizard-view .wizard-form {
@@ -321,7 +329,7 @@ a:hover, .nav-link:hover {
     height: 95%;
     position: relative;
   }
-  padding: 0px 5px;
+  padding: 0 5px;
 }
 
 .wizard-form {
@@ -332,7 +340,7 @@ a:hover, .nav-link:hover {
     height: 440px;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0px;
+    padding: 0;
   }
 }
 
@@ -344,7 +352,7 @@ a:hover, .nav-link:hover {
 }
 
 .wizard-buttons {
-  padding: 10px 0px 5px 0px;
+  padding: 10px 0 5px;
   position: absolute;
   bottom: 4px;
   width: 100%;
@@ -379,18 +387,18 @@ a:hover, .nav-link:hover {
 }
 
 .navbar-light .navbar-nav .nav-link {
-  color: #ffffff;
+  color: var(--app-navbar-text);
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
-  color: #ffffff;
-  background-color: #00000026;
+  color: var(--app-navbar-text);
+  background-color: var(--app-navbar-hover-bg);
 }
 
 span.overridable div.checkbox {
   float: right;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   label div div.toggle-group label {
     padding-left: 7px;
   }
@@ -415,9 +423,9 @@ section#notifications .modal-lg {
 }
 
 .details-footer {
-  margin: 30px 0px 0px 0px;
-  border: 1px solid #EEE;
-  color: #888;
+  margin: 30px 0 0;
+  border: 1px solid var(--app-border-subtle);
+  color: var(--app-text-secondary);
 }
 
 th.checkGroupColumn {
@@ -431,11 +439,12 @@ td.checkGroupColumn {
 }
 
 .badge-success {
-  background-color: #17a2b8;
+  background-color: var(--app-success);
 }
 
-.text-bg-warning, .text-bg-warning>a {
-  color: #fff!important;
+.text-bg-warning,
+.text-bg-warning > a {
+  color: var(--app-warning-contrast) !important;
 }
 
 .pwstrengthProgress {
@@ -448,17 +457,17 @@ td.checkGroupColumn {
 ============================================================================= */
 
 .information {
-  margin: 30px 0px 0px 0px;
-  border: 1px solid #EEE;
+  margin: 30px 0 0;
+  border: 1px solid var(--app-border-subtle);
   font-size: 10px;
-  color: #888;
+  color: var(--app-text-secondary);
   display: inline-table;
   width: 100%;
   clear: both;
   float: none;
   position: absolute;
   bottom: -90px;
-  left: 0px;
+  left: 0;
   padding: 2px;
 }
 .infolabel {
@@ -466,7 +475,7 @@ td.checkGroupColumn {
   float: left;
   width: 150px;
   font-weight: bold;
-  color: #888;
+  color: var(--app-text-secondary);
 }
 .infoleft {
   float: left;
@@ -508,7 +517,7 @@ td.checkGroupColumn {
     display: none !important;
   }
   .box {
-    border-top: 0px !important;
+    border-top: 0 !important;
   }
 }
 
@@ -519,13 +528,12 @@ td.checkGroupColumn {
 }
 
 .wicket-aa-container {
-  border-color: #eee;
-  box-shadow: none;
+  border-color: var(--app-border-subtle);
   background-clip: padding-box;
-  background-color: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: var(--app-dropdown-bg);
+  border: 1px solid var(--app-dropdown-border);
   border-radius: 4px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+  box-shadow: 0 6px 12px var(--app-shadow);
   float: left;
   font-size: 14px;
   min-width: 160px;
@@ -542,8 +550,8 @@ td.checkGroupColumn {
 ============================================================================= */
 
 #startAt {
-  background-color: rgba(98, 98, 98, 0.98) !important;
-  color: #CCC;
+  background-color: var(--app-surface-secondary) !important;
+  color: var(--app-text) !important;
   right: 5px !important;
   top: 100px !important;
   min-width: 450px;
@@ -556,9 +564,9 @@ td.checkGroupColumn {
 #startAtContainer {
   padding: 15px;
   input {
-    background-color: rgba(200, 200, 200, 0.6) !important;
+    background-color: var(--app-input-bg) !important;
   }
-  .input-group{
+  .input-group {
     justify-content: space-between;
   }
 }
@@ -572,8 +580,18 @@ td.checkGroupColumn {
 }
 
 .k-notification-error.k-group {
-  background: rgba(100%, 0%, 0%, 0.7);
-  color: red;
+  background: var(--app-notification-error-bg);
+  color: var(--app-notification-error-text);
+}
+
+.k-notification {
+  padding: 0 !important;
+  border: none !important;
+  margin-top: 5px;
+}
+
+.alert {
+  width: 100%;
 }
 
 .errorNotification {
@@ -589,14 +607,14 @@ td.checkGroupColumn {
   }
   #message {
     float: right;
-    padding-left: 0px;
+    padding-left: 0;
     width: 85%;
   }
 }
 
 .k-notification-success.k-group {
-  background: rgba(0%, 60%, 0%, 0.7);
-  color: #fff;
+  background: var(--app-notification-success-bg);
+  color: var(--app-notification-success-text);
 }
 
 .successNotification {
@@ -612,7 +630,7 @@ td.checkGroupColumn {
   }
   #message {
     float: right;
-    padding-left: 0px;
+    padding-left: 0;
     width: 85%;
   }
 }
@@ -621,16 +639,16 @@ td.checkGroupColumn {
 ============================================================================= */
 
 .actions > li > a {
-  padding: 5px 0px 5px 0px !important;
+  padding: 5px 0 !important;
 }
 
 div.listview-actions a {
   float: left;
-  padding: 5px 0px 5px 0px !important;
+  padding: 5px 0 !important;
 }
 
 .action a.btn {
-  padding: 0px;
+  padding: 0;
 }
 
 .btn-circle {
@@ -641,7 +659,7 @@ div.listview-actions a {
   padding: 6px 0;
   text-align: center;
   width: 30px;
-  color: white !important;
+  color: var(--app-primary-contrast) !important;
 }
 
 .circular-actions a {
@@ -653,30 +671,30 @@ div.listview-actions a {
   text-align: center;
   width: 30px;
   &.btn {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white !important;
+    background-color: var(--app-primary);
+    border-color: var(--app-primary);
+    color: var(--app-primary-contrast) !important;
   }
 }
 
 .btn-circle i, .circular-actions a i {
-  margin: 0px;
+  margin: 0;
 }
 
 .multipanel-btn-minus {
-  padding: 0px 0px 0px 6px;
+  padding: 0 0 0 6px;
   border: 0 none !important;
 }
 
 .multipanel-btn-plus {
-  padding: 15px 0px 8px 6px;
+  padding: 15px 0 8px 6px;
   border: 0 none !important;
 }
 
 .multipanel-box {
   padding: 5px;
   display: inline-table;
-  margin: 0px;
+  margin: 0;
 }
 
 /* Datatable
@@ -686,16 +704,17 @@ div.listview-actions a {
   clear: both;
 }
 
-.table.dataTable tbody tr.active td, .table.dataTable tbody tr.active th {
-  background-color: #17a2b8;
-  color: white;
+.table.dataTable tbody tr.active td,
+.table.dataTable tbody tr.active th {
+  background-color: var(--app-table-active-bg);
+  color: var(--app-table-active-text);
 }
 
 /* Result page
 ============================================================================= */
 
 .attribute {
-  padding: 0px 4px 0px 4px;
+  padding: 0 4px;
 }
 
 
@@ -712,7 +731,7 @@ div.listview-actions a {
 .left.page-header,
 .right.page-heade {
   padding-bottom: 9px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--app-border);
   width: 50%;
 }
 
@@ -720,35 +739,35 @@ div.listview-actions a {
   float: left;
 }
 
-.right.page-header{
+.right.page-header {
   float: right;
 }
 
 .page-header {
   padding-bottom: 9px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .page-link {
-  color: #28a745;
+  color: var(--app-text-link);
   &:hover, &:active, &:focus {
-    color: #28a745!important;
+    color: var(--app-text-link-hover) !important;
   }
 }
 
-.active>.page-link,.page-link.active {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: #fff;
+.active > .page-link, .page-link.active {
+  background-color: var(--app-primary);
+  border-color: var(--app-primary);
+  color: var(--app-primary-contrast);
   &:hover, &:active, &:focus {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: #fff;
+    background-color: var(--app-primary);
+    border-color: var(--app-primary);
+    color: var(--app-primary-contrast);
   }
 }
 
 span.highlight .attribute label {
-  color: red;
+  color: var(--app-highlight);
 }
 
 .navbar-nav > .user-menu > .dropdown-menu > li.user-header {
@@ -758,38 +777,38 @@ span.highlight .attribute label {
 }
 
 .nav-tabs-custom > .nav-tabs > li.active {
-  border-top-color: #d2d6de !important;
+  border-top-color: var(--app-border-strong) !important;
 }
 
 .code-deletion {
-  background-color: #ffdddd;
-  border-color: #f1c0c0;
+  background-color: var(--app-code-deletion-bg);
+  border-color: var(--app-code-deletion-border);
 }
 
 .code-addition {
-  background-color: #dbffdb;
-  border-color: #c1e9c1;
+  background-color: var(--app-code-addition-bg);
+  border-color: var(--app-code-addition-border);
 }
 
 span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content {
-  width:20%;
+  width: 20%;
   display: block;
 }
 
-form.bs-example.bs-example-form  span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content{
-  width:40%;
+form.bs-example.bs-example-form span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content {
+  width: 40%;
 }
 
-div.panel-collapse.collapse.show span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content{
+div.panel-collapse.collapse.show span.ui-spinner.ui-corner-all.ui-widget.ui-widget-content {
   width: 20%;
 }
 
 .ui-spinner-input:focus {
-  outline:0;
+  outline: 0;
 }
 
-.ui-spinner-input{
-  width:20%;
+.ui-spinner-input {
+  width: 20%;
 }
 
 /* AjaxDateTimePicker
@@ -804,10 +823,10 @@ div.panel-collapse.collapse.show span.ui-spinner.ui-corner-all.ui-widget.ui-widg
 }
 
 .k-datepicker input {
-  width: 0px !important;
+  width: 0 !important;
 }
 .k-timepicker input {
-  width: 0px !important;
+  width: 0 !important;
 }
 
 /* Parameters Details
@@ -831,7 +850,7 @@ li.todoitem a {
 }
 
 .popover-content {
-  color: black;
+  color: var(--app-popover-text);
 }
 
 .form-palette {
@@ -840,11 +859,7 @@ li.todoitem a {
   margin-left: 10px;
 }
 
-i.fas.fa-backward {
-  font-size: 80%;
-}
-
-i.fas.fa-forward{
+i.fas.fa-backward, i.fas.fa-forward {
   font-size: 80%;
 }
 
@@ -860,7 +875,7 @@ div#userFilter {
   }
   #warning {
     margin: 1px 0 5px 8px;
-    color: #e00000;
+    color: var(--app-danger-text);
     font-size: 9px;
   }
   #check {
@@ -885,7 +900,7 @@ div#userFilter {
         position: absolute;
         margin-left: 10px;
         text-align: center;
-        top: 0px;
+        top: 0;
       }
       i {
         position: absolute;
@@ -900,17 +915,17 @@ div#userFilter {
   padding-right: 20px;
   .dropdown-menu > li {
     &.header {
-      background-color: #ffffff;
-      border-bottom: 1px solid #f4f4f4;
+      background-color: var(--app-dropdown-bg);
+      border-bottom: 1px solid var(--app-border-subtle);
       border-radius: 4px 4px 0 0;
-      color: #444444;
+      color: var(--app-dropdown-text);
       font-size: 14px;
       padding: 7px 10px;
     }
     &.footer > a {
-      background-color: #fff;
+      background-color: var(--app-dropdown-bg);
       border-radius: 0 0 4px 4px;
-      color: #444 !important;
+      color: var(--app-dropdown-text) !important;
       font-size: 12px;
       padding: 7px 10px;
       text-align: center;
@@ -926,13 +941,13 @@ div#userFilter {
 ============================================================================= */
 
 .transformersTogglePanel {
-  background-color: rgba(140, 140, 140, 0.99) !important;
+  background-color: var(--app-surface-secondary) !important;
   width: 1000px !important;
 }
 .transformersContainer {
   padding: 15px;
   input {
-    background-color: rgba(200, 200, 200, 0.6) !important;
+    background-color: var(--app-input-bg) !important;
   }
   #footer {
     clear: both;
@@ -947,11 +962,11 @@ div#userFilter {
 }
 .itemTransformersContainer #body {
   select {
-    border: 1px solid #ccc !important;
-    background: rgba(240, 240, 240, 0.95) !important;
+    border: 1px solid var(--app-input-border) !important;
+    background: var(--app-input-bg) !important;
   }
   a {
-    color: #ccc !important;
+    color: var(--app-text-secondary) !important;
     cursor: pointer !important;
   }
 }
@@ -960,12 +975,12 @@ div#userFilter {
 }
 
 /* FIREFOX FIX OF UGLY SELECT BOXES */
-@supports (-moz-appearance:none) {
+@supports (-moz-appearance: none) {
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background: url(../img/dropdown.svg) right / 10px no-repeat #fff;
+    background: url(../img/dropdown.svg) right / 10px no-repeat var(--app-input-bg);
     background-position: calc(100% - 5px) center;
     padding-right: 10px;
   }
@@ -995,7 +1010,7 @@ div#userFilter {
 
 .selectedEvents {
   display: inline-block;
-  margin: 10px 10px 0 10px;
+  margin: 10px;
   overflow-y: auto;
 }
 
@@ -1043,7 +1058,7 @@ fieldset.input-group {
 
 .modal-content > div {
   &.modal-header, &.modal-footer {
-    background-color: #f0f0f0;
+    background: var(--app-bg);
     height: 64px;
   }
 }
@@ -1058,24 +1073,23 @@ fieldset.input-group {
 }
 
 .background-footer {
-  background-color: #f0f0f0;
   display: block;
   height: 64px;
   margin-bottom: -15px;
   margin-left: -30px;
   margin-top: -25px;
-  width: 1300px;
+  width: 1215px;
+  border-radius: 0 0 8px 8px;
+  background: var(--app-bg);
 }
 
 .logviewer-btn {
-  padding: 0px 16px 20px 0px;
+  padding: 0 16px 20px 0;
   float: right;
 }
 
-#editUserChangePassword {
-  > label {
-    color: #e00000;
-  }
+#editUserChangePassword > label {
+  color: var(--app-danger-text);
 }
 div > li {
   list-style-type: none;
@@ -1098,21 +1112,14 @@ th ul.menu {
   float: right;
 }
 
-th ul.menu li {
-  display: inline-block;
-}
-
+th ul.menu li,
 #inline-actions ul.menu li,
 #tablehandling ul.menu li,
 .listview-actions ul.menu li {
   display: inline-block;
 }
 
-th ul.menu li a {
-  margin-left: 5px;
-  display: inline-block !important;
-}
-
+th ul.menu li a,
 #inline-actions ul.menu li a,
 .listview-actions ul.menu li a,
 #tablehandling ul.menu li a {
@@ -1136,13 +1143,13 @@ ul.menu {
 }
 
 .toggle-menu ul.menu li a {
-  padding: 0px;
+  padding: 0;
   text-align: left;
-  color: white !important;
+  color: var(--app-dark-text) !important;
 }
 
 div#tablehandling ul.menu li a {
-  padding: 0px !important;
+  padding: 0 !important;
 }
 
 .realm-choice #realm-choice-field {
@@ -1151,7 +1158,7 @@ div#tablehandling ul.menu li a {
 }
 
 .realm-choice #realm-choice-folder {
-  color: #28a745;
+  color: var(--app-text-link);
 }
 
 .palette-scrollbar {
@@ -1159,7 +1166,7 @@ div#tablehandling ul.menu li a {
   overflow: scroll;
 }
 
-@-moz-document url-prefix(''){
+@-moz-document url-prefix('') {
   .palette-scrollbar {
     width: auto !important;
   }
@@ -1171,16 +1178,16 @@ h3.card-title {
 }
 
 .card-title {
-  font-weight: bold!important;
+  font-weight: bold !important;
 }
 
 /* Form wrappers
 ============================================================================= */
 
 .custom_content_wrapper {
-  background-color: #ffffff;
+  background-color: var(--app-surface);
   border-radius: 10px;
-  @include shadow(0px 0px 20px 1px rgba(0,0,0,0.75));
+  @include shadow(0 0 20px 1px var(--app-shadow-strong));
 }
 
 /* Utility classes
@@ -1197,7 +1204,7 @@ h3.card-title {
 }
 
 label.btn.btn-warning.btn-xs.active.toggle-off {
-  color: white;
+  color: var(--app-warning-contrast);
 }
 
 div#ownership {
@@ -1209,10 +1216,10 @@ pre {
   padding: 9.5px;
   margin: 0 0 10px;
   line-height: 1.42857143;
-  color: #333;
+  color: var(--app-code-text);
   word-break: break-all;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+  background-color: var(--app-code-bg);
+  border: 1px solid var(--app-code-border);
   border-radius: 4px;
 }
 
@@ -1220,28 +1227,28 @@ pre {
   padding: 6px 12px;
   font-size: 16px;
   font-weight: 400;
-  color: #555;
+  color: var(--app-input-text);
   text-align: center;
-  background-color: #eee;
-  border: 1px solid #ccc;
-  border-radius: 4px!important;
+  background-color: var(--app-input-addon-bg);
+  border: 1px solid var(--app-input-border);
+  border-radius: 4px !important;
 }
 .input-group .input-group-addon {
   height: 38px;
-  border-color: #d2d6de;
-  background-color: #fff;
+  border-color: var(--app-input-border);
+  background-color: var(--app-input-bg);
 }
 
 .multipanel-box {
   padding: 5px;
   display: inline-table;
-  margin: 0px;
+  margin: 0;
   position: relative;
   border-radius: 3px;
-  background: #ffffff;
-  border-top: 3px solid #d2d6de;
+  background: var(--app-card-bg);
+  border-top: 3px solid var(--app-panel-border);
   width: 94%;
-  box-shadow: 0 1px 1px #d2d6de;
+  box-shadow: 0 1px 1px var(--app-shadow);
 }
 
 .multipanel-btn-minus.input-group-addon {
@@ -1249,10 +1256,10 @@ pre {
 }
 
 .multipanel-btn-plus.input-group-addon {
-  background: white;
+  background: var(--app-surface);
   border: none;
   float: right;
-  margin-right:12px;
+  margin-right: 12px;
 }
 
 select.form-select {
@@ -1264,7 +1271,10 @@ select.form-select {
   height: 2.35rem;
 }
 
-.form-select-lg
+.k-input-inner {
+  background: var(--app-bg);
+  color: var(--app-text)
+}
 
 .text-right {
   text-align: right;
@@ -1274,28 +1284,31 @@ select[name=rowsChooser] {
   padding: 0.375rem 0.25rem 0.375rem 0.45rem;
 }
 
-.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
-  color: #28a745;
+.nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.active {
+  color: var(--app-text-link);
 }
 
 .nav-link > a {
-  color: #343a40;
+  color: var(--app-text);
 }
 
 .bg-green {
-  background-color: #28a745;
+  background-color: var(--app-primary);
 }
 
 .bg-red {
-  background-color: #dc3545!important;
+  background-color: var(--app-danger) !important;
 }
 
 .text-white {
-  color: white;
+  color: var(--app-text-inverse);
 }
 
 .elevation-4 {
-  box-shadow: 0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)!important;
+  box-shadow:
+    0 14px 28px var(--app-shadow),
+    0 10px 10px var(--app-shadow) !important;
 }
 
 .bg-body-secondary {
@@ -1303,7 +1316,7 @@ select[name=rowsChooser] {
 }
 
 @media screen and (max-width: 500px) {
-  .realm-choice #realm-choice-field{
+  .realm-choice #realm-choice-field {
     width: 100%;
   }
   .realm-choice {

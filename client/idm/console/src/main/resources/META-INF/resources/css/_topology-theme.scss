@@ -1,0 +1,99 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+:root {
+  /*
+   * Topology
+   */
+  --topology-node-border: rgba(15, 23, 42, 0.14);
+  --topology-node-shadow: 0 10px 28px rgba(2, 6, 23, 0.10);
+  --topology-node-shadow-hover: 0 14px 34px rgba(2, 6, 23, 0.14);
+
+  --topology-root-bg: rgba(22, 163, 74, 0.18);
+  --topology-cs-bg: rgba(14, 165, 233, 0.12);
+  --topology-conn-bg: rgba(139, 92, 246, 0.10);
+  --topology-conn-errored-bg: rgba(244, 63, 94, 0.18);
+  --topology-res-bg: rgba(245, 158, 11, 0.14);
+
+  /*
+   * Topology toolbar
+   */
+  --topology-toolbar-bg: rgba(255, 255, 255, 0.92);
+  --topology-toolbar-bg-hover: rgba(255, 255, 255, 0.98);
+  --topology-toolbar-border: rgba(15, 23, 42, 0.10);
+  --topology-toolbar-fg: rgba(15, 23, 42, 0.78);
+  --topology-toolbar-fg-hover: rgba(15, 23, 42, 0.92);
+  --topology-toolbar-shadow: 0 8px 18px rgba(2, 6, 23, 0.10);
+  --topology-toolbar-shadow-hover: 0 10px 22px rgba(2, 6, 23, 0.14);
+  --topology-focus-ring: rgba(14, 165, 233, 0.25);
+
+  /*
+   * Topology labels
+   */
+  --topology-label-bg: #fff;
+  --topology-label-color: #444;
+  --topology-label-border: #808080;
+  --topology-label-hover-bg: #5c96bc;
+  --topology-label-hover-color: #fff;
+  --topology-label-hover-border: #fff;
+
+  /*
+   * Topology tooltip
+   */
+  --topology-tooltip-bg: #eee;
+  --topology-tooltip-color: #000;
+  --topology-tooltip-border: #bbb;
+}
+
+[data-bs-theme="dark"] {
+  /*
+   * Application background: #2B3035
+   *
+   * Surfaces are deliberately lighter to maintain contrast.
+   */
+  --topology-node-border: rgba(255, 255, 255, 0.22);
+  --topology-node-shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+  --topology-node-shadow-hover: 0 14px 34px rgba(0, 0, 0, 0.52);
+
+  --topology-root-bg: rgba(55, 210, 115, 0.30);
+  --topology-cs-bg: rgba(70, 185, 235, 0.27);
+  --topology-conn-bg: rgba(160, 120, 245, 0.25);
+  --topology-conn-errored-bg: rgba(245, 90, 105, 0.36);
+  --topology-res-bg: rgba(255, 195, 65, 0.30);
+
+  --topology-toolbar-bg: rgba(65, 71, 77, 0.96);
+  --topology-toolbar-bg-hover: rgba(78, 85, 92, 0.98);
+  --topology-toolbar-border: rgba(255, 255, 255, 0.18);
+  --topology-toolbar-fg: rgba(245, 247, 249, 0.90);
+  --topology-toolbar-fg-hover: #fff;
+  --topology-toolbar-shadow: 0 8px 18px rgba(0, 0, 0, 0.40);
+  --topology-toolbar-shadow-hover: 0 10px 22px rgba(0, 0, 0, 0.52);
+  --topology-focus-ring: rgba(80, 190, 240, 0.45);
+
+  --topology-label-bg: #414950;
+  --topology-label-color: #f5f5f5;
+  --topology-label-border: #9aa3ab;
+  --topology-label-hover-bg: #5c9bc3;
+  --topology-label-hover-color: #fff;
+  --topology-label-hover-border: #d9e2e8;
+
+  --topology-tooltip-bg: #4a525a;
+  --topology-tooltip-color: #fff;
+  --topology-tooltip-border: #aeb7bf;
+}
