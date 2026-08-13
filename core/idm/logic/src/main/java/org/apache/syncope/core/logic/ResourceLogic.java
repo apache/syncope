@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -75,8 +74,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     protected final ResourceDataBinder binder;
 
-    protected final ConnInstanceDataBinder connInstanceDataBinder;
-
     protected final OutboundMatcher outboundMatcher;
 
     protected final MappingManager mappingManager;
@@ -90,7 +87,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
             final ResourceDataBinder binder,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final OutboundMatcher outboundMatcher,
             final MappingManager mappingManager,
             final ConnectorManager connectorManager,
@@ -100,7 +96,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         this.anyTypeDAO = anyTypeDAO;
         this.connInstanceDAO = connInstanceDAO;
         this.binder = binder;
-        this.connInstanceDataBinder = connInstanceDataBinder;
         this.outboundMatcher = outboundMatcher;
         this.mappingManager = mappingManager;
         this.connectorManager = connectorManager;
@@ -436,7 +431,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
-                        connInstanceDataBinder.getConnInstanceTO(connInstance),
+                        connInstance,
                         resourceTO.getConfOverride(),
                         resourceTO.getCapabilitiesOverride())).
                 test();

@@ -328,18 +328,12 @@ public class ProvisioningContext {
     public ConnectorManager connectorManager(
             final EntityFactory entityFactory,
             final ConnIdBundleManager connIdBundleManager,
-            final RealmDAO realmDAO,
-            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final AsyncConnectorFacade asyncConnectorFacade) {
 
         return new DefaultConnectorManager(
                 connIdBundleManager,
-                realmDAO,
-                realmSearchDAO,
                 resourceDAO,
-                connInstanceDataBinder,
                 asyncConnectorFacade,
                 entityFactory);
     }

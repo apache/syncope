@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -41,7 +40,7 @@ public class DummyConnectorManager implements ConnectorManager {
 
     @Override
     public ConnInstance buildConnInstanceOverride(
-            final ConnInstanceTO connInstance,
+            final ConnInstance connInstance,
             final Optional<List<ConnConfProperty>> confOverride,
             final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
 

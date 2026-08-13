@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -37,10 +35,9 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
-import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +66,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
+    public ConnInstance create(final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceTO.getLocation() == null) {
@@ -108,7 +105,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
 
         Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
-        connInstance.setConf(connInstanceTO.getConf());
+
+        connInstance.setConf(ConnInstanceDataBinder.newConf(List.of(), connInstanceTO.getConf()));
+
         Optional.ofNullable(connInstanceTO.getPoolConf()).
                 ifPresent(conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)));
 
@@ -141,40 +140,17 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(connInstance::setVersion);
         Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(connInstance::setConnectorName);
         Optional.ofNullable(connInstanceTO.getDisplayName()).ifPresent(connInstance::setDisplayName);
-        Optional.ofNullable(connInstanceTO.getConf()).
-                filter(Predicate.not(Collection::isEmpty)).
-                ifPresent(connInstance::setConf);
         Optional.ofNullable(connInstanceTO.getConnRequestTimeout()).ifPresent(connInstance::setConnRequestTimeout);
+
+        if (!connInstanceTO.getConf().isEmpty()) {
+            connInstance.setConf(ConnInstanceDataBinder.newConf(connInstance.getConf(), connInstanceTO.getConf()));
+        }
+
         Optional.ofNullable(connInstanceTO.getPoolConf()).ifPresentOrElse(
                 conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)),
                 () -> connInstance.setPoolConf(null));
 
         return connInstance;
-    }
-
-    @Override
-    public ConnConfPropSchema build(final ConfigurationProperty property) {
-        ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
-
-        connConfPropSchema.setName(property.getName());
-        connConfPropSchema.setDisplayName(property.getDisplayName(property.getName()));
-        connConfPropSchema.setHelpMessage(property.getHelpMessage(property.getName()));
-        connConfPropSchema.setRequired(property.isRequired());
-        connConfPropSchema.setType(property.getType().getName());
-        connConfPropSchema.setOrder(((ConfigurationPropertyImpl) property).getOrder());
-        connConfPropSchema.setConfidential(property.isConfidential());
-
-        if (property.getValue() != null) {
-            if (property.getValue().getClass().isArray()) {
-                connConfPropSchema.getDefaultValues().addAll(List.of((Object[]) property.getValue()));
-            } else if (property.getValue() instanceof Collection<?> collection) {
-                connConfPropSchema.getDefaultValues().addAll(collection);
-            } else {
-                connConfPropSchema.getDefaultValues().add(property.getValue());
-            }
-        }
-
-        return connConfPropSchema;
     }
 
     @Override
@@ -198,7 +174,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             // refresh stored properties in the given connInstance with direct information from underlying connector
             ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
             properties.getPropertyNames().forEach(propName -> {
-                ConnConfPropSchema schema = build(properties.getProperty(propName));
+                ConnConfPropSchema schema = ConnInstanceDataBinder.build(properties.getProperty(propName));
 
                 ConnConfProperty property = connInstanceTO.getConf(propName).
                         orElseGet(() -> {
@@ -216,6 +192,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             connInstanceTO.setErrored(true);
             connInstanceTO.setLocation(connInstance.getLocation());
         }
+
+        // do not export confidential property values
+        connInstanceTO.getConf().stream().
+                filter(property -> property.getSchema().isConfidential()
+                || GuardedString.class.getName().equals(property.getSchema().getType())).
+                forEach(property -> property.getValues().clear());
 
         connInstanceTO.setPoolConf(connInstance.getPoolConf());
 

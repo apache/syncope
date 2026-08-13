@@ -34,7 +34,6 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -107,7 +106,7 @@ public class ConnectorFacadeProxy implements Connector {
         // set connector configuration according to conninstance's
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         connInstance.getConf().stream().
-                filter(property -> !CollectionUtil.isEmpty(property.getValues())).
+                filter(property -> !property.getValues().isEmpty()).
                 forEach(property -> properties.setPropertyValue(
                 property.getSchema().getName(),
                 getPropertyValue(property.getSchema().getType(), property.getValues())));
@@ -521,9 +520,15 @@ public class ConnectorFacadeProxy implements Connector {
             Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
             if (GuardedString.class.equals(propertySchemaClass)) {
-                value = new GuardedString(values.getFirst().toString().toCharArray());
+                if (values.getFirst() instanceof GuardedString) {
+                    value = values.getFirst();
+                } else {
+                    value = new GuardedString(values.getFirst().toString().toCharArray());
+                }
             } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
-                value = new GuardedByteArray((byte[]) values.getFirst());
+                if (values.getFirst() instanceof byte[] byteArray) {
+                    value = new GuardedByteArray(byteArray);
+                }
             } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
                 value = values.getFirst() == null || values.getFirst().toString().isEmpty()
                         ? null : values.getFirst().toString().charAt(0);
