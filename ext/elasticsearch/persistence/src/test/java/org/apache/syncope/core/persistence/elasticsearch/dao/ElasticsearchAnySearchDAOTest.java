@@ -119,23 +119,23 @@ public class ElasticsearchAnySearchDAOTest {
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
-        ElasticsearchAnySearchDAO.AdminRealmsFilter filter =
+        ElasticsearchAnySearchDAO.AdminRealmsFilter<Optional<Query>> filter =
                 searchDAO.getAdminRealmsFilter(root, true, adminRealms);
 
         assertThat(new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().caseInsensitive(false).
                         field("realm").value("rootKey").caseInsensitive(false).build()).
                         build()).build()).build()).
-                usingRecursiveComparison().isEqualTo(filter.query().get());
+                usingRecursiveComparison().isEqualTo(filter.filter().get());
         assertEquals(Set.of(), filter.managed());
     }
 
     @Test
     public void getAdminRealmsFilter4manager() {
         Set<String> adminRealms = Set.of(new RealmUtils.ManagerRealm("/any", AnyTypeKind.GROUP, "groupKey").output());
-        ElasticsearchAnySearchDAO.AdminRealmsFilter filter =
+        ElasticsearchAnySearchDAO.AdminRealmsFilter<Optional<Query>> filter =
                 searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms);
-        assertFalse(filter.query().isPresent());
+        assertFalse(filter.filter().isPresent());
         assertEquals(Set.of(Pair.of(AnyTypeKind.GROUP, "groupKey")), filter.managed());
     }
 

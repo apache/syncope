@@ -20,12 +20,16 @@ package org.apache.syncope.core.persistence.common.dao;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -44,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +58,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractSearchDAO implements AnySearchDAO {
+
+    public record AdminRealmsFilter<T>(T filter, Set<Pair<AnyTypeKind, String>> managed) {
+
+    }
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
@@ -124,6 +133,37 @@ public abstract class AbstractAnySearchDAO extends AbstractSearchDAO implements 
         LOG.debug("Generated search {} conditions: {}", anyTypeKind, conditions);
 
         return conditions.isEmpty() ? List.of() : search(SearchCond.and(conditions), anyTypeKind);
+    }
+
+    protected <T> AdminRealmsFilter<T> processRealms(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final Function<Set<String>, T> filterBuilder) {
+
+        Set<String> realmKeys = new HashSet<>();
+        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
+
+        adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
+                realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
+                () -> {
+                    Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                        SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                        noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                        return noRealm;
+                    });
+
+                    if (recursive) {
+                        realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                                stream().map(Realm::getKey).toList());
+                    } else {
+                        if (RealmUtils.subtree(realm.getFullPath(), base.getFullPath())) {
+                            realmKeys.add(realm.getKey());
+                        }
+                    }
+                }));
+
+        return new AdminRealmsFilter<>(filterBuilder.apply(realmKeys), managed);
     }
 
     protected abstract long doCount(

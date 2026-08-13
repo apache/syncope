@@ -20,18 +20,14 @@ package org.apache.syncope.core.persistence.opensearch.dao;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -58,7 +54,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
-import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
@@ -85,10 +80,6 @@ import org.springframework.util.CollectionUtils;
  * Search engine implementation for users, groups and any objects, based on OpenSearch.
  */
 public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
-
-    protected record AdminRealmsFilter(Optional<Query> query, Set<Pair<AnyTypeKind, String>> managed) {
-
-    }
 
     protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 
@@ -122,44 +113,22 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
 
-    protected AdminRealmsFilter getAdminRealmsFilter(
+    protected AdminRealmsFilter<Optional<Query>> getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms) {
 
-        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
-        List<Query> queries = new ArrayList<>();
-
-        if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
-                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
-                    () -> {
-                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
-                            SyncopeClientException noRealm =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                            return noRealm;
-                        });
-
-                        realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
-                                stream().map(Realm::getKey).forEach(descendant -> queries.add(
-                                new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(FieldValue.of(descendant)).caseInsensitive(false).build()).
-                                        build()));
-                    }));
-        } else {
-            if (RealmUtils.SubtreePredicate.of(adminRealms).test(base.getFullPath())) {
-                queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(FieldValue.of(base.getKey())).caseInsensitive(false).build()).
-                        build());
+        return processRealms(base, recursive, adminRealms, realmKeys -> {
+            if (realmKeys.isEmpty()) {
+                return Optional.empty();
             }
-        }
 
-        return new AdminRealmsFilter(
-                managed.isEmpty()
-                ? Optional.of(new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build())
-                : Optional.empty(),
-                managed);
+            List<Query> queries = realmKeys.stream().
+                    map(realm -> new Query.Builder().term(QueryBuilders.term().
+                    field("realm").value(FieldValue.of(realm)).caseInsensitive(false).build()).
+                    build()).toList();
+            return Optional.of(new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build());
+        });
     }
 
     protected Query getQuery(
@@ -183,13 +152,13 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                         build();
             }
         } else {
-            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms);
+            AdminRealmsFilter<Optional<Query>> filter = getAdminRealmsFilter(base, recursive, adminRealms);
             query = getQuery(buildEffectiveCond(cond, filter.managed(), kind), kind);
 
-            if (filter.query().isPresent()) {
+            if (filter.filter().isPresent()) {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
-                                filter(filter.query().get()).
+                                filter(filter.filter().get()).
                                 filter(query).build()).
                         build();
             }
