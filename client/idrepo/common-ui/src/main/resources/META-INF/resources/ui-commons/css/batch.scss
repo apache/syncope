@@ -16,9 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+@import 'theme';
+
 .batch {
   display: inline-table;
 }
+
 .batchCell {
   display: table-cell;
   vertical-align: middle;
@@ -36,13 +40,13 @@ div#selectedObjects {
   table {
     border-collapse: collapse;
     td, th {
-      border: 1px solid #eee;
-      padding: .5em 10px;
+      border: 1px solid var(--app-border-subtle);
+      padding: 0.5em 10px;
     }
   }
   .circular-actions {
     padding: 3px;
-    margin: 10px 0px 5px 0px;
+    margin: 10px 0 5px 0;
   }
 }
 
