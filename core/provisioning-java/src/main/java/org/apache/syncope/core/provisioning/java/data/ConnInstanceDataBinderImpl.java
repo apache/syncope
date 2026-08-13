@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,10 +35,9 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConfigurationProperties;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
-import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +66,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance getConnInstance(final ConnInstanceTO connInstanceTO) {
+    public ConnInstance create(final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         if (connInstanceTO.getLocation() == null) {
@@ -107,7 +105,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
 
         Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
-        connInstance.getConf().addAll(connInstanceTO.getConf());
+
+        connInstance.getConf().addAll(ConnInstanceDataBinder.newConf(List.of(), connInstanceTO.getConf()));
+
         Optional.ofNullable(connInstanceTO.getPoolConf()).
                 ifPresent(conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)));
 
@@ -129,50 +129,31 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         Optional.ofNullable(connInstanceTO.getAdminRealm()).
                 ifPresent(r -> connInstance.setAdminRealm(realmSearchDAO.findByFullPath(r).
-                orElseThrow(() -> {
-                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                    sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
-                    return sce;
-                })));
+                        orElseThrow(() -> {
+                            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                            sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+                            return sce;
+                        })));
 
         Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
         Optional.ofNullable(connInstanceTO.getBundleName()).ifPresent(connInstance::setBundleName);
         Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(connInstance::setVersion);
         Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(connInstance::setConnectorName);
         Optional.ofNullable(connInstanceTO.getDisplayName()).ifPresent(connInstance::setDisplayName);
-        connInstance.getConf().clear();
-        connInstance.getConf().addAll(connInstanceTO.getConf());
         Optional.ofNullable(connInstanceTO.getConnRequestTimeout()).ifPresent(connInstance::setConnRequestTimeout);
+
+        if (!connInstanceTO.getConf().isEmpty()) {
+            List<ConnConfProperty> newConf =
+                    ConnInstanceDataBinder.newConf(connInstance.getConf(), connInstanceTO.getConf());
+            connInstance.getConf().clear();
+            connInstance.getConf().addAll(newConf);
+        }
+
         Optional.ofNullable(connInstanceTO.getPoolConf()).ifPresentOrElse(
                 conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)),
                 () -> connInstance.setPoolConf(null));
 
         return connInstance;
-    }
-
-    @Override
-    public ConnConfPropSchema build(final ConfigurationProperty property) {
-        ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
-
-        connConfPropSchema.setName(property.getName());
-        connConfPropSchema.setDisplayName(property.getDisplayName(property.getName()));
-        connConfPropSchema.setHelpMessage(property.getHelpMessage(property.getName()));
-        connConfPropSchema.setRequired(property.isRequired());
-        connConfPropSchema.setType(property.getType().getName());
-        connConfPropSchema.setOrder(((ConfigurationPropertyImpl) property).getOrder());
-        connConfPropSchema.setConfidential(property.isConfidential());
-
-        if (property.getValue() != null) {
-            if (property.getValue().getClass().isArray()) {
-                connConfPropSchema.getDefaultValues().addAll(List.of((Object[]) property.getValue()));
-            } else if (property.getValue() instanceof Collection<?> collection) {
-                connConfPropSchema.getDefaultValues().addAll(collection);
-            } else {
-                connConfPropSchema.getDefaultValues().add(property.getValue());
-            }
-        }
-
-        return connConfPropSchema;
     }
 
     @Override
@@ -186,7 +167,20 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstanceTO.setConnRequestTimeout(connInstance.getConnRequestTimeout());
         connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
         connInstanceTO.getCapabilities().addAll(connInstance.getCapabilities());
-        connInstanceTO.getConf().addAll(connInstance.getConf());
+
+        // do not export confidential property values
+        connInstance.getConf().forEach(property -> {
+            if (property.getSchema().isConfidential()
+                    || GuardedString.class.getName().equals(property.getSchema().getType())) {
+
+                ConnConfProperty empty = new ConnConfProperty();
+                empty.setOverridable(property.isOverridable());
+                empty.setSchema(property.getSchema());
+                connInstanceTO.getConf().add(empty);
+            } else {
+                connInstanceTO.getConf().add(property);
+            }
+        });
 
         try {
             Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
@@ -196,7 +190,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             // refresh stored properties in the given connInstance with direct information from underlying connector
             ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
             properties.getPropertyNames().forEach(propName -> {
-                ConnConfPropSchema schema = build(properties.getProperty(propName));
+                ConnConfPropSchema schema = ConnInstanceDataBinder.build(properties.getProperty(propName));
 
                 ConnConfProperty property = connInstanceTO.getConf(propName).
                         orElseGet(() -> {

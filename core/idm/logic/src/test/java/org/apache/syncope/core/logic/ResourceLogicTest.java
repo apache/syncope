@@ -211,7 +211,7 @@ public class ResourceLogicTest extends AbstractTest {
         assertNull(resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().getSyncToken());
 
         ResourceLogic resourceLogic = new ResourceLogic(
-                resourceDAO, anyTypeDAO, null, null, null, null, null, connectorManager, null);
+                resourceDAO, anyTypeDAO, null, null, null, null, connectorManager, null);
 
         resourceLogic.setLatestSyncToken(resource.getKey(), AnyTypeKind.USER.name());
         entityManager.flush();

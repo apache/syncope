@@ -26,7 +26,6 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +41,15 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
 
     protected final ExternalResourceDAO resourceDAO;
 
-    protected final ConnInstanceDataBinder connInstanceDataBinder;
-
     protected final ConnectorManager connectorManager;
 
     public ExternalResourcesHealthIndicator(
             final DomainOps domainOps,
             final ExternalResourceDAO resourceDAO,
-            final ConnInstanceDataBinder connInstanceDataBinder,
             final ConnectorManager connectorManager) {
 
         this.domainOps = domainOps;
         this.resourceDAO = resourceDAO;
-        this.connInstanceDataBinder = connInstanceDataBinder;
         this.connectorManager = connectorManager;
     }
 
@@ -72,7 +67,7 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
                 try {
                     connectorManager.createConnector(
                             connectorManager.buildConnInstanceOverride(
-                                    connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
+                                    resource.getConnector(),
                                     resource.getConfOverride(),
                                     resource.getCapabilitiesOverride())).
                             test();

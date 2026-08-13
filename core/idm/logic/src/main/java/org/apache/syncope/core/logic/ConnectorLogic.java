@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -109,7 +110,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 connInstanceTO.getAdminRealm());
         securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), null);
 
-        return binder.getConnInstanceTO(doSave(binder.getConnInstance(connInstanceTO)));
+        return binder.getConnInstanceTO(doSave(binder.create(connInstanceTO)));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "')")
@@ -164,10 +165,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO read(final String key, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
-        ConnInstance connInstance = connInstanceDAO.authFind(key);
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + '\'');
-        }
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Connector '" + key + '\''));
 
         return binder.getConnInstanceTO(connInstance);
     }
@@ -196,7 +195,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
                     ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
                     connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
-                            map(propName -> binder.build(properties.getProperty(propName))).
+                            map(propName -> ConnInstanceDataBinder.build(properties.getProperty(propName))).
                             toList());
 
                     return connBundleTO;
@@ -209,13 +208,12 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        ConnInstanceTO actual = connInstanceDAO.findById(connInstanceTO.getKey()).
-                map(binder::getConnInstanceTO).
-                orElse(connInstanceTO);
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.authFind(connInstanceTO.getKey())).
+                orElseThrow(() -> new NotFoundException("Connector '" + connInstanceTO.getKey() + '\''));
 
         Set<ObjectClassInfo> objectClassInfo = connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
-                        actual, Optional.of(connInstanceTO.getConf()), Optional.empty())).
+                        connInstance, Optional.of(connInstanceTO.getConf()), Optional.empty())).
                 getObjectClassInfo();
 
         return objectClassInfo.stream().map(info -> {
@@ -245,24 +243,22 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             + "or hasRole('" + IdMEntitlement.CONNECTOR_UPDATE + "'))")
     @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
-        if (connInstanceTO.getAdminRealm() == null) {
-            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-        }
+        Optional.ofNullable(connInstanceTO.getKey()).flatMap(connInstanceDAO::findById).ifPresent(connInstance -> {
+            List<ConnConfProperty> newConf =
+                    ConnInstanceDataBinder.newConf(connInstance.getConf(), connInstanceTO.getConf());
+            connInstanceTO.getConf().clear();
+            connInstanceTO.getConf().addAll(newConf);
+        });
 
-        connectorManager.createConnector(binder.getConnInstance(connInstanceTO)).test();
+        connectorManager.createConnector(binder.create(connInstanceTO)).test();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
-        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
-
         ExternalResource resource = resourceDAO.findById(resourceName).
                 orElseThrow(() -> new NotFoundException("Resource " + resourceName));
-        ConnInstanceTO connInstance = binder.getConnInstanceTO(
-                connectorManager.getConnector(resource).getConnInstance());
-        connInstance.setKey(resource.getConnector().getKey());
-        return connInstance;
+        return read(resource.getConnector().getKey(), lang);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_RELOAD + "')")
