@@ -698,34 +698,31 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> dynRealmKeys = new HashSet<>();
         Set<String> groupOwners = new HashSet<>();
 
-        if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
-                    goRealm -> groupOwners.add(goRealm.groupKey()),
-                    () -> {
-                        if (realmPath.startsWith("/")) {
-                            Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
-                                SyncopeClientException noRealm =
-                                        SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                                noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                                return noRealm;
-                            });
+        adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
+                realm -> groupOwners.add(realm.groupKey()),
+                () -> {
+                    if (realmPath.startsWith("/")) {
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm = SyncopeClientException.build(
+                                    ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
+                        if (recursive) {
                             realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                                     stream().map(Realm::getKey).toList());
                         } else {
-                            dynRealmDAO.findById(realmPath).ifPresentOrElse(
-                                    dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
-                                    () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
+                            if (RealmUtils.subtree(realm.getFullPath(), base.getFullPath())) {
+                                realmKeys.add(realm.getKey());
+                            }
                         }
-                    }));
-            if (!dynRealmKeys.isEmpty()) {
-                realmKeys.clear();
-            }
-        } else {
-            if (RealmUtils.SubtreePredicate.of(adminRealms).test(base.getFullPath())) {
-                realmKeys.add(base.getKey());
-            }
-        }
+                    } else {
+                        dynRealmDAO.findById(realmPath).ifPresentOrElse(
+                                dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
+                                () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
+                    }
+                }));
 
         return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
     }

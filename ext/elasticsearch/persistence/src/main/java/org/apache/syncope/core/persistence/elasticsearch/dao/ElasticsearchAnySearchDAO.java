@@ -42,9 +42,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -134,38 +136,41 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> groupOwners = new HashSet<>();
         List<Query> queries = new ArrayList<>();
 
-        if (recursive) {
-            adminRealms.forEach(realmPath -> {
-                Optional<RealmUtils.GroupOwnerRealm> goRealm = RealmUtils.GroupOwnerRealm.of(realmPath);
-                if (goRealm.isPresent()) {
-                    groupOwners.add(goRealm.get().groupKey());
-                } else if (realmPath.startsWith("/")) {
-                    Realm realm = realmSearchDAO.findByFullPath(realmPath).
-                            orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
+        adminRealms.forEach(realmPath -> RealmUtils.GroupOwnerRealm.of(realmPath).ifPresentOrElse(
+                realm -> groupOwners.add(realm.groupKey()),
+                () -> {
+                    if (realmPath.startsWith("/")) {
+                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            SyncopeClientException noRealm = SyncopeClientException.build(
+                                    ClientExceptionType.InvalidRealm);
+                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                            return noRealm;
+                        });
 
-                    realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
-                            stream().map(Realm::getKey).forEach(descendant -> queries.add(
-                            new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(descendant).caseInsensitive(false).build()).
-                                    build()));
-                } else {
-                    dynRealmDAO.findById(realmPath).ifPresentOrElse(
-                            dynRealm -> {
-                                dynRealmKeys.add(dynRealm.getKey());
+                        if (recursive) {
+                            realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                                    stream().map(Realm::getKey).forEach(descendant -> queries.add(
+                                    new Query.Builder().term(QueryBuilders.term().
+                                            field("realm").value(descendant).
+                                            caseInsensitive(false).build()).build()));
+                        } else {
+                            if (RealmUtils.subtree(realm.getFullPath(), base.getFullPath())) {
                                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                                        field("dynRealm").value(dynRealm.getKey()).caseInsensitive(false).build()).
-                                        build());
-                            },
-                            () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
-                }
-            });
-        } else {
-            if (RealmUtils.SubtreePredicate.of(adminRealms).test(base.getFullPath())) {
-                queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(base.getKey()).caseInsensitive(false).build()).
-                        build());
-            }
-        }
+                                        field("realm").value(realm.getKey()).
+                                        caseInsensitive(false).build()).build());
+                            }
+                        }
+                    } else {
+                        dynRealmDAO.findById(realmPath).ifPresentOrElse(
+                                dynRealm -> {
+                                    dynRealmKeys.add(dynRealm.getKey());
+                                    queries.add(new Query.Builder().term(QueryBuilders.term().
+                                            field("dynRealm").value(FieldValue.of(dynRealm.getKey())).
+                                            caseInsensitive(false).build()).build());
+                                },
+                                () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
+                    }
+                }));
 
         return new AdminRealmsFilter(
                 dynRealmKeys.isEmpty() && groupOwners.isEmpty()
