@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+@import 'theme';
+
 .searchBox .col-xs-12 {
-  padding-left: 0px !important;
-  padding-right: 0px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .clause {
@@ -28,17 +31,17 @@
   .operator {
     width: 65px !important;
     .checkbox {
-      margin: 0px !important;
+      margin: 0 !important;
     }
   }
   .field {
     line-height: 30px;
     float: left;
-    padding: 0 3px 0px 0px;
+    padding: 0 3px 0 0;
     display: inline-block !important;
     .toggle{
       &.btn {
-        min-width: 59px
+        min-width: 59px;
       }
     }
   }
@@ -75,13 +78,13 @@
   }
   .action {
     float: left;
-    padding: 0px 7px 0px;
+    padding: 0 7px;
   }
 }
 
 .searchBox {
   .input-group-addon:last-child {
-    border: 1px solid #ccc !important;
+    border: 1px solid var(--app-input-border) !important;
   }
   .input-group {
     margin-top: 1px;
@@ -89,19 +92,19 @@
 }
 
 .custom-autocomplete-box li.selected {
-  background-color: #eee;
+  background-color: var(--app-surface-secondary);
 }
 
 .search-spinner {
   line-height: 23px !important;
 }
 
-.search-spinner span{
+.search-spinner span {
   width: 70% !important;
 }
 
 .placeholder {
   min-width: 60px;
-  background: white !important;
+  background-color: var(--app-input-bg) !important;
   cursor: auto !important;
 }
