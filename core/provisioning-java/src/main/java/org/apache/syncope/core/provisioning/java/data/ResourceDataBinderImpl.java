@@ -342,9 +342,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 },
                 () -> resource.setConfOverride(Optional.empty()));
 
-        resource.setConfOverride(
-                Optional.ofNullable(resourceTO.getConfOverride()).orElseGet(Optional::empty));
-
         resource.setCapabilitiesOverride(
                 Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElseGet(Optional::empty));
 
@@ -604,7 +601,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // do not export confidential property values
         resourceTO.getConfOverride().ifPresent(conf -> conf.stream().
                 filter(property -> property.getSchema().isConfidential()
-                || GuardedString.class.getName().equals(property.getSchema().getType())).
+                        || GuardedString.class.getName().equals(property.getSchema().getType())).
                 forEach(property -> property.getValues().clear()));
 
         resourceTO.setCapabilitiesOverride(resource.getCapabilitiesOverride());
