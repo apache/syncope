@@ -598,6 +598,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 ? null : resource.getProvisionSorter().getKey());
 
         // do not export confidential property values
+        resourceTO.setConfOverride(resource.getConfOverride());
         resourceTO.getConfOverride().ifPresent(conf -> conf.stream().
                 filter(property -> property.getSchema().isConfidential()
                         || GuardedString.class.getName().equals(property.getSchema().getType())).
