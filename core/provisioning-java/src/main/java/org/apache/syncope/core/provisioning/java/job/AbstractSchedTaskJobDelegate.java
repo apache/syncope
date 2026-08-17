@@ -91,8 +91,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
 
     protected boolean manageOperationId;
 
-    protected String executor;
-
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
                 this, AuthContextUtils.getDomain(), JobNamer.getJobName(task), status));
@@ -115,15 +113,13 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                     MDC.put(Job.OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
                     return true;
                 });
-
-        executor = Optional.ofNullable(context.getExecutor()).orElseGet(() -> securityProperties.getAdminUser());
     }
 
     protected TaskExec<SchedTask> initExecution() {
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(taskType).newTaskExec();
         execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
-        execution.setExecutor(executor);
+        execution.setExecutor(AuthContextUtils.getUsername());
 
         return execution;
     }
@@ -144,7 +140,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         task = taskDAO.save(task);
 
         notificationManager.createTasks(
-                executor,
+                AuthContextUtils.getUsername(),
                 OpEvent.CategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
@@ -155,7 +151,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
 
         auditManager.audit(
                 AuthContextUtils.getDomain(),
-                executor,
+                AuthContextUtils.getUsername(),
                 OpEvent.CategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,

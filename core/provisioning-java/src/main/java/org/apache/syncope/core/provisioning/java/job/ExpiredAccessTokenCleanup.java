@@ -31,7 +31,7 @@ public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate<Sche
 
     @Override
     protected String doExecute(final JobExecutionContext context) {
-        if (!context.isDryRun()) {
+        if (!context.dryRun()) {
             int deleted = accessTokenDAO.deleteExpired(OffsetDateTime.now());
             LOG.debug("Successfully deleted {} expired access tokens", deleted);
         }

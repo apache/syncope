@@ -101,8 +101,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
         Set<String> missingFormProperties = task.getFormPropertyDefs().stream().
                 filter(FormPropertyDef::isRequired).
                 map(fpd -> Pair.of(
-                fpd.getName(),
-                macroTaskForm.getProperty(fpd.getName()).map(p -> p.getValue() != null))).
+                        fpd.getName(),
+                        macroTaskForm.getProperty(fpd.getName()).map(p -> p.getValue() != null))).
                 filter(pair -> pair.getRight().isEmpty()).
                 map(Pair::getLeft).
                 collect(Collectors.toSet());
@@ -274,7 +274,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
         } else {
             try {
                 actions = Optional.of(ImplementationManager.build(
-                        context.getDomain(),
+                        context.domain(),
                         task.getMacroActions(),
                         () -> perContextActions.get(task.getMacroActions().getKey()),
                         instance -> perContextActions.put(task.getMacroActions().getKey(), instance)));
@@ -285,19 +285,19 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
 
         StringBuilder output = new StringBuilder();
 
-        SyncopeForm macroTaskForm = (SyncopeForm) context.getData().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
+        SyncopeForm macroTaskForm = (SyncopeForm) context.data().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
         Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
 
         Map<String, Serializable> ctx = new HashMap<>();
 
-        actions.filter(a -> !context.isDryRun()).ifPresent(a -> a.beforeAll(ctx));
+        actions.filter(a -> !context.dryRun()).ifPresent(a -> a.beforeAll(ctx));
 
         List<Pair<Command<CommandArgs>, CommandArgs>> commands = new ArrayList<>();
         for (MacroTaskCommand command : task.getCommands()) {
             Command<CommandArgs> runnable;
             try {
                 runnable = (Command<CommandArgs>) ImplementationManager.build(
-                        context.getDomain(),
+                        context.domain(),
                         command.getCommand(),
                         () -> perContextCommands.get(command.getCommand().getKey()),
                         instance -> perContextCommands.put(command.getCommand().getKey(), instance));
@@ -308,7 +308,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
             CommandArgs args;
             if (command.getArgs() == null) {
                 try {
-                    args = ImplementationManager.emptyArgs(context.getDomain(), command.getCommand());
+                    args = ImplementationManager.emptyArgs(context.domain(), command.getCommand());
                 } catch (Exception e) {
                     throw new JobExecutionException("While getting empty args from " + command.getKey(), e);
                 }
@@ -342,8 +342,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> im
             commands.add(Pair.of(runnable, args));
         }
 
-        run(commands, actions, ctx, output, context.isDryRun());
-        return actions.filter(a -> !context.isDryRun()).map(a -> a.afterAll(ctx, output)).orElse(output).toString();
+        run(commands, actions, ctx, output, context.dryRun());
+        return actions.filter(a -> !context.dryRun()).map(a -> a.afterAll(ctx, output)).orElse(output).toString();
     }
 
     @Override

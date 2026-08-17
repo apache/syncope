@@ -115,7 +115,7 @@ public class SampleReportJobDelegate extends AbstractReportJobDelegate {
             final OutputStream os,
             final JobExecutionContext context) throws JobExecutionException {
 
-        if (!context.isDryRun()) {
+        if (!context.dryRun()) {
             try {
                 switch (report.getMimeType()) {
                     case MediaType.APPLICATION_PDF_VALUE:
@@ -133,7 +133,7 @@ public class SampleReportJobDelegate extends AbstractReportJobDelegate {
             }
         }
 
-        return (context.isDryRun()
+        return (context.dryRun()
                 ? "DRY "
                 : "") + "RUNNING";
     }

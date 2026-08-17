@@ -50,7 +50,7 @@ public class AfterHandlingJob extends Job {
                 AfterHandlingJob.class.getSimpleName() + "_" + SecureRandomUtils.generateRandomUUID(),
                 AuthContextUtils.getWho(),
                 false);
-        context.getData().putAll(jobMap);
+        context.data().putAll(jobMap);
 
         try {
             AfterHandlingJob job = ApplicationContextProvider.getBeanFactory().createBean(AfterHandlingJob.class);
@@ -75,14 +75,14 @@ public class AfterHandlingJob extends Job {
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
         Optional<AfterHandlingEvent> event = Optional.ofNullable(
-                context.getData().get(AfterHandlingEvent.JOBMAP_KEY)).map(AfterHandlingEvent.class::cast);
+                context.data().get(AfterHandlingEvent.JOBMAP_KEY)).map(AfterHandlingEvent.class::cast);
         if (event.isEmpty()) {
             LOG.debug("No event to process, aborting");
             return;
         }
 
         try {
-            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
+            AuthContextUtils.runAsAdmin(context.domain(), () -> {
                 notificationManager.createTasks(event.get());
                 auditManager.audit(event.get());
             });
