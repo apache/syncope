@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -397,12 +398,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> impl
     @Transactional
     @Override
     public ExecTO provisionMembers(final String key, final ProvisionAction action) {
-        Group group = groupDAO.findById(key).orElseThrow(() -> new NotFoundException("Group " + key));
+        Group group = Optional.ofNullable(groupDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Group " + key));
 
         Implementation jobDelegate = implementationDAO.findById(
                 GroupMemberProvisionTaskJobDelegate.class.getSimpleName()).
                 orElseThrow(() -> new NotFoundException(
-                "Implementation " + GroupMemberProvisionTaskJobDelegate.class.getSimpleName()));
+                        "Implementation " + GroupMemberProvisionTaskJobDelegate.class.getSimpleName()));
 
         String name = (action == ProvisionAction.DEPROVISION ? "de" : "")
                 + "provision members of group " + group.getName();

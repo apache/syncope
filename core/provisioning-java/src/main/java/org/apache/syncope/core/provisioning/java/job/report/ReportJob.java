@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -30,6 +31,8 @@ import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.Job;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +57,13 @@ public class ReportJob extends Job {
     private final Map<String, ReportJobDelegate> perContextReportJobDelegates = new ConcurrentHashMap<>();
 
     @Autowired
-    private ImplementationDAO implementationDAO;
+    private DomainHolder<?> domainHolder;
 
     @Autowired
-    private DomainHolder<?> domainHolder;
+    protected ImplementationDAO implementationDAO;
+
+    @Autowired
+    protected AuthDataAccessor authDataAccessor;
 
     private ReportJobDelegate delegate;
 
@@ -69,34 +75,38 @@ public class ReportJob extends Job {
     protected void delegate(final JobExecutionContext context, final String reportKey)
             throws ClassNotFoundException, JobExecutionException {
 
-        String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+        String implKey = (String) context.data().get(JobManager.DELEGATE_IMPLEMENTATION);
         Implementation impl = implementationDAO.findById(implKey).orElse(null);
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
             delegate = ImplementationManager.buildReportJobDelegate(
-                    context.getDomain(),
+                    context.domain(),
                     impl,
                     () -> perContextReportJobDelegates.get(impl.getKey()),
                     instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
-                    orElseThrow(() -> new IllegalArgumentException(
-                    "Could not instantiate " + impl.getBody()));
+                    orElseThrow(() -> new IllegalArgumentException("Could not instantiate " + impl.getBody()));
             delegate.execute(reportKey, context);
         }
     }
 
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
-        if (!domainHolder.getDomains().containsKey(context.getDomain())) {
-            LOG.debug("Domain {} not found, skipping", context.getDomain());
+        if (!domainHolder.getDomains().containsKey(context.domain())) {
+            LOG.debug("Domain {} not found, skipping", context.domain());
             return;
         }
 
-        String reportKey = (String) context.getData().get(JobManager.REPORT_KEY);
+        String reportKey = (String) context.data().get(JobManager.REPORT_KEY);
         try {
-            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
+            Set<SyncopeGrantedAuthority> authorities = AuthContextUtils.callAsAdmin(
+                    context.domain(),
+                    () -> authDataAccessor.getAuthorities(context.executor(), null));
+
+            AuthContextUtils.callAs(context.domain(), context.executor(), authorities, () -> {
                 try {
                     delegate(context, reportKey);
+                    return null;
                 } catch (Exception e) {
                     if (e instanceof RuntimeException re) {
                         throw re;
