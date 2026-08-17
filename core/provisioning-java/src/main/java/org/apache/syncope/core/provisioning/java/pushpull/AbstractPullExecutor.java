@@ -125,7 +125,7 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
         super.init(taskType, taskKey, context);
 
-        provisionSorter = getProvisionSorter(context.getDomain(), task);
+        provisionSorter = getProvisionSorter(context.domain(), task);
 
         latestSyncTokens.clear();
     }

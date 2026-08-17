@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
@@ -71,12 +70,12 @@ public class NotificationJob extends Job {
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
-        String executor = Optional.ofNullable(context.getExecutor()).orElseGet(securityProperties::getAdminUser);
+
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
                 AuthContextUtils.runAsAdmin(domain, () -> {
                     try {
-                        delegate.execute(executor);
+                        delegate.execute(securityProperties.getAdminUser());
                     } catch (Exception e) {
                         LOG.error("While sending out notifications", e);
                         throw new RuntimeException(e);

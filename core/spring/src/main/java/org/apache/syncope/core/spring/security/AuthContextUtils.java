@@ -81,19 +81,20 @@ public final class AuthContextUtils {
     public static Set<SyncopeGrantedAuthority> getAuthorities() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).
                 map(authentication -> authentication.getAuthorities().stream().
-                filter(SyncopeGrantedAuthority.class::isInstance).
-                map(SyncopeGrantedAuthority.class::cast).
-                collect(Collectors.toSet())).
-            orElseGet(Set::of);
+                        filter(SyncopeGrantedAuthority.class::isInstance).
+                        map(SyncopeGrantedAuthority.class::cast).
+                        collect(Collectors.toSet())).
+                orElseGet(Set::of);
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication()).
                 map(authentication -> authentication.getAuthorities().stream().
-                filter(SyncopeGrantedAuthority.class::isInstance).
-                map(SyncopeGrantedAuthority.class::cast).
-                collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms))).
-            orElseGet(Map::of);
+                        filter(SyncopeGrantedAuthority.class::isInstance).
+                        map(SyncopeGrantedAuthority.class::cast).
+                        collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority,
+                                SyncopeGrantedAuthority::getRealms))).
+                orElseGet(Map::of);
     }
 
     public static String getDomain() {
@@ -129,12 +130,9 @@ public final class AuthContextUtils {
     public static <T> T callAs(
             final String domain,
             final String username,
-            final Collection<String> entitlements,
+            final Collection<? extends GrantedAuthority> authorities,
             final Callable<T> callable) {
 
-        List<GrantedAuthority> authorities = entitlements.stream().
-                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
-                collect(Collectors.toList());
         UsernamePasswordAuthenticationToken asAuth = new UsernamePasswordAuthenticationToken(
                 new User(username, PLACEHOLDER_PWD, authorities), PLACEHOLDER_PWD, authorities);
         asAuth.setDetails(new SyncopeAuthenticationDetails(domain, getDelegatedBy().orElse(null)));
@@ -144,10 +142,13 @@ public final class AuthContextUtils {
 
     public static <T> T callAsAdmin(final String domain, final Callable<T> callable) {
         SecurityProperties properties = ApplicationContextProvider.getBeanFactory().getBean(SecurityProperties.class);
+        List<SyncopeGrantedAuthority> authorities = EntitlementsHolder.getInstance().getValues().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                toList();
         return callAs(
                 domain,
                 properties.getAdminUser(),
-                EntitlementsHolder.getInstance().getValues(),
+                authorities,
                 callable);
     }
 

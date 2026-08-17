@@ -111,8 +111,8 @@ public class ReportLogicTest extends AbstractTest {
         assertTrue(report.getExecutions().isEmpty());
 
         JobExecutionContext ctx = mock(JobExecutionContext.class);
-        when(ctx.getExecutor()).thenReturn("test");
-        when(ctx.isDryRun()).thenReturn(false);
+        when(ctx.executor()).thenReturn("test");
+        when(ctx.dryRun()).thenReturn(false);
 
         ReportJobDelegate delegate =
                 ApplicationContextProvider.getBeanFactory().createBean(TestReportJobDelegate.class);

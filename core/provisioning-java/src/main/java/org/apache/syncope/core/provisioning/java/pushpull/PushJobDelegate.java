@@ -58,6 +58,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
@@ -169,9 +170,9 @@ public class PushJobDelegate
                 Optional.ofNullable(task.getResource().getPushPolicy()).
                         map(PushPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getPushActions(context.getDomain(), task.getActions()),
-                executor,
-                context.isDryRun());
+                getPushActions(context.domain(), task.getActions()),
+                AuthContextUtils.getUsername(),
+                context.dryRun());
     }
 
     @Override
@@ -220,7 +221,7 @@ public class PushJobDelegate
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = getProvisionSorter(context.getDomain(), task);
+        ProvisionSorter provisionSorter = getProvisionSorter(context.domain(), task);
 
         for (Provision provision : task.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
@@ -283,7 +284,7 @@ public class PushJobDelegate
 
         setStatus("Push done");
 
-        String result = createReport(profile.getResults(), task.getResource(), context.isDryRun());
+        String result = createReport(profile.getResults(), task.getResource(), context.dryRun());
         LOG.debug("Push result: {}", result);
         return result;
     }
