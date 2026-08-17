@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -46,6 +47,7 @@ import org.apache.syncope.common.lib.types.MfaCheck;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -195,19 +197,24 @@ public class MfaLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     public void dismiss(final String username) {
-        String realm = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                () -> userDAO.findByUsername(username).
-                        orElseThrow(() -> new NotFoundException("User " + username)).
-                        getRealm().getFullPath());
+        Pair<String, String> data = AuthContextUtils.callAsAdmin(
+                AuthContextUtils.getDomain(),
+                () -> {
+                    User user = userDAO.findByUsername(username).
+                            orElseThrow(() -> new NotFoundException("User " + username));
+                    return Pair.of(user.getKey(), user.getRealm().getFullPath());
+                });
 
         Set<String> authRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE), realm);
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE), data.getRight());
 
-        AuthContextUtils.callAs(
+        AuthContextUtils.runAsAdmin(
                 AuthContextUtils.getDomain(),
-                AuthContextUtils.getUsername(),
-                authRealms,
-                () -> userDAO.findKey(username)).orElseThrow(() -> new NotFoundException("User " + username));
+                () -> userDAO.securityChecks(
+                        authRealms,
+                        data.getLeft(),
+                        data.getRight(),
+                        List.of()));
 
         doDismiss(username);
     }

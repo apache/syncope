@@ -44,6 +44,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 
@@ -78,9 +79,9 @@ public class PullJobDelegate
                 Optional.ofNullable(task.getResource().getInboundPolicy()).
                         map(InboundPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getInboundActions(context.getDomain(), task.getActions()),
-                executor,
-                context.isDryRun());
+                getInboundActions(context.domain(), task.getActions()),
+                AuthContextUtils.getUsername(),
+                context.dryRun());
 
         dispatcher = buildDispatcher();
     }
@@ -120,7 +121,7 @@ public class PullJobDelegate
             try {
                 switch (task.getPullMode()) {
                     case INCREMENTAL:
-                        if (!context.isDryRun()) {
+                        if (!context.dryRun()) {
                             setLatestSyncToken(
                                     orgUnit.getObjectClass(),
                                     ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()));
@@ -132,7 +133,7 @@ public class PullJobDelegate
                                 dispatcher,
                                 options);
 
-                        if (!context.isDryRun()) {
+                        if (!context.dryRun()) {
                             orgUnit.setSyncToken(
                                     ConnObjectUtils.toString(latestSyncTokens.get(orgUnit.getObjectClass())));
                             resourceDAO.save(task.getResource());
@@ -142,7 +143,7 @@ public class PullJobDelegate
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(
                                 new ObjectClass(orgUnit.getObjectClass()),
-                                getReconFilterBuilder(context.getDomain(), task),
+                                getReconFilterBuilder(context.domain(), task),
                                 dispatcher,
                                 options);
                         break;
@@ -198,7 +199,7 @@ public class PullJobDelegate
 
                 switch (task.getPullMode()) {
                     case INCREMENTAL:
-                        if (!context.isDryRun()) {
+                        if (!context.dryRun()) {
                             setLatestSyncToken(
                                     provision.getObjectClass(),
                                     ConnObjectUtils.toSyncToken(provision.getSyncToken()));
@@ -210,14 +211,14 @@ public class PullJobDelegate
                                 dispatcher,
                                 options);
 
-                        if (!context.isDryRun()) {
+                        if (!context.dryRun()) {
                             setSyncTokens = true;
                         }
                         break;
 
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(new ObjectClass(provision.getObjectClass()),
-                                getReconFilterBuilder(context.getDomain(), task),
+                                getReconFilterBuilder(context.domain(), task),
                                 dispatcher,
                                 options);
                         break;
@@ -257,14 +258,14 @@ public class PullJobDelegate
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
                     profile.getResults().stream().
                             filter(result -> result.getUidValue() != null && result.getKey() != null
-                            && result.getOperation() == ResourceOperation.CREATE
-                            && result.getAnyType().equals(provision.getAnyType())).
+                                    && result.getOperation() == ResourceOperation.CREATE
+                                    && result.getAnyType().equals(provision.getAnyType())).
                             forEach(result -> anyUtils.addAttr(
-                            validator,
-                            result.getKey(),
-                            plainSchemaDAO.findById(provision.getUidOnCreate()).orElseThrow(
-                                    () -> new NotFoundException("PlainSchema " + provision.getUidOnCreate())),
-                            result.getUidValue()));
+                                    validator,
+                                    result.getKey(),
+                                    plainSchemaDAO.findById(provision.getUidOnCreate()).orElseThrow(
+                                            () -> new NotFoundException("PlainSchema " + provision.getUidOnCreate())),
+                                    result.getUidValue()));
                 } catch (Throwable t) {
                     LOG.error("While setting UID on create", t);
                 }
@@ -287,7 +288,7 @@ public class PullJobDelegate
 
         setStatus("Pull done");
 
-        String result = createReport(profile.getResults(), task.getResource(), context.isDryRun());
+        String result = createReport(profile.getResults(), task.getResource(), context.dryRun());
         LOG.debug("Pull result: {}", result);
         return result;
     }

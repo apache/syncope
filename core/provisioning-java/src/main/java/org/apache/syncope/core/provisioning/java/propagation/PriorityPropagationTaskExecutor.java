@@ -23,12 +23,10 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -51,8 +49,6 @@ import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Sorts the tasks to be executed according to related
@@ -108,19 +104,19 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     protected Callable<TaskExec<PropagationTask>> newPropagationTaskCallable(
             final PropagationTaskInfo taskInfo, final PropagationReporter reporter, final String executor) {
 
-        String domain = AuthContextUtils.getDomain();
-        Set<String> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().
-                map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+        return () -> AuthContextUtils.callAs(
+                AuthContextUtils.getDomain(),
+                executor,
+                AuthContextUtils.getAuthorities(),
+                () -> {
+                    LOG.debug("Execution started for {}", taskInfo);
 
-        return () -> AuthContextUtils.callAs(domain, executor, authorities, () -> {
-            LOG.debug("Execution started for {}", taskInfo);
+                    TaskExec<PropagationTask> execution = this.execute(taskInfo, reporter, executor);
 
-            TaskExec<PropagationTask> execution = this.execute(taskInfo, reporter, executor);
+                    LOG.debug("Execution completed for {} with results {}", taskInfo, execution);
 
-            LOG.debug("Execution completed for {} with results {}", taskInfo, execution);
-
-            return execution;
-        });
+                    return execution;
+                });
     }
 
     protected boolean failed(

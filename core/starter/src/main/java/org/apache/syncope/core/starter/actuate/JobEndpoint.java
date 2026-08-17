@@ -59,9 +59,9 @@ public class JobEndpoint {
             Map<String, Object> job = new HashMap<>();
             jobs.put(k.job(), job);
 
-            job.put("executor", v.job().getContext().getExecutor());
-            job.put("dryRun", v.job().getContext().isDryRun());
-            job.put("context", v.job().getContext().getData());
+            job.put("executor", v.job().getContext().executor());
+            job.put("dryRun", v.job().getContext().dryRun());
+            job.put("context", v.job().getContext().data());
 
             v.instant().ifPresent(f -> job.put("delay (seconds)", f.getDelay(TimeUnit.SECONDS)));
 

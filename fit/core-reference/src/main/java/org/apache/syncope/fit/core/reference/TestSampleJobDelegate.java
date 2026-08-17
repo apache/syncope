@@ -41,11 +41,11 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTas
             }
         }
 
-        LOG.info("TestSampleJob {} running [SchedTask {}]", (context.isDryRun()
+        LOG.info("TestSampleJob {} running [SchedTask {}]", (context.dryRun()
                 ? "dry "
                 : ""), task.getKey());
 
-        return (context.isDryRun()
+        return (context.dryRun()
                 ? "DRY "
                 : "") + "RUNNING";
     }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.Set;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -28,6 +29,8 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +55,9 @@ public class TaskJob extends Job {
     @Autowired
     protected ImplementationDAO implementationDAO;
 
+    @Autowired
+    protected AuthDataAccessor authDataAccessor;
+
     private SchedTaskJobDelegate delegate;
 
     @Override
@@ -62,14 +68,14 @@ public class TaskJob extends Job {
     protected void delegate(final JobExecutionContext context, final String taskKey)
             throws ClassNotFoundException, JobExecutionException {
 
-        String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+        String implKey = (String) context.data().get(JobManager.DELEGATE_IMPLEMENTATION);
         Implementation impl = implementationDAO.findById(implKey).orElse(null);
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
-            delegate = ImplementationManager.build(context.getDomain(), impl);
+            delegate = ImplementationManager.build(context.domain(), impl);
             delegate.execute(
-                    (TaskType) context.getData().get(JobManager.TASK_TYPE),
+                    (TaskType) context.data().get(JobManager.TASK_TYPE),
                     taskKey,
                     context);
         }
@@ -77,16 +83,21 @@ public class TaskJob extends Job {
 
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
-        if (!domainHolder.getDomains().containsKey(context.getDomain())) {
-            LOG.debug("Domain {} not found, skipping", context.getDomain());
+        if (!domainHolder.getDomains().containsKey(context.domain())) {
+            LOG.debug("Domain {} not found, skipping", context.domain());
             return;
         }
 
-        String taskKey = (String) context.getData().get(JobManager.TASK_KEY);
+        String taskKey = (String) context.data().get(JobManager.TASK_KEY);
         try {
-            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
+            Set<SyncopeGrantedAuthority> authorities = AuthContextUtils.callAsAdmin(
+                    context.domain(),
+                    () -> authDataAccessor.getAuthorities(context.executor(), null));
+
+            AuthContextUtils.callAs(context.domain(), context.executor(), authorities, () -> {
                 try {
                     delegate(context, taskKey);
+                    return null;
                 } catch (Exception e) {
                     if (e instanceof RuntimeException re) {
                         throw re;
