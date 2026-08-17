@@ -21,11 +21,16 @@ package org.apache.syncope.core.provisioning.java;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
@@ -49,33 +54,88 @@ public class DefaultAuditManager implements AuditManager {
 
     protected static final String MASKED_VALUE = "<MASKED>";
 
+    protected static void maskSensitive(final List<ConnConfProperty> conf) {
+        conf.stream().filter(property -> property.getSchema().isConfidential()).forEach(property -> {
+            int size = property.getValues().size();
+            property.getValues().clear();
+            for (int i = 0; i < size; i++) {
+                property.getValues().add(MASKED_VALUE);
+            }
+        });
+    }
+
     protected static Object maskSensitive(final Object object) {
-        Object masked;
+        return switch (object) {
+            case UserTO userTO -> {
+                UserTO clone = SerializationUtils.clone(userTO);
+                if (clone.getPassword() != null) {
+                    clone.setPassword(MASKED_VALUE);
+                }
+                clone.getLinkedAccounts().forEach(linkedAccount -> {
+                    if (linkedAccount.getPassword() != null) {
+                        linkedAccount.setPassword(MASKED_VALUE);
+                    }
+                });
+                yield clone;
+            }
 
-        if (object instanceof UserTO userTO) {
-            masked = SerializationUtils.clone(userTO);
-            if (((UserTO) masked).getPassword() != null) {
-                ((UserTO) masked).setPassword(MASKED_VALUE);
+            case UserCR userCR -> {
+                UserCR clone = SerializationUtils.clone(userCR);
+                if (clone.getPassword() != null) {
+                    clone.setPassword(MASKED_VALUE);
+                }
+                if (clone.getSecurityAnswer() != null) {
+                    clone.setSecurityAnswer(MASKED_VALUE);
+                }
+                clone.getLinkedAccounts().forEach(linkedAccount -> {
+                    if (linkedAccount.getPassword() != null) {
+                        linkedAccount.setPassword(MASKED_VALUE);
+                    }
+                });
+                yield clone;
             }
-            if (((UserTO) masked).getSecurityAnswer() != null) {
-                ((UserTO) masked).setSecurityAnswer(MASKED_VALUE);
-            }
-        } else if (object instanceof UserCR userCR) {
-            masked = SerializationUtils.clone(userCR);
-            if (((UserCR) masked).getPassword() != null) {
-                ((UserCR) masked).setPassword(MASKED_VALUE);
-            }
-            if (((UserCR) masked).getSecurityAnswer() != null) {
-                ((UserCR) masked).setSecurityAnswer(MASKED_VALUE);
-            }
-        } else if (object instanceof final UserUR userUR && userUR.getPassword() != null) {
-            masked = SerializationUtils.clone(userUR);
-            ((UserUR) masked).getPassword().setValue(MASKED_VALUE);
-        } else {
-            masked = object;
-        }
 
-        return masked;
+            case UserUR userUR -> {
+                UserUR clone = SerializationUtils.clone(userUR);
+                if (clone.getPassword() != null) {
+                    clone.getPassword().setValue(MASKED_VALUE);
+                }
+                if (clone.getSecurityAnswer() != null) {
+                    clone.getSecurityAnswer().setValue(MASKED_VALUE);
+                }
+                clone.getLinkedAccounts().forEach(linkedAccountUR -> Optional.ofNullable(
+                        linkedAccountUR.getLinkedAccountTO()).ifPresent(linkedAccount -> {
+
+                    if (linkedAccount.getPassword() != null) {
+                        linkedAccount.setPassword(MASKED_VALUE);
+                    }
+                }));
+                yield clone;
+            }
+
+            case ConnInstanceTO connInstanceTO -> {
+                ConnInstanceTO clone = SerializationUtils.clone(connInstanceTO);
+                maskSensitive(connInstanceTO.getConf());
+                yield clone;
+            }
+
+            case ResourceTO resourceTO -> {
+                ResourceTO clone = SerializationUtils.clone(resourceTO);
+                clone.getConfOverride().ifPresent(DefaultAuditManager::maskSensitive);
+                yield clone;
+            }
+
+            case Domain domain -> {
+                Domain clone = SerializationUtils.clone(domain);
+                clone.setAdminPassword(MASKED_VALUE);
+                yield clone;
+            }
+
+            case null ->
+                null;
+            default ->
+                object;
+        };
     }
 
     protected final AuditConfDAO auditConfDAO;
@@ -172,17 +232,19 @@ public class DefaultAuditManager implements AuditManager {
                     auditEvent.setOpEvent(opEvent.toString());
                     auditEvent.setWho(who);
                     auditEvent.setWhen(OffsetDateTime.now());
-                    auditEvent.setBefore(POJOHelper.serialize((maskSensitive(before))));
+                    Optional.ofNullable(before).
+                            ifPresent(b -> auditEvent.setBefore(POJOHelper.serialize((maskSensitive(b)))));
 
                     Optional.ofNullable(input).ifPresent(in -> auditEvent.setInputs(Arrays.stream(in).
-                            map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                            filter(Objects::nonNull).map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
                             toList()));
 
                     if (output instanceof Throwable throwable) {
                         auditEvent.setOutput(throwable.getMessage());
                         auditEvent.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
                     } else {
-                        auditEvent.setOutput(POJOHelper.serialize((maskSensitive(output))));
+                        Optional.ofNullable(output).
+                                ifPresent(out -> auditEvent.setOutput(POJOHelper.serialize((maskSensitive(out)))));
                     }
 
                     auditEventDAO.save(auditEvent);
