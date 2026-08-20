@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.implementation;
 
 import groovy.grape.GrabAnnotationTransformation;
 import groovy.lang.GroovyClassLoader;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -246,7 +247,7 @@ public final class ImplementationManager {
                 && (commandArgsClass.getEnclosingClass() == null
                 || Modifier.isStatic(commandArgsClass.getModifiers()))) {
 
-            return commandArgsClass.getDeclaredConstructor().newInstance();
+            return newInstance(commandArgsClass, impl.getEngine());
         }
 
         throw new IllegalArgumentException(
@@ -275,6 +276,25 @@ public final class ImplementationManager {
 
         CLASS_CACHE.put(cacheKey, clazz);
         return Pair.of((Class<T>) clazz, false);
+    }
+
+    private static <T> T newInstance(final Class<T> clazz, final ImplementationEngine engine)
+            throws NoSuchMethodException, InstantiationException, IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+
+        if (engine == ImplementationEngine.JAVA) {
+            return clazz.getDeclaredConstructor().newInstance();
+        }
+
+        GroovyInterceptor interceptor = new SandboxInterceptor(
+                ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class));
+        try {
+            interceptor.register();
+
+            return clazz.getDeclaredConstructor().newInstance();
+        } finally {
+            interceptor.unregister();
+        }
     }
 
     private static <T> T createBean(final Class<T> clazz, final ImplementationEngine engine) {
