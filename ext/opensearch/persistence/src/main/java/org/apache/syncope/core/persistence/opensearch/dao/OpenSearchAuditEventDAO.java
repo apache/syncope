@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.common.dao.AbstractAuditEventDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.opensearch.client.OpenSearchIndexManager;
 import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
@@ -52,7 +53,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
-public class OpenSearchAuditEventDAO implements AuditEventDAO {
+public class OpenSearchAuditEventDAO extends AbstractAuditEventDAO implements AuditEventDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuditEventDAO.class);
 
@@ -97,6 +98,8 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
         List<Query> queries = new ArrayList<>();
 
         if (entityKey != null) {
+            checkEntityKey(entityKey);
+
             queries.add(new Query.Builder().
                     multiMatch(QueryBuilders.multiMatch().
                             fields("before", "inputs", "output", "throwable").
@@ -125,7 +128,7 @@ public class OpenSearchAuditEventDAO implements AuditEventDAO {
 
         queries.add(new Query.Builder().regexp(QueryBuilders.regexp().
                 field("opEvent").
-                value(OpEvent.toString(type, category, subcategory, op, outcome).
+                value(toOpEvent(type, category, subcategory, op, outcome).
                         replace("[]", "[.*]").
                         replace("[", "\\[").
                         replace("]", "\\]")).build()).

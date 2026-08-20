@@ -51,6 +51,8 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
 
         protected AuditEventCriteriaBuilder entityKey(final String entityKey) {
             if (entityKey != null) {
+                checkEntityKey(entityKey);
+
                 query.append(andIfNeeded()).
                         append("(n.before =~ '.*key.*").append(entityKey).append(".*' OR ").
                         append("n.inputs =~ '.*key.*").append(entityKey).append(".*' OR ").
@@ -62,7 +64,9 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
 
         public AuditEventCriteriaBuilder username(final Set<String> username, final Map<String, Object> parameters) {
             if (!CollectionUtils.isEmpty(username)) {
-                parameters.put("usernames", username.stream().map(value -> "\"username\":\"" + value + "\"").toList());
+                parameters.put("usernames", username.stream().
+                        map(value -> "\"username\":\"" + escapeForLike(value) + "\"").
+                        toList());
                 query.append(andIfNeeded()).
                         append("ANY(u IN $usernames WHERE n.before CONTAINS u OR n.inputs CONTAINS u "
                                 + "OR n.output CONTAINS u OR n.throwable CONTAINS u)");
@@ -87,7 +91,7 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
 
             query.append(andIfNeeded()).
                     append("n.opEvent =~ '").
-                    append(OpEvent.toString(type, category, subcategory, op, outcome).
+                    append(toOpEvent(type, category, subcategory, op, outcome).
                             replace("[", "\\[").replace("]", "\\]").replace("\\[\\]", "\\[.*\\]")).
                     append("'");
 
