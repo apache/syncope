@@ -44,7 +44,7 @@ public final class AMEntitlement {
 
     public static final String CLIENTAPP_CREATE = "CLIENTAPP_CREATE";
 
-    public static final String CLIENTAPP_UPDATE = "CLIENTAPP_CREATE";
+    public static final String CLIENTAPP_UPDATE = "CLIENTAPP_UPDATE";
 
     public static final String CLIENTAPP_DELETE = "CLIENTAPP_DELETE";
 
