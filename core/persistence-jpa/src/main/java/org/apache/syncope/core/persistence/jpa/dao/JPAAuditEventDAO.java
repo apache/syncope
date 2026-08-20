@@ -54,6 +54,8 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
 
         protected AuditEventCriteriaBuilder entityKey(final String entityKey) {
             if (entityKey != null) {
+                checkEntityKey(entityKey);
+
                 query.append(andIfNeeded()).
                         append("(before_value LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
                         append("inputs LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
@@ -63,19 +65,10 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
             return this;
         }
 
-        // Unlike the entityKey predicate above (a constrained UUID, concatenated), the free-form username
-        // is bound as a query parameter and its LIKE metacharacters are escaped, so '%'/'_' in a username
-        // match literally and there is no injection surface.
-        // '#' is used as the LIKE escape char (instead of '\') and applied uniformly: a single '\' in
-        // native SQL is mishandled by MySQL/MariaDB and Oracle has no default LIKE escape, whereas '#'
-        // works across every supported database (this DAO is not subclassed per-database).
-        protected static String escapeForLike(final String value) {
-            return value.replace("#", "##").replace("%", "#%").replace("_", "#_");
-        }
-
         public AuditEventCriteriaBuilder username(final Set<String> username, final List<Object> parameters) {
             if (!CollectionUtils.isEmpty(username)) {
-                query.append(andIfNeeded()).append("(").
+                query.append(andIfNeeded()).
+                        append('(').
                         append(username.stream().map(value -> {
                             String pattern = "%\"username\":\"" + escapeForLike(value) + "\"%";
                             return "(before_value LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
@@ -83,7 +76,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                                     + " OR output LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#'"
                                     + " OR throwable LIKE ?" + setParameter(parameters, pattern) + " ESCAPE '#')";
                         }).collect(Collectors.joining(" OR "))).
-                        append(")");
+                        append(')');
             }
             return this;
         }
@@ -108,7 +101,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
 
             query.append(andIfNeeded()).
                     append("opEvent LIKE '").
-                    append(OpEvent.toString(type, category, subcategory, op, outcome).replace("[]", "[%]")).
+                    append(toOpEvent(type, category, subcategory, op, outcome).replace("[]", "[%]")).
                     append("'");
 
             return this;
@@ -220,8 +213,9 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         List<Sort.Order> orderBy = filterOrderBy(pageable.getSort().stream(), JPAAuditEvent.class);
         if (!orderBy.isEmpty()) {
             queryString += " ORDER BY " + orderBy.stream().
-                    map(clause -> ("when".equals(clause.getProperty()) ? "event_date" : clause.getProperty())
-                    + ' ' + clause.getDirection().name()).
+                    map(clause -> ("when".equals(clause.getProperty())
+                            ? "event_date"
+                            : clause.getProperty()) + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(","));
         }
 
