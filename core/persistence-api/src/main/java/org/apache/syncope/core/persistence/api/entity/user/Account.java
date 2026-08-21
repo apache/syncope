@@ -37,7 +37,7 @@ public interface Account {
     void setPassword(String password);
 
     void setCipherAlgorithm(CipherAlgorithm cipherAlgorithm);
-    
+
     Boolean isSuspended();
 
     void setSuspended(Boolean suspended);

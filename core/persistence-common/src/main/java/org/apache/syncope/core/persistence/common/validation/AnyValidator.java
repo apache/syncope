@@ -38,7 +38,7 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
     public boolean isValid(final Any any, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (any.getUManager() != null && any.getGManager() != null) {
+        if (any.getuManager() != null && any.getgManager() != null) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidManager,
                             "Must either be managed by an user or by a group, not both")).

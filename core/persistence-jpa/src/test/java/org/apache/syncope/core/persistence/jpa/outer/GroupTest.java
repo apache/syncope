@@ -136,8 +136,8 @@ public class GroupTest extends AbstractTest {
             Group group = entityFactory.newEntity(Group.class);
             group.setRealm(realmDAO.getRoot());
             group.setName("error");
-            group.setUManager(user);
-            group.setGManager(root);
+            group.setuManager(user);
+            group.setgManager(root);
 
             groupDAO.save(group);
         });
@@ -149,7 +149,7 @@ public class GroupTest extends AbstractTest {
 
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
 
-        assertEquals(user, group.getUManager());
+        assertEquals(user, group.getuManager());
 
         List<Group> managed = userDAO.findManagedGroups(user.getKey());
         assertFalse(managed.isEmpty());
@@ -163,7 +163,7 @@ public class GroupTest extends AbstractTest {
         Group group = entityFactory.newEntity(Group.class);
         group.setRealm(realmDAO.getRoot());
         group.setName("error");
-        group.setGManager(root);
+        group.setgManager(root);
         group = groupDAO.save(group);
         entityManager.flush();
 

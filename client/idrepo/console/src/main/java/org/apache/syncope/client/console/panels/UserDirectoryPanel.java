@@ -220,7 +220,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
                         } catch (Exception e) {
-                            LOG.error("While requesting password reject for {}", model.getObject().getUManager(), e);
+                            LOG.error("While requesting password reject for {}", model.getObject().getuManager(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -241,7 +241,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(container);
                     } catch (Exception e) {
-                        LOG.error("While dismissing MFA for {}", model.getObject().getUManager(), e);
+                        LOG.error("While dismissing MFA for {}", model.getObject().getuManager(), e);
                         SyncopeConsoleSession.get().onException(e);
                     }
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

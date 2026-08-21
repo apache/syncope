@@ -25,6 +25,7 @@ import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.JxltEngine;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -39,6 +40,41 @@ public class JexlTools {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JexlTools.class);
 
+    public static final JexlPermissions DEFAULT_PERMISSIONS = JexlPermissions.RESTRICTED.compose(
+            "java.time.*",
+            "org.apache.syncope.* ",
+            "org.apache.syncope.core.persistence.jpa.entity.user { -JPAUser { "
+            + "getCipherAlgorithm(); "
+            + "getPassword(); "
+            + "getPasswordHistory(); "
+            + "getSecurityAnswer(); "
+            + "getMfa(); "
+            + "getToken(); "
+            + "getTokenExpireTime(); "
+            + "} }",
+            "org.apache.syncope.core.persistence.jpa.entity.user { -JPALinkedAccount { "
+            + "getPassword(); "
+            + "} }",
+            "org.apache.syncope.core.persistence.neo4j.entity.user { -Neo4jUser { "
+            + "getCipherAlgorithm(); "
+            + "getPassword(); "
+            + "getPasswordHistory(); "
+            + "getSecurityAnswer(); "
+            + "getMfa(); "
+            + "getToken(); "
+            + "getTokenExpireTime(); "
+            + "} }",
+            "org.apache.syncope.core.persistence.neo4j.entity.user { -Neo4jLinkedAccount { "
+            + "getPassword(); "
+            + "} }",
+            "org.apache.syncope.common.lib.to { -UserTO { "
+            + "getPassword(); "
+            + "} }",
+            "org.apache.syncope.common.lib.to { -LinkedAccountTO { "
+            + "getPassword(); "
+            + "} }"
+    );
+
     protected final JexlEngine jexlEngine;
 
     protected final JxltEngine jxltEngine;
@@ -46,11 +82,6 @@ public class JexlTools {
     public JexlTools(final JexlEngine jexlEngine) {
         this.jexlEngine = jexlEngine;
         this.jxltEngine = jexlEngine.createJxltEngine(false);
-    }
-
-    public JexlTools(final JexlEngine jexlEngine, final JxltEngine jxltEngine) {
-        this.jexlEngine = jexlEngine;
-        this.jxltEngine = jxltEngine;
     }
 
     public boolean isExpressionValid(final String expression) {

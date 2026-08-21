@@ -63,13 +63,13 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
 
         @SuppressWarnings("unchecked")
         public B uManager(final String uManager) {
-            getInstance().setUManager(uManager);
+            getInstance().setuManager(uManager);
             return (B) this;
         }
 
         @SuppressWarnings("unchecked")
         public B gManager(final String gManager) {
-            getInstance().setGManager(gManager);
+            getInstance().setgManager(gManager);
             return (B) this;
         }
 
@@ -185,19 +185,19 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
         this.realm = realm;
     }
 
-    public String getUManager() {
+    public String getuManager() {
         return uManager;
     }
 
-    public void setUManager(final String uManager) {
+    public void setuManager(final String uManager) {
         this.uManager = uManager;
     }
 
-    public String getGManager() {
+    public String getgManager() {
         return gManager;
     }
 
-    public void setGManager(final String gManager) {
+    public void setgManager(final String gManager) {
         this.gManager = gManager;
     }
 

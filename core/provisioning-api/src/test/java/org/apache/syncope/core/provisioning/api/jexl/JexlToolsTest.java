@@ -49,7 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class JexlUtilsTest extends AbstractTest {
+class JexlToolsTest extends AbstractTest {
 
     @Mock
     private JexlContext context;

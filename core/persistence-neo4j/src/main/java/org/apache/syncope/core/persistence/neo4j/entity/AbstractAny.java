@@ -155,23 +155,23 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     }
 
     @Override
-    public User getUManager() {
+    public User getuManager() {
         return uManager;
     }
 
     @Override
-    public void setUManager(final User uManager) {
+    public void setuManager(final User uManager) {
         checkType(uManager, Neo4jUser.class);
         this.uManager = (Neo4jUser) uManager;
     }
 
     @Override
-    public Group getGManager() {
+    public Group getgManager() {
         return gManager;
     }
 
     @Override
-    public void setGManager(final Group gManager) {
+    public void setgManager(final Group gManager) {
         checkType(gManager, Neo4jGroup.class);
         this.gManager = (Neo4jGroup) gManager;
     }

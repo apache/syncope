@@ -236,10 +236,10 @@ public abstract class AbstractPullResultHandler
             }
             result.setName(getName(req));
 
-            Optional<String> uManager = Optional.ofNullable(req.getUManager());
-            req.setUManager(null);
-            Optional<String> gManager = Optional.ofNullable(req.getGManager());
-            req.setGManager(null);
+            Optional<String> uManager = Optional.ofNullable(req.getuManager());
+            req.setuManager(null);
+            Optional<String> gManager = Optional.ofNullable(req.getgManager());
+            req.setgManager(null);
 
             AnyTO created = doCreate(req, delta);
             output = created;
@@ -353,14 +353,14 @@ public abstract class AbstractPullResultHandler
                     action.beforeUpdate(profile, delta, before, req);
                 }
 
-                Optional.ofNullable(req.getUManager()).ifPresent(patch -> uManagers.put(
+                Optional.ofNullable(req.getuManager()).ifPresent(patch -> uManagers.put(
                         before.getKey(),
                         Optional.ofNullable(patch.getValue())));
-                req.setUManager(null);
-                Optional.ofNullable(req.getGManager()).ifPresent(patch -> gManagers.put(
+                req.setuManager(null);
+                Optional.ofNullable(req.getgManager()).ifPresent(patch -> gManagers.put(
                         before.getKey(),
                         Optional.ofNullable(patch.getValue())));
-                req.setGManager(null);
+                req.setgManager(null);
 
                 req = doUpdate(before, req, delta, result);
                 AnyTO updated = AnyOperations.patch(before, req);
@@ -1002,8 +1002,8 @@ public abstract class AbstractPullResultHandler
                             manager,
                             profile.getTask().getResource(),
                             profile.getConnector()).
-                            ifPresent(match -> any.setUManager((User) match.getAny())),
-                    () -> any.setUManager(null));
+                            ifPresent(match -> any.setuManager((User) match.getAny())),
+                    () -> any.setuManager(null));
 
             anyUtils().dao().save(any);
         });
@@ -1017,8 +1017,8 @@ public abstract class AbstractPullResultHandler
                             manager,
                             profile.getTask().getResource(),
                             profile.getConnector()).
-                            ifPresent(match -> any.setGManager((Group) match.getAny())),
-                    () -> any.setGManager(null));
+                            ifPresent(match -> any.setgManager((Group) match.getAny())),
+                    () -> any.setgManager(null));
 
             anyUtils().dao().save(any);
         });

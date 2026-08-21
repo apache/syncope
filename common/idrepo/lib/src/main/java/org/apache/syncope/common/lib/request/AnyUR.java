@@ -64,13 +64,13 @@ public abstract class AnyUR implements BaseBean {
 
         @SuppressWarnings("unchecked")
         public B uManager(final StringReplacePatchItem uManager) {
-            getInstance().setUManager(uManager);
+            getInstance().setuManager(uManager);
             return (B) this;
         }
 
         @SuppressWarnings("unchecked")
         public B gManager(final StringReplacePatchItem gManager) {
-            getInstance().setGManager(gManager);
+            getInstance().setgManager(gManager);
             return (B) this;
         }
 
@@ -195,19 +195,19 @@ public abstract class AnyUR implements BaseBean {
         this.realm = realm;
     }
 
-    public StringReplacePatchItem getUManager() {
+    public StringReplacePatchItem getuManager() {
         return uManager;
     }
 
-    public void setUManager(final StringReplacePatchItem uManager) {
+    public void setuManager(final StringReplacePatchItem uManager) {
         this.uManager = uManager;
     }
 
-    public StringReplacePatchItem getGManager() {
+    public StringReplacePatchItem getgManager() {
         return gManager;
     }
 
-    public void setGManager(final StringReplacePatchItem gManager) {
+    public void setgManager(final StringReplacePatchItem gManager) {
         this.gManager = gManager;
     }
 

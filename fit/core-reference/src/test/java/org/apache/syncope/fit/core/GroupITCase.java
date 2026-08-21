@@ -114,7 +114,7 @@ public class GroupITCase extends AbstractITCase {
     public void create() {
         // create group managed by f779c0d4-633b-4be5-8f57-32eb478a3ca5
         GroupCR groupCR = getSample("lastGroup");
-        groupCR.setGManager("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
+        groupCR.setgManager("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
@@ -133,9 +133,9 @@ public class GroupITCase extends AbstractITCase {
         // remove group manager
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(groupTO.getKey());
-        groupUR.setGManager(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
+        groupUR.setgManager(new StringReplacePatchItem.Builder().operation(PatchOperation.DELETE).build());
 
-        assertNull(updateGroup(groupUR).getEntity().getGManager());
+        assertNull(updateGroup(groupUR).getEntity().getgManager());
     }
 
     @Test
