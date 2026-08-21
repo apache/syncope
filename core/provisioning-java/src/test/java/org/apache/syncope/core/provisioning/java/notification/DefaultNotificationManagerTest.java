@@ -35,7 +35,6 @@ import java.util.Optional;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -136,7 +135,7 @@ public class DefaultNotificationManagerTest {
     void init() {
         JexlEngine jexlEngine = new JexlBuilder().
                 loader(new EmptyClassLoader()).
-                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
+                permissions(JexlTools.DEFAULT_PERMISSIONS).
                 namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
                 cache(512).
                 silent(false).

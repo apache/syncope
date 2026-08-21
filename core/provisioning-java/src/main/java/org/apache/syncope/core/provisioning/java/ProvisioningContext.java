@@ -24,7 +24,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -199,7 +198,7 @@ public class ProvisioningContext {
     public JexlTools jexlTools(final List<JexlFunctions> jexlFunctions) {
         JexlEngine jexlEngine = new JexlBuilder().
                 loader(new EmptyClassLoader()).
-                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
+                permissions(JexlTools.DEFAULT_PERMISSIONS).
                 namespaces(jexlFunctions.stream().
                         collect(Collectors.toMap(JexlFunctions::getNamespace, Function.identity()))).
                 cache(512).
