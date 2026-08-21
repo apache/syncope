@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.jexl;
 
+@FunctionalInterface
 public interface JexlFunctions {
 
     String getNamespace();

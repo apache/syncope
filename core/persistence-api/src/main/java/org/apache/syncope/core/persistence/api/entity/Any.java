@@ -57,13 +57,13 @@ public interface Any extends Attributable, Entity {
 
     void setRealm(Realm realm);
 
-    User getUManager();
+    User getuManager();
 
-    void setUManager(User manager);
+    void setuManager(User manager);
 
-    Group getGManager();
+    Group getgManager();
 
-    void setGManager(Group manager);
+    void setgManager(Group manager);
 
     String getStatus();
 

@@ -103,8 +103,8 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         anyTO.setRealm(any.getRealm().getFullPath());
 
-        Optional.ofNullable(any.getUManager()).map(User::getKey).ifPresent(anyTO::setUManager);
-        Optional.ofNullable(any.getGManager()).map(Group::getKey).ifPresent(anyTO::setGManager);
+        Optional.ofNullable(any.getuManager()).map(User::getKey).ifPresent(anyTO::setuManager);
+        Optional.ofNullable(any.getgManager()).map(Group::getKey).ifPresent(anyTO::setgManager);
 
         anyTO.getAuxClasses().addAll(any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
 
@@ -425,38 +425,38 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         // 0. manager
         PropagationByResource<String> managerPropByRes = new PropagationByResource<>();
-        if (anyUR.getUManager() != null) {
-            if (anyUR.getUManager().getValue() == null) {
-                if (any.getUManager() != null) {
-                    any.setUManager(null);
+        if (anyUR.getuManager() != null) {
+            if (anyUR.getuManager().getValue() == null) {
+                if (any.getuManager() != null) {
+                    any.setuManager(null);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
                 }
             } else {
-                User manager = userDAO.findById(anyUR.getUManager().getValue()).orElse(null);
+                User manager = userDAO.findById(anyUR.getuManager().getValue()).orElse(null);
                 if (manager == null) {
                     LOG.debug("Unable to find user manager for {} {} by key {}",
-                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getUManager().getValue());
-                    any.setUManager(null);
+                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getuManager().getValue());
+                    any.setuManager(null);
                 } else {
-                    any.setUManager(manager);
+                    any.setuManager(manager);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
                 }
             }
         }
-        if (anyUR.getGManager() != null) {
-            if (anyUR.getGManager().getValue() == null) {
-                if (any.getGManager() != null) {
-                    any.setGManager(null);
+        if (anyUR.getgManager() != null) {
+            if (anyUR.getgManager().getValue() == null) {
+                if (any.getgManager() != null) {
+                    any.setgManager(null);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
                 }
             } else {
-                Group manager = groupDAO.findById(anyUR.getGManager().getValue()).orElse(null);
+                Group manager = groupDAO.findById(anyUR.getgManager().getValue()).orElse(null);
                 if (manager == null) {
                     LOG.debug("Unable to find group manager for {} {} by key {}",
-                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getGManager().getValue());
-                    any.setGManager(null);
+                            any.getKey(), anyUtils.anyTypeKind(), anyUR.getgManager().getValue());
+                    any.setgManager(null);
                 } else {
-                    any.setGManager(manager);
+                    any.setgManager(manager);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
                 }
             }
@@ -648,15 +648,13 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         // 0. manager
         // owner
-        if (anyCR.getUManager() != null) {
-            userDAO.findById(anyCR.getUManager()).ifPresentOrElse(
-                    any::setUManager,
-                    () -> LOG.warn("Ignoring invalid user specified as manager: {}", anyCR.getUManager()));
+        if (anyCR.getuManager() != null) {
+            userDAO.findById(anyCR.getuManager()).ifPresentOrElse(any::setuManager,
+                    () -> LOG.warn("Ignoring invalid user specified as manager: {}", anyCR.getuManager()));
         }
-        if (anyCR.getGManager() != null) {
-            groupDAO.findById(anyCR.getGManager()).ifPresentOrElse(
-                    any::setGManager,
-                    () -> LOG.warn("Ignoring invalid group specified as manager: {}", anyCR.getGManager()));
+        if (anyCR.getgManager() != null) {
+            groupDAO.findById(anyCR.getgManager()).ifPresentOrElse(any::setgManager,
+                    () -> LOG.warn("Ignoring invalid group specified as manager: {}", anyCR.getgManager()));
         }
 
         // 1. aux classes

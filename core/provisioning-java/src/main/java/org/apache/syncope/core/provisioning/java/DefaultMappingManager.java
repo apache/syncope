@@ -760,11 +760,11 @@ public class DefaultMappingManager implements MappingManager {
                                 : null;
 
                         String managerValue = null;
-                        if (ref.getUManager() != null && uMappingTO != null) {
-                            managerValue = getManagerValue(resource, provision, ref.getUManager());
+                        if (ref.getuManager() != null && uMappingTO != null) {
+                            managerValue = getManagerValue(resource, provision, ref.getuManager());
                         }
-                        if (ref.getGManager() != null && gMappingTO != null) {
-                            managerValue = getManagerValue(resource, provision, ref.getGManager());
+                        if (ref.getgManager() != null && gMappingTO != null) {
+                            managerValue = getManagerValue(resource, provision, ref.getgManager());
                         }
 
                         if (StringUtils.isNotBlank(managerValue)) {
@@ -1090,11 +1090,11 @@ public class DefaultMappingManager implements MappingManager {
                 }
 
                 case "uManager" -> {
-                    anyTO.setUManager(values.getFirst().toString());
+                    anyTO.setuManager(values.getFirst().toString());
                 }
 
                 case "gManager" -> {
-                    anyTO.setGManager(values.getFirst().toString());
+                    anyTO.setgManager(values.getFirst().toString());
                 }
 
                 default -> {

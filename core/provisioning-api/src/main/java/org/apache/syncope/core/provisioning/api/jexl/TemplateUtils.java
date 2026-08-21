@@ -161,22 +161,22 @@ public class TemplateUtils {
 
         fill(realmMember, template, jexlContext);
 
-        Optional.ofNullable(template.getUManager()).flatMap(userDAO::findById).ifPresent(uManager -> {
+        Optional.ofNullable(template.getuManager()).flatMap(userDAO::findById).ifPresent(uManager -> {
             switch (realmMember) {
                 case AnyTO arm ->
-                    arm.setUManager(uManager.getKey());
+                    arm.setuManager(uManager.getKey());
                 case AnyCR arm ->
-                    arm.setGManager(uManager.getKey());
+                    arm.setgManager(uManager.getKey());
                 default -> {
                 }
             }
         });
-        Optional.ofNullable(template.getGManager()).flatMap(groupDAO::findById).ifPresent(gManager -> {
+        Optional.ofNullable(template.getgManager()).flatMap(groupDAO::findById).ifPresent(gManager -> {
             switch (realmMember) {
                 case AnyTO arm ->
-                    arm.setUManager(gManager.getKey());
+                    arm.setuManager(gManager.getKey());
                 case AnyCR arm ->
-                    arm.setGManager(gManager.getKey());
+                    arm.setgManager(gManager.getKey());
                 default -> {
                 }
             }

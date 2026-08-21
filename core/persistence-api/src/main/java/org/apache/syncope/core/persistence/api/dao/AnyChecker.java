@@ -91,14 +91,14 @@ public class AnyChecker {
         gTypeExtensionClasses.entrySet().stream().peek(
                 entry -> result.memberships().put(entry.getKey(), new HashSet<>())).
                 forEach(entry -> entry.getValue().forEach(typeClass -> {
-            if (reference.equals(PlainSchema.class)) {
-                result.memberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.memberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            }
-        }));
+                    if (reference.equals(PlainSchema.class)) {
+                        result.memberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                    } else if (reference.equals(DerSchema.class)) {
+                        result.memberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                    }
+                }));
 
         // schemas given by relationship type extensions
         Map<RelationshipType, List<? extends AnyTypeClass>> rTypeExtensionClasses = new HashMap<>();
@@ -106,25 +106,25 @@ public class AnyChecker {
             case User user ->
                 user.getRelationships().stream().map(Relationship::getType).distinct().
                         forEach(rt -> rt.getTypeExtensions().
-                        forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
+                                forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
             case AnyObject anyObject ->
                 anyObject.getRelationships().stream().map(Relationship::getType).distinct().
                         forEach(rt -> rt.getTypeExtensions().
-                        forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
+                                forEach(typeExt -> rTypeExtensionClasses.put(rt, typeExt.getAuxClasses())));
             default -> {
             }
         }
         rTypeExtensionClasses.entrySet().stream().peek(
                 entry -> result.relationshipTypes().put(entry.getKey(), new HashSet<>())).
                 forEach(entry -> entry.getValue().forEach(typeClass -> {
-            if (reference.equals(PlainSchema.class)) {
-                result.relationshipTypes().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.relationshipTypes().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            }
-        }));
+                    if (reference.equals(PlainSchema.class)) {
+                        result.relationshipTypes().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                    } else if (reference.equals(DerSchema.class)) {
+                        result.relationshipTypes().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                    }
+                }));
 
         return result;
     }
@@ -132,7 +132,7 @@ public class AnyChecker {
     @Transactional(readOnly = true)
     public <T extends Attributable> void checkBeforeSave(final T attributable, final AnyUtils anyUtils) {
         if (attributable instanceof Any any) {
-            if (any.getUManager() != null && any.getGManager() != null) {
+            if (any.getuManager() != null && any.getgManager() != null) {
                 throw new InvalidEntityException(
                         anyUtils.anyClass(),
                         EntityViolationType.InvalidManager.propertyPath("manager"),

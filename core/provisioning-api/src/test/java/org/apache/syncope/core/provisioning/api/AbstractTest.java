@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Map;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.syncope.core.provisioning.api.jexl.EmptyClassLoader;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.jexl.SyncopeJexlFunctions;
@@ -40,7 +39,7 @@ public class AbstractTest {
     protected JexlTools jexlTools() {
         JexlEngine jexlEngine = new JexlBuilder().
                 loader(new EmptyClassLoader()).
-                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
+                permissions(JexlTools.DEFAULT_PERMISSIONS).
                 namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
                 cache(512).
                 silent(false).

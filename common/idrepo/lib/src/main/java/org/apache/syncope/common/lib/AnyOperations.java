@@ -123,29 +123,29 @@ public final class AnyOperations {
         result.setRealm(replacePatchItem(updated.getRealm(), original.getRealm(), new StringReplacePatchItem()));
 
         // 2. manager
-        if (updated.getUManager() != null || original.getUManager() != null) {
+        if (updated.getuManager() != null || original.getuManager() != null) {
             StringReplacePatchItem uManager = new StringReplacePatchItem();
-            if (updated.getUManager() == null) {
+            if (updated.getuManager() == null) {
                 if (!incremental) {
                     uManager.setOperation(PatchOperation.DELETE);
-                    result.setUManager(uManager);
+                    result.setuManager(uManager);
                 }
-            } else if (!updated.getUManager().equals(original.getUManager())) {
-                uManager.setValue(updated.getUManager());
-                result.setUManager(uManager);
+            } else if (!updated.getuManager().equals(original.getuManager())) {
+                uManager.setValue(updated.getuManager());
+                result.setuManager(uManager);
             }
         }
 
-        if (updated.getGManager() != null || original.getGManager() != null) {
+        if (updated.getgManager() != null || original.getgManager() != null) {
             StringReplacePatchItem gManager = new StringReplacePatchItem();
-            if (updated.getGManager() == null) {
+            if (updated.getgManager() == null) {
                 if (!incremental) {
                     gManager.setOperation(PatchOperation.DELETE);
-                    result.setGManager(gManager);
+                    result.setgManager(gManager);
                 }
-            } else if (!updated.getGManager().equals(original.getGManager())) {
-                gManager.setValue(updated.getGManager());
-                result.setGManager(gManager);
+            } else if (!updated.getgManager().equals(original.getgManager())) {
+                gManager.setValue(updated.getgManager());
+                result.setgManager(gManager);
             }
         }
 
@@ -406,11 +406,11 @@ public final class AnyOperations {
         }
 
         // 1. manager
-        if (req.getUManager() != null) {
-            result.setUManager(req.getUManager().getValue());
+        if (req.getuManager() != null) {
+            result.setuManager(req.getuManager().getValue());
         }
-        if (req.getGManager() != null) {
-            result.setGManager(req.getGManager().getValue());
+        if (req.getgManager() != null) {
+            result.setgManager(req.getgManager().getValue());
         }
 
         // 2. auxiliary classes
