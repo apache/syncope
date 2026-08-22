@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
@@ -147,5 +148,35 @@ public class SerializationTest {
         ProvisioningResult<GroupTO> actual = MAPPER.readValue(writer.toString(), new TypeReference<>() {
         });
         assertEquals(original, actual);
+    }
+
+    @Test
+    public void manager() {
+        GroupCR originalCR = new GroupCR();
+        originalCR.setgManager("manager");
+
+        StringWriter writer = new StringWriter();
+        MAPPER.writeValue(writer, originalCR);
+
+        GroupCR actualCR = MAPPER.readValue(writer.toString(), GroupCR.class);
+        assertEquals(originalCR, actualCR);
+
+        GroupUR original = new GroupUR();
+        original.setgManager(new StringReplacePatchItem.Builder().value("manager").build());
+
+        writer = new StringWriter();
+        MAPPER.writeValue(writer, original);
+
+        GroupUR actualUR = MAPPER.readValue(writer.toString(), GroupUR.class);
+        assertEquals(original, actualUR);
+
+        GroupTO originalTO = new GroupTO();
+        originalTO.setgManager("manager");
+
+        writer = new StringWriter();
+        MAPPER.writeValue(writer, originalTO);
+
+        GroupTO actualTO = MAPPER.readValue(writer.toString(), GroupTO.class);
+        assertEquals(originalTO, actualTO);
     }
 }

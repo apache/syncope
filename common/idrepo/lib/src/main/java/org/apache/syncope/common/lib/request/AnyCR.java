@@ -155,8 +155,10 @@ public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
 
     private String realm;
 
+    @JsonProperty
     private String uManager;
 
+    @JsonProperty
     private String gManager;
 
     private final Set<String> auxClasses = new HashSet<>();

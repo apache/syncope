@@ -647,7 +647,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final SyncopeClientCompositeException scce) {
 
         // 0. manager
-        // owner
         if (anyCR.getuManager() != null) {
             userDAO.findById(anyCR.getuManager()).ifPresentOrElse(any::setuManager,
                     () -> LOG.warn("Ignoring invalid user specified as manager: {}", anyCR.getuManager()));

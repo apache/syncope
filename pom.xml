@@ -945,7 +945,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>4.0.0-beta-1</version>
+        <version>4.0.0</version>
       </dependency>
 
       <dependency>
@@ -2188,7 +2188,7 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/4.0.0-beta-1/api/</link>
+            <link>https://tika.apache.org/4.0.0/api/</link>
             <link>https://docs.hibernate.org/orm/7.3/javadocs/</link>
             <link>https://docs.spring.io/spring-boot/4.0/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>

@@ -158,8 +158,10 @@ public abstract class AnyUR implements BaseBean {
 
     private StringReplacePatchItem realm;
 
+    @JsonProperty
     private StringReplacePatchItem uManager;
 
+    @JsonProperty
     private StringReplacePatchItem gManager;
 
     private final Set<StringPatchItem> auxClasses = new HashSet<>();

@@ -106,7 +106,6 @@ public final class EntityTOUtils {
             userTO.getMemberships().addAll(userCR.getMemberships());
             userTO.getRoles().addAll(userCR.getRoles());
         } else if (anyTO instanceof final GroupTO groupTO && anyCR instanceof final GroupCR groupCR) {
-
             groupTO.setName(groupCR.getName());
             groupTO.getTypeExtensions().addAll(groupCR.getTypeExtensions());
         } else if (anyTO instanceof final AnyObjectTO anyObjectTO && anyCR instanceof final AnyObjectCR anyObjectCR) {

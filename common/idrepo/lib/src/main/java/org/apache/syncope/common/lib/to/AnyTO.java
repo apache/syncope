@@ -75,8 +75,10 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private String realm;
 
+    @JsonProperty
     private String uManager;
 
+    @JsonProperty
     private String gManager;
 
     private String status;
