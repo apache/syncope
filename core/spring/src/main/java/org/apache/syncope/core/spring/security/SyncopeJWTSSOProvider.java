@@ -100,7 +100,7 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     public Optional<ResolvedClaims> resolve(final JWTClaimsSet jwtClaims) {
         AccessToken accessToken = accessTokenDAO.findById(jwtClaims.getJWTID()).
                 orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-                "Could not find an Access Token for JWT " + jwtClaims.getJWTID()));
+                        "Could not find an Access Token for JWT " + jwtClaims.getJWTID()));
 
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         if (accessToken.getAuthorities() != null) {
