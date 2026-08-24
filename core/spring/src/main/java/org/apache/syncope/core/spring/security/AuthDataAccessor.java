@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -164,7 +165,7 @@ public class AuthDataAccessor {
 
         return jwtSSOProviders.stream().filter(provider -> issuer.equals(provider.getIssuer())).findFirst().
                 orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-                "Could not find any registered JWTSSOProvider for issuer " + issuer));
+                        "Could not find any registered JWTSSOProvider for issuer " + issuer));
     }
 
     protected String getDelegationKey(final SyncopeAuthenticationDetails details, final String delegatedKey) {
@@ -184,7 +185,7 @@ public class AuthDataAccessor {
 
         return delegationDAO.findValidFor(delegatingKey, delegatedKey, OffsetDateTime.now()).
                 orElseThrow(() -> new SessionAuthenticationException(
-                "Delegation by " + delegatingKey + " was requested but none found"));
+                        "Delegation by " + delegatingKey + " was requested but none found"));
     }
 
     /**
@@ -277,10 +278,10 @@ public class AuthDataAccessor {
             try {
                 Provision provision = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).
                         orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate provision for user type " + AnyTypeKind.USER.name()));
+                                "Unable to locate provision for user type " + AnyTypeKind.USER.name()));
                 connObjectKey = mappingManager.getConnObjectKeyValue(user, resource, provision).
                         orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate conn object key value for " + AnyTypeKind.USER.name()));
+                                "Unable to locate conn object key value for " + AnyTypeKind.USER.name()));
                 Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
@@ -356,31 +357,31 @@ public class AuthDataAccessor {
         userDAO.findAllRoles(user).stream().
                 filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
-            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                Set<String> r = new HashSet<>();
-                entForRealms.put(entitlement, r);
-                return r;
-            });
-
-            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
-            }
-        }));
-
-        // Give group entitlements for owned groups
-        groupDAO.findOwnedByUser(user.getKey()).
-                forEach(g -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
-                groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                        HashSet<String> r = new HashSet<>();
+                        Set<String> r = new HashSet<>();
                         entForRealms.put(entitlement, r);
                         return r;
                     });
 
-                    realms.add(new RealmUtils.GroupOwnerRealm(g.getRealm().getFullPath(), g.getKey()).output());
-                }),
-                () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
+                    realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
+                    if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                        realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
+                    }
+                }));
+
+        // Give group entitlements for owned groups
+        groupDAO.findOwnedByUser(user.getKey()).
+                forEach(g -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
+                        groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
+                            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                                HashSet<String> r = new HashSet<>();
+                                entForRealms.put(entitlement, r);
+                                return r;
+                            });
+
+                            realms.add(new RealmUtils.GroupOwnerRealm(g.getRealm().getFullPath(), g.getKey()).output());
+                        }),
+                        () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
 
         return buildAuthorities(entForRealms);
     }
@@ -390,17 +391,17 @@ public class AuthDataAccessor {
 
         delegation.getRoles().stream().filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
-            Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
-                HashSet<String> r = new HashSet<>();
-                entForRealms.put(entitlement, r);
-                return r;
-            });
+                    Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
+                        HashSet<String> r = new HashSet<>();
+                        entForRealms.put(entitlement, r);
+                        return r;
+                    });
 
-            realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
-            if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
-            }
-        }));
+                    realms.addAll(role.getRealms().stream().map(Realm::getFullPath).collect(Collectors.toSet()));
+                    if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                        realms.addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
+                    }
+                }));
 
         return buildAuthorities(entForRealms);
     }
@@ -416,7 +417,7 @@ public class AuthDataAccessor {
         } else if (delegationKey != null) {
             Delegation delegation = delegationDAO.findById(delegationKey).
                     orElseThrow(() -> new UsernameNotFoundException(
-                    "Could not find delegation " + delegationKey));
+                            "Could not find delegation " + delegationKey));
 
             authorities = delegation.getRoles().isEmpty()
                     ? getUserAuthorities(delegation.getDelegating())
@@ -424,7 +425,7 @@ public class AuthDataAccessor {
         } else {
             User user = userDAO.findByUsername(username).
                     orElseThrow(() -> new UsernameNotFoundException(
-                    "Could not find any user with username " + username));
+                            "Could not find any user with username " + username));
 
             authorities = getUserAuthorities(user);
         }
@@ -438,9 +439,12 @@ public class AuthDataAccessor {
         Set<SyncopeGrantedAuthority> authorities;
 
         if (securityProperties.getAdminUser().equals(authentication.getClaims().getSubject())) {
-            accessTokenDAO.findById(authentication.getClaims().getJWTID()).
+            AccessToken accessToken = accessTokenDAO.findById(authentication.getClaims().getJWTID()).
                     orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-                    "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID()));
+                            "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID()));
+            if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
+                throw new AuthenticationCredentialsNotFoundException("Access Token owner does not match JWT subject");
+            }
 
             username = securityProperties.getAdminUser();
             authorities = getAdminAuthorities();
@@ -448,8 +452,8 @@ public class AuthDataAccessor {
             JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());
             JWTSSOProvider.ResolvedClaims resolved = jwtSSOProvider.resolve(authentication.getClaims()).
                     orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
-                    "Could not find User " + authentication.getClaims().getSubject()
-                    + " for JWT " + authentication.getClaims().getJWTID()));
+                            "Could not find User " + authentication.getClaims().getSubject()
+                            + " for JWT " + authentication.getClaims().getJWTID()));
 
             User user = resolved.user();
             String delegationKey = getDelegationKey(authentication.getDetails(), user.getKey());
