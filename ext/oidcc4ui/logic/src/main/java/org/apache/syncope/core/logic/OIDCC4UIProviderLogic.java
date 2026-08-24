@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +90,16 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<OIDCC4UIProviderTO> list() {
-        return opDAO.findAll().stream().map(binder::getOIDCProviderTO).toList();
+        boolean isAdmin = AuthContextUtils.getAuthorizations().containsKey(OIDCC4UIEntitlement.OP_READ);
+        return opDAO.findAll().stream().
+                map(op -> {
+                    OIDCC4UIProviderTO opTO = binder.getOIDCProviderTO(op);
+                    if (!isAdmin) {
+                        opTO.setClientSecret(null);
+                    }
+                    return opTO;
+                }).
+                toList();
     }
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_READ + "')")
