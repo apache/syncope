@@ -702,8 +702,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         resForTest.setKey("syncTokenWithErrors");
         resForTest.setConnector(null);
         ConnInstanceTO connForTest = SerializationUtils.clone(origConnector);
-        connForTest.getConf().stream().filter(p -> "password".equals(p.getSchema().getName())).findFirst().
-                ifPresent(p -> p.getValues().add(DB_PASSWORD));
+        connForTest.getConf("password").ifPresent(p -> p.getValues().add(DB_PASSWORD));
         connForTest.setKey(null);
         connForTest.setDisplayName("For syncTokenWithErrors");
 

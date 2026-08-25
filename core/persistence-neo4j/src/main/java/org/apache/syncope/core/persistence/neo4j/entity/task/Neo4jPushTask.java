@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPushTask.NODE)
@@ -117,5 +118,10 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
         return pushTaskExecs;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
     }
 }

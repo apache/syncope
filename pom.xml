@@ -528,7 +528,7 @@ under the License.
 
     <tomcat.version>11.0.25</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
-    <payara.version>7.2026.7</payara.version>
+    <payara.version>7.2026.8</payara.version>
     <jakarta.faces.version>4.1.14</jakarta.faces.version>
 
     <docker.postgresql.version>18-alpine</docker.postgresql.version>

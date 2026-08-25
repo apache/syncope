@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jExternalResource.NODE)
@@ -352,5 +353,10 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Override
     public List<? extends Implementation> getPropagationActions() {
         return sortedPropagationActions;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        sortedPropagationActions = new SortedSetList<>(propagationActions, Neo4jImplementationRelationship.builder());
     }
 }

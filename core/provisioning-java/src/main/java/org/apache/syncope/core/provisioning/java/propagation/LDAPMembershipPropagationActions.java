@@ -134,8 +134,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                     map(groupDAO::findById).flatMap(Optional::stream).
                     filter(group -> group.getResources().contains(taskInfo.getResource())).
                     forEach(group -> {
-                        String groupConnObjectLink = evaluateGroupConnObjectLink(
-                                mapping.getConnObjectLink(), group);
+                        String groupConnObjectLink = evaluateGroupConnObjectLink(mapping.getConnObjectLink(), group);
 
                         LOG.debug("ConnObjectLink for {} is '{}'", group, groupConnObjectLink);
                         if (StringUtils.isNotBlank(groupConnObjectLink)) {
