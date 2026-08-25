@@ -114,7 +114,7 @@ public class DefaultAuditManager implements AuditManager {
 
             case ConnInstanceTO connInstanceTO -> {
                 ConnInstanceTO clone = SerializationUtils.clone(connInstanceTO);
-                maskSensitive(connInstanceTO.getConf());
+                maskSensitive(clone.getConf());
                 yield clone;
             }
 
