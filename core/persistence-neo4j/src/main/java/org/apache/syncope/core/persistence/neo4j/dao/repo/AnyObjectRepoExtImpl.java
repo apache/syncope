@@ -159,7 +159,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
 
         // 2. check if anyObject is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = authRealms.stream().anyMatch(realm::startsWith);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {
@@ -246,20 +246,20 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                     anyObject.getKey(),
                     auxClass.getKey(),
                     Neo4jAnyObject.ANY_OBJECT_AUX_CLASSES_REL));
-            if (before.getUManager() != null && anyObject.getUManager() == null) {
+            if (before.getuManager() != null && anyObject.getuManager() == null) {
                 deleteRelationship(
                         Neo4jAnyObject.NODE,
                         Neo4jUser.NODE,
                         anyObject.getKey(),
-                        before.getUManager().getKey(),
+                        before.getuManager().getKey(),
                         Neo4jGroup.USER_MANAGER_REL);
             }
-            if (before.getGManager() != null && anyObject.getGManager() == null) {
+            if (before.getgManager() != null && anyObject.getgManager() == null) {
                 deleteRelationship(
                         Neo4jAnyObject.NODE,
                         Neo4jGroup.NODE,
                         anyObject.getKey(),
-                        before.getGManager().getKey(),
+                        before.getgManager().getKey(),
                         Neo4jGroup.GROUP_MANAGER_REL);
             }
 

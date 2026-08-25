@@ -61,7 +61,7 @@ public class SyncopeTaskScheduler {
     }
 
     protected void register(final Job job, final ScheduledFuture<?> instant, final ScheduledFuture<?> cron) {
-        Key key = new Key(job.getContext().getDomain(), job.getContext().getJobName());
+        Key key = new Key(job.getContext().domain(), job.getContext().jobName());
 
         stop(key, instant == null ? List.of(Value::cron) : List.of(Value::instant));
         AuthContextUtils.runAsAdmin(key.domain(), () -> jobStatusDAO.unlock(key.job()));

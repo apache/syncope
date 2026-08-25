@@ -149,7 +149,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
         // 1. check if group is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = authRealms.stream().anyMatch(realm::startsWith);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {
@@ -275,20 +275,20 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                     group.getKey(),
                     auxClass.getKey(),
                     Neo4jGroup.GROUP_AUX_CLASSES_REL));
-            if (before.getUManager() != null && group.getUManager() == null) {
+            if (before.getuManager() != null && group.getuManager() == null) {
                 deleteRelationship(
                         Neo4jGroup.NODE,
                         Neo4jUser.NODE,
                         group.getKey(),
-                        before.getUManager().getKey(),
+                        before.getuManager().getKey(),
                         AbstractAny.USER_MANAGER_REL);
             }
-            if (before.getGManager() != null && group.getGManager() == null) {
+            if (before.getgManager() != null && group.getgManager() == null) {
                 deleteRelationship(
                         Neo4jGroup.NODE,
                         Neo4jGroup.NODE,
                         group.getKey(),
-                        before.getGManager().getKey(),
+                        before.getgManager().getKey(),
                         AbstractAny.GROUP_MANAGER_REL);
             }
 

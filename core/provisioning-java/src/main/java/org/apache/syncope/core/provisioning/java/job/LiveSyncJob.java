@@ -44,12 +44,12 @@ public class LiveSyncJob extends TaskJob {
     protected void delegate(final JobExecutionContext context, final String taskKey)
             throws ClassNotFoundException, JobExecutionException {
 
-        String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+        String implKey = (String) context.data().get(JobManager.DELEGATE_IMPLEMENTATION);
         Implementation impl = implementationDAO.findById(implKey).orElse(null);
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
-            delegate = ImplementationManager.build(context.getDomain(), impl);
+            delegate = ImplementationManager.build(context.domain(), impl);
             delegate.execute(
                     TaskType.LIVE_SYNC,
                     taskKey,

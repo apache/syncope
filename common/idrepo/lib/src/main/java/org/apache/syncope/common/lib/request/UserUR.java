@@ -197,8 +197,8 @@ public class UserUR extends AnyUR {
 
     @JsonIgnore
     public boolean requiresApproval() {
-        return getUManager() != null
-                || getGManager() != null
+        return getuManager() != null
+                || getgManager() != null
                 || !getResources().isEmpty()
                 || !getRelationships().isEmpty()
                 || !memberships.isEmpty()

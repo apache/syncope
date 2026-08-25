@@ -81,7 +81,12 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         this.notificationManager = notificationManager;
     }
 
-    protected void throwApprovalRequired(final String key, final boolean condition, final String executor) {
+    protected void throwApprovalRequired(
+            final String key,
+            final boolean condition,
+            final String executor,
+            final String context) {
+
         if (securityProperties.getAdminUser().equals(executor)) {
             return;
         }
@@ -105,7 +110,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final String creator,
             final String context) {
 
-        throwApprovalRequired(null, userCR.requiresApproval(), creator);
+        throwApprovalRequired(null, userCR.requiresApproval(), creator, context);
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userCR);
@@ -167,7 +172,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected UserWorkflowResult<Pair<UserUR, Boolean>> doUpdate(
             final User user, final UserUR userUR, final String updater, final String context) {
 
-        throwApprovalRequired(userUR.getKey(), userUR.requiresApproval(), updater);
+        throwApprovalRequired(userUR.getKey(), userUR.requiresApproval(), updater, context);
 
         UserWorkflowResult.PropagationInfo propInfo = dataBinder.update(user, userUR);
 

@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -89,8 +90,8 @@ public class GroupMemberProvisionTaskJobDelegate
             final JobExecutionContext context)
             throws JobExecutionException {
 
-        groupKey = (String) context.getData().get(GROUP_KEY_JOBDETAIL_KEY);
-        action = (ProvisionAction) context.getData().get(ACTION_JOBDETAIL_KEY);
+        groupKey = (String) context.data().get(GROUP_KEY_JOBDETAIL_KEY);
+        action = (ProvisionAction) context.data().get(ACTION_JOBDETAIL_KEY);
 
         super.execute(taskType, taskKey, context);
     }
@@ -143,9 +144,9 @@ public class GroupMemberProvisionTaskJobDelegate
 
                 List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                         ? userProvisioningManager.deprovision(
-                                user.getKey(), gResources, false, executor)
+                                user.getKey(), gResources, false, AuthContextUtils.getUsername())
                         : userProvisioningManager.provision(
-                                user.getKey(), true, null, gResources, false, executor);
+                                user.getKey(), true, null, gResources, false, AuthContextUtils.getUsername());
                 for (PropagationStatus propagationStatus : statuses) {
                     result.append("User ").append(user.getKey()).append('\t').
                             append("Resource ").append(propagationStatus.getResource()).append('\t').
@@ -192,9 +193,9 @@ public class GroupMemberProvisionTaskJobDelegate
 
                 List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                         ? anyObjectProvisioningManager.deprovision(
-                                anyObject.getKey(), gResources, false, executor)
+                                anyObject.getKey(), gResources, false, AuthContextUtils.getUsername())
                         : anyObjectProvisioningManager.provision(
-                                anyObject.getKey(), gResources, false, executor);
+                                anyObject.getKey(), gResources, false, AuthContextUtils.getUsername());
 
                 for (PropagationStatus propagationStatus : statuses) {
                     result.append(anyObject.getType().getKey()).append(' ').

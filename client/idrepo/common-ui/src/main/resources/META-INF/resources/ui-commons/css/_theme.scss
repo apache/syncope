@@ -1,0 +1,434 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+:root {
+  /*
+   * --------------------------------------------------------------------------
+   * Universal colors
+   * --------------------------------------------------------------------------
+   *
+   * These values do not change with the application theme.
+   * Use them when the color itself has a fixed meaning.
+   */
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-text-on-light: #333333;
+  --color-text-on-dark: #ffffff;
+
+  --color-muted-on-light: #888888;
+  --color-muted-on-dark: #cccccc;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Primitive palette
+   * --------------------------------------------------------------------------
+   *
+   * Raw colors shared by semantic variables.
+   */
+
+  /* Neutral */
+  --app-gray-050: #f7f7f7;
+  --app-gray-100: #f5f5f5;
+  --app-gray-150: #eeeeee;
+  --app-gray-200: #dee2e6;
+  --app-gray-250: #d2d6de;
+  --app-gray-300: #cccccc;
+  --app-gray-400: #949494;
+  --app-gray-500: #888888;
+  --app-gray-600: #555555;
+  --app-gray-700: #444444;
+
+  /* Brand */
+  --app-green-500: #28a745;
+  --app-green-700: #146c43;
+
+  /* Semantic */
+  --app-cyan-500: #17a2b8;
+  --app-blue-500: #0ea5e9;
+  --app-yellow-500: #ffc107;
+  --app-red-500: #dc3545;
+  --app-red-700: #e00000;
+
+  /* Universal Color */
+  --app-text-on-light: #333333;
+  --app-text-on-dark: #ffffff;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Light theme
+   * --------------------------------------------------------------------------
+   */
+
+  /*
+   * Backgrounds
+   */
+  --app-bg: #ecf0f5;
+  --app-surface: var(--color-white);
+  --app-surface-secondary: var(--app-gray-050);
+  --app-surface-tertiary: var(--app-gray-100);
+
+  /*
+   * Text
+   */
+  --app-text: var(--color-text-on-light);
+  --app-text-secondary: var(--app-gray-500);
+  --app-text-muted: var(--app-gray-600);
+  --app-text-inverse: var(--color-text-on-dark);
+
+  --app-text-link: var(--app-green-500);
+  --app-text-link-hover: var(--app-green-700);
+
+  /*
+   * Borders
+   */
+  --app-border: var(--app-gray-200);
+  --app-border-subtle: var(--app-gray-150);
+  --app-border-strong: var(--app-gray-250);
+  --app-border-input: var(--app-gray-300);
+  --app-border-focus: var(--app-green-500);
+
+  /*
+   * Primary actions
+   */
+  --app-primary: var(--app-green-500);
+  --app-primary-hover: var(--app-green-700);
+  --app-primary-contrast: var(--color-white);
+
+  /*
+   * Semantic states
+   */
+  --app-success: var(--app-cyan-500);
+  --app-success-contrast: var(--color-white);
+
+  --app-danger: var(--app-red-500);
+  --app-danger-text: var(--app-red-700);
+  --app-danger-contrast: var(--color-white);
+
+  --app-warning: var(--app-yellow-500);
+  --app-warning-contrast: var(--color-white);
+
+  --app-info: var(--app-blue-500);
+  --app-info-contrast: var(--color-white);
+
+  /*
+   * Inputs
+   */
+  --app-input-bg: var(--color-white);
+  --app-input-addon-bg: var(--app-gray-150);
+  --app-input-border: var(--app-border-input);
+  --app-input-text: var(--app-text);
+  --app-input-placeholder: var(--app-text-secondary);
+
+  /*
+   * Dropdowns / popovers / autocomplete
+   */
+  --app-dropdown-bg: var(--app-surface);
+  --app-dropdown-text: var(--app-text);
+  --app-dropdown-border: var(--app-border);
+
+  --app-popover-bg: var(--app-surface);
+  --app-popover-text: var(--app-text);
+  --app-popover-border: var(--app-border);
+
+  /*
+   * Overlays
+   */
+  --app-overlay: rgba(0, 0, 0, 0.30);
+  --app-overlay-strong: rgba(0, 0, 0, 0.55);
+
+  /*
+   * Shadows
+   */
+  --app-shadow: rgba(0, 0, 0, 0.25);
+  --app-shadow-strong: rgba(0, 0, 0, 0.75);
+
+  /*
+   * Code / preformatted content
+   */
+  --app-code-bg: var(--app-gray-100);
+  --app-code-text: var(--app-text);
+  --app-code-border: var(--app-gray-300);
+
+  --app-code-deletion-bg: #ffdddd;
+  --app-code-deletion-border: #f1c0c0;
+
+  --app-code-addition-bg: #dbffdb;
+  --app-code-addition-border: #c1e9c1;
+
+  /*
+   * Notifications
+   */
+  --app-notification-error-bg: rgba(255, 0, 0, 0.70);
+  --app-notification-error-text: var(--app-danger-text);
+
+  --app-notification-success-bg: rgba(0, 153, 0, 0.70);
+  --app-notification-success-text: var(--color-white);
+
+  /*
+   * Accessibility
+   */
+  --app-accessibility-outline: var(--app-gray-400);
+
+  /*
+   * Special / legacy components
+   */
+  --app-disabled-bg: var(--app-gray-150);
+  --app-disabled-text: var(--app-text-secondary);
+
+  --app-highlight: var(--app-danger-text);
+
+  --app-selection-bg: var(--app-success);
+  --app-selection-text: var(--color-white);
+
+  --app-tooltip-bg: var(--color-white);
+  --app-tooltip-text: var(--color-black);
+  --app-tooltip-border: var(--color-black);
+
+  /*
+   * Sidebar / navigation
+   */
+  --app-sidebar-bg: var(--app-surface);
+  --app-sidebar-text: var(--app-text);
+  --app-sidebar-link: var(--app-text-link);
+  --app-sidebar-link-hover: var(--app-text-link-hover);
+
+  --app-navbar-text: var(--color-white);
+  --app-navbar-hover-bg: rgba(0, 0, 0, 0.15);
+
+  /*
+   * Tables
+   */
+  --app-table-active-bg: var(--app-success);
+  --app-table-active-text: var(--color-white);
+
+  /*
+   * Cards / panels
+   */
+  --app-card-bg: var(--app-surface);
+  --app-card-border: var(--app-border);
+  --app-panel-border: var(--app-border-strong);
+}
+
+
+/*
+ * ============================================================================
+ * Dark theme
+ * ============================================================================
+ */
+
+[data-bs-theme="dark"] {
+  /*
+   * --------------------------------------------------------------------------
+   * Backgrounds
+   * --------------------------------------------------------------------------
+   */
+
+  --app-bg: #2b3035;
+  --app-surface: #41474d;
+  --app-surface-secondary: #484f56;
+  --app-surface-tertiary: #343a40;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Text
+   * --------------------------------------------------------------------------
+   */
+
+  --app-text: #f1f3f5;
+  --app-text-secondary: #b8c0c7;
+  --app-text-muted: #d0d5da;
+  --app-text-inverse: var(--color-black);
+
+  --app-text-link: #45c76b;
+  --app-text-link-hover: #70d98b;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Borders
+   * --------------------------------------------------------------------------
+   */
+
+  --app-border: #68727b;
+  --app-border-subtle: #59636c;
+  --app-border-strong: #68727b;
+  --app-border-input: #68727b;
+  --app-border-focus: #45c76b;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Primary actions
+   * --------------------------------------------------------------------------
+   */
+
+  --app-primary: #45c76b;
+  --app-primary-hover: #70d98b;
+  --app-primary-contrast: var(--color-white);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Semantic states
+   * --------------------------------------------------------------------------
+   */
+
+  --app-success: #29b8d3;
+  --app-success-contrast: var(--color-white);
+
+  --app-danger: #ed5864;
+  --app-danger-text: #ff858d;
+  --app-danger-contrast: var(--color-white);
+
+  --app-warning: #ffc94d;
+  --app-warning-contrast: var(--color-black);
+
+  --app-info: #50beef;
+  --app-info-contrast: var(--color-white);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Inputs
+   * --------------------------------------------------------------------------
+   */
+
+  --app-input-bg: #343a40;
+  --app-input-addon-bg: #4a5158;
+  --app-input-border: var(--app-border);
+  --app-input-text: var(--app-text);
+  --app-input-placeholder: var(--app-text-secondary);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Dropdowns / popovers / autocomplete
+   * --------------------------------------------------------------------------
+   */
+
+  --app-dropdown-bg: var(--app-surface);
+  --app-dropdown-text: var(--app-text);
+  --app-dropdown-border: var(--app-border);
+
+  --app-popover-bg: var(--app-surface);
+  --app-popover-text: var(--app-text);
+  --app-popover-border: var(--app-border);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Overlays
+   * --------------------------------------------------------------------------
+   */
+
+  --app-overlay: rgba(0, 0, 0, 0.55);
+  --app-overlay-strong: rgba(0, 0, 0, 0.70);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Shadows
+   * --------------------------------------------------------------------------
+   */
+
+  --app-shadow: rgba(0, 0, 0, 0.45);
+  --app-shadow-strong: rgba(0, 0, 0, 0.80);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Code / preformatted content
+   * --------------------------------------------------------------------------
+   */
+
+  --app-code-bg: #343a40;
+  --app-code-text: var(--app-text);
+  --app-code-border: var(--app-border);
+
+  --app-code-deletion-bg: rgba(220, 53, 69, 0.25);
+  --app-code-deletion-border: rgba(220, 53, 69, 0.55);
+
+  --app-code-addition-bg: rgba(40, 167, 69, 0.25);
+  --app-code-addition-border: rgba(40, 167, 69, 0.55);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Notifications
+   * --------------------------------------------------------------------------
+   */
+
+  --app-notification-error-bg: rgba(255, 0, 0, 0.70);
+  --app-notification-error-text: var(--app-danger-text);
+
+  --app-notification-success-bg: rgba(0, 153, 0, 0.70);
+  --app-notification-success-text: var(--color-white);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Accessibility
+   * --------------------------------------------------------------------------
+   */
+
+  --app-accessibility-outline: #949494;
+
+  /*
+   * --------------------------------------------------------------------------
+   * Special / legacy components
+   * --------------------------------------------------------------------------
+   */
+
+  --app-disabled-bg: #41474d;
+  --app-disabled-text: var(--app-text-secondary);
+
+  --app-highlight: var(--app-danger-text);
+
+  --app-selection-bg: var(--app-success);
+  --app-selection-text: var(--color-white);
+
+  --app-tooltip-bg: var(--app-surface);
+  --app-tooltip-text: var(--color-white);
+  --app-tooltip-border: var(--app-border);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Sidebar / navigation
+   * --------------------------------------------------------------------------
+   */
+
+  --app-sidebar-bg: var(--app-surface);
+  --app-sidebar-text: var(--app-text);
+  --app-sidebar-link: var(--app-text-link);
+  --app-sidebar-link-hover: var(--app-text-link-hover);
+
+  --app-navbar-text: var(--color-white);
+  --app-navbar-hover-bg: rgba(0, 0, 0, 0.25);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Tables
+   * --------------------------------------------------------------------------
+   */
+
+  --app-table-active-bg: var(--app-success);
+  --app-table-active-text: var(--color-white);
+
+  /*
+   * --------------------------------------------------------------------------
+   * Cards / panels
+   * --------------------------------------------------------------------------
+   */
+
+  --app-card-bg: var(--app-surface);
+  --app-card-border: var(--app-border);
+  --app-panel-border: var(--app-border);
+}

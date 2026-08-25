@@ -75,8 +75,10 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private String realm;
 
+    @JsonProperty
     private String uManager;
 
+    @JsonProperty
     private String gManager;
 
     private String status;
@@ -183,19 +185,19 @@ public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
         this.realm = realm;
     }
 
-    public String getUManager() {
+    public String getuManager() {
         return uManager;
     }
 
-    public void setUManager(final String uManager) {
+    public void setuManager(final String uManager) {
         this.uManager = uManager;
     }
 
-    public String getGManager() {
+    public String getgManager() {
         return gManager;
     }
 
-    public void setGManager(final String gManager) {
+    public void setgManager(final String gManager) {
         this.gManager = gManager;
     }
 

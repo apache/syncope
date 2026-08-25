@@ -21,42 +21,19 @@ package org.apache.syncope.core.provisioning.api.job;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JobExecutionContext {
+public record JobExecutionContext(
+        String domain,
+        String jobName,
+        String executor,
+        boolean dryRun,
+        Map<String, Object> data) {
 
-    private final String domain;
+    public JobExecutionContext(
+            final String domain,
+            final String jobName,
+            final String executor,
+            final boolean dryRun) {
 
-    private final String jobName;
-
-    private final String executor;
-
-    private final boolean dryRun;
-
-    private final Map<String, Object> data = new HashMap<>();
-
-    public JobExecutionContext(final String domain, final String jobName, final String executor, final boolean dryRun) {
-        this.domain = domain;
-        this.jobName = jobName;
-        this.executor = executor;
-        this.dryRun = dryRun;
-    }
-
-    public String getDomain() {
-        return domain;
-    }
-
-    public String getJobName() {
-        return jobName;
-    }
-
-    public String getExecutor() {
-        return executor;
-    }
-
-    public boolean isDryRun() {
-        return dryRun;
-    }
-
-    public Map<String, Object> getData() {
-        return data;
+        this(domain, jobName, executor, dryRun, new HashMap<>());
     }
 }

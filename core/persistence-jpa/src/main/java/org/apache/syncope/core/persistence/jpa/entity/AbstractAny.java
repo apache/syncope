@@ -152,23 +152,23 @@ public abstract class AbstractAny extends AbstractAttributable implements Any {
     }
 
     @Override
-    public User getUManager() {
+    public User getuManager() {
         return uManager;
     }
 
     @Override
-    public void setUManager(final User manager) {
+    public void setuManager(final User manager) {
         checkType(manager, JPAUser.class);
         this.uManager = (JPAUser) manager;
     }
 
     @Override
-    public Group getGManager() {
+    public Group getgManager() {
         return gManager;
     }
 
     @Override
-    public void setGManager(final Group manager) {
+    public void setgManager(final Group manager) {
         checkType(manager, JPAGroup.class);
         this.gManager = (JPAGroup) manager;
     }

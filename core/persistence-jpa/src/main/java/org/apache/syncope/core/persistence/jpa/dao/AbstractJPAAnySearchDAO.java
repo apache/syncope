@@ -29,12 +29,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -60,7 +57,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -69,10 +65,6 @@ import org.springframework.data.domain.Sort;
  * Search engine implementation for users, groups and any objects, based on self-updating SQL views.
  */
 abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
-
-    protected record AdminRealmsFilter(AnySearchNode.Leaf filter, Set<Pair<AnyTypeKind, String>> managed) {
-
-    }
 
     protected record QueryInfo(AnySearchNode node, Set<String> plainSchemas) {
 
@@ -620,52 +612,24 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         };
     }
 
-    protected AnySearchNode.Leaf buildAdminRealmsFilter(
-            final Set<String> realmKeys,
-            final SearchSupport svs,
-            final List<Object> parameters) {
-
-        if (realmKeys.isEmpty()) {
-            return new AnySearchNode.Leaf(defaultSV(svs), StringUtils.substringAfter(anyId(svs), '.') + " IS NOT NULL");
-        }
-
-        String realmKeysArg = realmKeys.stream().
-                map(realmKey -> "?" + setParameter(parameters, realmKey)).
-                collect(Collectors.joining(","));
-        return new AnySearchNode.Leaf(defaultSV(svs), "realm_id IN (" + realmKeysArg + ")");
-    }
-
-    protected AdminRealmsFilter getAdminRealmsFilter(
+    protected AdminRealmsFilter<AnySearchNode.Leaf> getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        Set<String> realmKeys = new HashSet<>();
-        Set<Pair<AnyTypeKind, String>> managed = new HashSet<>();
-
-        if (recursive) {
-            adminRealms.forEach(realmPath -> RealmUtils.ManagerRealm.of(realmPath).ifPresentOrElse(
-                    realm -> managed.add(Pair.of(realm.kind(), realm.anyKey())),
-                    () -> {
-                        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
-                            SyncopeClientException noRealm =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                            noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                            return noRealm;
-                        });
-
-                        realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
-                                stream().map(Realm::getKey).toList());
-                    }));
-        } else {
-            if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
-                realmKeys.add(base.getKey());
+        return processRealms(base, recursive, adminRealms, realmKeys -> {
+            if (realmKeys.isEmpty()) {
+                return new AnySearchNode.Leaf(
+                        defaultSV(svs), StringUtils.substringAfter(anyId(svs), '.') + " IS NOT NULL");
             }
-        }
 
-        return new AdminRealmsFilter(buildAdminRealmsFilter(realmKeys, svs, parameters), managed);
+            String realmKeysArg = realmKeys.stream().
+                    map(realmKey -> "?" + setParameter(parameters, realmKey)).
+                    collect(Collectors.joining(","));
+            return new AnySearchNode.Leaf(defaultSV(svs), "realm_id IN (" + realmKeysArg + ")");
+        });
     }
 
     protected void visitNode(
@@ -771,7 +735,8 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         SearchSupport svs = new SearchViewSupport(kind);
 
         // 1. get admin realms filter
-        AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
+        AdminRealmsFilter<AnySearchNode.Leaf> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(
@@ -936,7 +901,8 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         SearchSupport svs = new SearchViewSupport(kind);
 
         // 1. get admin realms filter
-        AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
+        AdminRealmsFilter<AnySearchNode.Leaf> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
         QueryInfo queryInfo = getQuery(

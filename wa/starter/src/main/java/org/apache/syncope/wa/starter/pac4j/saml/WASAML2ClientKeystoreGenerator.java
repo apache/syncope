@@ -27,7 +27,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.pac4j.core.keystore.generation.BaseKeystoreGenerator;
@@ -79,7 +78,7 @@ public class WASAML2ClientKeystoreGenerator extends BaseKeystoreGenerator {
         }
 
         waRestClient.getService(WASAML2SPService.class).setSAML2SPKeystore(
-                saml2Client, IOUtils.toInputStream(encodedKeystore, StandardCharsets.UTF_8));
+                saml2Client, new ByteArrayInputStream(encodedKeystore.getBytes(StandardCharsets.UTF_8)));
     }
 
     @Override

@@ -20,6 +20,9 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,10 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractLogic<T extends EntityTO> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractLogic.class);
+
+    protected record ProvisioningInfo(AnyType anyType, ExternalResource resource, Provision provision) {
+
+    }
 
     /**
      * Resolves stored bean (if existing) referred by the given CUD method.

@@ -117,7 +117,7 @@ public class Management extends WizardStep implements ICondition {
         setTitleModel(new ResourceModel("manager"));
         this.wrapper = anyWrapper;
 
-        isGManager = Model.of(anyWrapper.getInnerObject().getGManager() != null);
+        isGManager = Model.of(anyWrapper.getInnerObject().getgManager() != null);
 
         BootstrapToggleConfig config = new BootstrapToggleConfig().
                 withOnStyle(BootstrapToggleConfig.Style.info).
@@ -213,11 +213,11 @@ public class Management extends WizardStep implements ICondition {
 
             @Override
             public String getObject() {
-                if (anyWrapper.getInnerObject().getUManager() == null) {
+                if (anyWrapper.getInnerObject().getuManager() == null) {
                     return StringUtils.EMPTY;
                 }
 
-                UserTO userTO = userRestClient.read(anyWrapper.getInnerObject().getUManager());
+                UserTO userTO = userRestClient.read(anyWrapper.getInnerObject().getuManager());
                 if (userTO == null) {
                     return StringUtils.EMPTY;
                 }
@@ -228,11 +228,11 @@ public class Management extends WizardStep implements ICondition {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    anyWrapper.getInnerObject().setUManager(null);
+                    anyWrapper.getInnerObject().setuManager(null);
                 } else {
                     Matcher matcher = manager.matcher(object);
                     if (matcher.matches()) {
-                        anyWrapper.getInnerObject().setUManager(matcher.group(1));
+                        anyWrapper.getInnerObject().setuManager(matcher.group(1));
                     }
                 }
             }
@@ -262,10 +262,10 @@ public class Management extends WizardStep implements ICondition {
 
             @Override
             public String getObject() {
-                if (anyWrapper.getInnerObject().getGManager() == null) {
+                if (anyWrapper.getInnerObject().getgManager() == null) {
                     return StringUtils.EMPTY;
                 } else {
-                    GroupTO groupTO = groupRestClient.read(anyWrapper.getInnerObject().getGManager());
+                    GroupTO groupTO = groupRestClient.read(anyWrapper.getInnerObject().getgManager());
                     if (groupTO == null) {
                         return StringUtils.EMPTY;
                     } else {
@@ -277,11 +277,11 @@ public class Management extends WizardStep implements ICondition {
             @Override
             public void setObject(final String object) {
                 if (StringUtils.isBlank(object)) {
-                    anyWrapper.getInnerObject().setGManager(null);
+                    anyWrapper.getInnerObject().setgManager(null);
                 } else {
                     final Matcher matcher = manager.matcher(object);
                     if (matcher.matches()) {
-                        anyWrapper.getInnerObject().setGManager(matcher.group(1));
+                        anyWrapper.getInnerObject().setgManager(matcher.group(1));
                     }
                 }
             }
@@ -322,14 +322,14 @@ public class Management extends WizardStep implements ICondition {
         } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection<?> itemSelection) {
             AnyTO sel = itemSelection.getSelection();
             if (sel == null) {
-                wrapper.getInnerObject().setUManager(null);
-                wrapper.getInnerObject().setGManager(null);
+                wrapper.getInnerObject().setuManager(null);
+                wrapper.getInnerObject().setgManager(null);
             } else if (sel instanceof UserTO) {
-                wrapper.getInnerObject().setUManager(sel.getKey());
-                wrapper.getInnerObject().setGManager(null);
+                wrapper.getInnerObject().setuManager(sel.getKey());
+                wrapper.getInnerObject().setgManager(null);
             } else if (sel instanceof GroupTO) {
-                wrapper.getInnerObject().setUManager(null);
-                wrapper.getInnerObject().setGManager(sel.getKey());
+                wrapper.getInnerObject().setuManager(null);
+                wrapper.getInnerObject().setgManager(sel.getKey());
             }
             itemSelection.getTarget().add(managerContainer);
         } else {

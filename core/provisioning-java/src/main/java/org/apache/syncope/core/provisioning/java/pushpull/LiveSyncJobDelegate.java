@@ -59,6 +59,7 @@ import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
@@ -103,9 +104,9 @@ public class LiveSyncJobDelegate
 
         Implementation impl = Optional.ofNullable(task.getLiveSyncDeltaMapper()).
                 orElseThrow(() -> new JobExecutionException(
-                "No " + LiveSyncDeltaMapper.class.getSimpleName() + " provided, aborting"));
+                        "No " + LiveSyncDeltaMapper.class.getSimpleName() + " provided, aborting"));
         try {
-            mapper = ImplementationManager.build(context.getDomain(), impl);
+            mapper = ImplementationManager.build(context.domain(), impl);
         } catch (Exception e) {
             throw new JobExecutionException(
                     "Could not build " + IdMImplementationType.LIVE_SYNC_DELTA_MAPPER + " " + impl.getKey(), e);
@@ -140,9 +141,9 @@ public class LiveSyncJobDelegate
                 Optional.ofNullable(task.getResource().getInboundPolicy()).
                         map(InboundPolicy::getConflictResolutionAction).
                         orElse(ConflictResolutionAction.IGNORE),
-                getInboundActions(context.getDomain(), task.getActions()),
-                executor,
-                context.isDryRun()) {
+                getInboundActions(context.domain(), task.getActions()),
+                AuthContextUtils.getUsername(),
+                context.dryRun()) {
 
             @Override
             public String getContext() {
@@ -181,7 +182,7 @@ public class LiveSyncJobDelegate
 
             Optional.ofNullable(orgUnit.getSyncToken()).
                     ifPresent(syncToken -> setLatestSyncToken(
-                    orgUnit.getObjectClass(), ConnObjectUtils.toSyncToken(syncToken)));
+                            orgUnit.getObjectClass(), ConnObjectUtils.toSyncToken(syncToken)));
         }
 
         // ...then provisions for any types
@@ -233,7 +234,7 @@ public class LiveSyncJobDelegate
 
             Optional.ofNullable(provision.getSyncToken()).
                     ifPresent(syncToken -> setLatestSyncToken(
-                    provision.getObjectClass(), ConnObjectUtils.toSyncToken(syncToken)));
+                            provision.getObjectClass(), ConnObjectUtils.toSyncToken(syncToken)));
         }
 
         setStatus("Initialization completed");
@@ -287,7 +288,7 @@ public class LiveSyncJobDelegate
                 OperationOptions options = Optional.ofNullable(
                         latestSyncTokens.get(info.objectClass().getObjectClassValue())).
                         map(syncToken -> new OperationOptionsBuilder(info.options()).
-                        setPagedResultsCookie(syncToken.getValue().toString()).build()).
+                                setPagedResultsCookie(syncToken.getValue().toString()).build()).
                         orElseGet(() -> info.options());
 
                 profile.getConnector().livesync(
@@ -313,14 +314,14 @@ public class LiveSyncJobDelegate
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(info.anyTypeKind());
                     profile.getResults().stream().
                             filter(r -> r.getUidValue() != null && r.getKey() != null
-                            && r.getOperation() == ResourceOperation.CREATE
-                            && r.getAnyType().equals(info.provision().getAnyType())).
+                                    && r.getOperation() == ResourceOperation.CREATE
+                                    && r.getAnyType().equals(info.provision().getAnyType())).
                             forEach(r -> liveSyncTaskSaver.addAttr(
-                            anyUtils,
-                            validator,
-                            r.getKey(),
-                            info.uidOnCreate(),
-                            r.getUidValue()));
+                                    anyUtils,
+                                    validator,
+                                    r.getKey(),
+                                    info.uidOnCreate(),
+                                    r.getUidValue()));
                 }
             });
 

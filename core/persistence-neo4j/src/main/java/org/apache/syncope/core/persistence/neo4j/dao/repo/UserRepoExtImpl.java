@@ -259,7 +259,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
         // 2. check if user is in Realm (or descendants) for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {
-            authorized = authRealms.stream().anyMatch(realm::startsWith);
+            authorized = RealmUtils.SubtreePredicate.of(authRealms).test(realm);
         }
 
         if (!authorized) {
@@ -335,20 +335,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                     user.getKey(),
                     auxClass.getKey(),
                     Neo4jUser.USER_AUX_CLASSES_REL));
-            if (before.getUManager() != null && user.getUManager() == null) {
+            if (before.getuManager() != null && user.getuManager() == null) {
                 deleteRelationship(
                         Neo4jUser.NODE,
                         Neo4jUser.NODE,
                         user.getKey(),
-                        before.getUManager().getKey(),
+                        before.getuManager().getKey(),
                         AbstractAny.USER_MANAGER_REL);
             }
-            if (before.getGManager() != null && user.getGManager() == null) {
+            if (before.getgManager() != null && user.getgManager() == null) {
                 deleteRelationship(
                         Neo4jUser.NODE,
                         Neo4jGroup.NODE,
                         user.getKey(),
-                        before.getGManager().getKey(),
+                        before.getgManager().getKey(),
                         AbstractAny.GROUP_MANAGER_REL);
             }
             if (before.getSecurityQuestion() != null && user.getSecurityQuestion() == null) {

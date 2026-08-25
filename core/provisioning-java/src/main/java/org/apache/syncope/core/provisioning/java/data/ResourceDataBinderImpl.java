@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -59,9 +60,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -215,12 +218,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
 
         // 2. remove all provisions not contained in the TO
-        for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
-            Provision provision = itor.next();
-            if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
-                itor.remove();
-            }
-        }
+        resource.getProvisions().removeIf(provision -> resourceTO.getProvision(provision.getAnyType()).isEmpty());
 
         // 3. orgUnit
         if (resourceTO.getOrgUnit() == null && resource.getOrgUnit() != null) {
@@ -334,8 +332,12 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             Implementation.class.getSimpleName(), resourceTO.getProvisionSorter()));
         }
 
-        resource.setConfOverride(
-                Optional.ofNullable(resourceTO.getConfOverride()).orElseGet(Optional::empty));
+        resourceTO.getConfOverride().ifPresentOrElse(
+                confOverride -> {
+                    List<ConnConfProperty> previousConf = resource.getConfOverride().orElseGet(() -> List.of());
+                    resource.setConfOverride(Optional.of(ConnInstanceDataBinder.newConf(previousConf, confOverride)));
+                },
+                () -> resource.setConfOverride(Optional.empty()));
 
         resource.setCapabilitiesOverride(
                 Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElseGet(Optional::empty));
@@ -592,7 +594,23 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setProvisionSorter(resource.getProvisionSorter() == null
                 ? null : resource.getProvisionSorter().getKey());
 
-        resourceTO.setConfOverride(resource.getConfOverride());
+        // do not export confidential property values
+        resource.getConfOverride().ifPresent(conf -> {
+            List<ConnConfProperty> confOverride = new ArrayList<>();
+            conf.forEach(property -> {
+                if (property.getSchema().isConfidential()
+                        || GuardedString.class.getName().equals(property.getSchema().getType())) {
+
+                    ConnConfProperty empty = new ConnConfProperty();
+                    empty.setOverridable(property.isOverridable());
+                    empty.setSchema(property.getSchema());
+                    confOverride.add(empty);
+                } else {
+                    confOverride.add(property);
+                }
+            });
+            resourceTO.setConfOverride(Optional.of(confOverride));
+        });
 
         resourceTO.setCapabilitiesOverride(resource.getCapabilitiesOverride());
 

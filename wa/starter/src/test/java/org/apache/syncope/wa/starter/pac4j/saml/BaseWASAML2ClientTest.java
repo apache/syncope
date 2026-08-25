@@ -27,11 +27,11 @@ import static org.mockito.Mockito.when;
 import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -109,7 +109,7 @@ public abstract class BaseWASAML2ClientTest {
         idpMetadataResolver.init();
         cfg.setIdentityProviderMetadataResolver(idpMetadataResolver);
 
-        cfg.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
+        cfg.setServiceProviderMetadataResource(new FileSystemResource(Files.createTempFile("sp-metadata", ".xml")));
 
         return cfg;
     }

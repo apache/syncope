@@ -468,8 +468,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("testLDAPGroup", groupTO.getName());
         assertTrue(groupTO.getLastChangeContext().contains("Task " + task.getKey()));
         assertEquals("true", groupTO.getPlainAttr("show").orElseThrow().getValues().getFirst());
-        assertEquals(matchingUsers.getResult().getFirst().getKey(), groupTO.getUManager());
-        assertNull(groupTO.getGManager());
+        assertEquals(matchingUsers.getResult().getFirst().getKey(), groupTO.getuManager());
+        assertNull(groupTO.getgManager());
         // SYNCOPE-1343, set value title to null on LDAP
         ConnObject userConnObject = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), matchingUsers.getResult().getFirst().getKey());
@@ -702,6 +702,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         resForTest.setKey("syncTokenWithErrors");
         resForTest.setConnector(null);
         ConnInstanceTO connForTest = SerializationUtils.clone(origConnector);
+        connForTest.getConf().stream().filter(p -> "password".equals(p.getSchema().getName())).findFirst().
+                ifPresent(p -> p.getValues().add(DB_PASSWORD));
         connForTest.setKey(null);
         connForTest.setDisplayName("For syncTokenWithErrors");
 

@@ -122,8 +122,8 @@ public class OpenSearchUtils {
         builder.put("lastChangeContext", any.getLastChangeContext());
         builder.put("status", any.getStatus());
         builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
-        Optional.ofNullable(any.getUManager()).ifPresent(um -> builder.put("uManager", um.getKey()));
-        Optional.ofNullable(any.getGManager()).ifPresent(gm -> builder.put("gManager", gm.getKey()));
+        Optional.ofNullable(any.getuManager()).ifPresent(um -> builder.put("uManager", um.getKey()));
+        Optional.ofNullable(any.getgManager()).ifPresent(gm -> builder.put("gManager", gm.getKey()));
 
         switch (any) {
             case AnyObject anyObject -> {

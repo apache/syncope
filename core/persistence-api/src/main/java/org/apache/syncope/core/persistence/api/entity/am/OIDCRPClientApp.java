@@ -38,6 +38,10 @@ public interface OIDCRPClientApp extends ClientApp {
 
     String getClientSecret();
 
+    void setClientSecretExpiration(long clientSecretExpiration);
+
+    long getClientSecretExpiration();
+
     Set<String> getRedirectUris();
 
     Set<OIDCGrantType> getSupportedGrantTypes();

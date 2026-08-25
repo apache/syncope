@@ -22,6 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -66,7 +67,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.io.IOUtils;
 
 public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         BpmnProcess, BpmnProcess, BpmProcessDataProvider, BpmnProcessRestClient> {
@@ -173,8 +173,9 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 final IModel<String> wfDefinition = new Model<>();
                 try {
-                    wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(
-                            MediaType.APPLICATION_XML_TYPE, model.getObject().getKey())));
+                    wfDefinition.setObject(new String(restClient.getDefinition(
+                            MediaType.APPLICATION_XML_TYPE, model.getObject().getKey()).readAllBytes(),
+                            StandardCharsets.UTF_8));
                 } catch (IOException e) {
                     LOG.error("Could not get workflow definition", e);
                 }

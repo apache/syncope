@@ -38,7 +38,7 @@ public class GoogleMfaAuthTokenITCase extends AbstractITCase {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private static GoogleMfaAuthToken createGoogleMfaAuthToken() {
-        int token = SECURE_RANDOM.ints(100_000, 999_999).findFirst().getAsInt();
+        int token = SECURE_RANDOM.ints(100_000, 999_999).findFirst().orElseThrow();
         return new GoogleMfaAuthToken.Builder().token(token).issueDate(LocalDateTime.now()).build();
     }
 

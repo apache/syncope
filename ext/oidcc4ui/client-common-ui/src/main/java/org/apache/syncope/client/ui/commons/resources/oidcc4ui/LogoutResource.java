@@ -61,6 +61,13 @@ public abstract class LogoutResource extends AbstractResource {
             service.backChannelLogout(logoutToken, request.getRequestURL().toString());
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
+            response.setWriteCallback(new WriteCallback() {
+                
+                @Override
+                public void writeData(final Attributes atrbts) {
+                    // No response body
+                }
+            });
         } catch (Exception e) {
             LOG.error("While requesting back-channel logout for token {}", logoutToken, e);
 

@@ -300,6 +300,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setClientSecret(clientAppTO.getClientSecret());
+        clientApp.setClientSecretExpiration(clientAppTO.getClientSecretExpiration());
         clientApp.setIdTokenIssuer(clientAppTO.getIdTokenIssuer());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
         clientApp.setIdTokenSigningAlg(clientAppTO.getIdTokenSigningAlg());
@@ -351,6 +352,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
         clientAppTO.setClientId(clientApp.getClientId());
         clientAppTO.setClientSecret(clientApp.getClientSecret());
+        clientAppTO.setClientSecretExpiration(clientApp.getClientSecretExpiration());
         clientAppTO.setIdTokenIssuer(clientApp.getIdTokenIssuer());
         clientAppTO.setSignIdToken(clientApp.isSignIdToken());
         clientAppTO.setIdTokenSigningAlg(clientApp.getIdTokenSigningAlg());

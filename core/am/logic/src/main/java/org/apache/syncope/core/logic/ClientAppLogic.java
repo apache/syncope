@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -38,7 +39,10 @@ import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtils;
 import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,10 +92,19 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 stream = saml2SPClientAppDAO.findAll().stream().map(binder::getClientAppTO);
         }
 
-        return stream.toList();
+        return stream.filter(clientApp -> {
+            if (clientApp.getRealm() == null) {
+                return true;
+            }
+
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(AMEntitlement.CLIENTAPP_LIST),
+                    clientApp.getRealm());
+            return RealmUtils.SubtreePredicate.of(authRealms).test(clientApp.getRealm());
+        }).toList();
     }
 
-    protected void checkType(final ClientAppType type, final ClientAppUtils clientAppUtils) {
+    protected void typeCheck(final ClientAppType type, final ClientAppUtils clientAppUtils) {
         if (clientAppUtils.getType() != type) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add("Found " + type + ", expected " + clientAppUtils.getType());
@@ -99,70 +112,110 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         }
     }
 
+    protected void securityChecks(
+            final Set<String> realms,
+            final String realm,
+            final ClientAppType type,
+            final String key) {
+
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
+            throw new DelegatedAdministrationException(realm, type.name(), key);
+        }
+    }
+
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_READ + "')")
     @Transactional(readOnly = true)
     public <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
+        T clientApp;
         switch (type) {
             case OIDCRP:
                 OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findById(key).
                         orElseThrow(() -> new NotFoundException("OIDCRPClientApp " + key));
 
-                checkType(type, clientAppUtilsFactory.getInstance(oidcrp));
+                typeCheck(type, clientAppUtilsFactory.getInstance(oidcrp));
 
-                return binder.getClientAppTO(oidcrp);
+                clientApp = binder.getClientAppTO(oidcrp);
+                break;
 
             case CASSP:
                 CASSPClientApp cassp = casSPClientAppDAO.findById(key).
                         orElseThrow(() -> new NotFoundException("CASSPClientApp " + key));
 
-                checkType(type, clientAppUtilsFactory.getInstance(cassp));
+                typeCheck(type, clientAppUtilsFactory.getInstance(cassp));
 
-                return binder.getClientAppTO(cassp);
+                clientApp = binder.getClientAppTO(cassp);
+                break;
 
             case SAML2SP:
             default:
                 SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findById(key).
                         orElseThrow(() -> new NotFoundException("SAML2SPClientApp " + key));
 
-                checkType(type, clientAppUtilsFactory.getInstance(saml2sp));
+                typeCheck(type, clientAppUtilsFactory.getInstance(saml2sp));
 
-                return binder.getClientAppTO(saml2sp);
+                clientApp = binder.getClientAppTO(saml2sp);
         }
+
+        if (clientApp.getRealm() != null) {
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(AMEntitlement.CLIENTAPP_READ),
+                    clientApp.getRealm());
+            securityChecks(authRealms, clientApp.getRealm(), type, key);
+        }
+
+        return clientApp;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_CREATE + "')")
     public <T extends ClientAppTO> T create(final ClientAppType type, final ClientAppTO clientAppTO) {
-        checkType(type, clientAppUtilsFactory.getInstance(clientAppTO));
+        typeCheck(type, clientAppUtilsFactory.getInstance(clientAppTO));
 
+        T clientApp;
         switch (type) {
             case OIDCRP:
-                return binder.getClientAppTO(oidcRPClientAppDAO.save(binder.create(clientAppTO)));
+                clientApp = binder.getClientAppTO(oidcRPClientAppDAO.save(binder.create(clientAppTO)));
+                break;
+
             case CASSP:
-                return binder.getClientAppTO(casSPClientAppDAO.save(binder.create(clientAppTO)));
+                clientApp = binder.getClientAppTO(casSPClientAppDAO.save(binder.create(clientAppTO)));
+                break;
+
             case SAML2SP:
             default:
-                return binder.getClientAppTO(saml2SPClientAppDAO.save(binder.create(clientAppTO)));
+                clientApp = binder.getClientAppTO(saml2SPClientAppDAO.save(binder.create(clientAppTO)));
         }
+
+        if (clientApp.getRealm() != null) {
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(AMEntitlement.CLIENTAPP_CREATE),
+                    clientApp.getRealm());
+            securityChecks(authRealms, clientApp.getRealm(), type, null);
+        }
+
+        return clientApp;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_UPDATE + "')")
     public <T extends ClientAppTO> T update(final ClientAppType type, final ClientAppTO clientAppTO) {
-        checkType(type, clientAppUtilsFactory.getInstance(clientAppTO));
+        typeCheck(type, clientAppUtilsFactory.getInstance(clientAppTO));
 
+        T clientApp;
         switch (type) {
             case OIDCRP:
                 OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findById(clientAppTO.getKey()).
                         orElseThrow(() -> new NotFoundException("OIDCRPClientApp " + clientAppTO.getKey()));
 
                 binder.update(oidcrp, clientAppTO);
-                return binder.getClientAppTO(oidcRPClientAppDAO.save(oidcrp));
+                clientApp = binder.getClientAppTO(oidcRPClientAppDAO.save(oidcrp));
+                break;
 
             case CASSP:
                 CASSPClientApp cassp = casSPClientAppDAO.findById(clientAppTO.getKey()).
                         orElseThrow(() -> new NotFoundException("CASSPClientApp " + clientAppTO.getKey()));
 
                 binder.update(cassp, clientAppTO);
-                return binder.getClientAppTO(casSPClientAppDAO.save(cassp));
+                clientApp = binder.getClientAppTO(casSPClientAppDAO.save(cassp));
+                break;
 
             case SAML2SP:
             default:
@@ -170,8 +223,17 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                         orElseThrow(() -> new NotFoundException("SAML2SPClientApp " + clientAppTO.getKey()));
 
                 binder.update(saml2sp, clientAppTO);
-                return binder.getClientAppTO(saml2SPClientAppDAO.save(saml2sp));
+                clientApp = binder.getClientAppTO(saml2SPClientAppDAO.save(saml2sp));
         }
+
+        if (clientApp.getRealm() != null) {
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(AMEntitlement.CLIENTAPP_UPDATE),
+                    clientApp.getRealm());
+            securityChecks(authRealms, clientApp.getRealm(), type, null);
+        }
+
+        return clientApp;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_DELETE + "')")
@@ -201,6 +263,13 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
                 saml2SPClientAppDAO.delete(saml2sp);
                 deleted = binder.getClientAppTO(saml2sp);
+        }
+
+        if (deleted.getRealm() != null) {
+            Set<String> authRealms = RealmUtils.getEffective(
+                    AuthContextUtils.getAuthorizations().get(AMEntitlement.CLIENTAPP_DELETE),
+                    deleted.getRealm());
+            securityChecks(authRealms, deleted.getRealm(), type, null);
         }
 
         return deleted;

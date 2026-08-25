@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
-import org.apache.syncope.core.logic.AbstractTransactionalLogic.ProvisioningInfo;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -88,6 +87,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPushJobDe
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -161,23 +161,6 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         this.ctx = ctx;
     }
 
-    protected ProvisioningInfo getProvisioningInfo(final String anyTypeKey, final String resourceKey) {
-        AnyType anyType = anyTypeDAO.findById(anyTypeKey).
-                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
-
-        ExternalResource resource = resourceDAO.findById(resourceKey).
-                orElseThrow(() -> new NotFoundException("Resource '" + resourceKey));
-
-        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
-                orElseThrow(() -> new NotFoundException(
-                "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
-        if (provision.getMapping() == null) {
-            throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
-        }
-
-        return new ProvisioningInfo(anyType, resource, provision);
-    }
-
     protected ConnObject getOnSyncope(
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
@@ -242,6 +225,22 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
         return Optional.ofNullable(dao.authFind(actualKey)).
                 orElseThrow(() -> new NotFoundException(provision.getAnyType() + " '" + anyKey + "'"));
+    }
+
+    protected ProvisioningInfo getProvisioningInfo(final String anyTypeKey, final String resourceKey) {
+        AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
+
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(resourceKey)).
+                orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
+        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
+                orElseThrow(() -> new NotFoundException(
+                "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
+        if (provision.getMapping() == null) {
+            throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
+        }
+
+        return new ProvisioningInfo(anyType, resource, provision);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -407,6 +406,12 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         return results;
     }
 
+    protected void securityChecks(final Set<String> realms, final String realm, final String resourceKey) {
+        if (!RealmUtils.SubtreePredicate.of(realms).test(realm)) {
+            throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), resourceKey);
+        }
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Transactional(readOnly = true)
     public List<ProvisioningReport> push(
@@ -417,6 +422,14 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
             final PushTaskTO pushTask) {
 
         ProvisioningInfo info = getProvisioningInfo(anyTypeKey, resourceKey);
+
+        Realm sourceRealm = Optional.ofNullable(pushTask.getSourceRealm()).
+                flatMap(realmSearchDAO::findByFullPath).
+                orElseThrow(() -> new NotFoundException("Realm " + pushTask.getSourceRealm()));
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_EXECUTE),
+                sourceRealm.getFullPath());
+        securityChecks(effectiveRealms, sourceRealm.getFullPath(), null);
 
         SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
                 info.resource(), info.provision(), filter, moreAttrsToGet);
@@ -478,11 +491,13 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        if (pullTask.getDestinationRealm() == null
-                || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm()).isEmpty()) {
-
-            throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
-        }
+        Realm destRealm = Optional.ofNullable(pullTask.getDestinationRealm()).
+                flatMap(realmSearchDAO::findByFullPath).
+                orElseThrow(() -> new NotFoundException("Realm " + pullTask.getDestinationRealm()));
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_EXECUTE),
+                destRealm.getFullPath());
+        securityChecks(effectiveRealms, destRealm.getFullPath(), null);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
@@ -606,7 +621,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                 entitlement = IdRepoEntitlement.USER_SEARCH;
         }
 
-        Realm base = realmSearchDAO.findByFullPath(realm).
+        Realm base = Optional.ofNullable(realm).
+                flatMap(realmSearchDAO::findByFullPath).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
@@ -684,12 +700,16 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
                 orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
 
-        if (realmSearchDAO.findByFullPath(spec.getDestinationRealm()) == null) {
-            throw new NotFoundException("Realm " + spec.getDestinationRealm());
-        }
+        Realm destRealm = Optional.ofNullable(spec.getDestinationRealm()).
+                flatMap(realmSearchDAO::findByFullPath).
+                orElseThrow(() -> new NotFoundException("Realm " + spec.getDestinationRealm()));
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_EXECUTE),
+                destRealm.getFullPath());
+        securityChecks(effectiveRealms, destRealm.getFullPath(), null);
 
         PullTaskTO pullTask = new PullTaskTO();
-        pullTask.setDestinationRealm(spec.getDestinationRealm());
+        pullTask.setDestinationRealm(destRealm.getFullPath());
         pullTask.setRemediation(spec.getRemediation());
         pullTask.setMatchingRule(spec.getMatchingRule());
         pullTask.setUnmatchingRule(spec.getUnmatchingRule());

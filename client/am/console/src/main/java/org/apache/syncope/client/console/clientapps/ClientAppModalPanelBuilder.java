@@ -332,13 +332,15 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     clientSecret.setChoices(List.of(RandomStringUtils.secure().nextNumeric(15)));
                     fields.add(clientSecret);
 
-                    AjaxTextFieldPanel idTokenIssuer = new AjaxTextFieldPanel(
-                            "field", "idTokenIssuer", new PropertyModel<>(clientAppTO, "idTokenIssuer"), false);
-                    fields.add(idTokenIssuer);
+                    fields.add(new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().build(
+                            "field", "clientSecretExpiration", Long.class,
+                            new PropertyModel<>(clientAppTO, "clientSecretExpiration")));
 
-                    AjaxCheckBoxPanel signIdToken = new AjaxCheckBoxPanel(
-                            "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken"));
-                    fields.add(signIdToken);
+                    fields.add(new AjaxTextFieldPanel(
+                            "field", "idTokenIssuer", new PropertyModel<>(clientAppTO, "idTokenIssuer"), false));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken")));
                     AjaxDropDownChoicePanel<OIDCTokenSigningAlg> idTokenSigningAlg = new AjaxDropDownChoicePanel<>(
                             "field", "idTokenSigningAlg", new PropertyModel<>(clientAppTO, "idTokenSigningAlg"), false);
                     idTokenSigningAlg.setChoices(List.of(OIDCTokenSigningAlg.values()));
@@ -483,37 +485,30 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     tokenEndpointAuthenticationMethod.setChoices(List.of(OIDCClientAuthenticationMethod.values()));
                     fields.add(tokenEndpointAuthenticationMethod);
 
-                    AjaxTextFieldPanel accessTokenMaxTimeToLive = new AjaxTextFieldPanel(
+                    fields.add(new AjaxTextFieldPanel(
                             "field", "accessTokenMaxTimeToLive",
-                            new PropertyModel<>(clientAppTO, "accessTokenMaxTimeToLive"), false);
-                    fields.add(accessTokenMaxTimeToLive);
+                            new PropertyModel<>(clientAppTO, "accessTokenMaxTimeToLive"), false));
 
-                    AjaxTextFieldPanel accessTokenTimeToKill = new AjaxTextFieldPanel(
+                    fields.add(new AjaxTextFieldPanel(
                             "field", "accessTokenTimeToKill", new PropertyModel<>(clientAppTO, "accessTokenTimeToKill"),
-                            false);
-                    fields.add(accessTokenTimeToKill);
+                            false));
 
-                    AjaxNumberFieldPanel<Long> accessTokenMaxActiveTokens = new AjaxNumberFieldPanel.Builder<Long>()
-                            .enableOnChange()
-                            .build("field", "accessTokenMaxActiveTokens", Long.class,
-                                    new PropertyModel<>(clientAppTO, "accessTokenMaxActiveTokens"));
-                    fields.add(accessTokenMaxActiveTokens);
+                    fields.add(new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().
+                            build("field", "accessTokenMaxActiveTokens", Long.class,
+                                    new PropertyModel<>(clientAppTO, "accessTokenMaxActiveTokens")));
 
                     AjaxTextFieldPanel refreshTokenTimeToKill = new AjaxTextFieldPanel(
                             "field", "refreshTokenTimeToKill",
                             new PropertyModel<>(clientAppTO, "refreshTokenTimeToKill"), false);
                     fields.add(refreshTokenTimeToKill);
 
-                    AjaxNumberFieldPanel<Long> refreshTokenMaxActiveTokens = new AjaxNumberFieldPanel.Builder<Long>()
-                            .enableOnChange()
-                            .build("field", "refreshTokenMaxActiveTokens", Long.class,
-                                    new PropertyModel<>(clientAppTO, "refreshTokenMaxActiveTokens"));
-                    fields.add(refreshTokenMaxActiveTokens);
+                    fields.add(new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().build(
+                            "field", "refreshTokenMaxActiveTokens", Long.class,
+                            new PropertyModel<>(clientAppTO, "refreshTokenMaxActiveTokens")));
 
-                    AjaxTextFieldPanel deviceTokenTimeToKill = new AjaxTextFieldPanel(
+                    fields.add(new AjaxTextFieldPanel(
                             "field", "deviceTokenTimeToKill", new PropertyModel<>(clientAppTO, "deviceTokenTimeToKill"),
-                            false);
-                    fields.add(deviceTokenTimeToKill);
+                            false));
                     break;
 
                 case SAML2SP:

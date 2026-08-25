@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -679,7 +678,7 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope357@syncope.apache.org");
         userCR.getPlainAttrs().add(attr("obscure", "valueToBeObscured"));
         userCR.getPlainAttrs().add(attr("photo", Base64.getEncoder().encodeToString(
-                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
+                getClass().getResourceAsStream("/favicon.jpg").readAllBytes())));
         userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
 
         UserTO userTO = createUser(userCR).getEntity();
@@ -1914,10 +1913,10 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("issuesyncope1965@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
         userCR.setPassword("Password123!");
-        userCR.setUManager(USER_SERVICE.read("puccini").getKey());
+        userCR.setuManager(USER_SERVICE.read("puccini").getKey());
         ProvisioningResult<UserTO> pr = createUser(userCR);
         assertEquals(ExecStatus.SUCCESS, pr.getPropagationStatuses().getFirst().getStatus());
-        assertNotNull(pr.getEntity().getUManager());
+        assertNotNull(pr.getEntity().getuManager());
         // 2. pull from resource-testdb
         PullTaskTO pullTaskTO = new PullTaskTO();
         pullTaskTO.setPerformCreate(true);
@@ -1930,17 +1929,17 @@ public class UserIssuesITCase extends AbstractITCase {
                         .build(), pullTaskTO);
         // user manager should be kept
         UserTO updatedUser = USER_SERVICE.read(pr.getEntity().getKey());
-        assertNotNull(updatedUser.getUManager());
-        assertEquals(USER_SERVICE.read("puccini").getKey(), updatedUser.getUManager());
+        assertNotNull(updatedUser.getuManager());
+        assertEquals(USER_SERVICE.read("puccini").getKey(), updatedUser.getuManager());
 
         // perform the same check on a group
         GroupCR groupCR = GroupITCase.getSample("issue1965grp");
         groupCR.getResources().add(RESOURCE_NAME_LDAP);
-        groupCR.setGManager(GROUP_SERVICE.read("managingDirector").getKey());
+        groupCR.setgManager(GROUP_SERVICE.read("managingDirector").getKey());
         ProvisioningResult<GroupTO> prGrp = createGroup(groupCR);
         assertEquals(ExecStatus.SUCCESS, prGrp.getPropagationStatuses().getFirst().getStatus());
-        assertNotNull(prGrp.getEntity().getGManager());
-        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), prGrp.getEntity().getGManager());
+        assertNotNull(prGrp.getEntity().getgManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), prGrp.getEntity().getgManager());
 
         // 2. pull from resource-ldap
         pullTaskTO = new PullTaskTO();
@@ -1955,7 +1954,7 @@ public class UserIssuesITCase extends AbstractITCase {
                         .build(), pullTaskTO);
         // group manager should be kept
         GroupTO updatedGrp = GROUP_SERVICE.read(prGrp.getEntity().getKey());
-        assertNotNull(updatedGrp.getGManager());
-        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), updatedGrp.getGManager());
+        assertNotNull(updatedGrp.getgManager());
+        assertEquals(GROUP_SERVICE.read("managingDirector").getKey(), updatedGrp.getgManager());
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -60,23 +61,35 @@ import tools.jackson.dataformat.csv.CsvSchema;
 
 public class CSVStreamConnector implements Connector, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CSVStreamConnector.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(CSVStreamConnector.class);
 
-    private final String keyColumn;
+    protected static String sanitize(final Object value) {
+        if (value == null) {
+            return null;
+        }
 
-    private final String arrayElementsSeparator;
+        String v = value.toString().trim();
+        if (Strings.CS.startsWithAny(v, "=", "+", "-", "@", "\t", "\n", "\r")) {
+            return "'" + v;
+        }
+        return v;
+    }
 
-    private final CsvSchema.Builder schemaBuilder;
+    protected final String keyColumn;
 
-    private final InputStream in;
+    protected final String arrayElementsSeparator;
 
-    private final OutputStream out;
+    protected final CsvSchema.Builder schemaBuilder;
 
-    private final List<String> columns;
+    protected final InputStream in;
 
-    private MappingIterator<Map<String, String>> reader;
+    protected final OutputStream out;
 
-    private SequenceWriter writer;
+    protected final List<String> columns;
+
+    protected MappingIterator<Map<String, String>> reader;
+
+    protected SequenceWriter writer;
 
     public CSVStreamConnector(
             final String keyColumn,
@@ -176,14 +189,13 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().getFirst() == null) {
                 row.put(attr.getName(), null);
             } else if (attr.getValue().size() == 1) {
-                row.put(attr.getName(), attr.getValue().getFirst().toString());
-            } else if (arrayElementsSeparator == null) {
-                row.put(attr.getName(), attr.getValue().toString());
+                row.put(attr.getName(), sanitize(attr.getValue().getFirst()));
             } else {
                 row.put(
                         attr.getName(),
-                        attr.getValue().stream().map(Object::toString).
-                                collect(Collectors.joining(arrayElementsSeparator)));
+                        attr.getValue().stream().map(CSVStreamConnector::sanitize).
+                                collect(Collectors.joining(arrayElementsSeparator == null
+                                        ? ";" : arrayElementsSeparator)));
             }
         });
         try {

@@ -18,23 +18,29 @@
  */
 package org.apache.syncope.core.spring.implementation;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
+import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.script.ScriptExecutor;
+import org.identityconnectors.common.script.ScriptExecutorFactory;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -49,6 +55,23 @@ class GroovySandboxTest {
     private Path tempDir;
 
     @Test
+    void script() {
+        String script =
+                """
+                log.info("Entering {0} Script for {1}", action, objectClass)
+                """;
+        ScriptExecutor scriptExecutor = ScriptExecutorFactory.newInstance("GROOVY").
+                newScriptExecutor(getClass().getClassLoader(), script, true);
+
+        Map<String, Object> arguments = new HashMap<>();
+        arguments.put("objectClass", ObjectClass.ACCOUNT_NAME);
+        arguments.put("action", "SEARCH");
+        arguments.put("log", Log.getLog(GroovySandboxTest.class));
+
+        assertDoesNotThrow(() -> scriptExecutor.execute(arguments));
+    }
+
+    @Test
     void processBuilder() throws Exception {
         final MacroActions actions = actions("processBuilder", "/ProcessBuilderMacroActions.groovy");
 
@@ -57,12 +80,13 @@ class GroovySandboxTest {
         assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
     }
 
-    private MacroActions actions(final String key, final String resource) throws Exception {
-        final Implementation impl = mock(Implementation.class);
+    private static MacroActions actions(final String key, final String resource) throws Exception {
+        Implementation impl = mock(Implementation.class);
         when(impl.getKey()).thenReturn(key);
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
-        when(impl.getBody()).thenReturn(IOUtils.toString(
-                Objects.requireNonNull(getClass().getResourceAsStream(resource))));
+        when(impl.getBody()).thenReturn(new String(
+                Objects.requireNonNull(GroovySandboxTest.class.getResourceAsStream(resource)).readAllBytes(),
+                StandardCharsets.UTF_8));
 
         return ImplementationManager.build(SyncopeConstants.MASTER_DOMAIN, impl);
     }

@@ -26,6 +26,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
@@ -52,6 +53,8 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     private String clientId;
 
     private String clientSecret;
+
+    private Long clientSecretExpiration;
 
     private String idTokenIssuer;
 
@@ -150,6 +153,16 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setClientSecret(final String clientSecret) {
         this.clientSecret = clientSecret;
+    }
+
+    @Override
+    public long getClientSecretExpiration() {
+        return Optional.ofNullable(clientSecretExpiration).orElse(0L);
+    }
+
+    @Override
+    public void setClientSecretExpiration(final long clientSecretExpiration) {
+        this.clientSecretExpiration = clientSecretExpiration;
     }
 
     @Override
