@@ -64,10 +64,7 @@ public class NotificationRepoExtImpl extends AbstractDAO implements Notification
 
     @Override
     public Notification save(final Notification notification) {
-        ((Neo4jNotification) notification).list2json();
-        Notification saved = neo4jTemplate.save(nodeValidator.validate(notification));
-        ((Neo4jNotification) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(notification));
     }
 
     @Override

@@ -46,10 +46,7 @@ public class AuthModuleRepoExtImpl implements AuthModuleRepoExt {
 
     @Override
     public AuthModule save(final AuthModule authModule) {
-        ((Neo4jAuthModule) authModule).list2json();
-        AuthModule saved = neo4jTemplate.save(nodeValidator.validate(authModule));
-        ((Neo4jAuthModule) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(authModule));
     }
 
     @Override

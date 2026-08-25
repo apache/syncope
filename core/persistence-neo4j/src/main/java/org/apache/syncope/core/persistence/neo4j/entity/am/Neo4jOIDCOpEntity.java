@@ -24,12 +24,10 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
+import org.apache.syncope.core.persistence.neo4j.converters.String2SetOfStringMapConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jOIDCOpEntity.NODE)
 public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCOpEntity {
@@ -38,17 +36,11 @@ public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCO
 
     public static final String NODE = "OIDCOpEntity";
 
-    protected static final TypeReference<HashMap<String, Set<String>>> CUSTOMSCOPES_TYPEREF =
-            new TypeReference<HashMap<String, Set<String>>>() {
-    };
-
     @NotNull
     private byte[] jwks;
 
-    private String customScopes;
-
-    @Transient
-    private Map<String, Set<String>> customScopesMap = new HashMap<>();
+    @ConvertWith(converter = String2SetOfStringMapConverter.class)
+    private Map<String, Set<String>> customScopes = new HashMap<>();
 
     @Override
     public byte[] getJWKS() {
@@ -62,28 +54,6 @@ public class Neo4jOIDCOpEntity extends AbstractGeneratedKeyNode implements OIDCO
 
     @Override
     public Map<String, Set<String>> getCustomScopes() {
-        return customScopesMap;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getCustomScopes().clear();
-        }
-        if (customScopes != null) {
-            getCustomScopes().putAll(POJOHelper.deserialize(customScopes, CUSTOMSCOPES_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2map(false);
-    }
-
-    public void postSave() {
-        json2map(true);
-    }
-
-    public void map2json() {
-        customScopes = POJOHelper.serialize(getCustomScopes());
+        return customScopes;
     }
 }

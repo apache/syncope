@@ -78,7 +78,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -741,40 +740,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void issueSYNCOPE1473() throws ParseException {
-        // create a new group schema
-        PlainSchemaTO schemaTO = new PlainSchemaTO();
-        schemaTO.setKey("ldapGroups" + getUUIDString());
-        schemaTO.setType(AttrSchemaType.String);
-        schemaTO.setMultivalue(true);
-        schemaTO.setReadonly(true);
-        schemaTO.setAnyTypeClass("minimal user");
-
-        schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
-        assertNotNull(schemaTO);
-
+    public void issueSYNCOPE1473() {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         UserTO userTO = null;
         try {
-            // 1. clone the LDAP resource and add some sensible mappings
-            Provision provisionGroup =
-                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
-            assertNotNull(provisionGroup);
-
-            Provision provisionUser =
-                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
-            assertNotNull(provisionUser);
-            provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
-
-            Item ldapGroups = new Item();
-            ldapGroups.setPurpose(MappingPurpose.PROPAGATION);
-            ldapGroups.setIntAttrName(schemaTO.getKey());
-            ldapGroups.setExtAttrName("ldapGroups");
-            provisionUser.getMapping().add(ldapGroups);
-
-            ldap.getProvisions().clear();
-            ldap.getProvisions().add(provisionUser);
-            ldap.getProvisions().add(provisionGroup);
+            // 1. clone the LDAP resource
             ldap.setKey(RESOURCE_NAME_LDAP + "1473" + getUUIDString());
             RESOURCE_SERVICE.create(ldap);
 
@@ -818,8 +788,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
-            userUR.getMemberships().add(
-                    new MembershipUR.Builder(newGroupTO.getKey()).operation(PatchOperation.ADD_REPLACE).build());
+            userUR.getMemberships().add(new MembershipUR.Builder(newGroupTO.getKey()).build());
             USER_SERVICE.update(userUR);
 
             ConnObject connObject =
@@ -830,10 +799,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());
-                if (userTO != null) {
-                    USER_SERVICE.delete(userTO.getKey());
-                }
-                SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTO.getKey());
+                Optional.ofNullable(userTO).map(UserTO::getKey).ifPresent(USER_SERVICE::delete);
             } catch (Exception ignore) {
                 // ignore
             }

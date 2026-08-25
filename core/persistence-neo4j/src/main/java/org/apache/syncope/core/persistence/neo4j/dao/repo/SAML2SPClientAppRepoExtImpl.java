@@ -54,9 +54,6 @@ public class SAML2SPClientAppRepoExtImpl
 
     @Override
     public SAML2SPClientApp save(final SAML2SPClientApp clientApp) {
-        ((Neo4jSAML2SPClientApp) clientApp).list2json();
-        SAML2SPClientApp saved = neo4jTemplate.save(nodeValidator.validate(clientApp));
-        ((Neo4jSAML2SPClientApp) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(clientApp));
     }
 }

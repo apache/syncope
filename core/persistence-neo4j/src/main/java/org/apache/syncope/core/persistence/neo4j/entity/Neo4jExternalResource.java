@@ -20,12 +20,14 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.apache.commons.lang3.StringUtils;
+import java.util.function.Predicate;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -41,17 +43,20 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
+import org.apache.syncope.core.persistence.neo4j.converters.ConnConfPropertyListConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ConnectorCapabilitySetConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.OrgUnitConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.ProvisionListConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jExternalResource.NODE)
 @ExternalResourceCheck
@@ -76,18 +81,6 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     public static final String RESOURCE_PROVISION_SORTER_REL = "RESOURCE_PROVISION_SORTER";
 
     public static final String RESOURCE_PROPAGATION_ACTIONS_REL = "RESOURCE_PROPAGATION_ACTIONS";
-
-    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
-            new TypeReference<List<ConnConfProperty>>() {
-    };
-
-    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
-            new TypeReference<Set<ConnectorCapability>>() {
-    };
-
-    protected static final TypeReference<List<Provision>> PROVISION_TYPEREF =
-            new TypeReference<List<Provision>>() {
-    };
 
     /**
      * Should this resource enforce the mandatory constraints?
@@ -115,16 +108,17 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     /**
      * Configuration properties that are override from the connector instance.
      */
-    private String jsonConf;
+    @ConvertWith(converter = ConnConfPropertyListConverter.class)
+    private List<ConnConfProperty> jsonConf = new ArrayList<>();
 
-    private String capabilitiesOverride;
+    @ConvertWith(converter = ConnectorCapabilitySetConverter.class)
+    private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
-    private String provisions;
+    @ConvertWith(converter = ProvisionListConverter.class)
+    private List<Provision> provisions = new ArrayList<>();
 
-    @Transient
-    private final List<Provision> provisionList = new ArrayList<>();
-
-    private String orgUnit;
+    @ConvertWith(converter = OrgUnitConverter.class)
+    private OrgUnit orgUnit;
 
     /**
      * The resource type is identified by the associated connector.
@@ -185,17 +179,17 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @Override
     public List<Provision> getProvisions() {
-        return provisionList;
+        return provisions;
     }
 
     @Override
     public OrgUnit getOrgUnit() {
-        return Optional.ofNullable(orgUnit).map(ou -> POJOHelper.deserialize(ou, OrgUnit.class)).orElse(null);
+        return orgUnit;
     }
 
     @Override
     public void setOrgUnit(final OrgUnit orgUnit) {
-        this.orgUnit = orgUnit == null ? null : POJOHelper.serialize(orgUnit);
+        this.orgUnit = orgUnit;
     }
 
     @Override
@@ -329,30 +323,23 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @Override
     public Optional<List<ConnConfProperty>> getConfOverride() {
-        return StringUtils.isBlank(jsonConf)
-                ? Optional.empty()
-                : Optional.of(POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF));
+        return Optional.ofNullable(jsonConf).filter(Predicate.not(Collection::isEmpty));
+
     }
 
     @Override
     public void setConfOverride(final Optional<List<ConnConfProperty>> confOverride) {
-        confOverride.ifPresentOrElse(
-                conf -> jsonConf = POJOHelper.serialize(conf),
-                () -> jsonConf = null);
+        jsonConf = confOverride.orElse(null);
     }
 
     @Override
     public Optional<Set<ConnectorCapability>> getCapabilitiesOverride() {
-        return StringUtils.isBlank(capabilitiesOverride)
-                ? Optional.empty()
-                : Optional.of(POJOHelper.deserialize(capabilitiesOverride, CONNECTOR_CAPABILITY_TYPEREF));
+        return Optional.ofNullable(capabilitiesOverride).filter(Predicate.not(Collection::isEmpty));
     }
 
     @Override
     public void setCapabilitiesOverride(final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
-        capabilitiesOverride.ifPresentOrElse(
-                override -> this.capabilitiesOverride = POJOHelper.serialize(override),
-                () -> this.capabilitiesOverride = null);
+        this.capabilitiesOverride = capabilitiesOverride.orElse(null);
     }
 
     @Override
@@ -368,26 +355,8 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
         return sortedPropagationActions;
     }
 
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getProvisions().clear();
-        }
-        if (provisions != null) {
-            getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
-        }
-    }
-
     @PostLoad
     public void postLoad() {
         sortedPropagationActions = new SortedSetList<>(propagationActions, Neo4jImplementationRelationship.builder());
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        provisions = POJOHelper.serialize(getProvisions());
     }
 }

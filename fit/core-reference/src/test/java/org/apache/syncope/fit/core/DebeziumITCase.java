@@ -98,16 +98,14 @@ class DebeziumITCase extends AbstractITCase {
 
         ConnInstanceTO connector = SerializationUtils.clone(
                 CONNECTOR_SERVICE.read("01938bdf-7ac6-7149-a103-3ec9e74cc824", null));
-        connector.getConf().stream().filter(p -> "bootstrapServers".equals(p.getSchema().getName())).findFirst().
-                ifPresent(p -> {
-                    p.getValues().clear();
-                    p.getValues().add(System.getProperty("KAFKA_BOOTSTRAP_SERVERS"));
-                });
-        connector.getConf().stream().filter(p -> "accountTopic".equals(p.getSchema().getName())).findFirst().
-                ifPresent(p -> {
-                    p.getValues().clear();
-                    p.getValues().add("dbserver1.inventory.customers");
-                });
+        connector.getConf("bootstrapServers").ifPresent(p -> {
+            p.getValues().clear();
+            p.getValues().add(System.getProperty("KAFKA_BOOTSTRAP_SERVERS"));
+        });
+        connector.getConf("accountTopic").ifPresent(p -> {
+            p.getValues().clear();
+            p.getValues().add("dbserver1.inventory.customers");
+        });
         connector.getConf().removeIf(p -> "groupTopic".equals(p.getSchema().getName()));
 
         CONNECTOR_SERVICE.update(connector);

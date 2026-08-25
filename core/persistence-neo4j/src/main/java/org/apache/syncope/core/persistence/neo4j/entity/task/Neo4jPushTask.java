@@ -32,16 +32,16 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.neo4j.converters.String2StringMapConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jPushTask.NODE)
 public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements PushTask {
@@ -54,18 +54,12 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     public static final String PUSH_TASK_EXEC_REL = "PUSH_TASK_EXEC";
 
-    protected static final TypeReference<HashMap<String, String>> FILTER_TYPEREF =
-            new TypeReference<HashMap<String, String>>() {
-    };
-
     @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jRealm sourceRealm;
 
-    private String filters;
-
-    @Transient
-    private Map<String, String> filterMap = new HashMap<>();
+    @ConvertWith(converter = String2StringMapConverter.class)
+    private Map<String, String> filters = new HashMap<>();
 
     @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL,
             direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
@@ -76,7 +70,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
             actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = PUSH_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jPushTaskExec> executions = new ArrayList<>();
+    private List<Neo4jPushTaskExec> pushTaskExecs = new ArrayList<>();
 
     @Override
     public Neo4jRealm getSourceRealm() {
@@ -103,17 +97,17 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @Override
     public Optional<String> getFilter(final String anyType) {
-        return Optional.ofNullable(filterMap.get(anyType));
+        return Optional.ofNullable(filters.get(anyType));
     }
 
     @Override
     public Map<String, String> getFilters() {
-        return filterMap;
+        return filters;
     }
 
     @Override
     protected boolean doAdd(final TaskExec<SchedTask> exec) {
-        return executions.add((Neo4jPushTaskExec) exec);
+        return pushTaskExecs.add((Neo4jPushTaskExec) exec);
     }
 
     @Override
@@ -123,29 +117,11 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
-        return executions;
-    }
-
-    protected void json2map(final boolean clearFirst) {
-        if (clearFirst) {
-            getFilters().clear();
-        }
-        if (filters != null) {
-            getFilters().putAll(POJOHelper.deserialize(filters, FILTER_TYPEREF));
-        }
+        return pushTaskExecs;
     }
 
     @PostLoad
     public void postLoad() {
         sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
-        json2map(false);
-    }
-
-    public void postSave() {
-        json2map(true);
-    }
-
-    public void map2json() {
-        filters = POJOHelper.serialize(getFilters());
     }
 }

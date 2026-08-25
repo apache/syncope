@@ -28,13 +28,11 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.neo4j.converters.StringSetConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jNotification;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jNotificationTask.NODE)
 public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implements NotificationTask {
@@ -45,9 +43,6 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     public static final String NOTIFICATION_TASK_EXEC_REL = "NOTIFICATION_TASK_EXEC";
 
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
     @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
     private Neo4jNotification notification;
@@ -56,13 +51,11 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     private String entityKey;
 
-    private String recipients;
-
-    @Transient
-    private Set<String> recipientsSet = new HashSet<>();
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> recipients = new HashSet<>();
 
     @Relationship(type = NOTIFICATION_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jNotificationTaskExec> executions = new ArrayList<>();
+    private List<Neo4jNotificationTaskExec> notificationTaskExecs = new ArrayList<>();
 
     @NotNull
     private String sender;
@@ -115,7 +108,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     @Override
     public Set<String> getRecipients() {
-        return recipientsSet;
+        return recipients;
     }
 
     @Override
@@ -180,7 +173,7 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     @Override
     protected boolean doAdd(final TaskExec<NotificationTask> exec) {
-        return executions.add((Neo4jNotificationTaskExec) exec);
+        return notificationTaskExecs.add((Neo4jNotificationTaskExec) exec);
     }
 
     @Override
@@ -190,28 +183,6 @@ public class Neo4jNotificationTask extends AbstractTask<NotificationTask> implem
 
     @Override
     protected List<? extends AbstractTaskExec<NotificationTask>> executions() {
-        return executions;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getRecipients().clear();
-        }
-        if (recipients != null) {
-            getRecipients().addAll(POJOHelper.deserialize(recipients, TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        recipients = POJOHelper.serialize(getRecipients());
+        return notificationTaskExecs;
     }
 }

@@ -28,12 +28,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.String2StringMapConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jPlainSchema.NODE)
 @PlainSchemaCheck
@@ -46,10 +44,6 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     public static final String PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL = "PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER";
 
     public static final String PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL = "PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR";
-
-    protected static final TypeReference<HashMap<String, String>> ENUMVALUES_TYPEREF =
-            new TypeReference<HashMap<String, String>>() {
-    };
 
     @NotNull
     private AttrSchemaType type = AttrSchemaType.String;
@@ -65,10 +59,8 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
 
     private String conversionPattern;
 
-    private String enumValues;
-
-    @Transient
-    private Map<String, String> enumValuesMap = new HashMap<>();
+    @ConvertWith(converter = String2StringMapConverter.class)
+    private Map<String, String> enumValues = new HashMap<>();
 
     @Relationship(type = PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL,
             direction = Relationship.Direction.OUTGOING, cascadeUpdates = false)
@@ -215,35 +207,6 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
 
     @Override
     public Map<String, String> getEnumValues() {
-        return enumValuesMap;
-    }
-
-    @Override
-    protected void json2map(final boolean clearFirst) {
-        super.json2map(clearFirst);
-
-        if (clearFirst) {
-            getEnumValues().clear();
-        }
-        if (enumValues != null) {
-            getEnumValues().putAll(POJOHelper.deserialize(enumValues, ENUMVALUES_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    @Override
-    public void postLoad() {
-        json2map(false);
-    }
-
-    @Override
-    public void postSave() {
-        json2map(true);
-    }
-
-    @Override
-    public void map2json() {
-        super.map2json();
-        enumValues = POJOHelper.serialize(getEnumValues());
+        return enumValues;
     }
 }

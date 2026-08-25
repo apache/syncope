@@ -66,7 +66,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals("net.tirasa.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
         assertEquals("net.tirasa.connid.bundles.soap", connector.getBundleName());
 
-        Mapping mapping = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping();
+        Mapping mapping = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow().getMapping();
         assertFalse(mapping.getItems().isEmpty());
 
         assertTrue(mapping.getItems().stream().
@@ -78,6 +78,12 @@ public class ResourceTest extends AbstractTest {
         } catch (DelegatedAdministrationException e) {
             assertNotNull(e);
         }
+    }
+
+    @Test
+    public void propagationActions() {
+        ExternalResource resource = resourceDAO.findById("resource-ldap").orElseThrow();
+        assertEquals(2, resource.getPropagationActions().size());
     }
 
     @Test
@@ -110,8 +116,8 @@ public class ResourceTest extends AbstractTest {
     @Test
     public void getConnObjectKey() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
-        assertEquals("fullname", resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().
-                getMapping().getConnObjectKeyItem().get().getIntAttrName());
+        assertEquals("fullname", resource.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow().
+                getMapping().getConnObjectKeyItem().orElseThrow().getIntAttrName());
     }
 
     @Test
@@ -277,7 +283,8 @@ public class ResourceTest extends AbstractTest {
         entityManager.flush();
         assertNotNull(actual);
 
-        assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
+        assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems().
+                size());
     }
 
     @Test

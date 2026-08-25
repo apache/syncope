@@ -84,9 +84,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
     @Override
     public Role save(final Role role) {
-        ((Neo4jRole) role).list2json();
         Role saved = neo4jTemplate.save(nodeValidator.validate(role));
-        ((Neo4jRole) saved).postSave();
         cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jRole) saved);
         return saved;
     }

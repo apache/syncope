@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.neo4j.converters.TicketExpirationPolicyConfConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4jTicketExpirationPolicy.NODE)
@@ -31,17 +31,16 @@ public class Neo4jTicketExpirationPolicy extends Neo4jPolicy implements TicketEx
 
     public static final String NODE = "TicketExpirationPolicy";
 
-    private String jsonConf;
+    @ConvertWith(converter = TicketExpirationPolicyConfConverter.class)
+    private TicketExpirationPolicyConf jsonConf;
 
     @Override
     public TicketExpirationPolicyConf getConf() {
-        return Optional.ofNullable(jsonConf).
-                map(c -> POJOHelper.deserialize(c, TicketExpirationPolicyConf.class)).
-                orElse(null);
+        return jsonConf;
     }
 
     @Override
     public void setConf(final TicketExpirationPolicyConf conf) {
-        jsonConf = Optional.ofNullable(conf).map(POJOHelper::serialize).orElse(null);
+        jsonConf = conf;
     }
 }

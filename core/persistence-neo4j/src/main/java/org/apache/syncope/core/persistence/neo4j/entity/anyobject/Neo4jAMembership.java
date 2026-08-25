@@ -95,6 +95,6 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject> implements A
 
     @PostLoad
     public void postLoad() {
-        this.aMembershipType = new AMembershipType(leftEnd.getType());
+        aMembershipType = new AMembershipType(leftEnd.getType());
     }
 }

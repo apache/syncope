@@ -174,8 +174,6 @@ public class SecurityProperties {
 
     private final ThrottleProperties authenticationThrottle = new ThrottleProperties();
 
-    private boolean passwordResetHideDetails = true;
-
     private final ThrottleProperties passwordResetThrottle = new ThrottleProperties();
 
     private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
@@ -272,14 +270,6 @@ public class SecurityProperties {
 
     public SecurityProperties.ThrottleProperties getAuthenticationThrottle() {
         return authenticationThrottle;
-    }
-
-    public boolean isPasswordResetHideDetails() {
-        return passwordResetHideDetails;
-    }
-
-    public void setPasswordResetHideDetails(final boolean passwordResetHideDetails) {
-        this.passwordResetHideDetails = passwordResetHideDetails;
     }
 
     public ThrottleProperties getPasswordResetThrottle() {

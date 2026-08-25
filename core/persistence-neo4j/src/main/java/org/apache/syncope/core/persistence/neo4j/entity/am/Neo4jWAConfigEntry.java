@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
+import org.apache.syncope.core.persistence.neo4j.converters.StringListConverter;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jWAConfigEntry.NODE)
 public class Neo4jWAConfigEntry extends AbstractProvidedKeyNode implements WAConfigEntry {
@@ -33,18 +33,16 @@ public class Neo4jWAConfigEntry extends AbstractProvidedKeyNode implements WACon
 
     public static final String NODE = "WAConfigEntry";
 
-    protected static TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
-
-    private String waConfigValues;
+    @ConvertWith(converter = StringListConverter.class)
+    private List<String> waConfigValues = new ArrayList<>();
 
     @Override
     public List<String> getValues() {
-        return Optional.ofNullable(waConfigValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElseGet(List::of);
+        return waConfigValues;
     }
 
     @Override
     public void setValues(final List<String> values) {
-        this.waConfigValues = POJOHelper.serialize(values);
+        waConfigValues = values;
     }
 }

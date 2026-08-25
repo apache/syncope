@@ -262,9 +262,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                     Neo4jExternalResource.RESOURCE_PROPAGATION_ACTIONS_REL));
         });
 
-        ((Neo4jExternalResource) resource).list2json();
         ExternalResource saved = neo4jTemplate.save(nodeValidator.validate(resource));
-        ((Neo4jExternalResource) saved).postSave();
         cache.put(EntityCacheKey.of(resource.getKey()), (Neo4jExternalResource) saved);
         return saved;
     }
@@ -285,9 +283,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                     && provision.getMapping().getItems().removeIf(item -> schemaKey.equals(item.getIntAttrName())))));
 
             if (removed.get()) {
-                resource.list2json();
                 Neo4jExternalResource saved = neo4jTemplate.save(resource);
-                saved.postSave();
                 cache.put(EntityCacheKey.of(resource.getKey()), saved);
             }
         });

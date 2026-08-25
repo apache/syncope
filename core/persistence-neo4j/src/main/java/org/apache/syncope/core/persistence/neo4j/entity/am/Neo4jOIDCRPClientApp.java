@@ -31,11 +31,11 @@ import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.OIDCGrantTypeSetConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.OIDCResponseTypeSetConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.StringSetConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jOIDCRPClientApp.NODE)
 public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPClientApp {
@@ -43,21 +43,6 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     private static final long serialVersionUID = 7422422526695279794L;
 
     public static final String NODE = "OIDCRPClientApp";
-
-    protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
-    };
-
-    protected static final TypeReference<Set<OIDCGrantType>> GRANT_TYPE_TYPEREF =
-            new TypeReference<Set<OIDCGrantType>>() {
-    };
-
-    protected static final TypeReference<Set<OIDCResponseType>> RESPONSE_TYPE_TYPEREF =
-            new TypeReference<Set<OIDCResponseType>>() {
-    };
-
-    protected static final TypeReference<Set<String>> SCOPE_TYPEREF =
-            new TypeReference<Set<String>>() {
-    };
 
     @NotNull
     private String clientId;
@@ -94,25 +79,17 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private OIDCApplicationType applicationType = OIDCApplicationType.WEB;
 
-    private String redirectUris;
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> redirectUris = new HashSet<>();
 
-    @Transient
-    private Set<String> redirectUrisSet = new HashSet<>();
+    @ConvertWith(converter = OIDCGrantTypeSetConverter.class)
+    private Set<OIDCGrantType> supportedGrantTypes = new HashSet<>();
 
-    private String supportedGrantTypes;
+    @ConvertWith(converter = OIDCResponseTypeSetConverter.class)
+    private Set<OIDCResponseType> supportedResponseTypes = new HashSet<>();
 
-    @Transient
-    private Set<OIDCGrantType> supportedGrantTypesSet = new HashSet<>();
-
-    private String supportedResponseTypes;
-
-    @Transient
-    private Set<OIDCResponseType> supportedResponseTypesSet = new HashSet<>();
-
-    private String scopes;
-
-    @Transient
-    private Set<String> scopesSet = new HashSet<>();
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> scopes = new HashSet<>();
 
     private String jwks;
 
@@ -136,7 +113,7 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     @Override
     public Set<String> getRedirectUris() {
-        return redirectUrisSet;
+        return redirectUris;
     }
 
     @Override
@@ -311,17 +288,17 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     @Override
     public Set<OIDCGrantType> getSupportedGrantTypes() {
-        return supportedGrantTypesSet;
+        return supportedGrantTypes;
     }
 
     @Override
     public Set<OIDCResponseType> getSupportedResponseTypes() {
-        return supportedResponseTypesSet;
+        return supportedResponseTypes;
     }
 
     @Override
     public Set<String> getScopes() {
-        return scopesSet;
+        return scopes;
     }
 
     @Override
@@ -424,41 +401,5 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getRedirectUris().clear();
-            getSupportedGrantTypes().clear();
-            getSupportedResponseTypes().clear();
-        }
-        if (redirectUris != null) {
-            getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
-        }
-        if (supportedGrantTypes != null) {
-            getSupportedGrantTypes().addAll(POJOHelper.deserialize(supportedGrantTypes, GRANT_TYPE_TYPEREF));
-        }
-        if (supportedResponseTypes != null) {
-            getSupportedResponseTypes().addAll(POJOHelper.deserialize(supportedResponseTypes, RESPONSE_TYPE_TYPEREF));
-        }
-        if (scopes != null) {
-            getScopes().addAll(POJOHelper.deserialize(scopes, SCOPE_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        redirectUris = POJOHelper.serialize(getRedirectUris());
-        supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
-        supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
-        scopes = POJOHelper.serialize(getScopes());
     }
 }

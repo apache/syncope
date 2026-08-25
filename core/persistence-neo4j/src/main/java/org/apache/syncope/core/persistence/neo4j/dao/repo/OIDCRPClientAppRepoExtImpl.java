@@ -54,9 +54,6 @@ public class OIDCRPClientAppRepoExtImpl
 
     @Override
     public OIDCRPClientApp save(final OIDCRPClientApp clientApp) {
-        ((Neo4jOIDCRPClientApp) clientApp).list2json();
-        OIDCRPClientApp saved = neo4jTemplate.save(nodeValidator.validate(clientApp));
-        ((Neo4jOIDCRPClientApp) saved).postSave();
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(clientApp));
     }
 }

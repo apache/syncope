@@ -30,11 +30,10 @@ import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.SigningCredentialType;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.springframework.data.annotation.Transient;
+import org.apache.syncope.core.persistence.neo4j.converters.StringSetConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.XmlSecAlgorithmListConverter;
+import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
-import tools.jackson.core.type.TypeReference;
 
 @Node(Neo4jSAML2SPClientApp.NODE)
 public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPClientApp {
@@ -42,13 +41,6 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
     private static final long serialVersionUID = 6422422526695279794L;
 
     public static final String NODE = "SAML2SPClientApp";
-
-    protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
-    };
-
-    protected static final TypeReference<List<XmlSecAlgorithm>> XMLSECAGO_TYPEREF =
-            new TypeReference<List<XmlSecAlgorithm>>() {
-    };
 
     @NotNull
     private String entityId;
@@ -119,48 +111,34 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
 
     private String nameIdQualifier;
 
-    private String assertionAudiences;
-
     private MetadataCriteriaDirection metadataCriteriaDirection;
 
     private SigningCredentialType signingCredentialType;
 
     private SAML2BindingType logoutResponseBinding;
 
-    @Transient
-    private Set<String> assertionAudiencesSet = new HashSet<>();
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> assertionAudiences = new HashSet<>();
 
     private String serviceProviderNameIdQualifier;
 
-    private String signingSignatureAlgorithms;
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> signingSignatureAlgorithms = new ArrayList<>();
 
-    @Transient
-    private List<XmlSecAlgorithm> signingSignatureAlgorithmsList = new ArrayList<>();
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethods = new ArrayList<>();
 
-    private String signingSignatureReferenceDigestMethods;
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> encryptionDataAlgorithms = new ArrayList<>();
 
-    @Transient
-    private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethodsList = new ArrayList<>();
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> encryptionKeyAlgorithms = new ArrayList<>();
 
-    private String encryptionDataAlgorithms;
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithms = new ArrayList<>();
 
-    @Transient
-    private List<XmlSecAlgorithm> encryptionDataAlgorithmsList = new ArrayList<>();
-
-    private String encryptionKeyAlgorithms;
-
-    @Transient
-    private List<XmlSecAlgorithm> encryptionKeyAlgorithmsList = new ArrayList<>();
-
-    private String signingSignatureBlackListedAlgorithms;
-
-    @Transient
-    private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithmsList = new ArrayList<>();
-
-    private String encryptionBlackListedAlgorithms;
-
-    @Transient
-    private List<XmlSecAlgorithm> encryptionBlackListedAlgorithmsList = new ArrayList<>();
+    @ConvertWith(converter = XmlSecAlgorithmListConverter.class)
+    private List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();
 
     @Override
     public String getEntityId() {
@@ -539,7 +517,7 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
 
     @Override
     public Set<String> getAssertionAudiences() {
-        return assertionAudiencesSet;
+        return assertionAudiences;
     }
 
     @Override
@@ -554,90 +532,31 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
-        return signingSignatureAlgorithmsList;
+        return signingSignatureAlgorithms;
     }
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
-        return signingSignatureReferenceDigestMethodsList;
+        return signingSignatureReferenceDigestMethods;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
-        return encryptionDataAlgorithmsList;
+        return encryptionDataAlgorithms;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
-        return encryptionKeyAlgorithmsList;
+        return encryptionKeyAlgorithms;
     }
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
-        return signingSignatureBlackListedAlgorithmsList;
+        return signingSignatureBlackListedAlgorithms;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
-        return encryptionBlackListedAlgorithmsList;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getAssertionAudiences().clear();
-            getSigningSignatureAlgorithms().clear();
-            getSigningSignatureReferenceDigestMethods().clear();
-            getEncryptionDataAlgorithms().clear();
-            getEncryptionKeyAlgorithms().clear();
-            getSigningSignatureBlackListedAlgorithms().clear();
-            getEncryptionBlackListedAlgorithms().clear();
-        }
-        if (assertionAudiences != null) {
-            getAssertionAudiences().addAll(
-                    POJOHelper.deserialize(assertionAudiences, STRING_TYPEREF));
-        }
-        if (signingSignatureAlgorithms != null) {
-            getSigningSignatureAlgorithms().addAll(
-                    POJOHelper.deserialize(signingSignatureAlgorithms, XMLSECAGO_TYPEREF));
-        }
-        if (signingSignatureReferenceDigestMethods != null) {
-            getSigningSignatureReferenceDigestMethods().addAll(
-                    POJOHelper.deserialize(signingSignatureReferenceDigestMethods, XMLSECAGO_TYPEREF));
-        }
-        if (encryptionDataAlgorithms != null) {
-            getEncryptionDataAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionDataAlgorithms, XMLSECAGO_TYPEREF));
-        }
-        if (encryptionKeyAlgorithms != null) {
-            getEncryptionKeyAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionKeyAlgorithms, XMLSECAGO_TYPEREF));
-        }
-        if (signingSignatureBlackListedAlgorithms != null) {
-            getSigningSignatureBlackListedAlgorithms().addAll(
-                    POJOHelper.deserialize(signingSignatureBlackListedAlgorithms, XMLSECAGO_TYPEREF));
-        }
-        if (encryptionBlackListedAlgorithms != null) {
-            getEncryptionBlackListedAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionBlackListedAlgorithms, XMLSECAGO_TYPEREF));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        assertionAudiences = POJOHelper.serialize(getAssertionAudiences());
-        signingSignatureAlgorithms = POJOHelper.serialize(getSigningSignatureAlgorithms());
-        signingSignatureReferenceDigestMethods = POJOHelper.serialize(getSigningSignatureReferenceDigestMethods());
-        encryptionDataAlgorithms = POJOHelper.serialize(getEncryptionDataAlgorithms());
-        encryptionKeyAlgorithms = POJOHelper.serialize(getEncryptionKeyAlgorithms());
-        signingSignatureBlackListedAlgorithms = POJOHelper.serialize(getSigningSignatureBlackListedAlgorithms());
-        encryptionBlackListedAlgorithms = POJOHelper.serialize(getEncryptionBlackListedAlgorithms());
+        return encryptionBlackListedAlgorithms;
     }
 }
