@@ -1322,3 +1322,12 @@ h4.card-title {
   background-color: #BD2130 !important;
 }
 
+.btn.btn-eye {
+  width: 44px;
+  height: 38px;
+  border-radius: 0 8px 8px 0;
+}
+
+.input-password {
+  border-radius: 8px 0 0 8px !important;
+}
