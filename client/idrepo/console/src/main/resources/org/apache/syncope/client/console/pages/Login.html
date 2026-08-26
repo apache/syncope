@@ -65,8 +65,24 @@ under the License.
             <input type="text" wicket:id="username" class="form-control"
                    wicket:message="placeholder:username" required="required" autofocus="autofocus"/>
 
-            <input type="password" wicket:id="password" class="form-control"
-                   wicket:message="placeholder:password" required="required"/>
+            <div class="input-group d-flex">
+              <input type="password" class="form-control w-75" wicket:id="password"
+                     wicket:message="placeholder:password" required="required"/>
+              <button type="button" class="btn btn-warning btn-flat input-group-text w-25 m-0 h-100" onclick="
+                var input = $(this).prevAll('input');
+                var type = input.attr('type');
+                var children = $(this).children();
+                if (type !== 'text') {
+                  $(input).attr('type', 'text');
+                  $(children).addClass('fa-eye-slash').removeClass('fa-eye');
+                } else {
+                  $(input).attr('type', 'password');
+                  $(children).removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+                return false;">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
 
             <input type="text" wicket:id="mfa" class="form-control" placeholder="mfa"/>
 
