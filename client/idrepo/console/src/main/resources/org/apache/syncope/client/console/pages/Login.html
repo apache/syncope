@@ -64,11 +64,11 @@ under the License.
           <fieldset class="form-group">
             <input type="text" wicket:id="username" class="form-control"
                    wicket:message="placeholder:username" required="required" autofocus="autofocus"/>
-            <div class="d-flex">
-              <input type="password" wicket:id="password" class="form-control input-password"
-                         wicket:message="placeholder:password" required="required"/>
-              <button type="button" class="btn btn-warning btn-flat input-group-text btn-eye" onclick="
-                var input = $(this).prev('input');
+            <div class="input-group d-flex">
+              <input type="password" class="form-control w-75" wicket:id="password"
+                     wicket:message="placeholder:password" required="required"/>
+              <button type="button" class="btn btn-warning btn-flat input-group-text w-25 m-0 h-100" onclick="
+                var input = $(this).prevAll('input');
                 var type = input.attr('type');
                 var children = $(this).children();
                 if (type !== 'text') {
@@ -78,8 +78,10 @@ under the License.
                   $(input).attr('type', 'password');
                   $(children).removeClass('fa-eye-slash').addClass('fa-eye');
                 }
-                return false;"><i class="fa fa-eye"></i></button>
-              </div>
+                return false;">
+                <i class="fa fa-eye"></i>
+              </button>
+            </div>
             <div class="mb-3">
               <select class="form-select select2bs4 select2-hidden-accessible" style="font-size: 100%" wicket:id="language"/>
             </div>
