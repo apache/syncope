@@ -342,7 +342,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
+                  <cargo.jvmargs>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -384,7 +384,7 @@ under the License.
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Djdk.util.zip.disableZip64ExtraFieldValidation=true
-                    -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
+                    -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                 </properties>
               </configuration>
               <skip>${skipTests}</skip>
@@ -415,11 +415,6 @@ under the License.
                 </zipUrlInstaller>
                 <timeout>300000</timeout>
               </container>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>-Xdebug</cargo.jvmargs>
-                </properties>
-              </configuration>
             </configuration>
           </plugin>
         </plugins>
