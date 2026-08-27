@@ -280,7 +280,7 @@ under the License.
                 <reactor.netty.http.server.accessLogEnabled>true</reactor.netty.http.server.accessLogEnabled>
               </systemPropertyVariables>
               <jvmArguments>
-                -Xdebug -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=n
+                -agentlib:jdwp=transport=dt_socket,address=8002,server=y,suspend=n
                 -Djavax.net.ssl.trustStore=${basedir}/../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
               </jvmArguments>
               <profiles>

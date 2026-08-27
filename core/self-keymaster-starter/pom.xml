@@ -168,7 +168,7 @@ under the License.
               <jvmArguments>
                 -Dsyncope.connid.location=file:${basedir}/../provisioning-java/target/bundles
                 -XX:HotswapAgent=fatjar
-                -Xdebug -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=n
+                -agentlib:jdwp=transport=dt_socket,address=8002,server=y,suspend=n
               </jvmArguments>
               <profiles>
                 <profile>debug</profile>

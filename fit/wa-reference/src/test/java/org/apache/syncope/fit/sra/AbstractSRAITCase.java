@@ -175,8 +175,7 @@ abstract class AbstractSRAITCase extends AbstractITCase {
                 "-Djavax.net.ssl.trustStore=" + trustStore,
                 "-Djavax.net.ssl.trustStorePassword=" + trustStorePassword,
                 "-jar",
-                "-Xdebug",
-                "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8002",
+                "-agentlib:jdwp=transport=dt_socket,address=8002,server=y,suspend=n",
                 sraJar);
         processBuilder.inheritIO();
 
