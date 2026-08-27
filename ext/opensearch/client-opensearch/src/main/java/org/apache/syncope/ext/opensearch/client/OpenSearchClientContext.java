@@ -23,6 +23,7 @@ import java.util.Objects;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.common.CollectionUtil;
 import org.opensearch.client.opensearch.OpenSearchClient;
@@ -58,11 +59,12 @@ public class OpenSearchClientContext {
     @ConditionalOnMissingBean
     @Bean
     public OpenSearchUtils openSearchUtils(
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO) {
 
-        return new OpenSearchUtils(userDAO, groupDAO, anyObjectDAO);
+        return new OpenSearchUtils(plainSchemaDAO, userDAO, groupDAO, anyObjectDAO);
     }
 
     @ConditionalOnMissingBean

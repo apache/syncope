@@ -28,8 +28,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -64,6 +66,8 @@ public class ElasticsearchUtils {
         return domain.toLowerCase() + "_audit";
     }
 
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     protected final UserDAO userDAO;
 
     protected final GroupDAO groupDAO;
@@ -71,10 +75,12 @@ public class ElasticsearchUtils {
     protected final AnyObjectDAO anyObjectDAO;
 
     public ElasticsearchUtils(
+            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO) {
 
+        this.plainSchemaDAO = plainSchemaDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
@@ -91,15 +97,19 @@ public class ElasticsearchUtils {
         builder.put("relationshipTypes", relationshipTypes);
     }
 
-    protected void addPlainAttr(final Map<String, Object> builder, final List<PlainAttr> plainAttrs) {
-        for (PlainAttr plainAttr : plainAttrs) {
-            List<Object> values = plainAttr.getValues().stream().
-                    map(PlainAttrValue::getValue).collect(Collectors.toList());
+    protected void plainAttrs(final Map<String, Object> builder, final List<PlainAttr> plainAttrs) {
+        plainAttrs.stream().
+                filter(plainAttr -> plainSchemaDAO.findById(plainAttr.getSchema()).
+                        map(s -> s.getType() != AttrSchemaType.Binary && s.getType() != AttrSchemaType.Encrypted).
+                        orElse(false)).
+                forEach(plainAttr -> {
+                    List<Object> values = plainAttr.getValues().stream().
+                            map(PlainAttrValue::getValue).collect(Collectors.toList());
 
-            Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
+                    Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
-        }
+                    builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
+                });
     }
 
     /**
@@ -177,25 +187,29 @@ public class ElasticsearchUtils {
             }
         }
 
-        addPlainAttr(builder, any.getPlainAttrs());
+        plainAttrs(builder, any.getPlainAttrs());
 
-        // add also flattened membership attributes
+        // add flattened membership attributes
         if (any instanceof Groupable<?, ?, ?> groupable) {
-            groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
-                List<Object> values = mAttr.getValues().stream().
-                        map(PlainAttrValue::getValue).collect(Collectors.toList());
+            groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).stream().
+                    filter(plainAttr -> plainSchemaDAO.findById(plainAttr.getSchema()).
+                            map(s -> s.getType() != AttrSchemaType.Binary && s.getType() != AttrSchemaType.Encrypted).
+                            orElse(false)).
+                    forEach(plainAttr -> {
+                        List<Object> values = plainAttr.getValues().stream().
+                                map(PlainAttrValue::getValue).collect(Collectors.toList());
 
-                Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
+                        Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                Object attr = builder.computeIfAbsent(mAttr.getSchema(), k -> new HashSet<>());
-                // also support case in which there is also an existing attribute set previously
-                if (attr instanceof Collection) {
-                    ((Collection<Object>) attr).addAll(values);
-                } else {
-                    values.add(attr);
-                    builder.put(mAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
-                }
-            }));
+                        Object attr = builder.computeIfAbsent(plainAttr.getSchema(), k -> new HashSet<>());
+                        // support case in which there is also an existing attribute set previously
+                        if (attr instanceof Collection) {
+                            ((Collection<Object>) attr).addAll(values);
+                        } else {
+                            values.add(attr);
+                            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
+                        }
+                    }));
         }
 
         return builder;
@@ -217,7 +231,7 @@ public class ElasticsearchUtils {
         builder.put("fullPath", realm.getFullPath());
         builder.put("auxClasses", realm.getAnyTypeClasses().stream().map(AnyTypeClass::getKey).toList());
         builder.put("resources", realm.getResources().stream().map(Entity::getKey).toList());
-        addPlainAttr(builder, realm.getPlainAttrs());
+        plainAttrs(builder, realm.getPlainAttrs());
 
         customizeDocument(builder, realm);
 

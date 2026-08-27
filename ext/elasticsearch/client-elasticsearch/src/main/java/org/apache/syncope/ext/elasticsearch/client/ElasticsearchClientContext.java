@@ -24,6 +24,7 @@ import java.util.Objects;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.common.CollectionUtil;
 import org.slf4j.Logger;
@@ -58,11 +59,12 @@ public class ElasticsearchClientContext {
     @ConditionalOnMissingBean
     @Bean
     public ElasticsearchUtils elasticsearchUtils(
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO) {
 
-        return new ElasticsearchUtils(userDAO, groupDAO, anyObjectDAO);
+        return new ElasticsearchUtils(plainSchemaDAO, userDAO, groupDAO, anyObjectDAO);
     }
 
     @ConditionalOnMissingBean
