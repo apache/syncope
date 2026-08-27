@@ -20,10 +20,11 @@
 @import 'theme';
 @import 'utils';
 
+html {
+  height: 100% !important;
+}
 
 body, html {
-  height: 100% !important;
-  background-color: var(--app-bg);
   background-repeat: no-repeat;
   font-family: "Source Sans Pro",-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'!important;
 }
@@ -31,6 +32,16 @@ body, html {
 .card-container.card {
   width: 350px;
   padding: 40px;
+}
+
+fieldset{
+  border: none !important;
+  padding: 1rem 0 0 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.input-group > button[type="button"] {
+    min-width: 50px
 }
 
 /*
@@ -41,8 +52,7 @@ body, html {
   /* just in case there no content*/
   color: var(--app-text);
   padding: 20px 25px 30px;
-  margin: 0 auto 25px;
-  margin-top: 50px;
+  margin: 50px auto 25px;
   /* shadows and rounded borders */
   @include border_radius(2px);
   @include shadow(0 2px 2px var(--app-shadow));
