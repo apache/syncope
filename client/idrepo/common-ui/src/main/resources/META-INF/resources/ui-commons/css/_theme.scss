@@ -115,7 +115,7 @@
   /*
    * Semantic states
    */
-  --app-success: var(--app-cyan-500);
+  --app-success: var(--app-green-500);
   --app-success-contrast: var(--color-white);
 
   --app-danger: var(--app-red-500);
@@ -288,7 +288,7 @@
    * --------------------------------------------------------------------------
    */
 
-  --app-success: #29b8d3;
+  --app-success: var(--app-green-500);
   --app-success-contrast: var(--color-white);
 
   --app-danger: #ed5864;
