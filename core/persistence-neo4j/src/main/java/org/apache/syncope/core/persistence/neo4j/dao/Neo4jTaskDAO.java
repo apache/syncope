@@ -248,8 +248,8 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
-            String field = clause.getProperty().trim();
-            switch (field) {
+            String field = null;
+            switch (clause.getProperty().trim()) {
                 case "latestExecStatus":
                     field = "status";
                     break;
@@ -265,7 +265,11 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 default:
             }
 
-            subStatement.append("p.").append(field).append(' ').append(clause.getDirection().name()).append(',');
+            if (field == null) {
+                LOG.debug("Unsupported ORDER BY clause: {}", clause.getProperty().trim());
+            } else {
+                subStatement.append("p.").append(field).append(' ').append(clause.getDirection().name()).append(',');
+            }
         });
 
         StringBuilder statement = new StringBuilder(" ORDER BY ");
@@ -377,7 +381,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                     map(realmSearchDAO::findByFullPath).
                     filter(Optional::isPresent).
                     flatMap(r -> realmSearchDAO.findDescendants(r.get().getFullPath(), null).
-                    stream()).
+                            stream()).
                     map(Realm::getKey).
                     distinct();
 
@@ -500,21 +504,21 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
                     t.getActions().stream().filter(act -> !pullTask.getActions().contains(act)).
                             forEach(impl -> deleteRelationship(Neo4jPullTask.NODE,
-                            Neo4jImplementation.NODE,
-                            pullTask.getKey(),
-                            impl.getKey(),
-                            Neo4jPullTask.PULL_TASK_INBOUND_ACTIONS_REL));
+                                    Neo4jImplementation.NODE,
+                                    pullTask.getKey(),
+                                    impl.getKey(),
+                                    Neo4jPullTask.PULL_TASK_INBOUND_ACTIONS_REL));
                 });
 
             case Neo4jPushTask pushTask -> {
                 neo4jTemplate.findById(pushTask.getKey(), Neo4jPushTask.class).
                         ifPresent(t -> t.getActions().stream().filter(act -> !pushTask.getActions().contains(act)).
-                        forEach(impl -> deleteRelationship(
-                        Neo4jPushTask.NODE,
-                        Neo4jImplementation.NODE,
-                        pushTask.getKey(),
-                        impl.getKey(),
-                        Neo4jPushTask.PUSH_TASK_PUSH_ACTIONS_REL)));
+                                forEach(impl -> deleteRelationship(
+                                        Neo4jPushTask.NODE,
+                                        Neo4jImplementation.NODE,
+                                        pushTask.getKey(),
+                                        impl.getKey(),
+                                        Neo4jPushTask.PUSH_TASK_PUSH_ACTIONS_REL)));
             }
 
             case Neo4jMacroTask macroTask ->

@@ -255,8 +255,8 @@ public class JPATaskDAO implements TaskDAO {
 
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
-            String field = clause.getProperty().trim();
-            switch (field) {
+            String field = null;
+            switch (clause.getProperty().trim()) {
                 case "latestExecStatus":
                     field = "status";
                     break;
@@ -270,17 +270,24 @@ public class JPATaskDAO implements TaskDAO {
                     break;
 
                 default:
-                    Field beanField = ReflectionUtils.findField(beanClass, field);
-                    if (beanField != null
-                            && (beanField.getAnnotation(ManyToOne.class) != null
-                            || beanField.getAnnotation(OneToMany.class) != null
-                            || beanField.getAnnotation(OneToOne.class) != null)) {
+                    Field beanField = ReflectionUtils.findField(beanClass, clause.getProperty().trim());
+                    if (beanField != null) {
+                        field = beanField.getName();
 
-                        field += "_id";
+                        if (beanField.getAnnotation(ManyToOne.class) != null
+                                || beanField.getAnnotation(OneToMany.class) != null
+                                || beanField.getAnnotation(OneToOne.class) != null) {
+
+                            field += "_id";
+                        }
                     }
             }
 
-            subStatement.append(prefix).append(field).append(' ').append(clause.getDirection().name()).append(',');
+            if (field == null) {
+                LOG.debug("Unsupported ORDER BY clause: {}", clause.getProperty().trim());
+            } else {
+                subStatement.append(prefix).append(field).append(' ').append(clause.getDirection().name()).append(',');
+            }
         });
 
         StringBuilder statement = new StringBuilder(" ORDER BY ");
@@ -412,7 +419,7 @@ public class JPATaskDAO implements TaskDAO {
                     map(realmSearchDAO::findByFullPath).
                     filter(Optional::isPresent).
                     flatMap(r -> realmSearchDAO.findDescendants(r.get().getFullPath(), null).
-                    stream()).
+                            stream()).
                     map(Realm::getKey).
                     distinct().
                     map(realmKey -> "?" + setParameter(parameters, realmKey)).
@@ -438,9 +445,9 @@ public class JPATaskDAO implements TaskDAO {
 
         boolean orderByTaskExecInfo = pageable.getSort().stream().
                 anyMatch(clause -> clause.getProperty().equals("start")
-                || clause.getProperty().equals("end")
-                || clause.getProperty().equals("latestExecStatus")
-                || clause.getProperty().equals("status"));
+                        || clause.getProperty().equals("end")
+                        || clause.getProperty().equals("latestExecStatus")
+                        || clause.getProperty().equals("status"));
 
         StringBuilder queryString = buildFindAllQuery(
                 type,
