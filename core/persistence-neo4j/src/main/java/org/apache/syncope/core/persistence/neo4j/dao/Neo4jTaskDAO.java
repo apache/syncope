@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
+import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,6 +77,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 
 public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
@@ -245,7 +247,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         return neo4jTemplate.count(query.toString());
     }
 
-    protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
+    protected String toOrderByStatement(
+            final Class<? extends Task<?>> beanClass,
+            final Stream<Sort.Order> orderByClauses) {
+
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
             String field = null;
@@ -263,6 +268,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                     break;
 
                 default:
+                    Field beanField = ReflectionUtils.findField(beanClass, clause.getProperty().trim());
+                    if (beanField != null) {
+                        field = beanField.getName();
+                    }
             }
 
             if (field == null) {
@@ -295,7 +304,8 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             query.append("(p)-[:").append(execRelationship(type)).append("]-() ");
         }
 
-        query.append("RETURN p.id ").append(toOrderByStatement(pageable.getSort().stream()));
+        query.append("RETURN p.id ").append(toOrderByStatement(
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -467,7 +477,8 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
         query.append(" WITH n ");
 
-        query.append(toOrderByStatement(pageable.getSort().stream()));
+        query.append(toOrderByStatement(
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream()));
 
         if (pageable.isPaged()) {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
