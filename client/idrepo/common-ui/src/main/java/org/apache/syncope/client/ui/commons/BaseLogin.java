@@ -35,6 +35,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
@@ -96,6 +97,11 @@ public abstract class BaseLogin extends WebPage {
 
     public BaseLogin(final PageParameters parameters) {
         super(parameters);
+
+        if (AuthenticatedWebSession.get().isSignedIn()) {
+            AuthenticatedWebSession.get().invalidate();
+        }
+
         setStatelessHint(true);
 
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
