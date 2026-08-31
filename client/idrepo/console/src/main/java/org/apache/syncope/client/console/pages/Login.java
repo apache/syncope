@@ -28,7 +28,6 @@ import org.apache.syncope.client.ui.commons.pages.BaseLogin;
 import org.apache.syncope.client.ui.commons.pages.BaseMfaEnroll;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -72,8 +71,6 @@ public class Login extends BaseLogin {
             throw new NotAuthorizedException("Illegal username");
         }
 
-        IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
-
         if (AuthenticatedWebSession.get().signIn(username, password)) {
             // If login has been called because the user was not yet logged in, than continue to the
             // original destination, otherwise to the Home page
@@ -83,6 +80,5 @@ public class Login extends BaseLogin {
             SyncopeConsoleSession.get().error(getString("login-error"));
             notificationPanel.refresh(target);
         }
-        strategy.remove();
     }
 }
