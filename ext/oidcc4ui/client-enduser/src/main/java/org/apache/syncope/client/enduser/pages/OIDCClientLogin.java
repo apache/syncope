@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
-import org.apache.wicket.authentication.IAuthenticationStrategy;
+import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.slf4j.Logger;
@@ -41,6 +41,10 @@ public class OIDCClientLogin extends WebPage {
     public OIDCClientLogin(final PageParameters parameters) {
         super(parameters);
 
+        if (AuthenticatedWebSession.get().isSignedIn()) {
+            AuthenticatedWebSession.get().invalidate();
+        }
+
         String jwt = parameters.get(OIDCC4UIConstants.OIDCC4UI_JWT).toOptionalString();
         Instant jwtExpiration = parameters.get(OIDCC4UIConstants.OIDCC4UI_JWT_EXPIRATION).toOptional(Instant.class);
         if (StringUtils.isBlank(jwt)) {
@@ -51,8 +55,6 @@ public class OIDCClientLogin extends WebPage {
             loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
             setResponsePage(Login.class, loginParameters);
         }
-
-        IAuthenticationStrategy strategy = getApplication().getSecuritySettings().getAuthenticationStrategy();
 
         if (SyncopeEnduserSession.get().authenticate(jwt, jwtExpiration)) {
             if (parameters.get(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED).toBoolean(false)) {
@@ -71,7 +73,5 @@ public class OIDCClientLogin extends WebPage {
             loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
             setResponsePage(Login.class, loginParameters);
         }
-
-        strategy.remove();
     }
 }
