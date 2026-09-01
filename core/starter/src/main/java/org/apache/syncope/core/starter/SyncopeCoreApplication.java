@@ -132,7 +132,7 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
     @ConditionalOnMissingBean
     @Bean
     public KeymasterStop keymasterStop(final DomainHolder<?> domainHolder, final KeymasterProperties keymasterProps) {
-        return new SyncopeCoreStop(domainHolder, keymasterProps);
+        return new SyncopeCoreStop(domainHolder, keymasterProps.isEnableAutoRegistration());
     }
 
     @ConditionalOnMissingBean

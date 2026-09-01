@@ -19,7 +19,6 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
-import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -41,10 +40,10 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
     
     private final boolean enableAutoRegistration;
 
-    public SyncopeCoreStop(final DomainHolder<?> domainHolder, final KeymasterProperties keymasterProps) {
+    public SyncopeCoreStop(final DomainHolder<?> domainHolder, final boolean enableAutoRegistration) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
-        this.enableAutoRegistration = keymasterProps.isEnableAutoRegistration();
+        this.enableAutoRegistration = enableAutoRegistration;
     }
 
     @Override
