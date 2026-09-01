@@ -39,9 +39,12 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
 
     private final DomainHolder<?> domainHolder;
 
-    public SyncopeCoreStart(final DomainHolder<?> domainHolder) {
+    private final boolean enableAutoRegistration;
+    
+    public SyncopeCoreStart(final DomainHolder<?> domainHolder, final boolean enableAutoRegistration) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
+        this.enableAutoRegistration = enableAutoRegistration;
     }
 
     @Override
@@ -71,7 +74,9 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
                     LOG.debug("[{}] Init completed", loaderName);
                 });
 
-        super.onApplicationEvent(event);
+        if (enableAutoRegistration) {
+            super.onApplicationEvent(event);
+        }
 
         event.getApplicationContext().getBean(JobStatusUpdater.class).initComplete();
     }
