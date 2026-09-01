@@ -19,6 +19,7 @@
 package org.apache.syncope.core.starter;
 
 import java.util.Comparator;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -37,10 +38,13 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStop.class);
 
     private final DomainHolder<?> domainHolder;
+    
+    private final boolean enableAutoRegistration;
 
-    public SyncopeCoreStop(final DomainHolder<?> domainHolder) {
+    public SyncopeCoreStop(final DomainHolder<?> domainHolder, final KeymasterProperties keymasterProps) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
+        this.enableAutoRegistration = keymasterProps.isEnableAutoRegistration();
     }
 
     @Override
@@ -68,6 +72,8 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
                     LOG.debug("[{}] Dispose completed", loaderName);
                 });
 
-        super.onApplicationEvent(event);
+        if (enableAutoRegistration) {
+            super.onApplicationEvent(event);
+        }
     }
 }
