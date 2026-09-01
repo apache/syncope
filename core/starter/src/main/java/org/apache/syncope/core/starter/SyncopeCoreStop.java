@@ -37,10 +37,13 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStop.class);
 
     private final DomainHolder<?> domainHolder;
+    
+    private final boolean enableAutoRegistration;
 
-    public SyncopeCoreStop(final DomainHolder<?> domainHolder) {
+    public SyncopeCoreStop(final DomainHolder<?> domainHolder, final boolean enableAutoRegistration) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
+        this.enableAutoRegistration = enableAutoRegistration;
     }
 
     @Override
@@ -68,6 +71,8 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
                     LOG.debug("[{}] Dispose completed", loaderName);
                 });
 
-        super.onApplicationEvent(event);
+        if (enableAutoRegistration) {
+            super.onApplicationEvent(event);
+        }
     }
 }

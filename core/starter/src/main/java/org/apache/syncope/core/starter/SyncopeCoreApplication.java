@@ -21,6 +21,7 @@ package org.apache.syncope.core.starter;
 import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -105,14 +106,16 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreStart keymasterStart(final DomainHolder<?> domainHolder) {
-        return new SyncopeCoreStart(domainHolder);
+    public SyncopeCoreStart keymasterStart(
+            final DomainHolder<?> domainHolder,
+            final KeymasterProperties keymasterProps) {
+        return new SyncopeCoreStart(domainHolder, keymasterProps.isEnableAutoRegistration());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public KeymasterStop keymasterStop(final DomainHolder<?> domainHolder) {
-        return new SyncopeCoreStop(domainHolder);
+    public KeymasterStop keymasterStop(final DomainHolder<?> domainHolder, final KeymasterProperties keymasterProps) {
+        return new SyncopeCoreStop(domainHolder, keymasterProps.isEnableAutoRegistration());
     }
 
     @ConditionalOnMissingBean
