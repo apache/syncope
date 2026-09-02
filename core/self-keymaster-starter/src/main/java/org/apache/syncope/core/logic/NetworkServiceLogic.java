@@ -34,7 +34,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected static NetworkService toNetworkService(final NetworkServiceEntity service) {
         NetworkService ns = new NetworkService();
-        ns.setType(ns.getType());
+        ns.setType(service.getType());
         ns.setAddress(service.getAddress());
         ns.setDomain(service.getDomain());
         return ns;
