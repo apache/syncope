@@ -25,22 +25,50 @@ import org.springframework.beans.factory.annotation.Value;
 
 abstract class KeymasterStartStop {
 
+    protected abstract static class Builder<S extends KeymasterStartStop, B extends Builder<S, B>> {
+
+        protected final S instance;
+
+        Builder(final NetworkService.Type networkServiceType) {
+            instance = newInstance(networkServiceType);
+        }
+
+        protected abstract S newInstance(NetworkService.Type networkServiceType);
+
+        @SuppressWarnings("unchecked")
+        public B domain(final String domain) {
+            instance.setDomain(domain);
+            return (B) this;
+        }
+
+        public S build() {
+            return instance;
+        }
+    }
+
     @Autowired
     protected ServiceOps serviceOps;
 
     protected final NetworkService.Type networkServiceType;
 
+    private String domain;
+
+    @Value("${service.discovery.address}")
+    private String address;
+
     protected KeymasterStartStop(final NetworkService.Type networkServiceType) {
         this.networkServiceType = networkServiceType;
     }
 
-    @Value("${service.discovery.address}")
-    private String address;
+    protected void setDomain(final String domain) {
+        this.domain = domain;
+    }
 
     protected NetworkService getNetworkService() {
         NetworkService ns = new NetworkService();
         ns.setType(networkServiceType);
         ns.setAddress(address);
+        ns.setDomain(domain);
         return ns;
     }
 }

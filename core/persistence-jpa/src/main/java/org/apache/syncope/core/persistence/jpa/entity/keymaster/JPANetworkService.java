@@ -26,11 +26,13 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.common.validation.NetworkServiceCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPANetworkService.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "type", "address" }))
+@NetworkServiceCheck
 public class JPANetworkService extends AbstractGeneratedKeyEntity implements NetworkServiceEntity {
 
     private static final long serialVersionUID = 8742750097008236475L;
@@ -43,6 +45,8 @@ public class JPANetworkService extends AbstractGeneratedKeyEntity implements Net
 
     @NotNull
     private String address;
+
+    private String domain;
 
     @Override
     public NetworkService.Type getType() {
@@ -62,5 +66,15 @@ public class JPANetworkService extends AbstractGeneratedKeyEntity implements Net
     @Override
     public void setAddress(final String address) {
         this.address = address;
+    }
+
+    @Override
+    public String getDomain() {
+        return domain;
+    }
+
+    @Override
+    public void setDomain(final String domain) {
+        this.domain = domain;
     }
 }

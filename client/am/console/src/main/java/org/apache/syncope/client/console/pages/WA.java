@@ -110,7 +110,8 @@ public class WA extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         body.setOutputMarkupId(true);
 
-        List<NetworkService> instances = serviceOps.list(NetworkService.Type.WA);
+        List<NetworkService> instances = serviceOps.list(
+                NetworkService.Type.WA, SyncopeConsoleSession.get().getDomain());
 
         modal = new BaseModal<>("push-modal");
         modal.setWindowClosedCallback(target -> modal.show(false));

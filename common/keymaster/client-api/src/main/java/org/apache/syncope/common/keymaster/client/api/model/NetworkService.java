@@ -39,6 +39,8 @@ public class NetworkService implements Serializable {
 
     private String address;
 
+    private String domain;
+
     public Type getType() {
         return type;
     }
@@ -55,11 +57,20 @@ public class NetworkService implements Serializable {
         this.address = address;
     }
 
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(type).
                 append(address).
+                append(domain).
                 build();
     }
 
@@ -78,6 +89,7 @@ public class NetworkService implements Serializable {
         return new EqualsBuilder().
                 append(type, other.type).
                 append(address, other.address).
+                append(domain, other.domain).
                 build();
     }
 
@@ -86,6 +98,7 @@ public class NetworkService implements Serializable {
         return "NetworkService{"
                 + "type=" + type
                 + ", address=" + address
+                + ", domain=" + domain
                 + '}';
     }
 }

@@ -16,17 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.common.validation;
 
-import java.util.List;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface NetworkServiceRepoExt {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = NetworkServiceValidator.class)
+@Documented
+public @interface NetworkServiceCheck {
 
-    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
+    String message() default "{org.apache.syncope.core.persistence.validation.service}";
 
-    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType, String domain);
+    Class<?>[] groups() default {};
 
-    void deleteAll(NetworkService service);
+    Class<? extends Payload>[] payload() default {};
 }

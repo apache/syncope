@@ -112,6 +112,8 @@ public class RouteProvider {
 
     protected final String anonymousKey;
 
+    protected final String domain;
+
     protected final boolean useGZIPCompression;
 
     protected SyncopeClient client;
@@ -123,12 +125,14 @@ public class RouteProvider {
             final ConfigurableApplicationContext ctx,
             final String anonymousUser,
             final String anonymousKey,
+            final String domain,
             final boolean useGZIPCompression) {
 
         this.serviceOps = serviceOps;
         this.ctx = ctx;
         this.anonymousUser = anonymousUser;
         this.anonymousKey = anonymousKey;
+        this.domain = domain;
         this.useGZIPCompression = useGZIPCompression;
     }
 
@@ -574,6 +578,7 @@ public class RouteProvider {
                 try {
                     client = new SyncopeClientFactoryBean().
                             setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
+                            setDomain(domain).
                             setUseCompression(useGZIPCompression).
                             create(new BasicAuthenticationHandler(anonymousUser, anonymousKey));
                 } catch (Exception e) {

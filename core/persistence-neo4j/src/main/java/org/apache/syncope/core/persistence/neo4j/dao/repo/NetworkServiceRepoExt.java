@@ -27,6 +27,8 @@ public interface NetworkServiceRepoExt {
 
     List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
 
+    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType, String domain);
+
     <S extends Neo4jNetworkService> S save(S service);
 
     void deleteAll(NetworkService service);

@@ -16,41 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic;
+package org.apache.syncope.core.persistence.common.validation;
 
-import java.util.List;
-import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import jakarta.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.types.EntityViolationType;
 
-public class DummyServiceOps implements ServiceOps {
-
-    @Override
-    public void register(final NetworkService service) {
-        // do nothing
-    }
+public class NetworkServiceValidator extends AbstractValidator<NetworkServiceCheck, NetworkService> {
 
     @Override
-    public void unregister(final NetworkService service) {
-        // do nothing
-    }
+    public boolean isValid(final NetworkService service, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-    @Override
-    public List<NetworkService> list(final NetworkService.Type serviceType) {
-        return List.of();
-    }
+        if ((service.getType() == NetworkService.Type.SRA || service.getType() == NetworkService.Type.WA)
+                && service.getDomain() == null) {
 
-    @Override
-    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
-        return List.of();
-    }
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.Standard, "Domain must be set for SRA and WA services")).
+                    addPropertyNode("domain").addConstraintViolation();
+            return false;
+        }
 
-    @Override
-    public NetworkService get(final NetworkService.Type serviceType) {
-        return null;
-    }
-
-    @Override
-    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
-        return null;
+        return true;
     }
 }

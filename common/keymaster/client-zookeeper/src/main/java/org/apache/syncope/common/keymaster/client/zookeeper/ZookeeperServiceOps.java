@@ -115,8 +115,32 @@ public class ZookeeperServiceOps implements ServiceOps {
 
             List<NetworkService> list = new ArrayList<>();
             for (String child : client.getChildren().forPath(buildServicePath(serviceType))) {
-                list.add(MAPPER.readValue(client.getData().forPath(buildServicePath(serviceType, child)),
+                list.add(MAPPER.readValue(
+                        client.getData().forPath(buildServicePath(serviceType, child)),
                         NetworkService.class));
+            }
+
+            return list;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        try {
+            if (client.checkExists().forPath(buildServicePath(serviceType)) == null) {
+                client.create().creatingParentContainersIfNeeded().forPath(buildServicePath(serviceType));
+            }
+
+            List<NetworkService> list = new ArrayList<>();
+            for (String child : client.getChildren().forPath(buildServicePath(serviceType))) {
+                NetworkService service = MAPPER.readValue(
+                        client.getData().forPath(buildServicePath(serviceType, child)),
+                        NetworkService.class);
+                if (domain.equals(service.getDomain())) {
+                    list.add(service);
+                }
             }
 
             return list;
@@ -130,6 +154,17 @@ public class ZookeeperServiceOps implements ServiceOps {
         List<NetworkService> list = list(serviceType);
         if (list.isEmpty()) {
             throw new KeymasterException("No registered services for type " + serviceType);
+        }
+
+        // always returns first instance, can be improved
+        return list.getFirst();
+    }
+
+    @Override
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        List<NetworkService> list = list(serviceType, domain);
+        if (list.isEmpty()) {
+            throw new KeymasterException("No registered services for type " + serviceType + " and domain " + domain);
         }
 
         // always returns first instance, can be improved
