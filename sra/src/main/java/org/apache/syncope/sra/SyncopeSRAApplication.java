@@ -69,9 +69,11 @@ public class SyncopeSRAApplication {
 
     @ConditionalOnMissingBean
     @Bean
-    public RouteProvider routeProvider(final ConfigurableApplicationContext ctx,
+    public RouteProvider routeProvider(
+            final ConfigurableApplicationContext ctx,
             final ServiceOps serviceOps,
             final SRAProperties props) {
+
         return new RouteProvider(
                 serviceOps,
                 ctx,
@@ -94,8 +96,10 @@ public class SyncopeSRAApplication {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(
+            final ServiceOps serviceOps,
             final SRAProperties props) {
+
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),

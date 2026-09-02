@@ -29,9 +29,7 @@ import org.apache.syncope.client.console.panels.LogsPanel;
 import org.apache.syncope.client.console.rest.LoggerConf;
 import org.apache.syncope.client.console.rest.LoggerConfOp;
 import org.apache.syncope.client.console.rest.LoggerConfRestClient;
-import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -52,9 +50,6 @@ public class Logs extends BasePage {
     private ServiceOps serviceOps;
 
     @SpringBean
-    private DomainOps domainOps;
-
-    @SpringBean
     private LoggingSystem loggingSystem;
 
     public Logs(final PageParameters parameters) {
@@ -71,8 +66,6 @@ public class Logs extends BasePage {
     private List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
-        List<Domain> domains = domainOps.list();
-
         List<NetworkService> coreInstances = serviceOps.list(NetworkService.Type.CORE);
         tabs.add(new AbstractTab(Model.of(NetworkService.Type.CORE.name())) {
 
@@ -80,7 +73,7 @@ public class Logs extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new LogsPanel(panelId, new LoggerConfRestClient(coreInstances, domains), getPageReference());
+                return new LogsPanel(panelId, new LoggerConfRestClient(coreInstances), getPageReference());
             }
         });
 
@@ -125,7 +118,7 @@ public class Logs extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new LogsPanel(panelId, new LoggerConfRestClient(euInstances, domains), getPageReference());
+                    return new LogsPanel(panelId, new LoggerConfRestClient(euInstances), getPageReference());
                 }
             });
         }
@@ -138,7 +131,7 @@ public class Logs extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new LogsPanel(panelId, new LoggerConfRestClient(waInstances, domains), getPageReference());
+                    return new LogsPanel(panelId, new LoggerConfRestClient(waInstances), getPageReference());
                 }
             });
         }
@@ -151,7 +144,7 @@ public class Logs extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new LogsPanel(panelId, new LoggerConfRestClient(sraInstances, domains), getPageReference());
+                    return new LogsPanel(panelId, new LoggerConfRestClient(sraInstances), getPageReference());
                 }
             });
         }

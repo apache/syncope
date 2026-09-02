@@ -27,14 +27,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.logging.LogLevel;
@@ -49,13 +45,8 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
     private final List<NetworkService> instances;
 
-    private final List<String> domains;
-
-    public LoggerConfRestClient(final List<NetworkService> instances, final List<Domain> domains) {
+    public LoggerConfRestClient(final List<NetworkService> instances) {
         this.instances = instances;
-        this.domains = Stream.concat(
-                Stream.of(SyncopeConstants.MASTER_DOMAIN), domains.stream().map(Domain::getKey)).
-                collect(Collectors.toList());
     }
 
     protected String getActuatorEndpoint(final NetworkService instance) {

@@ -111,7 +111,7 @@ public class WARestClient {
     @SuppressWarnings("unchecked")
     public <T> T getService(final Class<T> serviceClass) {
         if (!isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
+            throw new IllegalStateException("Syncope Core is not yet ready");
         }
 
         T service;
