@@ -120,9 +120,10 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
                     HttpResponse.BodyHandlers.discarding()).
                     thenAcceptAsync(response -> LOG.info(
-                    "Pushed to SRA instance {} with HTTP status: {}", sra.getAddress(), response.statusCode())));
+                            "Pushed to SRA instance {} with HTTP status: {}",
+                            sra.getAddress(), response.statusCode())));
         } catch (KeymasterException e) {
-            throw new NotFoundException("Could not find any WA instance", e);
+            throw new NotFoundException("Could not find any SRA instance", e);
         }
     }
 

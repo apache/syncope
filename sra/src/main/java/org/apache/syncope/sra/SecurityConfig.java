@@ -88,25 +88,9 @@ public class SecurityConfig {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    @Bean
-    @Order(0)
-    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
-    public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
-        ServerWebExchangeMatcher metadataMatcher =
-                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
-        http.securityMatcher(metadataMatcher);
-
-        http.authorizeExchange(customizer -> customizer.anyExchange().permitAll());
-
-        http.csrf(customizer -> customizer.
-                requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)));
-
-        return http.build();
-    }
-
     @ConditionalOnMissingBean
     @Bean
-    @Order(1)
+    @Order(0)
     public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher actuatorMatcher = EndpointRequest.toAnyEndpoint();
         http.securityMatcher(actuatorMatcher);
@@ -130,6 +114,22 @@ public class SecurityConfig {
                 roles(IdRepoEntitlement.ANONYMOUS).
                 build();
         return new MapReactiveUserDetailsService(user);
+    }
+
+    @Bean
+    @Order(1)
+    @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
+    public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
+        ServerWebExchangeMatcher metadataMatcher =
+                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
+        http.securityMatcher(metadataMatcher);
+
+        http.authorizeExchange(customizer -> customizer.anyExchange().permitAll());
+
+        http.csrf(customizer -> customizer.
+                requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)));
+
+        return http.build();
     }
 
     @Bean

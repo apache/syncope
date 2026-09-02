@@ -100,7 +100,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
                         GET().build(),
                 HttpResponse.BodyHandlers.discarding()).
                 thenAcceptAsync(response -> LOG.info(
-                "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+                        "Pushed to {} with HTTP status: {}", target, response.statusCode()));
     }
 
     protected void refresh(final HttpClient client, final String serviceAddress) {
@@ -112,7 +112,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
                         POST(HttpRequest.BodyPublishers.noBody()).build(),
                 HttpResponse.BodyHandlers.discarding()).
                 thenAcceptAsync(response -> LOG.info(
-                "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+                        "Pushed to {} with HTTP status: {}", target, response.statusCode()));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")

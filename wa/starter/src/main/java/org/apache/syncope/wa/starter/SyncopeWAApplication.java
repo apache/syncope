@@ -95,7 +95,7 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
         WAProperties waProperties = event.getApplicationContext().getBean(WAProperties.class);
         TaskScheduler scheduler = event.getApplicationContext().getBean(TaskScheduler.class);
-        Instant startAt = Instant.now().plusSeconds(waProperties.getContextRefreshDelay());
+        Instant startAt = Instant.now().plusSeconds(waProperties.getContextRefreshDelaySeconds());
         try {
             scheduler.schedule(job, startAt);
             LOG.info("Scheduled job to refresh application context @ [{}]", startAt);
