@@ -26,6 +26,9 @@ External Resources, Policies, Tasks, etc. from different domains (e.g. tenants) 
 
 By default, a single `Master` domain is defined, which also bears the configuration for additional domains.
 
+Each <<secure-remote-access>> and <<web-access>> instance is configured to bind to a given domain. +
+This allows to provide segregated configuration for all access-related features.
+
 [.text-center]
 image::domains.png[title="Domains",alt="Domains"]
 

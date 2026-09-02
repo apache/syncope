@@ -21,11 +21,12 @@ package org.apache.syncope.core.persistence.common.validation;
 import jakarta.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 
-public class NetworkServiceValidator extends AbstractValidator<NetworkServiceCheck, NetworkService> {
+public class NetworkServiceValidator extends AbstractValidator<NetworkServiceCheck, NetworkServiceEntity> {
 
     @Override
-    public boolean isValid(final NetworkService service, final ConstraintValidatorContext context) {
+    public boolean isValid(final NetworkServiceEntity service, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         if ((service.getType() == NetworkService.Type.SRA || service.getType() == NetworkService.Type.WA)
