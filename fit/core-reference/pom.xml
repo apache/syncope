@@ -1707,7 +1707,7 @@ under the License.
             <artifactId>maven-failsafe-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <skipTests>${skipTests}</skipTests>
+              <skipITs>${skipITs}</skipITs>
             </configuration>
           </plugin>
         </plugins>
@@ -1719,6 +1719,7 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
       </properties>
 
       <build>
@@ -1749,6 +1750,7 @@ under the License.
       
       <properties>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
       </properties>
       
       <build>

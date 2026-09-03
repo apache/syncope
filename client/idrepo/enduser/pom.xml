@@ -256,6 +256,7 @@ under the License.
       <properties>
         <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
       </properties>
 
       <build>

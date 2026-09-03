@@ -1881,7 +1881,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.6</version>
+          <version>3.6.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
@@ -2494,6 +2494,7 @@ under the License.
       <properties>
         <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
         <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
         <rat.skip>true</rat.skip>
