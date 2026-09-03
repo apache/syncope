@@ -91,6 +91,7 @@ under the License.
       
       <properties>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
       </properties>
       
       <build>
