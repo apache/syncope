@@ -24,7 +24,19 @@ import org.springframework.context.event.ContextClosedEvent;
 
 public class KeymasterStop extends KeymasterStartStop implements ApplicationListener<ContextClosedEvent> {
 
-    public KeymasterStop(final NetworkService.Type networkServiceType) {
+    public static class Builder extends KeymasterStartStop.Builder<KeymasterStop, Builder> {
+
+        public Builder(final NetworkService.Type networkServiceType) {
+            super(networkServiceType);
+        }
+
+        @Override
+        protected KeymasterStop newInstance(final NetworkService.Type networkServiceType) {
+            return new KeymasterStop(networkServiceType);
+        }
+    }
+
+    protected KeymasterStop(final NetworkService.Type networkServiceType) {
         super(networkServiceType);
     }
 

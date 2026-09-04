@@ -16,17 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.common.validation;
 
-import java.util.List;
+import jakarta.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 
-public interface NetworkServiceRepoExt {
+public class NetworkServiceValidator extends AbstractValidator<NetworkServiceCheck, NetworkServiceEntity> {
 
-    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
+    @Override
+    public boolean isValid(final NetworkServiceEntity service, final ConstraintValidatorContext context) {
+        context.disableDefaultConstraintViolation();
 
-    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType, String domain);
+        if ((service.getType() == NetworkService.Type.SRA || service.getType() == NetworkService.Type.WA)
+                && service.getDomain() == null) {
 
-    void deleteAll(NetworkService service);
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.Standard, "Domain must be set for SRA and WA services")).
+                    addPropertyNode("domain").addConstraintViolation();
+            return false;
+        }
+
+        return true;
+    }
 }

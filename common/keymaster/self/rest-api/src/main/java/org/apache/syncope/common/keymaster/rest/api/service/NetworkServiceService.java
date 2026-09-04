@@ -55,23 +55,29 @@ public interface NetworkServiceService extends Serializable {
      * Returns the list of registered services.
      *
      * @param serviceType service type
+     * @param domain optional domain
      * @return list of registered services
      */
     @GET
     @Path("{serviceType}")
     @Produces({ MediaType.APPLICATION_JSON })
-    List<NetworkService> list(@NotNull @PathParam("serviceType") NetworkService.Type serviceType);
+    List<NetworkService> list(
+            @NotNull @PathParam("serviceType") NetworkService.Type serviceType,
+            @QueryParam("domain") String domain);
 
     /**
      * Returns the service instance to invoke, for the given type.
      *
      * @param serviceType service type
+     * @param domain optional domain
      * @return service instance to invoke, for the given type
      */
     @GET
     @Path("{serviceType}/get")
     @Produces({ MediaType.APPLICATION_JSON })
-    NetworkService get(@NotNull @PathParam("serviceType") NetworkService.Type serviceType);
+    NetworkService get(
+            @NotNull @PathParam("serviceType") NetworkService.Type serviceType,
+            @QueryParam("domain") String domain);
 
     /**
      * (Un)registers the given service.

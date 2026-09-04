@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.LogsPanel;
 import org.apache.syncope.client.console.rest.LoggerConf;
 import org.apache.syncope.client.console.rest.LoggerConfOp;
@@ -123,7 +124,8 @@ public class Logs extends BasePage {
             });
         }
 
-        List<NetworkService> waInstances = serviceOps.list(NetworkService.Type.WA);
+        List<NetworkService> waInstances = serviceOps.list(
+                NetworkService.Type.WA, SyncopeConsoleSession.get().getDomain());
         if (!waInstances.isEmpty()) {
             tabs.add(new AbstractTab(Model.of(NetworkService.Type.WA.name())) {
 
@@ -136,7 +138,8 @@ public class Logs extends BasePage {
             });
         }
 
-        List<NetworkService> sraInstances = serviceOps.list(NetworkService.Type.SRA);
+        List<NetworkService> sraInstances = serviceOps.list(
+                NetworkService.Type.SRA, SyncopeConsoleSession.get().getDomain());
         if (!sraInstances.isEmpty()) {
             tabs.add(new AbstractTab(Model.of(NetworkService.Type.SRA.name())) {
 

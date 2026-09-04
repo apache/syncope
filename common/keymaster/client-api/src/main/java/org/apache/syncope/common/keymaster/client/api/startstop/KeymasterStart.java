@@ -24,7 +24,19 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 public class KeymasterStart extends KeymasterStartStop implements ApplicationListener<ContextRefreshedEvent> {
 
-    public KeymasterStart(final NetworkService.Type networkServiceType) {
+    public static class Builder extends KeymasterStartStop.Builder<KeymasterStart, Builder> {
+
+        public Builder(final NetworkService.Type networkServiceType) {
+            super(networkServiceType);
+        }
+
+        @Override
+        protected KeymasterStart newInstance(final NetworkService.Type networkServiceType) {
+            return new KeymasterStart(networkServiceType);
+        }
+    }
+
+    protected KeymasterStart(final NetworkService.Type networkServiceType) {
         super(networkServiceType);
     }
 

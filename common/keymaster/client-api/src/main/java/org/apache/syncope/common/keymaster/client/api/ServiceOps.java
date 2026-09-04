@@ -32,6 +32,8 @@ public interface ServiceOps {
 
     List<NetworkService> list(NetworkService.Type serviceType);
 
+    List<NetworkService> list(NetworkService.Type serviceType, String domain);
+
     /**
      * Returns the service instance to invoke, for the given type.
      *
@@ -39,4 +41,13 @@ public interface ServiceOps {
      * @return service instance to invoke, for the given type
      */
     NetworkService get(NetworkService.Type serviceType);
+
+    /**
+     * Returns the service instance to invoke, for the given type and domain.
+     *
+     * @param serviceType service type
+     * @param domain domain
+     * @return service instance to invoke, for the given type and domain
+     */
+    NetworkService get(NetworkService.Type serviceType, String domain);
 }

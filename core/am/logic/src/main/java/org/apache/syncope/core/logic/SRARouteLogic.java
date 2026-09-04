@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -112,7 +113,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
     public void pushToSRA() {
         HttpClient client = HttpClient.newHttpClient();
         try {
-            serviceOps.list(NetworkService.Type.SRA).forEach(sra -> client.sendAsync(
+            serviceOps.list(NetworkService.Type.SRA, AuthContextUtils.getDomain()).forEach(sra -> client.sendAsync(
                     HttpRequest.newBuilder(URI.create(
                             Strings.CS.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
                             header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
