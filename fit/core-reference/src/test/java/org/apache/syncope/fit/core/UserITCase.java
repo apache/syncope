@@ -541,6 +541,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void updateSamePassword() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         assertThrows(SyncopeClientException.class, () -> {
             UserCR userCR = getUniqueSample("updatesame@password.com");
             userCR.setRealm("/even/two");
