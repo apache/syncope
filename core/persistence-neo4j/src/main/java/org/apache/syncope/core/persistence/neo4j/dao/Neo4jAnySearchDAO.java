@@ -132,7 +132,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     protected static String escapeIfString(final String value, final boolean isStr) {
         return isStr
-                ? new StringBuilder().append('"').append(value).append('"').toString()
+                ? new StringBuilder().append('"').append(AnyRepoExt.escapeForLikeRegex(value)).append('"').toString()
                 : value;
     }
 
@@ -648,7 +648,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
                 Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                         orElseThrow(() -> new IllegalArgumentException(
-                        "Invalid Realm full path: " + cond.getExpression()));
+                                "Invalid Realm full path: " + cond.getExpression()));
                 cond.setExpression(realm.getKey());
             }
 
@@ -842,7 +842,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         Stream.concat(
                 queryInfo.fields().stream(),
                 orderBy.stream().filter(clause -> !"id".equals(clause.getProperty())
-                && anyUtils.getField(clause.getProperty()).isPresent()).map(Order::getProperty)).
+                        && anyUtils.getField(clause.getProperty()).isPresent()).map(Order::getProperty)).
                 distinct().forEach(field -> match.append(", n.").append(field).append(" AS ").append(field));
 
         // take plain schemas into account

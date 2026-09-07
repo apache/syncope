@@ -101,7 +101,7 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
 
     protected static String escapeIfString(final String value, final boolean isStr) {
         return isStr
-                ? new StringBuilder().append('"').append(value).append('"').toString()
+                ? new StringBuilder().append('"').append(AnyRepoExt.escapeForLikeRegex(value)).append('"').toString()
                 : value;
     }
 
@@ -278,7 +278,7 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
         Stream.concat(
                 queryInfo.fields().stream(),
                 orderBy.stream().filter(clause -> !"id".equals(clause.getProperty())
-                && realmUtils.getField(clause.getProperty()).isPresent()).map(Order::getProperty)).
+                        && realmUtils.getField(clause.getProperty()).isPresent()).map(Order::getProperty)).
                 distinct().forEach(field -> match.append(", n.").append(field).append(" AS ").append(field));
 
         // take plain schemas into account
