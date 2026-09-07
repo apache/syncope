@@ -101,9 +101,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         String form = "body:contentWrapper:content:editUserPanel:form";
         FormTester formTester = TESTER.newFormTester(form);
-        formTester.setValue(
-                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:5:panel:textField",
-                newEmail);
+        formTester.setValue("plainAttrsPanelCard:contentPanel:plainSchemas:schemas:5:panel:textField", newEmail);
 
         // check required fields were correctly set
         TESTER.assertNoInfoMessage();
@@ -113,9 +111,8 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         TESTER.assertRenderedPage(SelfResult.class);
 
-        assertEquals(IS_FLOWABLE_ENABLED
-                ? "active" : "created", USER_SERVICE.read(username).getStatus());
-        assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").get().getValues().getFirst());
+        assertEquals(IS_FLOWABLE_ENABLED ? "active" : "created", USER_SERVICE.read(username).getStatus());
+        assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").orElseThrow().getValues().getFirst());
 
         TESTER.cleanupFeedbackMessages();
     }
