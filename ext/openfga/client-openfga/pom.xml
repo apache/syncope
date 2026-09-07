@@ -35,7 +35,6 @@ under the License.
   
   <properties>
     <skipTests>true</skipTests>
-    <skipITs>true</skipITs>
     <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
 

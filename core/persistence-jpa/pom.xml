@@ -213,7 +213,6 @@ under the License.
         <action>sql</action>
 
         <skipTests>true</skipTests>
-        <skipITs>true</skipITs>
       </properties>
       
       <build>

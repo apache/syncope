@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -223,21 +222,23 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void expiredToken() throws ParseException, JOSEException {
         // Get an initial token
-        UserCR userCR = UserITCase.getUniqueSample("expired@syncope.apache.org");
-        assertDoesNotThrow(() -> createUser(userCR));
-        SyncopeClient localClient = CLIENT_FACTORY.create(userCR.getUsername(), userCR.getPassword());
+        SyncopeClient localClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
         assertNotNull(token);
         SignedJWT jwt = SignedJWT.parse(token);
+        String tokenId = jwt.getJWTClaimsSet().getJWTID();
 
         // Create a new token using the Id of the first token
         Date currentTime = new Date();
 
-        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder(jwt.getJWTClaimsSet()).
+        JWTClaimsSet.Builder claimsSet = new JWTClaimsSet.Builder().
+                jwtID(tokenId).
+                subject(ADMIN_UNAME).
                 issueTime(currentTime).
+                issuer(JWT_ISSUER).
                 expirationTime(new Date(currentTime.getTime() - 5000L)).
                 notBeforeTime(currentTime);
         jwt = new SignedJWT(new JWSHeader(JWS_SIGNER.getJwsAlgorithm()), claimsSet.build());
