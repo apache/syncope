@@ -25,6 +25,7 @@ import java.io.Reader;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -49,7 +50,7 @@ public class SpringTestConfiguration {
     public EncryptorManager encryptorManager() {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(AES_SECRET_KEY);
-        return new DefaultEncryptorManager(securityProperties);
+        return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);
     }
 
     @Primary

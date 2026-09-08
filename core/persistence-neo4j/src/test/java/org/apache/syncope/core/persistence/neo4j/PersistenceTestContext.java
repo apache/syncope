@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -110,7 +111,8 @@ public class PersistenceTestContext {
     public EncryptorManager encryptorManager() {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
-        return new DefaultEncryptorManager(securityProperties);
+        securityProperties.setProductionMode(false);
+        return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);
     }
 
     @Bean

@@ -150,6 +150,8 @@ public class SecurityProperties {
         }
     }
 
+    private boolean productionMode = true;
+
     private String adminUser;
 
     private String adminPassword;
@@ -179,6 +181,14 @@ public class SecurityProperties {
     private final AuthenticationErrorProperties authenticationError = new AuthenticationErrorProperties();
 
     private final DigesterProperties digester = new DigesterProperties();
+
+    public boolean isProductionMode() {
+        return productionMode;
+    }
+
+    public void setProductionMode(final boolean productionMode) {
+        this.productionMode = productionMode;
+    }
 
     public String getAdminUser() {
         return adminUser;
