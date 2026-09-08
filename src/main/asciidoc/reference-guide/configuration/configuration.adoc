@@ -48,6 +48,8 @@ include::deployment.adoc[]
 
 include::storage.adoc[]
 
+include::security.adoc[]
+
 include::highavailability.adoc[]
 
 include::domainsmanagement.adoc[]
@@ -57,7 +59,5 @@ include::connidlocations.adoc[]
 include::connectorbundles.adoc[]
 
 include::email.adoc[]
-
-include::jws.adoc[]
 
 include::configurationparameters.adoc[]

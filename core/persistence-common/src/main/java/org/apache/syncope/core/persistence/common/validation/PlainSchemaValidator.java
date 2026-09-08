@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Optional;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
@@ -54,6 +56,19 @@ public class PlainSchemaValidator extends AbstractValidator<PlainSchemaCheck, Pl
                             getTemplate(EntityViolationType.InvalidSchema, "SecretKey or CipherAlgorithm missing")).
                             addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
                     return false;
+                }
+                if (schema.getCipherAlgorithm() == CipherAlgorithm.AES) {
+                    if (Optional.ofNullable(schema.getSecretKey()).
+                            map(key -> key.length() != 16 && key.length() != 24 && key.length() != 32).
+                            orElse(true)) {
+
+                        context.disableDefaultConstraintViolation();
+                        context.buildConstraintViolationWithTemplate(
+                                getTemplate(EntityViolationType.InvalidSchema,
+                                        "SecretKey length requirements not met for AES: must be either 16, 24 or 32")).
+                                addPropertyNode("secretKey").addConstraintViolation();
+                        return false;
+                    }
                 }
             }
 
