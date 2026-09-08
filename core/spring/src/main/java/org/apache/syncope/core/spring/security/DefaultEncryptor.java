@@ -51,6 +51,7 @@ public class DefaultEncryptor implements Encryptor {
 
     protected DefaultEncryptor(
             final String aesSecretKey,
+            final boolean productionMode,
             final SecurityProperties.DigesterProperties digesterProperties) {
 
         this.digesterProperties = digesterProperties;
@@ -60,30 +61,34 @@ public class DefaultEncryptor implements Encryptor {
         if (StringUtils.isNotBlank(aesSecretKey)) {
             String actualKey = aesSecretKey;
 
-            Integer pad = null;
-            boolean truncate = false;
-            if (actualKey.length() < 16) {
-                pad = 16 - actualKey.length();
-            } else if (actualKey.length() > 16 && actualKey.length() < 24) {
-                pad = 24 - actualKey.length();
-            } else if (actualKey.length() > 24 && actualKey.length() < 32) {
-                pad = 32 - actualKey.length();
-            } else if (actualKey.length() > 32) {
-                truncate = true;
-            }
+            if (!productionMode) {
+                Integer pad = null;
+                boolean truncate = false;
+                if (actualKey.length() < 16) {
+                    pad = 16 - actualKey.length();
+                } else if (actualKey.length() > 16 && actualKey.length() < 24) {
+                    pad = 24 - actualKey.length();
+                } else if (actualKey.length() > 24 && actualKey.length() < 32) {
+                    pad = 32 - actualKey.length();
+                } else if (actualKey.length() > 32) {
+                    truncate = true;
+                }
 
-            if (pad != null) {
-                StringBuilder actualKeyPadding = new StringBuilder(actualKey);
-                String randomChars = SecureRandomUtils.generateRandomPassword(pad);
+                if (pad != null) {
+                    StringBuilder actualKeyPadding = new StringBuilder(actualKey);
+                    String randomChars = SecureRandomUtils.generateRandomPassword(pad);
 
-                actualKeyPadding.append(randomChars);
-                actualKey = actualKeyPadding.toString();
-                LOG.warn("The configured AES secret key is too short (< {}), padding with random chars: {}",
-                        actualKey.length(), actualKey);
-            }
-            if (truncate) {
-                actualKey = actualKey.substring(0, 32);
-                LOG.warn("The configured AES secret key is too long (> 32), truncating: {}", actualKey);
+                    actualKeyPadding.append(randomChars);
+                    actualKey = actualKeyPadding.toString();
+                    LOG.warn("The configured AES secret key is too short (< {}), padding with random chars",
+                            actualKey.length());
+                    LOG.debug("Using\nsecurity.aesSecretKey={}", actualKey);
+                }
+                if (truncate) {
+                    actualKey = actualKey.substring(0, 32);
+                    LOG.warn("The configured AES secret key is too long (> 32), truncating");
+                    LOG.debug("Using\nsecurity.aesSecretKey={}", actualKey);
+                }
             }
 
             try {

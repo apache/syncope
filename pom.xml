@@ -483,7 +483,7 @@ under the License.
     <chartjs.version>4.5.1</chartjs.version>
 
     <wicket.version>10.11.0</wicket.version>
-    <wicketstuff.version>10.10.0</wicketstuff.version>
+    <wicketstuff.version>10.11.0</wicketstuff.version>
     <wicket-bootstrap.version>7.0.15</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
 
@@ -530,7 +530,7 @@ under the License.
     <tomcat.version>10.1.57</tomcat.version>
     <wildfly.version>40.0.1.Final</wildfly.version>
     <payara.version>6.2025.11</payara.version>
-    <jakarta.faces.version>4.1.15</jakarta.faces.version>
+    <jakarta.faces.version>4.1.16</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9</docker.mysql.version>

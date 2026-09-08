@@ -58,31 +58,45 @@ public class SecurityContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityContext.class);
 
+    private static String JWS_KEY = null;
+
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @Bean
     public static GrantedAuthorityDefaults grantedAuthorityDefaults() {
         return new GrantedAuthorityDefaults(""); // Remove the ROLE_ prefix
     }
 
-    protected static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
-        String jwsKey = Optional.ofNullable(props.getJwsKey()).
-                orElseThrow(() -> new IllegalArgumentException("No JWS key provided"));
+    private static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
+        synchronized (LOG) {
+            if (JWS_KEY == null) {
+                String jwsKey = Optional.ofNullable(props.getJwsKey()).
+                        orElseThrow(() -> new IllegalArgumentException("No JWS key provided"));
 
-        if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
-            int minLength = jwsAlgorithm.equals(JWSAlgorithm.HS256)
-                    ? 256 / 8
-                    : jwsAlgorithm.equals(JWSAlgorithm.HS384)
-                    ? 384 / 8
-                    : 512 / 8;
-            if (jwsKey.length() < minLength) {
-                jwsKey = SecureRandomUtils.generateRandomPassword(minLength);
-                props.setJwsKey(jwsKey);
-                LOG.warn("The configured key for {} must be at least {} bits, generating random: {}",
-                        jwsAlgorithm, minLength * 8, jwsKey);
+                if (JWSAlgorithm.Family.HMAC_SHA.contains(jwsAlgorithm)) {
+                    int minLength = jwsAlgorithm.equals(JWSAlgorithm.HS256)
+                            ? 256 / 8
+                            : jwsAlgorithm.equals(JWSAlgorithm.HS384)
+                            ? 384 / 8
+                            : 512 / 8;
+                    if (jwsKey.length() < minLength) {
+                        if (props.isProductionMode()) {
+                            throw new IllegalArgumentException(
+                                    "The configured key for %s must be at least %d characters".
+                                            formatted(jwsAlgorithm, minLength));
+                        }
+
+                        jwsKey = SecureRandomUtils.generateRandomPassword(minLength);
+                        props.setJwsKey(jwsKey);
+                        LOG.warn("The configured key for {} must be at least {} characters, generating random",
+                                jwsAlgorithm, minLength);
+                        LOG.debug("Using\nsecurity.jwsKey={}", jwsKey);
+                    }
+                }
+
+                JWS_KEY = jwsKey;
             }
         }
-
-        return jwsKey;
+        return JWS_KEY;
     }
 
     @Bean
@@ -102,9 +116,11 @@ public class SecurityContext {
             final JWSAlgorithm jwsAlgorithm) {
 
         return new DefaultCredentialChecker(
+                props.getAesSecretKey(),
                 jwsKey(jwsAlgorithm, props),
                 props.getAdminPassword(),
-                props.getAnonymousKey());
+                props.getAnonymousKey(),
+                props.isProductionMode());
     }
 
     @ConditionalOnMissingBean
@@ -157,8 +173,11 @@ public class SecurityContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager(final SecurityProperties securityProperties) {
-        return new DefaultEncryptorManager(securityProperties);
+    public EncryptorManager encryptorManager(
+            final DefaultCredentialChecker credentialChecker,
+            final SecurityProperties securityProperties) {
+
+        return new DefaultEncryptorManager(credentialChecker, securityProperties);
     }
 
     @ConditionalOnMissingBean

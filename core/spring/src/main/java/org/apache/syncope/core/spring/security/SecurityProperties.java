@@ -82,6 +82,8 @@ public class SecurityProperties {
         }
     }
 
+    private boolean productionMode = true;
+
     private String adminUser;
 
     private String adminPassword;
@@ -103,6 +105,14 @@ public class SecurityProperties {
     private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
 
     private final DigesterProperties digester = new DigesterProperties();
+
+    public boolean isProductionMode() {
+        return productionMode;
+    }
+
+    public void setProductionMode(final boolean productionMode) {
+        this.productionMode = productionMode;
+    }
 
     public String getAdminUser() {
         return adminUser;

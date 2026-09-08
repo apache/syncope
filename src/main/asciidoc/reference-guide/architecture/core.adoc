@@ -93,6 +93,7 @@ with no code changes: PostgreSQL, MySQL, MariaDB and Oracle are fully supported
 <<domains>> allow to manage data belonging to different https://en.wikipedia.org/wiki/Multitenancy[tenants^] into
 separate database instances.
 
+[[security-layer]]
 ==== Security
 
 Rather than being a separate layer, Security features are triggered throughout incoming request processing.

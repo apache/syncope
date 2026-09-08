@@ -663,7 +663,7 @@ public class GroupITCase extends AbstractITCase {
         assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().getFirst());
 
         // 6. update schema again to disallow cleartext values
-        encrypted.setConversionPattern(null);
+        encrypted.setConversionPattern("${obscureSecretKey}");
         SCHEMA_SERVICE.update(SchemaType.PLAIN, encrypted);
 
         group = GROUP_SERVICE.read(group.getKey());

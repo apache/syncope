@@ -133,7 +133,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setKey("encrypted");
         schemaTO.setType(AttrSchemaType.Encrypted);
         schemaTO.setCipherAlgorithm(CipherAlgorithm.AES);
-        schemaTO.setSecretKey("huhadfhsjfsfsdkj!####");
+        schemaTO.setSecretKey("huhadfhsjfsfsdkj");
 
         createSchema(SchemaType.PLAIN, schemaTO);
     }
