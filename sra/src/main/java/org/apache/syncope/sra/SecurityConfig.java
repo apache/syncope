@@ -23,7 +23,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.Security;
 import java.security.cert.X509Certificate;
-import java.text.ParseException;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -78,7 +77,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
-import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Configuration(proxyBeanMethods = false)
@@ -228,18 +226,13 @@ public class SecurityConfig {
             final Converter<Map<String, Object>, Map<String, Object>> jwtClaimSetConverter) {
 
         String jwkSetUri = oauth2ClientRegistration.getProviderDetails().getJwkSetUri();
-        NimbusReactiveJwtDecoder jwtDecoder;
         if (StringUtils.isBlank(jwkSetUri)) {
-            jwtDecoder = new NimbusReactiveJwtDecoder(jwt -> {
-                try {
-                    return Mono.just(jwt.getJWTClaimsSet());
-                } catch (ParseException e) {
-                    return Mono.error(e);
-                }
-            });
-        } else {
-            jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+            throw new IllegalStateException(
+                    "sra.oauth2.jwkSetUri must be configured for OAuth2 JWT verification."
+                    + "SRA cannot securely operate without JWT signature verification.");
         }
+
+        NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
         jwtDecoder.setJwtValidator(oauth2JWTValidator);
         jwtDecoder.setClaimSetConverter(jwtClaimSetConverter);
         return jwtDecoder;
