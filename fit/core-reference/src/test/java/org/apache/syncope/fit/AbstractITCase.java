@@ -21,6 +21,7 @@ package org.apache.syncope.fit;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1185,13 +1186,17 @@ public abstract class AbstractITCase {
     @Autowired
     protected DataSource testDataSource;
 
-    protected final EncryptorManager encryptorManager;
+    protected EncryptorManager encryptorManager;
 
     protected AbstractITCase() {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
         securityProperties.setProductionMode(false);
-        encryptorManager = new DefaultEncryptorManager(
-                new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+        try {
+            encryptorManager = new DefaultEncryptorManager(
+                    new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+        } catch (IOException e) {
+            fail(e.getMessage(), e);
+        }
     }
 }

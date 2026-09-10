@@ -47,7 +47,7 @@ public class SpringTestConfiguration {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(AES_SECRET_KEY);
         return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);

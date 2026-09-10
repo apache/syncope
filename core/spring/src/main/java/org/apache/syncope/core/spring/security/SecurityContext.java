@@ -120,7 +120,7 @@ public class SecurityContext {
     @Bean
     public DefaultCredentialChecker credentialChecker(
             final SecurityProperties props,
-            final JWSAlgorithm jwsAlgorithm) {
+            final JWSAlgorithm jwsAlgorithm) throws IOException {
 
         return new DefaultCredentialChecker(
                 props.getAesSecretKey(),
