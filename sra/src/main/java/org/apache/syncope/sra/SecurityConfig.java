@@ -228,7 +228,7 @@ public class SecurityConfig {
         String jwkSetUri = oauth2ClientRegistration.getProviderDetails().getJwkSetUri();
         if (StringUtils.isBlank(jwkSetUri)) {
             throw new IllegalStateException(
-                    "sra.oauth2.jwkSetUri must be configured for OAuth2 JWT verification."
+                    "sra.oauth2.jwkSetUri must be configured for OAuth2 JWT verification. "
                     + "SRA cannot securely operate without JWT signature verification.");
         }
 

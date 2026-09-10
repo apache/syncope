@@ -64,7 +64,9 @@ public class DefaultCredentialChecker {
             final String anonymousKey,
             final boolean productionMode) throws IOException {
 
-        try (InputStream in = getClass().getResourceAsStream("/META-INF/default-credentials.properties")) {
+        try (InputStream in = DefaultCredentialChecker.class.getResourceAsStream(
+                "/META-INF/default-credentials.properties")) {
+
             Properties defaultCredentials = new Properties();
             defaultCredentials.load(in);
             defaultAesKeyInUse = defaultCredentials.getProperty("default.aesSecretKey").equals(aesKey);
