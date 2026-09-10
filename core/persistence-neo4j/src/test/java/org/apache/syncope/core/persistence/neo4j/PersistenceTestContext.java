@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j;
 
+import java.io.IOException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.apache.commons.lang3.StringUtils;
@@ -108,7 +109,7 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
         securityProperties.setProductionMode(false);

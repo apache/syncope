@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.io.IOException;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -116,7 +117,7 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
         securityProperties.setProductionMode(false);

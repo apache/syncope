@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,26 +35,17 @@ public class DefaultCredentialChecker {
             "The default AES key property is being used. "
             + "This must be changed to avoid a security breach!";
 
-    private static final String DEFAULT_AES_KEY = "1abcdefghilmnopqrstuvz2!";
-
     private static final String DEFAULT_JWS_KEY_ERROR_MESSAGE =
             "The default JWKS key property is being used. "
             + "This must be changed to avoid a security breach!";
-
-    private static final String DEFAULT_JWS_KEY = "ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f";
 
     private static final String DEFAULT_ADMIN_PASSWORD_ERROR_MESSAGE =
             "The default adminPassword property is being used. "
             + "This must be changed to avoid a security breach!";
 
-    private static final String DEFAULT_ADMIN_PASSWORD =
-            "DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464";
-
     private static final String DEFAULT_ANON_KEY_ERROR_MESSAGE =
             "The default anonymousKey property is being used. "
             + "This must be changed to avoid a security breach!";
-
-    private static final String DEFAULT_ANON_KEY = "anonymousKey";
 
     private final boolean defaultAesKeyInUse;
 
@@ -68,12 +62,17 @@ public class DefaultCredentialChecker {
             final String jwsKey,
             final String adminPassword,
             final String anonymousKey,
-            final boolean productionMode) {
+            final boolean productionMode) throws IOException {
 
-        defaultAesKeyInUse = DEFAULT_AES_KEY.equals(aesKey);
-        defaultJwsKeyInUse = DEFAULT_JWS_KEY.equals(jwsKey);
-        defaultAdminPasswordInUse = DEFAULT_ADMIN_PASSWORD.equals(adminPassword);
-        defaultAnonymousKeyInUse = DEFAULT_ANON_KEY.equals(anonymousKey);
+        try (InputStream in = getClass().getResourceAsStream("/META-INF/default-credentials.properties")) {
+            Properties defaultCredentials = new Properties();
+            defaultCredentials.load(in);
+            defaultAesKeyInUse = defaultCredentials.getProperty("default.aesSecretKey").equals(aesKey);
+            defaultJwsKeyInUse = defaultCredentials.getProperty("default.jwsKey").equals(jwsKey);
+            defaultAdminPasswordInUse = defaultCredentials.getProperty("default.adminPassword").equals(adminPassword);
+            defaultAnonymousKeyInUse = defaultCredentials.getProperty("default.anonymousKey").equals(anonymousKey);
+        }
+
         this.productionMode = productionMode;
     }
 
