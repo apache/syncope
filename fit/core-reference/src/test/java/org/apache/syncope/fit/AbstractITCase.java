@@ -1227,13 +1227,17 @@ public abstract class AbstractITCase {
     @Autowired
     protected DataSource testDataSource;
 
-    protected final EncryptorManager encryptorManager;
+    protected EncryptorManager encryptorManager;
 
     protected AbstractITCase() {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
         securityProperties.setProductionMode(false);
-        encryptorManager = new DefaultEncryptorManager(
-                new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+        try {
+            encryptorManager = new DefaultEncryptorManager(
+                    new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+        } catch (IOException e) {
+            fail(e.getMessage(), e);
+        }
     }
 }
