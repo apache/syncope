@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.fit.sra;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -25,13 +28,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.ws.rs.core.Form;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -55,6 +63,7 @@ import org.apereo.cas.support.oauth.OAuth20Constants;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 class OIDCSRAITCase extends AbstractOIDCITCase {
 
@@ -132,11 +141,6 @@ class OIDCSRAITCase extends AbstractOIDCITCase {
                 OIDCSRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, SRA_CLIENT_ID, SRA_CLIENT_SECRET);
     }
 
-    @Override
-    protected boolean checkIdToken() {
-        return true;
-    }
-
     @Test
     public void clientCredentials() throws ParseException {
         WebClient webclient = WebClient.create(WA_ADDRESS + "/oidc/oidcAccessToken");
@@ -159,5 +163,77 @@ class OIDCSRAITCase extends AbstractOIDCITCase {
         SignedJWT idToken = SignedJWT.parse(json.get("id_token").asString());
         assertNotNull(idToken.getJWTClaimsSet().getClaim(CUSTOM_CLAIM1));
         assertNull(idToken.getJWTClaimsSet().getClaim(CUSTOM_CLAIM2));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void checkJWT(final String token, final boolean idToken) throws ParseException {
+        assertNotNull(token);
+        SignedJWT jwt = SignedJWT.parse(token);
+        assertNotNull(jwt);
+        JWTClaimsSet idTokenClaimsSet = jwt.getJWTClaimsSet();
+        assertEquals("verdi", idTokenClaimsSet.getSubject());
+        if (idToken) {
+            assertEquals("verdi", idTokenClaimsSet.getStringClaim("preferred_username"));
+        }
+        assertEquals("verdi@syncope.org", idTokenClaimsSet.getStringClaim("email"));
+        assertEquals("Verdi", idTokenClaimsSet.getStringClaim("family_name"));
+        assertEquals("Giuseppe", idTokenClaimsSet.getStringClaim("given_name"));
+        assertEquals("Giuseppe Verdi", idTokenClaimsSet.getStringClaim("name"));
+        List<Object> groups = idTokenClaimsSet.getListClaim("groups");
+        assertEquals(3, groups.size());
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "root")));
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "child")));
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "citizen")));
+    }
+
+    @Test
+    void rest() throws IOException, ParseException {
+        // 0. access public route
+        WebClient client = WebClient.create(SRA_ADDRESS + "/public/post").
+                accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);
+        Response response = client.post(null);
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+        // 1. obtain id and access tokens
+        Form form = new Form().
+                param(OAuth20Constants.GRANT_TYPE, OIDCGrantType.password.getExternalForm()).
+                param(OAuth20Constants.CLIENT_ID, SRA_CLIENT_ID).
+                param(OAuth20Constants.CLIENT_SECRET, SRA_CLIENT_SECRET).
+                param("username", "verdi").
+                param("password", "password").
+                param(OAuth20Constants.SCOPE, "openid profile email " + GROUPS_SCOPE);
+        response = WebClient.create(TOKEN_URI).post(form);
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
+
+        JsonNode json = MAPPER.readTree(response.readEntity(String.class));
+
+        // 1a. take and verify id_token
+        String idToken = json.get("id_token").asString();
+        assertNotNull(idToken);
+        checkJWT(idToken, true);
+
+        // 1b. take and verify access_token
+        String accessToken = json.get("access_token").asString();
+        checkJWT(accessToken, false);
+
+        // 2. access protected route
+        client = WebClient.create(SRA_ADDRESS + "/protected/post").
+                authorization("Bearer " + accessToken).
+                accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);
+        response = client.post(null);
+
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+
+        json = MAPPER.readTree(response.readEntity(String.class));
+
+        ObjectNode headers = (ObjectNode) json.get("headers");
+        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asString());
+        assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.CONTENT_TYPE).asString());
+        assertThat(headers.get("X-Forwarded-Host").asString(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
+
+        String withHost = client.getBaseURI().toASCIIString().replace("/protected", "");
+        String withIP = withHost.replace("localhost", "127.0.0.1");
+        assertThat(json.get("url").asString(), is(oneOf(withHost, withIP)));
     }
 }

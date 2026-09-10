@@ -21,8 +21,11 @@ package org.apache.syncope.core.spring.security;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.Encryptor;
@@ -37,14 +40,16 @@ public class DefaultEncryptorTest {
     private static Encryptor ENCRYPTOR;
 
     @BeforeAll
-    public static void setUp() {
+    public static void setUp() throws IOException {
         SecurityProperties props = new SecurityProperties();
         props.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
         ApplicationContextProvider.getBeanFactory().registerSingleton("securityProperties", props);
 
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(SpringTestConfiguration.AES_SECRET_KEY);
-        ENCRYPTOR = new DefaultEncryptorManager(securityProperties).getInstance();
+
+        ENCRYPTOR = new DefaultEncryptorManager(
+                new DefaultCredentialChecker("", "", "", "", false), securityProperties).getInstance();
     }
 
     @Test
@@ -74,7 +79,10 @@ public class DefaultEncryptorTest {
 
     @Test
     public void smallKey() throws Exception {
-        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123", new SecurityProperties().getDigester());
+        DefaultEncryptor prodModeEncryptor = new DefaultEncryptor("123", true, new SecurityProperties().getDigester());
+        assertThrows(InvalidKeyException.class, () -> prodModeEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES));
+
+        DefaultEncryptor smallKeyEncryptor = new DefaultEncryptor("123", false, new SecurityProperties().getDigester());
         String encPassword = smallKeyEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES);
         String decPassword = smallKeyEncryptor.decode(encPassword, CipherAlgorithm.AES);
         assertEquals(PASSWORD_VALUE, decPassword);

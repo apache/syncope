@@ -108,7 +108,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         defaultModalCloseButton = new DefaultModalCloseButton();
         addButton(defaultModalCloseButton);
-        setUseKeyboard(true);
+        setCloseOnEscapeKey(true);
         setFadeIn(true);
         setBackdrop(Modal.Backdrop.STATIC);
     }

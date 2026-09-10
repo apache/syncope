@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,43 +31,84 @@ public class DefaultCredentialChecker {
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultCredentialChecker.class);
 
-    private static final String DEFAULT_JWS_KEY = "ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f";
+    private static final String DEFAULT_AES_KEY_ERROR_MESSAGE =
+            "The default AES key property is being used. "
+            + "This must be changed to avoid a security breach!";
 
-    private static final String DEFAULT_ADMIN_PASSWORD =
-        "DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464";
+    private static final String DEFAULT_JWS_KEY_ERROR_MESSAGE =
+            "The default JWKS key property is being used. "
+            + "This must be changed to avoid a security breach!";
 
-    private static final String DEFAULT_ANON_KEY = "anonymousKey";
+    private static final String DEFAULT_ADMIN_PASSWORD_ERROR_MESSAGE =
+            "The default adminPassword property is being used. "
+            + "This must be changed to avoid a security breach!";
 
-    private final boolean defaultAdminPasswordInUse;
+    private static final String DEFAULT_ANON_KEY_ERROR_MESSAGE =
+            "The default anonymousKey property is being used. "
+            + "This must be changed to avoid a security breach!";
+
+    private final boolean defaultAesKeyInUse;
 
     private final boolean defaultJwsKeyInUse;
 
+    private final boolean defaultAdminPasswordInUse;
+
     private final boolean defaultAnonymousKeyInUse;
 
-    public DefaultCredentialChecker(final String jwsKey, final String adminPassword, final String anonymousKey) {
-        defaultJwsKeyInUse = DEFAULT_JWS_KEY.equals(jwsKey);
-        defaultAdminPasswordInUse = DEFAULT_ADMIN_PASSWORD.equals(adminPassword);
-        defaultAnonymousKeyInUse = DEFAULT_ANON_KEY.equals(anonymousKey);
+    private final boolean productionMode;
+
+    public DefaultCredentialChecker(
+            final String aesKey,
+            final String jwsKey,
+            final String adminPassword,
+            final String anonymousKey,
+            final boolean productionMode) throws IOException {
+
+        try (InputStream in = getClass().getResourceAsStream("/META-INF/default-credentials.properties")) {
+            Properties defaultCredentials = new Properties();
+            defaultCredentials.load(in);
+            defaultAesKeyInUse = defaultCredentials.getProperty("default.aesSecretKey").equals(aesKey);
+            defaultJwsKeyInUse = defaultCredentials.getProperty("default.jwsKey").equals(jwsKey);
+            defaultAdminPasswordInUse = defaultCredentials.getProperty("default.adminPassword").equals(adminPassword);
+            defaultAnonymousKeyInUse = defaultCredentials.getProperty("default.anonymousKey").equals(anonymousKey);
+        }
+
+        this.productionMode = productionMode;
+    }
+
+    public void checkIsDefaultAESKeyInUse() {
+        if (defaultAesKeyInUse) {
+            if (productionMode) {
+                throw new IllegalStateException(DEFAULT_AES_KEY_ERROR_MESSAGE);
+            }
+            LOG.warn(DEFAULT_AES_KEY_ERROR_MESSAGE);
+        }
     }
 
     public void checkIsDefaultJWSKeyInUse() {
         if (defaultJwsKeyInUse) {
-            LOG.warn("The default jwsKey property is being used. "
-                    + "This must be changed to avoid a security breach!");
+            if (productionMode) {
+                throw new IllegalStateException(DEFAULT_JWS_KEY_ERROR_MESSAGE);
+            }
+            LOG.warn(DEFAULT_JWS_KEY_ERROR_MESSAGE);
         }
     }
 
     public void checkIsDefaultAdminPasswordInUse() {
         if (defaultAdminPasswordInUse) {
-            LOG.warn("The default adminPassword property is being used. "
-                    + "This must be changed to avoid a security breach!");
+            if (productionMode) {
+                throw new IllegalStateException(DEFAULT_ADMIN_PASSWORD_ERROR_MESSAGE);
+            }
+            LOG.warn(DEFAULT_ADMIN_PASSWORD_ERROR_MESSAGE);
         }
     }
 
     public void checkIsDefaultAnonymousKeyInUse() {
         if (defaultAnonymousKeyInUse) {
-            LOG.warn("The default anonymousKey property is being used. "
-                    + "This must be changed to avoid a security breach!");
+            if (productionMode) {
+                throw new IllegalStateException(DEFAULT_ANON_KEY_ERROR_MESSAGE);
+            }
+            LOG.warn(DEFAULT_ANON_KEY_ERROR_MESSAGE);
         }
     }
 }

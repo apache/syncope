@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.io.IOException;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactory
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -117,10 +119,11 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
-        return new DefaultEncryptorManager(securityProperties);
+        securityProperties.setProductionMode(false);
+        return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);
     }
 
     @Bean
