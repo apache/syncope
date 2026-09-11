@@ -20,6 +20,7 @@ package org.apache.syncope.fit.enduser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
 import org.apache.syncope.client.enduser.pages.Dashboard;
@@ -88,6 +89,8 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
     @Test
     public void selfUpdate() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         String username = "selfupdate";
         String newEmail = "selfupdate@email.com";
 

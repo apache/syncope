@@ -213,14 +213,11 @@ under the License.
   
   <profiles>
     <profile>
-      <id>skipTests</id>
-    </profile>
-
-    <profile>
       <id>debug</id>
 
       <properties>
         <skipTests>true</skipTests>
+        <skipITs>true</skipITs>
       </properties>
 
       <build>

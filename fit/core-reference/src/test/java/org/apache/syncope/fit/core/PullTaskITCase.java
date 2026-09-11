@@ -119,10 +119,14 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+@TestMethodOrder(OrderAnnotation.class)
 public class PullTaskITCase extends AbstractTaskITCase {
 
     private static final String LDAP_PULL_TASK = "1e419ca4-ea81-4493-a14f-28b90113686d";
@@ -239,6 +243,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(groupTemplate, task.getTemplates().get(AnyTypeKind.GROUP.name()));
     }
 
+    @Order(1)
     @Test
     public void fromCSV() throws Exception {
         assumeFalse(IS_EXT_SEARCH_ENABLED);
@@ -408,6 +413,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
     }
 
+    @Order(2)
     @Test
     public void reconcileFromLDAP() {
         assumeFalse(IS_NEO4J_PERSISTENCE);
@@ -779,6 +785,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
     }
 
+    @Order(3)
     @Test
     public void remediation() {
         // First of all, clear any potential conflict with existing user / group
@@ -865,6 +872,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
     }
 
+    @Order(4)
     @Test
     public void remediationSinglePull() throws IOException {
         // First of all, clear any potential conflict with existing user / group
