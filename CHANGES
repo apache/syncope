@@ -2,6 +2,20 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.8
+================================================================================
+
+** Bug
+    * [SYNCOPE-1989] - Dark theme display issues
+
+** Improvement
+    * [SYNCOPE-1985] - Wrong AnyType labels displayed when creating AnyObject resource mappings
+    * [SYNCOPE-1988] - Do not expose confidential ConnId bundles configuration values
+    * [SYNCOPE-1990] - Add "eye" button to show password in enduser and console login page
+    * [SYNCOPE-1991] - Exclude binary and encrypted attributes from Elasticsearch and OpenSearch indexing
+    * [SYNCOPE-1993] - Provide support for enabling/disabiling autoregistration also on core module
+    * [SYNCOPE-1996] - Security production mode
+
 Release Notes - Syncope - Version 4.0.7
 ================================================================================
 
