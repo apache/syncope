@@ -32,7 +32,7 @@
 #topology {
   position: relative;
   border: 0;
-  height: 780px;
+  height: calc(100vh - 175px);
   overflow: hidden;
   cursor: grab;
 }
