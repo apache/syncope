@@ -424,17 +424,19 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ConnInstance connInstance = connInstanceDAO.findById(resourceTO.getConnector()).
                 orElseThrow(() -> new NotFoundException("Connector " + resourceTO.getConnector()));
 
-        ExternalResource externalResource = Optional.ofNullable(resourceTO.getKey()).flatMap(resourceDAO::findById).
-                orElseThrow(() -> new NotFoundException("Resource " + resourceTO.getKey()));
-
-        Optional<List<ConnConfProperty>> newConfOverride =
-                ResourceDataBinder.newConf(externalResource.getConfOverride(), resourceTO.getConfOverride());
+        Optional.ofNullable(resourceTO.getKey()).flatMap(resourceDAO::findById).
+                ifPresent(externalResource -> {
+                    Optional<List<ConnConfProperty>> newConfOverride =
+                            ResourceDataBinder.newConf(externalResource.getConfOverride(),
+                                    resourceTO.getConfOverride());
+                    resourceTO.setConfOverride(newConfOverride);
+                });
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
                         connInstance,
-                        newConfOverride,
-                        externalResource.getCapabilitiesOverride())).
+                        resourceTO.getConfOverride(),
+                        resourceTO.getCapabilitiesOverride())).
                 test();
     }
 
