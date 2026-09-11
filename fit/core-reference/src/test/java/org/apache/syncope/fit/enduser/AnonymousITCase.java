@@ -20,6 +20,7 @@ package org.apache.syncope.fit.enduser;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.SelfPasswordReset;
@@ -40,6 +41,8 @@ public class AnonymousITCase extends AbstractEnduserITCase {
 
     @Test
     public void selfCreate() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         String username = "testUser";
 
         TESTER.startPage(Login.class);

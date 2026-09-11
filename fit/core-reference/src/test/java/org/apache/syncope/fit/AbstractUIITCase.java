@@ -79,6 +79,8 @@ public abstract class AbstractUIITCase {
 
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
+    protected static boolean IS_NEO4J_PERSISTENCE = false;
+
     @BeforeAll
     public static void anonymousSetup() throws IOException {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
@@ -113,6 +115,8 @@ public abstract class AbstractUIITCase {
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
         IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
                 || anySearchDAO.get("type").asText().contains("OpenSearch");
+
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("resource").asText().contains("neo4j");
     }
 
     protected static <V extends Serializable> Component findComponentByProp(
