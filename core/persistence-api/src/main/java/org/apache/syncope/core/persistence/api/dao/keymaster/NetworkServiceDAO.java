@@ -27,5 +27,7 @@ public interface NetworkServiceDAO extends DAO<NetworkServiceEntity> {
 
     List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
 
+    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType, String domain);
+
     void deleteAll(NetworkService service);
 }

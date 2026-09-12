@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.SyncopeProperties;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apereo.cas.client.Protocol;
@@ -366,6 +367,8 @@ public class SRAProperties extends SyncopeProperties {
         }
     }
 
+    private String domain = SyncopeConstants.MASTER_DOMAIN;
+
     private final Global global = new Global();
 
     private AMType amType = AMType.OIDC;
@@ -377,6 +380,14 @@ public class SRAProperties extends SyncopeProperties {
     private final SAML2 saml2 = new SAML2();
 
     private final CAS cas = new CAS();
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
 
     public Global getGlobal() {
         return global;

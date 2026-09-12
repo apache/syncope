@@ -125,13 +125,13 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStart keymasterStart() {
-        return new KeymasterStart(NetworkService.Type.CONSOLE);
+        return new KeymasterStart.Builder(NetworkService.Type.CONSOLE).build();
     }
 
     @ConditionalOnProperty(
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.CONSOLE);
+        return new KeymasterStop.Builder(NetworkService.Type.CONSOLE).build();
     }
 }

@@ -48,6 +48,15 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
     }
 
     @Override
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        return AuthContextUtils.callAs(
+                SyncopeConstants.MASTER_DOMAIN,
+                props.getUsername(),
+                List.of(),
+                () -> logic.list(serviceType, domain));
+    }
+
+    @Override
     public NetworkService get(final NetworkService.Type serviceType) {
         try {
             return AuthContextUtils.callAs(
@@ -55,6 +64,19 @@ public class SelfKeymasterInternalServiceOps implements ServiceOps {
                     props.getUsername(),
                     List.of(),
                     () -> logic.get(serviceType));
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        try {
+            return AuthContextUtils.callAs(
+                    SyncopeConstants.MASTER_DOMAIN,
+                    props.getUsername(),
+                    List.of(),
+                    () -> logic.get(serviceType, domain));
         } catch (Exception e) {
             throw new KeymasterException(e);
         }

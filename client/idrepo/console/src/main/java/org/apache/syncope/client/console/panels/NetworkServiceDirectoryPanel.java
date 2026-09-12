@@ -40,6 +40,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -58,11 +59,9 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
             final NetworkService.Type type,
             final SyncopeRestClient syncopeRestClient,
             final PageReference pageRef) {
+
         super(id, syncopeRestClient, pageRef, true);
         this.type = type;
-
-        NetworkService service = new NetworkService();
-        service.setType(type);
 
         disableCheckBoxes();
 
@@ -79,6 +78,10 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
         List<IColumn<NetworkService, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(new StringResourceModel("address", this), "address", "address"));
+
+        if (type == NetworkService.Type.SRA || type == NetworkService.Type.WA) {
+            columns.add(new PropertyColumn<>(new StringResourceModel("domain", this), "domain", "domain"));
+        }
 
         return columns;
     }
@@ -145,15 +148,7 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
         @Override
         public IModel<NetworkService> model(final NetworkService service) {
-            return new IModel<>() {
-
-                private static final long serialVersionUID = 999513782683391483L;
-
-                @Override
-                public NetworkService getObject() {
-                    return service;
-                }
-            };
+            return Model.of(service);
         }
     }
 }

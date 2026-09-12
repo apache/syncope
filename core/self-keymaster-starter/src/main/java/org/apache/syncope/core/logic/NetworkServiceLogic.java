@@ -32,6 +32,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
+    protected static NetworkService toNetworkService(final NetworkServiceEntity service) {
+        NetworkService ns = new NetworkService();
+        ns.setType(service.getType());
+        ns.setAddress(service.getAddress());
+        ns.setDomain(service.getDomain());
+        return ns;
+    }
+
     protected final NetworkServiceDAO serviceDAO;
 
     protected final EntityFactory entityFactory;
@@ -41,21 +49,16 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         this.entityFactory = entityFactory;
     }
 
-    protected NetworkService toNetworkService(
-            final NetworkService.Type serviceType,
-            final NetworkServiceEntity service) {
-
-        NetworkService ns = new NetworkService();
-        ns.setType(serviceType);
-        ns.setAddress(service.getAddress());
-        return ns;
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    @Transactional(readOnly = true)
+    public List<NetworkService> list(final NetworkService.Type serviceType) {
+        return serviceDAO.findAll(serviceType).stream().map(NetworkServiceLogic::toNetworkService).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
-    public List<NetworkService> list(final NetworkService.Type serviceType) {
-        return serviceDAO.findAll(serviceType).stream().
-                map(service -> toNetworkService(serviceType, service)).toList();
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        return serviceDAO.findAll(serviceType, domain).stream().map(NetworkServiceLogic::toNetworkService).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
@@ -72,6 +75,19 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    @Transactional(readOnly = true)
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        List<NetworkService> list = list(serviceType, domain);
+        if (list.isEmpty()) {
+            throw new NotFoundException("No registered services for type " + serviceType + " and domain " + domain);
+        }
+
+        return list.size() == 1
+                ? list.getFirst()
+                : list.get(SecureRandomUtils.generateRandomInt(0, list.size()));
+    }
+
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void register(final NetworkService networkService) {
         if (serviceDAO.findAll(networkService.getType()).stream().
                 noneMatch(s -> s.getAddress().equals(networkService.getAddress()))) {
@@ -79,6 +95,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
             NetworkServiceEntity service = entityFactory.newEntity(NetworkServiceEntity.class);
             service.setType(networkService.getType());
             service.setAddress(networkService.getAddress());
+            service.setDomain(networkService.getDomain());
             serviceDAO.save(service);
         }
     }

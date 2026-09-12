@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
@@ -48,6 +49,9 @@ public class WABootstrapConfiguration {
         @Value("${wa.anonymousKey}")
         private String anonymousKey;
 
+        @Value("${wa.domain:" + SyncopeConstants.MASTER_DOMAIN + "}")
+        private String domain;
+
         @Value("${wa.useGZIPCompression:true}")
         private boolean useGZIPCompression;
 
@@ -56,7 +60,7 @@ public class WABootstrapConfiguration {
 
         @Bean
         public WARestClient waRestClient() {
-            return new WARestClient(anonymousUser, anonymousKey, useGZIPCompression, serviceDiscoveryAddress);
+            return new WARestClient(anonymousUser, anonymousKey, domain, useGZIPCompression, serviceDiscoveryAddress);
         }
     }
 

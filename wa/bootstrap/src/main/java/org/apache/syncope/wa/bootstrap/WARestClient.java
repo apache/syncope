@@ -29,7 +29,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,8 @@ public class WARestClient {
 
     protected final String anonymousKey;
 
+    protected final String domain;
+
     protected final boolean useGZIPCompression;
 
     protected final String serviceDiscoveryAddress;
@@ -54,11 +55,13 @@ public class WARestClient {
     public WARestClient(
             final String anonymousUser,
             final String anonymousKey,
+            final String domain,
             final boolean useGZIPCompression,
             final String serviceDiscoveryAddress) {
 
         this.anonymousUser = anonymousUser;
         this.anonymousKey = anonymousKey;
+        this.domain = domain;
         this.useGZIPCompression = useGZIPCompression;
         this.serviceDiscoveryAddress = serviceDiscoveryAddress;
     }
@@ -90,38 +93,24 @@ public class WARestClient {
         return Optional.empty();
     }
 
-    public boolean isReady() {
-        try {
-            return getCore().isPresent();
-        } catch (Exception e) {
-            LOG.trace("While checking Core's availability: {}", e.getMessage());
-        }
-        return false;
-    }
-
-    public Optional<SyncopeClient> getSyncopeClient(final String domain) {
-        return getCore().flatMap(core -> {
-            try {
-                return Optional.of(new SyncopeClientFactoryBean().
-                        setAddress(core.getAddress()).
-                        setUseCompression(useGZIPCompression).
-                        setDomain(domain).
-                        create(new BasicAuthenticationHandler(anonymousUser, anonymousKey)));
-            } catch (Exception e) {
-                LOG.error("Could not init SyncopeClient", e);
-                return Optional.empty();
-            }
-        });
-    }
-
     public SyncopeClient getSyncopeClient() {
         synchronized (this) {
             if (client == null) {
-                client = getSyncopeClient(SyncopeConstants.MASTER_DOMAIN).orElse(null);
+                getCore().ifPresent(core -> {
+                    try {
+                        client = new SyncopeClientFactoryBean().
+                                setAddress(core.getAddress()).
+                                setDomain(domain).
+                                setUseCompression(useGZIPCompression).
+                                create(new BasicAuthenticationHandler(anonymousUser, anonymousKey));
+                    } catch (Exception e) {
+                        LOG.error("Could not init SyncopeClient", e);
+                    }
+                });
             }
-        }
 
-        return client;
+            return client;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -131,5 +120,14 @@ public class WARestClient {
         }
 
         return (T) services.computeIfAbsent(serviceClass, k -> getSyncopeClient().getService(k));
+    }
+
+    public boolean isReady() {
+        try {
+            return getCore().isPresent();
+        } catch (Exception e) {
+            LOG.trace("While checking Core's availability: {}", e.getMessage());
+        }
+        return false;
     }
 }

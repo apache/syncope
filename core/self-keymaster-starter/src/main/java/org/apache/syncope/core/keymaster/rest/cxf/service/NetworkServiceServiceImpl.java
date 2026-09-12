@@ -19,6 +19,7 @@
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
@@ -34,13 +35,17 @@ public class NetworkServiceServiceImpl implements NetworkServiceService {
     }
 
     @Override
-    public List<NetworkService> list(final NetworkService.Type serviceType) {
-        return logic.list(serviceType);
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        return Optional.ofNullable(domain).
+                map(d -> logic.list(serviceType, d)).
+                orElseGet(() -> logic.list(serviceType));
     }
 
     @Override
-    public NetworkService get(final NetworkService.Type serviceType) {
-        return logic.get(serviceType);
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        return Optional.ofNullable(domain).
+                map(d -> logic.get(serviceType, d)).
+                orElseGet(() -> logic.get(serviceType));
     }
 
     @Override

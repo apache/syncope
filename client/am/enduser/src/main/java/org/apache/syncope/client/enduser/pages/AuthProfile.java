@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.pages;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.rest.AuthProfileRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
@@ -237,7 +238,7 @@ public class AuthProfile extends BaseReauthPage {
                 String attributes = "{}";
                 try {
                     attributes = restClient.readConsentAttributes(
-                            serviceOps.get(NetworkService.Type.WA),
+                            serviceOps.get(NetworkService.Type.WA, SyncopeEnduserSession.get().getDomain()),
                             item.getModelObject().getPrincipal(),
                             item.getModelObject().getId());
                 } catch (Exception e) {

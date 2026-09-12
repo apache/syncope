@@ -45,6 +45,17 @@ public class NetworkServiceRepoExtImpl implements NetworkServiceRepoExt {
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<NetworkServiceEntity> findAll(final NetworkService.Type serviceType, final String domain) {
+        TypedQuery<NetworkServiceEntity> query = entityManager.createQuery(
+                "SELECT e FROM " + JPANetworkService.class.getSimpleName()
+                + " e WHERE e.type=:serviceType AND e.domain=:domain", NetworkServiceEntity.class);
+        query.setParameter("serviceType", serviceType);
+        query.setParameter("domain", domain);
+        return query.getResultList();
+    }
+
     @Override
     public void deleteAll(final NetworkService service) {
         Query query = entityManager.createQuery(

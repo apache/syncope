@@ -21,10 +21,12 @@ package org.apache.syncope.core.persistence.neo4j.entity.keymaster;
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.common.validation.NetworkServiceCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.springframework.data.neo4j.core.schema.Node;
 
 @Node(Neo4jNetworkService.NODE)
+@NetworkServiceCheck
 public class Neo4jNetworkService extends AbstractGeneratedKeyNode implements NetworkServiceEntity {
 
     private static final long serialVersionUID = 8742750097008236475L;
@@ -36,6 +38,8 @@ public class Neo4jNetworkService extends AbstractGeneratedKeyNode implements Net
 
     @NotNull
     private String address;
+
+    private String domain;
 
     @Override
     public NetworkService.Type getType() {
@@ -55,5 +59,15 @@ public class Neo4jNetworkService extends AbstractGeneratedKeyNode implements Net
     @Override
     public void setAddress(final String address) {
         this.address = address;
+    }
+
+    @Override
+    public String getDomain() {
+        return domain;
+    }
+
+    @Override
+    public void setDomain(final String domain) {
+        this.domain = domain;
     }
 }

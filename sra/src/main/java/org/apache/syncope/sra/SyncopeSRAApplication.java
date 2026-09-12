@@ -79,6 +79,7 @@ public class SyncopeSRAApplication {
                 ctx,
                 props.getAnonymousUser(),
                 props.getAnonymousKey(),
+                props.getDomain(),
                 props.isUseGZIPCompression());
     }
 
@@ -116,21 +117,22 @@ public class SyncopeSRAApplication {
     @ConditionalOnProperty(
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
-    public KeymasterStart keymasterStart() {
-        return new KeymasterStart(NetworkService.Type.SRA);
+    public KeymasterStart keymasterStart(final SRAProperties props) {
+        return new KeymasterStart.Builder(NetworkService.Type.SRA).domain(props.getDomain()).build();
     }
 
     @ConditionalOnProperty(
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
-    public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.SRA);
+    public KeymasterStop keymasterStop(final SRAProperties props) {
+        return new KeymasterStop.Builder(NetworkService.Type.SRA).domain(props.getDomain()).build();
     }
 
     @Bean
     public WebExceptionHandler syncopeSRAWebExceptionHandler(
             @Qualifier("routeProvider") final RouteProvider routeProvider,
             final SRAProperties props) {
+
         return new SyncopeSRAWebExceptionHandler(routeProvider, props);
     }
 }
