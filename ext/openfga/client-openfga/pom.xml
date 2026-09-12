@@ -108,6 +108,7 @@ under the License.
                 <useJakartaEe>true</useJakartaEe>
                 <openApiNullable>false</openApiNullable>
                 <sourceFolder>/</sourceFolder>
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
               </configOptions>
             </configuration>
           </execution>
