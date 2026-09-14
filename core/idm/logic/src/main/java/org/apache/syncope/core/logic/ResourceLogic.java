@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -422,6 +423,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = connInstanceDAO.findById(resourceTO.getConnector()).
                 orElseThrow(() -> new NotFoundException("Connector " + resourceTO.getConnector()));
+
+        Optional.ofNullable(resourceTO.getKey()).flatMap(resourceDAO::findById).
+                ifPresent(externalResource -> {
+                    Optional<List<ConnConfProperty>> newConfOverride =
+                            ResourceDataBinder.newConf(externalResource.getConfOverride(),
+                                    resourceTO.getConfOverride());
+                    resourceTO.setConfOverride(newConfOverride);
+                });
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
