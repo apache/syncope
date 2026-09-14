@@ -123,14 +123,9 @@ under the License.
                     <ports>
                       <port>2181:2181</port>
                     </ports>
-                    <volumes>
-                      <bind>
-                        <volume>${project.build.outputDirectory}/zoo.cfg:/conf/zoo.cfg</volume>
-                        <volume>${project.build.outputDirectory}/java.env:/conf/java.env</volume>
-                        <volume>${project.build.outputDirectory}/server-jaas.conf:/conf/server-jaas.conf</volume>
-                        <volume>${project.build.outputDirectory}/client-jaas.conf:/conf/client-jaas.conf</volume>
-                      </bind>
-                    </volumes>
+                    <env>
+                      <JVMFLAGS>-Dzookeeper.DigestAuthenticationProvider.superDigest=anonymous:NgPlLv4rbtJEAlVQcVR4CYocoRo=</JVMFLAGS>
+                    </env>
                   </run>
                 </image>
               </images>

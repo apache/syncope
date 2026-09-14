@@ -21,18 +21,14 @@ package org.apache.syncope.wa.starter;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import javax.security.auth.login.AppConfigurationEntry;
-import javax.security.auth.login.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
-import org.apache.zookeeper.server.auth.DigestLoginModule;
-import org.apache.zookeeper.server.auth.SASLAuthenticationProvider;
+import org.apache.zookeeper.server.auth.DigestAuthenticationProvider;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -54,26 +50,11 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
             throw new IllegalStateException("Could not load /test.properties", e);
         }
 
-        Configuration.setConfiguration(new Configuration() {
-
-            private final AppConfigurationEntry[] entries = {
-                new AppConfigurationEntry(
-                DigestLoginModule.class.getName(),
-                AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of("user_" + username.get(), password.get()))
-            };
-
-            @Override
-            public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
-                return entries;
-            }
-        });
-
-        Map<String, Object> customProperties = new HashMap<>();
-        customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
-        InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
-
         try {
+            System.setProperty(
+                    "zookeeper.DigestAuthenticationProvider.superDigest",
+                    DigestAuthenticationProvider.generateDigest(username.get() + ":" + password.get()));
+            InstanceSpec spec = new InstanceSpec(null, 2181, -1, -1, true, 1, -1, -1, Map.of());
             new TestingServer(spec, true);
         } catch (Exception e) {
             fail(e);
