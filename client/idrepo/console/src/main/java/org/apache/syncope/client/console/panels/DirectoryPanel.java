@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -31,6 +32,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -48,6 +50,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.json.JsonMapper;
@@ -61,6 +64,23 @@ public abstract class DirectoryPanel<
     protected static final Logger LOG = LoggerFactory.getLogger(DirectoryPanel.class);
 
     protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
+
+    protected class OnTimerUpdateResultTable extends BasePageWebSocketBehavior.OnTimerChild {
+
+        private static final long serialVersionUID = 532119924423529449L;
+
+        public OnTimerUpdateResultTable() {
+            super(10, TimeUnit.SECONDS);
+        }
+
+        @Override
+        protected void onTimer(final WebSocketRequestHandler handler) {
+            updateResultTable(false);
+            if (container.isVisibleInHierarchy()) {
+                handler.add(container);
+            }
+        }
+    }
 
     protected E restClient;
 
