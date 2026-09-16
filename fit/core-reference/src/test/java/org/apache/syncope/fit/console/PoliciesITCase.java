@@ -780,7 +780,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:11:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:10:"
                 + "action:action");
 
         TESTER.assertComponent(
@@ -822,12 +822,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:8:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:7:"
                 + "action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
-                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:12:"
+                + "1:outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:11:"
                 + "action:action"), Constants.ON_CLICK);
 
         assertSuccessMessage();
