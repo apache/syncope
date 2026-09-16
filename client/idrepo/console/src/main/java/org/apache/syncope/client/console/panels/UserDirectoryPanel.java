@@ -229,25 +229,29 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         setRealm(realm);
             }
 
-            panel.add(new ActionLink<>() {
+            if (confParamOps.get(SyncopeConsoleSession.get().getDomain(),
+                    StandardConfParams.MFA_ENABLED, false, boolean.class)) {
 
-                private static final long serialVersionUID = -7978723352517770644L;
+                panel.add(new ActionLink<>() {
 
-                @Override
-                public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                    try {
-                        mfaRestClient.dismiss(model.getObject().getUsername());
+                    private static final long serialVersionUID = -7978723352517770644L;
 
-                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                        target.add(container);
-                    } catch (Exception e) {
-                        LOG.error("While dismissing MFA for {}", model.getObject().getuManager(), e);
-                        SyncopeConsoleSession.get().onException(e);
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                        try {
+                            mfaRestClient.dismiss(model.getObject().getUsername());
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (Exception e) {
+                            LOG.error("While dismissing MFA for {}", model.getObject().getuManager(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                }
-            }, ActionType.DISMISS_MFA, IdRepoEntitlement.USER_UPDATE, true).
-                    setRealm(realm);
+                }, ActionType.DISMISS_MFA, IdRepoEntitlement.USER_UPDATE, true).
+                        setRealm(realm);
+            }
 
             SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                     model,

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -69,7 +68,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
@@ -123,16 +121,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         pageRef.getPage().getBehaviors().stream().
                 filter(BasePageWebSocketBehavior.class::isInstance).map(BasePageWebSocketBehavior.class::cast).
-                findFirst().ifPresent(wsb -> wsb.add(new BasePageWebSocketBehavior.OnTimerChild(10, TimeUnit.SECONDS) {
-
-            private static final long serialVersionUID = 532119924423529449L;
-
-            @Override
-            protected void onTimer(final WebSocketRequestHandler handler) {
-                container.modelChanged();
-                handler.add(container);
-            }
-        }));
+                findFirst().ifPresent(wsb -> wsb.add(new OnTimerUpdateResultTable()));
 
         startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
