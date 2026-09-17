@@ -114,6 +114,11 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
         return builder.properties(Map.of("spring.config.name", "core")).sources(SyncopeCoreApplication.class);
     }
 
+    @Bean
+    public ProductionModeChecker productionModeChecker() {
+        return new ProductionModeChecker();
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public TaskExecutorUnloader taskExecutorUnloader(final ListableBeanFactory beanFactory) {
