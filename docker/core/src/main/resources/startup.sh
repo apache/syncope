@@ -17,4 +17,21 @@
 # specific language governing permissions and limitations
 # under the License.
 
+cd /opt/syncope/cache
+if [ $JCACHE = "ehcache" ]; then
+  mkdir ehcache && cd ehcache && unzip ../syncope-core-cache-ehcache-wrap.zip
+  LOADER_PATH="$LOADER_PATH,/opt/syncope/cache/ehcache"
+elif [ $JCACHE = "hazelcast" ]; then
+  mkdir hazelcast && cd hazelcast && unzip ../syncope-core-cache-hazelcast-wrap.zip
+  LOADER_PATH="$LOADER_PATH,/opt/syncope/cache/hazelcast"
+  JAVA_OPTS="$JAVA_OPTS -Dhazelcast.jcache.provider.type=member -Dhazelcast.logging.type=slf4j --add-modules java.se --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.nio.ch=ALL-UNNAMED --add-opens java.management/sun.management=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
+elif [ $JCACHE = "infinispan" ]; then
+  mkdir infinispan && cd infinispan && unzip ../syncope-core-cache-infinispan-wrap.zip
+  LOADER_PATH="$LOADER_PATH,/opt/syncope/cache/infinispan"
+else
+  mkdir caffeine && cd caffeine && unzip ../syncope-core-cache-caffeine-wrap.zip
+  LOADER_PATH="$LOADER_PATH,/opt/syncope/cache/caffeine"
+fi
+cd -
+
 exec java $JAVA_OPTS -jar /opt/syncope/lib/syncope.jar

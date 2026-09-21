@@ -37,6 +37,54 @@ under the License.
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
   
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>single</goal>
+              </goals>
+              <configuration>
+                <inlineDescriptors>
+                  <inlineDescriptor>
+                    <id>wrap</id>
+                    <formats>
+                      <format>zip</format>
+                    </formats>
+                    <includeBaseDirectory>false</includeBaseDirectory>
+                    <dependencySets>
+                      <dependencySet>
+                        <outputDirectory>/</outputDirectory>
+                        <useProjectArtifact>false</useProjectArtifact>
+                        <unpack>false</unpack>
+                        <scope>runtime</scope>
+                      </dependencySet>
+                    </dependencySets>
+                    <files>
+                      <file>
+                        <source>${rootpom.basedir}/LICENSE</source>
+                        <outputDirectory>META-INF</outputDirectory>
+                      </file>
+                      <file>
+                        <source>${rootpom.basedir}/NOTICE</source>
+                        <outputDirectory>META-INF</outputDirectory>
+                      </file>
+                    </files>
+                  </inlineDescriptor>
+                </inlineDescriptors>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
   <modules>
     <module>caffeine</module>
     <module>hazelcast</module>
