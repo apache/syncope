@@ -91,12 +91,10 @@ public class JPAAnyObject
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
-    @Valid
-    private List<JPAARelationship> relationships = new ArrayList<>();
+    private List<@Valid JPAARelationship> relationships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
-    @Valid
-    private List<JPAAMembership> memberships = new ArrayList<>();
+    private List<@Valid JPAAMembership> memberships = new ArrayList<>();
 
     @Override
     public String getName() {

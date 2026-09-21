@@ -20,10 +20,11 @@ package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceConfiguration;
 import jakarta.persistence.ValidationMode;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import javax.cache.CacheManager;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -188,6 +189,8 @@ import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUn
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.hibernate.cache.jcache.ConfigSettings;
+import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -217,7 +220,8 @@ public class PersistenceContext {
     public CommonEntityManagerFactoryConf commonEMFConf(
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
-            final JndiObjectFactoryBean masterDataSource) {
+            final JndiObjectFactoryBean masterDataSource,
+            final CacheManager cacheManager) {
 
         CommonEntityManagerFactoryConf commonEMFConf = new CommonEntityManagerFactoryConf();
         commonEMFConf.setPackagesToScan("org.apache.syncope.core.persistence.jpa.entity");
@@ -225,15 +229,14 @@ public class PersistenceContext {
         commonEMFConf.setPersistenceUnitPostProcessors(new MultiJarAwarePersistenceUnitPostProcessor());
         Map<String, Object> jpaPropertyMap = new HashMap<>();
 
-        jpaPropertyMap.put("jakarta.persistence.schema-generation.database.action", "create");
+        jpaPropertyMap.put(PersistenceConfiguration.SCHEMAGEN_DATABASE_ACTION, "update");
 
-        jpaPropertyMap.put("hibernate.cache.use_second_level_cache", "true");
-        jpaPropertyMap.put("hibernate.cache.use_query_cache", "true");
-        jpaPropertyMap.put("hibernate.cache.region.factory_class", "jcache");
-        jpaPropertyMap.put("hibernate.javax.cache.provider", props.getCacheProvider());
-        Optional.ofNullable(props.getCacheURI()).
-                ifPresent(cacheURI -> jpaPropertyMap.put("hibernate.javax.cache.uri", cacheURI));
-        jpaPropertyMap.put("hibernate.cache.region.factory_class", DomainJCacheRegionFactory.class.getName());
+        jpaPropertyMap.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, "true");
+        jpaPropertyMap.put(AvailableSettings.USE_QUERY_CACHE, "true");
+        jpaPropertyMap.put(AvailableSettings.CACHE_REGION_FACTORY, DomainJCacheRegionFactory.class.getName());
+        jpaPropertyMap.put(ConfigSettings.CACHE_MANAGER, cacheManager);
+
+        jpaPropertyMap.putAll(props.getAdditionalJPAProperties());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
@@ -250,11 +253,12 @@ public class PersistenceContext {
             final JndiObjectFactoryBean masterDataSource,
             final CommonEntityManagerFactoryConf commonEMFConf,
             final @Lazy ConnectorManager connectorManager,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final CacheManager cacheManager) {
 
         DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
                 commonEMFConf, connectorManager, resourceDAO);
-        emf.master(props, masterDataSource);
+        emf.master(props, masterDataSource, cacheManager);
         return emf;
     }
 
@@ -299,8 +303,11 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry<JPADomain> domainRegistry(final ConfigurableApplicationContext ctx) {
-        return new JPADomainRegistry(ctx);
+    public DomainRegistry<JPADomain> domainRegistry(
+            final CacheManager cacheManager,
+            final ConfigurableApplicationContext ctx) {
+
+        return new JPADomainRegistry(cacheManager, ctx);
     }
 
     @ConditionalOnMissingBean

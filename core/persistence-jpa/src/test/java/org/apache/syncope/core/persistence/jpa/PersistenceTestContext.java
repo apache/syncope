@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -127,13 +129,19 @@ public class PersistenceTestContext {
     }
 
     @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
+    }
+
+    @Bean
     public DomainRoutingEntityManagerFactory entityManagerFactory(
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource,
             final CommonEntityManagerFactoryConf commonEMFConf,
             final @Lazy ConnectorManager connectorManager,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final CacheManager cacheManager) {
 
         DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
                 commonEMFConf, connectorManager, resourceDAO) {
@@ -145,7 +153,7 @@ public class PersistenceTestContext {
                         delegates.get(SyncopeConstants.MASTER_DOMAIN));
             }
         };
-        emf.master(props, masterDataSource);
+        emf.master(props, masterDataSource, cacheManager);
         return emf;
     }
 }

@@ -433,12 +433,12 @@ under the License.
 
     <cxf.version>4.2.3</cxf.version>
     <bouncycastle.version>1.86</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.9.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
 
     <spring-boot.version>4.1.1</spring-boot.version>
     <spring-cloud-version>5.0.3</spring-cloud-version>
 
-    <hibernate.version>7.4.8.Final</hibernate.version>
+    <hibernate.version>7.4.9.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 

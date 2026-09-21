@@ -65,8 +65,7 @@ public class JPAMacroTask extends AbstractSchedTask implements MacroTask {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
     @OrderBy("idx")
-    @Valid
-    private List<JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
+    private List<@Valid JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAImplementation macroActions;

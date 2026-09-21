@@ -145,8 +145,7 @@ public class Neo4jUser
     protected String mfa;
 
     @Relationship(direction = Relationship.Direction.INCOMING)
-    @Valid
-    protected List<Neo4jLinkedAccount> linkedAccounts = new ArrayList<>();
+    protected List<@Valid Neo4jLinkedAccount> linkedAccounts = new ArrayList<>();
 
     protected Encryptor encryptor() {
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance();
@@ -206,11 +205,11 @@ public class Neo4jUser
                 value,
                 Optional.ofNullable(cipherAlgorithm).
                         orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                                ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                        AuthContextUtils.getDomain(),
+                                        StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                                        CipherAlgorithm.AES.name(),
+                                        String.class))));
     }
 
     @Override
@@ -469,7 +468,7 @@ public class Neo4jUser
     public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)
-                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
+                        && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
                 findFirst();
     }
 

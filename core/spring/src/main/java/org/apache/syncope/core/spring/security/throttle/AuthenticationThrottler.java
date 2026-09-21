@@ -49,25 +49,26 @@ public class AuthenticationThrottler extends AbstractThrottler {
         }
 
         String key = key(domain, username);
-        long now = clock.getAsLong();
-        Long retryAfter = attempts.invoke(key, (entry, args) -> {
-            if (!entry.exists()) {
-                return null;
-            }
+        long now = now();
 
-            ThrottlerAttempts state = entry.getValue();
-            if (state.blockedUntil() > now) {
-                return retryAfterSeconds(state.blockedUntil(), now);
-            }
-
-            Deque<Long> failures = prune(state.failures(), now);
-            if (failures.isEmpty()) {
-                entry.remove();
+        Long retryAfter = null;
+        synchronized (attempts) {
+            ThrottlerAttempts state = attempts.get(key);
+            if (state == null) {
+                retryAfter = null;
             } else {
-                entry.setValue(new ThrottlerAttempts(failures, state.blockedUntil()));
+                if (state.blockedUntil() > now) {
+                    retryAfter = retryAfterSeconds(state.blockedUntil(), now);
+                } else {
+                    Deque<Long> failures = prune(state.failures(), now);
+                    if (failures.isEmpty()) {
+                        attempts.remove(key);
+                    } else {
+                        attempts.put(key, new ThrottlerAttempts(failures, state.blockedUntil()));
+                    }
+                }
             }
-            return null;
-        });
+        }
         if (retryAfter != null) {
             throw new AuthenticationThrottleException(retryAfter);
         }
@@ -82,23 +83,27 @@ public class AuthenticationThrottler extends AbstractThrottler {
             return;
         }
 
-        long now = clock.getAsLong();
-        Long retryAfter = attempts.invoke(key(domain, username), (entry, args) -> {
-            ThrottlerAttempts state = entry.exists()
-                    ? entry.getValue()
-                    : new ThrottlerAttempts();
+        String key = key(domain, username);
+        long now = now();
+
+        Long retryAfter = null;
+        synchronized (attempts) {
+            ThrottlerAttempts state = attempts.get(key);
+            if (state == null) {
+                state = new ThrottlerAttempts();
+            }
+
             Deque<Long> failures = prune(state.failures(), now);
             failures.addLast(now);
 
             if (failures.size() >= throttle.getMaxAttempts()) {
                 long blockedUntil = now + TimeUnit.SECONDS.toMillis(throttle.getLockSeconds());
-                entry.setValue(new ThrottlerAttempts(failures, blockedUntil));
-                return retryAfterSeconds(blockedUntil, now);
+                attempts.put(key, new ThrottlerAttempts(failures, blockedUntil));
+                retryAfter = retryAfterSeconds(blockedUntil, now);
+            } else {
+                attempts.put(key, new ThrottlerAttempts(failures, state.blockedUntil()));
             }
-
-            entry.setValue(new ThrottlerAttempts(failures, state.blockedUntil()));
-            return null;
-        });
+        }
         if (retryAfter != null) {
             throw new AuthenticationThrottleException(retryAfter);
         }

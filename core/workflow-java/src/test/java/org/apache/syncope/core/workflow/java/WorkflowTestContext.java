@@ -23,6 +23,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import java.time.OffsetDateTime;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -127,5 +129,10 @@ public class WorkflowTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return mock(ConnectorManager.class);
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
     }
 }

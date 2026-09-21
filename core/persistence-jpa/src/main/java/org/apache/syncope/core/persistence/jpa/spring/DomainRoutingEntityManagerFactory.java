@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import javax.cache.CacheManager;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -90,23 +91,27 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     public void master(
             final PersistenceProperties props,
-            final JndiObjectFactoryBean dataSource) {
+            final JndiObjectFactoryBean dataSource,
+            final CacheManager cacheManager) {
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(props.getDomain().getFirst().getDatabasePlatform());
 
-        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
+        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean(cacheManager);
         emf.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
         emf.setMappingResources(props.getDomain().getFirst().getOrm());
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerCacheEntryListener(new ConnectorManagerCacheEntryListener(
-                this, connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
-        emf.setImplementationManagerCacheEntryListener(new ImplementationManagerCacheEntryListener(
-                this, SyncopeConstants.MASTER_DOMAIN));
+        emf.setConnectorManagerCacheEntryListener(
+                SyncopeConstants.MASTER_DOMAIN,
+                new ConnectorManagerCacheEntryListener(
+                        this, connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
+        emf.setImplementationManagerCacheEntryListener(
+                SyncopeConstants.MASTER_DOMAIN,
+                new ImplementationManagerCacheEntryListener(this, SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
@@ -121,23 +126,26 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     public void domain(
             final JPADomain domain,
-            final DataSource dataSource) {
+            final DataSource dataSource,
+            final CacheManager cacheManager) {
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
 
-        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
+        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean(cacheManager);
         emf.setPersistenceUnitName(domain.getKey());
         emf.setMappingResources(domain.getOrm());
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerCacheEntryListener(new ConnectorManagerCacheEntryListener(
-                this, connectorManager, resourceDAO, domain.getKey()));
-        emf.setImplementationManagerCacheEntryListener(new ImplementationManagerCacheEntryListener(
-                this, domain.getKey()));
+        emf.setConnectorManagerCacheEntryListener(
+                domain.getKey(),
+                new ConnectorManagerCacheEntryListener(this, connectorManager, resourceDAO, domain.getKey()));
+        emf.setImplementationManagerCacheEntryListener(
+                domain.getKey(),
+                new ImplementationManagerCacheEntryListener(this, domain.getKey()));
 
         addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getKey());
 

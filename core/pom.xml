@@ -85,6 +85,7 @@ under the License.
     <module>persistence-jpa</module>
     <module>persistence-neo4j</module>
     <module>spring</module>
+    <module>cache</module>
     <module>provisioning-api</module>
     <module>provisioning-java</module>
     <module>workflow-api</module>
