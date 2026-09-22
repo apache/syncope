@@ -162,6 +162,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskSaver;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -501,6 +502,7 @@ public class ProvisioningContext {
             final TaskDataBinder taskDataBinder,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
+            final AuthDataAccessor authDataAccessor,
             final ApplicationEventPublisher publisher) {
 
         return new PriorityPropagationTaskExecutor(
@@ -517,6 +519,7 @@ public class ProvisioningContext {
                 outboundMatcher,
                 validator,
                 publisher,
+                authDataAccessor,
                 propagationTaskExecutorAsyncExecutor);
     }
 

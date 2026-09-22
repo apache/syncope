@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -47,6 +48,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.task.AsyncTaskExecutor;
 
@@ -58,6 +61,8 @@ import org.springframework.core.task.AsyncTaskExecutor;
  * the whole process, resulting in a global failure.
  */
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
+
+    protected final AuthDataAccessor authDataAccessor;
 
     protected final AsyncTaskExecutor taskExecutor;
 
@@ -75,6 +80,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
+            final AuthDataAccessor authDataAccessor,
             final AsyncTaskExecutor taskExecutor) {
 
         super(connectorManager,
@@ -90,33 +96,56 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 outboundMatcher,
                 validator,
                 publisher);
+        this.authDataAccessor = authDataAccessor;
         this.taskExecutor = taskExecutor;
     }
 
     /**
-     * Creates new instances of {@link Callable} for usage with{@link java.util.concurrent.CompletionService}.
+     * Creates new instances of {@link Callable} for synchronous invocation.
      *
      * @param taskInfo to be executed
      * @param reporter to report propagation execution status
      * @param executor user that triggered the propagation execution
-     * @return new {@link Callable} instance for usage with {@link java.util.concurrent.CompletionService}
+     * @return new {@link Callable} instance for synchronous invocation
      */
     protected Callable<TaskExec<PropagationTask>> newPropagationTaskCallable(
-            final PropagationTaskInfo taskInfo, final PropagationReporter reporter, final String executor) {
+            final PropagationTaskInfo taskInfo,
+            final PropagationReporter reporter,
+            final String executor) {
+
+        return () -> {
+            LOG.debug("Execution started for {}", taskInfo);
+
+            TaskExec<PropagationTask> execution = this.execute(taskInfo, reporter, executor);
+
+            LOG.debug("Execution completed for {} with results {}", taskInfo, execution);
+
+            return execution;
+        };
+    }
+
+    /**
+     * Creates new instances of {@link Callable} for usage with{@link CompletionService}.
+     *
+     * @param taskInfo to be executed
+     * @param reporter to report propagation execution status
+     * @param domain executor's domain
+     * @param executor user that triggered the propagation execution
+     * @param authorities executor's authorities
+     * @return new {@link Callable} instance for usage with {@link CompletionService}
+     */
+    protected Callable<TaskExec<PropagationTask>> newPropagationTaskCallable(
+            final PropagationTaskInfo taskInfo,
+            final PropagationReporter reporter,
+            final String domain,
+            final String executor,
+            final Set<SyncopeGrantedAuthority> authorities) {
 
         return () -> AuthContextUtils.callAs(
-                AuthContextUtils.getDomain(),
+                domain,
                 executor,
-                AuthContextUtils.getAuthorities(),
-                () -> {
-                    LOG.debug("Execution started for {}", taskInfo);
-
-                    TaskExec<PropagationTask> execution = this.execute(taskInfo, reporter, executor);
-
-                    LOG.debug("Execution completed for {} with results {}", taskInfo, execution);
-
-                    return execution;
-                });
+                authorities,
+                newPropagationTaskCallable(taskInfo, reporter, executor));
     }
 
     protected boolean failed(
@@ -173,8 +202,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 List<Future<TaskExec<PropagationTask>>> futures = new ArrayList<>();
 
                 concurrentTasks.forEach(taskInfo -> {
+                    String domain = AuthContextUtils.getDomain();
+                    Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(executor, null);
+
                     try {
-                        futures.add(completionService.submit(newPropagationTaskCallable(taskInfo, reporter, executor)));
+                        futures.add(completionService.submit(
+                                newPropagationTaskCallable(taskInfo, reporter, domain, executor, authorities)));
 
                         if (nullPriorityAsync) {
                             reporter.onSuccessOrNonPriorityResourceFailures(

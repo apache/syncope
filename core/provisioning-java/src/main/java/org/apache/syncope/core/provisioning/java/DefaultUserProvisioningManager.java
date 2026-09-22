@@ -130,7 +130,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() == null ? List.of() : userUR.getPassword().getResources(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getResources).orElseGet(() -> List.of()),
                 null,
                 Set.of());
 
@@ -170,7 +170,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() == null ? List.of() : userUR.getPassword().getResources(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getResources).orElseGet(() -> List.of()),
                 enabled,
                 excludedResources);
 
@@ -379,8 +379,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         userDAO.findLinkedAccounts(key).stream().
                 filter(account -> resources.contains(account.getResource().getKey())).
                 forEach(account -> propByLinkedAccount.add(
-                ResourceOperation.DELETE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+                        ResourceOperation.DELETE,
+                        Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 AnyTypeKind.USER,

@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.to.OrgUnit
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo
 import org.identityconnectors.framework.common.objects.ConnectorObject
 
 class MyPropagationActions implements PropagationActions {

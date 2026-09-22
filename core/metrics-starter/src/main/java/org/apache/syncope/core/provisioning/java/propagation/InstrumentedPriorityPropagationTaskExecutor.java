@@ -35,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.task.AsyncTaskExecutor;
 
@@ -56,12 +57,13 @@ public class InstrumentedPriorityPropagationTaskExecutor extends PriorityPropaga
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
+            final AuthDataAccessor authDataAccessor,
             final AsyncTaskExecutor taskExecutor,
             final MeterRegistry meterRegistry) {
 
         super(connectorManager, connObjectUtils, taskDAO, resourceDAO, plainSchemaDAO, notificationManager,
                 auditManager, taskDataBinder, anyUtilsFactory, taskUtilsFactory, outboundMatcher, validator, publisher,
-                taskExecutor);
+                authDataAccessor, taskExecutor);
         this.meterRegistry = meterRegistry;
     }
 
