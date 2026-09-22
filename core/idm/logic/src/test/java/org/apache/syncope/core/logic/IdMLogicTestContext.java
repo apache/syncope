@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.java.ProvisioningContext;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
@@ -108,6 +109,11 @@ public class IdMLogicTestContext {
     @Bean
     public CacheManager cacheManager() {
         return Caching.getCachingProvider().getCacheManager();
+    }
+
+    @Bean
+    public AuthDataAccessor authDataAccessor() {
+        return mock(AuthDataAccessor.class);
     }
 
     @Bean(name = PasswordResetRequestThrottler.CACHE)

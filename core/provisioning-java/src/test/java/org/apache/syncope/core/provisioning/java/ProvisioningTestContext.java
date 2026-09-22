@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.jpa.PGPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -89,5 +90,10 @@ public class ProvisioningTestContext {
     @Bean
     public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
+    }
+
+    @Bean
+    public AuthDataAccessor authDataAccessor() {
+        return mock(AuthDataAccessor.class);
     }
 }
