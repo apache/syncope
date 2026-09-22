@@ -102,10 +102,9 @@ Environment variables:
 * `DB_PASSWORD`: password for internal storage authentication
 * `DB_POOL_MAX`: internal storage connection pool: ceiling
 * `DB_POOL_MIN`: internal storage connection pool: floor
-* `HIBERNATE_JCACHE_PROVIDER`: configure multiple instances, with high availability; valid values are the ones accepted by
-Hibernate for
-https://docs.hibernate.org/orm/7.3/userguide/html_single/#caching-provider-jcache-cache-manager[JCache CacheManager^]
-including the default value `com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider` (single instance)
+* `JCACHE`: configure https://docs.hibernate.org/orm/7.4/userguide/html_single/#caching-provider-jcache-cache-manager[JCache provider^]
+for Hibernate, defaults to https://github.com/ben-manes/caffeine[Caffeine^] if no value is provided; allowed values:
+`caffeine|ehcache|hazelcast_client|hazelcast_member|infinispan`
 
 ===== Console
 
@@ -180,7 +179,7 @@ services:
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       HIBERNATE_JCACHE_PROVIDER: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+       JCACHE: caffeine
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${ANONYMOUS_USER}
        KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
@@ -265,7 +264,7 @@ services:
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       HIBERNATE_JCACHE_PROVIDER: com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider
+       JCACHE: caffeine
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}

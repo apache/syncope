@@ -35,8 +35,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       # allowed values: caffeine|ehcache|hazelcast|infinispan
-       JCACHE: hazelcast
+       JCACHE: hazelcast_member
        SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
@@ -58,8 +57,7 @@ services:
        - "18081:8080"
      restart: always
      environment:
-       # allowed values: caffeine|ehcache|hazelcast|infinispan
-       JCACHE: hazelcast
+       JCACHE: hazelcast_member
        SPRING_PROFILES_ACTIVE: docker,postgresql
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
