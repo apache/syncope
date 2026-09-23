@@ -22,7 +22,7 @@ The _vanilla_ Apache Syncope deployment can be optional enriched with useful fea
 every single deployment with unneeded libraries and configurations.
 
 With reference to <<architecture,architecture>>, an extension might add a <<rest>> endpoint, manage the
-<<persistence,persistence>> of additional entities, extend the <<security,security>> mechanisms, tweak the
+<<persistence,persistence>> of additional entities, extend the <<security-layer,security>> mechanisms, tweak the
 <<provisioning-layer,provisioning layer>>, add features to the <<admin-console-component>> or
 the <<enduser-component>>, or even bring all such things together.
 

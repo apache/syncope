@@ -167,7 +167,7 @@ public class PlainAttrTest extends AbstractTest {
         obscureWithDecodeConversionPattern.setAnyTypeClass(anyTypeClassDAO.findById("other").orElseThrow());
         obscureWithDecodeConversionPattern.setType(AttrSchemaType.Encrypted);
         obscureWithDecodeConversionPattern.setCipherAlgorithm(CipherAlgorithm.AES);
-        obscureWithDecodeConversionPattern.setSecretKey(SecureRandomUtils.generateRandomUUID().toString());
+        obscureWithDecodeConversionPattern.setSecretKey(SecureRandomUtils.generateRandomPassword(16));
 
         obscureWithDecodeConversionPattern = plainSchemaDAO.save(obscureWithDecodeConversionPattern);
 

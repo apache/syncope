@@ -102,6 +102,10 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
                 orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
                         "Could not find an Access Token for JWT " + jwtClaims.getJWTID()));
 
+        if (!jwtClaims.getSubject().equals(accessToken.getOwner())) {
+            throw new AuthenticationCredentialsNotFoundException("Access Token owner does not match JWT subject");
+        }
+
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         if (accessToken.getAuthorities() != null) {
             try {

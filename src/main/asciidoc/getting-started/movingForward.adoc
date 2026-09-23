@@ -19,33 +19,27 @@
 
 == Moving Forward
 
-Once you have obtained a working installation of Apache Syncope using one of the methods reported above, you should consider 
-reading the
+Once you have obtained a working installation of Apache Syncope using one of the methods reported above, you should
+consider  reading the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.1reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.1/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
 https://syncope.apache.org/docs/4.1/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 to understand how to configure, extend, customize and deploy your new Apache Syncope project.
 
-Before deploying your Apache Syncope installation into production, it is essential to ensure that the default values for 
-various security properties have been changed to values specific to your deployment. 
+Before deploying your Apache Syncope installation into production, it is [.underline]#essential to ensure that the
+default values for various security properties have been changed to values specific to your deployment#. 
 
-The following values must be changed from the defaults in the `core.properties` file:
+The following values **must be changed** from the defaults in the `core.properties` file:
 
-* *adminPassword* - The cleartext password as encoded per the `adminPasswordAlgorithm` value (`SSHA256` by default), the
-default value of which is "password".
-* *secretKey* - The secret key value used for AES ciphering; AES is used by the use cases below:
-  ** if the value for `adminPasswordAlgorithm` is `AES` or the configuration parameter `password.cipher.algorithm` is
-changed to `AES`
-  ** if set for Encrypted Plain Schema instances
-  ** for Linked Accounts' password values
-  ** to securely store Access Token's cached authorities
-  ** within some of the predefined rules used by Password Policies
-* *anonymousKey* - The key value to use for anonymous requests.
-* *jwsKey* - The symmetric signing key used to sign access tokens. See section 4.4.1 "REST Authentication and 
-Authorization" of the Reference Guide for more information.
+* `security.adminPassword`
+* `security.anonymousKey`
+* `security.aesSecretKey`
+* `security.jwsKey`
 
 Note that if you installed Syncope using the maven archetype method, then you will have already supplied custom values
-for `secretKey`, `anonymousKey` and `jwsKey`.
+for `security.aesSecretKey`, `security.anonymousKey` and `security.jwsKey`.
+
+See the https://syncope.apache.org/docs/4.1/reference-guide.html#security[security configuration section] for more details.

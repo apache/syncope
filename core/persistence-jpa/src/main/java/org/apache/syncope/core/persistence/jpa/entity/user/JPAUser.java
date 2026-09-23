@@ -158,12 +158,10 @@ public class JPAUser
     protected List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
-    @Valid
-    protected List<JPAURelationship> relationships = new ArrayList<>();
+    protected List<@Valid JPAURelationship> relationships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
-    @Valid
-    protected List<JPAUMembership> memberships = new ArrayList<>();
+    protected List<@Valid JPAUMembership> memberships = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     protected JPASecurityQuestion securityQuestion;
@@ -175,8 +173,7 @@ public class JPAUser
     protected String mfa;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
-    @Valid
-    protected List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
+    protected List<@Valid JPALinkedAccount> linkedAccounts = new ArrayList<>();
 
     protected Encryptor encryptor() {
         return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance();
@@ -231,11 +228,11 @@ public class JPAUser
                 value,
                 Optional.ofNullable(cipherAlgorithm).
                         orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                                ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                        AuthContextUtils.getDomain(),
+                                        StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                                        CipherAlgorithm.AES.name(),
+                                        String.class))));
     }
 
     @Override
@@ -519,7 +516,7 @@ public class JPAUser
     public Optional<? extends LinkedAccount> getLinkedAccount(final String resource, final String connObjectKeyValue) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)
-                && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
+                        && account.getConnObjectKeyValue().equals(connObjectKeyValue)).
                 findFirst();
     }
 

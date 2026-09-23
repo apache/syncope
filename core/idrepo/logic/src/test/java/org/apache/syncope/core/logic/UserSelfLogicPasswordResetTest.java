@@ -66,6 +66,7 @@ public class UserSelfLogicPasswordResetTest {
         ConfParamOps confParamOps = mock(ConfParamOps.class);
         userDAO = mock(UserDAO.class);
         securityProperties = new SecurityProperties();
+        securityProperties.setProductionMode(false);
 
         when(confParamOps.get(any(), eq(StandardConfParams.PASSWORD_RESET_ALLOWED), eq(false), eq(boolean.class))).
                 thenReturn(true);

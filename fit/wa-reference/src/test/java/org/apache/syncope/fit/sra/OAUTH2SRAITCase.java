@@ -68,9 +68,4 @@ class OAUTH2SRAITCase extends AbstractOIDCITCase {
     protected void checkLogout(final CloseableHttpResponse response) {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
     }
-
-    @Override
-    protected boolean checkIdToken() {
-        return false;
-    }
 }

@@ -180,6 +180,7 @@ import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.fit.AbstractITCase.KeymasterInitializer;
@@ -1226,11 +1227,17 @@ public abstract class AbstractITCase {
     @Autowired
     protected DataSource testDataSource;
 
-    protected final EncryptorManager encryptorManager;
+    protected EncryptorManager encryptorManager;
 
     protected AbstractITCase() {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
-        encryptorManager = new DefaultEncryptorManager(securityProperties);
+        securityProperties.setProductionMode(false);
+        try {
+            encryptorManager = new DefaultEncryptorManager(
+                    new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+        } catch (IOException e) {
+            fail(e.getMessage(), e);
+        }
     }
 }

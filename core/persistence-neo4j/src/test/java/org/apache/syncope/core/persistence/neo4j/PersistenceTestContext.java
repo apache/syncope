@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j;
 
+import java.io.IOException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,7 @@ import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -107,10 +109,11 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
-        return new DefaultEncryptorManager(securityProperties);
+        securityProperties.setProductionMode(false);
+        return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);
     }
 
     @Bean

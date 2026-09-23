@@ -45,7 +45,7 @@ public class PlainAttrValue implements Serializable {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PlainAttrValue.class);
 
-    private static final Pattern SPRING_ENV_PROPERTY = Pattern.compile("^\\$\\{.*\\}$");
+    public static final Pattern SPRING_ENV_PROPERTY = Pattern.compile("^\\$\\{.*\\}$");
 
     @JsonIgnore
     @NotNull

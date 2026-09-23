@@ -18,8 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.identityconnectors.common.security.GuardedString;
 
 public interface ResourceDataBinder {
 
@@ -28,4 +33,48 @@ public interface ResourceDataBinder {
     ExternalResource create(ResourceTO resourceTO);
 
     ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+
+    static Optional<List<ConnConfProperty>> newConf(
+            final Optional<List<ConnConfProperty>> previousConfOverride,
+            final Optional<List<ConnConfProperty>> toConfOverride) {
+
+        if (toConfOverride.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (previousConfOverride.isEmpty()) {
+            return toConfOverride;
+        }
+
+        List<ConnConfProperty> newConf = new ArrayList<>();
+
+        toConfOverride.get().forEach(property -> {
+            if (property.getSchema().isConfidential()
+                    || GuardedString.class.getName().equals(property.getSchema().getType())) {
+
+                if (property.getValues().isEmpty()) {
+                    // no values provided, keep existing
+                    previousConfOverride.get().stream().
+                            filter(p -> p.getSchema().getName().equals(property.getSchema().getName())).
+                            findFirst().ifPresent(newConf::add);
+                } else {
+                    // translate confidential properties' cleartext values into GuardedStrings
+                    ConnConfProperty newProperty = new ConnConfProperty();
+                    newProperty.setSchema(property.getSchema());
+                    newProperty.setOverridable(property.isOverridable());
+                    property.getValues().forEach(value -> {
+                        if (value instanceof String string) {
+                            newProperty.getValues().add(new GuardedString(string.toCharArray()));
+                        } else {
+                            newProperty.getValues().add(value);
+                        }
+                    });
+                }
+            }
+
+            newConf.add(property);
+        });
+
+        return Optional.of(newConf);
+    }
 }

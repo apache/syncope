@@ -72,7 +72,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // remove the new realm just created
         Component component = findComponentByProp("name",
                 "body:directoryPanel:container:content:searchContainer:resultTable:tablePanel:groupForm"
-                        + ":checkgroup:dataTable", newRealmName);
+                + ":checkgroup:dataTable", newRealmName);
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:7:action:action");
@@ -81,7 +81,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         component = findComponentByProp("name",
                 "body:directoryPanel:container:content:searchContainer:resultTable:tablePanel:groupForm"
-                        + ":checkgroup:dataTable", newRealmName);
+                + ":checkgroup:dataTable", newRealmName);
         assertNull(component);
     }
 
@@ -89,7 +89,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     public void update() {
         Component component = findComponentByProp("name",
                 "body:directoryPanel:container:content:searchContainer:resultTable:tablePanel:groupForm"
-                        + ":checkgroup:dataTable", "odd");
+                + ":checkgroup:dataTable", "odd");
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
@@ -114,7 +114,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     public void addUserTemplate() {
         Component component = findComponentByProp("name",
                 "body:directoryPanel:container:content:searchContainer:resultTable:tablePanel:groupForm"
-                        + ":checkgroup:dataTable", "odd");
+                + ":checkgroup:dataTable", "odd");
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:5:action:action");
@@ -165,7 +165,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // ----------------------------------
         Component component = findComponentByProp("name",
                 "body:directoryPanel:container:content:searchContainer:resultTable:tablePanel:groupForm"
-                        + ":checkgroup:dataTable", "even");
+                + ":checkgroup:dataTable", "even");
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
@@ -190,7 +190,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // ----------------------------------
         component = findComponentByProp("resource",
                 "body:directoryPanel:outerObjectsRepeater:0:outer:form:content:customResultBody"
-                        + ":firstLevelContainer:first:container:content:group", "resource-ldap-orgunit");
+                + ":firstLevelContainer:first:container:content:group", "resource-ldap-orgunit");
 
         TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
@@ -279,7 +279,6 @@ public class RealmsITCase extends AbstractConsoleITCase {
         // ----------------------------------
         // Check that 2 propagations have been recorded
         // ----------------------------------
-
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:directoryPanel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action");

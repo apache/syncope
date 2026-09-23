@@ -19,6 +19,9 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManagerFactory;
+import java.io.IOException;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -34,6 +37,7 @@ import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactory
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -117,10 +121,16 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public EncryptorManager encryptorManager() {
+    public EncryptorManager encryptorManager() throws IOException {
         SecurityProperties securityProperties = new SecurityProperties();
         securityProperties.setAesSecretKey(StringUtils.EMPTY);
-        return new DefaultEncryptorManager(securityProperties);
+        securityProperties.setProductionMode(false);
+        return new DefaultEncryptorManager(new DefaultCredentialChecker("", "", "", "", false), securityProperties);
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
     }
 
     @Bean
@@ -130,7 +140,8 @@ public class PersistenceTestContext {
             final JndiObjectFactoryBean masterDataSource,
             final CommonEntityManagerFactoryConf commonEMFConf,
             final @Lazy ConnectorManager connectorManager,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final CacheManager cacheManager) {
 
         DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
                 commonEMFConf, connectorManager, resourceDAO) {
@@ -142,7 +153,7 @@ public class PersistenceTestContext {
                         delegates.get(SyncopeConstants.MASTER_DOMAIN));
             }
         };
-        emf.master(props, masterDataSource);
+        emf.master(props, masterDataSource, cacheManager);
         return emf;
     }
 }

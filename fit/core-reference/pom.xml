@@ -65,6 +65,12 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.syncope.core.cache</groupId>
+      <artifactId>syncope-core-cache-caffeine</artifactId>      
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-self-keymaster-starter</artifactId>
       <version>${project.version}</version>
@@ -1223,10 +1229,6 @@ under the License.
     <profile>
       <id>payara-it</id>
 
-      <properties>
-        <spring.profiles.active>embedded,payara</spring.profiles.active>
-      </properties>
-
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
@@ -1241,11 +1243,14 @@ under the License.
               <groupId>org.apache.tomcat.embed</groupId>
               <artifactId>tomcat-embed-el</artifactId>
             </exclusion>
-            <exclusion>
-              <groupId>com.github.ben-manes.caffeine</groupId>
-              <artifactId>jcache</artifactId>
-            </exclusion>
           </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.core.cache</groupId>
+          <artifactId>syncope-core-cache-caffeine</artifactId>      
+          <version>${project.version}</version>
+          <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -1409,7 +1414,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly40x</containerId>
+                <containerId>wildfly41x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-preview-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

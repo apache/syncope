@@ -21,8 +21,8 @@
 When users log into the <<client-applications,web applications>> integrated with <<web-access,WA>>, the following
 information is tracked for <<admin-console,administration>> and <<enduser-application,self-management>>:
 
-* https://apereo.github.io/cas/7.3.x/authentication/Surrogate-Authentication.html[Surrogate Authentication^]
-* https://apereo.github.io/cas/7.3.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator Authentication^]
-* https://apereo.github.io/cas/7.3.x/mfa/Multifactor-TrustedDevice-Authentication.html[Multifactor Authentication Trusted Devices^]
-* https://apereo.github.io/cas/7.3.x/mfa/FIDO2-WebAuthn-Authentication.html[FIDO2 WebAuthn (Passkey) Multifactor Authentication^]
-* https://apereo.github.io/cas/7.3.x/integration/Attribute-Release-Consent.html[Attribute Consent^]
+* https://apereo.github.io/cas/8.0.x/authentication/Surrogate-Authentication.html[Surrogate Authentication^]
+* https://apereo.github.io/cas/8.0.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator Authentication^]
+* https://apereo.github.io/cas/8.0.x/mfa/Multifactor-TrustedDevice-Authentication.html[Multifactor Authentication Trusted Devices^]
+* https://apereo.github.io/cas/8.0.x/mfa/FIDO2-WebAuthn-Authentication.html[FIDO2 WebAuthn (Passkey) Multifactor Authentication^]
+* https://apereo.github.io/cas/8.0.x/integration/Attribute-Release-Consent.html[Attribute Consent^]

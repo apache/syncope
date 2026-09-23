@@ -21,15 +21,12 @@ package org.apache.syncope.core.spring.security.throttle;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.concurrent.TimeUnit;
-import java.util.function.LongSupplier;
 import javax.cache.Cache;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 
 abstract class AbstractThrottler {
 
     protected final SecurityProperties.ThrottleProperties throttle;
-
-    protected final LongSupplier clock = System::currentTimeMillis;
 
     protected final Cache<String, ThrottlerAttempts> attempts;
 
@@ -46,6 +43,10 @@ abstract class AbstractThrottler {
                 && throttle.getMaxAttempts() > 0
                 && throttle.getWindowSeconds() > 0
                 && throttle.getLockSeconds() > 0;
+    }
+
+    protected long now() {
+        return System.currentTimeMillis();
     }
 
     protected Deque<Long> prune(final Deque<Long> attempts, final long now) {

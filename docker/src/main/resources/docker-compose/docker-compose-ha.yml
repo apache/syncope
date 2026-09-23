@@ -35,13 +35,13 @@ services:
        - "18080:8080"
      restart: always
      environment:
+       JCACHE: hazelcast_member
        SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       HIBERNATE_JCACHE_PROVIDER: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}
@@ -57,13 +57,13 @@ services:
        - "18081:8080"
      restart: always
      environment:
+       JCACHE: hazelcast_member
        SPRING_PROFILES_ACTIVE: docker,postgresql
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
-       HIBERNATE_JCACHE_PROVIDER: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD}

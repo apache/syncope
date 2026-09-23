@@ -144,6 +144,7 @@ public class MetricsContext {
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
+            final AuthDataAccessor authDataAccessor,            
             final MeterRegistry meterRegistry) {
 
         return new InstrumentedPriorityPropagationTaskExecutor(
@@ -160,6 +161,7 @@ public class MetricsContext {
                 outboundMatcher,
                 validator,
                 publisher,
+                authDataAccessor,
                 propagationTaskExecutorAsyncExecutor,
                 meterRegistry);
     }

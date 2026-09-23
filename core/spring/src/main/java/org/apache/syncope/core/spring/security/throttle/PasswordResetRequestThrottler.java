@@ -60,48 +60,48 @@ public class PasswordResetRequestThrottler extends AbstractThrottler {
             return;
         }
 
-        long now = clock.getAsLong();
         String attemptKey = key(domain, username, clientAddress);
         String attemptKeyId = attemptKeyId(attemptKey);
-        PasswordResetThrottleException blocked = attempts.invoke(
-                attemptKey,
-                (entry, args) -> {
-                    ThrottlerAttempts state = entry.exists()
-                    ? entry.getValue()
-                    : new ThrottlerAttempts();
+        long now = now();
 
-                    if (state.blockedUntil() > now) {
-                        PasswordResetThrottleException exception = blocked(state.blockedUntil(), now);
-                        LOG.debug(
-                                "Password reset request throttled for attempt key [{}]; retry after [{}] seconds",
-                                attemptKeyId,
-                                exception.getRetryAfterSeconds());
-                        return exception;
-                    }
+        PasswordResetThrottleException blocked = null;
+        synchronized (attempts) {
+            ThrottlerAttempts state = attempts.get(attemptKey);
+            if (state == null) {
+                state = new ThrottlerAttempts();
+            }
 
-                    Deque<Long> failures = prune(state.failures(), now);
-                    failures.addLast(now);
-                    if (failures.size() > throttle.getMaxAttempts()) {
-                        long blockedUntil = now + TimeUnit.SECONDS.toMillis(throttle.getLockSeconds());
-                        entry.setValue(new ThrottlerAttempts(failures, blockedUntil));
-                        LOG.warn(
-                                "Password reset request throttling activated for attempt key [{}]; "
-                                + "attempts [{}], max attempts [{}], lock seconds [{}]",
-                                attemptKeyId,
-                                failures.size(),
-                                throttle.getMaxAttempts(),
-                                throttle.getLockSeconds());
-                        return blocked(blockedUntil, now);
-                    }
+            if (state.blockedUntil() > now) {
+                blocked = blocked(state.blockedUntil(), now);
+                LOG.debug(
+                        "Password reset request throttled for attempt key [{}]; retry after [{}] seconds",
+                        attemptKeyId,
+                        blocked.getRetryAfterSeconds());
+            } else {
+                Deque<Long> failures = prune(state.failures(), now);
+                failures.addLast(now);
 
-                    entry.setValue(new ThrottlerAttempts(failures, state.blockedUntil()));
+                if (failures.size() > throttle.getMaxAttempts()) {
+                    long blockedUntil = now + TimeUnit.SECONDS.toMillis(throttle.getLockSeconds());
+                    attempts.put(attemptKey, new ThrottlerAttempts(failures, blockedUntil));
+                    LOG.warn(
+                            "Password reset request throttling activated for attempt key [{}]; "
+                            + "attempts [{}], max attempts [{}], lock seconds [{}]",
+                            attemptKeyId,
+                            failures.size(),
+                            throttle.getMaxAttempts(),
+                            throttle.getLockSeconds());
+                    blocked = blocked(blockedUntil, now);
+                } else {
+                    attempts.put(attemptKey, new ThrottlerAttempts(failures, state.blockedUntil()));
                     LOG.trace(
                             "Password reset request failure recorded for attempt key [{}]; attempts [{}/{}]",
                             attemptKeyId,
                             failures.size(),
                             throttle.getMaxAttempts());
-                    return null;
-                });
+                }
+            }
+        }
         if (blocked != null) {
             throw blocked;
         }

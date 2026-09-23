@@ -93,8 +93,7 @@ public class JPAGroup
     private List<JPAGroupTypeExtension> typeExtensions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
-    @Valid
-    private List<JPAGRelationship> relationships = new ArrayList<>();
+    private List<@Valid JPAGRelationship> relationships = new ArrayList<>();
 
     @Override
     public String getName() {

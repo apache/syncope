@@ -74,8 +74,7 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
             commands, Neo4jMacroTaskCommandRelationship.builder());
 
     @Relationship(type = MACRO_TASK_FORM_PROPERTY_DEF_REL, direction = Relationship.Direction.INCOMING)
-    @Valid
-    private SortedSet<Neo4jFormPropertyDefRelationship> formPropertyDefs = new TreeSet<>();
+    private SortedSet<@Valid Neo4jFormPropertyDefRelationship> formPropertyDefs = new TreeSet<>();
 
     @Transient
     private List<Neo4jFormPropertyDef> sortedFormPropertyDefs = new SortedSetList<>(
