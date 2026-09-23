@@ -32,19 +32,19 @@ public class DefaultCredentialChecker {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultCredentialChecker.class);
 
     private static final String DEFAULT_AES_KEY_ERROR_MESSAGE =
-            "⚠ The default AES key property is being used. "
+            "⚠️ WARNING: The default AES key property is being used. "
             + "This must be changed to avoid a security breach!";
 
     private static final String DEFAULT_JWS_KEY_ERROR_MESSAGE =
-            "⚠ The default JWKS key property is being used. "
+            "⚠️ WARNING: The default JWKS key property is being used. "
             + "This must be changed to avoid a security breach!";
 
     private static final String DEFAULT_ADMIN_PASSWORD_ERROR_MESSAGE =
-            "⚠ The default adminPassword property is being used. "
+            "⚠️ WARNING: The default adminPassword property is being used. "
             + "This must be changed to avoid a security breach!";
 
     private static final String DEFAULT_ANON_KEY_ERROR_MESSAGE =
-            "⚠ The default anonymousKey property is being used. "
+            "⚠️ WARNING: The default anonymousKey property is being used. "
             + "This must be changed to avoid a security breach!";
 
     private final boolean defaultAesKeyInUse;

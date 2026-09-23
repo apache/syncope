@@ -111,6 +111,40 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
+    <!-- JCache providers -->
+    <dependency>
+      <groupId>org.apache.syncope.core.cache</groupId>
+      <artifactId>syncope-core-cache-caffeine</artifactId>
+      <version>${project.version}</version>
+      <classifier>wrap</classifier>
+      <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.cache</groupId>
+      <artifactId>syncope-core-cache-hazelcast</artifactId>
+      <version>${project.version}</version>
+      <classifier>wrap</classifier>
+      <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.cache</groupId>
+      <artifactId>syncope-core-cache-ehcache</artifactId>
+      <version>${project.version}</version>
+      <classifier>wrap</classifier>
+      <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core.cache</groupId>
+      <artifactId>syncope-core-cache-infinispan</artifactId>
+      <version>${project.version}</version>
+      <classifier>wrap</classifier>
+      <type>zip</type>
+      <scope>test</scope>
+    </dependency>
+
     <!-- JDBC drivers -->
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -172,6 +206,11 @@ under the License.
                 <copy file="${settings.localRepository}/com/mysql/mysql-connector-j/${jdbc.mysql.version}/mysql-connector-j-${jdbc.mysql.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.directory}/tmp/lib" overwrite="true"/>
+
+                <copy file="${settings.localRepository}/org/apache/syncope/core/cache/syncope-core-cache-caffeine/${project.version}/syncope-core-cache-caffeine-${project.version}-wrap.zip" tofile="${project.build.directory}/tmp/lib/syncope-core-cache-caffeine-wrap.zip" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/apache/syncope/core/cache/syncope-core-cache-ehcache/${project.version}/syncope-core-cache-ehcache-${project.version}-wrap.zip" tofile="${project.build.directory}/tmp/lib/syncope-core-cache-ehcache-wrap.zip" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/apache/syncope/core/cache/syncope-core-cache-hazelcast/${project.version}/syncope-core-cache-hazelcast-${project.version}-wrap.zip" tofile="${project.build.directory}/tmp/lib/syncope-core-cache-hazelcast-wrap.zip" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/apache/syncope/core/cache/syncope-core-cache-infinispan/${project.version}/syncope-core-cache-infinispan-${project.version}-wrap.zip" tofile="${project.build.directory}/tmp/lib/syncope-core-cache-infinispan-wrap.zip" overwrite="true"/>
               </target>
             </configuration>
             <goals>

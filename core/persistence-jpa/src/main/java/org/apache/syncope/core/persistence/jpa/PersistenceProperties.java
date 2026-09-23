@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.core.persistence.common.AbstractPersistenceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -28,27 +30,9 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     public static final String DB_TYPE = "db-type";
 
-    private String cacheProvider = "com.github.benmanes.caffeine.jcache.spi.CaffeineCachingProvider";
-
-    private String cacheURI;
-
     private String viewsXML = "classpath:META-INF/views.xml";
 
-    public String getCacheProvider() {
-        return cacheProvider;
-    }
-
-    public void setCacheProvider(final String cacheProvider) {
-        this.cacheProvider = cacheProvider;
-    }
-
-    public String getCacheURI() {
-        return cacheURI;
-    }
-
-    public void setCacheURI(final String cacheURI) {
-        this.cacheURI = cacheURI;
-    }
+    private Map<String, String> additionalJPAProperties = new HashMap<>();
 
     public String getViewsXML() {
         return viewsXML;
@@ -56,5 +40,13 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     public void setViewsXML(final String viewsXML) {
         this.viewsXML = viewsXML;
+    }
+
+    public Map<String, String> getAdditionalJPAProperties() {
+        return additionalJPAProperties;
+    }
+
+    public void setAdditionalJPAProperties(final Map<String, String> additionalJPAProperties) {
+        this.additionalJPAProperties = additionalJPAProperties;
     }
 }

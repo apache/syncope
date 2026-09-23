@@ -20,13 +20,14 @@ LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
 
 RUN apk update && apk add bash
 
-RUN mkdir /opt/syncope /opt/syncope/bin /opt/syncope/bundles /opt/syncope/conf /opt/syncope/lib /opt/syncope/log
+RUN mkdir /opt/syncope /opt/syncope/bin /opt/syncope/bundles /opt/syncope/conf /opt/syncope/lib /opt/syncope/log /opt/syncope/cache
 
 COPY *.properties *.xml saml.keystore.jks /opt/syncope/conf/
 
 COPY bundles/*.jar /opt/syncope/bundles/
 
 COPY lib/mariadb*.jar lib/mysql*jar lib/ojdbc*jar lib/postgresql*jar /opt/syncope/lib/
+COPY lib/syncope-core-cache-*zip /opt/syncope/cache
 COPY lib/syncope-docker-core-*jar /opt/syncope/lib/syncope.jar
 
 ENV SPRING_PROFILES_ACTIVE=docker

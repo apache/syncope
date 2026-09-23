@@ -60,8 +60,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
             @JoinColumn(name = "realm_id"),
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "role_id", "realm_id" }))
-    @Valid
-    private List<JPARealm> realms = new ArrayList<>();
+    private List<@Valid JPARealm> realms = new ArrayList<>();
 
     @Override
     public Set<String> getEntitlements() {

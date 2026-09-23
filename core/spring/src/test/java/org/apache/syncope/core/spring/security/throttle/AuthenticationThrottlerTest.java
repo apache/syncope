@@ -32,7 +32,6 @@ import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 class AuthenticationThrottlerTest {
 
@@ -61,8 +60,13 @@ class AuthenticationThrottlerTest {
             cache.clear();
         }
 
-        AuthenticationThrottler throttler = new AuthenticationThrottler(securityProperties, cache);
-        ReflectionTestUtils.setField(throttler, "clock", clock);
+        AuthenticationThrottler throttler = new AuthenticationThrottler(securityProperties, cache) {
+
+            @Override
+            protected long now() {
+                return clock.getAsLong();
+            }
+        };
         return throttler;
     }
 

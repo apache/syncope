@@ -275,7 +275,7 @@ components:
 ===== Customize Hibernate ORM settings
 
 Hibernate ORM is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
-aspects - including https://docs.hibernate.org/orm/7.3/userguide/html_single/#caching[caching^] for
+aspects - including https://docs.hibernate.org/orm/7.4/userguide/html_single/#caching[caching^] for
 example, to best suit the various environments.
 
 The main configuration classes are:
