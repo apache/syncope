@@ -39,7 +39,7 @@
   outline: 1px var(--app-accessibility-outline) solid;
 }
 
-#change_contrast {
+#change_theme .btn-accessibility {
   top: 0;
 }
 
@@ -48,7 +48,7 @@
 }
 
 @include phone {
-  #change_contrast {
+  #change_theme .btn-accessibility {
     bottom: 52px;
     top: auto;
   }
@@ -57,4 +57,20 @@
     bottom: 12px;
     top: auto;
   }
+}
+
+.login-logo {
+  position: relative;
+}
+
+.login-logo-dark {
+  display: none;
+}
+
+html[data-bs-theme="dark"] .login-logo-light {
+  display: none;
+}
+
+html[data-bs-theme="dark"] .login-logo-dark {
+  display: inline;
 }
