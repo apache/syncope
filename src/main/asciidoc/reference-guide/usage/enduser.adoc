@@ -51,28 +51,24 @@ image::enduser-mfa-login.png[enduser-mfa-login]
 
 The End-user UI is accessible to the visually impaired.
 
-Two icons are present in the main page, in the right corner:
-
-[.text-center]
-image::accessibility-enduser01.png[title="Enduser accessibility icons",alt="Enduser accessibility icons"]
-
-By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
-toggle the "High contrast mode".
-In this mode, the website colors are switched to a higher contrast color schema.
+By clicking the first icon, which can be image:accessibility-icon04.png[Light theme,30,30], image:accessibility-icon03.png[Dark theme,30,30], or image:accessibility-icon01.png[Automatic theme,30,30], it is possible to switch between the light, dark, and automatic themes.
+The `U`, `L`, and `D` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcuts can also be used to switch themes using the keyboard.
 
 [TIP]
 ====
-The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "High contrast mode" by using the keyboard.
-
-E.g. 
+E.g.
 |===
 |Shortcut |Purpose
 
-|`Alt` + `Shift` + `H`
-|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
-|===
+|`Alt` + `Shift` + `U`
+|Switch to automatic theme on Firefox and Chrome browsers on Linux
 
+|`Alt` + `Shift` + `L`
+|Switch to light theme on Firefox and Chrome browsers on Linux
+
+|`Alt` + `Shift` + `D`
+|Switch to dark theme on Firefox and Chrome browsers on Linux
+|===
 ====
 
 By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
@@ -81,14 +77,14 @@ In this mode, the website font size is increased.
 
 [TIP]
 ====
-The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+The `S` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
 be used to easily toggle "Increased font mode" by using the keyboard.
 
 E.g. 
 |===
 |Shortcut |Purpose
 
-|`Alt` + `Shift` + `F`
+|`Alt` + `Shift` + `S`
 |Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
 |===
 
