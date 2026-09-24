@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -127,10 +129,25 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         return groupCache;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, Neo4jGroup.NODE);
+    }
+
+    @Override
+    public Collection<String> findAllResourceKeys(final String key) {
+        return findById(key).map(Any::getResources).
+                orElseGet(List::of).
+                stream().map(ExternalResource::getKey).toList();
+    }
+
+    @Override
+    public Map<String, Long> countByRealm() {
+        Collection<Map<String, Object>> result = neo4jClient.query(
+                "MATCH (n:" + Neo4jGroup.NODE + ")-[]-(r:" + Neo4jRealm.NODE + ") "
+                + "RETURN r.fullPath AS realm, COUNT(n) AS counted").fetch().all();
+
+        return result.stream().collect(Collectors.toMap(r -> r.get("realm").toString(), r -> (Long) r.get("counted")));
     }
 
     @Transactional(readOnly = true)
@@ -158,82 +175,33 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     }
 
     @Override
-    protected void securityChecks(final Group group) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().
-                getOrDefault(IdRepoEntitlement.GROUP_READ, Set.of());
-
-        securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
+    public long countUMembers(final String groupKey) {
+        return neo4jTemplate.count(
+                "MATCH (u:" + Neo4jUser.NODE + ")-[]-"
+                + "(n:" + Neo4jUMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN COUNT(DISTINCT u)",
+                Map.of("groupKey", groupKey));
     }
 
     @Override
-    public boolean isManager(final String key) {
-        return !findManagedUsers(key).isEmpty()
-                || !findManagedGroups(key).isEmpty()
-                || !findManagedAnyObjects(key).isEmpty();
-    }
-
-    @Override
-    public List<User> findManagedUsers(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
-                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jUser.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jUser.class,
-                userCache);
-    }
-
-    @Override
-    public List<Group> findManagedGroups(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
-                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jGroup.class,
-                groupCache);
-    }
-
-    @Override
-    public List<AnyObject> findManagedAnyObjects(final String key) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
-                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jAnyObject.class,
-                anyObjectCache);
-    }
-
-    @Override
-    public Map<String, Long> countByRealm() {
+    public List<String> findUMembers(final String groupKey) {
         Collection<Map<String, Object>> result = neo4jClient.query(
-                "MATCH (n:" + Neo4jGroup.NODE + ")-[]-(r:" + Neo4jRealm.NODE + ") "
-                + "RETURN r.fullPath AS realm, COUNT(n) AS counted").fetch().all();
-
-        return result.stream().collect(Collectors.toMap(r -> r.get("realm").toString(), r -> (Long) r.get("counted")));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Collection<String> findAllResourceKeys(final String key) {
-        return findById(key).map(Any::getResources).
-                orElseGet(List::of).
-                stream().map(ExternalResource::getKey).toList();
+                "MATCH (u:" + Neo4jUser.NODE + ")-[]-"
+                + "(n:" + Neo4jUMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN u.id").bindAll(Map.of("groupKey", groupKey)).fetch().all();
+        return result.stream().map(found -> found.get("u.id").toString()).toList();
     }
 
     @Override
-    public List<AMembership> findAMemberships(final Group group) {
-        return toList(
-                neo4jClient.query(
-                        "MATCH (n:" + Neo4jAMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
-                        + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
-                "n.id",
-                Neo4jAMembership.class,
-                null);
+    public boolean existsUMembership(final String userKey, final String groupKey) {
+        return neo4jTemplate.count(
+                "MATCH (u:" + Neo4jUser.NODE + " {id: $userKey})-[]-"
+                + "(n:" + Neo4jUMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN COUNT(n)",
+                Map.of("userKey", userKey, "groupKey", groupKey)) > 0;
     }
 
     @Override
@@ -254,6 +222,121 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     }
 
     @Override
+    public long countAMembers(final String groupKey) {
+        return neo4jTemplate.count(
+                "MATCH (a:" + Neo4jAnyObject.NODE + ")-[]-"
+                + "(n:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN COUNT(DISTINCT a)",
+                Map.of("groupKey", groupKey));
+    }
+
+    @Override
+    public List<String> findAMembers(final String groupKey) {
+        Collection<Map<String, Object>> result = neo4jClient.query(
+                "MATCH (a:" + Neo4jAnyObject.NODE + ")-[]-"
+                + "(n:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN a.id").bindAll(Map.of("groupKey", groupKey)).fetch().all();
+        return result.stream().map(found -> found.get("a.id").toString()).toList();
+    }
+
+    @Override
+    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
+        return neo4jTemplate.count(
+                "MATCH (a:" + Neo4jAnyObject.NODE + " {id: $anyObjectKey})-[]-"
+                + "(n:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
+                + "RETURN COUNT(n)",
+                Map.of("anyObjectKey", anyObjectKey, "groupKey", groupKey)) > 0;
+    }
+
+    @Override
+    public List<AMembership> findAMemberships(final Group group) {
+        return toList(
+                neo4jClient.query(
+                        "MATCH (n:" + Neo4jAMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
+                        + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
+                "n.id",
+                Neo4jAMembership.class,
+                null);
+    }
+
+    @Override
+    protected void securityChecks(final Group group) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().
+                getOrDefault(IdRepoEntitlement.GROUP_READ, Set.of());
+
+        securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
+    }
+
+    @Override
+    public boolean isManager(final String key) {
+        return !findManagedUsers(key).isEmpty()
+                || !findManagedGroups(key).isEmpty()
+                || !findManagedAnyObjects(key).isEmpty();
+    }
+
+    @Override
+    public List<User> findManagedUsers(final String key) {
+        List<User> result = new ArrayList<>();
+
+        // (a) see GroupDAO#findManagedUsers
+        result.addAll(toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jUser.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
+                "p.id",
+                Neo4jUser.class,
+                userCache));
+
+        // (b) see GroupDAO#findManagedUsers
+        findManagedGroupKeys(key).forEach(group -> findUMembers(group).
+                forEach(m -> userDAO.findById(m).ifPresent(result::add)));
+
+        return result.stream().distinct().toList();
+    }
+
+    protected Stream<String> findManagedGroupKeys(final String key) {
+        Collection<Map<String, Object>> result = neo4jClient.query(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jGroup.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all();
+        return result.stream().map(found -> found.get("p.id").toString());
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        return findManagedGroupKeys(key).map(group -> findById(group, Neo4jGroup.class, groupCache)).
+                flatMap(Optional::stream).
+                map(Group.class::cast).
+                toList();
+    }
+
+    @Override
+    public List<AnyObject> findManagedAnyObjects(final String key) {
+        List<AnyObject> result = new ArrayList<>();
+
+        // (a) see GroupDAO#findManagedAnyObjects
+        result.addAll(toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $id})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jGroup.NODE + ") "
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
+                "p.id",
+                Neo4jAnyObject.class,
+                anyObjectCache));
+
+        // (b) see GroupDAO#findManagedUsers
+        findManagedGroupKeys(key).forEach(group -> findAMembers(group).
+                forEach(m -> anyObjectDAO.findById(m).ifPresent(result::add)));
+
+        return result.stream().distinct().toList();
+    }
+
+    @Override
     public <S extends Group> S save(final S group) {
         checkBeforeSave(group);
 
@@ -262,18 +345,18 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         neo4jTemplate.findById(group.getKey(), Neo4jGroup.class).ifPresent(before -> {
             before.getResources().stream().filter(resource -> !group.getResources().contains(resource)).
                     forEach(resource -> deleteRelationship(
-                    Neo4jGroup.NODE,
-                    Neo4jExternalResource.NODE,
-                    group.getKey(),
-                    resource.getKey(),
-                    Neo4jGroup.GROUP_RESOURCE_REL));
+                            Neo4jGroup.NODE,
+                            Neo4jExternalResource.NODE,
+                            group.getKey(),
+                            resource.getKey(),
+                            Neo4jGroup.GROUP_RESOURCE_REL));
             before.getAuxClasses().stream().filter(auxClass -> !group.getAuxClasses().contains(auxClass)).
                     forEach(auxClass -> deleteRelationship(
-                    Neo4jGroup.NODE,
-                    Neo4jAnyTypeClass.NODE,
-                    group.getKey(),
-                    auxClass.getKey(),
-                    Neo4jGroup.GROUP_AUX_CLASSES_REL));
+                            Neo4jGroup.NODE,
+                            Neo4jAnyTypeClass.NODE,
+                            group.getKey(),
+                            auxClass.getKey(),
+                            Neo4jGroup.GROUP_AUX_CLASSES_REL));
             if (before.getuManager() != null && group.getuManager() == null) {
                 deleteRelationship(
                         Neo4jGroup.NODE,

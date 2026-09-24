@@ -32,7 +32,27 @@ import org.springframework.data.domain.Pageable;
 
 public interface GroupRepoExt extends AnyRepoExt<Group> {
 
+    Map<String, Long> countByRealm();
+
     void securityChecks(Set<String> authRealms, String key, String realm);
+
+    long countUMembers(String groupKey);
+
+    List<String> findUMembers(String groupKey);
+
+    boolean existsUMembership(String userKey, String groupKey);
+
+    List<UMembership> findUMemberships(Group group, Pageable pageable);
+
+    long countAMembers(String groupKey);
+
+    List<String> findAMembers(String groupKey);
+
+    boolean existsAMembership(String anyObjectKey, String groupKey);
+
+    List<AMembership> findAMemberships(Group group);
+
+    List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     boolean isManager(String key);
 
@@ -41,18 +61,6 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
     List<Group> findManagedGroups(String key);
 
     List<AnyObject> findManagedAnyObjects(String key);
-
-    Map<String, Long> countByRealm();
-
-    boolean existsAMembership(String anyObjectKey, String groupKey);
-
-    boolean existsUMembership(String userKey, String groupKey);
-
-    List<AMembership> findAMemberships(Group group);
-
-    List<UMembership> findUMemberships(Group group, Pageable pageable);
-
-    List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     @Override
     <S extends Group> S save(S group);
