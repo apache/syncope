@@ -51,6 +51,11 @@ image::enduser-mfa-login.png[enduser-mfa-login]
 
 The End-user UI is accessible to the visually impaired.
 
+Two icons are present in the main page, in the right corner:
+
+[.text-center]
+image::accessibility-enduser01.png[title="Enduser accessibility icons",alt="Enduser accessibility icons"]
+
 By clicking the first icon, which can be image:accessibility-icon04.png[Light theme,30,30], image:accessibility-icon03.png[Dark theme,30,30], or image:accessibility-icon01.png[Automatic theme,30,30], it is possible to switch between the light, dark, and automatic themes.
 The `U`, `L`, and `D` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcuts can also be used to switch themes using the keyboard.
 
