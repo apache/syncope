@@ -229,9 +229,21 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public boolean isManager(final String key) {
-        return !findManagedUsers(key).isEmpty()
-                || !findManagedGroups(key).isEmpty()
-                || !findManagedAnyObjects(key).isEmpty();
+        Query user = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?");
+        user.setParameter(1, key);
+
+        Query group = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE gManager_id=?");
+        group.setParameter(1, key);
+
+        Query anyObject = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE gManager_id=?");
+        anyObject.setParameter(1, key);
+
+        return ((Number) user.getSingleResult()).longValue()
+                + ((Number) group.getSingleResult()).longValue()
+                + ((Number) anyObject.getSingleResult()).longValue() > 0;
     }
 
     @Override

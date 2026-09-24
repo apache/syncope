@@ -272,9 +272,28 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Override
     public boolean isManager(final String key) {
-        return !findManagedUsers(key).isEmpty()
-                || !findManagedGroups(key).isEmpty()
-                || !findManagedAnyObjects(key).isEmpty();
+        long users = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jUser.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        long groups = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jGroup.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        long anyObjects = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
+                + "(p:" + Neo4jAnyObject.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        return users + groups + anyObjects > 0;
     }
 
     @Override

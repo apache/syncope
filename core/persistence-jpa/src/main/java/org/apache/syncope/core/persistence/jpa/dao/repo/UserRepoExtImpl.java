@@ -99,9 +99,22 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Override
     public boolean isManager(final String key) {
-        return !findManagedUsers(key).isEmpty()
-                || !findManagedGroups(key).isEmpty()
-                || !findManagedAnyObjects(key).isEmpty();
+        Query user = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE uManager_id=?");
+        user.setParameter(1, key);
+
+        Query group = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAGroup.TABLE + " WHERE uManager_id=?");
+        group.setParameter(1, key);
+
+        Query anyObject = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAnyObject.TABLE + " WHERE uManager_id=?");
+        anyObject.setParameter(1, key);
+
+        return ((Number) user.getSingleResult()).longValue()
+                + ((Number) group.getSingleResult()).longValue()
+                + ((Number) anyObject.getSingleResult()).longValue() > 0;
+
     }
 
     protected Stream<String> findUMembershipGroups(final String key) {
