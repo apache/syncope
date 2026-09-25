@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.SyncopeProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -26,7 +27,17 @@ public class WAProperties extends SyncopeProperties {
 
     private static final long serialVersionUID = 7925827623055998239L;
 
+    private String domain = SyncopeConstants.MASTER_DOMAIN;
+
     private int contextRefreshDelaySeconds = 15;
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
 
     public int getContextRefreshDelaySeconds() {
         return contextRefreshDelaySeconds;

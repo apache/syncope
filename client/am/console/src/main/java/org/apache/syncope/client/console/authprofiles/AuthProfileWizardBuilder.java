@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.authprofiles;
 
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
@@ -104,7 +105,7 @@ public abstract class AuthProfileWizardBuilder<T extends BaseBean> extends BaseA
             String attributes = "{}";
             try {
                 attributes = authProfileRestClient.readConsentAttributes(
-                        serviceOps.get(NetworkService.Type.WA),
+                        serviceOps.get(NetworkService.Type.WA, SyncopeConsoleSession.get().getDomain()),
                         consentDecision.getPrincipal(),
                         consentDecision.getId());
             } catch (Exception e) {

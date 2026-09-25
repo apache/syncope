@@ -175,6 +175,7 @@ public class KeymasterITCase extends AbstractITCase {
         NetworkService sra1 = new NetworkService();
         sra1.setType(NetworkService.Type.SRA);
         sra1.setAddress("http://localhost:9080/syncope-sra");
+        sra1.setDomain(SyncopeConstants.MASTER_DOMAIN);
         serviceOps.register(sra1);
 
         list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
@@ -187,6 +188,7 @@ public class KeymasterITCase extends AbstractITCase {
         NetworkService sra2 = new NetworkService();
         sra2.setType(NetworkService.Type.SRA);
         sra2.setAddress("http://localhost:9080/syncope-sra");
+        sra2.setDomain(SyncopeConstants.MASTER_DOMAIN);
         assertEquals(sra1, sra2);
         serviceOps.register(sra2);
 

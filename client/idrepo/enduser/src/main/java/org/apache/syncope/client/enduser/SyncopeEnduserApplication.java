@@ -86,13 +86,13 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStart keymasterStart() {
-        return new KeymasterStart(NetworkService.Type.ENDUSER);
+        return new KeymasterStart.Builder(NetworkService.Type.ENDUSER).build();
     }
 
     @ConditionalOnProperty(
             prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStop keymasterStop() {
-        return new KeymasterStop(NetworkService.Type.ENDUSER);
+        return new KeymasterStop.Builder(NetworkService.Type.ENDUSER).build();
     }
 }

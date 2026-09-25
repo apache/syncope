@@ -21,7 +21,6 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
@@ -44,26 +43,37 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
 
     private static final String SERVICE_PATH = "/services";
 
-    private final Map<NetworkService.Type, ServiceProvider<Void>> providers = new ConcurrentHashMap<>();
+    protected static NetworkService toNetworkService(
+            final NetworkService.Type serviceType,
+            final ServiceInstance<String> serviceInstance) {
+
+        NetworkService ns = new NetworkService();
+        ns.setType(serviceType);
+        ns.setAddress(serviceInstance.getAddress());
+        ns.setDomain(serviceInstance.getPayload());
+        return ns;
+    }
+
+    private final Map<NetworkService.Type, ServiceProvider<String>> providers = new ConcurrentHashMap<>();
 
     @Autowired
     private CuratorFramework client;
 
-    private ServiceDiscovery<Void> discovery;
+    private ServiceDiscovery<String> discovery;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        discovery = ServiceDiscoveryBuilder.builder(Void.class).
+        discovery = ServiceDiscoveryBuilder.builder(String.class).
                 client(client).
                 basePath(SERVICE_PATH).
                 build();
         discovery.start();
     }
 
-    private ServiceProvider<Void> getProvider(final NetworkService.Type type) {
+    private ServiceProvider<String> getProvider(final NetworkService.Type type) {
         return providers.computeIfAbsent(type, t -> {
             try {
-                ServiceProvider<Void> provider = discovery.
+                ServiceProvider<String> provider = discovery.
                         serviceProviderBuilder().
                         serviceName(t.name()).build();
                 provider.start();
@@ -81,9 +91,10 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
         try {
             unregister(service);
 
-            ServiceInstance<Void> instance = ServiceInstance.<Void>builder().
+            ServiceInstance<String> instance = ServiceInstance.<String>builder().
                     name(service.getType().name()).
                     address(service.getAddress()).
+                    payload(service.getDomain()).
                     build();
             discovery.registerService(instance);
         } catch (KeymasterException e) {
@@ -99,7 +110,7 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
         try {
             discovery.queryForInstances(service.getType().name()).stream().
                     filter(instance -> instance.getName().equals(service.getType().name())
-                    && instance.getAddress().equals(service.getAddress())).findFirst().
+                            && instance.getAddress().equals(service.getAddress())).findFirst().
                     ifPresent(instance -> {
                         try {
                             discovery.unregisterService(instance);
@@ -116,22 +127,26 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
         }
     }
 
-    private static NetworkService toNetworkService(
-        final NetworkService.Type serviceType,
-        final ServiceInstance<Void> serviceInstance) {
-
-        NetworkService ns = new NetworkService();
-        ns.setType(serviceType);
-        ns.setAddress(serviceInstance.getAddress());
-        return ns;
-    }
-
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         try {
             return discovery.queryForInstances(serviceType.name()).stream().
                     map(serviceInstance -> toNetworkService(serviceType, serviceInstance)).
-                    collect(Collectors.toList());
+                    toList();
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        try {
+            return discovery.queryForInstances(serviceType.name()).stream().
+                    filter(serviceInstance -> domain.equals(serviceInstance.getPayload())).
+                    map(serviceInstance -> toNetworkService(serviceType, serviceInstance)).
+                    toList();
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -141,11 +156,30 @@ public class ZookeeperServiceDiscoveryOps implements ServiceOps, InitializingBea
 
     @Override
     public NetworkService get(final NetworkService.Type serviceType) {
-        ServiceInstance<Void> serviceInstance = null;
+        ServiceInstance<String> serviceInstance = null;
         try {
-            if (!discovery.queryForInstances(serviceType.name()).isEmpty()) {
-                serviceInstance = getProvider(serviceType).getInstance();
-            }
+            serviceInstance = discovery.queryForInstances(serviceType.name()).stream().
+                    findFirst().
+                    orElse(null);
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+
+        if (serviceInstance == null) {
+            throw new KeymasterException("No services found for " + serviceType);
+        }
+        return toNetworkService(serviceType, serviceInstance);
+    }
+
+    @Override
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        ServiceInstance<String> serviceInstance = null;
+        try {
+            serviceInstance = discovery.queryForInstances(serviceType.name()).stream().
+                    filter(s -> domain.equals(s.getPayload())).findFirst().
+                    orElse(null);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
