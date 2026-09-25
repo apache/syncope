@@ -36,6 +36,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -570,33 +571,43 @@ public class AuthDataAccessor {
 
         // Give role entitlements
         userDAO.findAllRoles(user).forEach(role -> role.getEntitlements().
-                forEach(e -> populateEntForRealms(entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).
-                        toList())));
+                forEach(e -> populateEntForRealms(
+                        entForRealms, e, role.getRealms().stream().map(Realm::getFullPath).toList())));
 
         // Give manager entitlements
-        if (userDAO.isManager(user.getKey())) {
+        MutableBoolean manager = new MutableBoolean(false);
+        userDAO.findManagedUsers(user.getKey()).forEach(managedUser -> {
+            USER_MANAGER_ENTITLEMENTS.forEach(e -> populateEntForRealms(
+                    entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                            managedUser.getRealm().getFullPath(),
+                            AnyTypeKind.USER,
+                            managedUser.getKey()).output())));
+            manager.setTrue();
+        });
+
+        userDAO.findManagedGroups(user.getKey()).forEach(group -> {
+            GROUP_MANAGER_ENTITLEMENTS.forEach(e -> populateEntForRealms(
+                    entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
+                            group.getRealm().getFullPath(),
+                            AnyTypeKind.GROUP,
+                            group.getKey()).output())));
+            manager.setTrue();
+        });
+
+        userDAO.findManagedAnyObjects(user.getKey()).forEach(anyObject -> {
+            ANYOBJECT_MANAGER_ENTITLEMENTS.apply(anyObject.getType().getKey()).forEach(e -> populateEntForRealms(
+                    entForRealms, e, Set.of(
+                            new RealmUtils.ManagerRealm(
+                                    anyObject.getRealm().getFullPath(),
+                                    AnyTypeKind.ANY_OBJECT,
+                                    anyObject.getKey()).output())));
+            manager.setTrue();
+        });
+
+        if (manager.isTrue()) {
             BASE_MANAGER_ENTITLEMENTS.forEach(e -> populateEntForRealms(
                     entForRealms, e, SyncopeConstants.FULL_ADMIN_REALMS));
         }
-
-        userDAO.findManagedUsers(user.getKey()).forEach(managedUser -> USER_MANAGER_ENTITLEMENTS.
-                forEach(e -> populateEntForRealms(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
-                        managedUser.getRealm().getFullPath(),
-                        AnyTypeKind.USER,
-                        managedUser.getKey()).output()))));
-
-        userDAO.findManagedGroups(user.getKey()).forEach(group -> GROUP_MANAGER_ENTITLEMENTS.
-                forEach(e -> populateEntForRealms(entForRealms, e, Set.of(new RealmUtils.ManagerRealm(
-                        group.getRealm().getFullPath(),
-                        AnyTypeKind.GROUP,
-                        group.getKey()).output()))));
-
-        userDAO.findManagedAnyObjects(user.getKey()).forEach(anyObject -> ANYOBJECT_MANAGER_ENTITLEMENTS.
-                apply(anyObject.getType().getKey()).forEach(e -> populateEntForRealms(entForRealms, e, Set.of(
-                new RealmUtils.ManagerRealm(
-                        anyObject.getRealm().getFullPath(),
-                        AnyTypeKind.ANY_OBJECT,
-                        anyObject.getKey()).output()))));
 
         return buildAuthorities(entForRealms);
     }

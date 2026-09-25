@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -47,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
@@ -138,72 +140,82 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return users + groups + anyObjects > 0;
     }
 
+    protected Stream<String> findUMembershipGroups(final String key) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT group_id FROM " + JPAUMembership.TABLE + " WHERE user_id=?");
+        query.setParameter(1, key);
+
+        @SuppressWarnings("unchecked")
+        List<Object> groups = query.getResultList();
+        return groups.stream().map(String.class::cast);
+    }
+
     @Override
     public List<User> findManagedUsers(final String key) {
         List<User> result = new ArrayList<>();
 
-        // 1. users having uManager set to the requested user
+        // (a) see UserDAO#findManagedUsers
         TypedQuery<User> users = entityManager.createQuery(
                 "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.uManager.id=:key", User.class);
         users.setParameter("key", key);
         result.addAll(users.getResultList());
 
-        // 2. user members of groups having uManager set to the requested user
+        // (b) see UserDAO#findManagedUsers
         findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
-                forEach(member -> Optional.ofNullable(entityManager.find(JPAUser.class, member)).
-                ifPresent(result::add)));
+                forEach(m -> Optional.ofNullable(entityManager.find(JPAUser.class, m)).ifPresent(result::add)));
 
-        // 3. users managed by groups the requested user is member of
-        Query query = entityManager.createNativeQuery(
-                "SELECT DISTINCT group_id FROM " + JPAUMembership.TABLE + " WHERE user_id=?");
-        query.setParameter(1, key);
-        @SuppressWarnings("unchecked")
-        List<Object> groups = query.getResultList();
-        groups.stream().map(String.class::cast).forEach(group -> result.addAll(groupDAO.findManagedUsers(group)));
+        // (c) see UserDAO#findManagedUsers
+        // (d) see UserDAO#findManagedUsers
+        findUMembershipGroups(key).forEach(group -> result.addAll(groupDAO.findManagedUsers(group)));
 
         return result.stream().distinct().toList();
     }
 
-    protected List<String> findManagedGroupKeys(final String key) {
+    protected Stream<String> findManagedGroupKeys(final String key) {
         Query query = entityManager.createNativeQuery(
                 "SELECT DISTINCT id FROM " + JPAGroup.TABLE + " WHERE uManager_id=?");
         query.setParameter(1, key);
 
         @SuppressWarnings("unchecked")
         List<Object> result = query.getResultList();
-        return result.stream().map(String.class::cast).toList();
+        return result.stream().map(String.class::cast);
     }
 
     @Override
     public List<Group> findManagedGroups(final String key) {
-        return findManagedGroupKeys(key).stream().
-                map(group -> Optional.ofNullable(entityManager.find(JPAGroup.class, group))).
-                flatMap(Optional::stream).
-                map(Group.class::cast).
-                toList();
+        List<Group> result = new ArrayList<>();
+
+        // (a) see UserDAO#findManagedGroups
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findById(group).ifPresent(result::add));
+
+        // (b) see UserDAO#findManagedGroups
+        findUMembershipGroups(key).forEach(g -> result.addAll(groupDAO.findManagedGroups(g)));
+
+        return result.stream().distinct().toList();
     }
 
     @Override
     public List<AnyObject> findManagedAnyObjects(final String key) {
         List<AnyObject> result = new ArrayList<>();
 
-        // 1. anyObjects having uManager set to the requested user
+        // (a) see UserDAO#findManagedAnyObjects
         TypedQuery<AnyObject> anyObjects = entityManager.createQuery(
                 "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.uManager.id=:key", AnyObject.class);
         anyObjects.setParameter("key", key);
         result.addAll(anyObjects.getResultList());
 
-        // 2. anyObject members of groups having uManager set to the requested user
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
-                forEach(member -> Optional.ofNullable(entityManager.find(JPAAnyObject.class, member)).
-                ifPresent(result::add)));
+        // (b) see UserDAO#findManagedAnyObjects
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findAMembers(group).
+                forEach(m -> Optional.ofNullable(entityManager.find(JPAAnyObject.class, m)).ifPresent(result::add)));
 
-        // 3. anyObject managed by groups the requested user is member of
         Query query = entityManager.createNativeQuery(
-                "SELECT DISTINCT group_id FROM " + JPAUMembership.TABLE + " WHERE user_id=?");
+                "SELECT DISTINCT group_id FROM " + JPAAMembership.TABLE + " WHERE anyObject_id=?");
         query.setParameter(1, key);
         @SuppressWarnings("unchecked")
         List<Object> groups = query.getResultList();
+
+        // (c) see UserDAO#findManagedAnyObjects
+        // (d) see UserDAO#findManagedAnyObjects
         groups.stream().map(String.class::cast).forEach(group -> result.addAll(groupDAO.findManagedAnyObjects(group)));
 
         return result.stream().distinct().toList();

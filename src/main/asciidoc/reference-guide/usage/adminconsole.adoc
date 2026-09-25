@@ -52,19 +52,25 @@ image::console-mfa-login.png[console-mfa-login]
 
 The Admin UI is accessible to the visually impaired.
 
-The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
-be used to easily toggle "High contrast mode" by using the keyboard.
-In this mode, the website colors are switched to a higher contrast color schema.
+The theme switcher allows choosing between light, dark, and automatic themes.
+The `U`, `L`, and `D` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcuts can
+be used to switch themes using the keyboard.
 
 E.g. 
 |===
 |Shortcut |Purpose
 
-|`Alt` + `Shift` + `H`
-|Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
+|`Alt` + `Shift` + `U`
+|Switch to automatic theme on Firefox and Chrome browsers on Linux
+
+|`Alt` + `Shift` + `L`
+|Switch to light theme on Firefox and Chrome browsers on Linux
+
+|`Alt` + `Shift` + `D`
+|Switch to dark theme on Firefox and Chrome browsers on Linux
 |===
 
-The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
+The `S` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
 be used to easily toggle "Increased font mode" by using the keyboard.
 In this mode, the website font size is increased.
 
@@ -72,7 +78,7 @@ E.g.
 |===
 |Shortcut |Purpose
 
-|`Alt` + `Shift` + `F`
+|`Alt` + `Shift` + `S`
 |Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
 |===
 

@@ -42,20 +42,79 @@ under the License.
 
   <body class="login-body">
     <div id="accessibility">
-      <div id="change_contrast" class="btn-accessibility">
-        <i aria-label="Toggle high contrast colors mode" tabindex="0" accesskey="H"
-           class="fa fa-adjust">
-        </i>
+      <div id="change_theme">
+        <div class="btn-accessibility"
+             data-bs-theme-value="light">
+          <i aria-label="Switch to light theme"
+             accesskey="L"
+             class="fa fa-sun">
+          </i>
+        </div>
+
+        <div class="btn-accessibility"
+             data-bs-theme-value="dark">
+          <i aria-label="Switch to dark theme"
+             accesskey="D"
+             class="fa fa-moon">
+          </i>
+        </div>
+
+        <div class="btn-accessibility"
+             data-bs-theme-value="auto">
+          <i aria-label="Switch to automatic theme"
+             accesskey="A"
+             class="fa fa-adjust">
+          </i>
+        </div>
       </div>
+
       <div id="change_fontSize" class="btn-accessibility">
-        <i aria-label="Toggle font size increment" tabindex="1" accesskey="F"
+        <i aria-label="Toggle font size increment"
+           tabindex="1"
+           accesskey="S"
            class="fa fa-font">
         </i>
       </div>
     </div>
+
+    <script>
+      $(function () {
+        const $themeButtons = $('#change_theme [data-bs-theme-value]');
+
+        function updateThemeButton(theme) {
+          $themeButtons.hide();
+
+          const nextTheme = {
+            auto: 'light',
+            light: 'dark',
+            dark: 'auto'
+          }[theme] || 'light';
+
+          const $button = $themeButtons.filter(`[data-bs-theme-value="${nextTheme}"]`);
+
+          $button.show();
+        }
+
+        document.addEventListener('changed.lte.color-mode', function (event) {
+          updateThemeButton(event.detail.theme);
+        });
+
+        const currentTheme = localStorage.getItem('lte-theme') || 'auto';
+        updateThemeButton(currentTheme);
+      });
+    </script>
+
     <div class="container">
       <div class="login-card card card-container">
-        <img class="login-logo" src="ui-commons/img/logo-green.png"/>
+        <div class="login-logo">
+          <img class="login-logo-light"
+               src="ui-commons/img/logo-green.png"
+               alt="Apache Syncope"/>
+
+          <img class="login-logo-dark"
+               src="ui-commons/img/logo.png"
+               alt="Apache Syncope"/>
+        </div>
 
         <span wicket:id="feedback" role="alert"/>
 

@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -17,205 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+$(function () {
+    const locationDomain = window.location.origin + '/' + window.location.pathname.split('/')[1];
+    const fontSizeCss = locationDomain + '/ui-commons/css/accessibility/accessibilityFont.css';
+    const fontSizePreference = 'font_size_pref';
 
-$(document).ready(function () {
+    let increasedFont = localStorage.getItem(fontSizePreference) === 'true';
 
-  var locationDomain = window.location.origin + '/' + window.location.pathname.split('/')[1];
+    const switchFontSize = () => {
+        const $stylesheet = $('link#font_size_css');
 
-  var initAssetsManager = function () {
-    var AssetsManager = {};
-
-    var createLink = function (id, url) {
-      if (!$('link#' + id).length && !$('link[href="' + url + '"').length) {
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = url;
-        link.type = "text/css";
-        $('head').append(link);
-      }
-    };
-
-    var createScript = function (id, url) {
-      if (!$('script#' + id).length && !$('script[src="' + url + '"').length) {
-        var script = document.createElement('script');
-        script.src = url;
-        $('body').append(script);
-      }
-    };
-
-    AssetsManager.checkAlreadyLoaded = function (url, type) {
-      var elems = (type === 'css') ? document.styleSheets : ((type === 'js') ? document.scripts : '');
-      var attr = (type === 'js') ? 'src' : ((type === 'css') ? 'href' : 'none');
-      for (var i in elems) {
-        var attrUrl = elems[i][attr] || "";
-        var assetName = attrUrl.split("/").slice(-1).join();
-        if (attrUrl !== ""
-                && (assetName === url.split("/").slice(-1).join() || assetName === url)) {
-          return true;
+        if (increasedFont) {
+            if (!$stylesheet.length) {
+                $('<link>', {
+                    id: 'font_size_css',
+                    rel: 'stylesheet',
+                    href: fontSizeCss
+                }).appendTo('head');
+            }
+        } else {
+            $stylesheet.remove();
         }
-      }
-      return false;
+
+        localStorage.setItem(fontSizePreference, increasedFont);
     };
 
-    var removeLoaded = function (url, type) {
-      var tag = (type === 'js') ? 'script' : ((type === 'css') ? 'link' : '');
-      if (AssetsManager.checkAlreadyLoaded(url, type)) {
-        $(tag + '[href~="' + url + '"]').remove();
-      }
+    const toggleFontSize = () => {
+        increasedFont = !increasedFont;
+        switchFontSize();
     };
 
-    AssetsManager.inject = function (id, url, type) {
-      switch (type) {
-        case 'js':
-          createScript(id, url);
-          break;
+    switchFontSize();
 
-        case 'css':
-          createLink(id, url);
-          break;
-
-        default:
-          break;
-      }
-    };
-
-    AssetsManager.remove = function (url, type) {
-      removeLoaded(url, type);
-    };
-
-    return AssetsManager;
-  };
-
-  var initAccessibilityController = function () {
-    AccessibilityController = {};
-
-    var AssetsManager = initAssetsManager();
-
-    var fontSizeFiles = [
-      locationDomain + '/ui-commons/css/accessibility/accessibilityFont.css'
-    ];
-
-    var darkThemeFiles = [
-      locationDomain + '/ui-commons/css/accessibility/accessibilityHC.css'
-    ];
-
-    var darkThemeMainClass = 'dark-theme';
-
-    var doSwitch = function (check, files) {
-      if (!check) {
-        for (var i = 0; i < files.length; i++) {
-          AssetsManager.remove(files[i], 'css');
-        }
-      } else {
-        for (var i = 0; i < files.length; i++) {
-          AssetsManager.inject('theme_css_' + i, files[i], 'css');
-        }
-      }
-    };
-
-    var doSwitchTheme = function (check, files) {
-      doSwitch(check, files);
-    };
-
-    var savePreference = function (key, value) {
-      window.localStorage.setItem(key, value);
-    };
-
-    var getPreference = function (key) {
-      var storageValue = window.localStorage.getItem(key);
-      if (storageValue === null) {
-        savePreference(key, 'false');
-      }
-      return storageValue === 'true';
-    };
-
-    AccessibilityController.FONT_SIZE_PREF = 'font_size_pref';
-    AccessibilityController.HC_THEME_PREF = 'hc_theme_pref';
-
-    var isIncreasedFont = getPreference(AccessibilityController.FONT_SIZE_PREF);
-    var isHighContrast = getPreference(AccessibilityController.HC_THEME_PREF);
-
-    AccessibilityController.checkPref = function (pref) {
-      switch (pref) {
-        case AccessibilityController.FONT_SIZE_PREF:
-          doSwitch(isIncreasedFont, fontSizeFiles);
-          break;
-
-        case AccessibilityController.HC_THEME_PREF:
-          doSwitchTheme(isHighContrast, darkThemeFiles);
-          break;
-
-        default:
-          break;
-      }
-    };
-
-    AccessibilityController.switchIncreasedFont = function () {
-      isIncreasedFont = !isIncreasedFont;
-      doSwitch(isIncreasedFont, fontSizeFiles);
-      savePreference(AccessibilityController.FONT_SIZE_PREF, isIncreasedFont);
-    };
-
-    AccessibilityController.switchTheme = function () {
-      isHighContrast = !isHighContrast;
-      doSwitchTheme(isHighContrast, darkThemeFiles);
-      savePreference(AccessibilityController.HC_THEME_PREF, isHighContrast);
-    };
-
-    return AccessibilityController;
-  };
-
-  var AccessibilityController = initAccessibilityController();
-
-  AccessibilityController.checkPref(AccessibilityController.FONT_SIZE_PREF);
-  AccessibilityController.checkPref(AccessibilityController.HC_THEME_PREF);
-
-  $('#change_contrast').off('click.acc_hc');
-  $('#change_contrast').on('click.acc_hc', function () {
-    AccessibilityController.switchTheme();
-    return false;
-  });
-
-  $('#change_contrast').off('keydown.key_acc_hc keypress.key_acc_hc');
-  $('#change_contrast').on('keydown.key_acc_hc keypress.key_acc_hc', function (event) {
-    // check "enter" key pressed
-    if (event.which === 13) {
-      AccessibilityController.switchTheme();
-
-      event.preventDefault();
-      return false;
-    }
-  });
-
-  $('#change_fontSize').off('click.acc_f');
-  $('#change_fontSize').on('click.acc_f', function () {
-    AccessibilityController.switchIncreasedFont();
-    return false;
-  });
-
-  $('#change_fontSize').off('keydown.key_acc_f keypress.key_acc_f');
-  $('#change_fontSize').on('keydown.key_acc_f keypress.key_acc_f', function (event) {
-    // check "enter" key pressed
-    if (event.which === 13) {
-      AccessibilityController.switchIncreasedFont();
-
-      event.preventDefault();
-      return false;
-    }
-  });
-
-  $('body').off('keydown.acc_binding keypress.acc_binding');
-  $('body').on('keydown.acc_binding keypress.acc_binding', function (event) {
-    // alt - shift - F
-    // alt - shift - H
-    if (event.altKey && event.shiftKey) {
-      if (event.keyCode === 72) {
-        AccessibilityController.switchTheme();
-      } else if (event.keyCode === 70) {
-        AccessibilityController.switchIncreasedFont();
-      }
-      event.preventDefault();
-    }
-  });
-
+    $('#change_fontSize')
+        .off('.acc_font')
+        .on('click.acc_font', function () {
+            toggleFontSize();
+            return false;
+        });
 });

@@ -38,8 +38,12 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     Optional<? extends Group> findByName(String name);
 
+    List<String> findKeysByNamePattern(String pattern);
+
     @Override
     Collection<String> findAllResourceKeys(String key);
+
+    Map<String, Long> countByRealm();
 
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
@@ -51,33 +55,73 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     void securityChecks(Set<String> authRealms, String key, String realm);
 
-    boolean isManager(String key);
-
-    List<User> findManagedUsers(String key);
-
-    List<Group> findManagedGroups(String key);
-
-    List<AnyObject> findManagedAnyObjects(String key);
-
-    Map<String, Long> countByRealm();
-
-    List<String> findKeysByNamePattern(String pattern);
-
-    List<AMembership> findAMemberships(Group group);
-
-    List<UMembership> findUMemberships(Group group, Pageable pageable);
-
-    List<String> findAMembers(String groupKey);
+    long countUMembers(String groupKey);
 
     List<String> findUMembers(String groupKey);
 
-    boolean existsAMembership(String anyObjectKey, String groupKey);
-
     boolean existsUMembership(String userKey, String groupKey);
+
+    List<UMembership> findUMemberships(Group group, Pageable pageable);
 
     long countAMembers(String groupKey);
 
-    long countUMembers(String groupKey);
+    List<String> findAMembers(String groupKey);
+
+    boolean existsAMembership(String anyObjectKey, String groupKey);
+
+    List<AMembership> findAMemberships(Group group);
 
     List<GroupTypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+
+    boolean isManager(String key);
+
+    /**
+     * Returns all users managed by the group for the given key.
+     *
+     * Given:
+     *   * group G1 for the provided key
+     *   * group G2, with user member U
+     *
+     * then we have 2 cases where U is managed by G1:
+     *
+     * (a) U has gManager set to G1
+     * (b) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return users managed by the group for the given key
+     */
+    List<User> findManagedUsers(String key);
+
+    /**
+     * Returns all groups managed by the group for the given key.
+     *
+     * Given:
+     *   * group G1 for the provided key
+     *   * group G2
+     *
+     * then we have 1 case where G2 is managed by G1:
+     *
+     * (a) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return groups managed by the group for the given key
+     */
+    List<Group> findManagedGroups(String key);
+
+    /**
+     * Returns all any objects managed by the group for the given key.
+     *
+     * Given:
+     *   * group G1 for the provided key
+     *   * group G2, with any object member O
+     *
+     * then we have 2 cases where O is managed by G1:
+     *
+     * (a) O has gManager set to G1
+     * (b) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return any objects managed by the group for the given key
+     */
+    List<AnyObject> findManagedAnyObjects(String key);
 }
