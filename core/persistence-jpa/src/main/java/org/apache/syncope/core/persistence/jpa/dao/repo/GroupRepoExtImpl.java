@@ -21,12 +21,15 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -88,6 +91,25 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         this.anyObjectDAO = anyObjectDAO;
     }
 
+    @Override
+    public Collection<String> findAllResourceKeys(final String key) {
+        return findById(key).map(Any::getResources).
+                orElseGet(List::of).
+                stream().map(ExternalResource::getKey).toList();
+    }
+
+    @Override
+    public Map<String, Long> countByRealm() {
+        Query query = entityManager.createQuery(
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        return results.stream().collect(Collectors.toMap(
+                result -> ((Realm) result[0]).getFullPath(),
+                result -> ((Number) result[1]).longValue()));
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void securityChecks(
@@ -120,6 +142,92 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
+    public long countUMembers(final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<String> findUMembers(final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().map(String.class::cast).toList();
+    }
+
+    @Override
+    public boolean existsUMembership(final String userKey, final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
+        query.setParameter(1, groupKey);
+        query.setParameter(2, userKey);
+
+        return ((Number) query.getSingleResult()).longValue() > 0;
+    }
+
+    @Override
+    public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
+        TypedQuery<UMembership> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAUMembership.class.getSimpleName()
+                + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                UMembership.class);
+        query.setParameter("group", group);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
+        }
+
+        return query.getResultList();
+    }
+
+    @Override
+    public long countAMembers(final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        return ((Number) query.getSingleResult()).longValue();
+
+    }
+
+    @Override
+    public List<String> findAMembers(final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().map(String.class::cast).toList();
+    }
+
+    @Override
+    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
+        query.setParameter(1, groupKey);
+        query.setParameter(2, anyObjectKey);
+
+        return ((Number) query.getSingleResult()).longValue() > 0;
+    }
+
+    @Override
+    public List<AMembership> findAMemberships(final Group group) {
+        TypedQuery<AMembership> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAAMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
+                AMembership.class);
+        query.setParameter("group", group);
+
+        return query.getResultList();
+    }
+
+    @Override
     public boolean isManager(final String key) {
         Query user = entityManager.createNativeQuery(
                 "SELECT COUNT(*) FROM " + JPAUser.TABLE + " WHERE gManager_id=?");
@@ -140,93 +248,55 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public List<User> findManagedUsers(final String key) {
+        List<User> result = new ArrayList<>();
+
+        // (a) see GroupDAO#findManagedUsers
         TypedQuery<User> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.gManager.id=:key", User.class);
         query.setParameter("key", key);
-        return query.getResultList();
+        result.addAll(query.getResultList());
+
+        // (b) see GroupDAO#findManagedUsers
+        findManagedGroupKeys(key).forEach(group -> findUMembers(group).
+                forEach(m -> userDAO.findById(m).ifPresent(result::add)));
+
+        return result.stream().distinct().toList();
+    }
+
+    protected Stream<String> findManagedGroupKeys(final String key) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT id FROM " + JPAGroup.TABLE + " WHERE gManager_id=?");
+        query.setParameter(1, key);
+
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().map(String.class::cast);
     }
 
     @Override
     public List<Group> findManagedGroups(final String key) {
-        TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.gManager.id=:key", Group.class);
-        query.setParameter("key", key);
-        return query.getResultList();
+        return findManagedGroupKeys(key).
+                map(group -> Optional.ofNullable(entityManager.find(JPAGroup.class, group))).
+                flatMap(Optional::stream).
+                map(Group.class::cast).
+                toList();
     }
 
     @Override
     public List<AnyObject> findManagedAnyObjects(final String key) {
+        List<AnyObject> result = new ArrayList<>();
+
+        // (a) see GroupDAO#findManagedAnyObjects
         TypedQuery<AnyObject> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.gManager.id=:key", AnyObject.class);
         query.setParameter("key", key);
-        return query.getResultList();
-    }
+        result.addAll(query.getResultList());
 
-    @Override
-    public Map<String, Long> countByRealm() {
-        Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
+        // (b) see GroupDAO#findManagedUsers
+        findManagedGroupKeys(key).forEach(group -> findAMembers(group).
+                forEach(m -> anyObjectDAO.findById(m).ifPresent(result::add)));
 
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-        return results.stream().collect(Collectors.toMap(
-                result -> ((Realm) result[0]).getFullPath(),
-                result -> ((Number) result[1]).longValue()));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Collection<String> findAllResourceKeys(final String key) {
-        return findById(key).map(Any::getResources).
-                orElseGet(List::of).
-                stream().map(ExternalResource::getKey).toList();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, anyObjectKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsUMembership(final String userKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, userKey);
-
-        return ((Number) query.getSingleResult()).longValue() > 0;
-    }
-
-    @Override
-    public List<AMembership> findAMemberships(final Group group) {
-        TypedQuery<AMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAAMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
-                AMembership.class);
-        query.setParameter("group", group);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
-        TypedQuery<UMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAUMembership.class.getSimpleName()
-                + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
-                UMembership.class);
-        query.setParameter("group", group);
-        if (pageable.isPaged()) {
-            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
-            query.setMaxResults(pageable.getPageSize());
-        }
-
-        return query.getResultList();
+        return result.stream().distinct().toList();
     }
 
     @Override

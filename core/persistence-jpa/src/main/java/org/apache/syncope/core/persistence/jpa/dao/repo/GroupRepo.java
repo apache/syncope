@@ -41,20 +41,4 @@ public interface GroupRepo
     @Query("SELECT e FROM #{#entityName} e WHERE e.id IN (:keys)")
     @Override
     List<Group> findByKeys(@Param("keys") List<String> keys);
-
-    @Query("SELECT DISTINCT e.leftEnd.id FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
-    @Override
-    List<String> findAMembers(@Param("groupKey") String groupKey);
-
-    @Query("SELECT DISTINCT e.leftEnd.id FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
-    @Override
-    List<String> findUMembers(@Param("groupKey") String groupKey);
-
-    @Query("SELECT COUNT(DISTINCT e.leftEnd.id) FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
-    @Override
-    long countAMembers(@Param("groupKey") String groupKey);
-
-    @Query("SELECT COUNT(DISTINCT e.leftEnd.id) FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
-    @Override
-    long countUMembers(@Param("groupKey") String groupKey);
 }

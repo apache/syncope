@@ -2087,33 +2087,33 @@ under the License.
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <configuration>
-          <excludes>
-            <exclude>**/nbactions.xml</exclude>
-            <exclude>**/nb-configuration.xml</exclude>
-            <exclude>**/META-INF/cxf/**</exclude>
-            <exclude>**/META-INF/services/**</exclude>
-            <exclude>**/META-INF/MANIFEST.MF</exclude>
-            <exclude>**/*.csv</exclude>
-            <exclude>**/archetype-resources/**</exclude>
-            <exclude>**/adminlte*</exclude>
-            <exclude>**/dataTables.bootstrap5.min.css</exclude>
-            <exclude>**/goal.txt</exclude>
-            <exclude>**/rat.txt</exclude>
-            <exclude>**/build-copy-javadoc-files.xml</exclude>
-            <exclude>**/maven-eclipse.xml</exclude>
-            <exclude>**/*.iml</exclude>
-            <exclude>**/*.log</exclude>
-            <exclude>**/.externalToolBuilders/**</exclude>
-            <exclude>.git/**</exclude>
-            <exclude>.idea/**</exclude>
-            <exclude>**/.settings/**</exclude>
-            <exclude>**/.*</exclude>
-            <exclude>**/*.lst</exclude>
-            <exclude>**/*.json</exclude>
-            <exclude>**/*font*awesome*</exclude>
-            <exclude>**/banner.txt</exclude>
-            <exclude>**/target/**</exclude>
-          </excludes>
+          <inputExcludes>
+            <inputExclude>**/nbactions.xml</inputExclude>
+            <inputExclude>**/nb-configuration.xml</inputExclude>
+            <inputExclude>**/META-INF/cxf/**</inputExclude>
+            <inputExclude>**/META-INF/services/**</inputExclude>
+            <inputExclude>**/META-INF/MANIFEST.MF</inputExclude>
+            <inputExclude>**/*.csv</inputExclude>
+            <inputExclude>**/archetype-resources/**</inputExclude>
+            <inputExclude>**/adminlte*</inputExclude>
+            <inputExclude>**/dataTables.bootstrap5.min.css</inputExclude>
+            <inputExclude>**/goal.txt</inputExclude>
+            <inputExclude>**/rat.txt</inputExclude>
+            <inputExclude>**/build-copy-javadoc-files.xml</inputExclude>
+            <inputExclude>**/maven-eclipse.xml</inputExclude>
+            <inputExclude>**/*.iml</inputExclude>
+            <inputExclude>**/*.log</inputExclude>
+            <inputExclude>**/.externalToolBuilders/**</inputExclude>
+            <inputExclude>.git/**</inputExclude>
+            <inputExclude>.idea/**</inputExclude>
+            <inputExclude>**/.settings/**</inputExclude>
+            <inputExclude>**/.*</inputExclude>
+            <inputExclude>**/*.lst</inputExclude>
+            <inputExclude>**/*.json</inputExclude>
+            <inputExclude>**/*font*awesome*</inputExclude>
+            <inputExclude>**/banner.txt</inputExclude>
+            <inputExclude>**/target/**</inputExclude>
+          </inputExcludes>
         </configuration>
         <executions>
           <execution>

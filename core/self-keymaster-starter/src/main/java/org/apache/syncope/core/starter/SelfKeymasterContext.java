@@ -205,7 +205,7 @@ public class SelfKeymasterContext {
         openapiFeature.setUseContextBasedConfig(true);
         openapiFeature.setTitle("Apache Syncope Self Keymaster");
         openapiFeature.setVersion(version);
-        openapiFeature.setDescription("Apache Syncope Self Keymaster" + version);
+        openapiFeature.setDescription("Apache Syncope Self Keymaster " + version);
         openapiFeature.setContactName("The Apache Syncope community");
         openapiFeature.setContactEmail("dev@syncope.apache.org");
         openapiFeature.setContactUrl("https://syncope.apache.org");

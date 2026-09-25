@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -58,6 +59,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
@@ -166,16 +168,44 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
     @Override
     public boolean isManager(final String key) {
-        return !findManagedUsers(key).isEmpty()
-                || !findManagedGroups(key).isEmpty()
-                || !findManagedAnyObjects(key).isEmpty();
+        long users = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jUser.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        long groups = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jGroup.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        long anyObjects = neo4jTemplate.count(
+                "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
+                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
+                + "(p:" + Neo4jAnyObject.NODE + ") "
+                + "RETURN COUNT(p.id)",
+                Map.of("key", key));
+
+        return users + groups + anyObjects > 0;
+    }
+
+    protected Stream<String> findUMembershipGroups(final String key) {
+        Collection<Map<String, Object>> result = neo4jClient.query(
+                "MATCH (u:" + Neo4jUser.NODE + " {id: $key})-[]-"
+                + "(n:" + Neo4jUMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + ") "
+                + "RETURN g.id").bindAll(Map.of("key", key)).fetch().all();
+        return result.stream().map(found -> found.get("g.id").toString());
     }
 
     @Override
     public List<User> findManagedUsers(final String key) {
         List<User> result = new ArrayList<>();
 
-        // 1. users having uManager set to the requested user
+        // (a) see UserDAO#findManagedUsers
         result.addAll(toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
                 + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
@@ -185,35 +215,44 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 Neo4jUser.class,
                 userCache));
 
-        // 2. user members of groups having uManager set to the requested user
-        findManagedGroups(key).forEach(group -> groupDAO.findUMembers(group.getKey()).
-                forEach(member -> findById(member).
-                ifPresent(result::add)));
+        // (b) see UserDAO#findManagedUsers
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
+                forEach(m -> findById(m).ifPresent(result::add)));
 
-        // 3. users managed by groups the requested user is member of
-        findById(key).ifPresent(user -> user.getMemberships().
-                forEach(m -> result.addAll(groupDAO.findManagedUsers(m.getRightEnd().getKey()))));
+        // (c) see UserDAO#findManagedUsers
+        // (d) see UserDAO#findManagedUsers
+        findUMembershipGroups(key).forEach(group -> result.addAll(groupDAO.findManagedUsers(group)));
 
         return result.stream().distinct().toList();
     }
 
-    @Override
-    public List<Group> findManagedGroups(final String key) {
-        return toList(neo4jClient.query(
+    protected Stream<String> findManagedGroupKeys(final String key) {
+        Collection<Map<String, Object>> result = neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
                 + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
-                "p.id",
-                Neo4jGroup.class,
-                groupCache);
+                + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all();
+        return result.stream().map(found -> found.get("p.id").toString());
+    }
+
+    @Override
+    public List<Group> findManagedGroups(final String key) {
+        List<Group> result = new ArrayList<>();
+
+        // (a) see UserDAO#findManagedGroups
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findById(group).ifPresent(result::add));
+
+        // (b) see UserDAO#findManagedGroups
+        findUMembershipGroups(key).forEach(g -> result.addAll(groupDAO.findManagedGroups(g)));
+
+        return result.stream().distinct().toList();
     }
 
     @Override
     public List<AnyObject> findManagedAnyObjects(final String key) {
         List<AnyObject> result = new ArrayList<>();
 
-        // 1. anyObjects having uManager set to the requested user
+        // (a) see UserDAO#findManagedAnyObjects
         result.addAll(toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-"
                 + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
@@ -223,14 +262,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 Neo4jAnyObject.class,
                 anyObjectCache));
 
-        // 2. anyObject members of groups having uManager set to the requested user
-        findManagedGroups(key).forEach(group -> groupDAO.findAMembers(group.getKey()).
-                forEach(member -> findById(member, Neo4jAnyObject.class, anyObjectCache).
-                ifPresent(result::add)));
+        // (b) see UserDAO#findManagedAnyObjects
+        findManagedGroupKeys(key).forEach(group -> groupDAO.findAMembers(group).
+                forEach(m -> findById(m, Neo4jAnyObject.class, anyObjectCache).ifPresent(result::add)));
 
-        // 3. anyObject managed by groups the requested user is member of
-        findById(key).ifPresent(user -> user.getMemberships().
-                forEach(m -> result.addAll(groupDAO.findManagedAnyObjects(m.getRightEnd().getKey()))));
+        Collection<Map<String, Object>> membershipQueryResult = neo4jClient.query(
+                "MATCH (u:" + Neo4jAnyObject.NODE + " {id: $key})-[]-"
+                + "(n:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + ") "
+                + "RETURN g.id").bindAll(Map.of("key", key)).fetch().all();
+        Stream<String> groups = membershipQueryResult.stream().map(found -> found.get("g.id").toString());
+
+        // (c) see UserDAO#findManagedAnyObjects
+        // (d) see UserDAO#findManagedAnyObjects
+        groups.map(String.class::cast).forEach(group -> result.addAll(groupDAO.findManagedAnyObjects(group)));
 
         return result.stream().distinct().toList();
     }
@@ -321,25 +366,25 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         neo4jTemplate.findById(user.getKey(), Neo4jUser.class).ifPresent(before -> {
             before.getRoles().stream().filter(role -> !user.getRoles().contains(role)).
                     forEach(role -> deleteRelationship(
-                    Neo4jUser.NODE,
-                    Neo4jRole.NODE,
-                    user.getKey(),
-                    role.getKey(),
-                    Neo4jUser.ROLE_MEMBERSHIP_REL));
+                            Neo4jUser.NODE,
+                            Neo4jRole.NODE,
+                            user.getKey(),
+                            role.getKey(),
+                            Neo4jUser.ROLE_MEMBERSHIP_REL));
             before.getResources().stream().filter(resource -> !user.getResources().contains(resource)).
                     forEach(resource -> deleteRelationship(
-                    Neo4jUser.NODE,
-                    Neo4jExternalResource.NODE,
-                    user.getKey(),
-                    resource.getKey(),
-                    Neo4jUser.USER_RESOURCE_REL));
+                            Neo4jUser.NODE,
+                            Neo4jExternalResource.NODE,
+                            user.getKey(),
+                            resource.getKey(),
+                            Neo4jUser.USER_RESOURCE_REL));
             before.getAuxClasses().stream().filter(auxClass -> !user.getAuxClasses().contains(auxClass)).
                     forEach(auxClass -> deleteRelationship(
-                    Neo4jUser.NODE,
-                    Neo4jAnyTypeClass.NODE,
-                    user.getKey(),
-                    auxClass.getKey(),
-                    Neo4jUser.USER_AUX_CLASSES_REL));
+                            Neo4jUser.NODE,
+                            Neo4jAnyTypeClass.NODE,
+                            user.getKey(),
+                            auxClass.getKey(),
+                            Neo4jUser.USER_AUX_CLASSES_REL));
             if (before.getuManager() != null && user.getuManager() == null) {
                 deleteRelationship(
                         Neo4jUser.NODE,
