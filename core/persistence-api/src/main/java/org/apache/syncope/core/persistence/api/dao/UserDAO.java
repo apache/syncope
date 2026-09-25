@@ -51,10 +51,59 @@ public interface UserDAO extends AnyDAO<User> {
 
     boolean isManager(String key);
 
+    /**
+     * Returns all users managed by the user for the given key.
+     *
+     * Given:
+     *   * user U1 for the provided key, member of group G1
+     *   * user U2, member of group G2
+     *
+     * then we have 4 cases where U2 is managed by U1:
+     *
+     * (a) U2 has uManager set to U1
+     * (b) G2 has uManager set to U1
+     * (c) U2 has gManager set to G1
+     * (d) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return users managed by the user for the given key
+     */
     List<User> findManagedUsers(String key);
 
+    /**
+     * Returns all groups managed by the user for the given key.
+     *
+     * Given:
+     *   * user U1 for the provided key, member of group G1
+     *   * group G2
+     *
+     * then we have 2 cases where G2 is managed by U1:
+     *
+     * (a) G2 has uManager set to U1
+     * (b) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return groups managed by the user for the given key
+     */
     List<Group> findManagedGroups(String key);
 
+    /**
+     * Returns all any objects managed by the user for the given key.
+     *
+     * Given:
+     *   * user U for the provided key, member of group G1
+     *   * any object O, member of group G2
+     *
+     * then we have 4 cases where O is managed by U:
+     *
+     * (a) O has uManager set to U
+     * (b) G2 has uManager set to U
+     * (c) O has gManager set to G1
+     * (d) G2 has gManager set to G1
+     *
+     * @param key manager key
+     * @return any objects managed by the user for the given key
+     */
     List<AnyObject> findManagedAnyObjects(String key);
 
     Map<String, Long> countByRealm();
