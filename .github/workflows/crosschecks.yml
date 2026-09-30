@@ -50,7 +50,7 @@ jobs:
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: Validate
       if: runner.os == 'Linux'
-      run: mvn -T 1C checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check
+      run: mvn checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check
     - name: Test
       run: mvn -T 1C clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.phase=none' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
     - name: Start PostgreSQL on Windows
