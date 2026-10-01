@@ -438,7 +438,7 @@ under the License.
     <spring-boot.version>4.1.1</spring-boot.version>
     <spring-cloud-version>5.0.3</spring-cloud-version>
 
-    <hibernate.version>7.4.10.Final</hibernate.version>
+    <hibernate.version>7.4.11.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -452,14 +452,14 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.5.4</elasticsearch.version>
-    <opensearch.version>3.8.0</opensearch.version>
+    <opensearch.version>3.9.0</opensearch.version>
     <opensearch-java.version>3.10.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
     <debezium.version>3.4</debezium.version>
 
-    <commons-lang3.version>3.20.0</commons-lang3.version>
+    <commons-lang3.version>3.21.0</commons-lang3.version>
     <commons-jexl.version>3.7.0</commons-jexl.version>
     <commons-text.version>1.15.0</commons-text.version>
     <commons-codec.version>1.22.1</commons-codec.version>
@@ -945,7 +945,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>4.0.0</version>
+        <version>4.1.0</version>
       </dependency>
 
       <dependency>
