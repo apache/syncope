@@ -19,10 +19,8 @@
 package org.apache.syncope.common.keymaster.client.zookeeper;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import javax.security.auth.login.AppConfigurationEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -34,9 +32,7 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.client.ZKClientConfig;
-import org.apache.zookeeper.common.X509Util;
 import org.apache.zookeeper.data.ACL;
-import org.apache.zookeeper.server.auth.DigestLoginModule;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
@@ -69,9 +65,7 @@ public class ZookeeperKeymasterClientContext {
     @ConditionalOnMissingBean
     @Bean
     public ZKClientConfig zkClientConfig() {
-        ZKClientConfig zkClientConfig = new ZKClientConfig();
-        zkClientConfig.setProperty(X509Util.FIPS_MODE_PROPERTY, "false");
-        return zkClientConfig;
+        return new ZKClientConfig();
     }
 
     @Conditional(ZookeeperCondition.class)
@@ -80,31 +74,13 @@ public class ZookeeperKeymasterClientContext {
             final ZKClientConfig zkClientConfig,
             final KeymasterProperties props) throws InterruptedException {
 
-        if (StringUtils.isNotBlank(props.getUsername()) && StringUtils.isNotBlank(props.getPassword())) {
-            javax.security.auth.login.Configuration.setConfiguration(new javax.security.auth.login.Configuration() {
-
-                private final AppConfigurationEntry[] entries = {
-                    new AppConfigurationEntry(
-                    DigestLoginModule.class.getName(),
-                    AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                    Map.of(
-                    "username", props.getUsername(),
-                    "password", props.getPassword()
-                    ))
-                };
-
-                @Override
-                public AppConfigurationEntry[] getAppConfigurationEntry(final String name) {
-                    return entries;
-                }
-            });
-        }
-
         CuratorFrameworkFactory.Builder clientBuilder = CuratorFrameworkFactory.builder().
                 connectString(props.getAddress()).
                 retryPolicy(new ExponentialBackoffRetry(props.getBaseSleepTimeMs(), props.getMaxRetries()));
-        if (StringUtils.isNotBlank(props.getUsername())) {
-            clientBuilder.authorization("digest", props.getUsername().getBytes()).aclProvider(new ACLProvider() {
+
+        if (StringUtils.isNotBlank(props.getUsername()) && StringUtils.isNotBlank(props.getPassword())) {
+            String authString = props.getUsername() + ":" + props.getPassword();
+            clientBuilder.authorization("digest", authString.getBytes()).aclProvider(new ACLProvider() {
 
                 @Override
                 public List<ACL> getDefaultAcl() {
@@ -117,6 +93,7 @@ public class ZookeeperKeymasterClientContext {
                 }
             });
         }
+
         CuratorFramework client = clientBuilder.zkClientConfig(zkClientConfig).build();
         client.start();
         client.blockUntilConnected(3, TimeUnit.SECONDS);
