@@ -55,7 +55,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
                 System.setProperty(
                         "zookeeper.DigestAuthenticationProvider.superDigest",
                         DigestAuthenticationProvider.generateDigest(username.get() + ":" + password.get()));
-                InstanceSpec spec = new InstanceSpec(null, 2181, -1, -1, true, 1, -1, -1, Map.of());
+                InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, Map.of());
                 new TestingServer(spec, true);
             } catch (Exception e) {
                 fail(e);
