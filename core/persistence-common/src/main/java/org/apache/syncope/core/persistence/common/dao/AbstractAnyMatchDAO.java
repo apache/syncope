@@ -23,6 +23,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -59,6 +62,7 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -439,6 +443,31 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
 
                 // Deal with any fields representing relationships to other entities
                 relationshipFieldMatches(pd, cond, schema);
+                if (!(anyAttrValue instanceof String)) {
+
+                    try {
+                        Method relMethod = null;
+                        if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
+                            Class<?> type = pd.getPropertyType();
+
+                            if (type == Realm.class) {
+                                relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getFullPath");
+                            } else if (type == User.class) {
+                                relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getUsername");
+                            } else if (type == Group.class) {
+                                relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getName");
+                            }
+                        } else {
+                            relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getKey", new Class<?>[0]);
+                        }
+
+                        if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
+                            anyAttrValue = relMethod.invoke(anyAttrValue);
+                        }
+                    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
 
                 PlainAttrValue attrValue = new PlainAttrValue();
                 if (cond.getType() != AttrCond.Type.LIKE
