@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -79,8 +78,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
 
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
-                processEngine.getRepositoryService().createDeployment().addInputStream(
-                        userWorkflowDef.getFilename(), new ByteArrayInputStream(wfDef)).deploy();
+                FlowableDeployUtils.deployDefinition(processEngine, userWorkflowDef.getFilename(), wfDef);
 
                 ProcessDefinition procDef = processEngine.getRepositoryService().createProcessDefinitionQuery().
                         processDefinitionKey(FlowableRuntimeUtils.WF_PROCESS_ID).latestVersion().
