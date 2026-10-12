@@ -450,22 +450,23 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                         if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
                             Class<?> type = pd.getPropertyType();
 
-                            if (type == Realm.class) {
+                            if (Realm.class.isAssignableFrom(type)) {
                                 relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getFullPath");
-                            } else if (type == User.class) {
+                            } else if (User.class.isAssignableFrom(type)) {
                                 relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getUsername");
-                            } else if (type == Group.class) {
+                            } else if (Group.class.isAssignableFrom(type)) {
                                 relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getName");
                             }
                         } else {
-                            relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getKey", new Class<?>[0]);
+                            relMethod = ClassUtils.getPublicMethod(pd.getPropertyType(), "getKey");
                         }
 
                         if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
                             anyAttrValue = relMethod.invoke(anyAttrValue);
                         }
                     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                        throw new RuntimeException(e);
+                        LOG.error("Could not find getter method for relationshipField of type [{}]",
+                                pd.getPropertyType().getSimpleName(), e);
                     }
                 }
 
