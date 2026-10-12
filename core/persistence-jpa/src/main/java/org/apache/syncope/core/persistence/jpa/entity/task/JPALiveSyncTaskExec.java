@@ -23,11 +23,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 @Entity
 @Table(name = JPALiveSyncTaskExec.TABLE)
-public class JPALiveSyncTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
+public class JPALiveSyncTaskExec extends AbstractTaskExec<SchedTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 

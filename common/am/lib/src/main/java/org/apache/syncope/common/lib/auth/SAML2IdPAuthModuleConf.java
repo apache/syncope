@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.TriStateBoolean;
 
-public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthModuleConf {
+public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 

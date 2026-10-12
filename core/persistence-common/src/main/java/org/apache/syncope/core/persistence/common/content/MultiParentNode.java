@@ -102,7 +102,6 @@ public class MultiParentNode {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        @SuppressWarnings("unchecked")
         final MultiParentNode other = (MultiParentNode) obj;
         return new EqualsBuilder().
                 append(object, other.object).

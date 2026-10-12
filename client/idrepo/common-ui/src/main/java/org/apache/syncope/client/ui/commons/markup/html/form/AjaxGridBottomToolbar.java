@@ -123,7 +123,6 @@ public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableToolba
         };
     }
 
-    @SuppressWarnings("unchecked")
     protected List<AbstractEditablePropertyColumn<T, S>> getEditableColumns() {
         List<AbstractEditablePropertyColumn<T, S>> columns = new ArrayList<>();
         getTable().getColumns().stream().

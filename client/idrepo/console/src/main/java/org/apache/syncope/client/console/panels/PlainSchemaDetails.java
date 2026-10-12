@@ -151,7 +151,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         dropdownValueProvider = new AjaxDropDownChoicePanel<>("dropdownValueProvider",
                 getString("dropdownValueProvider"), new PropertyModel<>(schemaTO, "dropdownValueProvider"));
         dropdownValueProvider.setOutputMarkupId(true);
-        ((DropDownChoice) dropdownValueProvider.getField()).setNullValid(true);
+        ((DropDownChoice<?>) dropdownValueProvider.getField()).setNullValid(true);
         dropdownValueProvider.setChoices(dropdownValueProviders.getObject());
         dropdownValueProvider.setRequired(true);
 
@@ -225,7 +225,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         validator = new AjaxDropDownChoicePanel<>("validator",
                 getString("validator"), new PropertyModel<>(schemaTO, "validator"));
         validator.setOutputMarkupId(true);
-        ((DropDownChoice) validator.getField()).setNullValid(true);
+        ((DropDownChoice<?>) validator.getField()).setNullValid(true);
         validator.setChoices(validators.getObject());
         add(validator);
 

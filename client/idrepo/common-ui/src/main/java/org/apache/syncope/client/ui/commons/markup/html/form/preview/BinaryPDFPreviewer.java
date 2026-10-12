@@ -22,7 +22,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.Serializable;
 import java.time.Instant;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSObject;
@@ -91,7 +90,7 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
         return this.addOrReplace(previewContainer);
     }
 
-    protected static class ThumbnailImageResource extends DynamicImageResource implements Serializable {
+    protected static class ThumbnailImageResource extends DynamicImageResource {
 
         private static final long serialVersionUID = 923201517955737928L;
 

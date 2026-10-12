@@ -120,38 +120,39 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             final int maxWaitSeconds,
             final boolean dryRun) throws Exception {
 
-        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
-        executor.setVirtualThreads(true);
-        List<Future<ExecTO>> futures = new ArrayList<>();
+        try (SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor()) {
+            executor.setVirtualThreads(true);
+            List<Future<ExecTO>> futures = new ArrayList<>();
 
-        taskKeys.forEach(taskKey -> {
-            futures.add(executor.submit(() -> {
+            taskKeys.forEach(taskKey -> {
+                futures.add(executor.submit(() -> {
+                    try {
+                        return execSchedTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
+                    } catch (Exception e) {
+                        ExecTO failure = new ExecTO();
+                        failure.setRefKey(taskKey);
+                        failure.setStatus(ExecStatus.FAILURE.name());
+                        failure.setMessage(e.getMessage());
+                        return failure;
+                    }
+                }));
+
+                // avoid flooding the test server
                 try {
-                    return execSchedTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
-                } catch (Exception e) {
-                    ExecTO failure = new ExecTO();
-                    failure.setRefKey(taskKey);
-                    failure.setStatus(ExecStatus.FAILURE.name());
-                    failure.setMessage(e.getMessage());
-                    return failure;
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    // ignore
                 }
-            }));
+            });
 
-            // avoid flooding the test server
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        });
-
-        futures.forEach(future -> {
-            try {
-                future.get(maxWaitSeconds, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                LOG.error("While getting futures", e);
-            }
-        });
+            futures.forEach(future -> {
+                try {
+                    future.get(maxWaitSeconds, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    LOG.error("While getting futures", e);
+                }
+            });
+        }
     }
 
     protected NotificationTaskTO findNotificationTask(final String notification, final int maxWaitSeconds) {

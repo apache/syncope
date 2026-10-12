@@ -26,9 +26,8 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 
-public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler implements AnyPushResultHandler {
+public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler {
 
     @Override
     protected AnyUtils anyUtils() {

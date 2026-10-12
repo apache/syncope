@@ -168,7 +168,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     new PropertyModel<>(modelObject, "realms")).build(
                     "realms",
                     "realms",
-                    (FieldPanel) realm).hideLabel());
+                    (FieldPanel<Serializable>) realm).hideLabel());
         }
     }
 }

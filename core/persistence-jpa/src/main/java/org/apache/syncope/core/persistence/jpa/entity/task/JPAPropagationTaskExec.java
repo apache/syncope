@@ -22,11 +22,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 @Entity
 @Table(name = JPAPropagationTaskExec.TABLE)
-public class JPAPropagationTaskExec extends AbstractTaskExec<PropagationTask> implements TaskExec<PropagationTask> {
+public class JPAPropagationTaskExec extends AbstractTaskExec<PropagationTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 

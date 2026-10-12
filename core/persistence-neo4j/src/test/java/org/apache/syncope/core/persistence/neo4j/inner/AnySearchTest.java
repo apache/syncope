@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -105,9 +104,6 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private RoleDAO roleDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;

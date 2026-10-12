@@ -504,7 +504,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
                 target.add(propTaskModal.setContent(
                         new PropagationTasks(propTaskModal, node.getKey(), pageRef)));

@@ -160,7 +160,6 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
             }
 
             @Override
-            @SuppressWarnings("unchecked")
             protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
                 checkAddButton(model.getObject().getRealm());
 

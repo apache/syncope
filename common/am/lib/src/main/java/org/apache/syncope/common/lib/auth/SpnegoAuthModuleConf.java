@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.io.Serializable;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -32,7 +31,7 @@ public class SpnegoAuthModuleConf implements LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = -7775771400312303131L;
 
-    public static class LDAP extends AbstractLDAPConf implements Serializable {
+    public static class LDAP extends AbstractLDAPConf {
 
         private static final long serialVersionUID = -7274446267090678730L;
 

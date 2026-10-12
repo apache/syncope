@@ -8,5 +8,6 @@ target
 maven-eclipse.xml
 .externalToolBuilders
 *nb-configuration.xml
+.vscode
 node_modules
 **/checkstyle.cache

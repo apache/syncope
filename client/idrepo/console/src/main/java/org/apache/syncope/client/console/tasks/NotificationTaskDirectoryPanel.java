@@ -35,7 +35,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -49,8 +48,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public abstract class NotificationTaskDirectoryPanel
-        extends TaskDirectoryPanel<NotificationTaskTO> implements ModalPanel {
+public abstract class NotificationTaskDirectoryPanel extends TaskDirectoryPanel<NotificationTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 

@@ -59,7 +59,7 @@ public final class DateOps {
         }
     }
 
-    public static final class WrappedDateModel implements IModel<Date>, Serializable {
+    public static final class WrappedDateModel implements IModel<Date> {
 
         private static final long serialVersionUID = 31027882183172L;
 

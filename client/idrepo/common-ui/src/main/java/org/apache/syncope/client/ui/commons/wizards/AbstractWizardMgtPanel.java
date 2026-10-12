@@ -19,10 +19,9 @@
 package org.apache.syncope.client.ui.commons.wizards;
 
 import java.io.Serializable;
-import org.apache.wicket.event.IEventSource;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class AbstractWizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
+public abstract class AbstractWizardMgtPanel<T extends Serializable> extends Panel {
 
     private static final long serialVersionUID = -4152438633429194882L;
 

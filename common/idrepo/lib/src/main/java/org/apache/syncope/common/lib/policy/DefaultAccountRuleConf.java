@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 
-public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements AccountRuleConf {
+public class DefaultAccountRuleConf extends AbstractAccountRuleConf {
 
     private static final long serialVersionUID = 3259256974414758406L;
 

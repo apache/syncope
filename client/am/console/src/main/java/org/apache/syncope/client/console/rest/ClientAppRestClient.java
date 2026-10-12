@@ -41,7 +41,6 @@ public class ClientAppRestClient extends BaseRestClient {
         return policy;
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends ClientAppTO> List<T> list(final ClientAppType type) {
         try {
             return getService(ClientAppService.class).<T>list(type).stream().

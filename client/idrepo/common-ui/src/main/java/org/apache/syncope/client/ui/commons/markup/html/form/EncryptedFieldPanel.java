@@ -25,7 +25,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class EncryptedFieldPanel extends TextFieldPanel implements Cloneable {
+public class EncryptedFieldPanel extends TextFieldPanel {
 
     private static final long serialVersionUID = 1882871043451691005L;
 
