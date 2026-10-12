@@ -422,8 +422,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     }
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schema);
-                    boolean readonly = ((FieldPanel) panel).isReadOnly();
-                    panel.setReadOnly(schema.isReadonly() || readonly);
+                    panel.setReadOnly(schema.isReadonly() || ((FieldPanel<?>) panel).isReadOnly());
                     if (schema.isMultivalue() && schema.getType() != AttrSchemaType.Dropdown) {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(attr, "values")).build(
