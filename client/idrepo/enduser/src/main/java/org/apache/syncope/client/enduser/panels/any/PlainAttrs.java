@@ -410,7 +410,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 private static final long serialVersionUID = 5306618783986001008L;
 
                 @Override
-                @SuppressWarnings({ "unchecked", "rawtypes" })
+                @SuppressWarnings({ "unchecked" })
                 protected void populateItem(final ListItem<Attr> item) {
                     Attr attr = item.getModelObject();
                     PlainSchemaTO schema = schemas.get(attr.getSchema());

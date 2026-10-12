@@ -39,7 +39,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -48,9 +47,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 
-public class PullJobDelegate
-        extends AbstractPullExecutor<PullTask>
-        implements SyncopePullExecutor, StoppableJobDelegate {
+public class PullJobDelegate extends AbstractPullExecutor<PullTask> implements StoppableJobDelegate {
 
     protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
 

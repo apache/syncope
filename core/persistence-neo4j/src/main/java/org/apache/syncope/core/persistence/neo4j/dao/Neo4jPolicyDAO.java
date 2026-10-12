@@ -135,7 +135,6 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
                 flatMap(toOptional("n.id", Neo4jPolicy.class, null));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends Policy> Optional<T> findById(final String key, final Class<T> reference) {
         return neo4jTemplate.findById(key, getNodeReference(reference)).map(reference::cast);

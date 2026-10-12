@@ -118,36 +118,15 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
     @Override
     protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
-        return new CreateEvent(
-                LinkedAccountTO.class.cast(afterObject).getConnObjectKeyValue(),
-                model.getObject(),
-                target);
+        return new CreateEvent(target);
     }
 
     private static class CreateEvent extends ModalEvent {
 
         private static final long serialVersionUID = 6416834092156281986L;
 
-        private final String key;
-
-        private final UserTO userTO;
-
-        CreateEvent(
-                final String key,
-                final UserTO userTO,
-                final AjaxRequestTarget target) {
-
+        CreateEvent(final AjaxRequestTarget target) {
             super(target);
-            this.key = key;
-            this.userTO = userTO;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public UserTO getUserTO() {
-            return userTO;
         }
     }
 }

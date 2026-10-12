@@ -167,7 +167,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional
     @Override
     public void execute(

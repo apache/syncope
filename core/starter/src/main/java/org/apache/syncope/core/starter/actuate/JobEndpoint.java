@@ -79,7 +79,7 @@ public class JobEndpoint {
         status.keySet().forEach(domain -> {
             Set<JobStatus> jobStatuses = new HashSet<>(
                     AuthContextUtils.callAsAdmin(domain, () -> jobStatusDAO.findAll()));
-            jobStatuses.removeIf(syncopeTaskScheduler.getJobNames(domain)::contains);
+            jobStatuses.removeIf(s -> syncopeTaskScheduler.getJobNames(domain).contains(s.getKey()));
 
             if (!jobStatuses.isEmpty()) {
                 @SuppressWarnings("unchecked")

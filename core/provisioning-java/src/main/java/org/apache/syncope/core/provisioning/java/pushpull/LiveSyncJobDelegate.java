@@ -53,7 +53,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.LiveSyncDeltaMapper;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -67,9 +66,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public class LiveSyncJobDelegate
-        extends AbstractPullExecutor<LiveSyncTask>
-        implements SyncopePullExecutor, StoppableJobDelegate {
+public class LiveSyncJobDelegate extends AbstractPullExecutor<LiveSyncTask> implements StoppableJobDelegate {
 
     protected record LiveSyncInfo(
             Provision provision,

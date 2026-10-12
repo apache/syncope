@@ -54,7 +54,6 @@ public class NumberWidget extends BaseWidget {
         WebMarkupContainer box = new WebMarkupContainer("card");
         box.add(new AttributeAppender("class", ' ' + bg));
 
-        @SuppressWarnings("unchecked")
         Class<? extends BasePage> realms = SyncopeWebApplication.get().getPageClass("anys");
         if (realms == null) {
             realms = Anys.class;

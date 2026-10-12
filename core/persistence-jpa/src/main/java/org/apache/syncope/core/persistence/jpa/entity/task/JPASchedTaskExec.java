@@ -22,11 +22,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 @Entity
 @Table(name = JPASchedTaskExec.TABLE)
-public class JPASchedTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
+public class JPASchedTaskExec extends AbstractTaskExec<SchedTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 

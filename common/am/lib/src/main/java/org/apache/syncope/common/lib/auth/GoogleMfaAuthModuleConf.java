@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.io.Serializable;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
@@ -41,7 +40,7 @@ public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf, LDAPDependant
 
     }
 
-    public static class LDAP extends AbstractLDAPConf implements Serializable {
+    public static class LDAP extends AbstractLDAPConf {
 
         private static final long serialVersionUID = -7274446267090678730L;
 

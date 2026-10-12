@@ -131,21 +131,21 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 if (match == null) {
                     match = cond.asLeaf(RelationshipTypeCond.class).
                             filter(leaf -> any instanceof Groupable).
-                            map(leaf -> matches((Relatable) any, leaf, not)).
+                            map(leaf -> matches((Relatable<?, ?>) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
                     match = cond.asLeaf(RelationshipCond.class).
                             filter(leaf -> any instanceof Groupable).
-                            map(leaf -> matches((Relatable) any, leaf, not)).
+                            map(leaf -> matches((Relatable<?, ?>) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
                     match = cond.asLeaf(MembershipCond.class).
                             filter(leaf -> any instanceof Groupable).
-                            map(leaf -> matches((Groupable) any, leaf, not)).
+                            map(leaf -> matches((Groupable<?, ?, ?>) any, leaf, not)).
                             orElse(null);
                 }
 
@@ -346,7 +346,6 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
             return false;
         }
 
-        @SuppressWarnings("unchecked")
         Optional<PlainAttr> attr = (Optional<PlainAttr>) any.getPlainAttr(cond.getSchema());
 
         boolean found;

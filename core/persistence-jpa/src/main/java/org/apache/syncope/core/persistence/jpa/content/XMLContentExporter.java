@@ -196,7 +196,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                         String tableName = joinTable.name();
                         if (StringUtils.isBlank(tableName)) {
                             tableName = GET_KEY.apply(entities, e) + "_"
-                                    + GET_KEY.apply(entities, ((PluralAttribute) a).getElementType());
+                                    + GET_KEY.apply(entities, ((PluralAttribute<?, ?, ?>) a).getElementType());
                         }
 
                         relationTables.put(

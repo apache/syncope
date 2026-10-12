@@ -22,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OAuth20AuthModuleConf extends AbstractOAuth20AuthModuleConf implements AuthModuleConf {
+public class OAuth20AuthModuleConf extends AbstractOAuth20AuthModuleConf {
 
     private static final long serialVersionUID = 299820485764241682L;
 

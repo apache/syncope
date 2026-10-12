@@ -32,7 +32,7 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteR
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
+public abstract class AjaxSearchFieldPanel extends TextFieldPanel {
 
     private static final long serialVersionUID = 6890905510177974519L;
 

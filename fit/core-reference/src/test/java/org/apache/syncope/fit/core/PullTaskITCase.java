@@ -964,33 +964,34 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. first cleanup then create 20 users on LDAP
         ldapCleanup();
 
-        SimpleAsyncTaskExecutor tp = new SimpleAsyncTaskExecutor();
-        tp.setVirtualThreads(true);
-        List<Future<?>> futures = new ArrayList<>();
+        try (SimpleAsyncTaskExecutor tp = new SimpleAsyncTaskExecutor()) {
+            tp.setVirtualThreads(true);
+            List<Future<?>> futures = new ArrayList<>();
 
-        for (int i = 0; i < 20; i++) {
-            String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
-            futures.add(tp.submit(() -> createLdapRemoteObject(
-                    "uid=pullFromLDAP_" + idx + ",ou=People,o=isp",
-                    Map.of(
-                            "objectClass", "inetOrgPerson",
-                            "uid", "pullFromLDAP_" + idx,
-                            "cn", "pullFromLDAP_" + idx,
-                            "mail", "pullFromLDAP_" + idx + "@syncope.apache.org",
-                            "description", "Active",
-                            "givenName", "pullFromLDAP_" + idx,
-                            "sn", "Surname",
-                            "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
-                            "title", "odd",
-                            "userpassword", "password"))));
-        }
-        futures.forEach(future -> {
-            try {
-                future.get(MAX_WAIT_SECONDS, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                LOG.error("While getting futures", e);
+            for (int i = 0; i < 20; i++) {
+                String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
+                futures.add(tp.submit(() -> createLdapRemoteObject(
+                        "uid=pullFromLDAP_" + idx + ",ou=People,o=isp",
+                        Map.of(
+                                "objectClass", "inetOrgPerson",
+                                "uid", "pullFromLDAP_" + idx,
+                                "cn", "pullFromLDAP_" + idx,
+                                "mail", "pullFromLDAP_" + idx + "@syncope.apache.org",
+                                "description", "Active",
+                                "givenName", "pullFromLDAP_" + idx,
+                                "sn", "Surname",
+                                "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
+                                "title", "odd",
+                                "userpassword", "password"))));
             }
-        });
+            futures.forEach(future -> {
+                try {
+                    future.get(MAX_WAIT_SECONDS, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    LOG.error("While getting futures", e);
+                }
+            });
+        }
 
         // 1. create new concurrent pull task
         PullTaskTO pullTask = TASK_SERVICE.read(TaskType.PULL, LDAP_PULL_TASK, false);

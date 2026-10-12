@@ -33,13 +33,10 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyPullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class DefaultAnyObjectPullResultHandler
-        extends AbstractPullResultHandler
-        implements AnyPullResultHandler {
+public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler {
 
     @Autowired
     private AnyObjectProvisioningManager anyObjectProvisioningManager;

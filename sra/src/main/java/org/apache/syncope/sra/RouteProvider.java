@@ -127,7 +127,6 @@ public class RouteProvider {
         this.useGZIPCompression = useGZIPCompression;
     }
 
-    @SuppressWarnings("unchecked")
     protected GatewayFilter toFilter(final SRARouteTO route, final SRARouteFilter gwfilter)
             throws ClassNotFoundException, NumberFormatException {
 

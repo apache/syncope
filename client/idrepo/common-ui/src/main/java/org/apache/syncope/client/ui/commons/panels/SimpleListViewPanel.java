@@ -27,7 +27,6 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -139,10 +138,7 @@ public abstract class SimpleListViewPanel<T extends Serializable> extends Panel 
 
         private final Class<T> reference;
 
-        private final PageReference pageReference;
-
-        public Builder(final Class<T> reference, final PageReference pageRef) {
-            this.pageReference = pageRef;
+        public Builder(final Class<T> reference) {
             this.reference = reference;
             this.items = null;
         }

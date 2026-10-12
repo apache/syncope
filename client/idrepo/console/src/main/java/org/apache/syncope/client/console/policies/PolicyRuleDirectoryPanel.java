@@ -239,7 +239,6 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             comparator = new SortableDataProviderComparator<>(this);
         }
 
-        @SuppressWarnings("unchecked")
         private List<PolicyRuleWrapper> getPolicyRuleWrappers(final ComposablePolicy policy) {
             return policy.getRules().stream().map(rule -> {
                 ImplementationTO implementation = implementationRestClient.read(implementationType, rule);

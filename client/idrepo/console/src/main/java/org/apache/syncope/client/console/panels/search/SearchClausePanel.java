@@ -854,7 +854,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected FieldPanel<?> buildValue(final SearchClause searchClause, final AjaxTextFieldPanel property) {
         PlainSchemaTO plainSchema = Optional.ofNullable(anames.getObject().get(property.getModelObject())).
                 orElseGet(() -> {

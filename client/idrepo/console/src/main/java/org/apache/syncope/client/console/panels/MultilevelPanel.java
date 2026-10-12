@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,7 +27,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultilevelPanel extends Panel implements IHeaderContributor {
+public class MultilevelPanel extends Panel {
 
     private static final long serialVersionUID = -4064294905566247729L;
 

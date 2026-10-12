@@ -76,7 +76,6 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
         logic.delete(type, key);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> PagedResult<T> search(final TaskQuery query) {
         Page<T> result = logic.search(

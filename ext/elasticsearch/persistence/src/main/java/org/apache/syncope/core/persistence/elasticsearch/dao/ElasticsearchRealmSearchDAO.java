@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -70,7 +69,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ElasticsearchRealmSearchDAO extends AbstractRealmSearchDAO implements RealmSearchDAO {
+public class ElasticsearchRealmSearchDAO extends AbstractRealmSearchDAO {
 
     protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
 

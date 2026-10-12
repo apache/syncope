@@ -27,15 +27,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.concurrent.ExecutorConfigurationSupport;
 
-public class VirtualThreadPoolTaskExecutor
-        extends ExecutorConfigurationSupport
-        implements AsyncTaskExecutor, SchedulingTaskExecutor {
+public class VirtualThreadPoolTaskExecutor extends ExecutorConfigurationSupport implements SchedulingTaskExecutor {
 
     private static final long serialVersionUID = 4747270938984213408L;
 
