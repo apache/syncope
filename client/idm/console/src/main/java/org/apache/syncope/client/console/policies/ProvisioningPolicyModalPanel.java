@@ -370,8 +370,16 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
             return anyType;
         }
 
+        public void setAnyType(final String anyType) {
+            this.anyType = anyType;
+        }
+
         public String getImplKey() {
             return Optional.ofNullable(impl).map(ImplementationTO::getKey).orElse(null);
+        }
+
+        public void setImplKey(final String key) {
+            setImpl(implementations.getObject().get(key));
         }
 
         public final void setImpl(final ImplementationTO impl) {
@@ -395,6 +403,10 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 }
             }
             return impl;
+        }
+
+        public void setDefaultRuleConf(final DefaultPushCorrelationRuleConf defaultRuleConf) {
+            this.defaultRuleConf = defaultRuleConf;
         }
 
         public AbstractCorrelationRuleConf getDefaultRuleConf() {
