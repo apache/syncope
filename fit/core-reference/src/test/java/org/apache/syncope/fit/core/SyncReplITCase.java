@@ -366,7 +366,7 @@ class SyncReplITCase extends AbstractITCase {
                     atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
 
                 try {
-                    return GROUP_SERVICE.<GroupTO>search(
+                    return GROUP_SERVICE.search(
                             new AnyQuery.Builder().fiql("name==readers").build()).getResult();
                 } catch (SyncopeClientException e) {
                     return List.of();
@@ -378,7 +378,7 @@ class SyncReplITCase extends AbstractITCase {
                     atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
 
                 try {
-                    return USER_SERVICE.<UserTO>search(
+                    return USER_SERVICE.search(
                             new AnyQuery.Builder().fiql("username==user0*").build()).getResult();
                 } catch (SyncopeClientException e) {
                     return List.of();

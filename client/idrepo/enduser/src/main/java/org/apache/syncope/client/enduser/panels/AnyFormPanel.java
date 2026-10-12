@@ -58,7 +58,6 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
         this.anyTypeClasses = anyTypeClasses;
     }
 
-    @SuppressWarnings("unchecked")
     public AnyFormPanel(final String id,
             final UserWrapper wrapper,
             final List<String> anyTypeClasses,

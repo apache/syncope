@@ -425,7 +425,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             super(id);
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({ "unchecked" })
         protected AbstractFieldPanel<?> setPanel(
                 final Map<String, PlainSchemaTO> schemas,
                 final ListItem<Attr> item,

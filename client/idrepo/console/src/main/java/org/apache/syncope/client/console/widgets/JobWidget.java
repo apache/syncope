@@ -519,7 +519,6 @@ public class JobWidget extends BaseWidget {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void onEvent(final IEvent<?> event) {
             if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
                     || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {

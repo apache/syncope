@@ -641,7 +641,6 @@ public class UserITCase extends AbstractITCase {
         assertTrue(beforeTasks < afterTasks);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void verifyTaskRegistration() {
         // get task list

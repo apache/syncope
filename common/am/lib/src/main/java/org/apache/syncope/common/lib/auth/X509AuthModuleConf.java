@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +33,7 @@ public class X509AuthModuleConf implements LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = 1915254775199296906L;
 
-    public static class LDAP extends AbstractLDAPConf implements Serializable {
+    public static class LDAP extends AbstractLDAPConf {
 
         private static final long serialVersionUID = -7274446267090678730L;
 

@@ -20,12 +20,11 @@ package org.apache.syncope.core.persistence.neo4j.entity.task;
 
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPropagationTaskExec.NODE)
-public class Neo4jPropagationTaskExec extends AbstractTaskExec<PropagationTask> implements TaskExec<PropagationTask> {
+public class Neo4jPropagationTaskExec extends AbstractTaskExec<PropagationTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 

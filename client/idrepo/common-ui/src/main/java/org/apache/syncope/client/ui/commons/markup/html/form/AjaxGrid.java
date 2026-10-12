@@ -196,7 +196,6 @@ public class AjaxGrid<K, V, S> extends Panel {
 
         private final Item<Pair<K, V>> rowItem;
 
-        @SuppressWarnings("unchecked")
         public AjaxGridActionsPanel(final String id, final Item<Pair<K, V>> item) {
             super(id, item);
 

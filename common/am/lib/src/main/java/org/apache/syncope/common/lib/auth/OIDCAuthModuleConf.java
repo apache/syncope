@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.auth;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements AuthModuleConf {
+public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf {
 
     private static final long serialVersionUID = -471527711042579422L;
 

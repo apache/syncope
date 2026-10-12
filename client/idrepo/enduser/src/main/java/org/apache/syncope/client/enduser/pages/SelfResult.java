@@ -87,7 +87,7 @@ public class SelfResult extends BasePage {
                     (Serializable) provisioningResult.getPropagationStatuses().stream()
                             .filter(ps -> ExecStatus.SUCCESS != ps.getStatus())
                             .map(ps -> StatusUtils.getStatusBean(provisioningResult.getEntity(), ps.getResource(),
-                            ps.getAfterObj(), false)).collect(Collectors.toList()), getPageReference())
+                            ps.getAfterObj(), false)).collect(Collectors.toList()))
                     .setOutputMarkupId(true)
                     .setVisible(SyncopeWebApplication.get().isReportPropagationErrorDetails()));
         }

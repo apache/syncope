@@ -215,7 +215,7 @@ public final class ImplementationManager {
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings("unchecked")
     private static Class<? extends CommandArgs> findCommandArgsClass(final Type type) {
         if (type.getTypeName().startsWith(
                 ImplementationTypesHolder.getInstance().getValues().get(IdRepoImplementationType.COMMAND) + "<")) {
@@ -321,7 +321,6 @@ public final class ImplementationManager {
         return createBean((Class<T>) getClass(domain, impl).getLeft(), impl.getEngine());
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> T build(
             final Class<T> clazz,
             final boolean classCached,

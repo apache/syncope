@@ -29,7 +29,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<T> implements Cloneable {
+public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<T> {
 
     private static final long serialVersionUID = -4716376580659196095L;
 

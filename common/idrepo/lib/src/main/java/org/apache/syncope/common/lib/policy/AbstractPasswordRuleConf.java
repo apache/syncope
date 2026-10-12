@@ -19,9 +19,8 @@
 package org.apache.syncope.common.lib.policy;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.BaseBean;
 
-public abstract class AbstractPasswordRuleConf implements BaseBean, PasswordRuleConf {
+public abstract class AbstractPasswordRuleConf implements PasswordRuleConf {
 
     private static final long serialVersionUID = -5814018872387142339L;
 

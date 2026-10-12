@@ -345,7 +345,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         return reqValMissing;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void processAttrPatch(
             final AnyTO anyTO,
             final Any any,
