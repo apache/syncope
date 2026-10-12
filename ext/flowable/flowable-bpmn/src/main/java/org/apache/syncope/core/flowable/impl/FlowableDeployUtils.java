@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
+import static org.flowable.bpmn.constants.BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION;
+import static org.flowable.bpmn.constants.BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE;
+
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -48,12 +52,41 @@ public final class FlowableDeployUtils {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
+    private static boolean containsExpression(final byte[] xml) throws XMLStreamException, IOException {
+        try (ByteArrayInputStream in = new ByteArrayInputStream(xml)) {
+            XMLStreamReader xtr = XML_INPUT_FACTORY.createXMLStreamReader(in);
+            try {
+                while (xtr.hasNext()) {
+                    if (xtr.next() == XMLStreamConstants.START_ELEMENT) {
+                        for (int i = 0; i < xtr.getAttributeCount(); i++) {
+                            if (FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getAttributeNamespace(i))
+                                    && ATTRIBUTE_TASK_SERVICE_EXPRESSION.equals(xtr.getAttributeLocalName(i))) {
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            } finally {
+                xtr.close();
+            }
+        }
+    }
+
     public static Deployment deployDefinition(
             final ProcessEngine engine, final String resourceName, final byte[] definition) {
 
         try {
-            return engine.getRepositoryService().createDeployment().
-                    addInputStream(resourceName, new ByteArrayInputStream(definition)).deploy();
+            if (containsExpression(definition)) {
+                throw new WorkflowException("Attribute flowable:expression is not allowed");
+            }
+        } catch (IOException | XMLStreamException e) {
+            throw new WorkflowException("While checking " + resourceName, e);
+        }
+
+        try {
+            return engine.getRepositoryService().createDeployment().addBytes(resourceName, definition).deploy();
         } catch (FlowableException e) {
             throw new WorkflowException("While importing " + resourceName, e);
         }
@@ -62,10 +95,9 @@ public final class FlowableDeployUtils {
     public static void deployModel(final ProcessEngine engine, final ProcessDefinition procDef) {
         XMLStreamReader xtr = null;
         try (InputStream bpmnStream = engine.getRepositoryService().
-                getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName());
-             InputStreamReader isr = new InputStreamReader(bpmnStream)) {
+                getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName())) {
 
-            xtr = XML_INPUT_FACTORY.createXMLStreamReader(isr);
+            xtr = XML_INPUT_FACTORY.createXMLStreamReader(bpmnStream);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
 
             Model model = engine.getRepositoryService().newModel();
