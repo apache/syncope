@@ -84,7 +84,6 @@ abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends Any
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     protected BeforeResult<C> beforeCreate(final C input) {
         Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -121,7 +120,6 @@ abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends Any
         return new BeforeResult<>(actionedCR, actions);
     }
 
-    @SuppressWarnings("unchecked")
     protected BeforeResult<U> beforeUpdate(final U input, final String realmPath) {
         Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -141,7 +139,6 @@ abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends Any
         return new BeforeResult<>(update, actions);
     }
 
-    @SuppressWarnings("unchecked")
     protected BeforeResult<TO> beforeDelete(final TO input) {
         Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -161,7 +158,6 @@ abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends Any
         return new BeforeResult<>(any, actions);
     }
 
-    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterCreate(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
@@ -196,7 +192,6 @@ abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends Any
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     protected ProvisioningResult<TO> afterDelete(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 

@@ -46,6 +46,7 @@ public class LogicInvocationHandler {
         this.auditManager = auditManager;
     }
 
+    @SuppressWarnings("rawtypes")
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
         Class<?> clazz = joinPoint.getTarget().getClass();

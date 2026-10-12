@@ -229,7 +229,6 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public FieldPanel<T> clone() {
         final FieldPanel<T> panel = SerializationUtils.clone(this);
         panel.setModelObject(null);

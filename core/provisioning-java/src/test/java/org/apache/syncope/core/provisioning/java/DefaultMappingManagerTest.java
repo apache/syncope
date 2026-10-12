@@ -27,12 +27,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -55,28 +50,13 @@ public class DefaultMappingManagerTest extends AbstractTest {
     private MappingManager mappingManager;
 
     @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
     private UserDAO userDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    @Autowired
-    private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
     private EntityFactory entityFactory;
-
-    @Autowired
-    private PlainAttrValidationManager validator;
 
     @Test
     public void prepareAttrsForUser() {

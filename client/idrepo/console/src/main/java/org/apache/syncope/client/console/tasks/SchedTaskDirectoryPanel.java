@@ -43,7 +43,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -75,8 +74,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  *
  * @param <T> Sched task type.
  */
-public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
-        extends TaskDirectoryPanel<T> implements ModalPanel {
+public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO> extends TaskDirectoryPanel<T> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 

@@ -19,9 +19,8 @@
 package org.apache.syncope.common.lib.policy;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.BaseBean;
 
-public abstract class AbstractAccountRuleConf implements BaseBean, AccountRuleConf {
+public abstract class AbstractAccountRuleConf implements AccountRuleConf {
 
     private static final long serialVersionUID = -4080475005967851092L;
 

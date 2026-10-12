@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.client.enduser.wicket.markup.head;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.request.Response;
 
-public class MetaHeaderItem extends HeaderItem implements Serializable {
+public class MetaHeaderItem extends HeaderItem {
 
     private static final long serialVersionUID = 7578609827530302053L;
 

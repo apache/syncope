@@ -25,7 +25,6 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractResultPanel;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,17 +35,14 @@ public class ResultPanel extends AbstractResultPanel<String, Serializable> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ResultPanel.class);
 
-    private final PageReference pageRef;
-
-    public ResultPanel(final String item, final Serializable errors, final PageReference pageRef) {
+    public ResultPanel(final String item, final Serializable errors) {
         super(item, errors);
-        this.pageRef = pageRef;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     protected Panel customResultBody(final String panelId, final String item, final Serializable errorBeans) {
-        return new SimpleListViewPanel.Builder<>(StatusBean.class, pageRef) {
+        return new SimpleListViewPanel.Builder<>(StatusBean.class) {
 
             private static final long serialVersionUID = -6809736686861678498L;
 

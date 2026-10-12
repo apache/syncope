@@ -156,7 +156,6 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     protected final AuditRestClient restClient;
 
-    @SuppressWarnings("unchecked")
     public AuditHistoryDetails(
             final String id,
             final EntityTO currentEntity,

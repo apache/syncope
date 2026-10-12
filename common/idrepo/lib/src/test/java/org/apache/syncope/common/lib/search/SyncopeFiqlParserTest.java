@@ -32,11 +32,10 @@ public class SyncopeFiqlParserTest {
     private static final SyncopeFiqlParser<SearchBean> FIQL_PARSER = new SyncopeFiqlParser<>(
             SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
 
-    @SuppressWarnings("unchecked")
     private static SyncopeFiqlSearchCondition<SearchBean> parse(final String fiql) {
         SearchCondition<SearchBean> parsed = FIQL_PARSER.parse(fiql);
         assertTrue(parsed instanceof SyncopeFiqlSearchCondition);
-        return (SyncopeFiqlSearchCondition) parsed;
+        return (SyncopeFiqlSearchCondition<SearchBean>) parsed;
     }
 
     @Test

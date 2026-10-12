@@ -18,23 +18,13 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
-import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import org.apache.cxf.jaxrs.client.Client;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 
 public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
-
-    private BpmnProcessService getService(final MediaType mediaType) {
-        BpmnProcessService service = getService(BpmnProcessService.class);
-        Client client = WebClient.client(service);
-        client.type(mediaType);
-        return service;
-    }
 
     public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();

@@ -36,7 +36,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.util.convert.IConverter;
 
-public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
+public class AjaxTextFieldPanel extends TextFieldPanel {
 
     private static final long serialVersionUID = 238940918106696068L;
 

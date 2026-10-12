@@ -35,7 +35,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidator;
 
-public class AjaxCharacterFieldPanel extends FieldPanel<Character> implements Cloneable {
+public class AjaxCharacterFieldPanel extends FieldPanel<Character> {
 
     private static final long serialVersionUID = 238940918106696068L;
 

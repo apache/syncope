@@ -91,7 +91,6 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
     protected abstract String sortProperty();
 
     @Override
-    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ExitEvent exitEvent) {
             authProfileModal.close(exitEvent.getTarget());

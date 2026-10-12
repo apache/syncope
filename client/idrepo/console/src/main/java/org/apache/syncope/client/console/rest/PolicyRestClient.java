@@ -44,7 +44,6 @@ public class PolicyRestClient extends BaseRestClient {
         return policy;
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
         try {
             return getService(PolicyService.class).<T>list(type).stream().
