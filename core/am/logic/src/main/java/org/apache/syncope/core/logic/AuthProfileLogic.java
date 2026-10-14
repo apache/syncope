@@ -19,10 +19,13 @@
 package org.apache.syncope.core.logic;
 
 import java.util.List;
+import java.util.function.Predicate;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -38,6 +41,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AuthProfileLogic extends AbstractAuthProfileLogic {
+
+    protected static <T> boolean updateIsNotSubsetOfCurrent(final List<T> current, final List<T> update) {
+        return update.stream().anyMatch(Predicate.not(current::contains));
+    }
 
     public AuthProfileLogic(
             final AuthProfileDataBinder binder,
@@ -77,23 +84,42 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         return binder.getAuthProfileTO(authProfileDAO.save(binder.create(authProfileTO)));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_UPDATE + "') ")
-    public void update(final AuthProfileTO authProfileTO) {
-        AuthProfile authProfile = authProfileDAO.findById(authProfileTO.getKey()).
-                orElseThrow(() -> new NotFoundException("AuthProfile " + authProfileTO.getKey()));
+    protected void doUpdate(final AuthProfile authProfile, final AuthProfileTO authProfileTO) {
         binder.update(authProfile, authProfileTO);
         authProfileDAO.save(authProfile);
     }
 
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_UPDATE + "') ")
+    public void update(final AuthProfileTO authProfileTO) {
+        AuthProfile authProfile = authProfileDAO.findById(authProfileTO.getKey()).
+                orElseThrow(() -> new NotFoundException("AuthProfile " + authProfileTO.getKey()));
+        doUpdate(authProfile, authProfileTO);
+    }
+
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
     public void selfUpdate(final AuthProfileTO authProfileTO) {
-        authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
-                filter(authProfile -> authProfile.getKey().equals(authProfileTO.getKey())
-                && authProfile.getOwner().equals(authProfileTO.getOwner())).
+        AuthProfile authProfile = authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
+                filter(p -> p.getKey().equals(authProfileTO.getKey()) && p.getOwner().equals(authProfileTO.getOwner())).
                 orElseThrow(() -> new DelegatedAdministrationException(
-                SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), authProfileTO.getOwner()));
+                        SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), authProfileTO.getOwner()));
 
-        update(authProfileTO);
+        if (updateIsNotSubsetOfCurrent(
+                authProfile.getImpersonationAccounts(), authProfileTO.getImpersonationAccounts())
+                || updateIsNotSubsetOfCurrent(
+                        authProfile.getGoogleMfaAuthTokens(), authProfileTO.getGoogleMfaAuthTokens())
+                || updateIsNotSubsetOfCurrent(
+                        authProfile.getGoogleMfaAuthAccounts(), authProfileTO.getGoogleMfaAuthAccounts())
+                || updateIsNotSubsetOfCurrent(
+                        authProfile.getMfaTrustedDevices(), authProfileTO.getMfaTrustedDevices())
+                || updateIsNotSubsetOfCurrent(
+                        authProfile.getWebAuthnDeviceCredentials(), authProfileTO.getWebAuthnDeviceCredentials())) {
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+            sce.getElements().add("Self update can only remove existing profile items");
+            throw sce;
+        }
+
+        doUpdate(authProfile, authProfileTO);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
@@ -103,8 +129,7 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
     public void selfDelete() {
-        authProfileDAO.deleteById(authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
-                orElseThrow(() -> new DelegatedAdministrationException(
-                SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), AuthContextUtils.getUsername())).getKey());
+        delete(authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("AuthProfile for " + AuthContextUtils.getUsername())).getKey());
     }
 }
