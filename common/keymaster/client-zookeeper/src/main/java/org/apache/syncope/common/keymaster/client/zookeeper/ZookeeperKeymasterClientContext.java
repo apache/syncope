@@ -50,13 +50,19 @@ public class ZookeeperKeymasterClientContext {
     private static final Pattern IPV4 = Pattern.compile(
             "^((\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})|[a-z\\.]+):[0-9]+$");
 
+    private static final Pattern HOSTNAME = Pattern.compile(
+            "^(?=.{1,253}:)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*:[0-9]+$",
+            Pattern.CASE_INSENSITIVE);
+
     static class ZookeeperCondition extends SpringBootCondition {
 
         @Override
         public ConditionOutcome getMatchOutcome(final ConditionContext context, final AnnotatedTypeMetadata metadata) {
             String keymasterAddress = context.getEnvironment().getProperty("keymaster.address");
             return new ConditionOutcome(
-                    keymasterAddress != null && IPV4.matcher(keymasterAddress).matches(),
+                    keymasterAddress != null
+                    && (IPV4.matcher(keymasterAddress).matches()
+                    || HOSTNAME.matcher(keymasterAddress).matches()),
                     "Keymaster address not set for Zookeeper: " + keymasterAddress);
         }
     }

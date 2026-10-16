@@ -30,4 +30,8 @@ public interface NetworkServiceEntity extends Entity {
     String getAddress();
 
     void setAddress(String address);
+
+    String getDomain();
+
+    void setDomain(String domain);
 }

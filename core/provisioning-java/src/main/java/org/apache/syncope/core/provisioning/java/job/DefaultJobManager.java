@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,6 +62,15 @@ import org.springframework.scheduling.support.CronTrigger;
 public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
+
+    protected static String getHostname() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            LOG.debug("While attempting to get hostname", e);
+            return "unknown-host";
+        }
+    }
 
     protected final DomainHolder<?> domainHolder;
 
@@ -394,7 +405,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
             JobExecutionContext context = new JobExecutionContext(
                     domain,
-                    StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
+                    StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()) + "_on_" + getHostname(),
                     securityProperties.getAdminUser(),
                     false);
             try {

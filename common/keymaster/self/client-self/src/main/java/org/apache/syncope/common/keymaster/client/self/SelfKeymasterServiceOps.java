@@ -53,7 +53,18 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     @Override
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         try {
-            return client(NetworkServiceService.class, Map.of()).list(serviceType);
+            return client(NetworkServiceService.class, Map.of()).list(serviceType, null);
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        try {
+            return client(NetworkServiceService.class, Map.of()).list(serviceType, domain);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {
@@ -64,7 +75,18 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
     @Override
     public NetworkService get(final NetworkService.Type serviceType) {
         try {
-            return client(NetworkServiceService.class, Map.of()).get(serviceType);
+            return client(NetworkServiceService.class, Map.of()).get(serviceType, null);
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
+        try {
+            return client(NetworkServiceService.class, Map.of()).get(serviceType, domain);
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {

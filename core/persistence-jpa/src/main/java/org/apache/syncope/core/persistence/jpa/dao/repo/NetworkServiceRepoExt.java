@@ -26,5 +26,7 @@ public interface NetworkServiceRepoExt {
 
     List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
 
+    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType, String domain);
+
     void deleteAll(NetworkService service);
 }

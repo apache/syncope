@@ -31,6 +31,10 @@ import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 import java.io.Closeable;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -53,7 +57,9 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable {
+public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable, Serializable {
+
+    private static final long serialVersionUID = 9013192242319940958L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainRoutingEntityManagerFactory.class);
 
@@ -279,5 +285,13 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     @Override
     public <R> R callInTransaction(final Function<EntityManager, R> fnctn) {
         return delegate().callInTransaction(fnctn);
+    }
+
+    private void writeObject(final ObjectOutputStream oos) throws IOException {
+        // prevents unwanted serialization by JCache provider
+    }
+
+    private void readObject(final ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        // prevents unwanted deserialization by JCache provider
     }
 }
