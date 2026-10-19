@@ -111,18 +111,23 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_PUSH + "')")
     public void pushToSRA() {
-        HttpClient client = HttpClient.newHttpClient();
-        try {
-            serviceOps.list(NetworkService.Type.SRA, AuthContextUtils.getDomain()).forEach(sra -> client.sendAsync(
-                    HttpRequest.newBuilder(URI.create(
-                            Strings.CS.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
-                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
-                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
-                            POST(HttpRequest.BodyPublishers.noBody()).build(),
-                    HttpResponse.BodyHandlers.discarding()).
-                    thenAcceptAsync(response -> LOG.info(
-                            "Pushed to SRA instance {} with HTTP status: {}",
-                            sra.getAddress(), response.statusCode())));
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            serviceOps.list(NetworkService.Type.SRA, AuthContextUtils.getDomain()).forEach(sra -> {
+                String target = Strings.CS.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh";
+                client.sendAsync(
+                        HttpRequest.newBuilder(URI.create(target)).
+                                header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                        securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
+                                POST(HttpRequest.BodyPublishers.noBody()).build(),
+                        HttpResponse.BodyHandlers.discarding()).
+                        thenAcceptAsync(response -> LOG.info(
+                                "Pushed to SRA instance {} with HTTP status: {}",
+                                sra.getAddress(), response.statusCode())).
+                        exceptionally(error -> {
+                            LOG.error("Failed to push to {}", target, error);
+                            return null;
+                        });
+            });
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any SRA instance", e);
         }

@@ -40,6 +40,7 @@ import org.apache.syncope.core.logic.UnresolvedReferenceException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +101,11 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
                         GET().build(),
                 HttpResponse.BodyHandlers.discarding()).
                 thenAcceptAsync(response -> LOG.info(
-                        "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+                        "Pushed to {} with HTTP status: {}", target, response.statusCode())).
+                exceptionally(error -> {
+                    LOG.error("Failed to push to {}", target, error);
+                    return null;
+                });
     }
 
     protected void refresh(final HttpClient client, final String serviceAddress) {
@@ -112,13 +117,17 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
                         POST(HttpRequest.BodyPublishers.noBody()).build(),
                 HttpResponse.BodyHandlers.discarding()).
                 thenAcceptAsync(response -> LOG.info(
-                        "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+                        "Pushed to {} with HTTP status: {}", target, response.statusCode())).
+                exceptionally(error -> {
+                    LOG.error("Failed to push to {}", target, error);
+                    return null;
+                });
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")
     public void pushToWA(final WAConfigService.PushSubject subject, final List<String> services) {
         try (HttpClient client = HttpClient.newHttpClient()) {
-            serviceOps.list(NetworkService.Type.WA).stream().
+            serviceOps.list(NetworkService.Type.WA, AuthContextUtils.getDomain()).stream().
                     filter(wa -> CollectionUtils.isEmpty(services) || services.contains(wa.getAddress())).
                     forEach(wa -> {
                         switch (subject) {
