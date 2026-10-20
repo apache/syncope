@@ -125,7 +125,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        SchemaService schemaService2 = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(SchemaService.class);
         schemaTO = schemaService2.read(SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
@@ -149,7 +149,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
 
-        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(UserService.class);
 
         UserTO readUserTO = userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
@@ -176,7 +176,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 1. user assigned to role 1, with search entitlement on realms /odd and /even: won't find anything with 
         // root realm
-        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(UserService.class);
 
         if (IS_EXT_SEARCH_ENABLED) {
@@ -233,7 +233,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             // 3. instantiate a delegate user service client, for further operations
             UserService delegatedUserService =
-                    CLIENT_FACTORY.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
+                    CLIENT_FACTORY.create(delegatedAdmin.getUsername(), DEFAULT_PASSWORD).getService(UserService.class);
 
             // 4. as delegated, create user under realm / -> fail
             UserCR userCR = UserITCase.getUniqueSample("delegated@syncope.apache.org");
@@ -307,7 +307,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
         String userKey = userTO.getKey();
 
-        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(UserService.class);
         assertEquals(0, userService2.read(userKey).getFailedLogins());
 
@@ -326,7 +326,7 @@ public class AuthenticationITCase extends AbstractITCase {
         }
         assertEquals(2, USER_SERVICE.read(userKey).getFailedLogins());
 
-        UserService userService4 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        UserService userService4 = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(UserService.class);
         assertEquals(0, userService4.read(userKey).getFailedLogins());
     }
@@ -401,7 +401,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // Access with correct credentials should fail as user is suspended
         try {
-            CLIENT_FACTORY.create(userTO.getUsername(), "password123");
+            CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD);
             fail("This should not happen");
         } catch (NotAuthorizedException e) {
             assertNotNull(e);
@@ -413,7 +413,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        SyncopeClient goodPwdClient = CLIENT_FACTORY.create(userTO.getUsername(), "password123");
+        SyncopeClient goodPwdClient = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD);
         assertEquals(0, goodPwdClient.self().user().getFailedLogins().intValue());
     }
 
@@ -437,7 +437,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         e = assertThrows(
                 WebApplicationException.class,
-                () -> CLIENT_FACTORY.create(userTO.getUsername(), "password123").self());
+                () -> CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).self());
         assertEquals(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), e.getResponse().getStatus());
     }
 
@@ -522,7 +522,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 2. try to authenticate: fail
         try {
-            CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
+            CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).self();
             fail("This should not happen");
         } catch (NotAuthorizedException e) {
             assertNotNull(e);
@@ -539,7 +539,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
-        SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).self();
         assertNotNull(self);
         assertNotNull(self.entitlements());
         assertEquals(List.of(), self.delegations());
@@ -551,7 +551,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. create user with db resource
         UserCR userCR = UserITCase.getUniqueSample("syncope164@syncope.apache.org");
         userCR.setRealm("/even/two");
-        userCR.setPassword("password123");
+        userCR.setPassword(DEFAULT_PASSWORD);
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user);
@@ -572,10 +572,12 @@ public class AuthenticationITCase extends AbstractITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate, MAX_WAIT_SECONDS,
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(encryptorManager.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(
+                encryptorManager.getInstance().encode(DEFAULT_PASSWORD, CipherAlgorithm.SHA1),
+                value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
-        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).self();
         assertNotNull(self);
         self = CLIENT_FACTORY.create(user.getUsername(), "password234").self();
         assertNotNull(self);

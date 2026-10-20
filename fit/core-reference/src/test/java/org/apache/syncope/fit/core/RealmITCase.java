@@ -578,6 +578,40 @@ public class RealmITCase extends AbstractITCase {
     }
 
     @Test
+    public void permissions() {
+        RoleTO realmUpdate = new RoleTO();
+        realmUpdate.setKey(getUUIDString());
+        realmUpdate.getEntitlements().add(IdRepoEntitlement.REALM_UPDATE);
+        realmUpdate.getRealms().add("/even");
+        realmUpdate = createRole(realmUpdate);
+
+        UserCR req = UserITCase.getUniqueSample("realmAdmin@syncope.apache.org");
+        req.getRoles().add(realmUpdate.getKey());
+        UserTO user = createUser(req).getEntity();
+
+        // user can update only realms with base /even
+        RealmService service = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).
+                getService(RealmService.class);
+
+        // 1. two can be safely updated because is descendant of even
+        RealmTO two = getRealm("/even/two").orElseThrow();
+        assertDoesNotThrow(() -> service.update(two));
+
+        // 2. odd cannot be updated because not descendant of even
+        RealmTO odd = getRealm("/odd").orElseThrow();
+        SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> service.update(odd));
+        assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+
+        // 3. attempting to change two's parent, to move it under odd, is forbidden
+        two.setParent(odd.getKey());
+        e = assertThrows(SyncopeClientException.class, () -> service.update(two));
+        assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+
+        // 4. check that two was not changed
+        assertEquals(getRealm("/even").orElseThrow().getKey(), getRealm("/even/two").orElseThrow().getParent());
+    }
+
+    @Test
     public void issueSYNCOPE1472() {
         // 1. assign twice resource-ldap-orgunit to /odd
         RealmTO realmTO = getRealm("/odd").orElseThrow();
@@ -613,7 +647,7 @@ public class RealmITCase extends AbstractITCase {
         userCR.getRoles().add(role.getKey());
         UserTO manager = createUser(userCR).getEntity();
         RealmService managerRealmService = CLIENT_FACTORY.create(
-                manager.getUsername(), "password123").getService(RealmService.class);
+                manager.getUsername(), DEFAULT_PASSWORD).getService(RealmService.class);
 
         RealmTO childRealm = null;
         try {

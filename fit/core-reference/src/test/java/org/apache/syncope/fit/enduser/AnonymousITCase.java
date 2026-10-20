@@ -58,11 +58,11 @@ public class AnonymousITCase extends AbstractEnduserITCase {
 
         formTester.setValue(
                 "userDetailsPanelCard:contentPanel:password:passwordPanel:passwordInnerForm:password:passwordField",
-                "Password123");
+                DEFAULT_PASSWORD);
         formTester.setValue(
                 "userDetailsPanelCard:contentPanel:password:passwordPanel:passwordInnerForm:confirmPassword:"
                 + "passwordField",
-                "Password123");
+                DEFAULT_PASSWORD);
 
         formTester.setValue(
                 "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:7:panel:textField",

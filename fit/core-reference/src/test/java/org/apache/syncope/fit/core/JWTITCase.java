@@ -496,7 +496,7 @@ public class JWTITCase extends AbstractITCase {
 
             // login, get JWT with expiration
             SyncopeClient.JwtInfo jwtInfo =
-                    CLIENT_FACTORY.create(user.getUsername(), "password123").jwtInfo().orElseThrow();
+                    CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).jwtInfo().orElseThrow();
 
             Date expiration = SignedJWT.parse(jwtInfo.value()).getJWTClaimsSet().getExpirationTime();
             assertNotNull(expiration);
@@ -514,7 +514,7 @@ public class JWTITCase extends AbstractITCase {
 
             // login again, get new JWT
             // (even if ExpiredAccessTokenCleanup did not run yet, as it is scheduled every 5 minutes)
-            String newJWT = CLIENT_FACTORY.create(user.getUsername(), "password123").jwtInfo().orElseThrow().value();
+            String newJWT = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).jwtInfo().orElseThrow().value();
             assertNotEquals(jwtInfo.value(), newJWT);
         } finally {
             confParamOps.set(SyncopeConstants.MASTER_DOMAIN, StandardConfParams.JWT_LIFETIME_MINUTES, orig);

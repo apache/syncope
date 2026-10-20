@@ -155,7 +155,7 @@ public class DelegationITCase extends AbstractITCase {
         delegation.setDelegated(delegated.getKey());
         delegation.setStart(OffsetDateTime.now());
 
-        DelegationService uds = CLIENT_FACTORY.create(delegating.getUsername(), "password123").
+        DelegationService uds = CLIENT_FACTORY.create(delegating.getUsername(), DEFAULT_PASSWORD).
                 getService(DelegationService.class);
 
         // delegating user is not requesting user -> FAIL

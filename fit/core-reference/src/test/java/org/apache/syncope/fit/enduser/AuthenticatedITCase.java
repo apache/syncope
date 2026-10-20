@@ -58,7 +58,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
                 mustChangePassword(new BooleanReplacePatchItem.Builder().value(Boolean.TRUE).build()).build());
 
         TESTER.startPage(Login.class);
-        doLogin("mustchangepassword", "password123");
+        doLogin("mustchangepassword", DEFAULT_PASSWORD);
 
         TESTER.assertRenderedPage(MustChangePassword.class);
 
@@ -95,7 +95,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
         String newEmail = "selfupdate@email.com";
 
         TESTER.startPage(Login.class);
-        doLogin(username, "password123");
+        doLogin(username, DEFAULT_PASSWORD);
 
         TESTER.assertComponent("body:contentWrapper:content:userProfileInfo:userProfile", WebMarkupContainer.class);
 

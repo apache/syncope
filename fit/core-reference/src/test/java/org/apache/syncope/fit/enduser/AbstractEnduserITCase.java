@@ -65,6 +65,8 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
+    protected static final String DEFAULT_PASSWORD = "password123";
+
     @ImportAutoConfiguration(classes = {
         SelfKeymasterClientContext.class,
         ZookeeperKeymasterClientContext.class,
@@ -180,7 +182,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustchangepassword").
-                        password("password123").
+                        password(DEFAULT_PASSWORD).
                         mustChangePassword(true).
                         plainAttr(attr("fullname", "mustchangepassword@apache.org")).
                         plainAttr(attr("firstname", "mustchangepassword@apache.org")).
@@ -201,7 +203,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfpwdreset").
-                        password("password123").
+                        password(DEFAULT_PASSWORD).
                         plainAttr(attr("fullname", "selfpwdreset@apache.org")).
                         plainAttr(attr("firstname", "selfpwdreset@apache.org")).
                         plainAttr(attr("surname", "surname")).
@@ -221,7 +223,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 USER_SERVICE.create(new UserCR.Builder(SyncopeConstants.ROOT_REALM, "selfupdate").
-                        password("password123").
+                        password(DEFAULT_PASSWORD).
                         plainAttr(attr("fullname", "selfupdate@apache.org")).
                         plainAttr(attr("firstname", "selfupdate@apache.org")).
                         plainAttr(attr("surname", "surname")).

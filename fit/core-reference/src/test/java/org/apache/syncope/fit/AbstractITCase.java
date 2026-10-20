@@ -228,6 +228,8 @@ public abstract class AbstractITCase {
 
     protected static final String ADMIN_PWD = "password";
 
+    protected static final String DEFAULT_PASSWORD = "password123";
+
     protected static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
     protected static final String BUILD_TOOLS_ADDRESS = "http://localhost:9080/syncope-fit-build-tools/cxf";

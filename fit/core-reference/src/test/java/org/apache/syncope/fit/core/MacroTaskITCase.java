@@ -264,7 +264,7 @@ public class MacroTaskITCase extends AbstractITCase {
 
         // 3. attempt to run the macro task -> fail
         TaskService taskService = CLIENT_FACTORY.create(
-                userTO.getUsername(), "password123").getService(TaskService.class);
+                userTO.getUsername(), DEFAULT_PASSWORD).getService(TaskService.class);
         try {
             taskService.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build());
             fail();

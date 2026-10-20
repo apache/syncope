@@ -71,7 +71,7 @@ public class ManagerITCase extends AbstractITCase {
         assertTrue(matching.getResult().stream().anyMatch(user -> managedKey.equals(user.getKey())));
 
         // check manager realms
-        SyncopeClient managerClient = CLIENT_FACTORY.create(managerUsername, "password123");
+        SyncopeClient managerClient = CLIENT_FACTORY.create(managerUsername, DEFAULT_PASSWORD);
         Self self = managerClient.self();
         Set<String> managerRealms = self.entitlements().get(IdRepoEntitlement.USER_SEARCH);
         assertEquals(1, managerRealms.size());

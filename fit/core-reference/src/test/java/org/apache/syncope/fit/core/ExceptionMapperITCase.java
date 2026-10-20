@@ -79,7 +79,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO1.getAuxClasses().add(typeClass.getKey());
         String userId1 = getUUIDString() + "issue654_1@syncope.apache.org";
         userTO1.setUsername(userId1);
-        userTO1.setPassword("password123");
+        userTO1.setPassword(DEFAULT_PASSWORD);
 
         userTO1.getPlainAttrs().add(attr("userId", userId1));
         userTO1.getPlainAttrs().add(attr("fullname", userId1));
@@ -94,7 +94,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO2.getAuxClasses().add(typeClass.getKey());
         String userId2 = getUUIDString() + "issue654_2@syncope.apache.org";
         userTO2.setUsername(userId2);
-        userTO2.setPassword("password123");
+        userTO2.setPassword(DEFAULT_PASSWORD);
 
         userTO2.getPlainAttrs().add(attr("userId", userId2));
         userTO2.getPlainAttrs().add(attr("fullname", userId2));
@@ -135,7 +135,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userCR.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "issue654@syncope.apache.org";
         userCR.setUsername(userId);
-        userCR.setPassword("password123");
+        userCR.setPassword(DEFAULT_PASSWORD);
 
         userCR.getPlainAttrs().add(attr("userId", "issue654"));
         userCR.getPlainAttrs().add(attr("fullname", userId));
