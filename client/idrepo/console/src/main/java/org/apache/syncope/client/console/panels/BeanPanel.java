@@ -55,6 +55,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.report.SearchCondition;
@@ -290,7 +291,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
         PropertyModel model = new PropertyModel<>(bean, fieldName);
 
         FieldPanel panel;
-        if (ClassUtils.isAssignable(Boolean.class, type)) {
+        if (Boolean.class.equals(type)) {
+            panel = new AjaxTripleStateButtonPanel(id, fieldName, model);
+        } else if (Boolean.TYPE.equals(type)) {
             panel = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
             panel = new AjaxNumberFieldPanel.Builder<>().build(

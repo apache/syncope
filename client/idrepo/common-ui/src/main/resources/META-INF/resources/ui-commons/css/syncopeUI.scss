@@ -19,6 +19,7 @@
 
 @import 'theme';
 @import 'utils';
+@import 'triplestate';
 
 [data-bs-theme=dark] .sidebar-wrapper {
   background-color: rgba(var(--bs-secondary-bg-rgb), var(--bs-bg-opacity)) !important;
