@@ -85,7 +85,7 @@ public class UserRequestITCase extends AbstractITCase {
         assertEquals(req.getUsername(), user.getUsername());
 
         // check that user can see the ongoing request
-        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
         PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
                 listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
@@ -194,7 +194,7 @@ public class UserRequestITCase extends AbstractITCase {
         List<RelationshipTO> relationships = USER_SERVICE.read(user.getKey()).getRelationships();
         assertTrue(relationships.isEmpty());
 
-        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
 
         // start request as user
         UserRequestService service = client.getService(UserRequestService.class);
@@ -265,7 +265,7 @@ public class UserRequestITCase extends AbstractITCase {
         UserTO user = createUser(UserITCase.getUniqueSample("addVariables@tirasa.net")).getEntity();
         assertNotNull(user);
 
-        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
 
         WorkflowTaskExecInput testInput = new WorkflowTaskExecInput();
         testInput.getVariables().put("providedVariable", "test");

@@ -269,7 +269,7 @@ public class KeymasterITCase extends AbstractITCase {
 
         Response response = USER_SERVICE.create(
                 new UserCR.Builder(SyncopeConstants.ROOT_REALM, "monteverdi").
-                        password("password123").
+                        password(DEFAULT_PASSWORD).
                         plainAttr(attr("email", "monteverdi@syncope.apache.org")).
                         build());
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());

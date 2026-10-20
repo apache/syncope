@@ -212,7 +212,7 @@ public class UserSelfITCase extends AbstractITCase {
     @Test
     public void read() {
         UserTO user = createUser(UserITCase.getUniqueSample("selfread@syncope.apache.org")).getEntity();
-        UserService us2 = CLIENT_FACTORY.create(user.getUsername(), "password123").getService(UserService.class);
+        UserService us2 = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).getService(UserService.class);
         try {
             us2.read(user.getKey());
             fail("This should not happen");
@@ -220,7 +220,7 @@ public class UserSelfITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD).self();
         assertEquals(user.getUsername(), self.user().getUsername());
     }
 
@@ -247,7 +247,7 @@ public class UserSelfITCase extends AbstractITCase {
         userUR.setKey(created.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
 
-        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), DEFAULT_PASSWORD);
         UserTO updated = authClient.getService(UserSelfService.class).update(userUR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
@@ -278,7 +278,7 @@ public class UserSelfITCase extends AbstractITCase {
         userUR.setPassword(new PasswordPatch.Builder().
                 value("newPassword123").onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
-        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), DEFAULT_PASSWORD);
         UserTO updated = authClient.getService(UserSelfService.class).update(userUR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
@@ -318,7 +318,7 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO created = createUser(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).getEntity();
         assertNotNull(created);
 
-        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(created.getUsername(), DEFAULT_PASSWORD);
         UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(
                 new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
@@ -346,7 +346,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertTrue(StringUtils.isNotBlank(pwdOnResource));
 
         // 2. verify that new user is able to authenticate
-        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
         UserTO read = authClient.self().user();
         assertNotNull(read);
 
@@ -433,7 +433,7 @@ public class UserSelfITCase extends AbstractITCase {
         createUser(user);
 
         // 2. verify that new user is able to authenticate
-        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
         UserTO read = authClient.self().user();
         assertNotNull(read);
 
@@ -495,10 +495,10 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 3. change password
         vivaldiClient.getService(UserSelfService.class).
-                mustChangePassword(new PasswordPatch.Builder().value("password123").build());
+                mustChangePassword(new PasswordPatch.Builder().value(DEFAULT_PASSWORD).build());
 
         // 4. verify it worked
-        SyncopeClient.Self self = CLIENT_FACTORY.create("vivaldi", "password123").self();
+        SyncopeClient.Self self = CLIENT_FACTORY.create("vivaldi", DEFAULT_PASSWORD).self();
         assertFalse(self.user().isMustChangePassword());
     }
 
@@ -683,7 +683,7 @@ public class UserSelfITCase extends AbstractITCase {
         req.setKey(created.getKey());
         req.getMemberships().add(new MembershipUR.Builder("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
 
-        SyncopeClient client = CLIENT_FACTORY.create(created.getUsername(), "password123");
+        SyncopeClient client = CLIENT_FACTORY.create(created.getUsername(), DEFAULT_PASSWORD);
         Response response = client.getService(UserSelfService.class).update(req);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertEquals("updateApproval", USER_SERVICE.read(created.getKey()).getStatus());
@@ -830,7 +830,7 @@ public class UserSelfITCase extends AbstractITCase {
                 role(new StringPatchItem.Builder().value("User manager").build()).
                 build();
 
-        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
         e = assertThrows(
                 SyncopeClientException.class,
                 () -> authClient.getService(UserSelfService.class).update(userUR));
@@ -877,7 +877,7 @@ public class UserSelfITCase extends AbstractITCase {
                 role(new StringPatchItem.Builder().value("User manager").build()).
                 build();
 
-        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), DEFAULT_PASSWORD);
         user = authClient.getService(UserSelfService.class).
                 update(userUR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {

@@ -113,7 +113,7 @@ public class UserITCase extends AbstractITCase {
 
     public static UserCR getSample(final String email) {
         return new UserCR.Builder(SyncopeConstants.ROOT_REALM, email).
-                password("password123").
+                password(DEFAULT_PASSWORD).
                 plainAttr(attr("fullname", email)).
                 plainAttr(attr("firstname", email)).
                 plainAttr(attr("surname", "surname")).
@@ -140,7 +140,7 @@ public class UserITCase extends AbstractITCase {
     public void createUserWithNoPropagation() {
         // create a new user
         UserCR req = getUniqueSample("xxx@xxx.xxx");
-        req.setPassword("password123");
+        req.setPassword(DEFAULT_PASSWORD);
         req.getResources().add(RESOURCE_NAME_NOPROPAGATION);
 
         UserTO userTO = createUser(req).getEntity();
@@ -346,7 +346,7 @@ public class UserITCase extends AbstractITCase {
 
         // 3. verify password
         try {
-            SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
+            SyncopeClient.Self self = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).self();
             assertNotNull(self);
         } catch (NotAuthorizedException e) {
             fail("Credentials should be valid and not cause NotAuthorizedException");
@@ -551,7 +551,7 @@ public class UserITCase extends AbstractITCase {
 
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
-            userUR.setPassword(new PasswordPatch.Builder().value("password123").build());
+            userUR.setPassword(new PasswordPatch.Builder().value(DEFAULT_PASSWORD).build());
 
             USER_SERVICE.update(userUR);
         });
@@ -1203,7 +1203,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         ResourceAR resourceAR = new ResourceAR.Builder().key(actual.getKey()).
-                value("password123").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
+                value(DEFAULT_PASSWORD).action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(parseBatchResponse(USER_SERVICE.associate(resourceAR)));
 

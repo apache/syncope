@@ -269,7 +269,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         UserCR inUserRC = new UserCR();
         inUserRC.setRealm(SyncopeConstants.ROOT_REALM);
-        inUserRC.setPassword("password123");
+        inUserRC.setPassword(DEFAULT_PASSWORD);
         String userName = "test9";
         inUserRC.setUsername(userName);
         inUserRC.getPlainAttrs().add(attr("firstname", "nome9"));
@@ -1012,7 +1012,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         //-----------------------------
         UserCR userCR = new UserCR();
         userCR.setRealm(SyncopeConstants.ROOT_REALM);
-        userCR.setPassword("password123");
+        userCR.setPassword(DEFAULT_PASSWORD);
         userCR.setUsername("testuser2");
 
         userCR.getPlainAttrs().add(attr("firstname", "testuser2"));
