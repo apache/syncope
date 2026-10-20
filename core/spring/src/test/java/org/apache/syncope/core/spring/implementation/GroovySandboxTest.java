@@ -32,7 +32,10 @@ import java.util.Objects;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.Test;
@@ -45,19 +48,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 class GroovySandboxTest {
 
-    @TempDir
-    private Path tempDir;
-
-    @Test
-    void processBuilder() throws Exception {
-        final MacroActions actions = actions("processBuilder", "/ProcessBuilderMacroActions.groovy");
-
-        final SecurityException e = assertThrows(
-                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
-    }
-
-    private static MacroActions actions(final String key, final String resource) throws Exception {
+    private static <T> T build(final String key, final String resource) throws Exception {
         Implementation impl = mock(Implementation.class);
         when(impl.getKey()).thenReturn(key);
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
@@ -68,34 +59,45 @@ class GroovySandboxTest {
         return ImplementationManager.build(SyncopeConstants.MASTER_DOMAIN, impl);
     }
 
+    @TempDir
+    private Path tempDir;
+
+    @Test
+    void processBuilder() throws Exception {
+        MacroActions actions = build("processBuilder", "/ProcessBuilderMacroActions.groovy");
+
+        SecurityException e = assertThrows(
+                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
+        assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
+    }
+
     @EnabledOnOs(OS.LINUX)
     @Test
     void bash() throws Exception {
-        final MacroActions actions = actions("bash", "/BashMacroActions.groovy");
+        MacroActions actions = build("bash", "/BashMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new java.io.File java.lang.String'"));
     }
 
     @Test
     void staticMacroActions() throws Exception {
-        final BeanCreationException e =
-                assertThrows(
-                        BeanCreationException.class,
-                        () -> actions("staticMacroActions", "/StaticMacroActions.groovy"));
-        final SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
+        BeanCreationException e = assertThrows(
+                BeanCreationException.class,
+                () -> build("staticMacroActions", "/StaticMacroActions.groovy"));
+        SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
         assertTrue(sec.getMessage().startsWith("Insecure call to 'new java.lang.ProcessBuilder java.util.List'"));
     }
 
     @Test
     void pathOfFilesReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-read.txt");
+        Path testFile = tempDir.resolve("sandbox-read.txt");
         Files.writeString(testFile, "sandbox-read-ok");
 
-        final MacroActions actions = actions("pathOfFilesReadString", "/PathOfFilesReadStringMacroActions.groovy");
+        MacroActions actions = build("pathOfFilesReadString", "/PathOfFilesReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
         assertTrue(e.getMessage().contains(
@@ -104,11 +106,11 @@ class GroovySandboxTest {
 
     @Test
     void pathOfFilesWriteString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-write.txt");
+        Path testFile = tempDir.resolve("sandbox-write.txt");
 
-        final MacroActions actions = actions("pathOfFilesWriteString", "/PathOfFilesWriteStringMacroActions.groovy");
+        MacroActions actions = build("pathOfFilesWriteString", "/PathOfFilesWriteStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
         assertTrue(e.getMessage().contains(
@@ -117,13 +119,12 @@ class GroovySandboxTest {
 
     @Test
     void pathOfUriFilesReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-read-uri.txt");
+        Path testFile = tempDir.resolve("sandbox-read-uri.txt");
         Files.writeString(testFile, "sandbox-read-uri-ok");
 
-        final MacroActions actions =
-                actions("pathOfUriFilesReadString", "/PathOfUriFilesReadStringMacroActions.groovy");
+        MacroActions actions = build("pathOfUriFilesReadString", "/PathOfUriFilesReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
         assertTrue(e.getMessage().contains(
@@ -132,12 +133,12 @@ class GroovySandboxTest {
 
     @Test
     void pathsGetFilesReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-paths-get-read.txt");
+        Path testFile = tempDir.resolve("sandbox-paths-get-read.txt");
         Files.writeString(testFile, "sandbox-paths-get-read-ok");
 
-        final MacroActions actions = actions("pathsGetFilesReadString", "/PathsGetFilesReadStringMacroActions.groovy");
+        MacroActions actions = build("pathsGetFilesReadString", "/PathsGetFilesReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
         assertTrue(e.getMessage().contains(
@@ -146,13 +147,12 @@ class GroovySandboxTest {
 
     @Test
     void pathsGetUriFilesReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-paths-get-uri-read.txt");
+        Path testFile = tempDir.resolve("sandbox-paths-get-uri-read.txt");
         Files.writeString(testFile, "sandbox-paths-get-uri-read-ok");
 
-        final MacroActions actions =
-                actions("pathsGetUriFilesReadString", "/PathsGetUriFilesReadStringMacroActions.groovy");
+        MacroActions actions = build("pathsGetUriFilesReadString", "/PathsGetUriFilesReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
         assertTrue(e.getMessage().contains(
@@ -161,12 +161,12 @@ class GroovySandboxTest {
 
     @Test
     void fileSystemsReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-filesystems-read.txt");
+        Path testFile = tempDir.resolve("sandbox-filesystems-read.txt");
         Files.writeString(testFile, "sandbox-filesystems-read-ok");
 
-        final MacroActions actions = actions("fileSystemsReadString", "/FileSystemsReadStringMacroActions.groovy");
+        MacroActions actions = build("fileSystemsReadString", "/FileSystemsReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
         assertTrue(e.getMessage().contains(
@@ -175,13 +175,13 @@ class GroovySandboxTest {
 
     @Test
     void fileSystemProviderReadString() throws Exception {
-        final Path testFile = tempDir.resolve("sandbox-filesystem-provider-read.txt");
+        Path testFile = tempDir.resolve("sandbox-filesystem-provider-read.txt");
         Files.writeString(testFile, "sandbox-filesystem-provider-read-ok");
 
-        final MacroActions actions =
-                actions("fileSystemProviderReadString", "/FileSystemProviderReadStringMacroActions.groovy");
+        MacroActions actions =
+                build("fileSystemProviderReadString", "/FileSystemProviderReadStringMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
         assertTrue(e.getMessage().contains(
@@ -190,9 +190,9 @@ class GroovySandboxTest {
 
     @Test
     void filesCreateTempFile() throws Exception {
-        final MacroActions actions = actions("filesCreateTempFile", "/FilesCreateTempFileMacroActions.groovy");
+        MacroActions actions = build("filesCreateTempFile", "/FilesCreateTempFileMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -202,10 +202,9 @@ class GroovySandboxTest {
 
     @Test
     void filesCreateTempDirectory() throws Exception {
-        final MacroActions actions =
-                actions("filesCreateTempDirectory", "/FilesCreateTempDirectoryMacroActions.groovy");
+        MacroActions actions = build("filesCreateTempDirectory", "/FilesCreateTempDirectoryMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -216,16 +215,14 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void processBuilderStartPipeline() throws Exception {
-        final MacroActions actions =
-                actions("processBuilderStartPipeline", "/ProcessBuilderStartPipelineMacroActions.groovy");
+        MacroActions actions = build("processBuilderStartPipeline", "/ProcessBuilderStartPipelineMacroActions.groovy");
 
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
-                (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of(
-                        "builders",
-                        List.of(new ProcessBuilder("/bin/sh", "-c", "printf sandbox-start-pipeline-ok")));
+        Map<String, java.io.Serializable> ctx = (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of(
+                "builders",
+                List.of(new ProcessBuilder("/bin/sh", "-c", "printf sandbox-start-pipeline-ok")));
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -235,13 +232,13 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void runtimeExec() throws Exception {
-        final MacroActions actions = actions("runtimeExec", "/RuntimeExecMacroActions.groovy");
+        MacroActions actions = build("runtimeExec", "/RuntimeExecMacroActions.groovy");
 
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
+        Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("runtime", Runtime.getRuntime());
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -251,10 +248,9 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void beansExpressionRuntimeExec() throws Exception {
-        final MacroActions actions =
-                actions("beansExpressionRuntimeExec", "/BeansExpressionRuntimeExecMacroActions.groovy");
+        MacroActions actions = build("beansExpressionRuntimeExec", "/BeansExpressionRuntimeExecMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -263,10 +259,9 @@ class GroovySandboxTest {
 
     @Test
     void beansStatementSystemExit() throws Exception {
-        final MacroActions actions =
-                actions("beansStatementSystemExit", "/BeansStatementSystemExitMacroActions.groovy");
+        MacroActions actions = build("beansStatementSystemExit", "/BeansStatementSystemExitMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -276,9 +271,9 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void groovyShellRuntimeExec() throws Exception {
-        final MacroActions actions = actions("groovyShellRuntimeExec", "/GroovyShellRuntimeExecMacroActions.groovy");
+        MacroActions actions = build("groovyShellRuntimeExec", "/GroovyShellRuntimeExecMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyShell'"));
@@ -287,9 +282,9 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void evalRuntimeExec() throws Exception {
-        final MacroActions actions = actions("evalRuntimeExec", "/EvalRuntimeExecMacroActions.groovy");
+        MacroActions actions = build("evalRuntimeExec", "/EvalRuntimeExecMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -299,10 +294,9 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void methodHandlesRuntimeExec() throws Exception {
-        final MacroActions actions =
-                actions("methodHandlesRuntimeExec", "/MethodHandlesRuntimeExecMacroActions.groovy");
+        MacroActions actions = build("methodHandlesRuntimeExec", "/MethodHandlesRuntimeExecMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -312,13 +306,13 @@ class GroovySandboxTest {
     @EnabledOnOs(OS.LINUX)
     @Test
     void runtimeExecOverloads() throws Exception {
-        final MacroActions actions = actions("runtimeExecOverloads", "/RuntimeExecOverloadsMacroActions.groovy");
+        MacroActions actions = build("runtimeExecOverloads", "/RuntimeExecOverloadsMacroActions.groovy");
 
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
+        Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("runtime", Runtime.getRuntime());
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -327,9 +321,9 @@ class GroovySandboxTest {
 
     @Test
     void evalOverloads() throws Exception {
-        final MacroActions actions = actions("evalOverloads", "/EvalOverloadsMacroActions.groovy");
+        MacroActions actions = build("evalOverloads", "/EvalOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -338,15 +332,15 @@ class GroovySandboxTest {
 
     @Test
     void groovyShellOverloads() throws Exception {
-        final Path script = tempDir.resolve("sandbox-groovy-shell-overload.groovy");
+        Path script = tempDir.resolve("sandbox-groovy-shell-overload.groovy");
         Files.writeString(script, "return 'shell-evaluate-file|'");
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
+        Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("scriptFile", script.toFile());
 
-        final MacroActions actions = actions("groovyShellOverloads", "/GroovyShellOverloadsMacroActions.groovy");
+        MacroActions actions = build("groovyShellOverloads", "/GroovyShellOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyShell'"));
@@ -354,10 +348,10 @@ class GroovySandboxTest {
 
     @Test
     void groovyClassLoaderOverloads() throws Exception {
-        final MacroActions actions =
-                actions("groovyClassLoaderOverloads", "/GroovyClassLoaderOverloadsMacroActions.groovy");
+        MacroActions actions = build(
+                "groovyClassLoaderOverloads", "/GroovyClassLoaderOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyClassLoader'"));
@@ -365,9 +359,9 @@ class GroovySandboxTest {
 
     @Test
     void scriptEngineOverloads() throws Exception {
-        final MacroActions actions = actions("scriptEngineOverloads", "/ScriptEngineOverloadsMacroActions.groovy");
+        MacroActions actions = build("scriptEngineOverloads", "/ScriptEngineOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new javax.script.ScriptEngineManager'"));
@@ -375,15 +369,15 @@ class GroovySandboxTest {
 
     @Test
     void fileSystemsOverloads() throws Exception {
-        final Path file = tempDir.resolve("sandbox-filesystems-overloads.txt");
+        Path file = tempDir.resolve("sandbox-filesystems-overloads.txt");
         Files.writeString(file, "sandbox-filesystems-overloads-ok");
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
+        Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("path", file);
 
-        final MacroActions actions = actions("fileSystemsOverloads", "/FileSystemsOverloadsMacroActions.groovy");
+        MacroActions actions = build("fileSystemsOverloads", "/FileSystemsOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -392,18 +386,17 @@ class GroovySandboxTest {
 
     @Test
     void fileSystemProviderOverloads() throws Exception {
-        final Path file = tempDir.resolve("sandbox-filesystem-provider-overloads.txt");
+        Path file = tempDir.resolve("sandbox-filesystem-provider-overloads.txt");
         Files.writeString(file, "sandbox-filesystem-provider-overloads-ok");
         @SuppressWarnings("unchecked")
-        final Map<String, java.io.Serializable> ctx =
+        Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of(
                         "path", file,
                         "provider", file.getFileSystem().provider());
 
-        final MacroActions actions =
-                actions("fileSystemProviderOverloads", "/FileSystemProviderOverloadsMacroActions.groovy");
+        MacroActions actions = build("fileSystemProviderOverloads", "/FileSystemProviderOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(ctx, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -412,9 +405,9 @@ class GroovySandboxTest {
 
     @Test
     void methodHandlesOverloads() throws Exception {
-        final MacroActions actions = actions("methodHandlesOverloads", "/MethodHandlesOverloadsMacroActions.groovy");
+        MacroActions actions = build("methodHandlesOverloads", "/MethodHandlesOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
@@ -423,12 +416,39 @@ class GroovySandboxTest {
 
     @Test
     void beansOverloads() throws Exception {
-        final MacroActions actions = actions("beansOverloads", "/BeansOverloadsMacroActions.groovy");
+        MacroActions actions = build("beansOverloads", "/BeansOverloadsMacroActions.groovy");
 
-        final SecurityException e = assertThrows(
+        SecurityException e = assertThrows(
                 SecurityException.class,
                 () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains(
                 "Insecure call to 'new java.beans.Expression java.lang.Object java.lang.String java.lang.Object[]'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void processGroovyMethodsSchedTaskJobDelegate() throws Exception {
+        SchedTaskJobDelegate delegate = build(
+                "processGroovyMethodsSchedTaskJobDelegate", "/ProcessGroovyMethodsSchedTaskJobDelegate.groovy");
+
+        SecurityException e = assertThrows(
+                SecurityException.class,
+                () -> delegate.execute(TaskType.SCHEDULED, null, null));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods "
+                + "execute java.lang.String'"));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void threadLocalBypassSchedTaskJobDelegate() throws Exception {
+        SchedTaskJobDelegate delegate = build("threadLocalBypass", "/ThreadLocalBypassSchedTaskJobDelegate.groovy");
+
+        JobExecutionException e = assertThrows(
+                JobExecutionException.class,
+                () -> delegate.execute(TaskType.SCHEDULED, null, null));
+        assertTrue(e.getMessage().contains(
+                "Insecure call to 'staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods "
+                + "execute java.lang.String'"));
     }
 }

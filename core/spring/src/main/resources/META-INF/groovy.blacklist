@@ -250,3 +250,13 @@ staticMethod org.codehaus.groovy.runtime.ScriptBytecodeAdapter castToType java.l
 # SECURITY-1754
 new org.kohsuke.groovy.sandbox.impl.Checker$SuperConstructorWrapper java.lang.Object[]
 new org.kohsuke.groovy.sandbox.impl.Checker$ThisConstructorWrapper java.lang.Object[]
+
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.String
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.String java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.String[]
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.String[] java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.util.List
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.util.List java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.Runtime java.lang.String
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.Runtime java.lang.String java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods execute java.lang.Runtime java.lang.String[]
