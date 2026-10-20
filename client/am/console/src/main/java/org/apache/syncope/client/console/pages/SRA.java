@@ -60,7 +60,8 @@ public class SRA extends BasePage {
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
         body.setOutputMarkupId(true);
 
-        List<NetworkService> instances = serviceOps.list(NetworkService.Type.SRA);
+        List<NetworkService> instances = serviceOps.list(
+                NetworkService.Type.SRA, SyncopeConsoleSession.get().getDomain());
 
         AjaxLink<?> push = new AjaxLink<>("push") {
 

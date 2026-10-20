@@ -77,9 +77,8 @@ public class MSEntraJWSVerifierCacheLoader implements CacheLoader<String, JWSVer
     }
 
     protected String fetchDocument(final String url) {
-        HttpResponse<String> response;
-        try {
-            response = HttpClient.newHttpClient().send(
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            HttpResponse<String> response = client.send(
                     HttpRequest.newBuilder().uri(URI.create(url)).build(),
                     HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 400) {

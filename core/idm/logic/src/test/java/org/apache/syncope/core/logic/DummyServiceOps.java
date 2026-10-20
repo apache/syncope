@@ -40,7 +40,17 @@ public class DummyServiceOps implements ServiceOps {
     }
 
     @Override
+    public List<NetworkService> list(final NetworkService.Type serviceType, final String domain) {
+        return List.of();
+    }
+
+    @Override
     public NetworkService get(final NetworkService.Type serviceType) {
+        return null;
+    }
+
+    @Override
+    public NetworkService get(final NetworkService.Type serviceType, final String domain) {
         return null;
     }
 }

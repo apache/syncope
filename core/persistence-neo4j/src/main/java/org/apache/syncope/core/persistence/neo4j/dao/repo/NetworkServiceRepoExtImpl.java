@@ -48,6 +48,17 @@ public class NetworkServiceRepoExtImpl implements NetworkServiceRepoExt {
                 Neo4jNetworkService.class).stream().map(NetworkServiceEntity.class::cast).toList();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<NetworkServiceEntity> findAll(final NetworkService.Type serviceType, final String domain) {
+        return neo4jTemplate.findAll(
+                "MATCH (n:" + Neo4jNetworkService.NODE + ") "
+                + "WHERE n.type = $serviceType AND n.domain = $ domain "
+                + "RETURN n",
+                Map.of("serviceType", serviceType.name(), "domain", domain),
+                Neo4jNetworkService.class).stream().map(NetworkServiceEntity.class::cast).toList();
+    }
+
     @Override
     public <S extends Neo4jNetworkService> S save(final S service) {
         if (findAll(service.getType()).stream().anyMatch(s -> s.getAddress().equals(service.getAddress()))) {
