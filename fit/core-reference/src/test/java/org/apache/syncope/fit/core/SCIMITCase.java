@@ -140,7 +140,7 @@ public class SCIMITCase extends AbstractITCase {
 
     private static SCIMUser getSampleUser(final String username, final List<String> schemas) {
         SCIMUser user = new SCIMUser(null, schemas, null, username, true);
-        user.setPassword("password123");
+        user.setPassword(DEFAULT_PASSWORD);
 
         SCIMUserName name = new SCIMUserName();
         name.setGivenName(username);

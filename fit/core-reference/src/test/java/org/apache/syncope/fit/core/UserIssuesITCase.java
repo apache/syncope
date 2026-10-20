@@ -147,7 +147,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "issue186@syncope.apache.org";
         userCR.setUsername(userId);
-        userCR.setPassword("password123");
+        userCR.setPassword(DEFAULT_PASSWORD);
 
         userCR.getPlainAttrs().add(attr("userId", userId));
         userCR.getPlainAttrs().add(attr("fullname", userId));
@@ -761,7 +761,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "syncope402@syncope.apache.org";
         userCR.setUsername(userId);
-        userCR.setPassword("password123");
+        userCR.setPassword(DEFAULT_PASSWORD);
 
         userCR.getPlainAttrs().add(attr("userId", userId));
         userCR.getPlainAttrs().add(attr("fullname", userId));
@@ -884,7 +884,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
                 connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
-                "password123",
+                DEFAULT_PASSWORD,
                 connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
 
         // 4. update user without any password change request
@@ -898,7 +898,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
                 connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
-                "password123",
+                DEFAULT_PASSWORD,
                 connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
     }
 
@@ -1245,7 +1245,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
             }
 
-            userCR.setPassword("password123");
+            userCR.setPassword(DEFAULT_PASSWORD);
             UserTO user = createUser(userCR).getEntity();
             assertNotNull(user);
         } finally {
@@ -1480,7 +1480,7 @@ public class UserIssuesITCase extends AbstractITCase {
         try {
             // 2. create user under /even/two to get password policy with history length 1
             UserCR userCR = UserITCase.getUniqueSample("syncope1337@apache.org");
-            userCR.setPassword("Password123");
+            userCR.setPassword(DEFAULT_PASSWORD);
             userCR.setRealm("/even/two");
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
@@ -1488,7 +1488,7 @@ public class UserIssuesITCase extends AbstractITCase {
             // 3. attempt to set the same password value: fails
             UserUR req = new UserUR();
             req.setKey(userTO.getKey());
-            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value(DEFAULT_PASSWORD).build());
             try {
                 updateUser(req);
                 fail("Password update should not work");
@@ -1503,7 +1503,7 @@ public class UserIssuesITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 5. set the original password value: works (history length is 1)
-            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value("Password123").build());
+            req.setPassword(new PasswordPatch.Builder().onSyncope(true).value(DEFAULT_PASSWORD).build());
             userTO = updateUser(req).getEntity();
             assertNotNull(userTO);
         } finally {
@@ -1520,7 +1520,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userUR.setPassword(new PasswordPatch.Builder()
                 .onSyncope(false)
                 .resource(RESOURCE_NAME_TESTDB)
-                .value("Password123")
+                .value(DEFAULT_PASSWORD)
                 .build());
         userUR.getResources().add(new StringPatchItem.Builder()
                 .value(RESOURCE_NAME_TESTDB)
@@ -1618,7 +1618,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getRoles().add(role.getKey());
         UserTO userTO = createUser(userCR).getEntity();
 
-        UserService userService = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+        UserService userService = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD).
                 getService(UserService.class);
         Response response = userService.associate(new ResourceAR.Builder().key(userTO.getKey()).
                 resource(RESOURCE_NAME_NOPROPAGATION).action(ResourceAssociationAction.ASSIGN).build());

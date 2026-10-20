@@ -183,7 +183,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
-        account.setPassword("Password123");
+        account.setPassword(DEFAULT_PASSWORD);
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
 
         user = updateUser(userUR).getEntity();
@@ -233,7 +233,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertNull(user.getLinkedAccounts().getFirst().getPassword());
 
         // 4. update linked account with adding a password
-        account.setPassword("Password123");
+        account.setPassword(DEFAULT_PASSWORD);
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
@@ -255,7 +255,7 @@ public class LinkedAccountITCase extends AbstractITCase {
                 forEach(task -> TASK_SERVICE.delete(TaskType.PROPAGATION, task.getKey()));
 
         // set a correct password
-        account.setPassword("Password123");
+        account.setPassword(DEFAULT_PASSWORD);
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
 
@@ -479,7 +479,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         ObjectNode user = JSON_MAPPER.createObjectNode();
         user.put("username", "linkedaccount1");
-        user.put("password", "Password123");
+        user.put("password", DEFAULT_PASSWORD);
         user.put("firstName", "Pasquale");
         user.put("surname", "Vivaldi");
         user.put("email", "vivaldi@syncope.org");
@@ -491,7 +491,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         user = JSON_MAPPER.createObjectNode();
         user.put("username", "vivaldi");
-        user.put("password", "Password123");
+        user.put("password", DEFAULT_PASSWORD);
         user.put("firstName", "Giovannino");
         user.put("surname", "Vivaldi");
         user.put("email", "vivaldi@syncope.org");
@@ -503,7 +503,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         user = JSON_MAPPER.createObjectNode();
         user.put("username", "not.vivaldi");
-        user.put("password", "Password123");
+        user.put("password", DEFAULT_PASSWORD);
         user.put("email", "not.vivaldi@syncope.org");
 
         response = webClient.post(user.toString());

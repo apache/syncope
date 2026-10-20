@@ -143,7 +143,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
         List<RealmTO> result = realmSearchDAO.search(baseRealms, effectiveCond, pageable).stream().
                 map(realm -> binder.getRealmTO(
-                realm, RealmUtils.SubtreePredicate.of(authorizations).test(realm.getFullPath()))).
+                        realm, RealmUtils.SubtreePredicate.of(authorizations).test(realm.getFullPath()))).
                 sorted(Comparator.comparing(RealmTO::getFullPath)).
                 toList();
 
@@ -203,6 +203,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
+
+        // ensure that requester's administration rights are still valid
+        securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_UPDATE), realm.getFullPath());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.createTasks(realm, propByRes, null),
