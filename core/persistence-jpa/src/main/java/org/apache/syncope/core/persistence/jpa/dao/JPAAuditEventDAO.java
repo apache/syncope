@@ -97,12 +97,14 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                 final String category,
                 final String subcategory,
                 final String op,
-                final OpEvent.Outcome outcome) {
+                final OpEvent.Outcome outcome,
+                final List<Object> parameters) {
 
             query.append(andIfNeeded()).
-                    append("opEvent LIKE '").
-                    append(toOpEvent(type, category, subcategory, op, outcome).replace("[]", "[%]")).
-                    append("'");
+                    append("opEvent LIKE ?").append(setParameter(
+                    parameters,
+                    toOpEvent(type, category, subcategory, op, outcome).replace("[]", "[%]"))).
+                    append(" ESCAPE '#'");
 
             return this;
         }
@@ -174,7 +176,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                 + " WHERE" + criteriaBuilder(entityKey).
                         username(username, parameters).
                         who(who, parameters).
-                        opEvent(type, category, subcategory, op, outcome).
+                        opEvent(type, category, subcategory, op, outcome, parameters).
                         before(before, parameters).
                         after(after, parameters).
                         build();
@@ -205,7 +207,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
                 + " WHERE" + criteriaBuilder(entityKey).
                         username(username, parameters).
                         who(who, parameters).
-                        opEvent(type, category, subcategory, op, outcome).
+                        opEvent(type, category, subcategory, op, outcome, parameters).
                         before(before, parameters).
                         after(after, parameters).
                         build();
