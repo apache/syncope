@@ -43,6 +43,8 @@ public class AjaxTripleStateButtonPanel extends FieldPanel<Boolean> {
 
     protected final Radio<Boolean> unsetOption;
 
+    private final boolean enableOnChange;
+
     private final boolean convertValuesToString;
 
     public AjaxTripleStateButtonPanel(final String id, final String name, final IModel<Boolean> model) {
@@ -67,6 +69,7 @@ public class AjaxTripleStateButtonPanel extends FieldPanel<Boolean> {
 
         super(id, name, model);
 
+        this.enableOnChange = enableOnChange;
         this.convertValuesToString = convertValuesToString;
 
         field = new RadioGroup<>("tripleStateField", model);
@@ -189,6 +192,22 @@ public class AjaxTripleStateButtonPanel extends FieldPanel<Boolean> {
                 });
             }
         });
+    }
+
+    @Override
+    public FieldPanel<Boolean> clone() {
+        AjaxTripleStateButtonPanel panel = new AjaxTripleStateButtonPanel(
+                getId(), name, new Model<>(), enableOnChange, convertValuesToString);
+
+        panel.setRequired(isRequired());
+        panel.setReadOnly(isReadOnly());
+        panel.setTitle(title);
+
+        if (isRequiredLabelAdded) {
+            panel.addRequiredLabel();
+        }
+
+        return panel;
     }
 
     public static class Builder {
