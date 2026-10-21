@@ -77,7 +77,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
                         index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom
-                        : this instanceof AjaxCheckBoxPanel
+                        : this instanceof AjaxTripleStateButtonPanel
                                 ? TooltipConfig.Placement.right
                                 : TooltipConfig.Placement.top)));
         return this;

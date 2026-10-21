@@ -30,9 +30,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMReturned;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -149,10 +149,11 @@ public class SCIMExtensionMappingPanel extends Panel {
                 //--------------------------------
                 // mandatoryCondition
                 // -------------------------------
-                AjaxCheckBoxPanel mandatoryCondition = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel mandatoryCondition = new AjaxTripleStateButtonPanel(
                         "mandatoryCondition",
                         "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
+                mandatoryCondition.setRequired(true);
                 mandatoryCondition.hideLabel();
                 mandatoryCondition.setEnabled(true);
                 item.add(mandatoryCondition);
@@ -161,10 +162,11 @@ public class SCIMExtensionMappingPanel extends Panel {
                 //--------------------------------
                 // CaseExact
                 // -------------------------------
-                AjaxCheckBoxPanel caseExact = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel caseExact = new AjaxTripleStateButtonPanel(
                         "caseExact",
                         "caseExact",
                         new PropertyModel<>(itemTO, "caseExact"));
+                caseExact.setRequired(true);
                 caseExact.hideLabel();
                 caseExact.setEnabled(true);
                 item.add(caseExact);
@@ -173,10 +175,11 @@ public class SCIMExtensionMappingPanel extends Panel {
                 //--------------------------------
                 // Mutability
                 // -------------------------------
-                AjaxCheckBoxPanel mutability = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel mutability = new AjaxTripleStateButtonPanel(
                         "mutability",
                         "mutability",
                         new PropertyModel<>(itemTO, "mutability"));
+                mutability.setRequired(true);
                 mutability.hideLabel();
                 mutability.setEnabled(true);
                 item.add(mutability);
@@ -198,10 +201,11 @@ public class SCIMExtensionMappingPanel extends Panel {
                 //--------------------------------
                 // Uniqueness
                 // -------------------------------
-                AjaxCheckBoxPanel uniqueness = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel uniqueness = new AjaxTripleStateButtonPanel(
                         "uniqueness",
                         "uniqueness",
                         new PropertyModel<>(itemTO, "uniqueness"));
+                uniqueness.setRequired(true);
                 uniqueness.hideLabel();
                 uniqueness.setEnabled(true);
                 item.add(uniqueness);
@@ -210,10 +214,11 @@ public class SCIMExtensionMappingPanel extends Panel {
                 //--------------------------------
                 // MultiValued
                 // -------------------------------
-                AjaxCheckBoxPanel multiValued = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel multiValued = new AjaxTripleStateButtonPanel(
                         "multiValued",
                         "multiValued",
                         new PropertyModel<>(itemTO, "multiValued"));
+                multiValued.setRequired(true);
                 multiValued.hideLabel();
                 multiValued.setEnabled(true);
                 item.add(multiValued);

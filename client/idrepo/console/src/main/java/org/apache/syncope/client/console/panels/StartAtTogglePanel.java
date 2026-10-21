@@ -25,9 +25,9 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.PageReference;
@@ -58,9 +58,10 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                 FastDateFormat.getInstance(SyncopeConstants.DATE_PATTERNS[3]));
         form.add(startAtDate.setReadOnly(true).hideLabel());
 
-        AjaxCheckBoxPanel startAtCheck = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel startAtCheck = new AjaxTripleStateButtonPanel(
                 "startAtCheck", "startAtCheck", new Model<>(false), false);
-        startAtCheck.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        startAtCheck.addRequiredLabel();
+        startAtCheck.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

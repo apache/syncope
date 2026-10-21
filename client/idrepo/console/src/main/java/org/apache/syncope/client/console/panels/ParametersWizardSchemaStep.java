@@ -19,8 +19,8 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.List;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -52,7 +52,7 @@ public class ParametersWizardSchemaStep extends WizardStep {
                 AttrSchemaType.Binary));
         content.add(type);
 
-        content.add(new AjaxCheckBoxPanel("multivalue", getString("multivalue"),
-                new PropertyModel<>(modelObject.getSchema(), "multivalue")));
+        content.add(new AjaxTripleStateButtonPanel("multivalue", getString("multivalue"),
+                new PropertyModel<>(modelObject.getSchema(), "multivalue")).addRequiredLabel());
     }
 }

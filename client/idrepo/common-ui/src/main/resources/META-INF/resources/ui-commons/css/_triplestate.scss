@@ -31,6 +31,18 @@
   flex-direction: row;
   align-items: baseline;
   gap: 0.25rem;
+  width: 100%;
+}
+
+.tristate-field-label-row > .tristate-external-action {
+  align-self: flex-start;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.tristate-external-action .form-check {
+  margin: 0;
+  padding: 0;
 }
 
 .tristate-field .btn-group > .btn {
@@ -40,7 +52,7 @@
 
 .tristate-icon-group > .btn {
   min-width: 45px;
-  min-height: 35px;
+  min-height: calc(1.5em + 0.75rem + 2 * var(--bs-border-width));
   display: flex;
   align-items: center;
   justify-content: center;

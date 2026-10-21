@@ -25,9 +25,9 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.PasswordManagementRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
@@ -113,8 +113,9 @@ public class PasswordManagementWizardBuilder extends BaseAjaxWizardBuilder<Passw
                     new PropertyModel<>(passwordManagement, Constants.DESCRIPTION_FIELD_NAME));
             add(description);
 
-            AjaxCheckBoxPanel isEnabled = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel isEnabled = new AjaxTripleStateButtonPanel(
                     "enabled", "enabled", new PropertyModel<>(passwordManagement, "enabled"));
+            isEnabled.addRequiredLabel();
             add(isEnabled);
 
             AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>("conf", getString("type"), isNew

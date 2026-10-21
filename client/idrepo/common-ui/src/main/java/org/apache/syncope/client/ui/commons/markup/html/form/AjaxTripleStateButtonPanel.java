@@ -70,6 +70,7 @@ public class AjaxTripleStateButtonPanel extends FieldPanel<Boolean> {
         this.convertValuesToString = convertValuesToString;
 
         field = new RadioGroup<>("tripleStateField", model);
+        field.setRenderBodyOnly(false);
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
         field.add(AttributeModifier.replace("aria-label", field.getLabel()));
         field.add(AttributeModifier.replace("aria-required", (IModel<String>) () -> Boolean.toString(isRequired())));

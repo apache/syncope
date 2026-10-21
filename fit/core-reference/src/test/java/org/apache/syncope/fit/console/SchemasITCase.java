@@ -102,7 +102,7 @@ public class SchemasITCase extends AbstractTypesITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:form:view:details:multivalue:checkboxField", "true");
+        formTester.select("content:form:view:details:multivalue:tripleStateField", 0);
 
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
                 + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);

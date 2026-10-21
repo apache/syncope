@@ -23,6 +23,7 @@ under the License.
       <wicket:enclosure child="field-label">
         <span class="form-label" wicket:id="field-label">[LABEL]</span><span wicket:id="required"/>
       </wicket:enclosure>
+      <span wicket:id="externalAction" class="tristate-external-action"/>
     </div>
 
     <div wicket:id="tripleStateField" class="btn-group tristate-icon-group" role="radiogroup">
@@ -46,8 +47,6 @@ under the License.
         <span class="visually-hidden"><wicket:message key="tristate.false">False</wicket:message></span>
       </label>
     </div>
-
-    <span wicket:id="externalAction"/>
   </div>
 </wicket:extend>
 </html>

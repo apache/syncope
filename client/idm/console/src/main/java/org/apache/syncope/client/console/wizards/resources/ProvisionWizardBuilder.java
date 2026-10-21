@@ -28,10 +28,9 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -106,11 +105,12 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
                 connObjectLinkEnabled = true;
             }
 
-            final AjaxCheckBoxPanel connObjectLinkCheckbox = new AjaxCheckBoxPanel(
+            final AjaxTripleStateButtonPanel connObjectLinkCheckbox = new AjaxTripleStateButtonPanel(
                     "connObjectLinkCheckbox",
                     new ResourceModel("connObjectLinkCheckbox", "connObjectLinkCheckbox").getObject(),
                     new Model<>(connObjectLinkEnabled),
                     false);
+            connObjectLinkCheckbox.addRequiredLabel();
             connObjectLinkCheckbox.setEnabled(true);
 
             connObjectLinkContainer.add(connObjectLinkCheckbox);
@@ -124,7 +124,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
             connObjectLink.setEnabled(connObjectLinkEnabled);
             connObjectLinkContainer.add(connObjectLink);
 
-            connObjectLinkCheckbox.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            connObjectLinkCheckbox.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -160,8 +160,9 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
             clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
             container.add(clazz);
 
-            AjaxCheckBoxPanel ignoreCaseMatch = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel ignoreCaseMatch = new AjaxTripleStateButtonPanel(
                     "ignoreCaseMatch", "ignoreCaseMatch", new PropertyModel<>(resourceProvision, "ignoreCaseMatch"));
+            ignoreCaseMatch.addRequiredLabel();
             container.add(ignoreCaseMatch);
         }
     }

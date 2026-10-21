@@ -19,9 +19,9 @@
 package org.apache.syncope.client.ui.commons.wizards.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
 import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
@@ -108,8 +108,10 @@ public class PasswordPanel extends Panel {
             });
         }
 
-        AjaxCheckBoxPanel storePasswordInSyncopePanel = new AjaxCheckBoxPanel("storePasswordInSyncope",
+        AjaxTripleStateButtonPanel storePasswordInSyncopePanel = new AjaxTripleStateButtonPanel(
+                "storePasswordInSyncope",
                 "storePasswordInSyncope", new PropertyModel<>(wrapper, "storePasswordInSyncope"));
+        storePasswordInSyncopePanel.addRequiredLabel();
         storePasswordInSyncopePanel.getField().setLabel(new ResourceModel("storePasswordInSyncope"));
         storePasswordInSyncopePanel.setOutputMarkupId(true);
         storePasswordInSyncopePanel.setOutputMarkupPlaceholderTag(true);

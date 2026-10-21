@@ -26,9 +26,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARoutePredicateCond;
 import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
@@ -76,8 +76,9 @@ public class SRARoutePredicatePanel extends Panel {
             protected void populateItem(final ListItem<SRARoutePredicate> item) {
                 SRARoutePredicate predicate = item.getModelObject();
 
-                AjaxCheckBoxPanel negate =
-                    new AjaxCheckBoxPanel("negate", "negate", new PropertyModel<>(predicate, "negate"));
+                AjaxTripleStateButtonPanel negate =
+                    new AjaxTripleStateButtonPanel("negate", "negate", new PropertyModel<>(predicate, "negate"));
+                negate.setRequired(true);
                 item.add(negate.hideLabel());
 
                 AjaxDropDownChoicePanel<SRARoutePredicateFactory> factory =

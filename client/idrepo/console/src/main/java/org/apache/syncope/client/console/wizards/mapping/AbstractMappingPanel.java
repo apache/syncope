@@ -31,9 +31,10 @@ import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
 import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -250,10 +251,11 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Connector object key
                 // -------------------------------
-                AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel connObjectKey = new AjaxTripleStateButtonPanel(
                         "connObjectKey",
                         "connObjectKey",
                         new PropertyModel<>(itemTO, "connObjectKey"), false);
+                connObjectKey.setRequired(true);
                 connObjectKey.hideLabel();
                 item.add(connObjectKey);
                 // -------------------------------
@@ -261,10 +263,11 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Password
                 // -------------------------------
-                AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel password = new AjaxTripleStateButtonPanel(
                         "password",
                         "password",
                         new PropertyModel<>(itemTO, "password"), false);
+                password.setRequired(true);
                 item.add(password.hideLabel());
                 // -------------------------------
 
@@ -307,7 +310,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     }
                 });
 
-                connObjectKey.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                connObjectKey.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -326,7 +329,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     }
                 });
 
-                password.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                password.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
@@ -425,7 +428,8 @@ public abstract class AbstractMappingPanel extends Panel {
      * @param connObjectKey connObjectKey checkbox.
      * @param password password checkbox.
      */
-    protected void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
+    protected void setConnObjectKey(
+            final AjaxTripleStateButtonPanel connObjectKey, final AjaxTripleStateButtonPanel password) {
         if (password.getModelObject()) {
             connObjectKey.setReadOnly(true);
             connObjectKey.setModelObject(false);

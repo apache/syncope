@@ -48,7 +48,6 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.DateOps;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
@@ -291,10 +290,11 @@ public class BeanPanel<T extends Serializable> extends Panel {
         PropertyModel model = new PropertyModel<>(bean, fieldName);
 
         FieldPanel panel;
-        if (Boolean.class.equals(type)) {
+        if (ClassUtils.isAssignable(Boolean.class, type)) {
             panel = new AjaxTripleStateButtonPanel(id, fieldName, model);
-        } else if (Boolean.TYPE.equals(type)) {
-            panel = new AjaxCheckBoxPanel(id, fieldName, model);
+            if (Boolean.TYPE.equals(type)) {
+                panel.addRequiredLabel();
+            }
         } else if (ClassUtils.isAssignable(Number.class, type)) {
             panel = new AjaxNumberFieldPanel.Builder<>().build(
                     id, fieldName, AjaxNumberFieldPanel.cast(ClassUtils.resolvePrimitiveIfNecessary(type)), model);
@@ -357,13 +357,13 @@ public class BeanPanel<T extends Serializable> extends Panel {
             panel = new AjaxTextFieldPanel(id, fieldName, model);
         }
 
-        boolean required = false;
+        boolean required = Boolean.TYPE.equals(type);
         Optional<String> description = Optional.empty();
 
         if (schema != null) {
             panel.setReadOnly(schema.accessMode() == Schema.AccessMode.READ_ONLY);
 
-            required = schema.requiredMode() == Schema.RequiredMode.REQUIRED;
+            required = required || schema.requiredMode() == Schema.RequiredMode.REQUIRED;
             panel.setRequired(required);
 
             Optional.ofNullable(schema.example()).ifPresent(panel::setPlaceholder);

@@ -22,8 +22,8 @@ import java.util.List;
 import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.rest.AnonymousRestClient;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
@@ -115,8 +115,9 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // mustChangePassword
         // ------------------------
-        AjaxCheckBoxPanel mustChangePassword = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel mustChangePassword = new AjaxTripleStateButtonPanel(
                 "mustChangePassword", "mustChangePassword", new PropertyModel<>(userTO, "mustChangePassword"));
+        mustChangePassword.addRequiredLabel();
 
         add(mustChangePassword.setOutputMarkupPlaceholderTag(true).setVisible(templateMode));
         // ------------------------

@@ -26,9 +26,9 @@ import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -70,28 +70,28 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
         super(modal, pageRef);
         this.model = model;
 
-        add(new AjaxCheckBoxPanel(
+        add(new AjaxTripleStateButtonPanel(
                 "tryAll",
                 "tryAll",
                 new PropertyModel<>(model.getObject().getConf(), "tryAll"),
-                false));
+                false).addRequiredLabel());
 
         add(new AjaxPalettePanel.Builder<String>().setName("authModules").build(
                 "authModules",
                 new PropertyModel<>(model.getObject().getConf(), "authModules"),
                 allAuthModules));
 
-        add(new AjaxCheckBoxPanel(
+        add(new AjaxTripleStateButtonPanel(
                 "bypassEnabled",
                 "bypassEnabled",
                 new PropertyModel<>(model.getObject().getConf(), "bypassEnabled"),
-                false));
+                false).addRequiredLabel());
 
-        add(new AjaxCheckBoxPanel(
+        add(new AjaxTripleStateButtonPanel(
                 "forceMfaExecution",
                 "forceMfaExecution",
                 new PropertyModel<>(model.getObject().getConf(), "forceMfaExecution"),
-                false));
+                false).addRequiredLabel());
         
         add(new AjaxTextFieldPanel(
                 "bypassPrincipalAttributeName",
@@ -105,11 +105,11 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
                 new PropertyModel<>(model.getObject().getConf(), "bypassPrincipalAttributeValue"),
                 false));
 
-        add(new AjaxCheckBoxPanel(
+        add(new AjaxTripleStateButtonPanel(
                 "bypassTrustedDeviceEnabled",
                 "bypassTrustedDeviceEnabled",
                 new PropertyModel<>(model.getObject().getConf(), "bypassTrustedDeviceEnabled"),
-                false));
+                false).addRequiredLabel());
     }
 
     @Override

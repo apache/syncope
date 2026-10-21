@@ -35,10 +35,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.common.lib.to.FormPropertyDefTO;
@@ -108,25 +108,28 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                         false);
                 item.add(labels.hideLabel());
 
-                AjaxCheckBoxPanel readable = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel readable = new AjaxTripleStateButtonPanel(
                         "readable",
                         "readable",
                         new PropertyModel<>(fpd, "readable"),
                         true);
+                readable.addRequiredLabel();
                 item.add(readable.hideLabel());
 
-                AjaxCheckBoxPanel writable = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel writable = new AjaxTripleStateButtonPanel(
                         "writable",
                         "writable",
                         new PropertyModel<>(fpd, "writable"),
                         true);
+                writable.addRequiredLabel();
                 item.add(writable.hideLabel());
 
-                AjaxCheckBoxPanel required = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel required = new AjaxTripleStateButtonPanel(
                         "required",
                         "required",
                         new PropertyModel<>(fpd, "required"),
                         true);
+                required.addRequiredLabel();
                 item.add(required.hideLabel());
 
                 AjaxDropDownChoicePanel<FormPropertyType> type = new AjaxDropDownChoicePanel<>(
@@ -198,17 +201,19 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 WebMarkupContainer dropdownConf = new WebMarkupContainer("dropdownConf");
                 dropdownConf.setVisible(fpd.getType() == FormPropertyType.Dropdown);
                 item.add(dropdownConf.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
-                AjaxCheckBoxPanel dropdownSingleSelection = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel dropdownSingleSelection = new AjaxTripleStateButtonPanel(
                         "dropdownSingleSelection",
                         "dropdownSingleSelection",
                         new PropertyModel<>(fpd, "dropdownSingleSelection"),
                         true);
+                dropdownSingleSelection.addRequiredLabel();
                 dropdownConf.add(dropdownSingleSelection.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
-                AjaxCheckBoxPanel dropdownFreeForm = new AjaxCheckBoxPanel(
+                AjaxTripleStateButtonPanel dropdownFreeForm = new AjaxTripleStateButtonPanel(
                         "dropdownFreeForm",
                         "dropdownFreeForm",
                         new PropertyModel<>(fpd, "dropdownFreeForm"),
                         true);
+                dropdownFreeForm.addRequiredLabel();
                 dropdownConf.add(dropdownFreeForm.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
                 type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
