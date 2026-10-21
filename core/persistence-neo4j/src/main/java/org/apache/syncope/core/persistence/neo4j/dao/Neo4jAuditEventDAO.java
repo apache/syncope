@@ -87,13 +87,12 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
                 final String category,
                 final String subcategory,
                 final String op,
-                final OpEvent.Outcome outcome) {
+                final OpEvent.Outcome outcome,
+                final Map<String, Object> parameters) {
 
-            query.append(andIfNeeded()).
-                    append("n.opEvent =~ '").
-                    append(toOpEvent(type, category, subcategory, op, outcome).
-                            replace("[", "\\[").replace("]", "\\]").replace("\\[\\]", "\\[.*\\]")).
-                    append("'");
+            parameters.put("opEvent", toOpEvent(type, category, subcategory, op, outcome).
+                    replace("[", "\\[").replace("]", "\\]").replace("\\[\\]", "\\[.*\\]"));
+            query.append(andIfNeeded()).append("n.opEvent =~ $opEvent");
 
             return this;
         }
@@ -164,7 +163,7 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
                 + " WHERE " + criteriaBuilder(entityKey).
                         username(username, parameters).
                         who(who, parameters).
-                        opEvent(type, category, subcategory, op, outcome).
+                        opEvent(type, category, subcategory, op, outcome, parameters).
                         before(before, parameters).
                         after(after, parameters).
                         build()
@@ -193,7 +192,7 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
                 + "WHERE " + criteriaBuilder(entityKey).
                         username(username, parameters).
                         who(who, parameters).
-                        opEvent(type, category, subcategory, op, outcome).
+                        opEvent(type, category, subcategory, op, outcome, parameters).
                         before(before, parameters).
                         after(after, parameters).
                         build()
