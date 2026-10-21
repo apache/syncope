@@ -74,7 +74,7 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
     private Boolean suspended = false;
 
     @Convert(converter = PlainAttrListConverter.class)
-    private final List<PlainAttr> plainAttrs = new ArrayList<>();
+    private List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -153,11 +153,11 @@ public class JPALinkedAccount extends AbstractAttributable implements LinkedAcco
                 value,
                 Optional.ofNullable(cipherAlgorithm).
                         orElseGet(() -> CipherAlgorithm.valueOf(
-                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                AuthContextUtils.getDomain(),
-                                StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
-                                CipherAlgorithm.AES.name(),
-                                String.class))));
+                                ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                        AuthContextUtils.getDomain(),
+                                        StandardConfParams.PASSWORD_CIPHER_ALGORITHM,
+                                        CipherAlgorithm.AES.name(),
+                                        String.class))));
     }
 
     @Override

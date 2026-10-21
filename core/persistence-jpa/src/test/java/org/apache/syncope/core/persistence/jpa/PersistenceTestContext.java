@@ -140,8 +140,7 @@ public class PersistenceTestContext {
             final JndiObjectFactoryBean masterDataSource,
             final CommonEntityManagerFactoryConf commonEMFConf,
             final @Lazy ConnectorManager connectorManager,
-            final @Lazy ExternalResourceDAO resourceDAO,
-            final CacheManager cacheManager) {
+            final @Lazy ExternalResourceDAO resourceDAO) {
 
         DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
                 commonEMFConf, connectorManager, resourceDAO) {
@@ -153,7 +152,7 @@ public class PersistenceTestContext {
                         delegates.get(SyncopeConstants.MASTER_DOMAIN));
             }
         };
-        emf.master(props, masterDataSource, cacheManager);
+        emf.master(props, masterDataSource);
         return emf;
     }
 }

@@ -69,7 +69,7 @@ public class JPAGroup
     private String name;
 
     @Convert(converter = PlainAttrListConverter.class)
-    private final List<PlainAttr> plainAttrs = new ArrayList<>();
+    private List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =

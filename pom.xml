@@ -437,7 +437,7 @@ under the License.
 
     <spring-boot.version>4.1.2</spring-boot.version>
 
-    <hibernate.version>7.4.13.Final</hibernate.version>
+    <openjpa.version>4.2.0-SNAPSHOT</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -659,14 +659,9 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-core</artifactId>
-        <version>${hibernate.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-jcache</artifactId>
-        <version>${hibernate.version}</version>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa</artifactId>
+        <version>${openjpa.version}</version>
       </dependency>
 
       <dependency>
@@ -716,6 +711,10 @@ under the License.
         <artifactId>spring-boot-starter-data-jpa</artifactId>
         <version>${spring-boot.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
@@ -1589,16 +1588,9 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>org.hibernate.orm</groupId>
-          <artifactId>hibernate-maven-plugin</artifactId>
-          <version>${hibernate.version}</version>
-          <dependencies>
-            <dependency>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-utils</artifactId>
-              <version>4.1.0</version>
-            </dependency>
-          </dependencies>         
+          <groupId>org.apache.openjpa</groupId>
+          <artifactId>openjpa-maven-plugin</artifactId>
+          <version>${openjpa.version}</version>
         </plugin>
 
         <plugin>
@@ -2158,7 +2150,7 @@ under the License.
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/4.1.0/api/</link>
-            <link>https://docs.hibernate.org/orm/7.3/javadocs/</link>
+            <link>https://openjpa.apache.org/builds/4.2.0/apidocs/index.html</link>
             <link>https://docs.spring.io/spring-boot/4.1/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/7.0.x/api/</link>

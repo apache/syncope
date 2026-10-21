@@ -30,7 +30,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCOpEntity;
 import org.apache.syncope.core.persistence.jpa.converters.String2SetOfStringMapConverter;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-import org.hibernate.Length;
 
 @Entity
 @Table(name = JPAOIDCOpEntity.TABLE)
@@ -40,7 +39,7 @@ public class JPAOIDCOpEntity extends AbstractGeneratedKeyEntity implements OIDCO
 
     public static final String TABLE = "OIDCOpEntity";
 
-    @Column(nullable = false, length = Length.LONG16)
+    @Column(nullable = false)
     @Lob
     private byte[] jwks;
 

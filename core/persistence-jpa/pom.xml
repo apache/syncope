@@ -48,9 +48,10 @@ under the License.
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
+
     <dependency>
-      <groupId>org.hibernate.orm</groupId>
-      <artifactId>hibernate-jcache</artifactId>
+      <groupId>org.apache.openjpa</groupId>
+      <artifactId>openjpa</artifactId>
     </dependency>
 
     <dependency>
@@ -129,25 +130,17 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-maven-plugin</artifactId>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-maven-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
-          <fileSets>
-            <fileset>
-              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
-            </fileset>
-          </fileSets>
+          <persistenceXmlFile>${project.basedir}/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
+          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.syncope.core</groupId>
-            <artifactId>syncope-core-persistence-common</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
-            <id>enhance</id>
+            <id>enhancer</id>
+            <phase>process-classes</phase>
             <goals>
               <goal>enhance</goal>
             </goals>
@@ -216,6 +209,40 @@ under the License.
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
       </properties>
+    </profile>
+
+    <profile>
+      <id>openjpa-maven-plugin</id>
+
+      <properties>
+        <!-- possible values: sql | schema -->
+        <action>sql</action>
+
+        <skipTests>true</skipTests>
+      </properties>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.openjpa</groupId>
+            <artifactId>openjpa-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <connectionDriverName>org.postgresql.Driver</connectionDriverName>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>process-classes</phase>
+                <goals>
+                  <goal>${action}</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 

@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -65,6 +66,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
@@ -113,8 +115,13 @@ public class AnySearchTest extends AbstractTest {
     @Autowired
     private PlainAttrValidationManager validator;
 
+    @Autowired
+    private EntityCacheDAO entityCacheDAO;
+
     @BeforeEach
     public void adjustLoginDateForLocalSystem() {
+        entityCacheDAO.evict(JPAUser.class, "1417acbe-cbf6-4277-9372-e75e04f97000");
+
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         PlainAttr loginDate = rossini.getPlainAttr("loginDate").orElseThrow();
