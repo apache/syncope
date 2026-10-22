@@ -31,12 +31,13 @@ import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.InboundTaskTO;
@@ -165,8 +166,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             description.setEnabled(true);
             add(description);
 
-            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel active = new AjaxTripleStateButtonPanel(
                     "active", "active", new PropertyModel<>(taskTO, "active"), false);
+            active.addRequiredLabel();
             add(active);
 
             AjaxDropDownChoicePanel<String> jobDelegate = new AjaxDropDownChoicePanel<>(
@@ -211,12 +213,14 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                     "macroActions", "macroActions", new PropertyModel<>(taskTO, "macroActions"), false).
                     setChoices(macroActions));
 
-            AjaxCheckBoxPanel continueOnError = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel continueOnError = new AjaxTripleStateButtonPanel(
                     "continueOnError", "continueOnError", new PropertyModel<>(taskTO, "continueOnError"), false);
+            continueOnError.addRequiredLabel();
             macroTaskSpecifics.add(continueOnError);
 
-            AjaxCheckBoxPanel saveExecs = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel saveExecs = new AjaxTripleStateButtonPanel(
                     "saveExecs", "saveExecs", new PropertyModel<>(taskTO, "saveExecs"), false);
+            saveExecs.addRequiredLabel();
             macroTaskSpecifics.add(saveExecs);
 
             // ------------------------------
@@ -360,27 +364,31 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
             provisioningTaskSpecifics.add(unmatchingRule);
 
-            AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel performCreate = new AjaxTripleStateButtonPanel(
                     "performCreate", "performCreate", new PropertyModel<>(taskTO, "performCreate"), false);
+            performCreate.addRequiredLabel();
             provisioningTaskSpecifics.add(performCreate);
 
-            AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel performUpdate = new AjaxTripleStateButtonPanel(
                     "performUpdate", "performUpdate", new PropertyModel<>(taskTO, "performUpdate"), false);
+            performUpdate.addRequiredLabel();
             provisioningTaskSpecifics.add(performUpdate);
 
-            AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel performDelete = new AjaxTripleStateButtonPanel(
                     "performDelete", "performDelete", new PropertyModel<>(taskTO, "performDelete"), false);
+            performDelete.addRequiredLabel();
             provisioningTaskSpecifics.add(performDelete);
 
-            AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel syncStatus = new AjaxTripleStateButtonPanel(
                     "syncStatus", "syncStatus", new PropertyModel<>(taskTO, "syncStatus"), false);
+            syncStatus.addRequiredLabel();
             provisioningTaskSpecifics.add(syncStatus);
 
             // Concurrent settings
             PropertyModel<ThreadPoolSettings> concurrentSettingsModel =
                     new PropertyModel<>(taskTO, "concurrentSettings");
 
-            AjaxCheckBoxPanel enableConcurrentSettings = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel enableConcurrentSettings = new AjaxTripleStateButtonPanel(
                     "enableConcurrentSettings", "enableConcurrentSettings", new IModel<Boolean>() {
 
                 private static final long serialVersionUID = -7126718045816207110L;
@@ -394,7 +402,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 public void setObject(final Boolean object) {
                     // nothing to do
                 }
-            });
+            }, false);
+            enableConcurrentSettings.addRequiredLabel();
             provisioningTaskSpecifics.add(enableConcurrentSettings.
                     setVisible(taskTO instanceof ProvisioningTaskTO).setOutputMarkupId(true));
 
@@ -410,7 +419,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             provisioningTaskSpecifics.add(poolSize);
 
             enableConcurrentSettings.getField().add(
-                    new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                    new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -461,8 +470,11 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             return destinationRealm;
         }
 
-        private AjaxCheckBoxPanel remediation(final String id, final SchedTaskTO taskTO) {
-            return new AjaxCheckBoxPanel(id, "remediation", new PropertyModel<>(taskTO, "remediation"), false);
+        private FieldPanel<Boolean> remediation(final String id, final SchedTaskTO taskTO) {
+            AjaxTripleStateButtonPanel remediation = new AjaxTripleStateButtonPanel(
+                    id, "remediation", new PropertyModel<>(taskTO, "remediation"), false);
+            remediation.addRequiredLabel();
+            return remediation;
         }
     }
 

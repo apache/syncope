@@ -19,12 +19,11 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.List;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
@@ -32,11 +31,9 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -98,33 +95,9 @@ public class ParametersWizardAttrStep extends WizardStep {
                 break;
 
             case Boolean:
-                panel = new AjaxDropDownChoicePanel<Boolean>(id, valueHeaderName, new Model<>(), false);
-                ((AjaxDropDownChoicePanel<Boolean>) panel).setChoices(List.of(true, false));
-
-                if (!param.getValues().isEmpty()) {
-                    ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<Boolean>() {
-
-                        private static final long serialVersionUID = -8223314361351275865L;
-
-                        @Override
-                        public Object getDisplayValue(final Boolean object) {
-                            return BooleanUtils.toStringTrueFalse(object);
-                        }
-
-                        @Override
-                        public String getIdValue(final Boolean object, final int index) {
-                            return BooleanUtils.toStringTrueFalse(object);
-                        }
-
-                        @Override
-                        public Boolean getObject(
-                                final String id, final IModel<? extends List<? extends Boolean>> choices) {
-
-                            return BooleanUtils.toBoolean(id);
-                        }
-                    });
-                }
-                ((AjaxDropDownChoicePanel<Boolean>) panel).setNullValid(false);
+                panel = new AjaxTripleStateButtonPanel.Builder().
+                        convertValuesToString(false).
+                        build(id, valueHeaderName, new Model<>());
                 break;
 
             case Long:

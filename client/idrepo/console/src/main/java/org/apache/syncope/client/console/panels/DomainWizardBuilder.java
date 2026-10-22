@@ -26,11 +26,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -39,7 +38,7 @@ import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
@@ -229,9 +228,10 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             content.setVisible(false);
             add(content);
 
-            AjaxCheckBoxPanel defaultContent = new AjaxCheckBoxPanel(
-                    "defaultContent", "defaultContent", Model.of(true), true);
-            defaultContent.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            AjaxTripleStateButtonPanel defaultContent = new AjaxTripleStateButtonPanel(
+                    "defaultContent", "defaultContent", Model.of(true), false);
+            defaultContent.addRequiredLabel();
+            defaultContent.getField().add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -256,9 +256,10 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             keymasterConfParams.setVisible(false);
             add(keymasterConfParams);
 
-            AjaxCheckBoxPanel defaultKeymasterConfParams = new AjaxCheckBoxPanel(
-                    "defaultKeymasterConfParams", "defaultKeymasterConfParams", Model.of(true), true);
-            defaultKeymasterConfParams.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            AjaxTripleStateButtonPanel defaultKeymasterConfParams = new AjaxTripleStateButtonPanel(
+                    "defaultKeymasterConfParams", "defaultKeymasterConfParams", Model.of(true), false);
+            defaultKeymasterConfParams.addRequiredLabel();
+            defaultKeymasterConfParams.getField().add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -6139318907146065915L;
 

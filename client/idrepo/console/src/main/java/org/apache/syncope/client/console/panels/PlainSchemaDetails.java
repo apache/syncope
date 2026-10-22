@@ -29,10 +29,10 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -104,7 +104,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     protected final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm;
 
-    protected final AjaxCheckBoxPanel transparentEncryption;
+    protected final AjaxTripleStateButtonPanel transparentEncryption;
 
     protected final WebMarkupContainer encryptedParams;
 
@@ -169,7 +169,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                 new PropertyModel<>(schemaTO, "cipherAlgorithm"));
         cipherAlgorithm.setChoices(List.of(CipherAlgorithm.values()));
 
-        transparentEncryption = new AjaxCheckBoxPanel(
+        transparentEncryption = new AjaxTripleStateButtonPanel(
                 "transparentEncryption", "transparentEncryption", new Model<Boolean>() {
 
             private static final long serialVersionUID = 5636572627689425575L;
@@ -186,6 +186,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
                         : null);
             }
         }, true);
+        transparentEncryption.setRequired(true);
 
         encryptedParams = new WebMarkupContainer("encryptedParams");
         encryptedParams.setOutputMarkupPlaceholderTag(true);
@@ -261,14 +262,14 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
 
-        add(new AjaxCheckBoxPanel(
-                "multivalue", getString("multivalue"), new PropertyModel<>(schemaTO, "multivalue")));
+        add(new AjaxTripleStateButtonPanel(
+                "multivalue", getString("multivalue"), new PropertyModel<>(schemaTO, "multivalue")).addRequiredLabel());
 
-        add(new AjaxCheckBoxPanel(
-                "readonly", getString("readonly"), new PropertyModel<>(schemaTO, "readonly")));
+        add(new AjaxTripleStateButtonPanel(
+                "readonly", getString("readonly"), new PropertyModel<>(schemaTO, "readonly")).addRequiredLabel());
 
-        add(new AjaxCheckBoxPanel("uniqueConstraint",
-                getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")).
+        add(new AjaxTripleStateButtonPanel("uniqueConstraint",
+                getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")).addRequiredLabel().
                 setEnabled(isCreate));
     }
 

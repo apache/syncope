@@ -230,14 +230,16 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
 
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
+        formTester.select("view:mapping:mappingContainer:mappings:0:connObjectKey:tripleStateField", 0);
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form"
-                + ":view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", Constants.ON_CHANGE);
+                + ":view:mapping:mappingContainer:mappings:0:connObjectKey:tripleStateField", Constants.ON_CHANGE);
 
+        formTester = TESTER.newFormTester(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.setValue("view:mapping:mappingContainer:mappings:0:intAttrName:textField", "key");
         formTester.setValue("view:mapping:mappingContainer:mappings:0:extAttrName:textField", "ID");
-        formTester.setValue("view:mapping:mappingContainer:mappings:0:connObjectKey:checkboxField", "true");
+        formTester.select("view:mapping:mappingContainer:mappings:0:connObjectKey:tripleStateField", 0);
 
         formTester.submit("buttons:next");
         TESTER.assertNoErrorMessage();

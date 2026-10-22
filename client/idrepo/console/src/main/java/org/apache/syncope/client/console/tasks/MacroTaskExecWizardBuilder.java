@@ -23,10 +23,9 @@ import java.util.Date;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.panels.SyncopeFormPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.form.SyncopeForm;
@@ -104,9 +103,10 @@ public class MacroTaskExecWizardBuilder extends BaseAjaxWizardBuilder<MacroTaskT
                     FastDateFormat.getInstance(SyncopeConstants.DATE_PATTERNS[3]));
             add(startAtDate.setReadOnly(true).hideLabel());
 
-            AjaxCheckBoxPanel startAtCheck = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel startAtCheck = new AjaxTripleStateButtonPanel(
                     "startAtCheck", "startAtCheck", new Model<>(false), false);
-            startAtCheck.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            startAtCheck.addRequiredLabel();
+            startAtCheck.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -117,7 +117,7 @@ public class MacroTaskExecWizardBuilder extends BaseAjaxWizardBuilder<MacroTaskT
             });
             add(startAtCheck);
 
-            add(new AjaxCheckBoxPanel("dryRun", "dryRun", dryRunModel, false));
+            add(new AjaxTripleStateButtonPanel("dryRun", "dryRun", dryRunModel, false).addRequiredLabel());
         }
     }
 }

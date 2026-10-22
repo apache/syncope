@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -70,7 +69,7 @@ public class ResourceConnCapabilitiesPanel extends WizardStep {
         connCapabilitiesPanel.setEnabled(!resourceTO.getCapabilitiesOverride().isEmpty());
         add(connCapabilitiesPanel);
 
-        AjaxCheckBoxPanel overrideCapabilities = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel overrideCapabilities = new AjaxTripleStateButtonPanel(
                 "overrideCapabilities",
                 new ResourceModel("overrideCapabilities", "overrideCapabilities").getObject(),
                 new IModel<Boolean>() {
@@ -90,8 +89,9 @@ public class ResourceConnCapabilitiesPanel extends WizardStep {
                     resourceTO.setCapabilitiesOverride(Optional.empty());
                 }
             }
-        });
-        overrideCapabilities.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        }, false);
+        overrideCapabilities.addRequiredLabel();
+        overrideCapabilities.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

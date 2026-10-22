@@ -34,10 +34,10 @@ import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.SAML2IdPMappingPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -158,16 +158,19 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
             name.setRequired(true);
             fields.add(name);
 
-            AjaxCheckBoxPanel createUnmatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel createUnmatching = new AjaxTripleStateButtonPanel(
                     "field", "createUnmatching", new PropertyModel<>(idpTO, "createUnmatching"), false);
+            createUnmatching.addRequiredLabel();
             fields.add(createUnmatching);
 
-            AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel selfRegUnmatching = new AjaxTripleStateButtonPanel(
                     "field", "selfRegUnmatching", new PropertyModel<>(idpTO, "selfRegUnmatching"), false);
+            selfRegUnmatching.addRequiredLabel();
             fields.add(selfRegUnmatching);
 
-            AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel updateMatching = new AjaxTripleStateButtonPanel(
                     "field", "updateMatching", new PropertyModel<>(idpTO, "updateMatching"), false);
+            updateMatching.addRequiredLabel();
             fields.add(updateMatching);
 
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =

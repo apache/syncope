@@ -31,7 +31,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -39,6 +38,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPane
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
@@ -79,13 +79,14 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                 AbstractFieldPanel<?> field;
                 switch (prop.getType()) {
                     case Boolean:
-                        field = new AjaxCheckBoxPanel("value", label, new PropertyModel<Boolean>(prop, "value") {
+                        field = new AjaxTripleStateButtonPanel(
+                                "value", label, new PropertyModel<>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
 
                             @Override
                             public Boolean getObject() {
-                                return BooleanUtils.toBoolean(prop.getValue());
+                                return BooleanUtils.toBooleanObject(prop.getValue());
                             }
 
                             @Override

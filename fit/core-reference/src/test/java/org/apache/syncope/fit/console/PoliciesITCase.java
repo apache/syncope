@@ -55,7 +55,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
         formTester.setValue("content:fields:1:field:numberTextField", "1");
-        formTester.setValue("content:fields:2:field:checkboxField", true);
+        formTester.select("content:fields:2:field:tripleStateField", 0);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -86,7 +86,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:2:field:checkboxField", true);
+                + ":content:fields:2:field:tripleStateField", true);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
@@ -109,7 +109,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
         formTester.setValue("content:fields:1:field:numberTextField", "1");
-        formTester.setValue("content:fields:2:field:checkboxField", true);
+        formTester.select("content:fields:2:field:tripleStateField", 0);
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -137,7 +137,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:2:field:checkboxField", true);
+                + ":content:fields:2:field:tripleStateField", true);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",

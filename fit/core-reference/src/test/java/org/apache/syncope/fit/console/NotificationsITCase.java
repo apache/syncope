@@ -67,7 +67,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
         formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
                 + "textField", "recipient@syncope.org");
-        formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
+        formTester.select("content:form:view:selfAsRecipient:tripleStateField", 0);
         formTester.setValue("content:form:view:recipientAttrName:textField", "email");
 
         TESTER.cleanupFeedbackMessages();
@@ -88,7 +88,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         // -------------------------------
         // select event template
         // -------------------------------
-        formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
+        formTester.select("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", 0);
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:"
                 + "form:view:eventSelection:eventsContainer:eventsPanel:successGroup",
@@ -96,7 +96,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         // -------------------------------
 
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
-        formTester.setValue("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", "check0");
+        formTester.select("content:form:view:eventSelection:eventsContainer:eventsPanel:successGroup", 0);
 
         TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:next");

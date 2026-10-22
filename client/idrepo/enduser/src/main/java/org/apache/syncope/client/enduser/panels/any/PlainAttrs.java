@@ -30,13 +30,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -241,12 +241,11 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         AbstractFieldPanel<?> panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel(
-                        "panel",
+                panel = new AjaxTripleStateButtonPanel("panel",
                         plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         new Model<>(),
                         true);
-                panel.setRequired(required);
+
                 break;
 
             case Date:
@@ -266,10 +265,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                             new Model<>(),
                             FastDateFormat.getInstance(datePattern));
-                }
-
-                if (required) {
-                    panel.addRequiredLabel();
                 }
 
                 break;
@@ -304,9 +299,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     });
                 }
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Dropdown:
@@ -321,9 +313,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     ((AjaxDropDownChoicePanel<String>) panel).setChoices(dropdownValues);
                 }
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Long:
@@ -333,9 +322,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         Long.class,
                         new Model<>());
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Double:
@@ -344,10 +330,6 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),
                         Double.class,
                         new Model<>());
-
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Binary:
@@ -357,18 +339,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         new Model<>(),
                         plainSchema.getMimeType(),
                         fileKey);
-                if (required) {
-                    panel.addRequiredLabel();
-                }
+
                 break;
 
             case Encrypted:
                 panel = new EncryptedFieldPanel("panel",
                         plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
-
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             default:
@@ -378,10 +354,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
                 }
+        }
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
+        if (required) {
+            panel.addRequiredLabel();
         }
 
         panel.setReadOnly(readOnly);
