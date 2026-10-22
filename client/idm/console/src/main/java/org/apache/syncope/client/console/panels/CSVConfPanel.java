@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCharacterFieldPanel;
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -98,8 +98,9 @@ public class CSVConfPanel extends Panel {
         nullValue.setRequired(false);
         add(nullValue);
 
-        AjaxCheckBoxPanel allowComments = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel allowComments = new AjaxTripleStateButtonPanel(
                 "allowComments", "allowComments", new PropertyModel<>(spec, "allowComments"), true);
+        allowComments.addRequiredLabel();
         add(allowComments);
     }
 }

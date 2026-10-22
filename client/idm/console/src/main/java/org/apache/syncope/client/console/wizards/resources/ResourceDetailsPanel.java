@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -96,11 +96,11 @@ public class ResourceDetailsPanel extends WizardStep {
                 new PropertyModel<>(resourceTO, Constants.KEY_FIELD_NAME),
                 false).addRequiredLabel().setEnabled(createFlag));
 
-        container.add(new AjaxCheckBoxPanel(
+        container.add(new AjaxTripleStateButtonPanel(
                 "enforceMandatoryCondition",
                 new ResourceModel("enforceMandatoryCondition", "enforceMandatoryCondition").getObject(),
                 new PropertyModel<>(resourceTO, "enforceMandatoryCondition"),
-                false));
+                false).addRequiredLabel());
 
         container.add(new AjaxNumberFieldPanel.Builder<Integer>().build(
                 "propagationPriority",

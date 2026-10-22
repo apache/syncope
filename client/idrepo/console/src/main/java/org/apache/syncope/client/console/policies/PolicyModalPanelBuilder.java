@@ -29,10 +29,10 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
@@ -153,11 +153,11 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             Integer.class,
                             new PropertyModel<>(policyTO, "maxAuthenticationAttempts")).setRequired(true));
 
-                    fields.add(new AjaxCheckBoxPanel(
+                    fields.add(new AjaxTripleStateButtonPanel(
                             "field",
                             "propagateSuspension",
                             new PropertyModel<>(policyTO, "propagateSuspension"),
-                            false));
+                            false).addRequiredLabel());
                     break;
 
                 case PASSWORD:
@@ -167,25 +167,25 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             Integer.class,
                             new PropertyModel<>(policyTO, "historyLength")).setRequired(true));
 
-                    fields.add(new AjaxCheckBoxPanel(
+                    fields.add(new AjaxTripleStateButtonPanel(
                             "field",
                             "allowNullPassword",
                             new PropertyModel<>(policyTO, "allowNullPassword"),
-                            false));
+                            false).addRequiredLabel());
                     break;
 
                 case PROPAGATION:
-                    fields.add(new AjaxCheckBoxPanel(
+                    fields.add(new AjaxTripleStateButtonPanel(
                             "field",
                             "fetchAroundProvisioning",
                             new PropertyModel<>(policyTO, "fetchAroundProvisioning"),
-                            false));
+                            false).addRequiredLabel());
 
-                    fields.add(new AjaxCheckBoxPanel(
+                    fields.add(new AjaxTripleStateButtonPanel(
                             "field",
                             "updateDelta",
                             new PropertyModel<>(policyTO, "updateDelta"),
-                            false));
+                            false).addRequiredLabel());
 
                     fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                             "field",
@@ -296,11 +296,11 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "order",
                             Integer.class,
                             new PropertyModel<>(policyTO, "order")));
-                    fields.add(new AjaxCheckBoxPanel(
+                    fields.add(new AjaxTripleStateButtonPanel(
                             "field",
                             "status",
                             new PropertyModel<>(policyTO, "status"),
-                            false));
+                            false).addRequiredLabel());
                     break;
 
                 case AUTH:

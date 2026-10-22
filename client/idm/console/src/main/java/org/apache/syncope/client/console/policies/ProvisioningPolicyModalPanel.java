@@ -37,9 +37,9 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
@@ -237,7 +237,9 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     }
                 }
             };
-            AjaxCheckBoxPanel orSchemas = new AjaxCheckBoxPanel("orSchemas", "orSchemas", orSchemasModel, false);
+            AjaxTripleStateButtonPanel orSchemas = new AjaxTripleStateButtonPanel(
+                    "orSchemas", "orSchemas", orSchemasModel, false);
+            orSchemas.addRequiredLabel();
             orSchemas.setOutputMarkupPlaceholderTag(true);
             add(orSchemas.setVisible(correlationRule.getObject().getDefaultRuleConf() != null));
 

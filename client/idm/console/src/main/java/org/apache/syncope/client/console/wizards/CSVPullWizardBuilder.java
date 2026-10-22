@@ -34,9 +34,9 @@ import org.apache.syncope.client.console.panels.CSVConfPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -263,8 +263,9 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
         };
 
         public PullTask(final CSVPullSpec spec) {
-            AjaxCheckBoxPanel remediation = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel remediation = new AjaxTripleStateButtonPanel(
                     "remediation", "remediation", new PropertyModel<>(spec, "remediation"), false);
+            remediation.addRequiredLabel();
             add(remediation);
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(

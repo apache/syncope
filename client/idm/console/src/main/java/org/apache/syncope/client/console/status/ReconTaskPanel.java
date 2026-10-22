@@ -32,9 +32,9 @@ import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
@@ -158,8 +158,9 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             }
             form.add(realm);
 
-            form.add(new AjaxCheckBoxPanel(
-                    "remediation", "remediation", new PropertyModel<>(taskTO, "remediation"), false));
+            form.add(new AjaxTripleStateButtonPanel(
+                    "remediation", "remediation", new PropertyModel<>(taskTO, "remediation"), false).
+                    addRequiredLabel());
         }
 
         AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
@@ -183,23 +184,27 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         form.add(unmatchingRule);
 
         taskTO.setPerformCreate(true);
-        AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel performCreate = new AjaxTripleStateButtonPanel(
                 "performCreate", "performCreate", new PropertyModel<>(taskTO, "performCreate"), false);
+        performCreate.addRequiredLabel();
         form.add(performCreate);
 
         taskTO.setPerformUpdate(true);
-        AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel performUpdate = new AjaxTripleStateButtonPanel(
                 "performUpdate", "performUpdate", new PropertyModel<>(taskTO, "performUpdate"), false);
+        performUpdate.addRequiredLabel();
         form.add(performUpdate);
 
         taskTO.setPerformDelete(true);
-        AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel performDelete = new AjaxTripleStateButtonPanel(
                 "performDelete", "performDelete", new PropertyModel<>(taskTO, "performDelete"), false);
+        performDelete.addRequiredLabel();
         form.add(performDelete);
 
         taskTO.setSyncStatus(true);
-        AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
+        AjaxTripleStateButtonPanel syncStatus = new AjaxTripleStateButtonPanel(
                 "syncStatus", "syncStatus", new PropertyModel<>(taskTO, "syncStatus"), false);
+        syncStatus.addRequiredLabel();
         form.add(syncStatus);
 
         form.add(new AjaxSubmitLink("reconcile") {

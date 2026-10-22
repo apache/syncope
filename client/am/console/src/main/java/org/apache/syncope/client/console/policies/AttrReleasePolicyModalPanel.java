@@ -27,12 +27,12 @@ import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -114,11 +114,11 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
         mergingStrategy.setNullValid(false);
         add(mergingStrategy);
 
-        add(new AjaxCheckBoxPanel(
+        add(new AjaxTripleStateButtonPanel(
                 "ignoreResolvedAttributes",
                 "ignoreResolvedAttributes",
                 new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.ignoreResolvedAttributes"),
-                false));
+                false).addRequiredLabel());
 
         add(new AjaxNumberFieldPanel.Builder<Long>().build(
                 "expiration",

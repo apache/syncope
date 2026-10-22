@@ -26,9 +26,9 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -139,8 +139,9 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
         };
 
         public PushTask(final CSVPushSpec spec) {
-            AjaxCheckBoxPanel ignorePaging = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel ignorePaging = new AjaxTripleStateButtonPanel(
                     "ignorePaging", "ignorePaging", new PropertyModel<>(spec, "ignorePaging"), true);
+            ignorePaging.addRequiredLabel();
             add(ignorePaging);
 
             AjaxPalettePanel<String> propagationActions =

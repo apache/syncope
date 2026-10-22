@@ -25,10 +25,10 @@ import java.util.Optional;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.wicket.PageReference;
@@ -129,7 +129,8 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
             type.addRequiredLabel().setEnabled(true);
             add(type);
 
-            add(new AjaxCheckBoxPanel("logout", "logout", new PropertyModel<>(route, "logout")));
+            add(new AjaxTripleStateButtonPanel("logout", "logout", new PropertyModel<>(route, "logout")).
+                addRequiredLabel());
 
             AjaxTextFieldPanel postLogout = new AjaxTextFieldPanel("postLogout", "postLogout", new IModel<>() {
 
@@ -152,7 +153,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
             postLogout.getField().add(new UrlValidator(new String[] { "http", "https" }));
             add(postLogout);
 
-            add(new AjaxCheckBoxPanel("csrf", "csrf", new PropertyModel<>(route, "csrf")));
+            add(new AjaxTripleStateButtonPanel("csrf", "csrf", new PropertyModel<>(route, "csrf")).addRequiredLabel());
 
             add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "order", "order", Integer.class, new PropertyModel<>(route, "order")).

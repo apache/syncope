@@ -25,7 +25,7 @@ import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.enduser.rest.MfaRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -55,7 +55,8 @@ public class DismissMfa extends BaseReauthPage {
         StatelessForm<Void> form = new StatelessForm<>("dismissmfa");
         content.add(form);
 
-        AjaxCheckBoxPanel consensus = new AjaxCheckBoxPanel("consensus", "consensus", Model.of());
+        AjaxTripleStateButtonPanel consensus = new AjaxTripleStateButtonPanel("consensus", "consensus", Model.of());
+        consensus.addRequiredLabel();
         form.add(consensus.setRequired(true));
 
         CaptchaPanel<Void> captcha = new CaptchaPanel<>(EnduserConstants.CONTENT_PANEL);

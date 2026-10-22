@@ -30,11 +30,11 @@ import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.mapping.AuthModuleMappingPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
@@ -256,7 +256,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
             PropertyModel<AbstractLDAPConf> beanPanelModel = new PropertyModel<>(authModule, "conf.ldap");
 
-            AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable", "enableLDAP", new IModel<Boolean>() {
+            AjaxTripleStateButtonPanel enable = new AjaxTripleStateButtonPanel("enable", "enableLDAP", new IModel<>() {
 
                 private static final long serialVersionUID = -7126718045816207110L;
 
@@ -269,8 +269,9 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                 public void setObject(final Boolean object) {
                     // nothing to do
                 }
-            });
-            enable.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            }, false);
+            enable.addRequiredLabel();
+            enable.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

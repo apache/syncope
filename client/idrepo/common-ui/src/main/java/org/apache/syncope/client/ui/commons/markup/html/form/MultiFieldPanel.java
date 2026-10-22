@@ -21,6 +21,7 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -99,7 +100,16 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
                     fieldPanel.settingsDependingComponents();
                     fieldPanel.hideLabel();
 
-                    if (eventTemplate) {
+                    if (eventTemplate && fieldPanel instanceof AjaxTripleStateButtonPanel) {
+                        fieldPanel.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
+
+                            private static final long serialVersionUID = -1107858522700306810L;
+
+                            @Override
+                            protected void onUpdate(final AjaxRequestTarget target) {
+                            }
+                        });
+                    } else if (eventTemplate) {
                         fieldPanel.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                             private static final long serialVersionUID = -1107858522700306810L;

@@ -31,9 +31,9 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -152,9 +152,9 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                     new PropertyModel<>(modelObject, Constants.NAME_FIELD_NAME), false);
             add(name.addRequiredLabel().setEnabled(true));
 
-            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel active = new AjaxTripleStateButtonPanel(
                     "active", "active", new PropertyModel<>(modelObject, "active"), false);
-            add(active);
+            add(active.addRequiredLabel());
 
             AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel(
                     "mimeType", "mimeType", new PropertyModel<>(modelObject, "mimeType"));

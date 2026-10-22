@@ -37,13 +37,13 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -205,12 +205,12 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         AbstractFieldPanel<?> panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel(
+                panel = new AjaxTripleStateButtonPanel(
                         "panel",
                         plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         new Model<>(),
                         true);
-                panel.setRequired(required);
+
                 break;
 
             case Date:
@@ -230,10 +230,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                             plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                             new Model<>(),
                             FastDateFormat.getInstance(datePattern));
-                }
-
-                if (required) {
-                    panel.addRequiredLabel();
                 }
 
                 break;
@@ -268,9 +264,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     });
                 }
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Dropdown:
@@ -291,9 +284,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     ((AjaxDropDownChoicePanel<String>) panel).setChoices(dropdownValues);
                 }
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Long:
@@ -303,9 +293,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         Long.class,
                         new Model<>());
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Double:
@@ -315,9 +302,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         Double.class,
                         new Model<>());
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             case Binary:
@@ -336,9 +320,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         return pageRef;
                     }
                 };
-                if (required) {
-                    panel.addRequiredLabel();
-                }
+
                 break;
 
             case Encrypted:
@@ -348,9 +330,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         : new EncryptedFieldPanel("panel",
                                 plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
 
-                if (required) {
-                    panel.addRequiredLabel();
-                }
                 break;
 
             default:
@@ -360,12 +339,11 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
                 }
-
-                if (required) {
-                    panel.addRequiredLabel();
-                }
         }
 
+        if (required) {
+            panel.addRequiredLabel();
+        }
         panel.setReadOnly(readOnly);
 
         return panel;
@@ -380,7 +358,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         return null;
     }
 
-    private class AttrComparator implements Comparator<Attr>, Serializable {
+    private final class AttrComparator implements Comparator<Attr>, Serializable {
 
         private static final long serialVersionUID = -5105030477767941060L;
 

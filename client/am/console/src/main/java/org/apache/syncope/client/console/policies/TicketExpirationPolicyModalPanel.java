@@ -25,8 +25,8 @@ import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
@@ -63,7 +63,8 @@ public class TicketExpirationPolicyModalPanel extends AbstractModalPanel<TicketE
     private <T extends Serializable> void conf(final String field, final T newInstance) {
         PropertyModel<T> beanPanelModel = new PropertyModel<>(model.getObject(), "conf." + field);
 
-        AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable." + field, "enable." + field, new IModel<Boolean>() {
+        AjaxTripleStateButtonPanel enable = new AjaxTripleStateButtonPanel(
+                "enable." + field, "enable." + field, new IModel<Boolean>() {
 
             private static final long serialVersionUID = -7126718045816207110L;
 
@@ -76,8 +77,9 @@ public class TicketExpirationPolicyModalPanel extends AbstractModalPanel<TicketE
             public void setObject(final Boolean object) {
                 // nothing to do
             }
-        });
-        enable.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        }, false);
+        enable.addRequiredLabel();
+        enable.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

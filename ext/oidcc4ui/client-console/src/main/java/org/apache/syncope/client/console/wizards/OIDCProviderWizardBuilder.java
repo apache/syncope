@@ -34,11 +34,10 @@ import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.OIDCProviderMappingPanel;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTripleStateButtonPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.OIDCStandardScope;
@@ -171,18 +170,21 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
             clientSecret.setEnabled(true);
             add(clientSecret);
 
-            AjaxCheckBoxPanel createUnmatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel createUnmatching = new AjaxTripleStateButtonPanel(
                     "createUnmatching", "createUnmatching", new PropertyModel<>(opTO, "createUnmatching"),
                     false);
+            createUnmatching.addRequiredLabel();
             add(createUnmatching);
 
-            AjaxCheckBoxPanel selfRegUnmatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel selfRegUnmatching = new AjaxTripleStateButtonPanel(
                     "selfRegUnmatching", "selfRegUnmatching", new PropertyModel<>(opTO, "selfRegUnmatching"),
                     false);
+            selfRegUnmatching.addRequiredLabel();
             add(selfRegUnmatching);
 
-            AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
+            AjaxTripleStateButtonPanel updateMatching = new AjaxTripleStateButtonPanel(
                     "updateMatching", "updateMatching", new PropertyModel<>(opTO, "updateMatching"), false);
+            updateMatching.addRequiredLabel();
             add(updateMatching);
 
             AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
@@ -215,8 +217,9 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
             issuer.addRequiredLabel();
             content.add(issuer.setReadOnly(readOnly));
 
-            AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
-                    "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"));
+            AjaxTripleStateButtonPanel hasDiscovery = new AjaxTripleStateButtonPanel(
+                    "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"), false);
+            hasDiscovery.addRequiredLabel();
             content.add(hasDiscovery);
 
             AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
@@ -258,7 +261,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
             showHide(hasDiscovery, visibleParams);
 
-            hasDiscovery.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            hasDiscovery.getField().add(new IndicatorAjaxFormChoiceComponentUpdatingBehavior() {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -276,8 +279,9 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
         }
     }
 
-    private static void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
-        visibleParams.setVisible("false".equals(hasDiscovery.getField().getValue()));
+    private static void showHide(
+            final AjaxTripleStateButtonPanel hasDiscovery, final WebMarkupContainer visibleParams) {
+        visibleParams.setVisible(Boolean.FALSE.equals(hasDiscovery.getModelObject()));
     }
 
     /**
