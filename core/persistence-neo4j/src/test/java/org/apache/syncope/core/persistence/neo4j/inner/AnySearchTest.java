@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -115,7 +114,7 @@ public class AnySearchTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @BeforeEach
-    public void adjustLoginDateForLocalSystem() throws ParseException {
+    public void adjustLoginDateForLocalSystem() {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         PlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
