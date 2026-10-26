@@ -18,10 +18,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [master]
+    branches: [4_2_X]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [4_2_X]
 
 jobs:
   analyze:
@@ -77,7 +77,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       mvn -U -T 1C -PskipTests,all
+       mvn -U -T 1C -PskipTests,all,use-apache-snapshots
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4.39.0

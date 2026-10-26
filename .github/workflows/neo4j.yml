@@ -18,10 +18,10 @@ name: "Neo4j"
 
 on:
   push:
-    branches: [master]
+    branches: [4_2_X]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [4_2_X]
 
 jobs:
   neo4j:
@@ -40,7 +40,7 @@ jobs:
       with:
         maven-version: 3.9.6
     - name: Build
-      run: mvn -U -T 1C -P 'skipTests,all'
+      run: mvn -U -T 1C -P 'skipTests,all,use-apache-snapshots'
     - name: 'Unit Tests: Neo4j'
       run: mvn -f core/persistence-neo4j/pom.xml -P neo4j -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Integration Tests: Neo4j'
