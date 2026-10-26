@@ -44,8 +44,6 @@ include::reports.adoc[]
 
 include::audit.adoc[]
 
-include::routes.adoc[]
-
 include::authenticationmodules.adoc[]
 
 include::attributerepositories.adoc[]

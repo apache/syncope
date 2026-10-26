@@ -436,7 +436,6 @@ under the License.
     <nimbus-jose-jwt.version>10.10</nimbus-jose-jwt.version>
 
     <spring-boot.version>4.1.2</spring-boot.version>
-    <spring-cloud-version>5.0.4</spring-cloud-version>
 
     <hibernate.version>7.4.13.Final</hibernate.version>
 
@@ -890,27 +889,6 @@ under the License.
             <artifactId>asm</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
-        <version>${spring-cloud-version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-bootstrap</artifactId>
-        <version>${spring-cloud-version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-commons</artifactId>
-        <version>${spring-cloud-version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-context</artifactId>
-        <version>${spring-cloud-version}</version>
       </dependency>
 
       <dependency>
@@ -1446,12 +1424,6 @@ under the License.
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-transports-http-netty-server</artifactId>
         <version>${cxf.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.wiremock.integrations</groupId>
-        <artifactId>wiremock-spring-boot</artifactId>
-        <version>4.4.3</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -2511,7 +2483,6 @@ under the License.
     <module>common</module>
     <module>core</module>
     <module>client</module>
-    <module>sra</module>
     <module>wa</module>
     <module>fit</module>
     <module>ext</module>

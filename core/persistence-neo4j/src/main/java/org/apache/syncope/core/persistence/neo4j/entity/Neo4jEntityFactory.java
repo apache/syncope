@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -250,8 +249,6 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jFIQLQuery();
         } else if (reference.equals(JobStatus.class)) {
             result = (E) new Neo4jJobStatus();
-        } else if (reference.equals(SRARoute.class)) {
-            result = (E) new Neo4jSRARoute();
         } else if (reference.equals(AuthModule.class)) {
             result = (E) new Neo4jAuthModule();
         } else if (reference.equals(AttrRepo.class)) {

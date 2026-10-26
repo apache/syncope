@@ -233,18 +233,6 @@ under the License.
       </resource>
       
       <resource>
-        <directory>../sra/src/main/resources</directory>
-        <targetPath>archetype-resources/sra/src/main/resources</targetPath>
-      </resource>
-      <resource>
-        <directory>../fit/wa-reference/src/test/resources</directory>
-        <targetPath>archetype-resources/sra/src/test/resources</targetPath>
-        <includes>
-          <include>sra-*.properties</include>
-        </includes>
-      </resource>
-
-      <resource>
         <directory>../wa/starter/src/main/resources</directory>
         <includes>
           <include>cas-theme-default.properties</include>

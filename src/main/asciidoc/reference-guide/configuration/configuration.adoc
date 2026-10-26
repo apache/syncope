@@ -41,7 +41,6 @@ was generated, the configuration files will be first searched in
 * `$SOURCE/console/target/classes/`
 * `$SOURCE/enduser/target/classes/`
 * `$SOURCE/wa/target/classes/`
-* `$SOURCE/sra/target/classes/`
 ****
 
 include::deployment.adoc[]

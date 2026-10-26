@@ -52,7 +52,6 @@ $ cp console/target/classes/*properties /opt/syncope/conf
 $ cp enduser/target/classes/*properties /opt/syncope/conf
 $ cp enduser/target/classes/*json /opt/syncope/conf
 $ cp wa/target/classes/*properties /opt/syncope/conf
-$ cp sra/target/classes/*properties /opt/syncope/conf
 ....
 
 After downloading all of the dependencies that are needed, three following artifacts will be produced:
@@ -61,7 +60,6 @@ After downloading all of the dependencies that are needed, three following artif
 . `console/target/syncope-console.war`
 . `enduser/target/syncope-enduser.war`
 . `wa/target/syncope-wa.war`
-. `sra/target/syncope-sra.jar`
 
 If no failures are encountered, your basic Apache Syncope project is now ready to be deployed.
 
@@ -695,14 +693,6 @@ form customization.
 [CAUTION]
 When providing custom Java classes implementing the defined interfaces or extending the existing
 implementations, their package *must* be rooted under `org.apache.syncope.wa`, otherwise they will not be
-available at runtime.
-
-[[customization-sra]]
-==== SRA
-
-[CAUTION]
-When providing custom Java classes implementing the defined interfaces or extending the existing
-implementations, their package *must* be rooted under `org.apache.syncope.sra`, otherwise they will not be
 available at runtime.
 
 [[customization-extensions]]

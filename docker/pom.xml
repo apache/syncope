@@ -115,7 +115,6 @@ under the License.
     <module>core</module>
     <module>console</module>
     <module>enduser</module>
-    <module>sra</module>
     <module>wa</module>
   </modules>
 </project>

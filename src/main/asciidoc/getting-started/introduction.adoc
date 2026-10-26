@@ -126,8 +126,6 @@ for delegated administration.
 
 *_Web Access_* or *_WA_* is the central hub for authentication, authorization and single sign-on.
 
-*_Secure Remote Access_* or *_SRA_* is a security-enabled API gateway with HTTP reverse proxying capabilities.
-
 *_Core_* is the component providing IdM services and acting as central repository for other components' configuration. +
 It exposes a fully-compliant https://jakarta.ee/specifications/restful-ws/4.0/[Jakarta RESTful Web Services 4.0^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,

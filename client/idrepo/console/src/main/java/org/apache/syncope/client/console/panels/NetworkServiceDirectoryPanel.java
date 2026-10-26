@@ -79,7 +79,7 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
         columns.add(new PropertyColumn<>(new StringResourceModel("address", this), "address", "address"));
 
-        if (type == NetworkService.Type.SRA || type == NetworkService.Type.WA) {
+        if (type == NetworkService.Type.WA) {
             columns.add(new PropertyColumn<>(new StringResourceModel("domain", this), "domain", "domain"));
         }
 

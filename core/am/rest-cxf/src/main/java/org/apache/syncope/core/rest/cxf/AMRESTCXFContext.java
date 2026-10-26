@@ -26,7 +26,6 @@ import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
-import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.ConsentDecisionService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -43,7 +42,6 @@ import org.apache.syncope.core.logic.ClientAppLogic;
 import org.apache.syncope.core.logic.OIDCOpEntityLogic;
 import org.apache.syncope.core.logic.PasswordManagementLogic;
 import org.apache.syncope.core.logic.SAML2IdPEntityLogic;
-import org.apache.syncope.core.logic.SRARouteLogic;
 import org.apache.syncope.core.logic.wa.ConsentDecisionLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
@@ -60,7 +58,6 @@ import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCOpEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.PasswordManagementServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2IdPEntityServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.ConsentDecisionServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthAccountServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthTokenServiceImpl;
@@ -153,12 +150,6 @@ public class AMRESTCXFContext {
     @Bean
     public SAML2IdPEntityService saml2IdPEntityService(final SAML2IdPEntityLogic saml2IdPEntityLogic) {
         return new SAML2IdPEntityServiceImpl(saml2IdPEntityLogic);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SRARouteService sraRouteService(final SRARouteLogic sraRouteLogic) {
-        return new SRARouteServiceImpl(sraRouteLogic);
     }
 
     @ConditionalOnMissingBean

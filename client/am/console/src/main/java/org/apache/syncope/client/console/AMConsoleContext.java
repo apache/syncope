@@ -34,8 +34,6 @@ import org.apache.syncope.client.console.rest.OIDCOpEntityRestClient;
 import org.apache.syncope.client.console.rest.PasswordManagementRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
-import org.apache.syncope.client.console.rest.SRARouteRestClient;
-import org.apache.syncope.client.console.rest.SRAStatisticsRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -104,18 +102,6 @@ public class AMConsoleContext {
     @Bean
     public SAML2IdPEntityRestClient saml2IdPEntityRestClient() {
         return new SAML2IdPEntityRestClient();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SRARouteRestClient sraRouteRestClient() {
-        return new SRARouteRestClient();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SRAStatisticsRestClient sRAStatisticsRestClient() {
-        return new SRAStatisticsRestClient();
     }
 
     @ConditionalOnMissingBean

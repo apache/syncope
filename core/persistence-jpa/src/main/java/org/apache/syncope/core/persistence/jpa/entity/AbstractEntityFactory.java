@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -249,8 +248,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAFIQLQuery();
         } else if (reference.equals(JobStatus.class)) {
             result = (E) new JPAJobStatus();
-        } else if (reference.equals(SRARoute.class)) {
-            result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {
             result = (E) new JPAAuthModule();
         } else if (reference.equals(AttrRepo.class)) {

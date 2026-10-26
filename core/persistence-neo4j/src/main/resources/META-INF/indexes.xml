@@ -58,8 +58,6 @@ under the License.
   <entry key="PlainSchema_id">CREATE INDEX PlainSchema_id FOR (n:PlainSchema) ON (n.id)</entry>
   <entry key="DerSchema_id">CREATE INDEX DerSchema_id FOR (n:DerSchema) ON (n.id)</entry>
 
-  <entry key="SRARoute_name">CREATE CONSTRAINT SRARoute_name FOR (n:SRARoute) REQUIRE n.name IS UNIQUE</entry>
-
   <entry key="SecurityQuestion_content">CREATE CONSTRAINT SecurityQuestion_content FOR (n:SecurityQuestion) REQUIRE n.content IS UNIQUE</entry>
 
   <entry key="SyncopeGroup_id">CREATE INDEX SyncopeGroup_id FOR (n:SyncopeGroup) ON (n.id)</entry>

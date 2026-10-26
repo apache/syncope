@@ -30,7 +30,6 @@ public class NetworkService implements Serializable {
         CORE,
         CONSOLE,
         ENDUSER,
-        SRA,
         WA
 
     }

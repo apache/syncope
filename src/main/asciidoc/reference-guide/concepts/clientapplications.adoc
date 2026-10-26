@@ -18,8 +18,7 @@
 //
 === Client Applications
 
-Client Applications represent web applications (including <<secure-remote-access,SRA>>) allowed to integrate with
-<<web-access,WA>>.
+Client Applications represent web applications allowed to integrate with <<web-access,WA>>.
 
 Depending on the communication protocol, the following client applications are supported:
 

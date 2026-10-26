@@ -138,20 +138,6 @@ public class Logs extends BasePage {
             });
         }
 
-        List<NetworkService> sraInstances = serviceOps.list(
-                NetworkService.Type.SRA, SyncopeConsoleSession.get().getDomain());
-        if (!sraInstances.isEmpty()) {
-            tabs.add(new AbstractTab(Model.of(NetworkService.Type.SRA.name())) {
-
-                private static final long serialVersionUID = -6815067322125799251L;
-
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new LogsPanel(panelId, new LoggerConfRestClient(sraInstances), getPageReference());
-                }
-            });
-        }
-
         return tabs;
     }
 }

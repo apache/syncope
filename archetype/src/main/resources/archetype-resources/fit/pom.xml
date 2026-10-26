@@ -187,39 +187,7 @@ under the License.
           </dependency>
         </dependencies>
       </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <id>default-cli</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>${JAVA_HOME}/bin/java</executable>
-              <arguments>
-                <argument>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks</argument>
-                <argument>-Djavax.net.ssl.trustStorePassword=password</argument>
-                <argument>-Dreactor.netty.http.server.accessLogEnabled=true</argument>
-                <argument>-Dsyncope.log.dir=${project.build.directory}/log</argument>
-                <argument>-jar</argument>
-                <argument>${basedir}/../sra/target/syncope-sra-exec.jar</argument>
-              </arguments>
-              <environmentVariables>
-                <LOADER_PATH>${basedir}/../sra/target/test-classes</LOADER_PATH>
-                <SPRING_PROFILES_ACTIVE>cas</SPRING_PROFILES_ACTIVE>
-              </environmentVariables>
-              <async>true</async>
-              <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
-            </configuration>                        
-          </execution>
-        </executions>
-      </plugin>
-      
+     
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven3-plugin</artifactId>
@@ -386,11 +354,6 @@ under the License.
           <artifactId>syncope-wa</artifactId>
           <version>${project.version}</version>
           <classifier>classes</classifier>
-        </dependency>
-        <dependency>
-          <groupId>${groupId}</groupId>
-          <artifactId>syncope-sra</artifactId>
-          <version>${project.version}</version>
         </dependency>
       </dependencies>
 
@@ -567,37 +530,6 @@ under the License.
                     <ports>
                       <port>9443:9443</port>
                     </ports>
-                    <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
-                  </run>
-                </image>
-
-                <image>
-                  <alias>syncope-sra</alias>
-                  <name>apache/syncope-sra:${syncope.version}</name>
-                  <run>
-                    <containerNamePattern>%a</containerNamePattern>
-                    <dependsOn>
-                      <container>syncope</container>
-                    </dependsOn>
-                    <env>
-                      <SPRING_PROFILES_ACTIVE>docker,all</SPRING_PROFILES_ACTIVE>
-                      <SERVICE_DISCOVERY_ADDRESS>http://syncope-sra:8080/</SERVICE_DISCOVERY_ADDRESS>
-                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
-                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
-                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
-                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
-                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
-                    </env>
-                    <volumes>
-                      <bind>
-                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-sra/${project.version}/syncope-sra-${project.version}.jar:/opt/syncope/lib/syncope-sra.jar:ro</volume>
-                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
-                      </bind>
-                    </volumes>
-                    <network>
-                      <name>archetype</name>
-                      <mode>custom</mode>
-                    </network>
                     <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
                   </run>
                 </image>

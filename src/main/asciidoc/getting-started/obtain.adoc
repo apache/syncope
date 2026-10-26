@@ -129,12 +129,6 @@ Environment variables:
 * `CAS_SERVER_NAME`: public base URL to reach this instance; in case of clustered setup, this is the public-facing
 address and not the individual node address
 
-===== SRA
-
-Apache Syncope Secure Remote Access, see <<a-birds-eye-view-on-the-architecture,above>> for information.
-
-Port exposed: `8080`.
-
 ==== Docker Compose samples
 
 Besides the ones reported below, more samples are
@@ -225,7 +219,7 @@ services:
 <4> Apache Syncope Enduser UI, port `38080` exposed
 ====
 
-.Full deployment (Core, Admin UI, Enduser UI, WA, SRA) on PostgreSQL, with Keymaster on Zookeeper
+.Full deployment (Core, Admin UI, Enduser UI, WA) on PostgreSQL, with Keymaster on Zookeeper
 ====
 The `docker-compose.yml` below will create and connect 7 Docker containers to provide a full-fledged, single
 instance, Apache Syncope deployment. All referenced images are available on Docker Hub.
@@ -323,23 +317,6 @@ services:
        CAS_SERVER_NAME: http://localhost:48080
        ANONYMOUS_USER: ${ANONYMOUS_USER}
        ANONYMOUS_KEY: ${ANONYMOUS_KEY}
-
-   syncope-sra: // <7>
-     depends_on:
-       - syncope
-       - keymaster
-     image: apache/syncope-sra:{docVersion}
-     ports:
-       - "58080:8080"
-     restart: always
-     environment:
-       SPRING_PROFILES_ACTIVE: docker,saml2
-       KEYMASTER_ADDRESS: keymaster:2181
-       KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
-       KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
-       SERVICE_DISCOVERY_ADDRESS: https://syncope-sra:8080/
-       ANONYMOUS_USER: ${ANONYMOUS_USER}
-       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 ----
 <1> Apache Syncope Keymaster, based on https://zookeeper.apache.org/[Apache Zookeeper^]
 <2> Database container for usage as internal storage, based on latest PostgreSQL image available
@@ -347,7 +324,6 @@ services:
 <4> Apache Syncope Admin UI, port `28080` exposed
 <5> Apache Syncope Enduser UI, port `38080` exposed
 <6> Apache Syncope WA, port `48080` exposed
-<7> Apache Syncope SRA, port `58080` exposed
 ====
 
 ===== How to start the containers
@@ -382,9 +358,6 @@ Credentials: `admin` / `password`
 
 | WA (only with Example 2)
 | http://localhost:48080/syncope-wa/
-
-| SRA (only with Example 2)
-| http://localhost:58080/
 
 |===
 
@@ -541,7 +514,7 @@ anonymousKey::
     Provide any pseudo-random string here that will be used as an authentication key for anonymous requests.
 
 Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
-specified above) containing seven modules: `common`, `core`, `console`, `enduser`, `wa`, `sra` and `fit`.
+specified above) containing seven modules: `common`, `core`, `console`, `enduser`, `wa` and `fit`.
 
 You are now able to perform the first build via
 
@@ -554,7 +527,6 @@ After downloading all of the needed dependencies, the following artifacts will b
 . `console/target/syncope-console.war`
 . `enduser/target/syncope-enduser.war`
 . `wa/target/syncope-wa.war`
-. `sra/target/syncope-sra.jar`
 
 If no failures are encountered, your basic Apache Syncope project is now ready to go.
 
@@ -616,7 +588,7 @@ to just ignore the message, take the risk and discover how deep does the rabbit 
 |===
 
 | Log files
-| Available under `core/target/log`, `console/target/log`, `enduser/target/log`, `wa/target/log` and `sra/target/log`
+| Available under `core/target/log`, `console/target/log`, `enduser/target/log` and `wa/target/log`
 
 | ConnId bundles
 | Available under `core/target/bundles`
@@ -633,9 +605,6 @@ Credentials: `admin` / `password`
 
 | WA
 | https://localhost:9443/syncope-wa/
-
-| SRA
-| http://localhost:8080/
 
 | Internal storage
 | `jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified` +
@@ -701,7 +670,6 @@ The hostnames below, e.g.
 . `syncope`
 . `syncope-console`
 . `syncope-enduser`
-. `syncope-sra`
 
 are to be manually resolved to their respective local IP addresses in use by your current deployment.
 
@@ -734,8 +702,5 @@ Credentials: `admin` / `password`
 
 | WA
 | https://localhost:9443/syncope-wa/
-
-| SRA
-| http://syncope-sra:8080/
 
 |===

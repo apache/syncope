@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.NotAuthorizedException;
@@ -143,9 +142,6 @@ public class KeymasterITCase extends AbstractITCase {
         assertFalse(services.isEmpty());
         assertEquals(1, services.size());
 
-        services = serviceOps.list(NetworkService.Type.SRA);
-        assertTrue(services.isEmpty());
-
         services = serviceOps.list(NetworkService.Type.WA);
         assertTrue(services.isEmpty());
     }
@@ -165,50 +161,6 @@ public class KeymasterITCase extends AbstractITCase {
             }
         });
         return holder.get();
-    }
-
-    @Test
-    public void serviceRun() {
-        List<NetworkService> list = serviceOps.list(NetworkService.Type.SRA);
-        assertTrue(list.isEmpty());
-
-        NetworkService sra1 = new NetworkService();
-        sra1.setType(NetworkService.Type.SRA);
-        sra1.setAddress("http://localhost:9080/syncope-sra");
-        sra1.setDomain(SyncopeConstants.MASTER_DOMAIN);
-        serviceOps.register(sra1);
-
-        list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
-        assertFalse(list.isEmpty());
-        assertEquals(1, list.size());
-        assertEquals(sra1, list.getFirst());
-
-        assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
-
-        NetworkService sra2 = new NetworkService();
-        sra2.setType(NetworkService.Type.SRA);
-        sra2.setAddress("http://localhost:9080/syncope-sra");
-        sra2.setDomain(SyncopeConstants.MASTER_DOMAIN);
-        assertEquals(sra1, sra2);
-        serviceOps.register(sra2);
-
-        list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
-        assertFalse(list.isEmpty());
-        assertEquals(1, list.size());
-        assertEquals(sra1, list.getFirst());
-
-        assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
-
-        serviceOps.unregister(sra1);
-        list = findNetworkServices(NetworkService.Type.SRA, l -> !l.isEmpty(), 30);
-        assertTrue(list.isEmpty());
-
-        try {
-            serviceOps.get(NetworkService.Type.SRA);
-            fail();
-        } catch (KeymasterException e) {
-            assertNotNull(e);
-        }
     }
 
     @Test

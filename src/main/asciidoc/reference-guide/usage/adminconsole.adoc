@@ -127,15 +127,6 @@ Different actions are available when clicking on the various nodes.
 
 image::consoleTopology.png[console-topology]
 
-[[console-sra]]
-[discrete]
-===== SRA
-
-From the SRA page it is possible to manage the <<routes,routes>> served and to immediately deploy the updated
-configuration.
-
-image::sra.png[console-sra]
-
 [[console-wa]]
 [discrete]
 ===== WA

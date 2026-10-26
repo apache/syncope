@@ -29,11 +29,9 @@ public class NetworkServiceValidator extends AbstractValidator<NetworkServiceChe
     public boolean isValid(final NetworkServiceEntity service, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if ((service.getType() == NetworkService.Type.SRA || service.getType() == NetworkService.Type.WA)
-                && service.getDomain() == null) {
-
+        if (service.getType() == NetworkService.Type.WA && service.getDomain() == null) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.Standard, "Domain must be set for SRA and WA services")).
+                    getTemplate(EntityViolationType.Standard, "Domain must be set for WA services")).
                     addPropertyNode("domain").addConstraintViolation();
             return false;
         }

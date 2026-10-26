@@ -87,18 +87,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-sra</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>spring-cloud-starter</artifactId>
-          <groupId>org.springframework.cloud</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -389,13 +377,6 @@ under the License.
       <testResource>
         <directory>${basedir}/../core-reference/src/test/resources/scriptedsql</directory>
         <targetPath>${project.build.testOutputDirectory}/scriptedsql</targetPath>
-      </testResource>
-      <testResource>
-        <directory>${basedir}/../../sra/src/test/resources/debug</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>saml.keystore.jks</include>
-        </includes>
       </testResource>
     </testResources>
   </build>

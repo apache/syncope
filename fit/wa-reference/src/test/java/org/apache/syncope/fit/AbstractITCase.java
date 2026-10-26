@@ -49,7 +49,6 @@ import org.apache.syncope.common.rest.api.service.OIDCOpEntityService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
-import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -104,8 +103,6 @@ public abstract class AbstractITCase {
 
     protected static WAConfigService WA_CONFIG_SERVICE;
 
-    protected static SRARouteService SRA_ROUTE_SERVICE;
-
     protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
 
     protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
@@ -124,7 +121,6 @@ public abstract class AbstractITCase {
         OIDC_OP_ENTITY_SERVICE = ADMIN_CLIENT.getService(OIDCOpEntityService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
-        SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
         ATTR_REPO_SERVICE = ADMIN_CLIENT.getService(AttrRepoService.class);
