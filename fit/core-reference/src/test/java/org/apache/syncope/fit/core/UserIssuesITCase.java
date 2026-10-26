@@ -435,9 +435,6 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE279() {
-        // see https://github.com/payara/Payara/issues/7203
-        assumeFalse(IS_DEPLOYED_IN_PAYARA);
-
         UserCR userCR = UserITCase.getUniqueSample("syncope279@apache.org");
         userCR.getResources().clear();
         userCR.getResources().add(RESOURCE_NAME_TIMEOUT);
