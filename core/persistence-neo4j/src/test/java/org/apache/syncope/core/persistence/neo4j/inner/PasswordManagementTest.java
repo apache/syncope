@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.password.JDBCPasswordManagementConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordManagementConf;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
@@ -40,13 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PasswordManagementTest extends AbstractTest {
-
-    private static boolean isSpecificConf(
-            final PasswordManagementConf conf,
-            final Class<? extends PasswordManagementConf> clazz) {
-
-        return ClassUtils.isAssignable(clazz, conf.getClass());
-    }
 
     @Autowired
     private PasswordManagementDAO passwordManagementDAO;
@@ -76,16 +68,17 @@ public class PasswordManagementTest extends AbstractTest {
     public void findByType() {
         List<? extends PasswordManagement> passwordManagements = passwordManagementDAO.findAll();
         assertTrue(passwordManagements.stream().anyMatch(
-                passwordManagement -> isSpecificConf(passwordManagement.getConf(),
-                        SyncopePasswordManagementConf.class)
+                passwordManagement -> passwordManagement.getConf() instanceof SyncopePasswordManagementConf
                 && passwordManagement.getKey().equals("DefaultSyncopePasswordManagement")));
         assertTrue(passwordManagements.stream().anyMatch(
-                passwordManagement -> isSpecificConf(passwordManagement.getConf(),
-                        LDAPPasswordManagementConf.class)
+                passwordManagement -> passwordManagement.getConf() instanceof LDAPPasswordManagementConf
                 && passwordManagement.getKey().equals("DefaultLDAPPasswordManagement")));
         assertTrue(passwordManagements.stream().anyMatch(
-                passwordManagement -> isSpecificConf(passwordManagement.getConf(), JDBCPasswordManagementConf.class)
+                passwordManagement -> passwordManagement.getConf() instanceof JDBCPasswordManagementConf
                 && passwordManagement.getKey().equals("DefaultJDBCPasswordManagement")));
+        assertTrue(passwordManagements.stream().anyMatch(
+                passwordManagement -> passwordManagement.getConf() instanceof RESTPasswordManagementConf
+                && passwordManagement.getKey().equals("DefaultRESTPasswordManagement")));
     }
 
     private void savePasswordManagement(final String key, final PasswordManagementConf conf) {

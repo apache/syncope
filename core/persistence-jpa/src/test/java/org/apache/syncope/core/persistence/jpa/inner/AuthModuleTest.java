@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -48,10 +47,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class AuthModuleTest extends AbstractTest {
-
-    private static boolean isSpecificConf(final AuthModuleConf conf, final Class<? extends AuthModuleConf> clazz) {
-        return ClassUtils.isAssignable(clazz, conf.getClass());
-    }
 
     @Autowired
     private AuthModuleDAO authModuleDAO;
@@ -101,31 +96,31 @@ public class AuthModuleTest extends AbstractTest {
     public void findByType() {
         List<? extends AuthModule> authModules = authModuleDAO.findAll();
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), LDAPAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof LDAPAuthModuleConf
                 && authModule.getKey().equals("DefaultLDAPAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), JDBCAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof JDBCAuthModuleConf
                 && authModule.getKey().equals("DefaultJDBCAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), GoogleMfaAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof GoogleMfaAuthModuleConf
                 && authModule.getKey().equals("DefaultGoogleMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), DuoMfaAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof DuoMfaAuthModuleConf
                 && authModule.getKey().equals("DefaultDuoMfaAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), OIDCAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof OIDCAuthModuleConf
                 && authModule.getKey().equals("DefaultOIDCAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), SAML2IdPAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof SAML2IdPAuthModuleConf
                 && authModule.getKey().equals("DefaultSAML2IdPAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), JaasAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof JaasAuthModuleConf
                 && authModule.getKey().equals("DefaultJaasAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), StaticAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof StaticAuthModuleConf
                 && authModule.getKey().equals("DefaultStaticAuthModule")));
         assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
+                authModule -> authModule.getConf() instanceof SyncopeAuthModuleConf
                 && authModule.getKey().equals("DefaultSyncopeAuthModule")));
     }
 

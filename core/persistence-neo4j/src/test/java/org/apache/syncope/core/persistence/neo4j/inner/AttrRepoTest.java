@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
@@ -42,10 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class AttrRepoTest extends AbstractTest {
-
-    private static boolean isSpecificConf(final AttrRepoConf conf, final Class<? extends AttrRepoConf> clazz) {
-        return ClassUtils.isAssignable(clazz, conf.getClass());
-    }
 
     @Autowired
     private AttrRepoDAO attrRepoDAO;
@@ -78,16 +73,16 @@ public class AttrRepoTest extends AbstractTest {
     public void findByType() {
         List<? extends AttrRepo> attrRepos = attrRepoDAO.findAll();
         assertTrue(attrRepos.stream().anyMatch(
-                attrRepo -> isSpecificConf(attrRepo.getConf(), LDAPAttrRepoConf.class)
+                attrRepo -> attrRepo.getConf() instanceof LDAPAttrRepoConf
                 && attrRepo.getKey().equals("DefaultLDAPAttrRepo")));
         assertTrue(attrRepos.stream().anyMatch(
-                attrRepo -> isSpecificConf(attrRepo.getConf(), JDBCAttrRepoConf.class)
+                attrRepo -> attrRepo.getConf() instanceof JDBCAttrRepoConf
                 && attrRepo.getKey().equals("DefaultJDBCAttrRepo")));
         assertTrue(attrRepos.stream().anyMatch(
-                attrRepo -> isSpecificConf(attrRepo.getConf(), SyncopeAttrRepoConf.class)
+                attrRepo -> attrRepo.getConf() instanceof SyncopeAttrRepoConf
                 && attrRepo.getKey().equals("DefaultSyncopeAttrRepo")));
         assertTrue(attrRepos.stream().anyMatch(
-                attrRepo -> isSpecificConf(attrRepo.getConf(), StubAttrRepoConf.class)
+                attrRepo -> attrRepo.getConf() instanceof StubAttrRepoConf
                 && attrRepo.getKey().equals("DefaultStubAttrRepo")));
     }
 
