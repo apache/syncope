@@ -99,17 +99,18 @@ public abstract class BaseWASAML2ClientTest {
 
     protected static SAML2Configuration getSAML2Configuration() throws Exception {
         SAML2Configuration cfg = new SAML2Configuration();
-        cfg.getKeystore().setKeystoreResource(new ByteArrayResource(new byte[0]));
+        cfg.getKeystore().setResource(new ByteArrayResource(new byte[0]));
         cfg.getKeystore().setKeystorePassword("password");
         cfg.getKeystore().setPrivateKeyPassword("password");
 
-        cfg.setIdentityProviderMetadataResource(new ClassPathResource("idp-metadata.xml"));
+        cfg.getIdentityProviderMetadata().setResource(new ClassPathResource("idp-metadata.xml"));
 
         SAML2IdentityProviderMetadataResolver idpMetadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
         idpMetadataResolver.init();
         cfg.setIdentityProviderMetadataResolver(idpMetadataResolver);
 
-        cfg.setServiceProviderMetadataResource(new FileSystemResource(Files.createTempFile("sp-metadata", ".xml")));
+        cfg.getServiceProviderMetadata().setResource(
+                new FileSystemResource(Files.createTempFile("sp-metadata", ".xml")));
 
         return cfg;
     }

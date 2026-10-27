@@ -23,6 +23,8 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.pac4j.core.config.properties.KeystoreProperties;
+import org.pac4j.core.config.properties.ResourceProperties;
 import org.pac4j.core.keystore.generation.BaseKeystoreGenerator;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.springframework.core.io.FileUrlResource;
@@ -44,14 +46,15 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
 
     protected SAML2Configuration newSAML2Configuration() {
         SAML2Configuration cfg = new SAML2Configuration(
-                resourceResolver.getResource(props.getKeystore()),
-                props.getKeystoreAlias(),
-                props.getKeystoreType(),
-                props.getKeystoreStorepass(),
-                props.getKeystoreKeypass(),
-                null);
+                new KeystoreProperties().
+                        setKeyStoreAlias(props.getKeystoreAlias()).
+                        setKeyStoreType(props.getKeystoreType()).
+                        setResource(resourceResolver.getResource(props.getKeystore())).
+                        setKeystorePassword(props.getKeystoreStorepass()).
+                        setPrivateKeyPassword(props.getKeystoreKeypass()),
+                new ResourceProperties());
 
-        if (cfg.getKeystore().getKeystoreResource() instanceof FileUrlResource) {
+        if (cfg.getKeystore().getResource() instanceof FileUrlResource) {
             cfg.getKeystore().setKeystoreGenerator(new BaseKeystoreGenerator(cfg.getKeystore()) {
 
                 @Override
@@ -65,7 +68,7 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
 
                 @Override
                 public InputStream retrieve() throws Exception {
-                    return cfg.getKeystore().getKeystoreResource().getInputStream();
+                    return cfg.getKeystore().getResource().getInputStream();
                 }
             });
         }
