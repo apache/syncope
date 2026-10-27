@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.policy;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -44,6 +45,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     private static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Autowired
     private EncryptorManager encryptorManager;
@@ -75,26 +78,23 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     uri(URI.create("https://api.pwnedpasswords.com/range/" + prefix)).
                     GET().
                     build();
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
-            try (HttpClient client = HttpClient.newHttpClient()) {
-                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                LOG.error("Error while contacting the PwnedPasswords service: HTTP {}", response.statusCode());
+                return;
+            }
 
-                if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                    throw new IllegalStateException("HTTP response status: " + response.statusCode());
-                }
+            if (StringUtils.isNotBlank(response.body())
+                    && Stream.of(response.body().split("\\R")).
+                            anyMatch(line -> sha1.equals(prefix + StringUtils.substringBefore(line, ":")))) {
 
-                String body = response.body();
-                if (StringUtils.isNotBlank(body)
-                        && Stream.of(body.split("\\R")).
-                                anyMatch(line -> sha1.equals(prefix + StringUtils.substringBefore(line, ":")))) {
-
-                    throw new PasswordPolicyException("Password pwned");
-                }
+                throw new PasswordPolicyException("Password pwned");
             }
         } catch (GeneralSecurityException e) {
             LOG.error("Could not encode the password value as SHA1", e);
-        } catch (Exception e) {
-            LOG.error("Error while contacting the HaveIBeenPwned service", e);
+        } catch (IOException | InterruptedException e) {
+            LOG.error("Error while contacting the PwnedPasswords service", e);
         }
     }
 
