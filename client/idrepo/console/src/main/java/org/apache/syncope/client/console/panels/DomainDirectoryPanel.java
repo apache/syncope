@@ -87,7 +87,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         try {
             JsonNode info = SyncopeConsoleSession.get().getAnonymousClient().info();
             if (info.has("persistence") && info.get("persistence").has("vendor")
-                    && "OpenJPA".equals(info.get("persistence").get("vendor").asText())) {
+                    && "OpenJPA".equals(info.get("persistence").get("vendor").asString())) {
 
                 domainClass = JPADomain.class;
             } else {
