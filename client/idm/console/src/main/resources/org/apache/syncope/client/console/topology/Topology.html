@@ -19,52 +19,47 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <script type="text/javascript" src="webjars/jsplumb/${jsplumb.version}/js/jsPlumb-${jsplumb.version}-min.js"></script>
-    <script type="text/javascript" src="webjars/jquery-cookie/${jquery-cookie.version}/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/idmTopologyCore.js"></script>
+    <script type="text/javascript" src="js/idmTopologyLayout.js"></script>
+    <script type="text/javascript" src="js/idmTopologyNavigation.js"></script>
     <script type="text/javascript" src="js/idmTopology.js"></script>
     <link href="css/topology.css" rel="stylesheet"/>
-
-    <style type="text/css">
-      legend {
-        font-weight: bold;
-      }
-      #sentMessages {
-        display: none;
-      }
-      #messages {
-        margin: 5px;
-        padding: 5px;
-        border: 2px groove #f5f5f5;
-      }
-    </style>
   </wicket:head>
+
   <wicket:extend>
     <span wicket:id="toggle"/>
 
-    <div id="zoom" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only pt-2 pe-2 pb-1">
-      <span wicket:id="zoom">[Actions]</span>
+    <div id="topology-toolbar" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only pt-2 pe-2 pb-1">
+      <div class="topology-zoom-control" role="group" aria-labelledby="topology-zoom-label">
+        <label id="topology-zoom-label" class="visually-hidden" for="topology-zoom">Zoom</label>
+        <input id="topology-zoom" type="range" min="10" max="200" step="1" value="68"/>
+        <output id="topology-zoom-value" for="topology-zoom">68%</output>
+      </div>
+      <span wicket:id="topologyActions">[Actions]</span>
     </div>
+
     <div id="topology">
       <div id="drawing">
-        <div class="window" wicket:id="syncope" onmouseup="refreshPosition(this)">[syncope]</div>
+        <div class="window" wicket:id="syncope">[syncope]</div>
         <span wicket:id="connectorServers">
-          <div class="window" wicket:id="cs" onmouseup="refreshPosition(this)">[connector server]</div>
+          <div class="window" wicket:id="cs">[connector server]</div>
         </span>
         <span wicket:id="filePaths">
-          <div class="window" wicket:id="fp" onmouseup="refreshPosition(this)">[file path]</div>
+          <div class="window" wicket:id="fp">[file path]</div>
         </span>
         <span wicket:id="conns">
           <span wicket:id="conns">
-            <div class="window" wicket:id="conn" onmouseup="refreshPosition(this)">[connector]</div>
+            <div class="window" wicket:id="conn">[connector]</div>
           </span>
         </span>
         <span wicket:id="resources">
           <span wicket:id="resources">
-            <div class="window" wicket:id="res" onmouseup="refreshPosition(this)">[resource]</div>
+            <div class="window" wicket:id="res">[resource]</div>
           </span>
         </span>
         <div wicket:id="newlyCreatedContainer">
           <span wicket:id="newlyCreated">
-            <div class="window" wicket:id="el" onmouseup="refreshPosition(this)">[resource]</div>
+            <div class="window" wicket:id="el">[resource]</div>
           </span>
         </div>
       </div>
