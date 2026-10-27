@@ -42,4 +42,4 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all,use-apache-snapshots'
     - name: 'WA / SAML2SP4UI'
-      run: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=SAML2SP4UIITCase
+      run: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/wa-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=SAML2SP4UIITCase
