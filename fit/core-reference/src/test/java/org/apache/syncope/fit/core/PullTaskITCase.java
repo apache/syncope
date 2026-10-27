@@ -901,6 +901,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
     @Order(4)
     @Test
     public void remediationSinglePull() throws IOException {
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
+
         // First of all, clear any potential conflict with existing user / group
         ldapCleanup();
 
