@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.client.console.topology;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -35,12 +37,10 @@ import org.apache.syncope.client.console.wicket.ws.BasePageWebSocketBehavior;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -50,7 +50,7 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
-    protected static final JsonMapper MAPPER = new SyncopeJsonMapper();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
 
@@ -64,11 +64,11 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
 
     protected final ResourceRestClient resourceRestClient;
 
-    protected final Map<String, String> connectors = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<String, StatusMessage> connectors = Collections.synchronizedMap(new HashMap<>());
 
     protected final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
 
-    protected final Map<String, String> resources = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<String, StatusMessage> resources = Collections.synchronizedMap(new HashMap<>());
 
     protected final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
 
@@ -78,9 +78,9 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
 
     protected String jwt;
 
-    protected Integer connectorTestTimeout = null;
+    protected Integer connectorTestTimeout;
 
-    protected Integer resourceTestTimeout = null;
+    protected Integer resourceTestTimeout;
 
     public TopologyWebSocketBehavior(
             final ServiceOps serviceOps,
@@ -97,109 +97,36 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         domain = SyncopeConsoleSession.get().getDomain();
         jwt = SyncopeConsoleSession.get().getJWT();
 
-        // Handling with timeout as per SYNCOPE-1379
-        try {
-            connectorTestTimeout = confParamOps.get(domain, CONNECTOR_TEST_TIMEOUT_PARAMETER, null, Integer.class);
-            resourceTestTimeout = confParamOps.get(domain, RESOURCE_TEST_TIMEOUT_PARAMETER, null, Integer.class);
-        } catch (Exception e) {
-            LOG.debug("No {} or {} conf parameters found",
-                    CONNECTOR_TEST_TIMEOUT_PARAMETER, RESOURCE_TEST_TIMEOUT_PARAMETER, e);
-        }
-    }
-
-    protected void timeoutHandlingConnectionChecker(
-            final Checker checker,
-            final Integer timeout,
-            final Map<String, String> responses,
-            final Set<String> running) {
-
-        String response;
-        try {
-            if (timeout == null || timeout < 0) {
-                LOG.debug("No timeouts for resource connection checking ... ");
-                response = checker.call();
-            } else {
-                LOG.debug("Timeouts provided for resource connection checking ... ");
-                response = SyncopeConsoleSession.get().execute(checker).get(timeout, TimeUnit.SECONDS);
-            }
-        } catch (InterruptedException | TimeoutException e) {
-            LOG.warn("Connection with {} timed out", checker.key);
-            response = "{ \"status\": \"%s\", \"target\": \"%s\"}".
-                    formatted(TopologyNode.Status.UNREACHABLE, checker.key);
-        } catch (Exception e) {
-            LOG.error("Unexpected exception connecting to {}", checker.key, e);
-            response = "{ \"status\": \"%s\", \"target\": \"%s\"}".
-                    formatted(TopologyNode.Status.FAILURE, checker.key);
-        }
-
-        Optional.ofNullable(response).ifPresent(r -> responses.put(checker.key, r));
-
-        running.remove(checker.key);
+        connectorTestTimeout = confParamOps.get(domain, CONNECTOR_TEST_TIMEOUT_PARAMETER, 30, Integer.class);
+        resourceTestTimeout = confParamOps.get(domain, RESOURCE_TEST_TIMEOUT_PARAMETER, 30, Integer.class);
     }
 
     @Override
     protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
         try {
             JsonNode obj = MAPPER.readTree(message.getText());
+            String target = obj.get("target").asString();
             switch (Topology.SupportedOperation.valueOf(obj.get("kind").asString())) {
-                case CHECK_CONNECTOR -> {
-                    String ckey = obj.get("target").asString();
+                case CHECK_CONNECTOR ->
+                    checkConnection(
+                            new ConnectorChecker(target),
+                            connectorTestTimeout, connectors, runningConnCheck, handler);
 
-                    if (connectors.containsKey(ckey)) {
-                        handler.push(connectors.get(ckey));
-                    } else {
-                        handler.push("{ \"status\": \"%s\", \"target\": \"%s\"}".
-                                formatted(TopologyNode.Status.UNKNOWN, ckey));
-                    }
+                case CHECK_RESOURCE ->
+                    checkConnection(
+                            new ResourceChecker(target),
+                            resourceTestTimeout, resources, runningResCheck, handler);
 
-                    if (runningConnCheck.contains(ckey)) {
-                        LOG.debug("Running connection check for connector {}", ckey);
-                    } else {
-                        try {
-                            timeoutHandlingConnectionChecker(
-                                    new ConnectorChecker(ckey), connectorTestTimeout, connectors, runningConnCheck);
-
-                            runningConnCheck.add(ckey);
-                        } catch (Exception e) {
-                            LOG.error("Unexpected error", e);
-                        }
-                    }
+                case ADD_ENDPOINT -> {
+                    String source = obj.get("source").asString();
+                    String scope = obj.get("scope").asString();
+                    handler.appendJavaScript("addEndpoint('%s', '%s', '%s');".formatted(source, target, scope));
                 }
-
-                case CHECK_RESOURCE -> {
-                    String rkey = obj.get("target").asString();
-
-                    if (resources.containsKey(rkey)) {
-                        handler.push(resources.get(rkey));
-                    } else {
-                        handler.push("{ \"status\": \"%s\", \"target\": \"%s\"}".
-                                formatted(TopologyNode.Status.UNKNOWN, rkey));
-                    }
-
-                    if (runningResCheck.contains(rkey)) {
-                        LOG.debug("Running connection check for resource {}", rkey);
-                    } else {
-                        try {
-                            timeoutHandlingConnectionChecker(
-                                    new ResourceChecker(rkey), resourceTestTimeout, resources, runningResCheck);
-
-                            runningResCheck.add(rkey);
-                        } catch (Exception e) {
-                            LOG.error("Unexpected error", e);
-                        }
-                    }
-                }
-
-                case ADD_ENDPOINT ->
-                    handler.appendJavaScript("addEndpoint('%s', '%s', '%s');".formatted(
-                            obj.get("source").asString(),
-                            obj.get("target").asString(),
-                            obj.get("scope").asString()));
 
                 default -> {
                 }
             }
-        } catch (JacksonException e) {
+        } catch (Exception e) {
             LOG.error("Error managing websocket message", e);
         }
     }
@@ -212,7 +139,70 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         return this.resources.keySet().containsAll(resources);
     }
 
-    protected abstract class Checker implements Callable<String> {
+    protected void checkConnection(
+            final Checker checker,
+            final Integer timeout,
+            final Map<String, StatusMessage> responses,
+            final Set<String> running,
+            final WebSocketRequestHandler handler) {
+
+        StatusMessage response = responses.get(checker.key);
+        handler.push(MAPPER.valueToTree(response == null
+                ? new StatusMessage(TopologyNode.Status.UNKNOWN, checker.key)
+                : response).toString());
+
+        if (response == null && running.add(checker.key)) {
+            SyncopeConsoleSession session = SyncopeConsoleSession.get();
+            session.execute(() -> {
+                try {
+                    StatusMessage result = checkWithTimeout(checker, timeout, session);
+                    responses.put(checker.key, result);
+                    handler.push(MAPPER.valueToTree(result).toString());
+                } finally {
+                    running.remove(checker.key);
+                }
+            });
+        }
+    }
+
+    protected StatusMessage checkWithTimeout(
+            final Checker checker,
+            final Integer timeout,
+            final SyncopeConsoleSession session) {
+
+        Future<Boolean> task = null;
+        try {
+            boolean reachable;
+            if (timeout == null || timeout < 0) {
+                reachable = checker.call();
+            } else {
+                task = session.execute(checker);
+                reachable = task.get(timeout, TimeUnit.SECONDS);
+            }
+            return new StatusMessage(reachable
+                    ? TopologyNode.Status.REACHABLE
+                    : TopologyNode.Status.UNREACHABLE, checker.key);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new StatusMessage(TopologyNode.Status.UNREACHABLE, checker.key);
+        } catch (TimeoutException e) {
+            LOG.warn("Connection with {} timed out", checker.key);
+            return new StatusMessage(TopologyNode.Status.UNREACHABLE, checker.key);
+        } catch (Exception e) {
+            LOG.warn("Error checking connection for {}", checker.key, e);
+            return new StatusMessage(TopologyNode.Status.FAILURE, checker.key);
+        } finally {
+            if (task != null && !task.isDone()) {
+                task.cancel(true);
+            }
+        }
+    }
+
+    protected record StatusMessage(TopologyNode.Status status, String target) implements Serializable {
+
+    }
+
+    protected abstract static class Checker implements Callable<Boolean> {
 
         protected final String key;
 
@@ -228,15 +218,8 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         }
 
         @Override
-        public String call() {
-            try {
-                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(
-                        connectorRestClient.check(coreAddress, domain, jwt, key)
-                        ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
-            } catch (Exception e) {
-                LOG.warn("Error checking connection for {}", key, e);
-                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(TopologyNode.Status.FAILURE, key);
-            }
+        public Boolean call() throws IOException {
+            return connectorRestClient.check(coreAddress, domain, jwt, key);
         }
     }
 
@@ -247,15 +230,8 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
         }
 
         @Override
-        public String call() {
-            try {
-                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(
-                        resourceRestClient.check(coreAddress, domain, jwt, key)
-                        ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
-            } catch (Exception e) {
-                LOG.warn("Error checking connection for {}", key, e);
-                return "{ \"status\": \"%s\", \"target\": \"%s\"}".formatted(TopologyNode.Status.FAILURE, key);
-            }
+        public Boolean call() throws IOException {
+            return resourceRestClient.check(coreAddress, domain, jwt, key);
         }
     }
 }
