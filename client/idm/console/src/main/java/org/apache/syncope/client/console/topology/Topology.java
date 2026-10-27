@@ -174,30 +174,30 @@ public class Topology extends BasePage {
         body.add(togglePanel);
 
         // -----------------------------------------
-        // Add Zoom panel
+        // Add topology actions
         // -----------------------------------------
-        ActionsPanel<Serializable> zoomActionPanel = new ActionsPanel<>("zoom", null);
-
-        zoomActionPanel.add(new ActionLink<>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.appendJavaScript("zoomIn($('#drawing')[0]);");
-            }
-        }, ActionLink.ActionType.ZOOM_IN, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
-        zoomActionPanel.add(new ActionLink<>() {
+        ActionsPanel<Serializable> topologyActions = new ActionsPanel<>("topologyActions", null);
+        topologyActions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.appendJavaScript("zoomOut($('#drawing')[0]);");
+                target.appendJavaScript("zoomOut();");
             }
         }, ActionLink.ActionType.ZOOM_OUT, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
 
-        zoomActionPanel.add(new ActionLink<>() {
+        topologyActions.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                target.appendJavaScript("zoomIn();");
+            }
+        }, ActionLink.ActionType.ZOOM_IN, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
+
+        topologyActions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -207,7 +207,7 @@ public class Topology extends BasePage {
             }
         }, ActionLink.ActionType.AUTO_LAYOUT, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
 
-        zoomActionPanel.add(new ActionLink<>() {
+        topologyActions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -217,7 +217,7 @@ public class Topology extends BasePage {
             }
         }, ActionLink.ActionType.RECENTER, IdMEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
 
-        body.add(zoomActionPanel);
+        body.add(topologyActions);
         // -----------------------------------------
 
         // -----------------------------------------
@@ -484,10 +484,7 @@ public class Topology extends BasePage {
                 jsPlumbConf.append(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
                 createConnections(connections).forEach(jsPlumbConf::append);
-                // Apply the tree layout on first load (when no saved node positions exist yet).
-                jsPlumbConf.append("var __topo=getTopology();var __hasPos=false;"
-                        + "for(var __k in __topo){if(__k!=='__zoom__'){__hasPos=true;break;}}"
-                        + "if(!__hasPos){autoLayoutTree({ centerInView: false });}");
+                jsPlumbConf.append("restoreTopologyLayout();");
 
                 response.render(OnDomReadyHeaderItem.forScript(jsPlumbConf.toString()));
             }

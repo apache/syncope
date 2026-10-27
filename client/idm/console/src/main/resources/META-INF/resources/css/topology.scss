@@ -21,7 +21,13 @@
 @import 'topology-theme';
 @import 'utils';
 
+.app-wrapper {
+  height: 100dvh;
+  min-height: 0;
+}
+
 .content-wrapper.accent-success {
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -32,7 +38,8 @@
 #topology {
   position: relative;
   border: 0;
-  height: calc(100vh - 175px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   cursor: grab;
 }
@@ -170,14 +177,45 @@
 }
 
 /*
- * Zoom toolbar
+ * Topology toolbar
  */
 
-#zoom {
+#topology-toolbar {
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+
+  .topology-zoom-control,
+  ul.menu > li > a.btn,
+  .topology-toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 38px;
+    border: 1px solid var(--topology-toolbar-border);
+    border-radius: 8px;
+    background: var(--topology-toolbar-bg);
+    color: var(--topology-toolbar-fg);
+  }
+
+  .topology-zoom-control {
+    gap: 4px;
+    padding: 4px 6px;
+
+    input {
+      width: clamp(80px, 10vw, 140px);
+      cursor: pointer;
+    }
+
+    output {
+      min-width: 5ch;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+  }
 
   ul.menu {
     display: flex;
@@ -197,12 +235,7 @@
   ul.menu > li > a.btn,
   .topology-toolbar-btn {
     appearance: none;
-
-    border: 1px solid var(--topology-toolbar-border);
-    border-radius: 999px;
-
-    background: var(--topology-toolbar-bg);
-    color: var(--topology-toolbar-fg);
+    justify-content: center;
 
     padding: 6px 10px;
 
