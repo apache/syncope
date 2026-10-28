@@ -43,8 +43,10 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
 
     protected final WARestClient waRestClient;
 
-    public WAWebAuthnCredentialRepository(final CasConfigurationProperties properties,
+    public WAWebAuthnCredentialRepository(
+            final CasConfigurationProperties properties,
             final WARestClient waRestClient) {
+
         super(properties, CipherExecutor.noOpOfStringToString());
         this.waRestClient = waRestClient;
     }
@@ -96,15 +98,17 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
                     })).
                     toList();
 
-            WebAuthnAccount account = service().read(username);
-            if (account != null) {
+            try {
+                WebAuthnAccount account = service().read(username);
                 account.getCredentials().addAll(credentials);
                 service().update(username, account);
-            } else {
-                account = new WebAuthnAccount.Builder().credentials(credentials).build();
-                service().create(username, account);
+            } catch (SyncopeClientException e) {
+                if (e.getType() == ClientExceptionType.NotFound) {
+                    WebAuthnAccount account = new WebAuthnAccount.Builder().credentials(credentials).build();
+                    service().create(username, account);
+                }
             }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
     }
@@ -115,9 +119,9 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
             return service().read(username).getCredentials().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
-                        return WebAuthnUtils.getObjectMapper()
-                                .readValue(json, new TypeReference<CredentialRegistration>() {
-                                });
+                        return WebAuthnUtils.getObjectMapper().readValue(
+                                json, new TypeReference<CredentialRegistration>() {
+                        });
                     })).
                     toList();
         } catch (SyncopeClientException e) {
