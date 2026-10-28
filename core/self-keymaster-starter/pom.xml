@@ -60,18 +60,17 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-maven-plugin</artifactId>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-maven-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
-          <fileSets>
-            <fileset>
-              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
-            </fileset>
-          </fileSets>
+          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile>
+          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
         </configuration>
         <executions>
           <execution>
-            <id>enhance</id>
+            <id>enhancer</id>
+            <phase>process-classes</phase>
             <goals>
               <goal>enhance</goal>
             </goals>

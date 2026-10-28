@@ -31,35 +31,26 @@ import jakarta.persistence.TypedQueryReference;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 import java.io.Closeable;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import javax.cache.CacheManager;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.jpa.ConnectorManagerCacheEntryListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
-import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerCacheEntryListener;
+import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
+import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerRemoteCommitListener;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jndi.JndiObjectFactoryBean;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
-public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable, Serializable {
-
-    private static final long serialVersionUID = 9013192242319940958L;
+public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, Closeable {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainRoutingEntityManagerFactory.class);
 
@@ -83,47 +74,45 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected void addToJpaPropertyMap(
             final DomainEntityManagerFactoryBean emf,
-            final JpaVendorAdapter vendorAdapter,
+            final OpenJpaVendorAdapter vendorAdapter,
             final String dbSchema,
-            final String domain) {
+            final String orm,
+            final String metadataFactory) {
 
         emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
 
         Optional.ofNullable(dbSchema).
-                ifPresent(s -> emf.getJpaPropertyMap().put("hibernate.default_schema", s));
+                ifPresent(s -> emf.getJpaPropertyMap().put("openjpa.jdbc.Schema", s));
 
-        emf.getJpaPropertyMap().put("hibernate.cache.region_prefix", domain);
+        Optional.ofNullable(metadataFactory).
+                ifPresent(m -> emf.getJpaPropertyMap().put("openjpa.MetaDataFactory", m.replace("##orm##", orm)));
     }
 
     public void master(
             final PersistenceProperties props,
-            final JndiObjectFactoryBean dataSource,
-            final CacheManager cacheManager) {
+            final JndiObjectFactoryBean dataSource) {
 
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(props.getDomain().getFirst().getDatabasePlatform());
 
-        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean(cacheManager);
+        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
         emf.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
         emf.setMappingResources(props.getDomain().getFirst().getOrm());
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerCacheEntryListener(
-                SyncopeConstants.MASTER_DOMAIN,
-                new ConnectorManagerCacheEntryListener(
-                        this, connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
-        emf.setImplementationManagerCacheEntryListener(
-                SyncopeConstants.MASTER_DOMAIN,
-                new ImplementationManagerCacheEntryListener(this, SyncopeConstants.MASTER_DOMAIN));
+        emf.addRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+                connectorManager, resourceDAO, SyncopeConstants.MASTER_DOMAIN));
+        emf.addRemoteCommitListener(new ImplementationManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
 
         addToJpaPropertyMap(
                 emf,
                 vendorAdapter,
                 props.getDomain().getFirst().getDbSchema(),
-                SyncopeConstants.MASTER_DOMAIN);
+                props.getDomain().getFirst().getOrm(),
+                props.getMetaDataFactory());
 
         emf.afterPropertiesSet();
 
@@ -133,27 +122,24 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     public void domain(
             final JPADomain domain,
             final DataSource dataSource,
-            final CacheManager cacheManager) {
+            final String metadataFactory) {
 
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
 
-        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean(cacheManager);
+        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
         emf.setPersistenceUnitName(domain.getKey());
         emf.setMappingResources(domain.getOrm());
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
-        emf.setConnectorManagerCacheEntryListener(
-                domain.getKey(),
-                new ConnectorManagerCacheEntryListener(this, connectorManager, resourceDAO, domain.getKey()));
-        emf.setImplementationManagerCacheEntryListener(
-                domain.getKey(),
-                new ImplementationManagerCacheEntryListener(this, domain.getKey()));
+        emf.addRemoteCommitListener(new ConnectorManagerRemoteCommitListener(
+                connectorManager, resourceDAO, domain.getKey()));
+        emf.addRemoteCommitListener(new ImplementationManagerRemoteCommitListener(domain.getKey()));
 
-        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getKey());
+        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm(), metadataFactory);
 
         emf.afterPropertiesSet();
 
@@ -285,13 +271,5 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     @Override
     public <R> R callInTransaction(final Function<EntityManager, R> fnctn) {
         return delegate().callInTransaction(fnctn);
-    }
-
-    private void writeObject(final ObjectOutputStream oos) throws IOException {
-        // prevents unwanted serialization by JCache provider
-    }
-
-    private void readObject(final ObjectInputStream ois) throws IOException, ClassNotFoundException {
-        // prevents unwanted deserialization by JCache provider
     }
 }

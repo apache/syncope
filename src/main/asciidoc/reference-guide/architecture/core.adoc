@@ -81,9 +81,9 @@ deployments.
 ==== Persistence
 
 All data (users, groups, attributes, resources, ...) is internally managed at a high level using a standard 
-using a standard https://jakarta.ee/specifications/persistence/3.2/[Jakarta Persistence 3.2] approach based on
-https://hibernate.org/orm/[Hibernate ORM^].
-The data is persisted into an underlying database, referred to as *_Internal Storage_*. Consistency is ensured via the
+https://jakarta.ee/specifications/persistence/3.2/[Jakarta Persistence 3.2] approach based on
+https://openjpa.apache.org[Apache OpenJPA^].
+The data is persisted into an underlying database, referred to as *_Internal Storage_*. Consistency is ensured via the 
 comprehensive
 https://docs.spring.io/spring-framework/reference/7.0/data-access/transaction.html[transaction management^] 
 provided by the Spring Framework.

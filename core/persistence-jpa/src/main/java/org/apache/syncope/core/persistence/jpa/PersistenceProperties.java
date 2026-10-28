@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.syncope.core.persistence.common.AbstractPersistenceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -30,9 +28,27 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     public static final String DB_TYPE = "db-type";
 
+    private String remoteCommitProvider = "sjvm";
+
+    private String metaDataFactory;
+
     private String viewsXML = "classpath:META-INF/views.xml";
 
-    private Map<String, String> additionalJPAProperties = new HashMap<>();
+    public String getRemoteCommitProvider() {
+        return remoteCommitProvider;
+    }
+
+    public void setRemoteCommitProvider(final String remoteCommitProvider) {
+        this.remoteCommitProvider = remoteCommitProvider;
+    }
+
+    public String getMetaDataFactory() {
+        return metaDataFactory;
+    }
+
+    public void setMetaDataFactory(final String metaDataFactory) {
+        this.metaDataFactory = metaDataFactory;
+    }
 
     public String getViewsXML() {
         return viewsXML;
@@ -40,13 +56,5 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     public void setViewsXML(final String viewsXML) {
         this.viewsXML = viewsXML;
-    }
-
-    public Map<String, String> getAdditionalJPAProperties() {
-        return additionalJPAProperties;
-    }
-
-    public void setAdditionalJPAProperties(final Map<String, String> additionalJPAProperties) {
-        this.additionalJPAProperties = additionalJPAProperties;
     }
 }

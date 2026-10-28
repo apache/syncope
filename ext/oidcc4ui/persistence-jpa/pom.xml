@@ -53,30 +53,17 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-maven-plugin</artifactId>
+        <groupId>org.apache.openjpa</groupId>
+        <artifactId>openjpa-maven-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
-          <fileSets>
-            <fileset>
-              <directory>${project.build.outputDirectory}/org/apache/syncope/core/persistence/jpa/entity/</directory>
-            </fileset>
-          </fileSets>
+          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile>
+          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.syncope.core</groupId>
-            <artifactId>syncope-core-persistence-jpa</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-persistence-api</artifactId>
-            <version>${project.version}</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
-            <id>enhance</id>
+            <id>enhancer</id>
+            <phase>process-classes</phase>
             <goals>
               <goal>enhance</goal>
             </goals>

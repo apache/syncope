@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import jakarta.persistence.ConnectionFunction;
 import jakarta.persistence.EntityManager;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import org.apache.openjpa.persistence.OpenJPAEntityManager;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -32,7 +35,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -74,19 +76,24 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
     }
 
     protected <T> T query(final String sql, final ResultSetExtractor<T> rse, final String... parameters) {
-        return entityManager.unwrap(Session.class).doReturningWork(conn -> {
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                if (parameters != null) {
-                    for (int i = 0; i < parameters.length; i++) {
-                        stmt.setString(i + 1, parameters[i]);
-                    }
-                }
+        return entityManager.unwrap(OpenJPAEntityManager.class).
+                callWithConnection(new ConnectionFunction<Connection, T>() {
 
-                try (ResultSet rs = stmt.executeQuery()) {
-                    return rse.extractData(rs);
-                }
-            }
-        });
+                    @Override
+                    public T apply(final Connection conn) throws Exception {
+                        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                            if (parameters != null) {
+                                for (int i = 0; i < parameters.length; i++) {
+                                    stmt.setString(i + 1, parameters[i]);
+                                }
+                            }
+
+                            try (ResultSet rs = stmt.executeQuery()) {
+                                return rse.extractData(rs);
+                            }
+                        }
+                    }
+                });
     }
 
     @Transactional(readOnly = true)

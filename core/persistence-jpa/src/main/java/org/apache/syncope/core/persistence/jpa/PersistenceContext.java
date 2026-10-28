@@ -20,11 +20,9 @@ package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.PersistenceConfiguration;
 import jakarta.persistence.ValidationMode;
 import java.util.HashMap;
 import java.util.Map;
-import javax.cache.CacheManager;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -180,15 +178,14 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
-import org.apache.syncope.core.persistence.jpa.hibernate.DomainJCacheRegionFactory;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.hibernate.cache.jcache.ConfigSettings;
-import org.hibernate.cfg.AvailableSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -213,13 +210,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Configuration(proxyBeanMethods = false)
 public class PersistenceContext {
 
+    private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
+
     @ConditionalOnMissingBean
     @Bean
     public CommonEntityManagerFactoryConf commonEMFConf(
             final PersistenceProperties props,
             @Qualifier("MasterDataSource")
-            final JndiObjectFactoryBean masterDataSource,
-            final CacheManager cacheManager) {
+            final JndiObjectFactoryBean masterDataSource) {
 
         CommonEntityManagerFactoryConf commonEMFConf = new CommonEntityManagerFactoryConf();
         commonEMFConf.setPackagesToScan("org.apache.syncope.core.persistence.jpa.entity");
@@ -227,14 +225,24 @@ public class PersistenceContext {
         commonEMFConf.setPersistenceUnitPostProcessors(new MultiJarAwarePersistenceUnitPostProcessor());
         Map<String, Object> jpaPropertyMap = new HashMap<>();
 
-        jpaPropertyMap.put(PersistenceConfiguration.SCHEMAGEN_DATABASE_ACTION, "update");
+        jpaPropertyMap.put("openjpa.Log", "slf4j");
+        if (OPENJPA_LOG.isDebugEnabled()) {
+            jpaPropertyMap.put("openjpa.Log", "SQL=TRACE");
+            jpaPropertyMap.put("openjpa.ConnectionFactoryProperties",
+                    "PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=120");
+        }
 
-        jpaPropertyMap.put(AvailableSettings.USE_SECOND_LEVEL_CACHE, "true");
-        jpaPropertyMap.put(AvailableSettings.USE_QUERY_CACHE, "true");
-        jpaPropertyMap.put(AvailableSettings.CACHE_REGION_FACTORY, DomainJCacheRegionFactory.class.getName());
-        jpaPropertyMap.put(ConfigSettings.CACHE_MANAGER, cacheManager);
+        jpaPropertyMap.put("openjpa.NontransactionalWrite", false);
 
-        jpaPropertyMap.putAll(props.getAdditionalJPAProperties());
+        jpaPropertyMap.put("openjpa.jdbc.MappingDefaults",
+                "ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict,"
+                + "FieldStrategies='"
+                + "java.util.Locale=org.apache.syncope.core.persistence.jpa.openjpa.LocaleValueHandler'");
+
+        jpaPropertyMap.put("openjpa.DataCache", "true");
+        jpaPropertyMap.put("openjpa.QueryCache", "true");
+
+        jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
@@ -251,12 +259,11 @@ public class PersistenceContext {
             final JndiObjectFactoryBean masterDataSource,
             final CommonEntityManagerFactoryConf commonEMFConf,
             final @Lazy ConnectorManager connectorManager,
-            final @Lazy ExternalResourceDAO resourceDAO,
-            final CacheManager cacheManager) {
+            final @Lazy ExternalResourceDAO resourceDAO) {
 
         DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(
                 commonEMFConf, connectorManager, resourceDAO);
-        emf.master(props, masterDataSource, cacheManager);
+        emf.master(props, masterDataSource);
         return emf;
     }
 
@@ -301,11 +308,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry<JPADomain> domainRegistry(
-            final CacheManager cacheManager,
-            final ConfigurableApplicationContext ctx) {
-
-        return new JPADomainRegistry(cacheManager, ctx);
+    public DomainRegistry<JPADomain> domainRegistry(final ConfigurableApplicationContext ctx) {
+        return new JPADomainRegistry(ctx);
     }
 
     @ConditionalOnMissingBean

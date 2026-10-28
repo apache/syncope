@@ -22,10 +22,10 @@
 Once you have obtained a working installation of Apache Syncope using one of the methods reported above, you should
 consider  reading the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.1/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/4.1/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 to understand how to configure, extend, customize and deploy your new Apache Syncope project.
 
@@ -42,4 +42,4 @@ The following values **must be changed** from the defaults in the `core.properti
 Note that if you installed Syncope using the maven archetype method, then you will have already supplied custom values
 for `security.aesSecretKey`, `security.anonymousKey` and `security.jwsKey`.
 
-See the https://syncope.apache.org/docs/4.1/reference-guide.html#security[security configuration section] for more details.
+See the https://syncope.apache.org/docs/4.2/reference-guide.html#security[security configuration section] for more details.

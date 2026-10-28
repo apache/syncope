@@ -51,7 +51,7 @@ public class ZookeeperDomainOpsITCase {
                 jdbcURL("jdbc:h2:mem:syncopetest;DB_CLOSE_DELAY=-1").
                 dbUsername("sa").
                 dbPassword("").
-                databasePlatform("org.hibernate.dialect.H2Dialect").
+                databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
                 transactionIsolation(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
                 adminPassword("password").
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).

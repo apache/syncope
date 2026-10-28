@@ -81,7 +81,7 @@ public class JPARealm extends AbstractAttributable implements Realm {
     private String fullPath;
 
     @Convert(converter = PlainAttrListConverter.class)
-    private final List<PlainAttr> plainAttrs = new ArrayList<>();
+    private List<PlainAttr> plainAttrs = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(joinColumns =

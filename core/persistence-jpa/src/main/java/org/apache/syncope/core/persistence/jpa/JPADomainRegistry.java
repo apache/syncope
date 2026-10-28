@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
-import javax.cache.CacheManager;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -34,12 +33,9 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 
 public class JPADomainRegistry implements DomainRegistry<JPADomain> {
 
-    protected final CacheManager cacheManager;
-
     protected final ConfigurableApplicationContext ctx;
 
-    public JPADomainRegistry(final CacheManager cacheManager, final ConfigurableApplicationContext ctx) {
-        this.cacheManager = cacheManager;
+    public JPADomainRegistry(final ConfigurableApplicationContext ctx) {
         this.ctx = ctx;
     }
 
@@ -82,12 +78,13 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
                         addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
                         addPropertyValue("defaultObject", new HikariDataSource(hikariConfig)).
                         getBeanDefinition());
-        DataSource initedDataSource = ctx.getBean(domain.getKey() + "DataSource", DataSource.class);
+        DataSource initedDataSource = beanFactory().getBean(domain.getKey() + "DataSource", DataSource.class);
 
         domainHolder().getDomains().put(domain.getKey(), initedDataSource);
 
         // DomainRoutingEntityManagerFactory#domain
-        ctx.getBean(DomainRoutingEntityManagerFactory.class).domain(domain, initedDataSource, cacheManager);
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).
+                domain(domain, initedDataSource, ctx.getEnvironment().getProperty("openjpaMetaDataFactory"));
 
         // domainContentXML
         beanFactory().registerBeanDefinition(domain.getKey() + "ContentXML",
@@ -113,7 +110,7 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         beanFactory().removeBeanDefinition(domain + "ContentXML");
 
         // DomainRoutingEntityManagerFactory#remove
-        ctx.getBean(DomainRoutingEntityManagerFactory.class).remove(domain);
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).remove(domain);
 
         // domainDataSourceInitializer
         unregisterSingleton(domain.toLowerCase() + "DataSourceInitializer");
@@ -125,6 +122,6 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         unregisterSingleton(domain + "DataSource");
         beanFactory().removeBeanDefinition(domain + "DataSource");
 
-        ctx.getBean(DomainHolder.class).getDomains().remove(domain);
+        beanFactory().getBean(DomainHolder.class).getDomains().remove(domain);
     }
 }

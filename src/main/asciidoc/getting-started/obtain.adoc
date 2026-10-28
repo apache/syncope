@@ -102,9 +102,10 @@ Environment variables:
 * `DB_PASSWORD`: password for internal storage authentication
 * `DB_POOL_MAX`: internal storage connection pool: ceiling
 * `DB_POOL_MIN`: internal storage connection pool: floor
-* `JCACHE`: configure https://docs.hibernate.org/orm/7.4/userguide/html_single/#caching-provider-jcache-cache-manager[JCache provider^]
-for Hibernate, defaults to https://github.com/ben-manes/caffeine[Caffeine^] if no value is provided; allowed values:
-`caffeine|ehcache|hazelcast_client|hazelcast_member|infinispan`
+* `OPENJPA_REMOTE_COMMIT`: configure multiple instances, with high availability; valid values are the ones accepted by
+OpenJPA for
+https://openjpa.apache.org/builds/4.2.0/apache-openjpa/docs/ref_guide_event.html[remote event notification^] including
+`sjvm` (single instance)
 
 ===== Console
 
@@ -136,7 +137,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/docker-compose[available^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/docker-compose[available^].
+https://github.com/apache/syncope/tree/4_2_X/docker/src/main/resources/docker-compose[available^].
 endif::[]
 
 .Core, Admin UI and Enduser UI with PostgreSQL, with embedded Keymaster
@@ -368,7 +369,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[available^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[available^],
+https://github.com/apache/syncope/tree/4_2_X/docker/src/main/resources/kubernetes[available^],
 endif::[]
 that can be used to install Apache Syncope directly in Kubernetes.
 
@@ -401,7 +402,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[folder^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[folder^],
+https://github.com/apache/syncope/tree/4_2_X/docker/src/main/resources/kubernetes[folder^],
 endif::[]
 wherever you downloaded it
 
@@ -535,10 +536,10 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 Before actual deployment as executable or onto a Jakarta EE container, you need to further check the **Customization**
 chapter of the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/5.0/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/5.0/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
@@ -566,10 +567,10 @@ configured for the embedded mode.
 When building for production, instead, it is recommended to check the **Customization** chapter of
 the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/5.0/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/5.0/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.2/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
