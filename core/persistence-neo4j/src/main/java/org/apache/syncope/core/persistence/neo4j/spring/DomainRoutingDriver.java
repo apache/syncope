@@ -27,6 +27,7 @@ import org.neo4j.driver.BookmarkManager;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.ExecutableQuery;
 import org.neo4j.driver.SessionConfig;
+import org.neo4j.driver.encryption.BasePropertyEncryption;
 
 public class DomainRoutingDriver implements Driver {
 
@@ -104,5 +105,10 @@ public class DomainRoutingDriver implements Driver {
     @Override
     public CompletionStage<Boolean> supportsMultiDbAsync() {
         return delegate().supportsMultiDbAsync();
+    }
+
+    @Override
+    public <T extends BasePropertyEncryption> T propertyEncryption(final Class<T> type) {
+        return delegate().propertyEncryption(type);
     }
 }

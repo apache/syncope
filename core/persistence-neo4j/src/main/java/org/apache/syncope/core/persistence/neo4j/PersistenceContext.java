@@ -487,7 +487,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jAnyObject>().
                         setTypes(EntityCacheKey.class, Neo4jAnyObject.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ZERO)));
     }
 
@@ -603,7 +603,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jAnyType>().
                         setTypes(EntityCacheKey.class, Neo4jAnyType.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -761,7 +761,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jConnInstance>().
                         setTypes(EntityCacheKey.class, Neo4jConnInstance.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -800,7 +800,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jDelegation>().
                         setTypes(EntityCacheKey.class, Neo4jDelegation.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -831,7 +831,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jDerSchema>().
                         setTypes(EntityCacheKey.class, Neo4jDerSchema.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -915,7 +915,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jGroup>().
                         setTypes(EntityCacheKey.class, Neo4jGroup.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ZERO)));
     }
 
@@ -972,7 +972,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jImplementation>().
                         setTypes(EntityCacheKey.class, Neo4jImplementation.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -1071,7 +1071,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jPlainSchema>().
                         setTypes(EntityCacheKey.class, Neo4jPlainSchema.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -1151,7 +1151,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jRealm>().
                         setTypes(EntityCacheKey.class, Neo4jRealm.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -1262,7 +1262,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jExternalResource>().
                         setTypes(EntityCacheKey.class, Neo4jExternalResource.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -1307,7 +1307,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jRole>().
                         setTypes(EntityCacheKey.class, Neo4jRole.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
     }
 
@@ -1426,7 +1426,7 @@ public class PersistenceContext {
                 new MutableConfiguration<EntityCacheKey, Neo4jUser>().
                         setTypes(EntityCacheKey.class, Neo4jUser.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ZERO)));
     }
 

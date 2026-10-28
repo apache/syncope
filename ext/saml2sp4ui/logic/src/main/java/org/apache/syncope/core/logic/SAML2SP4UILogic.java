@@ -167,7 +167,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             SAML2Configuration cfg = newSAML2Configuration();
             cfg.setServiceProviderEntityId(spEntityID);
             cfg.setCallbackUrl(getCallbackUrl(spEntityID, urlContext));
-            SAML2ClientCache.getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
+            SAML2ClientCache.getSPMetadataPath(spEntityID).
+                    ifPresent(path -> cfg.getIdentityProviderMetadata().setPath(path));
 
             EntityDescriptor entityDescriptor =
                     (EntityDescriptor) new SAML2ServiceProviderMetadataResolver(cfg).getEntityDescriptorElement();
@@ -184,10 +185,10 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
             entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleLogoutServices().
                     removeIf(slo -> !SAML2BindingType.POST.getUri().equals(slo.getBinding())
-                    && !SAML2BindingType.REDIRECT.getUri().equals(slo.getBinding()));
+                            && !SAML2BindingType.REDIRECT.getUri().equals(slo.getBinding()));
             entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleLogoutServices().
                     forEach(slo -> slo.setLocation(
-                    getCallbackUrl(spEntityID, urlContext).replace("/assertion-consumer", "/logout")));
+                            getCallbackUrl(spEntityID, urlContext).replace("/assertion-consumer", "/logout")));
 
             try {
                 metadata = cfg.toMetadataGenerator().getMetadata(entityDescriptor);
@@ -218,7 +219,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         return saml2ClientCache.get(idp.getEntityID(), spEntityID).
                 orElseGet(() -> saml2ClientCache.add(
-                idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
+                        idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
     }
 
     protected SAML2Client getSAML2Client(
@@ -522,7 +523,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         Optional.ofNullable(idpDAO.findByEntityID(saml2Client.getIdentityProviderResolvedEntityId())).
                 orElseThrow(() -> new NotFoundException(
-                "SAML 2.0 IdP '" + saml2Client.getIdentityProviderResolvedEntityId() + '\''));
+                        "SAML 2.0 IdP '" + saml2Client.getIdentityProviderResolvedEntityId() + '\''));
 
         // 2. validate the provided SAML response
         SAML2SP4UIContext webCtx = new SAML2SP4UIContext(

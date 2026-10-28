@@ -70,7 +70,7 @@ public class SAML2ClientCache {
     public static SAML2SP4UIIdPTO importMetadata(
             final InputStream metadata, final SAML2Configuration cfg) throws IOException {
 
-        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(metadata.readAllBytes()));
+        cfg.getIdentityProviderMetadata().setResource(new ByteArrayResource(metadata.readAllBytes()));
         SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
         metadataResolver.init();
         cfg.setIdentityProviderMetadataResolver(metadataResolver);
@@ -103,7 +103,7 @@ public class SAML2ClientCache {
 
         entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleLogoutServices().stream().
                 filter(slo -> SAML2BindingType.POST.getUri().equals(slo.getBinding())
-                || SAML2BindingType.REDIRECT.getUri().equals(slo.getBinding())).
+                        || SAML2BindingType.REDIRECT.getUri().equals(slo.getBinding())).
                 findFirst().
                 ifPresent(slo -> idpTO.setLogoutSupported(true));
 
@@ -129,13 +129,13 @@ public class SAML2ClientCache {
 
         cfg.setIdentityProviderEntityId(idp.getEntityID());
 
-        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(idp.getMetadata()));
+        cfg.getIdentityProviderMetadata().setResource(new ByteArrayResource(idp.getMetadata()));
         SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
         metadataResolver.init();
         cfg.setIdentityProviderMetadataResolver(metadataResolver);
 
         cfg.setServiceProviderEntityId(spEntityID);
-        getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
+        getSPMetadataPath(spEntityID).ifPresent(path -> cfg.getIdentityProviderMetadata().setPath(path));
 
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());

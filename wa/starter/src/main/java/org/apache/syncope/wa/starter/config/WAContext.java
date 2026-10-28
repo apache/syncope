@@ -129,7 +129,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
@@ -473,8 +473,8 @@ public class WAContext {
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public PasswordManagementService restPasswordChangeService(
-            @Qualifier("passwordChangeServiceRestTemplate")
-            final RestTemplate passwordChangeServiceRestTemplate,
+            @Qualifier("passwordChangeServiceRestClient")
+            final RestClient passwordChangeServiceRestClient,
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
@@ -486,7 +486,7 @@ public class WAContext {
             return new RestPasswordManagementService(
                     passwordManagementCipherExecutor,
                     casProperties,
-                    passwordChangeServiceRestTemplate,
+                    passwordChangeServiceRestClient,
                     passwordHistoryService);
         }
 

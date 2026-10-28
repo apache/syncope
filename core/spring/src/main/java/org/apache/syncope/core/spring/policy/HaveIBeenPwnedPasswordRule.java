@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.spring.policy;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.GeneralSecurityException;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -34,18 +38,15 @@ import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.RestTemplate;
 
 @PasswordRuleConfClass(HaveIBeenPwnedPasswordRuleConf.class)
 public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     private static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
+
+    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
     @Autowired
     private EncryptorManager encryptorManager;
@@ -70,24 +71,29 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
     protected void enforce(final String clearPassword) {
         try {
             String sha1 = encryptorManager.getInstance().encode(clearPassword, CipherAlgorithm.SHA1);
+            String prefix = sha1.substring(0, 5);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
-            ResponseEntity<String> response = new RestTemplate().exchange(
-                    URI.create("https://api.pwnedpasswords.com/range/" + sha1.substring(0, 5)),
-                    HttpMethod.GET,
-                    new HttpEntity<>(null, headers),
-                    String.class);
-            if (StringUtils.isNotBlank(response.getBody())) {
-                if (Stream.of(response.getBody().split("\\n")).
-                        anyMatch(line -> sha1.equals(sha1.substring(0, 5) + StringUtils.substringBefore(line, ":")))) {
+            HttpRequest request = HttpRequest.newBuilder().
+                    header(HttpHeaders.USER_AGENT, "Apache Syncope").
+                    uri(URI.create("https://api.pwnedpasswords.com/range/" + prefix)).
+                    GET().
+                    build();
+            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
 
-                    throw new PasswordPolicyException("Password pwned");
-                }
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                LOG.error("Error while contacting the PwnedPasswords service: HTTP {}", response.statusCode());
+                return;
+            }
+
+            if (StringUtils.isNotBlank(response.body())
+                    && Stream.of(response.body().split("\\R")).
+                            anyMatch(line -> sha1.equals(prefix + StringUtils.substringBefore(line, ":")))) {
+
+                throw new PasswordPolicyException("Password pwned");
             }
         } catch (GeneralSecurityException e) {
             LOG.error("Could not encode the password value as SHA1", e);
-        } catch (HttpStatusCodeException e) {
+        } catch (IOException | InterruptedException e) {
             LOG.error("Error while contacting the PwnedPasswords service", e);
         }
     }

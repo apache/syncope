@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPo
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy;
+import org.apereo.cas.support.oauth.services.OAuthRegisteredServiceClientSecret;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -72,8 +75,11 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                 collect(Collectors.joining("|")));
 
         service.setClientId(rp.getClientId());
-        service.setClientSecret(rp.getClientSecret());
-        service.setClientSecretExpiration(rp.getClientSecretExpiration());
+        List<OAuthRegisteredServiceClientSecret> clientSecrets = new ArrayList<>();
+        clientSecrets.add(rp.getClientSecretExpiration() == 0L
+                ? OAuthRegisteredServiceClientSecret.withoutExpiration(rp.getClientSecret())
+                : new OAuthRegisteredServiceClientSecret(rp.getClientSecret(), rp.getClientSecretExpiration()));
+        service.setClientSecrets(clientSecrets);
 
         service.setIdTokenIssuer(rp.getIdTokenIssuer());
         service.setSignIdToken(rp.isSignIdToken());

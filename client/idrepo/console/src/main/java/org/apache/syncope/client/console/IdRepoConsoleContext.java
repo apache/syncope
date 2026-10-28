@@ -179,7 +179,7 @@ public class IdRepoConsoleContext {
                 new MutableConfiguration<String, OffsetDateTime>().
                         setTypes(String.class, OffsetDateTime.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.TEN_MINUTES)));
     }
 
@@ -190,7 +190,7 @@ public class IdRepoConsoleContext {
                 new MutableConfiguration<String, OffsetDateTime>().
                         setTypes(String.class, OffsetDateTime.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.TEN_MINUTES)));
     }
 
