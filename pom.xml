@@ -437,7 +437,7 @@ under the License.
 
     <spring-boot.version>4.2.0-RC1</spring-boot.version>
 
-    <hibernate.version>7.4.13.Final</hibernate.version>
+    <hibernate.version>7.4.14.Final</hibernate.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
