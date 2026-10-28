@@ -65,7 +65,7 @@ public class MSEntraAccessTokenJWSVerifier implements JWSVerifier {
                 new MutableConfiguration<String, JWSVerifier>().
                         setTypes(String.class, JWSVerifier.class).
                         setStoreByValue(false).
-                        setReadThrough(true).
+                        setReadThrough(false).
                         setCacheLoaderFactory(new FactoryBuilder.SingletonFactory<>(cacheLoader)).
                         setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(cacheExpireAfterWrite)));
     }
