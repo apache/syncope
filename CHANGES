@@ -2,6 +2,18 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.9
+================================================================================
+
+** Bug
+    * [SYNCOPE-1995] - Console is throwing exception in slow environments on pages with websockets enabled
+    * [SYNCOPE-1997] - Incorrect resource connectivity check with credential override
+    * [SYNCOPE-1998] - Delegated administration errors during propagation execution
+    * [SYNCOPE-2001] - Ignored readonly from customFormLayout.json
+
+** Improvement
+    * [SYNCOPE-2000] - Support filtering AnyAbout by Realm, uManager, and gManager using key or name
+
 Release Notes - Syncope - Version 4.0.8
 ================================================================================
 
