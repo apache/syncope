@@ -146,6 +146,7 @@ public class OIDCClientCache {
                 return new TokenValidator(configuration, metadata);
             }
         });
+        ((StaticOidcOpMetadataResolver) cfg.getOpMetadataResolver()).init();
 
         OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());
