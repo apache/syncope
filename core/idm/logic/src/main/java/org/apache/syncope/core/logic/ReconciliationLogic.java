@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.logic;
 
+import static org.apache.syncope.core.logic.AbstractLogic.LOG;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -70,6 +74,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.KeyValueReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -86,6 +91,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPullJobDe
 import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -132,6 +138,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
     protected final ConnectorManager connectorManager;
 
     protected final ConfigurableApplicationContext ctx;
+
+    protected final Map<String, PropagationActions> perContextPropagationActions = new ConcurrentHashMap<>();
 
     public ReconciliationLogic(
             final AnyUtilsFactory anyUtilsFactory,
@@ -235,12 +243,30 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
                 orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
         Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
-                "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
+                        "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {
             throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
         }
 
         return new ProvisioningInfo(anyType, resource, provision);
+    }
+
+    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
+        List<PropagationActions> result = new ArrayList<>();
+
+        resource.getPropagationActions().forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
+                        impl,
+                        () -> perContextPropagationActions.get(impl.getKey()),
+                        instance -> perContextPropagationActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
+
+        return result;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -255,8 +281,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
         Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(info.provision()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey for " + info.anyType().getKey()
-                + " on resource '" + info.resource().getKey() + "'"));
+                        "ConnObjectKey for " + info.anyType().getKey()
+                        + " on resource '" + info.resource().getKey() + "'"));
 
         Any any = getAny(info.provision(), info.anyType().getKind(), anyKey);
 
@@ -267,12 +293,14 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         status.setRealm(any.getRealm().getFullPath());
         status.setOnSyncope(getOnSyncope(any, connObjectKeyItem, info.resource(), info.provision()));
 
+        getPropagationActions(info.resource()).
+                forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.empty(), info.provision())));
         List<ConnectorObject> connObjs = outboundMatcher.match(
                 connectorManager.getConnector(info.resource()),
                 any,
                 info.resource(),
                 info.provision(),
-                Optional.of(moreAttrsToGet.toArray(String[]::new)));
+                moreAttrsToGet.toArray(String[]::new));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(connObjs.getFirst(), info.resource(), info.provision()),
@@ -335,8 +363,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
         if (syncDeltaBuilder.getObject() != null) {
             Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(info.provision()).
                     orElseThrow(() -> new NotFoundException(
-                    "ConnObjectKey for " + info.anyType().getKey()
-                    + " on resource '" + info.resource().getKey() + "'"));
+                            "ConnObjectKey for " + info.anyType().getKey()
+                            + " on resource '" + info.resource().getKey() + "'"));
 
             inboundMatcher.match(
                     syncDeltaBuilder.build(), info.resource(), info.provision(), info.anyType().getKind()).
@@ -547,8 +575,8 @@ public class ReconciliationLogic extends AbstractLogic<EntityTO> {
 
         String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, info.resource(), info.provision()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey for " + info.anyType().getKey()
-                + " on resource '" + info.resource().getKey() + "'"));
+                        "ConnObjectKey for " + info.anyType().getKey()
+                        + " on resource '" + info.resource().getKey() + "'"));
 
         return pull(
                 info.resource(),

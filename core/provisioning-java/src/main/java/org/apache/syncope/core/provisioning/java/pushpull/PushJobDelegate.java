@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableJobDelegate;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
@@ -81,7 +82,9 @@ public class PushJobDelegate
 
     protected final Map<String, MutablePair<Integer, String>> handled = new ConcurrentHashMap<>();
 
-    protected final Map<String, PushActions> perContextActions = new ConcurrentHashMap<>();
+    protected final Map<String, PushActions> perContextOPushActions = new ConcurrentHashMap<>();
+
+    protected final Map<String, PropagationActions> perContextPropagationActions = new ConcurrentHashMap<>();
 
     protected PushResultHandlerDispatcher dispatcher;
 
@@ -139,7 +142,10 @@ public class PushJobDelegate
         return ctx.getBeanFactory().createBean(DefaultGroupPushResultHandler.class);
     }
 
-    protected List<PushActions> getPushActions(final String domain, final List<? extends Implementation> impls) {
+    protected List<PushActions> getPushActions(
+            final String domain,
+            final List<? extends Implementation> impls) {
+
         List<PushActions> result = new ArrayList<>();
 
         impls.forEach(impl -> {
@@ -147,10 +153,31 @@ public class PushJobDelegate
                 result.add(ImplementationManager.build(
                         domain,
                         impl,
-                        () -> perContextActions.get(impl.getKey()),
-                        instance -> perContextActions.put(impl.getKey(), instance)));
+                        () -> perContextOPushActions.get(impl.getKey()),
+                        instance -> perContextOPushActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
+            }
+        });
+
+        return result;
+    }
+
+    protected List<PropagationActions> getPropagationActions(
+            final String domain,
+            final List<? extends Implementation> impls) {
+
+        List<PropagationActions> result = new ArrayList<>();
+
+        impls.forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        domain,
+                        impl,
+                        () -> perContextPropagationActions.get(impl.getKey()),
+                        instance -> perContextPropagationActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
             }
         });
 
@@ -175,6 +202,8 @@ public class PushJobDelegate
                 getPushActions(context.domain(), task.getActions()),
                 AuthContextUtils.getUsername(),
                 context.dryRun());
+        profile.getPropagationActions().addAll(
+                getPropagationActions(context.domain(), task.getResource().getPropagationActions()));
     }
 
     @Override
