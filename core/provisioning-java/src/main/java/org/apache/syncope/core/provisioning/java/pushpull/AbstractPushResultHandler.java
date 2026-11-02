@@ -300,13 +300,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         // Try to read remote object BEFORE any actual operation
         Set<String> moreAttrsToGet = new HashSet<>();
-        profile.getActions().forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, any)));
+        profile.getActions().
+                forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, any)));
+        profile.getPropagationActions().
+                forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.empty(), provision)));
         List<ConnectorObject> connObjs = outboundMatcher.match(
                 profile.getConnector(),
                 any,
                 profile.getTask().getResource(),
                 provision,
-                Optional.of(moreAttrsToGet.toArray(String[]::new)));
+                moreAttrsToGet.toArray(String[]::new));
         LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
 
         if (connObjs.size() > 1) {
@@ -507,7 +510,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             any,
                             profile.getTask().getResource(),
                             provision,
-                            Optional.of(moreAttrsToGet.toArray(String[]::new)));
+                            moreAttrsToGet.toArray(String[]::new));
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;

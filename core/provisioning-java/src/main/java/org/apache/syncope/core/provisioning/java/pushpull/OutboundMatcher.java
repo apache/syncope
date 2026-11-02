@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -63,8 +62,6 @@ public class OutboundMatcher {
     protected final UserDAO userDAO;
 
     protected final AnyUtilsFactory anyUtilsFactory;
-
-    protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
 
     protected final Map<String, PushCorrelationRule> perContextPushCorrelationRules = new ConcurrentHashMap<>();
 
@@ -137,36 +134,18 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, taskInfo.getResource(), provision),
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(String[]::new))));
+                        moreAttrsToGet.toArray(String[]::new)));
             } else {
                 MappingUtils.getConnObjectKeyItem(provision).flatMap(connObjectKeyItem -> matchByConnObjectKeyValue(
                         connector,
                         connObjectKeyItem,
                         connObjectKeyValue,
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(String[]::new)))).ifPresent(result::add);
+                        moreAttrsToGet.toArray(String[]::new))).ifPresent(result::add);
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
         }
-
-        return result;
-    }
-
-    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
-        List<PropagationActions> result = new ArrayList<>();
-
-        resource.getPropagationActions().forEach(impl -> {
-            try {
-                result.add(ImplementationManager.build(
-                        AuthContextUtils.getDomain(),
-                        impl,
-                        () -> perContextActions.get(impl.getKey()),
-                        instance -> perContextActions.put(impl.getKey(), instance)));
-            } catch (Exception e) {
-                LOG.error("While building {}", impl, e);
-            }
-        });
 
         return result;
     }
@@ -177,13 +156,7 @@ public class OutboundMatcher {
             final Any any,
             final ExternalResource resource,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet) {
-
-        Stream<String> matgFromPropagationActions = getPropagationActions(resource).stream().
-                flatMap(a -> a.moreAttrsToGet(Optional.empty(), provision).stream());
-        Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
-                moreAttrsToGet.stream().flatMap(Stream::of),
-                matgFromPropagationActions).toArray(String[]::new));
+            final String... moreAttrsToGet) {
 
         Optional<PushCorrelationRule> rule = rule(resource, provision);
 
@@ -194,7 +167,7 @@ public class OutboundMatcher {
                         connector,
                         rule.get().getFilter(any, resource, provision),
                         provision,
-                        effectiveMATG));
+                        moreAttrsToGet));
             } else {
                 Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, resource, provision);
@@ -205,7 +178,7 @@ public class OutboundMatcher {
                             connObjectKeyItem.get(),
                             connObjectKeyValue.get(),
                             provision,
-                            effectiveMATG).
+                            moreAttrsToGet).
                             ifPresent(result::add);
                 }
             }
@@ -220,7 +193,7 @@ public class OutboundMatcher {
             final Connector connector,
             final Filter filter,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet) {
+            final String... moreAttrsToGet) {
 
         List<ConnectorObject> objs = new ArrayList<>();
         try {
@@ -237,7 +210,7 @@ public class OutboundMatcher {
                     return true;
                 }
             }, MappingUtils.buildOperationOptions(
-                    provision.getMapping().getItems().stream(), moreAttrsToGet.orElse(null)));
+                    provision.getMapping().getItems().stream(), moreAttrsToGet));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -254,7 +227,7 @@ public class OutboundMatcher {
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet) {
+            final String... moreAttrsToGet) {
 
         ConnectorObject obj = null;
         try {
@@ -263,7 +236,7 @@ public class OutboundMatcher {
                     AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                     provision.isIgnoreCaseMatch(),
                     MappingUtils.buildOperationOptions(
-                            provision.getMapping().getItems().stream(), moreAttrsToGet.orElse(null)));
+                            provision.getMapping().getItems().stream(), moreAttrsToGet));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

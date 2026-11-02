@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -25,6 +26,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 
 public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends ProvisioningActions> {
 
@@ -41,6 +43,8 @@ public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends Provis
     private final boolean dryRun;
 
     private final List<A> actions;
+
+    private final List<PropagationActions> propagationActions = new ArrayList<>();
 
     private final List<ProvisioningReport> results = new CopyOnWriteArrayList<>();
 
@@ -84,6 +88,10 @@ public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends Provis
 
     public List<A> getActions() {
         return actions;
+    }
+
+    public List<PropagationActions> getPropagationActions() {
+        return propagationActions;
     }
 
     public List<ProvisioningReport> getResults() {

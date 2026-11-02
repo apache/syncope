@@ -83,8 +83,8 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         ((User) any).getLinkedAccounts(profile.getTask().getResource().getKey()).
                 forEach(account -> propByLinkedAccount.add(
-                ResourceOperation.CREATE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+                        ResourceOperation.CREATE,
+                        Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         PropagationReporter reporter = taskExecutor.execute(propagationManager.getUserCreateTasks(
                 before.getKey(),
@@ -118,8 +118,8 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         ((User) any).getLinkedAccounts(profile.getTask().getResource().getKey()).
                 forEach(account -> propByLinkedAccount.add(
-                ResourceOperation.UPDATE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+                        ResourceOperation.UPDATE,
+                        Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
                 null,
@@ -152,8 +152,8 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         ((User) any).getLinkedAccounts(profile.getTask().getResource().getKey()).
                 forEach(account -> propByLinkedAccount.add(
-                ResourceOperation.DELETE,
-                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
+                        ResourceOperation.DELETE,
+                        Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getDeleteTasks(
                 any.getType().getKind(),
@@ -222,11 +222,10 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         // Try to read remote object BEFORE any actual operation
         Optional<ConnectorObject> connObj = MappingUtils.getConnObjectKeyItem(provision).
                 flatMap(connObjectKeyItem -> outboundMatcher.matchByConnObjectKeyValue(
-                profile.getConnector(),
-                connObjectKeyItem,
-                account.getConnObjectKeyValue(),
-                provision,
-                Optional.empty()));
+                        profile.getConnector(),
+                        connObjectKeyItem,
+                        account.getConnObjectKeyValue(),
+                        provision));
         LOG.debug("Match found for linked account {} as {}: {}", account, provision.getObjectClass(), connObj);
 
         ConnectorObject beforeObj = connObj.orElse(null);

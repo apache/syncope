@@ -20,9 +20,12 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,9 +53,11 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -82,6 +87,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     protected final ConnectorManager connectorManager;
 
     protected final AnyUtilsFactory anyUtilsFactory;
+
+    protected final Map<String, PropagationActions> perContextPropagationActions = new ConcurrentHashMap<>();
 
     public ResourceLogic(
             final ExternalResourceDAO resourceDAO,
@@ -179,7 +186,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                     orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
-                    "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
+                            "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
             provision.setSyncToken(ConnObjectUtils.toString(
                     connector.getLatestSyncToken(new ObjectClass(provision.getObjectClass()))));
@@ -208,7 +215,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                     orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
-                    "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
+                            "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
             provision.setSyncToken(null);
         }
@@ -261,7 +268,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
         Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
-                "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
+                        "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {
             throw new NotFoundException("Mapping for " + anyType + " on Resource '" + resourceKey + "'");
         }
@@ -285,8 +292,26 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 2.get ConnObjectKey value
         return mappingManager.getConnObjectKeyValue(any, info.resource(), info.provision()).
-                orElseThrow(() -> new NotFoundException(
-                "No ConnObjectKey value found for " + anyTypeKey + " " + anyKey + " on resource '" + key + "'"));
+                orElseThrow(() -> new NotFoundException("No ConnObjectKey value found for "
+                        + anyTypeKey + " " + anyKey + " on resource '" + key + "'"));
+    }
+
+    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
+        List<PropagationActions> result = new ArrayList<>();
+
+        resource.getPropagationActions().forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        AuthContextUtils.getDomain(),
+                        impl,
+                        () -> perContextPropagationActions.get(impl.getKey()),
+                        instance -> perContextPropagationActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
+
+        return result;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -304,12 +329,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 orElseThrow(() -> new NotFoundException(info.anyType() + " " + anyKey));
 
         // 2. find on resource
+        Set<String> moreAttrsToGet = new HashSet<>();
+        getPropagationActions(info.resource()).
+                forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.empty(), info.provision())));
         List<ConnectorObject> connObjs = outboundMatcher.match(
                 connectorManager.getConnector(info.resource()),
                 any,
                 info.resource(),
                 info.provision(),
-                Optional.empty());
+                moreAttrsToGet.toArray(String[]::new));
         if (connObjs.isEmpty()) {
             throw new NotFoundException(
                     "Object " + any + " with class " + info.provision().getObjectClass()
@@ -336,21 +364,20 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(info.provision()).
                 orElseThrow(() -> new NotFoundException(
-                "ConnObjectKey mapping for " + info.anyType().getKey()
-                + " on resource '" + info.resource().getKey() + "'"));
+                        "ConnObjectKey mapping for " + info.anyType().getKey()
+                        + " on resource '" + info.resource().getKey() + "'"));
 
         return outboundMatcher.matchByConnObjectKeyValue(
                 connectorManager.getConnector(info.resource()),
                 connObjectKeyItem,
                 connObjectKeyValue,
-                info.provision(),
-                Optional.empty()).
+                info.provision()).
                 map(connectorObject -> ConnObjectUtils.getConnObjectTO(
-                outboundMatcher.getFIQL(connectorObject, info.resource(), info.provision()),
-                connectorObject.getAttributes())).
+                        outboundMatcher.getFIQL(connectorObject, info.resource(), info.provision()),
+                        connectorObject.getAttributes())).
                 orElseThrow(() -> new NotFoundException(
-                "Object " + connObjectKeyValue + " with class " + info.provision().getObjectClass()
-                + " not found on resource " + info.resource().getKey()));
+                        "Object " + connObjectKeyValue + " with class " + info.provision().getObjectClass()
+                        + " not found on resource " + info.resource().getKey()));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
