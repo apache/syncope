@@ -149,6 +149,7 @@ public class OIDCClientCache {
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
         client.init();
+        cfg.getOpMetadataResolver().init();
 
         cache.add(client);
         return client;
