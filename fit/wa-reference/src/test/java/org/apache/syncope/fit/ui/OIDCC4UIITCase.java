@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -54,6 +56,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
 import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCOpEntityTO;
@@ -64,9 +67,12 @@ import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class OIDCC4UIITCase extends AbstractUIITCase {
 
@@ -243,7 +249,8 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             final String baseURL,
             final String loginPageBody,
             final String username,
-            final String password) throws IOException {
+            final String password,
+            final boolean backChannelLogout) throws IOException {
 
         // 1. redirected to WA login screen
         Mutable<String> location = new MutableObject<>();
@@ -315,12 +322,75 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
         }
 
-        // 4. logout
-        get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
-                ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
-                : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
-        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
-            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        if (backChannelLogout) {
+            String accessToken = context.getRedirectLocations().stream().
+                    flatMap(uri -> URLEncodedUtils.parse(uri, StandardCharsets.UTF_8).stream()).
+                    filter(param -> OIDCC4UIConstants.OIDCC4UI_JWT.equals(param.getName())).
+                    map(NameValuePair::getValue).
+                    findFirst().orElseThrow(() -> new AssertionError("No Syncope JWT in console login redirect"));
+
+            // Confirm that the console's token works before logging out directly from WA.
+            try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
+                    header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
+                assertEquals(HttpStatus.SC_OK, self.getStatus());
+            }
+            try (CloseableHttpResponse logout = httpclient.execute(new HttpGet(WA_ADDRESS + "/logout"), context)) {
+                assertEquals(HttpStatus.SC_OK, logout.getStatusLine().getStatusCode());
+                EntityUtils.consume(logout.getEntity());
+            }
+
+            // WA sends back-channel logout asynchronously; the same JWT must then be rejected by Core.
+            await().atMost(30, TimeUnit.SECONDS).untilAsserted(() -> {
+                try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
+                        header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
+                    assertEquals(HttpStatus.SC_UNAUTHORIZED, self.getStatus());
+                }
+            });
+        } else {
+            // 4. logout
+            get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
+                    ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
+                    : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    @Test
+    public void backChannelLogout() throws IOException {
+        // Start with a fresh Syncope token so its key matches the new OIDC session ID.
+        AccessTokenService accessTokenService = ADMIN_CLIENT.getService(AccessTokenService.class);
+        accessTokenService.list(new AccessTokenQuery.Builder().size(1000).build()).getResult().stream().
+                filter(token -> "bellini".equals(token.getOwner())).
+                map(AccessTokenTO::getKey).
+                forEach(accessTokenService::delete);
+
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            // 1. fetch login page
+            HttpGet get = new HttpGet(CONSOLE_ADDRESS);
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+
+            // 2. click on the OpenID Connect Provider
+            get = new HttpGet(CONSOLE_ADDRESS + OIDCC4UIConstants.URL_CONTEXT
+                    + "/login?op=" + getAppName(CONSOLE_ADDRESS));
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            String loginPageBody;
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+                loginPageBody = EntityUtils.toString(response.getEntity());
+            }
+            assertNotNull(loginPageBody);
+
+            // 3. login and logout
+            loginlogout(httpclient, context, CONSOLE_ADDRESS, loginPageBody, "bellini", "password", true);
         }
     }
 
@@ -349,7 +419,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertNotNull(loginPageBody);
 
             // 3. login and logout
-            loginlogout(httpclient, context, baseURL, loginPageBody, username, password);
+            loginlogout(httpclient, context, baseURL, loginPageBody, username, password, false);
         }
     }
 
@@ -447,7 +517,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertTrue(loginPageBody.contains("password"));
 
             // 5. login and logout with new password
-            loginlogout(httpclient, context, baseURL, loginPageBody, username, newpassword);
+            loginlogout(httpclient, context, baseURL, loginPageBody, username, newpassword, false);
         }
     }
 
