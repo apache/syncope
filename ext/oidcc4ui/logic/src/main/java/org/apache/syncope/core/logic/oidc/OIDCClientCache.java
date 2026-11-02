@@ -143,13 +143,13 @@ public class OIDCClientCache {
                 return new TokenValidator(configuration, metadata);
             }
         });
+        cfg.getOpMetadataResolver().init();
 
         OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
         client.init();
-        cfg.getOpMetadataResolver().init();
 
         cache.add(client);
         return client;
