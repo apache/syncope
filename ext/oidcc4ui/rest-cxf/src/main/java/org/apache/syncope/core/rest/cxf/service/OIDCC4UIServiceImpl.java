@@ -39,8 +39,13 @@ public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIServ
     }
 
     @Override
-    public OIDCLoginResponse login(final String redirectURI, final String authorizationCode, final String op) {
-        return logic.login(redirectURI, authorizationCode, op);
+    public OIDCLoginResponse login(
+            final String requestId,
+            final String redirectURI,
+            final String authorizationCode,
+            final String op) {
+
+        return logic.login(requestId, redirectURI, authorizationCode, op);
     }
 
     @Override

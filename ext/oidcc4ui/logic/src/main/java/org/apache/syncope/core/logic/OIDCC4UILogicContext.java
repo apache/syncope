@@ -18,7 +18,16 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.Duration;
+import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.syncope.core.logic.init.OIDCC4UILoader;
+import org.apache.syncope.core.logic.oidc.JCacheSessionStore;
+import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -34,24 +43,57 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.pac4j.core.context.session.SessionStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@EnableConfigurationProperties(OIDCC4UIProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class OIDCC4UILogicContext {
 
+    @ConditionalOnMissingBean(name = "oidcSessionStore")
+    @Bean
+    public SessionStore oidcSessionStore(
+            final CacheManager cacheManager,
+            final EncryptorManager encryptorManager,
+            final OIDCC4UIProperties props) {
+
+        if (props.isSessionStoreEnabled()) {
+            @SuppressWarnings("unchecked")
+            MutableConfiguration<String, Map<String, Object>> config =
+                    new MutableConfiguration<String, Map<String, Object>>().
+                            setTypes(String.class, (Class<Map<String, Object>>) (Class<?>) Map.class).
+                            setStoreByValue(false).
+                            setReadThrough(false).
+                            setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(
+                                    new Duration(TimeUnit.MINUTES, props.getSessionStoreExpirationMinutes())));
+            Cache<String, Map<String, Object>> cache = cacheManager.createCache("oidcSessionStore", config);
+
+            return new JCacheSessionStore(cache, encryptorManager);
+        }
+
+        return NoOpSessionStore.INSTANCE;
+    }
+
     @ConditionalOnMissingBean(name = "oidcClientCacheLogin")
     @Bean
-    public OIDCClientCache oidcClientCacheLogin() {
-        return new OIDCClientCache();
+    public OIDCClientCache oidcClientCacheLogin(
+            @Qualifier("oidcSessionStore")
+            final SessionStore oidcSessionStore) {
+
+        return new OIDCClientCache(oidcSessionStore);
     }
 
     @ConditionalOnMissingBean(name = "oidcClientCacheLogout")
     @Bean
-    public OIDCClientCache oidcClientCacheLogout() {
-        return new OIDCClientCache();
+    public OIDCClientCache oidcClientCacheLogout(
+            @Qualifier("oidcSessionStore")
+            final SessionStore oidcSessionStore) {
+
+        return new OIDCClientCache(oidcSessionStore);
     }
 
     @ConditionalOnMissingBean
@@ -93,7 +135,9 @@ public class OIDCC4UILogicContext {
             final OIDCC4UIProviderDAO opDAO,
             final AccessTokenDAO accessTokenDAO,
             final OIDCUserManager userManager,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            @Qualifier("oidcSessionStore")
+            final SessionStore oidcSessionStore) {
 
         return new OIDCC4UILogic(
                 oidcClientCacheLogin,
@@ -103,7 +147,8 @@ public class OIDCC4UILogicContext {
                 opDAO,
                 accessTokenDAO,
                 userManager,
-                encryptorManager);
+                encryptorManager,
+                oidcSessionStore);
     }
 
     @ConditionalOnMissingBean
