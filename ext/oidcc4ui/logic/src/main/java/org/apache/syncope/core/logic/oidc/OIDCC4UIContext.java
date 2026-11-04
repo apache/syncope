@@ -28,6 +28,19 @@ import org.pac4j.core.context.WebContext;
 
 public class OIDCC4UIContext implements WebContext {
 
+    private String id;
+
+    public OIDCC4UIContext() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
+
     @Override
     public Optional<String> getQueryString() {
         return Optional.empty();

@@ -54,12 +54,13 @@ public class LoginResource extends AbstractResource {
         OIDCRequest loginRequest = service.createLoginRequest(redirectURI, op, reauth);
 
         Session.get().setAttribute(OIDCConstants.OP, op);
+        Session.get().setAttribute(OIDCConstants.REQUEST_ID, loginRequest.id());
 
         ResourceResponse response = new ResourceResponse();
         response.setStatusCode(Response.Status.FOUND.getStatusCode());
         response.getHeaders().addHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
         response.getHeaders().addHeader("Pragma", "no-cache");
-        response.getHeaders().addHeader(HttpHeaders.LOCATION, loginRequest.getLocation());
+        response.getHeaders().addHeader(HttpHeaders.LOCATION, loginRequest.location());
 
         return response;
     }

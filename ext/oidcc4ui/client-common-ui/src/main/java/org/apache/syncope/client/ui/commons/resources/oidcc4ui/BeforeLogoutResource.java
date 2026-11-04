@@ -50,7 +50,7 @@ public class BeforeLogoutResource extends AbstractResource {
         response.setStatusCode(Response.Status.FOUND.getStatusCode());
         response.getHeaders().addHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
         response.getHeaders().addHeader("Pragma", "no-cache");
-        response.getHeaders().addHeader(HttpHeaders.LOCATION, logoutRequest.getLocation());
+        response.getHeaders().addHeader(HttpHeaders.LOCATION, logoutRequest.location());
 
         Session.get().invalidate();
 

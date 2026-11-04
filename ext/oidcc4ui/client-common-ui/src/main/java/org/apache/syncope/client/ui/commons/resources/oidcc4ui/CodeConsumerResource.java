@@ -62,6 +62,7 @@ public abstract class CodeConsumerResource extends AbstractResource {
 
         OIDCC4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(OIDCC4UIService.class);
         OIDCLoginResponse response = service.login(
+                Session.get().getAttribute(OIDCConstants.REQUEST_ID).toString(),
                 request.getRequestURL().toString(),
                 authorizationCode,
                 Session.get().getAttribute(OIDCConstants.OP).toString());
