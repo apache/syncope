@@ -73,6 +73,10 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
+    public static String sanitizeMarkupId(final String input) {
+        return input.replaceAll("[^a-zA-Z0-9._-]", "_");
+    }
+
     @SpringBean
     protected ServiceOps serviceOps;
 
@@ -224,7 +228,7 @@ public class Topology extends BasePage {
         // Add Syncope (root topologynode)
         // -----------------------------------------
         String rootName = StringUtils.capitalize(Constants.SYNCOPE);
-        final TopologyNode syncopeTopologyNode = new TopologyNode(rootName, rootName, TopologyNode.Kind.SYNCOPE);
+        TopologyNode syncopeTopologyNode = new TopologyNode(rootName, rootName, TopologyNode.Kind.SYNCOPE);
         syncopeTopologyNode.setX(origX);
         syncopeTopologyNode.setY(origY);
 
@@ -234,9 +238,9 @@ public class Topology extends BasePage {
 
         body.add(topologyNodePanel(Constants.SYNCOPE, syncopeTopologyNode, false));
 
-        Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
-        Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();
-        connections.put(syncopeTopologyNode.getKey(), syncopeConnections);
+        Map<String, Map<String, TopologyNode>> connections = new HashMap<>();
+        Map<String, TopologyNode> syncopeConnections = new HashMap<>();
+        connections.put(sanitizeMarkupId(syncopeTopologyNode.getKey()), syncopeConnections);
 
         // required to retrieve parent positions
         Map<String, TopologyNode> servers = new HashMap<>();
@@ -273,8 +277,8 @@ public class Topology extends BasePage {
 
                 item.add(topologyNodePanel("cs", topologynode, false));
 
-                syncopeConnections.put(url, topologynode);
-                connections.put(url, new HashMap<>());
+                syncopeConnections.put(sanitizeMarkupId(url), topologynode);
+                connections.put(sanitizeMarkupId(url), new HashMap<>());
             }
         };
 
@@ -312,8 +316,8 @@ public class Topology extends BasePage {
 
                 item.add(topologyNodePanel("fp", topologynode, false));
 
-                syncopeConnections.put(url, topologynode);
-                connections.put(url, new HashMap<>());
+                syncopeConnections.put(sanitizeMarkupId(url), topologynode);
+                connections.put(sanitizeMarkupId(url), new HashMap<>());
             }
         };
 
@@ -369,7 +373,7 @@ public class Topology extends BasePage {
                         item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
 
                         // Update connections
-                        Map<Serializable, TopologyNode> remoteConnections;
+                        Map<String, TopologyNode> remoteConnections;
                         if (connections.containsKey(conn.getLocation())) {
                             remoteConnections = connections.get(conn.getLocation());
                         } else {
@@ -404,7 +408,7 @@ public class Topology extends BasePage {
                     TopologyNode topologynode = new TopologyNode(
                             resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
 
-                    Map<Serializable, TopologyNode> remoteConnections;
+                    Map<String, TopologyNode> remoteConnections;
                     if (connections.containsKey(resourceTO.getConnector())) {
                         remoteConnections = connections.get(resourceTO.getConnector());
                     } else {
@@ -480,10 +484,11 @@ public class Topology extends BasePage {
 
             @Override
             public void renderHead(final Component component, final IHeaderResponse response) {
-                final StringBuilder jsPlumbConf = new StringBuilder();
-                jsPlumbConf.append(String.format(Locale.US, "activate(%.2f);", 0.68f));
+                StringBuilder jsPlumbConf = new StringBuilder(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
-                createConnections(connections).forEach(jsPlumbConf::append);
+                connections.forEach((key, value) -> value.forEach((label, node) -> jsPlumbConf.append(
+                        "connect('%s','%s','%s');".formatted(sanitizeMarkupId(key), label, node.getKind()))));
+
                 jsPlumbConf.append("restoreTopologyLayout();");
 
                 response.render(OnDomReadyHeaderItem.forScript(jsPlumbConf.toString()));
@@ -538,18 +543,9 @@ public class Topology extends BasePage {
         newlyCreatedContainer.add(newlyCreated);
     }
 
-    private static List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
-        List<String> list = new ArrayList<>();
-
-        targets.forEach((key, value) -> value.forEach((label, node) -> list.add(
-                "connect('%s','%s','%s');".formatted(key, label, node.getKind()))));
-
-        return list;
-    }
-
     private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node, final boolean errored) {
         TopologyNodePanel panel = new TopologyNodePanel(id, node, errored);
-        panel.setMarkupId(String.valueOf(node.getKey()));
+        panel.setMarkupId(sanitizeMarkupId(node.getKey()));
         panel.setOutputMarkupId(true);
 
         List<Behavior> behaviors = new ArrayList<>();
@@ -561,7 +557,7 @@ public class Topology extends BasePage {
             @Override
             public void renderHead(final Component component, final IHeaderResponse response) {
                 response.render(OnDomReadyHeaderItem.forScript("setPosition('%s', %d, %d)".
-                        formatted(node.getKey(), node.getX(), node.getY())));
+                        formatted(sanitizeMarkupId(node.getKey()), node.getX(), node.getY())));
             }
         });
 

@@ -36,6 +36,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
@@ -87,6 +88,12 @@ public class OIDCClientCache {
 
     protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
 
+    protected final boolean useNonce;
+
+    public OIDCClientCache(final SessionStore sessionStore) {
+        useNonce = !(sessionStore instanceof NoOpSessionStore);
+    }
+
     public Optional<OidcClient> get(final String opName) {
         return cache.stream().filter(c -> opName.equals(c.getName())).findFirst();
     }
@@ -96,7 +103,7 @@ public class OIDCClientCache {
         cfg.setClientId(op.getClientID());
         cfg.setSecret(op.getClientSecret());
         cfg.setScope(String.join(" ", op.getScopes()));
-        cfg.setUseNonce(false);
+        cfg.setUseNonce(useNonce);
 
         OIDCProviderMetadata metadata = new OIDCProviderMetadata(
                 new Issuer(op.getIssuer()),

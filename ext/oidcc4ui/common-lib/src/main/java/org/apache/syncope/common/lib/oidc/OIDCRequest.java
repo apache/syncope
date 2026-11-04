@@ -20,17 +20,6 @@ package org.apache.syncope.common.lib.oidc;
 
 import java.io.Serializable;
 
-public class OIDCRequest implements Serializable {
+public record OIDCRequest(String id, String location) implements Serializable {
 
-    private static final long serialVersionUID = -3509031322459942441L;
-
-    private String location;
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(final String location) {
-        this.location = location;
-    }
 }

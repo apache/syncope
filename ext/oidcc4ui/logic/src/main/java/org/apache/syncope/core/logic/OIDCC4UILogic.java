@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
 import org.apache.syncope.core.logic.oidc.OIDCC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.SessionKeyCredentials;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -73,6 +73,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected static final String JWT_CLAIM_ID_TOKEN = "ID_TOKEN";
 
+    protected static final String NO_OP_REQUEST_ID = "noop";
+
     protected final OIDCClientCache oidcClientCacheLogin;
 
     protected final OIDCClientCache oidcClientCacheLogout;
@@ -89,6 +91,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final EncryptorManager encryptorManager;
 
+    protected final SessionStore sessionStore;
+
     public OIDCC4UILogic(
             final OIDCClientCache oidcClientCacheLogin,
             final OIDCClientCache oidcClientCacheLogout,
@@ -97,7 +101,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             final OIDCC4UIProviderDAO opDAO,
             final AccessTokenDAO accessTokenDAO,
             final OIDCUserManager userManager,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final SessionStore sessionStore) {
 
         this.oidcClientCacheLogin = oidcClientCacheLogin;
         this.oidcClientCacheLogout = oidcClientCacheLogout;
@@ -107,6 +112,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         this.accessTokenDAO = accessTokenDAO;
         this.userManager = userManager;
         this.encryptorManager = encryptorManager;
+        this.sessionStore = sessionStore;
     }
 
     protected OidcClient getOidcClient(
@@ -147,8 +153,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         });
 
         // 2. create OIDCRequest
-        WithLocationAction action = oidcClient.getRedirectionAction(
-                new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE)).
+        OIDCC4UIContext ctx = new OIDCC4UIContext();
+        WithLocationAction action = oidcClient.getRedirectionAction(new CallContext(ctx, sessionStore)).
                 map(WithLocationAction.class::cast).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -156,13 +162,16 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     return sce;
                 });
 
-        OIDCRequest loginRequest = new OIDCRequest();
-        loginRequest.setLocation(action.getLocation());
-        return loginRequest;
+        return new OIDCRequest(Optional.ofNullable(ctx.getId()).orElse(NO_OP_REQUEST_ID), action.getLocation());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public OIDCLoginResponse login(final String redirectURI, final String authorizationCode, final String opName) {
+    public OIDCLoginResponse login(
+            final String requestId,
+            final String redirectURI,
+            final String authorizationCode,
+            final String opName) {
+
         // 0. look for OP
         OIDCC4UIProvider op = opDAO.findByName(opName).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
@@ -171,14 +180,16 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         OidcClient oidcClient = getOidcClient(oidcClientCacheLogin, op, redirectURI);
 
         // 2. get OpenID Connect tokens
+        OIDCC4UIContext ctx = new OIDCC4UIContext();
+        ctx.setId(requestId);
+
         String idTokenHint = null;
         JWTClaimsSet claimsSet = null;
         try {
             OidcCredentials credentials = new OidcCredentials();
             credentials.setCode(authorizationCode);
 
-            oidcClient.getAuthenticator().validate(
-                    new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE), credentials);
+            oidcClient.getAuthenticator().validate(new CallContext(ctx, sessionStore), credentials);
 
             JWT idToken = credentials.toIdToken();
             if (idToken == null) {
@@ -324,8 +335,9 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         OidcProfile profile = new OidcProfile();
         profile.setIdTokenString((String) claimsSet.getClaim(JWT_CLAIM_ID_TOKEN));
 
+        OIDCC4UIContext ctx = new OIDCC4UIContext();
         WithLocationAction action = oidcClient.getLogoutAction(
-                new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE),
+                new CallContext(ctx, sessionStore),
                 profile,
                 redirectURI).
                 map(WithLocationAction.class::cast).
@@ -335,9 +347,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     return sce;
                 });
 
-        OIDCRequest logoutRequest = new OIDCRequest();
-        logoutRequest.setLocation(action.getLocation());
-        return logoutRequest;
+        return new OIDCRequest(Optional.ofNullable(ctx.getId()).orElse(NO_OP_REQUEST_ID), action.getLocation());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -371,7 +381,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
                 }
                 return Optional.empty();
             }
-        }, NoOpSessionStore.INSTANCE)).orElseThrow(() -> {
+        }, sessionStore)).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
             sce.getElements().add("Could not validate the logout token");
             return sce;
