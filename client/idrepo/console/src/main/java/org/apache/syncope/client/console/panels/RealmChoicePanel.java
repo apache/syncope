@@ -127,11 +127,10 @@ public class RealmChoicePanel extends Panel {
                             sorted(Comparator.comparing(Pair::getLeft));
                 } else {
                     full = map.entrySet().stream().
-                            map(el -> Pair.of(el.getKey(), el.getValue().getLeft()));
+                            map(pair -> Pair.of(pair.getKey(), pair.getValue().getLeft()));
                 }
-                return full.filter(realm -> SyncopeConsoleSession.get().getSearchableRealms().stream().anyMatch(
-                        r -> realm.getValue().getFullPath().startsWith(r))).
-                        collect(Collectors.toList());
+                return full.filter(realm -> SyncopeConsoleSession.get().getSearchableRealms().stream().
+                        anyMatch(r -> realm.getValue().getFullPath().startsWith(r))).toList();
             }
         };
 

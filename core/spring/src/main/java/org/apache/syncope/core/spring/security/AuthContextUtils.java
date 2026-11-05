@@ -92,7 +92,8 @@ public final class AuthContextUtils {
                 map(authentication -> authentication.getAuthorities().stream().
                         filter(SyncopeGrantedAuthority.class::isInstance).
                         map(SyncopeGrantedAuthority.class::cast).
-                        collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority,
+                        collect(Collectors.toMap(
+                                SyncopeGrantedAuthority::getAuthority,
                                 SyncopeGrantedAuthority::getRealms))).
                 orElseGet(Map::of);
     }

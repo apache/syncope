@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,6 +56,8 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils.ManagerRealm;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils.NormalizedRealms;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
@@ -64,6 +67,7 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -80,6 +84,8 @@ public class UserSelfLogic extends AbstractUserLogic {
         sce.getElements().add("MFA secret for " + username + " already set");
         throw sce;
     }
+
+    protected final SecurityProperties securityProperties;
 
     protected final DelegationDAO delegationDAO;
 
@@ -115,6 +121,7 @@ public class UserSelfLogic extends AbstractUserLogic {
                 provisioningManager,
                 encryptorManager,
                 confParamOps);
+        this.securityProperties = securityProperties;
         this.delegationDAO = delegationDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.resourceDAO = resourceDAO;
@@ -131,9 +138,35 @@ public class UserSelfLogic extends AbstractUserLogic {
     public Self read() {
         UserTO authenticated = binder.getAuthenticatedUserTO();
 
+        Map<String, Set<String>> authorizations;
+        if (securityProperties.getAnonymousUser().equals(AuthContextUtils.getUsername())) {
+            authorizations = AuthContextUtils.getAuthorizations();
+        } else {
+            // group manager Realms together, to avoid unwanted enumeration of managed anys
+            authorizations = AuthContextUtils.getAuthorities().stream().
+                    map(authority -> {
+                        NormalizedRealms normalized = NormalizedRealms.of(authority.getRealms());
+
+                        SyncopeGrantedAuthority updated = new SyncopeGrantedAuthority(authority.getAuthority());
+                        updated.addRealms(normalized.realms());
+
+                        normalized.managerRealms().stream().
+                                map(ManagerRealm::of).
+                                flatMap(Optional::stream).
+                                filter(r -> !updated.getRealms().contains(r.realmPath())).
+                                map(r -> r.realmPath() + '@').
+                                forEach(updated::addRealm);
+
+                        return updated;
+                    }).
+                    filter(authority -> !authority.getRealms().isEmpty()).
+                    collect(Collectors.toMap(
+                            SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
+        }
+
         return new Self(
                 authenticated,
-                POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
+                POJOHelper.serialize(authorizations),
                 POJOHelper.serialize(delegationDAO.findValidDelegating(authenticated.getKey(), OffsetDateTime.now())));
     }
 
