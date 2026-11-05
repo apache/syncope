@@ -160,7 +160,8 @@ public class UserSelfLogic extends AbstractUserLogic {
                         return updated;
                     }).
                     filter(authority -> !authority.getRealms().isEmpty()).
-                    collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
+                    collect(Collectors.toMap(
+                            SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms));
         }
 
         return new Self(
