@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
@@ -174,42 +175,34 @@ public class FilterConverterTest {
 
     @Test
     public void hasAuxClasses() {
-        try {
-            FilterConverter.convert(SpecialAttr.AUX_CLASSES + "==clazz1");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> FilterConverter.convert(SpecialAttr.AUX_CLASSES + "==clazz1"));
+        assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
     }
 
     @Test
     public void hasNotAuxClasses() {
-        try {
-            FilterConverter.convert(SpecialAttr.AUX_CLASSES + "!=clazz1");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> FilterConverter.convert(SpecialAttr.AUX_CLASSES + "!=clazz1"));
+        assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
     }
 
     @Test
     public void hasResources() {
-        try {
-            FilterConverter.convert(SpecialAttr.RESOURCES + "==resource");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> FilterConverter.convert(SpecialAttr.RESOURCES + "==resource"));
+        assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
     }
 
     @Test
     public void hasNotResources() {
-        try {
-            FilterConverter.convert(SpecialAttr.RESOURCES + "!=resource");
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
-        }
+        SyncopeClientException e = assertThrows(
+                SyncopeClientException.class,
+                () -> FilterConverter.convert(SpecialAttr.RESOURCES + "!=resource"));
+        assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
     }
 
     @Test
