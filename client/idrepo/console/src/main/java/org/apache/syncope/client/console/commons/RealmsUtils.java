@@ -26,12 +26,8 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 
 public final class RealmsUtils {
 
-    public static String getFullPath(final String fullpath) {
-        String display = fullpath;
-        if (display.indexOf('@') != -1) {
-            display = StringUtils.substringBefore(display, "@");
-        }
-        return display;
+    public static String getFullPath(final String path) {
+        return StringUtils.substringBefore(path, "@");
     }
 
     public static boolean checkInput(final String input) {

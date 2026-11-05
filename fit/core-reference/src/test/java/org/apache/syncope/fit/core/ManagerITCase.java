@@ -27,6 +27,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClient.Self;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -39,12 +40,10 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -75,10 +74,8 @@ public class ManagerITCase extends AbstractITCase {
         Self self = managerClient.self();
         Set<String> managerRealms = self.entitlements().get(IdRepoEntitlement.USER_SEARCH);
         assertEquals(1, managerRealms.size());
-        RealmUtils.ManagerRealm realm = RealmUtils.ManagerRealm.of(managerRealms.iterator().next()).orElseThrow();
-        assertEquals(SyncopeConstants.ROOT_REALM, realm.realmPath());
-        assertEquals(AnyTypeKind.USER, realm.kind());
-        assertEquals(managedKey, realm.anyKey());
+        assertTrue(managerRealms.iterator().next().endsWith("@"));
+        assertEquals(SyncopeConstants.ROOT_REALM, StringUtils.substringBefore(managerRealms.iterator().next(), "@"));
 
         selfCheck.ifPresent(checker -> checker.accept(self));
 
@@ -152,11 +149,10 @@ public class ManagerITCase extends AbstractITCase {
                 Optional.of(self -> {
                     Set<String> managerRealms = self.entitlements().get(IdRepoEntitlement.GROUP_READ);
                     assertEquals(1, managerRealms.size());
-                    RealmUtils.ManagerRealm realm = RealmUtils.ManagerRealm.of(managerRealms.iterator().next()).
-                            orElseThrow();
-                    assertEquals(SyncopeConstants.ROOT_REALM, realm.realmPath());
-                    assertEquals(AnyTypeKind.GROUP, realm.kind());
-                    assertEquals(group.getKey(), realm.anyKey());
+                    assertTrue(managerRealms.iterator().next().endsWith("@"));
+                    assertEquals(
+                            SyncopeConstants.ROOT_REALM,
+                            StringUtils.substringBefore(managerRealms.iterator().next(), "@"));
                 }));
     }
 
