@@ -70,23 +70,24 @@ public class Details<T extends AnyTO> extends WizardStep {
             final PageReference pageRef) {
 
         this.pageRef = pageRef;
-        final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
-        final T inner = wrapper.getInnerObject();
-        final Fragment fragment;
 
+        Fragment fragment;
         if (templateMode) {
             realm = new AjaxTextFieldPanel(
-                    "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
+                    "destinationRealm", "destinationRealm",
+                    new PropertyModel<>(wrapper.getInnerObject(), "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
+
             fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
         } else {
             boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
-            AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
-            settings.setShowListOnEmptyInput(fullRealmsTree);
+            List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
 
             realm = new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
-                    new PropertyModel<>(inner, "realm"), settings) {
+                    new PropertyModel<>(wrapper.getInnerObject(), "realm"),
+                    new AutoCompleteSettings().
+                            setShowCompleteListOnFocusGain(fullRealmsTree).
+                            setShowListOnEmptyInput(fullRealmsTree)) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -99,7 +100,7 @@ public class Details<T extends AnyTO> extends WizardStep {
                                     : realmRestClient.search(RealmsUtils.buildNameQuery(input))).getResult()).
                             stream().map(RealmTO::getFullPath).
                             filter(fullPath -> authRealms.stream().anyMatch(
-                            authRealm -> fullPath.startsWith(authRealm))).iterator();
+                                    authRealm -> fullPath.startsWith(authRealm))).iterator();
                 }
             };
 
@@ -107,9 +108,8 @@ public class Details<T extends AnyTO> extends WizardStep {
         }
         fragment.addOrReplace(realm);
         addOrReplace(fragment);
-        add(getGeneralStatusInformation("generalStatusInformation", inner).
+        add(getGeneralStatusInformation("generalStatusInformation", wrapper.getInnerObject()).
                 setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
-
     }
 
     public Details<T> disableRealmSpecification() {

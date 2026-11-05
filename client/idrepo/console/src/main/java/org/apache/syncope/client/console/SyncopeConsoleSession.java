@@ -220,7 +220,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     public boolean isJWTExpiring() {
         return Optional.ofNullable(jwtExpiration).
                 map(je -> je.isBefore(Instant.now().
-                plus(SyncopeWebApplication.get().getJwtExpirationMinutesThreshold(), ChronoUnit.MINUTES))).
+                        plus(SyncopeWebApplication.get().getJwtExpirationMinutesThreshold(), ChronoUnit.MINUTES))).
                 orElse(false);
     }
 
@@ -261,7 +261,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                     flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
                     filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals).
                     map(code -> clientFactory.setDomain(getDomain()).
-                    create(new BasicAuthenticationHandler(username, password))).
+                            create(new BasicAuthenticationHandler(username, password))).
                     orElse(null);
             if (client != null) {
                 authenticated = true;
@@ -355,7 +355,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public List<String> getAuthRealms() {
-        return self.entitlements().values().stream().flatMap(Set::stream).distinct().sorted().toList();
+        return self.entitlements().values().stream().
+                flatMap(Set::stream).
+                map(RealmsUtils::getFullPath).
+                distinct().sorted().toList();
     }
 
     public List<String> getSearchableRealms() {
