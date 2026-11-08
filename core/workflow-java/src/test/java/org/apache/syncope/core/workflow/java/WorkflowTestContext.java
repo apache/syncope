@@ -28,11 +28,16 @@ import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.MariaDBPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.MySQLPersistenceContext;
@@ -97,13 +102,42 @@ public class WorkflowTestContext {
     }
 
     @Bean
-    public GroupDataBinder groupDataBinder() {
-        return mock(GroupDataBinder.class);
+    public GroupDataBinder groupDataBinder(final RealmSearchDAO realmSearchDAO) {
+        GroupDataBinder dataBinder = mock(GroupDataBinder.class);
+
+        doAnswer(ic -> {
+            Group group = ic.getArgument(0);
+            GroupCR groupCR = ic.getArgument(1);
+
+            group.setName(groupCR.getName());
+            group.setRealm(realmSearchDAO.findByFullPath(groupCR.getRealm()).orElseThrow());
+            group.setCreator("admin");
+            group.setCreationDate(OffsetDateTime.now());
+
+            return null;
+        }).when(dataBinder).create(any(Group.class), any(GroupCR.class));
+
+        return dataBinder;
     }
 
     @Bean
-    public AnyObjectDataBinder anyObjectDataBinder() {
-        return mock(AnyObjectDataBinder.class);
+    public AnyObjectDataBinder anyObjectDataBinder(final RealmSearchDAO realmSearchDAO, final AnyTypeDAO anyTypeDAO) {
+        AnyObjectDataBinder dataBinder = mock(AnyObjectDataBinder.class);
+
+        doAnswer(ic -> {
+            AnyObject anyObject = ic.getArgument(0);
+            AnyObjectCR anyObjectCR = ic.getArgument(1);
+
+            anyObject.setName(anyObjectCR.getName());
+            anyObject.setRealm(realmSearchDAO.findByFullPath(anyObjectCR.getRealm()).orElseThrow());
+            anyObject.setType(anyTypeDAO.findById(anyObjectCR.getType()).orElseThrow());
+            anyObject.setCreator("admin");
+            anyObject.setCreationDate(OffsetDateTime.now());
+
+            return null;
+        }).when(dataBinder).create(any(AnyObject.class), any(AnyObjectCR.class));
+
+        return dataBinder;
     }
 
     @Bean
