@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
