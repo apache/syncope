@@ -134,7 +134,7 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
 
-    private Boolean renewRefreshToken;
+    private boolean renewRefreshToken;
 
     private String idTokenTimeToKill;
 
