@@ -115,6 +115,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -979,6 +980,10 @@ public abstract class AbstractITCase {
         oidcrpTO.setRefreshTokenTimeToKill("P14D");
         oidcrpTO.setDeviceTokenTimeToKill("PT5M");
 
+        oidcrpTO.setRenewRefreshToken(true);
+        oidcrpTO.setIdTokenTimeToKill("PT5M");
+        oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
+        oidcrpTO.getAudience().add("https://api.apache.org");
         return oidcrpTO;
     }
 

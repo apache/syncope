@@ -132,6 +132,20 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private String deviceTokenTimeToKill;
 
+    private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
+
+    private Boolean renewRefreshToken;
+
+    private String idTokenTimeToKill;
+
+    private String authorizationCodeTimeToLive;
+
+    private String audience;
+
+    @Transient
+    private Set<String> audienceSet = new HashSet<>();
+
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUrisSet;
@@ -414,11 +428,57 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
     }
     
+    @Override
+    public OIDCTokenSigningAlg getJwtAccessTokenSigningAlg() {
+        return jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public void setJwtAccessTokenSigningAlg(final OIDCTokenSigningAlg jwtAccessTokenSigningAlg) {
+        this.jwtAccessTokenSigningAlg = jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public Boolean getRenewRefreshToken() {
+        return renewRefreshToken;
+    }
+
+    @Override
+    public void setRenewRefreshToken(final Boolean renewRefreshToken) {
+        this.renewRefreshToken = renewRefreshToken;
+    }
+
+    @Override
+    public String getIdTokenTimeToKill() {
+        return idTokenTimeToKill;
+    }
+
+    @Override
+    public void setIdTokenTimeToKill(final String idTokenTimeToKill) {
+        this.idTokenTimeToKill = idTokenTimeToKill;
+    }
+
+    @Override
+    public String getAuthorizationCodeTimeToLive() {
+        return authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public void setAuthorizationCodeTimeToLive(final String authorizationCodeTimeToLive) {
+        this.authorizationCodeTimeToLive = authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public Set<String> getAudience() {
+        return audienceSet;
+    }
+
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getRedirectUris().clear();
             getSupportedGrantTypes().clear();
             getSupportedResponseTypes().clear();
+            getAudience().clear();
         }
         if (redirectUris != null) {
             getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
@@ -431,6 +491,9 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
         }
         if (scopes != null) {
             getScopes().addAll(POJOHelper.deserialize(scopes, SCOPE_TYPEREF));
+        }
+        if (audience != null) {
+            getAudience().addAll(POJOHelper.deserialize(audience, STRING_TYPEREF));
         }
     }
 
@@ -448,5 +511,6 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
         supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
         supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
         scopes = POJOHelper.serialize(getScopes());
+        audience = POJOHelper.serialize(getAudience());
     }
 }

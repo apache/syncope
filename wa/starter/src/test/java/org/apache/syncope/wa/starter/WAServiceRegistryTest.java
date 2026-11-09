@@ -19,7 +19,9 @@
 package org.apache.syncope.wa.starter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
@@ -42,6 +44,7 @@ import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -76,6 +79,12 @@ public class WAServiceRegistryTest extends AbstractTest {
         oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.password);
         oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
         oidcrpTO.setLogoutType(LogoutType.BACK_CHANNEL);
+        oidcrpTO.setJwtAccessToken(true);
+        oidcrpTO.setJwtAccessTokenSigningAlg(OIDCTokenSigningAlg.RS256);
+        oidcrpTO.setRenewRefreshToken(true);
+        oidcrpTO.setIdTokenTimeToKill("PT5M");
+        oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
+        oidcrpTO.getAudience().add("https://api.example.org");
 
         return oidcrpTO;
     }
@@ -178,6 +187,12 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals("uri1|uri2", oidc.getServiceId());
         assertEquals(oidcrpto.getClientId(), oidc.getClientId());
         assertEquals(oidcrpto.getClientSecret(), oidc.getClientSecret());
+        assertEquals("RS256", oidc.getJwtAccessTokenSigningAlg());
+        assertTrue(oidc.isRenewRefreshToken());
+        assertEquals("PT5M", oidc.getIdTokenExpirationPolicy().getTimeToKill());
+        assertEquals("PT30S", oidc.getCodeExpirationPolicy().getTimeToLive());
+        assertEquals(1, oidc.getCodeExpirationPolicy().getNumberOfUses());
+        assertEquals(Set.of("https://api.example.org"), oidc.getAudience());
         assertTrue(oidc.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());
@@ -222,6 +237,33 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
+    }
+
+    @Test
+    public void unconfiguredOIDCProperties() {
+        SyncopeCoreTestingServer.CLIENT_APPS.clear();
+        OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
+        oidcrpTO.setJwtAccessTokenSigningAlg(null);
+        oidcrpTO.setRenewRefreshToken(null);
+        oidcrpTO.setIdTokenTimeToKill(null);
+        oidcrpTO.setAuthorizationCodeTimeToLive(null);
+        oidcrpTO.getAudience().clear();
+
+        WAClientApp waClientApp = new WAClientApp();
+        waClientApp.setClientAppTO(oidcrpTO);
+        addPolicies(waClientApp, false);
+        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
+        waRestClient.getService(WAClientAppService.class).list();
+        servicesManager.load();
+
+        OidcRegisteredService oidc = (OidcRegisteredService)
+                servicesManager.findServiceBy(oidcrpTO.getClientAppId());
+        assertNotNull(oidc);
+        assertNull(oidc.getJwtAccessTokenSigningAlg());
+        assertFalse(oidc.isRenewRefreshToken());
+        assertNull(oidc.getIdTokenExpirationPolicy());
+        assertNull(oidc.getCodeExpirationPolicy());
+        assertTrue(oidc.getAudience().isEmpty());
     }
 
     @Test
