@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class WAConfigTest extends AbstractTest {
+class WAConfigTest extends AbstractTest {
 
     @Autowired
     private WAConfigDAO configDAO;

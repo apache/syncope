@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.Ordered;
 
-public class ClassPathScanImplementationLookupTest {
+class ClassPathScanImplementationLookupTest {
 
     private ClassPathScanImplementationLookup lookup;
 

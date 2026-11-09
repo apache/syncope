@@ -59,7 +59,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceLogicTest extends AbstractTest {
+class ResourceLogicTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {

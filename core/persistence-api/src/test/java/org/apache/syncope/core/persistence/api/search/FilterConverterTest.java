@@ -38,7 +38,7 @@ import org.identityconnectors.framework.common.objects.filter.NotFilter;
 import org.identityconnectors.framework.common.objects.filter.OrFilter;
 import org.junit.jupiter.api.Test;
 
-public class FilterConverterTest {
+class FilterConverterTest {
 
     private boolean equals(final Filter filter1, final Filter filter2) {
         return EqualsBuilder.reflectionEquals(filter1, filter2);

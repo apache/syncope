@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MailTemplateLogicTest {
+class MailTemplateLogicTest {
 
     private MailTemplateDAO mailTemplateDAO;
 

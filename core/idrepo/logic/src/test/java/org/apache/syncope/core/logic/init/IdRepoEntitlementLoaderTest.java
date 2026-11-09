@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public class IdRepoEntitlementLoaderTest {
+class IdRepoEntitlementLoaderTest {
 
     private DefaultListableBeanFactory previousBeanFactory;
 

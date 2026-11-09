@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AuthModuleTest extends AbstractTest {
+class AuthModuleTest extends AbstractTest {
 
     @Autowired
     private AuthModuleDAO authModuleDAO;

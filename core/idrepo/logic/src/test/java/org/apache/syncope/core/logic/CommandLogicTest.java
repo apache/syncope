@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-public class CommandLogicTest {
+class CommandLogicTest {
 
     private ImplementationDAO implementationDAO;
 

@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
-public class AfterHandlingEventTest extends AbstractTest {
+class AfterHandlingEventTest extends AbstractTest {
 
     @Test
     public void test() {

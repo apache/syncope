@@ -33,7 +33,7 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class ConnObjectIdentificationSerializerTest extends AbstractTest {
+class ConnObjectIdentificationSerializerTest extends AbstractTest {
 
     @Test
     public void serialize(

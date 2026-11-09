@@ -44,7 +44,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AuthProfileTest extends AbstractTest {
+class AuthProfileTest extends AbstractTest {
 
     @Autowired
     private AuthProfileDAO authProfileDAO;

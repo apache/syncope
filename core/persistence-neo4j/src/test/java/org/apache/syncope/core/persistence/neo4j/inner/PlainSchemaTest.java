@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlainSchemaTest extends AbstractTest {
+class PlainSchemaTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;

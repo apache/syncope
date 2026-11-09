@@ -38,7 +38,7 @@ import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SecurityQuestionLogicTest {
+class SecurityQuestionLogicTest {
 
     private SecurityQuestionDAO securityQuestionDAO;
 

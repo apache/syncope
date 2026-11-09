@@ -33,7 +33,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import tools.jackson.databind.json.JsonMapper;
 
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
-public class PasswordGeneratorTest {
+class PasswordGeneratorTest {
 
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();
 

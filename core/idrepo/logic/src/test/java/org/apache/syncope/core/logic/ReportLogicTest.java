@@ -49,7 +49,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ReportLogicTest extends AbstractTest {
+class ReportLogicTest extends AbstractTest {
 
     public static class TestReportJobDelegate extends AbstractReportJobDelegate {
 

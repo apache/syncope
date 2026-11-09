@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnectorManagerTest extends AbstractTest {
+class ConnectorManagerTest extends AbstractTest {
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;

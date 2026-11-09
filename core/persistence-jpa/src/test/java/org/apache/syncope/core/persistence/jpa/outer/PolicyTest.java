@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PolicyTest extends AbstractClientAppTest {
+class PolicyTest extends AbstractClientAppTest {
 
     @Autowired
     private OIDCRPClientAppDAO oidcRelyingPartyDAO;

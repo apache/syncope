@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import tools.jackson.core.type.TypeReference;
 
-public class POJOHelperTest extends AbstractTest {
+class POJOHelperTest extends AbstractTest {
 
     @Test
     public void serialize() {

@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-public class LDAPPasswordPullActionsTest extends AbstractTest {
+class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Mock
     private ProvisioningProfile<?, ?> profile;

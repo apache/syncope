@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class MailTemplateTest extends AbstractTest {
+class MailTemplateTest extends AbstractTest {
 
     @Autowired
     private MailTemplateDAO mailTemplateDAO;

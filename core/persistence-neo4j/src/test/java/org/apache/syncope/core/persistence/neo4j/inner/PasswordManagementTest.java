@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PasswordManagementTest extends AbstractTest {
+class PasswordManagementTest extends AbstractTest {
 
     @Autowired
     private PasswordManagementDAO passwordManagementDAO;

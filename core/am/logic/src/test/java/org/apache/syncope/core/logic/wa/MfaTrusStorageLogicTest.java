@@ -36,7 +36,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-public class MfaTrusStorageLogicTest {
+class MfaTrusStorageLogicTest {
 
     private AuthProfileDataBinder binder;
 

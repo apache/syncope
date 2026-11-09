@@ -81,7 +81,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnySearchTest extends AbstractTest {
+class AnySearchTest extends AbstractTest {
 
     private static final String LOGIN_DATE_VALUE = "2009-05-26";
 

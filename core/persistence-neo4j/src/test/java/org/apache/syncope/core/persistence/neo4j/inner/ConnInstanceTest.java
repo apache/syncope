@@ -45,7 +45,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceTest extends AbstractTest {
+class ConnInstanceTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;

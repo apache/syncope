@@ -47,7 +47,7 @@ import tools.jackson.dataformat.csv.CsvMapper;
 import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
-public class ReconciliationLogicTest extends AbstractTest {
+class ReconciliationLogicTest extends AbstractTest {
 
     @Autowired
     private ReconciliationLogic reconciliationLogic;

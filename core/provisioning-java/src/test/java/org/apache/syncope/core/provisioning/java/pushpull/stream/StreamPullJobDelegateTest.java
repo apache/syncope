@@ -47,7 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
-public class StreamPullJobDelegateTest extends AbstractTest {
+class StreamPullJobDelegateTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class UserTest extends AbstractTest {
+class UserTest extends AbstractTest {
 
     @Autowired
     private PasswordGenerator passwordGenerator;

@@ -45,7 +45,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RealmTest extends AbstractTest {
+class RealmTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;

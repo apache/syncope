@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.junit.jupiter.api.Test;
 
-public class EntitlementAccessorTest {
+class EntitlementAccessorTest {
 
     @Test
     void addEntitlementsForCustomAnyTypesOnly() {

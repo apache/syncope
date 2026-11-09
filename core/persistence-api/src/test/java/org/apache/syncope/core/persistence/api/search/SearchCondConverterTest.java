@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.junit.jupiter.api.Test;
 
-public class SearchCondConverterTest {
+class SearchCondConverterTest {
 
     private static final AnySearchCondVisitor VISITOR = new AnySearchCondVisitor();
 

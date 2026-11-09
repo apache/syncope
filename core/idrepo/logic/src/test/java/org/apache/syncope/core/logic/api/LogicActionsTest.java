@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.jupiter.api.Test;
 
-public class LogicActionsTest {
+class LogicActionsTest {
 
     private final LogicActions actions = new LogicActions() {
     };

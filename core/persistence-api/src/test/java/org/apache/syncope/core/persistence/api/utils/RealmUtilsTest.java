@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.junit.jupiter.api.Test;
 
-public class RealmUtilsTest extends AbstractTest {
+class RealmUtilsTest extends AbstractTest {
 
     @Test
     public void getManagerRealm() {

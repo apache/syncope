@@ -50,7 +50,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class IntAttrNameParserTest extends AbstractTest {
+class IntAttrNameParserTest extends AbstractTest {
 
     private static final Map<AnyTypeKind, List<String>> ANY_FIELDS = Map.of(
             AnyTypeKind.USER, List.of("key", "username", "uManager", "gManager"),

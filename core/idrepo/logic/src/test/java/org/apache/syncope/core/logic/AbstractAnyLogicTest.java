@@ -44,7 +44,7 @@ import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AbstractAnyLogicTest {
+class AbstractAnyLogicTest {
 
     private static class TestLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 

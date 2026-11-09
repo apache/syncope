@@ -61,7 +61,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class UserTest extends AbstractTest {
+class UserTest extends AbstractTest {
 
     @Autowired
     private RelationshipTypeDAO relationshipTypeDAO;

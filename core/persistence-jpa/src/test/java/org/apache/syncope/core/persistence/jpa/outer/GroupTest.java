@@ -56,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
-public class GroupTest extends AbstractTest {
+class GroupTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

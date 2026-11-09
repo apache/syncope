@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyObjectTest extends AbstractTest {
+class AnyObjectTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

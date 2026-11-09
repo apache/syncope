@@ -41,7 +41,7 @@ import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class PolicyLogicTest {
+class PolicyLogicTest {
 
     private PolicyDAO policyDAO;
 

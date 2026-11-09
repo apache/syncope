@@ -35,7 +35,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
-public class SyncTokenDeserializerTest extends AbstractTest {
+class SyncTokenDeserializerTest extends AbstractTest {
 
     @Mock
     private JsonParser jp;

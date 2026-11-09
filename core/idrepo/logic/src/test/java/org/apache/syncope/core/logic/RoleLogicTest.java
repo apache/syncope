@@ -36,7 +36,7 @@ import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class RoleLogicTest {
+class RoleLogicTest {
 
     private RoleDataBinder binder;
 

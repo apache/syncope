@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.Ordered;
 
-public class IdRepoImplementationTypeLoaderTest {
+class IdRepoImplementationTypeLoaderTest {
 
     @Test
     void order() {

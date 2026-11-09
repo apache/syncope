@@ -72,7 +72,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class LDAPMembershipPullActionsTest extends AbstractTest {
+class LDAPMembershipPullActionsTest extends AbstractTest {
 
     @Autowired
     private EntityFactory entityFactory;

@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DerSchemaTest extends AbstractTest {
+class DerSchemaTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;

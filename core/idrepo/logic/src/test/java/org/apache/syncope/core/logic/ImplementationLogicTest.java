@@ -47,7 +47,7 @@ import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ImplementationLogicTest {
+class ImplementationLogicTest {
 
     private ImplementationDataBinder binder;
 

@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.junit.jupiter.api.Test;
 
-public class IdMEntitlementLoaderTest {
+class IdMEntitlementLoaderTest {
 
     @Test
     void order() {

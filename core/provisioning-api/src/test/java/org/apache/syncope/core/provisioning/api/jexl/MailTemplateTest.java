@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
-public class MailTemplateTest extends AbstractTest {
+class MailTemplateTest extends AbstractTest {
 
     private static final String CONFIRM_PASSWORD_RESET_TEMPLATE =
             "<html><body>"

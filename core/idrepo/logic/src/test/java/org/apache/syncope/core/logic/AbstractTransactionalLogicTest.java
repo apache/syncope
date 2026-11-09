@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-public class AbstractTransactionalLogicTest {
+class AbstractTransactionalLogicTest {
 
     private static class TestLogic extends AbstractTransactionalLogic<AnyTypeClassTO> {
 

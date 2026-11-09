@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class PropagationByResourceTest extends AbstractTest {
+class PropagationByResourceTest extends AbstractTest {
 
     private static final String KEY = "testKey";
 

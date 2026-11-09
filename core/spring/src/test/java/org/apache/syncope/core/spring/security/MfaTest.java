@@ -34,7 +34,7 @@ import dev.samstevens.totp.time.TimeProvider;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
-public class MfaTest {
+class MfaTest {
 
     @Test
     public void check() throws CodeGenerationException {

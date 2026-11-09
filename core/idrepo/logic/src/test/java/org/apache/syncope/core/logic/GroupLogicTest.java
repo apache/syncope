@@ -62,7 +62,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 
-public class GroupLogicTest {
+class GroupLogicTest {
 
     private RealmSearchDAO realmSearchDAO;
 

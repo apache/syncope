@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public class AnyCRUDLogicOpTest {
+class AnyCRUDLogicOpTest {
 
     @Test
     void contract() throws Exception {

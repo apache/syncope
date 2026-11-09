@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.ProvisionAction;
 import org.junit.jupiter.api.Test;
 
-public class GroupLogicOpTest {
+class GroupLogicOpTest {
 
     @Test
     void contract() throws Exception {

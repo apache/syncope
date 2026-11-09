@@ -43,7 +43,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AuthProfileTest extends AbstractTest {
+class AuthProfileTest extends AbstractTest {
 
     @Autowired
     private AuthProfileDAO authProfileDAO;

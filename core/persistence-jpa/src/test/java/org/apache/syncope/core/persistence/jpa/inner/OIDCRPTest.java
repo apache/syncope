@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OIDCRPTest extends AbstractClientAppTest {
+class OIDCRPTest extends AbstractClientAppTest {
 
     @Autowired
     private OIDCRPClientAppDAO oidcrpDAO;

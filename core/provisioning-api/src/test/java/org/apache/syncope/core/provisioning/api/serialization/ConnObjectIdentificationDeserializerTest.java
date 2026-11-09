@@ -28,7 +28,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConnObjectIdentificationDeserializerTest extends AbstractTest {
+class ConnObjectIdentificationDeserializerTest extends AbstractTest {
 
     @Test
     public void deserialize() throws IOException {

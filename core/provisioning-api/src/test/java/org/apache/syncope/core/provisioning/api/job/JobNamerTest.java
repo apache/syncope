@@ -29,7 +29,7 @@ import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class JobNamerTest extends AbstractTest {
+class JobNamerTest extends AbstractTest {
 
     private String name;
 

@@ -46,7 +46,7 @@ import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SchemaLogicTest {
+class SchemaLogicTest {
 
     private PlainSchemaDAO plainSchemaDAO;
 

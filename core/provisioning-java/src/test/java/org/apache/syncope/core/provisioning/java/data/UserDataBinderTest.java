@@ -60,7 +60,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class UserDataBinderTest extends AbstractTest {
+class UserDataBinderTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {

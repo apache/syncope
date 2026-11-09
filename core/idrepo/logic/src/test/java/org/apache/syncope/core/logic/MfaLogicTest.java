@@ -46,7 +46,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MfaLogicTest {
+class MfaLogicTest {
 
     private EncryptorManager encryptorManager;
 

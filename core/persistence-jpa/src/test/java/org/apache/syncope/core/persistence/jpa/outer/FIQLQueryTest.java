@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class FIQLQueryTest extends AbstractTest {
+class FIQLQueryTest extends AbstractTest {
 
     @Autowired
     private FIQLQueryDAO fiqlQueryDAO;

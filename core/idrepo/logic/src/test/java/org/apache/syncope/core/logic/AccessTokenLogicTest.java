@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public class AccessTokenLogicTest {
+class AccessTokenLogicTest {
 
     private SecurityProperties securityProperties;
 

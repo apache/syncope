@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.junit.jupiter.api.Test;
 
-public class AMEntitlementLoaderTest {
+class AMEntitlementLoaderTest {
 
     @Test
     void order() {

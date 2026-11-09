@@ -56,7 +56,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceTest extends AbstractTest {
+class ResourceTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;

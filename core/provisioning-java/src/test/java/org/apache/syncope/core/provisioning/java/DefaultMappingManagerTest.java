@@ -44,7 +44,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DefaultMappingManagerTest extends AbstractTest {
+class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private MappingManager mappingManager;

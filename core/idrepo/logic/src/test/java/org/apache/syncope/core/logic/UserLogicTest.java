@@ -55,7 +55,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 
-public class UserLogicTest {
+class UserLogicTest {
 
     private RealmSearchDAO realmSearchDAO;
 

@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class SyncTokenSerializerTest extends AbstractTest {
+class SyncTokenSerializerTest extends AbstractTest {
 
     @Test
     public void syncTokenSerializer(

@@ -32,7 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
-public class FormatUtilsTest extends AbstractTest {
+class FormatUtilsTest extends AbstractTest {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 

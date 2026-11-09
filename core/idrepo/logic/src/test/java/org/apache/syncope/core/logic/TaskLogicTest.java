@@ -75,7 +75,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 
-public class TaskLogicTest {
+class TaskLogicTest {
 
     private static final String UUID = "11111111-1111-1111-1111-111111111111";
 

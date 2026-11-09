@@ -56,7 +56,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnySearchTest extends AbstractTest {
+class AnySearchTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;

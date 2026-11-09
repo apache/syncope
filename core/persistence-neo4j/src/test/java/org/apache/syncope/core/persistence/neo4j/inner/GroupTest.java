@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class GroupTest extends AbstractTest {
+class GroupTest extends AbstractTest {
 
     @Autowired
     private GroupDAO groupDAO;

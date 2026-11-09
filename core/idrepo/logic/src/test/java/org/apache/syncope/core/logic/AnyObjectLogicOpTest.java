@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.junit.jupiter.api.Test;
 
-public class AnyObjectLogicOpTest {
+class AnyObjectLogicOpTest {
 
     @Test
     void contract() throws Exception {

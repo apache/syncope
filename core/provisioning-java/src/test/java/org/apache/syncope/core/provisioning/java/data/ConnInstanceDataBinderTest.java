@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceDataBinderTest extends AbstractTest {
+class ConnInstanceDataBinderTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDataBinder binder;

@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
-public class MappingTest extends AbstractTest {
+class MappingTest extends AbstractTest {
 
     @Test
     public void anyConnObjectLink() {

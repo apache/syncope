@@ -70,7 +70,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class TaskTest extends AbstractTest {
+class TaskTest extends AbstractTest {
 
     @Autowired
     private TaskDAO taskDAO;

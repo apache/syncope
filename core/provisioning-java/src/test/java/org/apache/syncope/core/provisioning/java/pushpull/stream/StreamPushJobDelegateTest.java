@@ -47,7 +47,7 @@ import tools.jackson.dataformat.csv.CsvMapper;
 import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
-public class StreamPushJobDelegateTest extends AbstractTest {
+class StreamPushJobDelegateTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

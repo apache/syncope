@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Tag("multitenancy")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
-public class MultitenancyTest extends AbstractTest {
+class MultitenancyTest extends AbstractTest {
 
     static {
         PersistenceTestContext.TEST_DOMAIN.set("Two");

@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
-public class UserWorkflowResultTest extends AbstractTest {
+class UserWorkflowResultTest extends AbstractTest {
 
     @Test
     public void test() {

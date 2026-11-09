@@ -37,7 +37,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class WAConfigTest extends AbstractTest {
+class WAConfigTest extends AbstractTest {
 
     @Autowired
     private WAConfigDAO configDAO;

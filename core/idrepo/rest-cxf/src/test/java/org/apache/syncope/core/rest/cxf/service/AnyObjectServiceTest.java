@@ -81,7 +81,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 @SpringJUnitConfig(classes = { IdRepoRESTCXFTestContext.class })
-public class AnyObjectServiceTest {
+class AnyObjectServiceTest {
 
     private static final String LOCAL_ADDRESS = "local://anyObjects";
 

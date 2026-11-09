@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public class AbstractExecutableLogicTest {
+class AbstractExecutableLogicTest {
 
     private static class TestLogic extends AbstractExecutableLogic<AnyTypeClassTO> {
 

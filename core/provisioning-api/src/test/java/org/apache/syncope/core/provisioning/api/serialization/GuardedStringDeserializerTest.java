@@ -38,7 +38,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
-public class GuardedStringDeserializerTest extends AbstractTest {
+class GuardedStringDeserializerTest extends AbstractTest {
 
     private static final String READONLY = "readOnly";
 

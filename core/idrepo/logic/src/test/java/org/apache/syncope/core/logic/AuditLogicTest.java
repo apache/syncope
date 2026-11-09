@@ -51,7 +51,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 
-public class AuditLogicTest {
+class AuditLogicTest {
 
     private AuditConfDAO auditConfDAO;
 

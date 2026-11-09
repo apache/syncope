@@ -55,7 +55,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlainSchemaTest extends AbstractTest {
+class PlainSchemaTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;

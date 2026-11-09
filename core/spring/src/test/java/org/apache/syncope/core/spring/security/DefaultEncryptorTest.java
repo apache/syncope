@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.StaticApplicationContext;
 
-public class DefaultEncryptorTest {
+class DefaultEncryptorTest {
 
     private static final String PASSWORD_VALUE = "password";
 

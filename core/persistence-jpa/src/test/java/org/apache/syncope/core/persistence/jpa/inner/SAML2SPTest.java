@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SAML2SPTest extends AbstractClientAppTest {
+class SAML2SPTest extends AbstractClientAppTest {
 
     @Autowired
     private SAML2SPClientAppDAO saml2spDAO;

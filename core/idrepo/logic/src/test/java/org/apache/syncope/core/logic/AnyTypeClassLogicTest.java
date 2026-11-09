@@ -38,7 +38,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class AnyTypeClassLogicTest {
+class AnyTypeClassLogicTest {
 
     private AnyTypeClassDataBinder binder;
 

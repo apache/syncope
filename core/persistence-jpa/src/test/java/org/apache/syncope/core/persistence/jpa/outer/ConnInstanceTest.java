@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceTest extends AbstractTest {
+class ConnInstanceTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;

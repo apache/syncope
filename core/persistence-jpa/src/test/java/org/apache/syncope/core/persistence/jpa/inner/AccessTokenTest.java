@@ -36,7 +36,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AccessTokenTest extends AbstractTest {
+class AccessTokenTest extends AbstractTest {
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;

@@ -62,7 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PolicyTest extends AbstractTest {
+class PolicyTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

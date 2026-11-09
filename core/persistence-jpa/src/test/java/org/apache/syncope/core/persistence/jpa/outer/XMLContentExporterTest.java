@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class XMLContentExporterTest extends AbstractTest {
+class XMLContentExporterTest extends AbstractTest {
 
     @Autowired
     private ContentExporter exporter;

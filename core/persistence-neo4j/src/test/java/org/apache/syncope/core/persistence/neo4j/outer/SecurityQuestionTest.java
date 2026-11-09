@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SecurityQuestionTest extends AbstractTest {
+class SecurityQuestionTest extends AbstractTest {
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;

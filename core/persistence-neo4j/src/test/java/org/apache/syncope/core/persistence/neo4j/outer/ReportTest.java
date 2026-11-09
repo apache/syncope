@@ -38,7 +38,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ReportTest extends AbstractTest {
+class ReportTest extends AbstractTest {
 
     @Autowired
     private ReportDAO reportDAO;

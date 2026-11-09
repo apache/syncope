@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.junit.jupiter.api.Test;
 
-public class UserLogicOpTest {
+class UserLogicOpTest {
 
     @Test
     void contract() throws Exception {

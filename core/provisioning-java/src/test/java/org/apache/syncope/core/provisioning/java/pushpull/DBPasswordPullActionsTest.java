@@ -52,7 +52,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class DBPasswordPullActionsTest extends AbstractTest {
+class DBPasswordPullActionsTest extends AbstractTest {
 
     @Mock
     private SyncDelta syncDelta;

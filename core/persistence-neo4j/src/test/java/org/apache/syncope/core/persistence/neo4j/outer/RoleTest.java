@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RoleTest extends AbstractTest {
+class RoleTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;

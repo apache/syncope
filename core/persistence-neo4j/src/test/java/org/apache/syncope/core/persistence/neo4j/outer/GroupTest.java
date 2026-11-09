@@ -54,7 +54,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class GroupTest extends AbstractTest {
+class GroupTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;

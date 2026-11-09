@@ -52,7 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlainAttrTest extends AbstractTest {
+class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;

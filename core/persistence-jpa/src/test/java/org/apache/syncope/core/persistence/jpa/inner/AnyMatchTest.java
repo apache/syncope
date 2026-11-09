@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyMatchTest extends AbstractTest {
+class AnyMatchTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;

@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SAML2IdPEntityTest extends AbstractTest {
+class SAML2IdPEntityTest extends AbstractTest {
 
     @Autowired
     private SAML2IdPEntityDAO saml2IdPEntityDAO;

@@ -44,7 +44,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RemediationTest extends AbstractTest {
+class RemediationTest extends AbstractTest {
 
     @Autowired
     private RemediationDAO remediationDAO;

@@ -28,7 +28,7 @@ import org.mockito.quality.Strictness;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.WARN)
 @SuppressWarnings("squid:S2187")
-public class AbstractTest {
+class AbstractTest {
 
     @BeforeEach
     public void init() {
