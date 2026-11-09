@@ -157,7 +157,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Enumerated(EnumType.STRING)
     private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
 
-    private Boolean renewRefreshToken;
+    private boolean renewRefreshToken;
 
     private String idTokenTimeToKill;
 
