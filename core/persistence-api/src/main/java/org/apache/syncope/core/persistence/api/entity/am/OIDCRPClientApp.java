@@ -146,9 +146,9 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setJwtAccessTokenSigningAlg(OIDCTokenSigningAlg jwtAccessTokenSigningAlg);
 
-    Boolean getRenewRefreshToken();
+    boolean getRenewRefreshToken();
 
-    void setRenewRefreshToken(Boolean renewRefreshToken);
+    void setRenewRefreshToken(boolean renewRefreshToken);
 
     String getIdTokenTimeToKill();
 

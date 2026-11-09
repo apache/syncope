@@ -439,12 +439,12 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     }
 
     @Override
-    public Boolean getRenewRefreshToken() {
+    public boolean getRenewRefreshToken() {
         return renewRefreshToken;
     }
 
     @Override
-    public void setRenewRefreshToken(final Boolean renewRefreshToken) {
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
         this.renewRefreshToken = renewRefreshToken;
     }
 

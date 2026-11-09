@@ -96,7 +96,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
 
-    private Boolean renewRefreshToken;
+    private boolean renewRefreshToken;
 
     private String idTokenTimeToKill;
 
@@ -350,11 +350,11 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessTokenSigningAlg = jwtAccessTokenSigningAlg;
     }
 
-    public Boolean getRenewRefreshToken() {
+    public boolean getRenewRefreshToken() {
         return renewRefreshToken;
     }
 
-    public void setRenewRefreshToken(final Boolean renewRefreshToken) {
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
         this.renewRefreshToken = renewRefreshToken;
     }
 

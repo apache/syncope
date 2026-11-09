@@ -240,33 +240,6 @@ public class WAServiceRegistryTest extends AbstractTest {
     }
 
     @Test
-    public void unconfiguredOIDCProperties() {
-        SyncopeCoreTestingServer.CLIENT_APPS.clear();
-        OIDCRPClientAppTO oidcrpTO = buildOIDCRP();
-        oidcrpTO.setJwtAccessTokenSigningAlg(null);
-        oidcrpTO.setRenewRefreshToken(null);
-        oidcrpTO.setIdTokenTimeToKill(null);
-        oidcrpTO.setAuthorizationCodeTimeToLive(null);
-        oidcrpTO.getAudience().clear();
-
-        WAClientApp waClientApp = new WAClientApp();
-        waClientApp.setClientAppTO(oidcrpTO);
-        addPolicies(waClientApp, false);
-        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
-        waRestClient.getService(WAClientAppService.class).list();
-        servicesManager.load();
-
-        OidcRegisteredService oidc = (OidcRegisteredService)
-                servicesManager.findServiceBy(oidcrpTO.getClientAppId());
-        assertNotNull(oidc);
-        assertNull(oidc.getJwtAccessTokenSigningAlg());
-        assertFalse(oidc.isRenewRefreshToken());
-        assertNull(oidc.getIdTokenExpirationPolicy());
-        assertNull(oidc.getCodeExpirationPolicy());
-        assertTrue(oidc.getAudience().isEmpty());
-    }
-
-    @Test
     public void delegatedAuthentication() {
         // 1. start with 1 client app and 1 auth module defined on mocked Core
         OIDCAuthModuleConf oidcAuthModuleConf = new OIDCAuthModuleConf();

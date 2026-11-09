@@ -462,12 +462,12 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
-    public Boolean getRenewRefreshToken() {
+    public boolean getRenewRefreshToken() {
         return renewRefreshToken;
     }
 
     @Override
-    public void setRenewRefreshToken(final Boolean renewRefreshToken) {
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
         this.renewRefreshToken = renewRefreshToken;
     }
 
