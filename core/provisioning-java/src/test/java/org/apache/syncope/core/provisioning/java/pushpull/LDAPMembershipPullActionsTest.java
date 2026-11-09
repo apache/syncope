@@ -129,7 +129,7 @@ class LDAPMembershipPullActionsTest extends AbstractTest {
     private List<ConnConfProperty> connConfProperties;
 
     @BeforeEach
-    public void initTest() {
+    void initTest() {
         user = entityFactory.newEntity(User.class);
         ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
 
@@ -170,7 +170,7 @@ class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
+    void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
 
@@ -182,7 +182,7 @@ class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeUpdate() throws JobExecutionException {
+    void beforeUpdate() throws JobExecutionException {
         entity = new UserTO();
         entity.setKey(UUID.randomUUID().toString());
 
@@ -195,7 +195,7 @@ class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after() throws JobExecutionException {
+    void after() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
 

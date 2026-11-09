@@ -36,7 +36,7 @@ class JobStatusUpdaterTest extends AbstractTest {
     private JobStatusDAO jobStatusDAO;
 
     @Test
-    public void verifyUpdate() {
+    void verifyUpdate() {
         String jobName = "job-" + SecureRandomUtils.generateRandomNumber();
 
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO);

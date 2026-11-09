@@ -67,7 +67,7 @@ class StreamPullJobDelegateTest extends AbstractTest {
     }
 
     @Test
-    public void pull() throws JobExecutionException, IOException {
+    void pull() throws JobExecutionException, IOException {
         List<String> columns = List.of(
                 "username",
                 "email",

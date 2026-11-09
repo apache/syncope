@@ -45,7 +45,7 @@ class DerAttrTest extends AbstractTest {
     private DerAttrHandler derAttrHandler;
 
     @Test
-    public void derAttrFromSpecialAttrs() {
+    void derAttrFromSpecialAttrs() {
         DerSchema info = derSchemaDAO.findById("info").orElseThrow();
         assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 

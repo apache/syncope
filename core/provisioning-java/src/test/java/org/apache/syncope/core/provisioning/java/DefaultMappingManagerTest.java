@@ -59,7 +59,7 @@ class DefaultMappingManagerTest extends AbstractTest {
     private EntityFactory entityFactory;
 
     @Test
-    public void prepareAttrsForUser() {
+    void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
         ExternalResource ldap = resourceDAO.findById("resource-ldap").orElseThrow();
         Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();
@@ -137,7 +137,7 @@ class DefaultMappingManagerTest extends AbstractTest {
     }
 
     @Test
-    public void prepareAttrsForLinkedAccount() {
+    void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi").orElseThrow();
         ExternalResource ldap = resourceDAO.findById("resource-ldap").orElseThrow();
         Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow();

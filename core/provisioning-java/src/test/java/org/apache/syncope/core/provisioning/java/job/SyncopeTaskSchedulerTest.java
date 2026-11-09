@@ -63,7 +63,7 @@ class SyncopeTaskSchedulerTest extends AbstractTest {
     private SyncopeTaskScheduler scheduler;
 
     @Test
-    public void schedule() {
+    void schedule() {
         JobExecutionContext context = new JobExecutionContext(
                 AuthContextUtils.getDomain(),
                 TestJob.class.getSimpleName() + "_" + SecureRandomUtils.generateRandomUUID(),
