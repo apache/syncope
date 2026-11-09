@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -64,7 +65,7 @@ class DefaultRuleProviderTest {
     void accountPoliciesFromRealmAncestorsAreDeduplicated() {
         Realm realm = mock(Realm.class);
         Realm root = mock(Realm.class);
-        when(root.getFullPath()).thenReturn("/");
+        when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
         Realm child = mock(Realm.class);
         when(child.getFullPath()).thenReturn("/child");
 
@@ -77,7 +78,7 @@ class DefaultRuleProviderTest {
 
         RealmSearchDAO realmSearchDAO = mock(RealmSearchDAO.class);
         when(realmSearchDAO.findAncestors(realm)).thenReturn(List.of(root, child));
-        when(realmSearchDAO.findByFullPath("/")).thenReturn(Optional.of(rootEntity));
+        when(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(Optional.of(rootEntity));
         when(realmSearchDAO.findByFullPath("/child")).thenReturn(Optional.of(otherEntity));
 
         DefaultRuleProvider provider = new DefaultRuleProvider(realmSearchDAO);
@@ -108,7 +109,7 @@ class DefaultRuleProviderTest {
 
         Realm realm = mock(Realm.class);
         Realm ancestor = mock(Realm.class);
-        when(ancestor.getFullPath()).thenReturn("/");
+        when(ancestor.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
         PasswordPolicy realmPolicy = mock(PasswordPolicy.class);
         Realm realmEntity = mock(Realm.class);
@@ -116,7 +117,7 @@ class DefaultRuleProviderTest {
 
         RealmSearchDAO realmSearchDAO = mock(RealmSearchDAO.class);
         when(realmSearchDAO.findAncestors(realm)).thenReturn(List.of(ancestor));
-        when(realmSearchDAO.findByFullPath("/")).thenReturn(Optional.of(realmEntity));
+        when(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(Optional.of(realmEntity));
 
         DefaultRuleProvider provider = new DefaultRuleProvider(realmSearchDAO);
 

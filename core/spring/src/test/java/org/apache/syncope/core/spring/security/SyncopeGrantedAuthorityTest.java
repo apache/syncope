@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.junit.jupiter.api.Test;
 
@@ -56,8 +57,8 @@ class SyncopeGrantedAuthorityTest {
         assertFalse(authority.addRealm("/a/b"));
         assertEquals(Set.of("/a"), authority.getRealms());
 
-        assertTrue(authority.addRealm("/"));
-        assertEquals(Set.of("/"), authority.getRealms());
+        assertTrue(authority.addRealm(SyncopeConstants.ROOT_REALM));
+        assertEquals(Set.of(SyncopeConstants.ROOT_REALM), authority.getRealms());
     }
 
     @Test

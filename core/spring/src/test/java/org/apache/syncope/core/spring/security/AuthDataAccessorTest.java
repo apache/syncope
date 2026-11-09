@@ -465,7 +465,7 @@ class AuthDataAccessorTest {
         User user = user("bob");
         when(user.getFailedLogins()).thenReturn(2);
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
 
@@ -500,7 +500,7 @@ class AuthDataAccessorTest {
         User user = user("bob");
         when(user.getMfa()).thenReturn(new Mfa("totp-secret", "data-uri", new ArrayList<>()));
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
         when(totpCodeVerifier.isValidCode("totp-secret", "123456")).thenReturn(true);
@@ -537,7 +537,7 @@ class AuthDataAccessorTest {
         Mfa mfa = new Mfa("totp-secret", "data-uri", new ArrayList<>(List.of("recovery-code")));
         when(user.getMfa()).thenReturn(mfa);
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
 
@@ -569,7 +569,7 @@ class AuthDataAccessorTest {
     void userCanBeFoundViaCustomAuthenticationAttribute() {
         authenticationAttributes("email");
         User user = user("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
         doReturn(List.of(user)).when(anySearchDAO).search(any(SearchCond.class), eq(AnyTypeKind.USER));
@@ -609,7 +609,7 @@ class AuthDataAccessorTest {
     void delegationByUsernameIsResolved() {
         User user = user("bob");
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
         when(userDAO.findKey("delegator")).thenReturn(Optional.of("delegator-key"));
@@ -629,7 +629,7 @@ class AuthDataAccessorTest {
     void delegationByUuidIsResolvedWithoutUserLookup() {
         User user = user("bob");
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
         when(userDAO.save(user)).thenReturn(user);
         String delegatingKey = UUID.randomUUID().toString();
@@ -827,7 +827,7 @@ class AuthDataAccessorTest {
     @Test
     void delegationWithoutRolesUsesDelegatingUserAuthorities() {
         User delegating = user("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(delegating);
 
         Delegation delegation = mock(Delegation.class);
@@ -865,7 +865,7 @@ class AuthDataAccessorTest {
     void existingUsernameGetsUserAuthorities() {
         User user = user("bob");
         doReturn(Optional.of(user)).when(userDAO).findByUsername("bob");
-        Role userRole = role(IdRepoEntitlement.USER_READ, "/");
+        Role userRole = role(IdRepoEntitlement.USER_READ, SyncopeConstants.ROOT_REALM);
         doReturn(List.of(userRole)).when(userDAO).findAllRoles(user);
 
         assertContains(authDataAccessor.getAuthorities("bob", null), IdRepoEntitlement.USER_READ);
@@ -987,7 +987,7 @@ class AuthDataAccessorTest {
         when(delegationDAO.findValidFor(eq("delegator-key"), eq("bob-key"), any())).
                 thenReturn(Optional.of("delegation-key"));
         Delegation delegation = mock(Delegation.class);
-        doReturn(Set.of(role(IdRepoEntitlement.GROUP_READ, "/"))).when(delegation).getRoles();
+        doReturn(Set.of(role(IdRepoEntitlement.GROUP_READ, SyncopeConstants.ROOT_REALM))).when(delegation).getRoles();
         doReturn(Optional.of(delegation)).when(delegationDAO).findById("delegation-key");
 
         AuthDataAccessor.JWTAuthResult result = newAccessor(provider).
