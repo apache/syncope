@@ -154,6 +154,21 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private String deviceTokenTimeToKill;
 
+    @Enumerated(EnumType.STRING)
+    private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
+
+    private boolean renewRefreshToken;
+
+    private String idTokenTimeToKill;
+
+    private String authorizationCodeTimeToLive;
+
+    @Lob
+    private String audience;
+
+    @Transient
+    private Set<String> audienceSet = new HashSet<>();
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUrisSet;
@@ -436,11 +451,57 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
     }
     
+    @Override
+    public OIDCTokenSigningAlg getJwtAccessTokenSigningAlg() {
+        return jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public void setJwtAccessTokenSigningAlg(final OIDCTokenSigningAlg jwtAccessTokenSigningAlg) {
+        this.jwtAccessTokenSigningAlg = jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public boolean getRenewRefreshToken() {
+        return renewRefreshToken;
+    }
+
+    @Override
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
+        this.renewRefreshToken = renewRefreshToken;
+    }
+
+    @Override
+    public String getIdTokenTimeToKill() {
+        return idTokenTimeToKill;
+    }
+
+    @Override
+    public void setIdTokenTimeToKill(final String idTokenTimeToKill) {
+        this.idTokenTimeToKill = idTokenTimeToKill;
+    }
+
+    @Override
+    public String getAuthorizationCodeTimeToLive() {
+        return authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public void setAuthorizationCodeTimeToLive(final String authorizationCodeTimeToLive) {
+        this.authorizationCodeTimeToLive = authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public Set<String> getAudience() {
+        return audienceSet;
+    }
+
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getRedirectUris().clear();
             getSupportedGrantTypes().clear();
             getSupportedResponseTypes().clear();
+            getAudience().clear();
         }
         if (redirectUris != null) {
             getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
@@ -453,6 +514,9 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         }
         if (scopes != null) {
             getScopes().addAll(POJOHelper.deserialize(scopes, SCOPE_TYPEREF));
+        }
+        if (audience != null) {
+            getAudience().addAll(POJOHelper.deserialize(audience, STRING_TYPEREF));
         }
     }
 
@@ -474,5 +538,6 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
         supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
         scopes = POJOHelper.serialize(getScopes());
+        audience = POJOHelper.serialize(getAudience());
     }
 }
