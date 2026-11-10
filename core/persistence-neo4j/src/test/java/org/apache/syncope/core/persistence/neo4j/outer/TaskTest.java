@@ -93,7 +93,7 @@ class TaskTest extends AbstractTest {
     private TaskUtilsFactory taskUtilsFactory;
 
     @Test
-    public void read() {
+    void read() {
         Task<?> task = taskDAO.findById(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
@@ -103,7 +103,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void readMultipleOrderBy() {
+    void readMultipleOrderBy() {
         List<Sort.Order> orderByClauses = new ArrayList<>();
         orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "start"));
         orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "latestExecStatus"));
@@ -114,7 +114,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void findAllByResource() {
+    void findAllByResource() {
         List<PropagationTask> tasks = taskDAO.findAll(
                 TaskType.PROPAGATION,
                 resourceDAO.findById("ws-target-resource-2").orElseThrow(),
@@ -126,7 +126,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void savePropagationTask() {
+    void savePropagationTask() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
@@ -153,7 +153,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addPropagationTaskExec() {
+    void addPropagationTaskExec() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
 
@@ -174,7 +174,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addPullTaskExec() {
+    void addPullTaskExec() {
         PullTask task = (PullTask) taskDAO.findById(
                 TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
 
@@ -195,7 +195,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addPushTaskExec() {
+    void addPushTaskExec() {
         PushTask task = (PushTask) taskDAO.findById(
                 TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
 
@@ -216,7 +216,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void deleteTask() {
+    void deleteTask() {
         taskDAO.delete(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
 
         assertTrue(taskDAO.findById("1e697572-b896-484c-ae7f-0c8f63fcbc6c").isEmpty());
@@ -224,7 +224,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void deleteTaskExec() {
+    void deleteTaskExec() {
         @SuppressWarnings("unchecked")
         TaskExec<PropagationTask> execution = (TaskExec<PropagationTask>) taskExecDAO.findById(
                 TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655").orElseThrow();
@@ -240,7 +240,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void savePullTask() {
+    void savePullTask() {
         PullTask task = entityFactory.newEntity(PullTask.class);
         task.setName("savePullTask");
         task.setDescription("PullTask description");
@@ -289,7 +289,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addAndRemoveInboundActions() {
+    void addAndRemoveInboundActions() {
         Implementation implementation = entityFactory.newEntity(Implementation.class);
         implementation.setKey(UUID.randomUUID().toString());
         implementation.setEngine(ImplementationEngine.JAVA);
@@ -317,7 +317,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveLiveSyncTask() {
+    void saveLiveSyncTask() {
         LiveSyncTask task = entityFactory.newEntity(LiveSyncTask.class);
         task.setName("saveLiveSyncTask");
         task.setDescription("LiveSyncTask description");
@@ -338,7 +338,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addAndRemoveReconFilterBuilder() {
+    void addAndRemoveReconFilterBuilder() {
         Implementation implementation = entityFactory.newEntity(Implementation.class);
         implementation.setKey(UUID.randomUUID().toString());
         implementation.setEngine(ImplementationEngine.JAVA);
@@ -366,7 +366,7 @@ class TaskTest extends AbstractTest {
 
     @Rollback(false)
     @Test
-    public void macroTaskCommandsOrdering() {
+    void macroTaskCommandsOrdering() {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setName("macro");
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
@@ -408,7 +408,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveMacroTaskSameCommandMultipleOccurrences() {
+    void saveMacroTaskSameCommandMultipleOccurrences() {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setRealm(realmDAO.getRoot());
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
@@ -458,7 +458,7 @@ class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE144() {
+    void issueSYNCOPE144() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
         assertNotNull(resource);
 

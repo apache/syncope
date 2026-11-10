@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 class UserWorkflowResultTest extends AbstractTest {
 
     @Test
-    public void test() {
+    void test() {
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         UserWorkflowResult<String> userWorkflowResult;

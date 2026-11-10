@@ -50,7 +50,7 @@ class ReportTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void find() {
+    void find() {
         Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
 
         assertNotNull(report.getExecs());
@@ -59,7 +59,7 @@ class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithExistingName() {
+    void saveWithExistingName() {
         assertThrows(DataIntegrityViolationException.class, () -> {
             Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
 
@@ -77,7 +77,7 @@ class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertEquals(1, report.getExecs().size());
 
@@ -96,7 +96,7 @@ class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void deleteReport() {
+    void deleteReport() {
         reportDAO.deleteById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
         assertTrue(reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").isEmpty());
@@ -104,7 +104,7 @@ class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void deleteReportExecution() {
+    void deleteReportExecution() {
         ReportExec execution = reportExecDAO.findById("c13f39c5-0d35-4bff-ba79-3cd5de940369").orElseThrow();
         int executionNumber = execution.getReport().getExecs().size();
 

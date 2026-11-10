@@ -77,7 +77,7 @@ class IntAttrNameParserTest extends AbstractTest {
     private IntAttrNameParser intAttrNameParser;
 
     @BeforeEach
-    public void initMocks() throws NoSuchFieldException {
+    void initMocks() throws NoSuchFieldException {
         lenient().when(anyUtilsFactory.getInstance(any(AnyTypeKind.class))).thenAnswer(ic -> {
             when(anyUtils.anyTypeKind()).thenReturn(ic.getArgument(0));
             return anyUtils;
@@ -135,7 +135,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void ownFields() throws ParseException {
+    void ownFields() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("key", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNotNull(intAttrName.getField());
@@ -189,7 +189,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void ownSchema() throws ParseException {
+    void ownSchema() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("email", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());
@@ -216,7 +216,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void externalGroup() throws ParseException {
+    void externalGroup() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("groups[readers].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());
@@ -231,7 +231,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void externalUser() throws ParseException {
+    void externalUser() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("users[bellini].firstname", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());
@@ -246,7 +246,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void externalAnyObject() throws ParseException {
+    void externalAnyObject() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("anyObjects[hp].name", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals("name", intAttrName.getField());
@@ -259,7 +259,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void membership() throws ParseException {
+    void membership() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("memberships[top].cn", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());
@@ -274,7 +274,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void relationship() throws ParseException {
+    void relationship() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("relationships[inclusion][hp].location", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());
@@ -289,7 +289,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void invalid() {
+    void invalid() {
         try {
             intAttrNameParser.parse("memberships.cn", AnyTypeKind.USER);
             fail("This should not happen");
@@ -299,7 +299,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void realm() throws ParseException {
+    void realm() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("key");
         assertNotNull(intAttrName);
         assertNotNull(intAttrName.getField());
@@ -343,7 +343,7 @@ class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1894() throws ParseException {
+    void issueSYNCOPE1894() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("user.valueWithDot", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertNull(intAttrName.getField());

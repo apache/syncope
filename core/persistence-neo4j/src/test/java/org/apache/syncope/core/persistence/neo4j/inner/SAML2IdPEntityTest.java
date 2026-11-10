@@ -53,7 +53,7 @@ class SAML2IdPEntityTest extends AbstractTest {
     }
 
     @Test
-    public void find() {
+    void find() {
         create("Syncope");
 
         assertTrue(saml2IdPEntityDAO.findById("Syncope").isPresent());
@@ -62,12 +62,12 @@ class SAML2IdPEntityTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         create("SyncopeCreate");
     }
 
     @Test
-    public void update() {
+    void update() {
         SAML2IdPEntity entity = create("SyncopeUpdate");
         assertNotNull(entity);
 

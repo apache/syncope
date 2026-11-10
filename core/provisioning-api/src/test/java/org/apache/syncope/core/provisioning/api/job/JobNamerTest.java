@@ -34,7 +34,7 @@ class JobNamerTest extends AbstractTest {
     private String name;
 
     @Test
-    public void getTaskKeyFromJobName() {
+    void getTaskKeyFromJobName() {
         name = "testName";
         assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
@@ -44,7 +44,7 @@ class JobNamerTest extends AbstractTest {
     }
 
     @Test
-    public void getReportKeyFromJobName() {
+    void getReportKeyFromJobName() {
         name = "testName";
         assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
@@ -54,14 +54,14 @@ class JobNamerTest extends AbstractTest {
     }
 
     @Test
-    public void getJobKey(final @Mock Task<?> task) {
+    void getJobKey(final @Mock Task<?> task) {
         String uuid = UUID.randomUUID().toString();
         when(task.getKey()).thenReturn(uuid);
         assertEquals("taskJob" + task.getKey(), JobNamer.getJobName(task));
     }
 
     @Test
-    public void getJobKey(final @Mock Report report) {
+    void getJobKey(final @Mock Report report) {
         String uuid = UUID.randomUUID().toString();
         when(report.getKey()).thenReturn(uuid);
         assertEquals("reportJob" + report.getKey(), JobNamer.getJobName(report));

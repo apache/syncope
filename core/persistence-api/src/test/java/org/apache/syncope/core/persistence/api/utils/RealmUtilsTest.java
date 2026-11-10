@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 class RealmUtilsTest extends AbstractTest {
 
     @Test
-    public void getManagerRealm() {
+    void getManagerRealm() {
         String realmPath = "realmPath";
         String groupKey = "groupKey";
         assertEquals(
@@ -40,7 +40,7 @@ class RealmUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void parseGroupOwnerRealm() {
+    void parseGroupOwnerRealm() {
         assertEquals(
                 Optional.of(new RealmUtils.ManagerRealm("realmPath", AnyTypeKind.GROUP, "groupKey")),
                 RealmUtils.ManagerRealm.of("realmPath@GROUP@groupKey"));
@@ -48,7 +48,7 @@ class RealmUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void normalizingAddTo() {
+    void normalizingAddTo() {
         Set<String> realms = new HashSet<>();
         realms.add("/realm1");
         realms.add("/realm2");
@@ -65,7 +65,7 @@ class RealmUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void getEffective() {
+    void getEffective() {
         Set<String> allowedRealms = Set.of(
                 "testRealm1@k1",
                 "testRealm2@k2",

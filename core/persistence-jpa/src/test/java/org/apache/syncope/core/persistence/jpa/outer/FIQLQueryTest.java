@@ -39,7 +39,7 @@ class FIQLQueryTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void findByOwner() {
+    void findByOwner() {
         FIQLQuery query = entityFactory.newEntity(FIQLQuery.class);
         query.setOwner(userDAO.findByUsername("rossini").orElseThrow());
         query.setName("name");

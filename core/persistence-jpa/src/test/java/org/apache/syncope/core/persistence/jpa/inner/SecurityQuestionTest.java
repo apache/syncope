@@ -37,20 +37,20 @@ class SecurityQuestionTest extends AbstractTest {
     private SecurityQuestionDAO securityQuestionDAO;
 
     @Test
-    public void find() {
+    void find() {
         SecurityQuestion question = securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").orElseThrow();
         assertNotNull(question.getContent());
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
         assertNotNull(securityQuestions);
         assertFalse(securityQuestions.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         SecurityQuestion securityQuestion = entityFactory.newEntity(SecurityQuestion.class);
         securityQuestion.setContent("What is your favorite pet's name?");
 
@@ -60,7 +60,7 @@ class SecurityQuestionTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         assertTrue(securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").isPresent());
 
         securityQuestionDAO.deleteById("887028ea-66fc-41e7-b397-620d7ea6dfbb");

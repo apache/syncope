@@ -38,7 +38,7 @@ class SecurityQuestionTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void test() {
+    void test() {
         User user = userDAO.findByUsername("bellini").orElseThrow();
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());

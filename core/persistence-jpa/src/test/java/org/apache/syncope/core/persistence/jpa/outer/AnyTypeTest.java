@@ -42,7 +42,7 @@ class AnyTypeTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void findByClassesContaining() {
+    void findByClassesContaining() {
         List<AnyType> found = anyTypeDAO.findByClassesContaining(
                 anyTypeClassDAO.findById("minimal user").orElseThrow());
         assertEquals(List.of(anyTypeDAO.getUser()), found);
@@ -58,7 +58,7 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void manyToMany() {
+    void manyToMany() {
         AnyTypeClass other = anyTypeClassDAO.findById("other").orElseThrow();
 
         AnyType user = anyTypeDAO.getUser();

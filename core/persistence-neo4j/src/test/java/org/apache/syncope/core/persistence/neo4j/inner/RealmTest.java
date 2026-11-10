@@ -57,12 +57,12 @@ class RealmTest extends AbstractTest {
     private PolicyDAO policyDAO;
 
     @Test
-    public void getRoot() {
+    void getRoot() {
         assertNotNull(realmDAO.getRoot());
     }
 
     @Test
-    public void find() {
+    void find() {
         Realm realm = realmDAO.findById("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28").orElseThrow();
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getName());
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getFullPath());
@@ -80,12 +80,12 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void findInvalidPath() {
+    void findInvalidPath() {
         assertThrows(MalformedPathException.class, () -> realmSearchDAO.findByFullPath("even/two"));
     }
 
     @Test
-    public void findDescendants() {
+    void findDescendants() {
         List<Realm> found = realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, SyncopeConstants.ROOT_REALM);
         assertEquals(4, found.size());
         assertTrue(found.stream().allMatch(f -> SyncopeConstants.UUID_PATTERN.matcher(f.getKey()).matches()));
@@ -94,7 +94,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void findChildren() {
+    void findChildren() {
         List<Realm> children = realmSearchDAO.findChildren(
                 realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
         assertEquals(2, children.size());
@@ -106,7 +106,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null);
         assertNotNull(list);
         assertFalse(list.isEmpty());
@@ -122,7 +122,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("last");
         realm.setParent(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
@@ -147,7 +147,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidName() {
+    void saveInvalidName() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName(" a name");
         realm.setParent(realmDAO.getRoot());
@@ -161,7 +161,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void saveNullParent() {
+    void saveNullParent() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("name");
         realm.setParent(null);
@@ -175,7 +175,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("name");
         realm.setParent(realmDAO.getRoot());

@@ -41,7 +41,7 @@ class SAML2SPTest extends AbstractClientAppTest {
     private SAML2SPClientAppDAO saml2spDAO;
 
     @Test
-    public void find() {
+    void find() {
         long beforeCount = saml2spDAO.count();
 
         SAML2SPClientApp sp = entityFactory.newEntity(SAML2SPClientApp.class);

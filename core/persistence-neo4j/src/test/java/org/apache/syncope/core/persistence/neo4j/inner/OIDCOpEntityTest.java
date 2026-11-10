@@ -42,7 +42,7 @@ class OIDCOpEntityTest extends AbstractTest {
     private OIDCOpEntityDAO oidcOpEntityDAO;
 
     @Test
-    public void save() throws Exception {
+    void save() throws Exception {
         OIDCOpEntity oidcOpEntity = entityFactory.newEntity(OIDCOpEntity.class);
 
         RSAKey jwk = new RSAKeyGenerator(2048).

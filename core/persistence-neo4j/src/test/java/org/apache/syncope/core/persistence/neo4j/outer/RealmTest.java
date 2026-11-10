@@ -66,7 +66,7 @@ class RealmTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @Test
-    public void plainAttrs() {
+    void plainAttrs() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
         assertTrue(realm.getAnyTypeClasses().isEmpty());
         assertTrue(realm.getPlainAttrs().isEmpty());
@@ -91,7 +91,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // need to remove this group in order to remove the realm, which is otherwise empty
@@ -111,7 +111,7 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void addAndRemoveLogicActions() {
+    void addAndRemoveLogicActions() {
         Implementation implementation = entityFactory.newEntity(Implementation.class);
         implementation.setKey(UUID.randomUUID().toString());
         implementation.setEngine(ImplementationEngine.JAVA);

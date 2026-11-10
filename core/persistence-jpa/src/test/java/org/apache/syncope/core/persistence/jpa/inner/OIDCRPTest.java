@@ -41,7 +41,7 @@ class OIDCRPTest extends AbstractClientAppTest {
     private OIDCRPClientAppDAO oidcrpDAO;
 
     @Test
-    public void find() {
+    void find() {
         int beforeCount = oidcrpDAO.findAll().size();
 
         OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);

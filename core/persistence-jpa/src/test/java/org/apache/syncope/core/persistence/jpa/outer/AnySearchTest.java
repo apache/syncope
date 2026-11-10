@@ -80,7 +80,7 @@ class AnySearchTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @Test
-    public void searchAsGroupOwner() {
+    void searchAsGroupOwner() {
         // 1. define rossini as member of director
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
@@ -119,7 +119,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByMembershipAttribute() {
+    void searchByMembershipAttribute() {
         AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
         attrCond.setSchema("ctype");
         attrCond.setExpression("otherchildctype");
@@ -150,7 +150,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE95() {
+    void issueSYNCOPE95() {
         groupDAO.findAll().forEach(group -> groupDAO.deleteById(group.getKey()));
         entityManager.flush();
 
@@ -169,7 +169,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE800() {
+    void issueSYNCOPE800() {
         // create derived attribute (literal as prefix)
         DerSchema prefix = entityFactory.newEntity(DerSchema.class);
         prefix.setKey("kprefix");
@@ -206,7 +206,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1417() {
+    void issueSYNCOPE1417() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
@@ -229,7 +229,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1512() {
+    void issueSYNCOPE1512() {
         Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique
@@ -266,7 +266,7 @@ class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1790() {
+    void issueSYNCOPE1790() {
         // 0. search by email
         AttrCond emailCond = new AttrCond(AttrCond.Type.EQ);
         emailCond.setSchema("email");

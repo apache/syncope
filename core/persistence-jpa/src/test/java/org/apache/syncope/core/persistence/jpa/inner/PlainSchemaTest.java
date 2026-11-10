@@ -52,20 +52,20 @@ class PlainSchemaTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findAll();
         assertEquals(28, schemas.size());
     }
 
     @Test
-    public void findByIdLike() {
+    void findByIdLike() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findByIdLike("fullna%");
         assertEquals(1, schemas.size());
         assertEquals(0, schemas.getFirst().getLabels().size());
     }
 
     @Test
-    public void findByName() {
+    void findByName() {
         PlainSchema schema = plainSchemaDAO.findById("firstname").orElseThrow();
 
         assertEquals(3, schema.getLabels().size());
@@ -74,7 +74,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void hasAttrs() {
+    void hasAttrs() {
         PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
         assertTrue(plainSchemaDAO.hasAttrs(schema));
 
@@ -83,7 +83,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void existsPlainAttrUniqueValue() {
+    void existsPlainAttrUniqueValue() {
         PlainAttrValue value = new PlainAttrValue();
         value.setStringValue("rossini@apache.org");
         PlainAttr attr = new PlainAttr();
@@ -110,7 +110,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
@@ -125,7 +125,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void saveNonValid() {
+    void saveNonValid() {
         assertThrows(InvalidEntityException.class, () -> {
             PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
             schema.setKey("secondaryEmail");
@@ -140,7 +140,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void checkForEnumType() {
+    void checkForEnumType() {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
@@ -163,7 +163,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void checkForDropdownType() {
+    void checkForDropdownType() {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setType(AttrSchemaType.Dropdown);
         schema.setKey("dropdown");
@@ -185,14 +185,14 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidSchema() {
+    void saveInvalidSchema() {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("username");
         assertThrows(InvalidEntityException.class, () -> plainSchemaDAO.save(schema));
     }
 
     @Test
-    public void delete() {
+    void delete() {
         PlainSchema firstname = plainSchemaDAO.findById("firstname").orElseThrow();
 
         plainSchemaDAO.deleteById(firstname.getKey());
@@ -201,7 +201,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE418() {
+    void issueSYNCOPE418() {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 

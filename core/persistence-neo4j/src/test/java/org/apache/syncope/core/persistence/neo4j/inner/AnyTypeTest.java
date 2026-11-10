@@ -45,7 +45,7 @@ class AnyTypeTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void find() {
+    void find() {
         AnyType userType = anyTypeDAO.getUser();
         assertNotNull(userType);
         assertEquals(AnyTypeKind.USER, userType.getKind());
@@ -64,13 +64,13 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AnyType> list = anyTypeDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         AnyType newType = entityFactory.newEntity(AnyType.class);
         newType.setKey("new type");
         newType.setKind(AnyTypeKind.ANY_OBJECT);
@@ -83,7 +83,7 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidKind() {
+    void saveInvalidKind() {
         assertThrows(InvalidEntityException.class, () -> {
             AnyType newType = entityFactory.newEntity(AnyType.class);
             newType.setKey("new type");
@@ -93,7 +93,7 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidName() {
+    void saveInvalidName() {
         assertThrows(InvalidEntityException.class, () -> {
             AnyType newType = entityFactory.newEntity(AnyType.class);
             newType.setKey("group");
@@ -103,7 +103,7 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         AnyType otherType = anyTypeDAO.findById("PRINTER").orElseThrow();
         assertNotNull(otherType);
 
@@ -112,7 +112,7 @@ class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void deleteInvalid() {
+    void deleteInvalid() {
         assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.deleteById(AnyTypeKind.USER.name()));
     }
 }

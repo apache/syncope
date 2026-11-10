@@ -52,14 +52,14 @@ class SyncTokenDeserializerTest extends AbstractTest {
     private final SyncTokenDeserializer deserializer = new SyncTokenDeserializer();
 
     @BeforeEach
-    public void initTest() throws IOException {
+    void initTest() throws IOException {
         when(jp.readValueAsTree()).thenReturn(tree);
         when(tree.has("value")).thenReturn(Boolean.TRUE);
         when(tree.get("value")).thenReturn(node);
     }
 
     @Test
-    public void deserializeIsBoolean() throws IOException {
+    void deserializeIsBoolean() throws IOException {
         Boolean value = Boolean.TRUE;
         when(node.isBoolean()).thenReturn(value);
         when(node.asBoolean()).thenReturn(value);
@@ -67,7 +67,7 @@ class SyncTokenDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsDouble() throws IOException {
+    void deserializeIsDouble() throws IOException {
         Double value = 9000.1;
         when(node.isDouble()).thenReturn(Boolean.TRUE);
         when(node.asDouble()).thenReturn(value);
@@ -75,7 +75,7 @@ class SyncTokenDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsLong() throws IOException {
+    void deserializeIsLong() throws IOException {
         Long value = 9000L;
         when(node.isLong()).thenReturn(Boolean.TRUE);
         when(node.asLong()).thenReturn(value);
@@ -83,7 +83,7 @@ class SyncTokenDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsInt() throws IOException {
+    void deserializeIsInt() throws IOException {
         Integer value = 9000;
         when(node.isInt()).thenReturn(Boolean.TRUE);
         when(node.asInt()).thenReturn(value);
@@ -91,7 +91,7 @@ class SyncTokenDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsString() throws IOException {
+    void deserializeIsString() throws IOException {
         String value = "testValue";
         when(node.asString()).thenReturn(value);
         assertEquals(value, deserializer.deserialize(jp, ct).getValue());

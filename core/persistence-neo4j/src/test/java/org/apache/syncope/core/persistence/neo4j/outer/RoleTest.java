@@ -57,7 +57,7 @@ class RoleTest extends AbstractTest {
     private DelegationDAO delegationDAO;
 
     @Test
-    public void delete() {
+    void delete() {
         // 0. create role
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
@@ -87,7 +87,7 @@ class RoleTest extends AbstractTest {
     }
 
     @Test
-    public void deleteCascadeOnDelegations() {
+    void deleteCascadeOnDelegations() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 

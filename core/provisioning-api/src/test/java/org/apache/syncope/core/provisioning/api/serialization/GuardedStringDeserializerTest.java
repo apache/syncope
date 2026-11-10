@@ -60,7 +60,7 @@ class GuardedStringDeserializerTest extends AbstractTest {
     private JsonNode node;
 
     @Test
-    public void deserialize() {
+    void deserialize() {
         Map<String, JsonNode> kids = new HashMap<>();
         kids.put(READONLY, node);
         kids.put(DISPOSED, node);

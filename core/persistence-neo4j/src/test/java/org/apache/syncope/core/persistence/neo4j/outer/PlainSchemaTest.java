@@ -91,7 +91,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void findByAnyTypeClasses() {
+    void findByAnyTypeClasses() {
         List<? extends PlainSchema> found = plainSchemaDAO.findByAnyTypeClasses(
                 List.of(anyTypeClassDAO.findById("minimal user").orElseThrow()));
         assertEquals(5, found.size());
@@ -102,7 +102,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void checkIdUniqueness() {
+    void checkIdUniqueness() {
         assertNotNull(derSchemaDAO.findById("cn").orElseThrow());
 
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
@@ -126,7 +126,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void deleteFullname() {
+    void deleteFullname() {
         // fullname is mapped as ConnObjectKey for various resources, need to swap it otherwise validation errors 
         // will be raised
         resourceDAO.findAll().stream().
@@ -159,7 +159,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void deleteSurname() {
+    void deleteSurname() {
         // search for user schema surname
         PlainSchema schema = plainSchemaDAO.findById("surname").orElseThrow();
 
@@ -178,7 +178,7 @@ class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void deleteFirstname() {
+    void deleteFirstname() {
         int pre = resourceDAO.findById("resource-db-pull").orElseThrow().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size();
 

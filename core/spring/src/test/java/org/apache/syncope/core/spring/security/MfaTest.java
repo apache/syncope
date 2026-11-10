@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 class MfaTest {
 
     @Test
-    public void check() throws CodeGenerationException {
+    void check() throws CodeGenerationException {
         SecretGenerator totpSecretGenerator = new DefaultSecretGenerator(64);
         String secret = totpSecretGenerator.generate();
 

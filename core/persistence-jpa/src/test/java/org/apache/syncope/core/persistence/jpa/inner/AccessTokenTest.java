@@ -52,7 +52,7 @@ class AccessTokenTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         for (long i = 0; i < 5; i++) {
             create(String.valueOf(6 - i), i);
         }
@@ -89,7 +89,7 @@ class AccessTokenTest extends AbstractTest {
     }
 
     @Test
-    public void crud() {
+    void crud() {
         AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
         accessToken.setKey(UUID.randomUUID().toString());
         accessToken.setBody("pointless body");

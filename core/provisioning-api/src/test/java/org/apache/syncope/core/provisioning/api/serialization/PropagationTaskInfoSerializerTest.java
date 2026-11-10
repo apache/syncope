@@ -40,7 +40,7 @@ import tools.jackson.databind.SerializationContext;
 class PropagationTaskInfoSerializerTest extends AbstractTest {
 
     @Test
-    public void propagationTaskInfoSerializer(
+    void propagationTaskInfoSerializer(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) {
 

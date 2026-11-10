@@ -36,7 +36,7 @@ import tools.jackson.databind.SerializationContext;
 class ConnObjectIdentificationSerializerTest extends AbstractTest {
 
     @Test
-    public void serialize(
+    void serialize(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) {
 

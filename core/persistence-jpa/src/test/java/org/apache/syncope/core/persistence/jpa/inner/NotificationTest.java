@@ -46,7 +46,7 @@ class NotificationTest extends AbstractTest {
     private MailTemplateDAO mailTemplateDAO;
 
     @Test
-    public void find() {
+    void find() {
         Notification notification = notificationDAO.findById("9e2b911c-25de-4c77-bcea-b86ed9451050").orElseThrow();
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
@@ -55,14 +55,14 @@ class NotificationTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends Notification> notifications = notificationDAO.findAll();
         assertNotNull(notifications);
         assertFalse(notifications.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("save");
 
@@ -86,13 +86,13 @@ class NotificationTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         notificationDAO.deleteById("9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertTrue(notificationDAO.findById("9e2b911c-25de-4c77-bcea-b86ed9451050").isEmpty());
     }
 
     @Test
-    public void issueSYNCOPE445() {
+    void issueSYNCOPE445() {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("save");
 
@@ -123,7 +123,7 @@ class NotificationTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE446() {
+    void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 

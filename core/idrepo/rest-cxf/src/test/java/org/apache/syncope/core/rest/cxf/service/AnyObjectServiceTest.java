@@ -112,7 +112,7 @@ class AnyObjectServiceTest {
     private AddETagFilter addETagFilter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         if (SERVER == null) {
             AnyObjectDAO anyObjectDAO = mock(AnyObjectDAO.class);
 
@@ -211,7 +211,7 @@ class AnyObjectServiceTest {
     }
 
     @Test
-    public void list() throws IOException {
+    void list() throws IOException {
         Response response = client(MediaType.APPLICATION_JSON_TYPE).
                 query("fiql", "$type==PRINTER").
                 query("page", "1").
@@ -228,7 +228,7 @@ class AnyObjectServiceTest {
     }
 
     @Test
-    public void create() {
+    void create() {
         AnyObjectCR newPrinter = new AnyObjectCR();
         newPrinter.setName("newPrinter");
         newPrinter.setType("PRINTER");

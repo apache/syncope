@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 class ConnObjectIdentificationDeserializerTest extends AbstractTest {
 
     @Test
-    public void deserialize() throws IOException {
+    void deserialize() throws IOException {
         ConnectorObjectIdentification source = new ConnectorObjectIdentification(ObjectClass.ACCOUNT,
                 Set.of(AttributeBuilder.build(Uid.NAME, "someuid")));
 

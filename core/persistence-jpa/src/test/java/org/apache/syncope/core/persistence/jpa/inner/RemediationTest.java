@@ -56,13 +56,13 @@ class RemediationTest extends AbstractTest {
     private TaskDAO taskDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<Remediation> remediations = remediationDAO.findAll(null, null, Pageable.unpaged());
         assertTrue(remediations.isEmpty());
     }
 
     @Test
-    public void createMissingPayload() {
+    void createMissingPayload() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
         remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);
@@ -84,7 +84,7 @@ class RemediationTest extends AbstractTest {
     }
 
     @Test
-    public void createWrongPayload() {
+    void createWrongPayload() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
         remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);
@@ -107,7 +107,7 @@ class RemediationTest extends AbstractTest {
     }
 
     @Test
-    public void create() {
+    void create() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
         remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);

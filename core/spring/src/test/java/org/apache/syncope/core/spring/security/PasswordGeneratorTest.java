@@ -38,7 +38,7 @@ class PasswordGeneratorTest {
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();
 
     @Test
-    public void digit() {
+    void digit() {
         DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setDigit(1);
         TestImplementation passwordRule = new TestImplementation();
@@ -50,7 +50,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void alphabetical() {
+    void alphabetical() {
         DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setAlphabetical(1);
         TestImplementation passwordRule = new TestImplementation();
@@ -62,7 +62,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void lowercase() {
+    void lowercase() {
         DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setLowercase(1);
         TestImplementation passwordRule = new TestImplementation();
@@ -74,7 +74,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void uppercase() {
+    void uppercase() {
         DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setUppercase(1);
         TestImplementation passwordRule = new TestImplementation();
@@ -86,7 +86,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void special() {
+    void special() {
         DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setSpecial(1);
         pwdRuleConf.getSpecialChars().add('@');
@@ -101,7 +101,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void validateGenerated() {
+    void validateGenerated() {
         String input =
                 """
 {
@@ -137,7 +137,7 @@ class PasswordGeneratorTest {
     }
 
     @Test
-    public void issueSYNCOPE678() {
+    void issueSYNCOPE678() {
         String password = passwordGenerator.generate(List.of());
         assertNotNull(password);
 

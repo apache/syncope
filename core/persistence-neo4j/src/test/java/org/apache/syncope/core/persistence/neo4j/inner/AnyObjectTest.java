@@ -50,13 +50,13 @@ class AnyObjectTest extends AbstractTest {
     private RealmSearchDAO realmSearchDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AnyObject> anyObjects = anyObjectDAO.findAll();
         assertEquals(3, anyObjects.size());
     }
 
     @Test
-    public void find() {
+    void find() {
         AnyObject anyObject = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
         assertNotNull(anyObject.getType());
         assertFalse(anyObject.getType().getClasses().isEmpty());
@@ -69,7 +69,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void findByName() {
+    void findByName() {
         AnyObject anyObject = anyObjectDAO.findByName("PRINTER", "HP LJ 1300n").orElseThrow();
         assertNotNull(anyObject);
         assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObject.getKey());
@@ -78,7 +78,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void findKey() {
+    void findKey() {
         assertEquals(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
                 anyObjectDAO.findKey("PRINTER", "HP LJ 1300n").orElseThrow());
@@ -87,7 +87,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void findByKeys() {
+    void findByKeys() {
         List<AnyObject> found = anyObjectDAO.findByKeys(List.of(
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8", "9e1d130c-d6a3-48b1-98b3-182477ed0688", "none"));
         assertEquals(2, found.size());
@@ -96,7 +96,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void countByType() {
+    void countByType() {
         Map<String, Long> byType = anyObjectDAO.countByType();
         assertEquals(1, byType.size());
         Long count = byType.get("PRINTER");
@@ -104,7 +104,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void countByRealm() {
+    void countByRealm() {
         Map<String, Long> byRealm = anyObjectDAO.countByRealm("PRINTER");
         assertEquals(2, byRealm.size());
         Long count = byRealm.get(SyncopeConstants.ROOT_REALM);
@@ -112,7 +112,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("a name");
         anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
@@ -123,7 +123,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void deleteAttr() {
+    void deleteAttr() {
         AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         PlainAttr attr = anyObject.getPlainAttr("location").orElseThrow();
         anyObject.remove(attr);
@@ -135,7 +135,7 @@ class AnyObjectTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         AnyObject anyObject = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
         anyObjectDAO.deleteById(anyObject.getKey());
 

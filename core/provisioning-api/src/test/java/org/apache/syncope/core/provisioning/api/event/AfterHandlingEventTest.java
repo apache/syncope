@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 class AfterHandlingEventTest extends AbstractTest {
 
     @Test
-    public void test() {
+    void test() {
         String who = "testUser";
         OpEvent.CategoryType type = OpEvent.CategoryType.CUSTOM;
         String category = SyncopeConstants.REALM_ANYTYPE.toLowerCase();

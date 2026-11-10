@@ -38,7 +38,7 @@ class CASSPTest extends AbstractClientAppTest {
     private CASSPClientAppDAO casspDAO;
 
     @Test
-    public void find() {
+    void find() {
         long beforeCount = casspDAO.count();
 
         CASSPClientApp rp = entityFactory.newEntity(CASSPClientApp.class);

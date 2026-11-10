@@ -32,7 +32,7 @@ import org.springframework.core.env.Environment;
 class RestServiceExceptionMapperTest {
 
     @Test
-    public void passwordResetThrottleReturnsTooManyRequests() {
+    void passwordResetThrottleReturnsTooManyRequests() {
         Response response = new RestServiceExceptionMapper(mock(Environment.class)).
                 toResponse(new PasswordResetThrottleException(42));
 

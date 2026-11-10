@@ -139,7 +139,7 @@ class JexlToolsTest extends AbstractTest {
     }
 
     @Test
-    public void addDerAttrsToContext(
+    void addDerAttrsToContext(
             final @Mock DerAttrHandler derAttrHandler,
             final @Mock Any any) {
 

@@ -58,7 +58,7 @@ class ResourceTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Test
-    public void findById() {
+    void findById() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         ConnInstance connector = resource.getConnector();
@@ -81,19 +81,19 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void propagationActions() {
+    void propagationActions() {
         ExternalResource resource = resourceDAO.findById("resource-ldap").orElseThrow();
         assertEquals(2, resource.getPropagationActions().size());
     }
 
     @Test
-    public void findWithOrgUnit() {
+    void findWithOrgUnit() {
         ExternalResource resource = resourceDAO.findById("resource-ldap-orgunit").orElseThrow();
         assertNotNull(resource.getOrgUnit());
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<GrantedAuthority> authorities = IdMEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
@@ -114,14 +114,14 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void getConnObjectKey() {
+    void getConnObjectKey() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
         assertEquals("fullname", resource.getProvisionByAnyType(AnyTypeKind.USER.name()).orElseThrow().
                 getMapping().getConnObjectKeyItem().orElseThrow().getIntAttrName());
     }
 
     @Test
-    public void save() {
+    void save() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
@@ -156,7 +156,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidMappingIntAttr() {
+    void saveInvalidMappingIntAttr() {
         assertThrows(InvalidEntityException.class, () -> {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("ws-target-resource-basic-save-invalid");
@@ -182,7 +182,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidMappingExtAttr() {
+    void saveInvalidMappingExtAttr() {
         assertThrows(InvalidEntityException.class, () -> {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("ws-target-resource-basic-save-invalid");
@@ -212,7 +212,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidProvision() {
+    void saveInvalidProvision() {
         assertThrows(InvalidEntityException.class, () -> {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("invalidProvision");
@@ -245,7 +245,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithGroupMappingType() {
+    void saveWithGroupMappingType() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
@@ -288,7 +288,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
 
         resourceDAO.deleteById(resource.getKey());
@@ -297,7 +297,7 @@ class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE418() {
+    void issueSYNCOPE418() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 

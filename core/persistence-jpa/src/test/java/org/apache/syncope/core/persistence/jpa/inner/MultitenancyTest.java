@@ -65,12 +65,12 @@ class MultitenancyTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void readPlainSchemas() {
+    void readPlainSchemas() {
         assertEquals(1, plainSchemaDAO.findAll().size());
     }
 
     @Test
-    public void readRealm() {
+    void readRealm() {
         assertEquals(
                 1,
                 realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null).size());
@@ -80,7 +80,7 @@ class MultitenancyTest extends AbstractTest {
     }
 
     @Test
-    public void createUser() {
+    void createUser() {
         assertNull(realmDAO.getRoot().getPasswordPolicy());
 
         User user = entityFactory.newEntity(User.class);

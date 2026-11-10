@@ -68,7 +68,7 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void encoder() throws Exception {
+    void encoder() throws Exception {
         for (CipherAlgorithm cipherAlgorithm : CipherAlgorithm.values()) {
             String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, cipherAlgorithm);
 
@@ -87,13 +87,13 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void decodeDefaultAESKey() throws Exception {
+    void decodeDefaultAESKey() throws Exception {
         String decPassword = ENCRYPTOR.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
         assertEquals(PASSWORD_VALUE, decPassword);
     }
 
     @Test
-    public void smallKey() throws Exception {
+    void smallKey() throws Exception {
         DefaultEncryptor prodModeEncryptor = new DefaultEncryptor("123", true, new SecurityProperties().getDigester());
         assertThrows(InvalidKeyException.class, () -> prodModeEncryptor.encode(PASSWORD_VALUE, CipherAlgorithm.AES));
 
@@ -104,7 +104,7 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void saltedHash() throws Exception {
+    void saltedHash() throws Exception {
         String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, CipherAlgorithm.SSHA256);
         assertNotNull(encPassword);
 
@@ -112,7 +112,7 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void verifySaltedFromExternal() throws Exception {
+    void verifySaltedFromExternal() throws Exception {
         // generated via https://github.com/peppelinux/pySSHA-slapd with command:
         // python3 pySSHA/ssha.py -p password -enc sha256 -s 666ac543 \
         //  | sed 's/{.*}//' | xargs echo -n | base64 -d | xxd -p | tr -d $'\n'  | xargs echo
@@ -121,14 +121,14 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void encodeNullValue() throws Exception {
+    void encodeNullValue() throws Exception {
         assertNull(ENCRYPTOR.encode(null, CipherAlgorithm.AES));
         assertNull(ENCRYPTOR.encode(null, CipherAlgorithm.SHA256));
         assertNull(ENCRYPTOR.encode(null, null));
     }
 
     @Test
-    public void encodeNullCipherAlgorithmUsesAES() throws Exception {
+    void encodeNullCipherAlgorithmUsesAES() throws Exception {
         String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, null);
 
         assertNotNull(encPassword);
@@ -138,14 +138,14 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void decodeNullEncodedAndNonAesAlgorithm() throws Exception {
+    void decodeNullEncodedAndNonAesAlgorithm() throws Exception {
         assertNull(ENCRYPTOR.decode(null, CipherAlgorithm.AES));
         assertNull(ENCRYPTOR.decode("whatever", CipherAlgorithm.SHA256));
         assertNull(ENCRYPTOR.decode(null, CipherAlgorithm.SHA256));
     }
 
     @Test
-    public void verifyNullValue() throws Exception {
+    void verifyNullValue() throws Exception {
         String encPassword = ENCRYPTOR.encode(PASSWORD_VALUE, CipherAlgorithm.AES);
 
         assertFalse(ENCRYPTOR.verify(null, CipherAlgorithm.AES, encPassword));
@@ -154,13 +154,13 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void verifyMalformedEncodedValue() {
+    void verifyMalformedEncodedValue() {
         assertFalse(ENCRYPTOR.verify(PASSWORD_VALUE, CipherAlgorithm.BCRYPT, "not-a-bcrypt-hash"));
         assertFalse(ENCRYPTOR.verify(PASSWORD_VALUE, CipherAlgorithm.AES, null));
     }
 
     @Test
-    public void aesNotConfigured() {
+    void aesNotConfigured() {
         DefaultEncryptor nullKeyEncryptor = new DefaultEncryptor(
                 null, true, new SecurityProperties().getDigester());
         assertThrows(IllegalArgumentException.class,
@@ -178,7 +178,7 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void nonProductionAesKeyIsNormalized() throws Exception {
+    void nonProductionAesKeyIsNormalized() throws Exception {
         List<String> keys = List.of(
                 "1234567890",
                 "1234567890123456",
@@ -198,7 +198,7 @@ class DefaultEncryptorTest {
     }
 
     @Test
-    public void productionModeDoesNotNormalizeAesKey() throws Exception {
+    void productionModeDoesNotNormalizeAesKey() throws Exception {
         DefaultEncryptor encryptor = new DefaultEncryptor(
                 "1234567890123456", true, new SecurityProperties().getDigester());
 

@@ -33,7 +33,7 @@ import tools.jackson.databind.SerializationContext;
 class SyncTokenSerializerTest extends AbstractTest {
 
     @Test
-    public void syncTokenSerializer(
+    void syncTokenSerializer(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) throws IOException {
 

@@ -40,7 +40,7 @@ import tools.jackson.databind.SerializationContext;
 class AttributeSerializerTest extends AbstractTest {
 
     @Test
-    public void serialize(
+    void serialize(
             final @Mock Attribute source,
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) {

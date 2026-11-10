@@ -44,7 +44,7 @@ class ConnInstanceTest extends AbstractTest {
     private ConnInstanceDAO connInstanceDAO;
 
     @Test
-    public void deleteCascade() {
+    void deleteCascade() {
         ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
 
         List<? extends ExternalResource> resources = resourceDAO.findByConnInstance(connInstance.getKey());
@@ -60,7 +60,7 @@ class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public void issue176() {
+    void issue176() {
         ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
         assertTrue(connInstance.getCapabilities().isEmpty());
 

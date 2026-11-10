@@ -65,13 +65,13 @@ class MailTemplateTest extends AbstractTest {
             + " </ul>\n $$ }\n </body> </html>";
 
     @Test
-    public void confirmPasswordReset() throws IOException {
+    void confirmPasswordReset() throws IOException {
         String htmlBody = jexlTools().evaluateTemplate(CONFIRM_PASSWORD_RESET_TEMPLATE, new MapContext());
         assertNotNull(htmlBody);
     }
 
     @Test
-    public void requestPasswordReset() throws IOException {
+    void requestPasswordReset() throws IOException {
         Map<String, Object> ctx = new HashMap<>();
 
         String username = "test" + UUID.randomUUID();
@@ -97,7 +97,7 @@ class MailTemplateTest extends AbstractTest {
     }
 
     @Test
-    public void optin() throws IOException {
+    void optin() throws IOException {
         Map<String, Object> ctx = new HashMap<>();
 
         String username = "test" + UUID.randomUUID();

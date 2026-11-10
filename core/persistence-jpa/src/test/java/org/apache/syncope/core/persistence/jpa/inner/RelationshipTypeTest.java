@@ -49,7 +49,7 @@ class RelationshipTypeTest extends AbstractTest {
     private AnyTypeDAO anyTypeDAO;
 
     @Test
-    public void find() {
+    void find() {
         RelationshipType inclusion = relationshipTypeDAO.findById("inclusion").orElseThrow();
         assertEquals("inclusion", inclusion.getKey());
         assertEquals(anyTypeDAO.findById("PRINTER").orElseThrow(), inclusion.getLeftEndAnyType());
@@ -57,7 +57,7 @@ class RelationshipTypeTest extends AbstractTest {
     }
 
     @Test
-    public void findByEndAnyType() {
+    void findByEndAnyType() {
         List<String> relationshipTypes =
                 relationshipTypeDAO.findByEndAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         assertEquals(2, relationshipTypes.size());
@@ -66,13 +66,13 @@ class RelationshipTypeTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends RelationshipType> list = relationshipTypeDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         RelationshipType newType = entityFactory.newEntity(RelationshipType.class);
         newType.setKey("new type");
         newType.setDescription("description");
@@ -85,7 +85,7 @@ class RelationshipTypeTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidName() {
+    void saveInvalidName() {
         assertThrows(InvalidEntityException.class, () -> {
             RelationshipType newType = entityFactory.newEntity(RelationshipType.class);
             newType.setKey("membership");
@@ -94,7 +94,7 @@ class RelationshipTypeTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         RelationshipType type = relationshipTypeDAO.findById("neighborhood").orElseThrow();
 
         relationshipTypeDAO.deleteById(type.getKey());
@@ -103,7 +103,7 @@ class RelationshipTypeTest extends AbstractTest {
     }
 
     @Test
-    public void deleteOnAnyObject() {
+    void deleteOnAnyObject() {
         RelationshipType neighborhood = relationshipTypeDAO.findById("inclusion").orElseThrow();
 
         AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();

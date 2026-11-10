@@ -49,7 +49,7 @@ public class AbstractTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         MockitoAnnotations.openMocks(this);
     }
 }

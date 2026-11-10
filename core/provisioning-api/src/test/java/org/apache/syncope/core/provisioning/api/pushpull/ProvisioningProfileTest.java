@@ -34,7 +34,7 @@ import org.mockito.Mock;
 class ProvisioningProfileTest extends AbstractTest {
 
     @Test
-    public void test(
+    void test(
             final @Mock Connector connector,
             final @Mock PushTask pushTask) {
 

@@ -41,7 +41,7 @@ class DelegationTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void findValidFor() {
+    void findValidFor() {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(userDAO.findByUsername("bellini").orElseThrow());
         delegation.setDelegated(userDAO.findByUsername("rossini").orElseThrow());
