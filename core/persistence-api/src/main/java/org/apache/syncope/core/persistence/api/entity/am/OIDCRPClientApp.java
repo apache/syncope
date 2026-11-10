@@ -145,4 +145,22 @@ public interface OIDCRPClientApp extends ClientApp {
     String getAccessTokenMaxTimeToLive();
 
     void setAccessTokenMaxTimeToLive(String accessTokenMaxTimeToLive);
+
+    OIDCTokenSigningAlg getJwtAccessTokenSigningAlg();
+
+    void setJwtAccessTokenSigningAlg(OIDCTokenSigningAlg jwtAccessTokenSigningAlg);
+
+    boolean getRenewRefreshToken();
+
+    void setRenewRefreshToken(boolean renewRefreshToken);
+
+    String getIdTokenTimeToKill();
+
+    void setIdTokenTimeToKill(String idTokenTimeToKill);
+
+    String getAuthorizationCodeTimeToLive();
+
+    void setAuthorizationCodeTimeToLive(String authorizationCodeTimeToLive);
+
+    Set<String> getAudience();
 }

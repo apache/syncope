@@ -111,6 +111,17 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private String deviceTokenTimeToKill;
 
+    private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
+
+    private boolean renewRefreshToken;
+
+    private String idTokenTimeToKill;
+
+    private String authorizationCodeTimeToLive;
+
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> audience = new HashSet<>();
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUris;
@@ -401,5 +412,50 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public void setAccessTokenMaxTimeToLive(final String accessTokenMaxTimeToLive) {
         this.accessTokenMaxTimeToLive = accessTokenMaxTimeToLive;
+    }
+
+    @Override
+    public OIDCTokenSigningAlg getJwtAccessTokenSigningAlg() {
+        return jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public void setJwtAccessTokenSigningAlg(final OIDCTokenSigningAlg jwtAccessTokenSigningAlg) {
+        this.jwtAccessTokenSigningAlg = jwtAccessTokenSigningAlg;
+    }
+
+    @Override
+    public boolean getRenewRefreshToken() {
+        return renewRefreshToken;
+    }
+
+    @Override
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
+        this.renewRefreshToken = renewRefreshToken;
+    }
+
+    @Override
+    public String getIdTokenTimeToKill() {
+        return idTokenTimeToKill;
+    }
+
+    @Override
+    public void setIdTokenTimeToKill(final String idTokenTimeToKill) {
+        this.idTokenTimeToKill = idTokenTimeToKill;
+    }
+
+    @Override
+    public String getAuthorizationCodeTimeToLive() {
+        return authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public void setAuthorizationCodeTimeToLive(final String authorizationCodeTimeToLive) {
+        this.authorizationCodeTimeToLive = authorizationCodeTimeToLive;
+    }
+
+    @Override
+    public Set<String> getAudience() {
+        return audience;
     }
 }

@@ -997,6 +997,10 @@ public abstract class AbstractITCase {
         oidcrpTO.setRefreshTokenTimeToKill("P14D");
         oidcrpTO.setDeviceTokenTimeToKill("PT5M");
 
+        oidcrpTO.setRenewRefreshToken(true);
+        oidcrpTO.setIdTokenTimeToKill("PT5M");
+        oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
+        oidcrpTO.getAudience().add("https://api.apache.org");
         return oidcrpTO;
     }
 

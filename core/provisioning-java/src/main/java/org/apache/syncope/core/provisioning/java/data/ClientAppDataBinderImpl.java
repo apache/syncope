@@ -331,6 +331,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setRefreshTokenMaxActiveTokens(clientAppTO.getRefreshTokenMaxActiveTokens());
         clientApp.setRefreshTokenTimeToKill(clientAppTO.getRefreshTokenTimeToKill());
         clientApp.setDeviceTokenTimeToKill(clientAppTO.getDeviceTokenTimeToKill());
+        clientApp.setJwtAccessTokenSigningAlg(clientAppTO.getJwtAccessTokenSigningAlg());
+        clientApp.setRenewRefreshToken(clientAppTO.getRenewRefreshToken());
+        clientApp.setIdTokenTimeToKill(clientAppTO.getIdTokenTimeToKill());
+        clientApp.setAuthorizationCodeTimeToLive(clientAppTO.getAuthorizationCodeTimeToLive());
+        clientApp.getAudience().clear();
+        clientApp.getAudience().addAll(clientAppTO.getAudience());
 
         Set<String> allowedScopes = new HashSet<>();
         Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(allowedScopes::add);
@@ -383,6 +389,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setRefreshTokenTimeToKill(clientApp.getRefreshTokenTimeToKill());
         clientAppTO.setRefreshTokenMaxActiveTokens(clientApp.getRefreshTokenMaxActiveTokens());
         clientAppTO.setDeviceTokenTimeToKill(clientApp.getDeviceTokenTimeToKill());
+        clientAppTO.setJwtAccessTokenSigningAlg(clientApp.getJwtAccessTokenSigningAlg());
+        clientAppTO.setRenewRefreshToken(clientApp.getRenewRefreshToken());
+        clientAppTO.setIdTokenTimeToKill(clientApp.getIdTokenTimeToKill());
+        clientAppTO.setAuthorizationCodeTimeToLive(clientApp.getAuthorizationCodeTimeToLive());
+        clientAppTO.getAudience().addAll(clientApp.getAudience());
         return clientAppTO;
     }
 

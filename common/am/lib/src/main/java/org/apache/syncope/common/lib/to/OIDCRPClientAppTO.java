@@ -96,6 +96,16 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String deviceTokenTimeToKill;
 
+    private OIDCTokenSigningAlg jwtAccessTokenSigningAlg;
+
+    private boolean renewRefreshToken;
+
+    private String idTokenTimeToKill;
+
+    private String authorizationCodeTimeToLive;
+
+    private final List<String> audience = new ArrayList<>();
+
     private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod =
             OIDCClientAuthenticationMethod.client_secret_basic;
 
@@ -342,6 +352,42 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.deviceTokenTimeToKill = deviceTokenTimeToKill;
     }
 
+    public OIDCTokenSigningAlg getJwtAccessTokenSigningAlg() {
+        return jwtAccessTokenSigningAlg;
+    }
+
+    public void setJwtAccessTokenSigningAlg(final OIDCTokenSigningAlg jwtAccessTokenSigningAlg) {
+        this.jwtAccessTokenSigningAlg = jwtAccessTokenSigningAlg;
+    }
+
+    public boolean getRenewRefreshToken() {
+        return renewRefreshToken;
+    }
+
+    public void setRenewRefreshToken(final boolean renewRefreshToken) {
+        this.renewRefreshToken = renewRefreshToken;
+    }
+
+    public String getIdTokenTimeToKill() {
+        return idTokenTimeToKill;
+    }
+
+    public void setIdTokenTimeToKill(final String idTokenTimeToKill) {
+        this.idTokenTimeToKill = idTokenTimeToKill;
+    }
+
+    public String getAuthorizationCodeTimeToLive() {
+        return authorizationCodeTimeToLive;
+    }
+
+    public void setAuthorizationCodeTimeToLive(final String authorizationCodeTimeToLive) {
+        this.authorizationCodeTimeToLive = authorizationCodeTimeToLive;
+    }
+
+    public List<String> getAudience() {
+        return audience;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -387,6 +433,11 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.refreshTokenTimeToKill, rhs.accessTokenTimeToKill)
                 .append(this.refreshTokenMaxActiveTokens, rhs.refreshTokenMaxActiveTokens)
                 .append(this.deviceTokenTimeToKill, rhs.deviceTokenTimeToKill)
+                .append(this.jwtAccessTokenSigningAlg, rhs.jwtAccessTokenSigningAlg)
+                .append(this.renewRefreshToken, rhs.renewRefreshToken)
+                .append(this.idTokenTimeToKill, rhs.idTokenTimeToKill)
+                .append(this.authorizationCodeTimeToLive, rhs.authorizationCodeTimeToLive)
+                .append(this.audience, rhs.audience)
                 .isEquals();
     }
 
@@ -425,6 +476,11 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(refreshTokenTimeToKill)
                 .append(refreshTokenMaxActiveTokens)
                 .append(deviceTokenTimeToKill)
+                .append(jwtAccessTokenSigningAlg)
+                .append(renewRefreshToken)
+                .append(idTokenTimeToKill)
+                .append(authorizationCodeTimeToLive)
+                .append(audience)
                 .toHashCode();
     }
 }

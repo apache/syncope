@@ -394,6 +394,15 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(new AjaxTripleStateButtonPanel(
                             "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")).
                             addRequiredLabel());
+
+                    AjaxDropDownChoicePanel<OIDCTokenSigningAlg> jwtAccessTokenSigningAlg =
+                            new AjaxDropDownChoicePanel<>(
+                                    "field", "jwtAccessTokenSigningAlg",
+                                    new PropertyModel<>(clientAppTO, "jwtAccessTokenSigningAlg"), false);
+                    jwtAccessTokenSigningAlg.setChoices(Stream.of(OIDCTokenSigningAlg.values()).
+                            filter(alg -> alg != OIDCTokenSigningAlg.none).toList());
+                    fields.add(jwtAccessTokenSigningAlg);
+
                     fields.add(new AjaxTripleStateButtonPanel(
                             "field", "bypassApprovalPrompt", new PropertyModel<>(clientAppTO, "bypassApprovalPrompt")).
                             addRequiredLabel());
@@ -502,6 +511,9 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             build("field", "accessTokenMaxActiveTokens", Long.class,
                                     new PropertyModel<>(clientAppTO, "accessTokenMaxActiveTokens")));
 
+                    fields.add(new AjaxTripleStateButtonPanel(
+                            "field", "renewRefreshToken", new PropertyModel<>(clientAppTO, "renewRefreshToken")));
+
                     AjaxTextFieldPanel refreshTokenTimeToKill = new AjaxTextFieldPanel(
                             "field", "refreshTokenTimeToKill",
                             new PropertyModel<>(clientAppTO, "refreshTokenTimeToKill"), false);
@@ -514,6 +526,18 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(new AjaxTextFieldPanel(
                             "field", "deviceTokenTimeToKill", new PropertyModel<>(clientAppTO, "deviceTokenTimeToKill"),
                             false));
+
+                    fields.add(new AjaxTextFieldPanel(
+                            "field", "idTokenTimeToKill",
+                            new PropertyModel<>(clientAppTO, "idTokenTimeToKill"), false));
+
+                    fields.add(new AjaxTextFieldPanel(
+                            "field", "authorizationCodeTimeToLive",
+                            new PropertyModel<>(clientAppTO, "authorizationCodeTimeToLive"), false));
+
+                    AjaxTextFieldPanel audience = new AjaxTextFieldPanel("panel", "audience", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "audience")).build("field", "audience", audience));
                     break;
 
                 case SAML2SP:

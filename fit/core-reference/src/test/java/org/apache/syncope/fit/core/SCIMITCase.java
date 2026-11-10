@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -32,6 +33,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -488,6 +490,8 @@ public class SCIMITCase extends AbstractITCase {
         UserTO newUser = USER_SERVICE.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
+
+        await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofSeconds(1)).until(() -> true);
 
         OffsetDateTime value = newUser.getCreationDate().minusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
         response = webClient().path("Users").query("filter", "meta.created gt \""
