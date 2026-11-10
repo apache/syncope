@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -76,6 +77,12 @@ public class WAServiceRegistryTest extends AbstractTest {
         oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.password);
         oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
         oidcrpTO.setLogoutType(LogoutType.BACK_CHANNEL);
+        oidcrpTO.setJwtAccessToken(true);
+        oidcrpTO.setJwtAccessTokenSigningAlg(OIDCTokenSigningAlg.RS256);
+        oidcrpTO.setRenewRefreshToken(true);
+        oidcrpTO.setIdTokenTimeToKill("PT5M");
+        oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
+        oidcrpTO.getAudience().add("https://api.example.org");
 
         return oidcrpTO;
     }
@@ -178,6 +185,12 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals("uri1|uri2", oidc.getServiceId());
         assertEquals(oidcrpto.getClientId(), oidc.getClientId());
         assertEquals(oidcrpto.getClientSecret(), oidc.getClientSecret());
+        assertEquals("RS256", oidc.getJwtAccessTokenSigningAlg());
+        assertTrue(oidc.isRenewRefreshToken());
+        assertEquals("PT5M", oidc.getIdTokenExpirationPolicy().getTimeToKill());
+        assertEquals("PT30S", oidc.getCodeExpirationPolicy().getTimeToLive());
+        assertEquals(1, oidc.getCodeExpirationPolicy().getNumberOfUses());
+        assertEquals(Set.of("https://api.example.org"), oidc.getAudience());
         assertTrue(oidc.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -146,6 +147,10 @@ public class ClientAppITCase extends AbstractITCase {
         assertNotNull(found.getAccessPolicy());
         assertNotNull(found.getAuthPolicy());
         assertNotNull(found.getAccessTokenMaxTimeToLive());
+        assertEquals(Boolean.TRUE, found.getRenewRefreshToken());
+        assertEquals("PT5M", found.getIdTokenTimeToKill());
+        assertEquals("PT30S", found.getAuthorizationCodeTimeToLive());
+        assertEquals(List.of("https://api.apache.org"), found.getAudience());
     }
 
     @Test
@@ -194,6 +199,11 @@ public class ClientAppITCase extends AbstractITCase {
         oidcrpTO.setClientId("newClientId");
         oidcrpTO.setAccessPolicy(accessPolicyTO.getKey());
         oidcrpTO.setDeviceTokenTimeToKill("PT6M");
+        oidcrpTO.setRenewRefreshToken(false);
+        oidcrpTO.setIdTokenTimeToKill("PT10M");
+        oidcrpTO.setAuthorizationCodeTimeToLive("PT1M");
+        oidcrpTO.getAudience().clear();
+        oidcrpTO.getAudience().add("https://new-api.apache.org");
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, oidcrpTO);
         OIDCRPClientAppTO updated = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
@@ -202,6 +212,10 @@ public class ClientAppITCase extends AbstractITCase {
         assertEquals("newClientId", updated.getClientId());
         assertNotNull(updated.getAccessPolicy());
         assertEquals("PT6M", updated.getDeviceTokenTimeToKill());
+        assertEquals(Boolean.FALSE, updated.getRenewRefreshToken());
+        assertEquals("PT10M", updated.getIdTokenTimeToKill());
+        assertEquals("PT1M", updated.getAuthorizationCodeTimeToLive());
+        assertEquals(List.of("https://new-api.apache.org"), updated.getAudience());
     }
 
     @Test

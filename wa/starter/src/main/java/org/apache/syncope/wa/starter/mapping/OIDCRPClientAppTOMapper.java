@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
 import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.oidc.services.DefaultRegisteredServiceOidcIdTokenExpirationPolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -40,6 +42,7 @@ import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthAccessTokenExpirationPolicy;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthCodeExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy;
 
@@ -101,6 +104,13 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                 ifPresent(v -> service.setUserInfoEncryptedResponseEncoding(v.getExternalForm()));
 
         service.setJwtAccessToken(rp.isJwtAccessToken());
+        if (rp.isJwtAccessToken()) {
+            Optional.ofNullable(rp.getJwtAccessTokenSigningAlg()).
+                    filter(alg -> alg != OIDCTokenSigningAlg.none).
+                    ifPresent(alg -> service.setJwtAccessTokenSigningAlg(alg.name()));
+        }
+
+        Optional.ofNullable(rp.getRenewRefreshToken()).ifPresent(service::setRenewRefreshToken);
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
         service.setGenerateRefreshToken(rp.isGenerateRefreshToken());
         if (StringUtils.isNotBlank(rp.getJwksUri())) {
@@ -118,6 +128,12 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod().name());
 
         service.setScopes(rp.getScopes().stream().collect(Collectors.toSet()));
+
+        Set<String> audience = rp.getAudience().stream().
+                filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        if (!audience.isEmpty()) {
+            service.setAudience(audience);
+        }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
@@ -148,6 +164,23 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             policy.setTimeToKill(timeToKill);
             service.setDeviceTokenExpirationPolicy(policy);
         });
+
+        Optional.ofNullable(rp.getIdTokenTimeToKill()).filter(StringUtils::isNotBlank).
+                ifPresent(duration -> {
+                    DefaultRegisteredServiceOidcIdTokenExpirationPolicy policy =
+                            new DefaultRegisteredServiceOidcIdTokenExpirationPolicy();
+                    policy.setTimeToKill(duration);
+                    service.setIdTokenExpirationPolicy(policy);
+                });
+
+        Optional.ofNullable(rp.getAuthorizationCodeTimeToLive()).filter(StringUtils::isNotBlank).
+                ifPresent(duration -> {
+                    DefaultRegisteredServiceOAuthCodeExpirationPolicy policy =
+                            new DefaultRegisteredServiceOAuthCodeExpirationPolicy();
+                    policy.setNumberOfUses(1);
+                    policy.setTimeToLive(duration);
+                    service.setCodeExpirationPolicy(policy);
+                });
 
         return service;
     }
