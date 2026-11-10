@@ -51,6 +51,43 @@ import org.junit.jupiter.api.Test;
 
 class AnyOperationsTest {
 
+    private static AttrPatch plainAttrPatch(
+            final AnyUR anyUR, final String schema, final PatchOperation operation) {
+
+        return anyUR.getPlainAttrs().stream().
+                filter(patch -> patch.getAttr() != null
+                        && schema.equals(patch.getAttr().getSchema())
+                        && patch.getOperation() == operation).
+                findFirst().orElseThrow();
+    }
+
+    private static MembershipUR membership(
+            final Set<MembershipUR> memberships, final String group, final PatchOperation operation) {
+
+        return memberships.stream().
+                filter(membership -> group.equals(membership.getGroup())
+                        && membership.getOperation() == operation).
+                findFirst().orElseThrow();
+    }
+
+    private static RelationshipUR relationship(
+            final Set<RelationshipUR> relationships, final String type, final PatchOperation operation) {
+
+        return relationships.stream().
+                filter(relationship -> type.equals(relationship.getType())
+                        && relationship.getOperation() == operation).
+                findFirst().orElseThrow();
+    }
+
+    private static LinkedAccountUR linkedAccount(
+            final List<LinkedAccountUR> accounts, final String resource) {
+
+        return accounts.stream().
+                filter(account -> account.getLinkedAccountTO() != null
+                        && resource.equals(account.getLinkedAccountTO().getResource())).
+                findFirst().orElseThrow();
+    }
+
     @Test
     void diffUser() {
         UserTO original = new UserTO();
@@ -234,24 +271,21 @@ class AnyOperationsTest {
     void genericDiffUnsupported() {
         AnyTO custom = new AnyTO() {
 
+            private static final long serialVersionUID = 2414620536628749337L;
+
             @Override
             public String getDiscriminator() {
                 return "custom";
             }
         };
 
-        assertThrows(IllegalArgumentException.class,
-                () -> AnyOperations.<AnyTO, AnyUR>diff(custom, custom, false));
+        assertThrows(IllegalArgumentException.class, () -> AnyOperations.<AnyTO, AnyUR>diff(custom, custom, false));
     }
 
     @Test
     void patchUser() {
-        Attr oldMembershipAttr = new Attr.Builder("memb").value("old").build();
         Attr newMembershipAttr = new Attr.Builder("memb").value("new").build();
-        RelationshipTO oldRelationship = new RelationshipTO.Builder("typeToRemove").otherEnd("other").build();
-        RelationshipTO newRelationship = new RelationshipTO.Builder("typeToAdd").otherEnd("other").build();
         LinkedAccountTO oldAccount = new LinkedAccountTO.Builder("resourceToRemove", "key").build();
-        LinkedAccountTO newAccount = new LinkedAccountTO.Builder("resourceToAdd", "key").build();
 
         UserTO user = new UserTO();
         user.setKey("key");
@@ -262,8 +296,9 @@ class AnyOperationsTest {
         user.getPlainAttrs().add(new Attr.Builder("toRemove").value("value").build());
         user.getResources().add("resourceToRemove");
         user.getRoles().add("roleToRemove");
-        user.getMemberships().add(new MembershipTO.Builder("groupToRemove").plainAttr(oldMembershipAttr).build());
-        user.getRelationships().add(oldRelationship);
+        user.getMemberships().add(new MembershipTO.Builder("groupToRemove").
+                plainAttr(new Attr.Builder("memb").value("old").build()).build());
+        user.getRelationships().add(new RelationshipTO.Builder("typeToRemove").otherEnd("other").build());
         user.getLinkedAccounts().add(oldAccount);
 
         UserUR req = new UserUR();
@@ -301,7 +336,8 @@ class AnyOperationsTest {
         req.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                 operation(PatchOperation.DELETE).linkedAccountTO(oldAccount).build());
         req.getLinkedAccounts().add(new LinkedAccountUR.Builder().
-                operation(PatchOperation.ADD_REPLACE).linkedAccountTO(newAccount).build());
+                operation(PatchOperation.ADD_REPLACE).
+                linkedAccountTO(new LinkedAccountTO.Builder("resourceToAdd", "key").build()).build());
 
         UserTO patched = AnyOperations.patch(user, req);
 
@@ -400,12 +436,16 @@ class AnyOperationsTest {
 
         AnyTO custom = new AnyTO() {
 
+            private static final long serialVersionUID = 2414620536628749337L;
+
             @Override
             public String getDiscriminator() {
                 return "custom";
             }
         };
         AnyUR customUR = new AnyUR() {
+
+            private static final long serialVersionUID = 2414620536628749337L;
 
             @Override
             public String getDiscriminator() {
@@ -486,42 +526,5 @@ class AnyOperationsTest {
                 anyMatch(patch -> "empty".equals(patch.getAttr().getSchema())));
         assertTrue(req.getPlainAttrs().stream().
                 anyMatch(patch -> "null".equals(patch.getAttr().getSchema())));
-    }
-
-    private static AttrPatch plainAttrPatch(
-            final AnyUR anyUR, final String schema, final PatchOperation operation) {
-
-        return anyUR.getPlainAttrs().stream().
-                filter(patch -> patch.getAttr() != null
-                && schema.equals(patch.getAttr().getSchema())
-                && patch.getOperation() == operation).
-                findFirst().orElseThrow();
-    }
-
-    private static MembershipUR membership(
-            final Set<MembershipUR> memberships, final String group, final PatchOperation operation) {
-
-        return memberships.stream().
-                filter(membership -> group.equals(membership.getGroup())
-                && membership.getOperation() == operation).
-                findFirst().orElseThrow();
-    }
-
-    private static RelationshipUR relationship(
-            final Set<RelationshipUR> relationships, final String type, final PatchOperation operation) {
-
-        return relationships.stream().
-                filter(relationship -> type.equals(relationship.getType())
-                && relationship.getOperation() == operation).
-                findFirst().orElseThrow();
-    }
-
-    private static LinkedAccountUR linkedAccount(
-            final List<LinkedAccountUR> accounts, final String resource) {
-
-        return accounts.stream().
-                filter(account -> account.getLinkedAccountTO() != null
-                && resource.equals(account.getLinkedAccountTO().getResource())).
-                findFirst().orElseThrow();
     }
 }

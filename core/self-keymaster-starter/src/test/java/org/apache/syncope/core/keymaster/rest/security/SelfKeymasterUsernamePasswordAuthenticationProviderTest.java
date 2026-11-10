@@ -172,7 +172,6 @@ class SelfKeymasterUsernamePasswordAuthenticationProviderTest {
         User user = mock(User.class);
         when(user.getKey()).thenReturn("user-key");
         when(user.getUsername()).thenReturn("bob");
-        Set<SyncopeGrantedAuthority> authorities = Set.of();
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken("bob", "pwd");
         authentication.setDetails(new SyncopeAuthenticationDetails("other", null));

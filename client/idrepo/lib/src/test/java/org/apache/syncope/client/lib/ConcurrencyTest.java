@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConcurrencyTest {
+class ConcurrencyTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyTest.class);
 
@@ -37,7 +37,7 @@ public class ConcurrencyTest {
     });
 
     @Test
-    public void multiThreadTest() throws InterruptedException {
+    void multiThreadTest() throws InterruptedException {
         for (int i = 0; i < THREAD_NUMBER; i++) {
             Thread execution = new Thread("Th-" + StringUtils.leftPad(String.valueOf(i), 5, '0')) {
 
@@ -64,7 +64,7 @@ public class ConcurrencyTest {
     }
 
     @Test
-    public void multiCallTest() {
+    void multiCallTest() {
         try {
             for (int i = 0; i < THREAD_NUMBER; i++) {
                 CLIENT.getService(SyncopeService.class);

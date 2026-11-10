@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.junit.jupiter.api.Test;
@@ -67,7 +66,7 @@ class AnyTypeClassDataBinderTest extends AbstractDataBinderTest {
         schemaTO.setMultivalue(false);
         schemaTO.setUniqueConstraint(false);
         schemaTO.setReadonly(false);
-        PlainSchema schema = plainSchemaDAO.save(schemaDataBinder.create(schemaTO));
+        plainSchemaDAO.save(schemaDataBinder.create(schemaTO));
 
         AnyTypeClassTO anyTypeClassTO = new AnyTypeClassTO();
         anyTypeClassTO.setKey("testClass");
