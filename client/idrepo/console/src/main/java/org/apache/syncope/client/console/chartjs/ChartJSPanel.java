@@ -19,12 +19,12 @@
 package org.apache.syncope.client.console.chartjs;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ChartJSPanel extends Panel {
 
@@ -33,7 +33,9 @@ public class ChartJSPanel extends Panel {
     private static final Logger LOG = LoggerFactory.getLogger(ChartJSPanel.class);
 
     private static final JsonMapper MAPPER = JsonMapper.builder().
-            findAndAddModules().defaultPropertyInclusion(JsonInclude.Value.ALL_NON_NULL).build();
+            findAndAddModules().
+            changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL)).
+            build();
 
     private final IModel<Chart> model;
 

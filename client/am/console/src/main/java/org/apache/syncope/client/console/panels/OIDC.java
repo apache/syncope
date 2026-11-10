@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import org.apache.commons.lang3.mutable.Mutable;
@@ -46,6 +44,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 
 public class OIDC extends Panel {
 
@@ -106,7 +105,7 @@ public class OIDC extends Panel {
                     try {
                         pretty = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(
                                 MAPPER.readTree(Base64.getDecoder().decode(oidcOpEntity.get().getJWKS())));
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         LOG.error("Could not pretty-print", e);
                         pretty = new String(Base64.getDecoder().decode(
                                 oidcOpEntity.get().getJWKS()), StandardCharsets.UTF_8);

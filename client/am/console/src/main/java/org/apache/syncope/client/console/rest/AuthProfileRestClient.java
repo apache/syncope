@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
@@ -32,6 +30,8 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.rest.api.beans.AuthProfileQuery;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 public class AuthProfileRestClient extends BaseRestClient {
 
