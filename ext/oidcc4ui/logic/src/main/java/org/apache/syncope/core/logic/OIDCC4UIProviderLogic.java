@@ -75,7 +75,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_CREATE + "')")
     public String create(final OIDCC4UIProviderTO opTO) {
-        if (opTO.getConnObjectKeyItem() == null) {
+        if (opTO.getConnObjectKeyItem().isEmpty()) {
             Item connObjectKeyItem = new Item();
             connObjectKeyItem.setIntAttrName("username");
             connObjectKeyItem.setExtAttrName("email");
