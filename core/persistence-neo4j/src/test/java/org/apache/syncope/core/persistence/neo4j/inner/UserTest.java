@@ -90,6 +90,18 @@ public class UserTest extends AbstractTest {
     @Test
     public void findByToken() {
         assertTrue(userDAO.findByToken("WRONG TOKEN").isEmpty());
+
+        User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
+        user.generateToken(32, 60);
+        user = userDAO.save(user);
+
+        String token = user.getToken();
+        assertEquals(user.getKey(), userDAO.findByToken(token).orElseThrow().getKey());
+
+        // wildcards must not be interpreted as such, or tokens could be guessed character by character
+        assertTrue(userDAO.findByToken(token.substring(0, token.length() - 1) + "%").isEmpty());
+        assertTrue(userDAO.findByToken("%").isEmpty());
+        assertTrue(userDAO.findByToken("_").isEmpty());
     }
 
     @Test
