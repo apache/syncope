@@ -27,8 +27,7 @@ import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.RuntimeDelegate;
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
-import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
+import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 
 @Provider
 public class AddETagFilter implements ContainerResponseFilter {
@@ -37,11 +36,8 @@ public class AddETagFilter implements ContainerResponseFilter {
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) {
         if (resCtx.getEntityTag() == null) {
             OffsetDateTime lastModified;
-            if (resCtx.getEntity() instanceof SCIMUser scimUser) {
-                lastModified = scimUser.getMeta().getLastModified();
-                if (resCtx.getEntity() instanceof SCIMGroup scimGroup) {
-                    lastModified = scimGroup.getMeta().getLastModified();
-                }
+            if (resCtx.getEntity() instanceof SCIMResource scimResource) {
+                lastModified = scimResource.getMeta().getLastModified();
 
                 if (lastModified != null) {
                     String etagValue = String.valueOf(lastModified.toInstant().toEpochMilli());
