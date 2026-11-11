@@ -193,6 +193,11 @@ others (`commons-io`, `commons-collections4`, ...) managed transitively by the S
    - Test-only changes: run the affected module's tests and Checkstyle
    - Production behavior changes: also run `fit/core-reference` when feasible
    - Tests must be independent: never rely on class execution order
+   - **Neo4j persistence tests** (`core/persistence-neo4j`) require the `-Pneo4j` profile and a
+     running Docker daemon: they start Neo4j containers via the `docker-maven-plugin` and run
+     through `maven-failsafe-plugin` (integration tests), e.g.
+     `mvn -pl core/persistence-neo4j -Pneo4j verify`. Use `-Dit.test=...` to select individual
+     tests (surefire's `-Dtest=...` does not apply).
 
 5. **No compiler warnings**
    - Produce clean compilation output: zero compiler warnings (unchecked, deprecation, raw types, etc.).
