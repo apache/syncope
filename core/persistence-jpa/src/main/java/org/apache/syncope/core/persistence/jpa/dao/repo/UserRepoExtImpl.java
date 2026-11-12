@@ -96,18 +96,25 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.securityProperties = securityProperties;
     }
 
+    // The token column is a CLOB: a plain equality comparison is not supported by Oracle
+    // (ORA-22848), hence LIKE is used with the LIKE metacharacters escaped so that the token
+    // is still matched exactly; '#' is used as escape char as it works across all supported DBMS.
+    protected static String escapeForLike(final String value) {
+        return value == null ? null : value.replace("#", "##").replace("%", "#%").replace("_", "#_");
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<String> findByToken(final String token) {
         return query(
-                "SELECT id FROM " + JPAUser.TABLE + " WHERE token = ?",
+                "SELECT id FROM " + JPAUser.TABLE + " WHERE token LIKE ? ESCAPE '#'",
                 rs -> {
                     if (rs.next()) {
                         return Optional.of(rs.getString(1));
                     }
                     return Optional.empty();
                 },
-                token);
+                escapeForLike(token));
     }
 
     @Transactional(readOnly = true)

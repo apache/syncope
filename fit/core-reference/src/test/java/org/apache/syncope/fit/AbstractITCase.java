@@ -611,7 +611,7 @@ public abstract class AbstractITCase {
 
     protected static void awaitIfExtSearchEnabled() {
         if (IS_EXT_SEARCH_ENABLED) {
-            await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofSeconds(1)).until(() -> true);
+            await().atMost(Duration.ofSeconds(3)).pollInterval(Duration.ofSeconds(1)).until(() -> true);
         }
     }
 

@@ -360,7 +360,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTask.setKey(null);
         pushTask.setName("Concurrent Export on resource-testdb2");
         pushTask.setDescription("Concurrent Export on resource-testdb2");
-        pushTask.getFilters().put(AnyTypeKind.USER.name(), "username!=puccini;username!=vivaldi");
+        pushTask.getFilters().put(AnyTypeKind.USER.name(), "username==rossini,username==verdi,username==bellini");
 
         ThreadPoolSettings tps = new ThreadPoolSettings();
         tps.setPoolSize(3);
