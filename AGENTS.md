@@ -157,7 +157,7 @@ others (`commons-io`, `commons-collections4`, ...) managed transitively by the S
 | Mockito | 5.x | Mocking |
 | AssertJ | 3.x | Fluent assertions |
 | Spring Boot Test | 4.1.2 | Context/integration tests |
-| Testcontainers | via BOM | Elasticsearch, OpenSearch, OpenFGA, Zookeeper, DBs |
+| Testcontainers | via BOM | `core/persistence-jpa` and `ext/openfga` tests (FIT uses embedded PostgreSQL + Cargo instead) |
 | JaCoCo | | Coverage |
 
 ## Agent Guidelines
@@ -187,6 +187,7 @@ others (`commons-io`, `commons-collections4`, ...) managed transitively by the S
 4. **Testing**
    - Unit tests: JUnit Jupiter + Mockito in the same module under `src/test/java`
    - Integration/FIT: `fit/core-reference`, `fit/console-reference`, `fit/enduser-reference`, `fit/wa-reference`
+     (see [Integration Tests (FIT)](#integration-tests-fit) for commands)
    - Embedded DB tests: `fit/persistence-embedded`
    - Prefer meaningful coverage of logic-bearing classes; exceptions, annotations, enums and
      Spring `@Configuration` classes are lower priority
@@ -318,8 +319,11 @@ execution. Follow these patterns:
 # Fast local build (skip tests)
 mvn clean install -DskipTests
 
-# Full build with unit tests
+# Full build including unit + integration (FIT) tests - slow
 mvn clean install
+
+# Everything except the FIT integration tests
+mvn clean install -DskipITs
 
 # Single module + required upstream modules
 mvn clean install -pl core/idrepo -am
@@ -337,6 +341,11 @@ mvn -pl core/spring -Dtest='MyTest,OtherTest' -DfailIfNoTests=false test
 # Disable Maven build cache (avoids stale results when verifying fixes)
 mvn -pl <module> ... -Dmaven.build.cache.enabled=false
 
+# JPA persistence tests against a real DBMS via Docker (default: embedded PostgreSQL)
+mvn -pl core/persistence-jpa -Pmysql test
+mvn -pl core/persistence-jpa -Pmariadb test
+mvn -pl core/persistence-jpa -Poracle test
+
 # Static checks used by CI
 mvn checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check
 
@@ -347,6 +356,88 @@ mvn clean generate-resources site-deploy -Psite
 mvn clean install -Pdocker
 ```
 
+### Integration Tests (FIT)
+
+The `fit/` modules are part of the default reactor and are **not** unit tests: they start an
+embedded PostgreSQL, deploy WARs into an embedded Tomcat 11 (Cargo) and exercise the REST API,
+the Console (WicketTester, in-process) and the Enduser. A plain `mvn clean install` therefore
+runs them too - use `-DskipITs` (or `-DskipTests`) to skip them.
+
+| Module | Content |
+|--------|---------|
+| `fit/build-tools` | Shared WAR deployed by all FIT setups (ConnId bundles, test resources) |
+| `fit/persistence-embedded` | Embedded PostgreSQL (`io.zonky.test`) behind the `embedded` Spring profile |
+| `fit/core-reference` | **All IT sources**: Core REST (`org.apache.syncope.fit.core`), Console (`...fit.console`), Enduser (`...fit.enduser`) |
+| `fit/console-reference` | Console WAR (deployed by `fit/wa-reference`) |
+| `fit/enduser-reference` | Enduser WAR (deployed by `fit/wa-reference`) |
+| `fit/wa-reference` | WA WAR plus `OIDCC4UIITCase`, `OpenFGAUIITCase`, `SAML2SP4UIITCase` (`org.apache.syncope.fit.ui`) |
+
+FIT modules resolve project artifacts from the local repository (not from a reactor), so
+install everything first - this is exactly what CI does before running any FIT job:
+
+```bash
+mvn -U -T 1C -P 'skipTests,all,use-apache-snapshots'
+```
+
+Core FIT runs `maven-failsafe-plugin` (`*ITCase`) during `verify`, deploying the WAR to
+`http://localhost:9080/syncope` (property `cargo.servlet.port`):
+
+```bash
+# Default: embedded PostgreSQL + all extensions (Spring profile "embedded,all")
+mvn -f fit/core-reference/pom.xml verify
+
+# Single IT / several ITs - -Dit.test is failsafe; -Dtest only reaches surefire
+mvn -f fit/core-reference/pom.xml verify -Dit.test=RESTITCase
+mvn -f fit/core-reference/pom.xml verify -Dit.test='RESTITCase,UserITCase'
+
+# Same flags as CI, to silence unrelated plugins
+mvn -f fit/core-reference/pom.xml verify -Dit.test=RESTITCase \
+  -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true \
+  -Dcheckstyle.skip=true -Djacoco.skip=true
+```
+
+Backend-specific runs use the `*-it` profiles below. They start containers with
+`docker-maven-plugin` (Docker daemon required). `elasticsearch-it`, `opensearch-it`,
+`mysql-it`, `mariadb-it`, `oracle-it`, `debezium-it` and `syncrepl-it` restrict failsafe to
+`org/apache/syncope/fit/core/*ITCase` (Console/Enduser ITs are not run); `zookeeper-it` and
+`neo4j-it` run the full suite:
+
+| Profile | Spring profile / container |
+|---------|----------------------------|
+| `zookeeper-it` | `embedded,zookeeper` - ZooKeeper (keymaster) |
+| `elasticsearch-it` | `embedded,elasticsearch` - Elasticsearch + Kibana |
+| `opensearch-it` | `embedded,opensearch` - OpenSearch |
+| `mysql-it` | `embedded,mysql` - MySQL |
+| `mariadb-it` | `embedded,mariadb` - MariaDB |
+| `oracle-it` | `embedded,oracle` - Oracle |
+| `neo4j-it` | `embedded,neo4j` - Neo4j |
+| `debezium-it` | MySQL + Kafka Connect, only `DebeziumITCase` |
+| `syncrepl-it` | OpenLDAP, only `SyncReplITCase` |
+
+```bash
+mvn -f fit/core-reference/pom.xml -P mysql-it
+mvn -f fit/core-reference/pom.xml -P elasticsearch-it
+```
+
+WA FIT deploys Core, Console, Enduser and WA WARs over HTTPS (9443) and starts `httpbin`
+and `openfga` containers:
+
+```bash
+mvn -f fit/wa-reference/pom.xml verify -Dit.test=OIDCC4UIITCase
+mvn -f fit/wa-reference/pom.xml verify -Dit.test=OpenFGAUIITCase
+
+# SAML2SP4UI additionally needs the test keystore on its test classpath
+mkdir -p fit/wa-reference/target/test-classes
+cp fit/core-reference/src/test/resources/saml.keystore.jks fit/wa-reference/target/test-classes/
+mvn -f fit/wa-reference/pom.xml verify -Dit.test=SAML2SP4UIITCase
+```
+
+`-P debug` and `-P hotswap` (all `fit/*-reference` modules) change the default goal to
+`clean verify cargo:run`: the ITs are skipped and Tomcat stays in the foreground with JDWP on
+port 8000 for interactive debugging.
+
+Reports: `target/failsafe-reports/`; Cargo/Tomcat logs under `target/cargo/logs/`.
+
 ### Profiles
 
 | Profile | Purpose |
@@ -356,6 +447,9 @@ mvn clean install -Pdocker
 | `site` | AsciiDoc site generation and deployment |
 | `jdk27` | Auto-activates on JDK >= 27 to add ByteBuddy deps |
 | `use-apache-snapshots` | Needed to resolve `openjpa 4.2.0-SNAPSHOT` |
+| `mysql`, `mariadb`, `oracle` | `core/persistence-jpa` only: run its tests against the matching DBMS via Docker/Testcontainers instead of embedded PostgreSQL |
+| `zookeeper-it`, `elasticsearch-it`, `opensearch-it`, `mysql-it`, `mariadb-it`, `oracle-it`, `neo4j-it`, `debezium-it`, `syncrepl-it` | `fit/core-reference` only: run FIT against the matching backend/container - see [Integration Tests (FIT)](#integration-tests-fit) |
+| `debug`, `hotswap` | `fit/*-reference` only: start the container for interactive debugging instead of running ITs |
 
 OpenJPA is a **snapshot** dependency: if resolution fails, ensure the Apache snapshots
 repository is enabled (CI uses `-P 'skipTests,all,use-apache-snapshots'`).
@@ -407,8 +501,11 @@ CI is on **GitHub Actions** (`.github/workflows/`), not Jenkins:
 - `crosschecks.yml` - build + validate + test matrix on JDK 25 and 28-ea, Linux/Windows/macOS
 - `codeql-analysis.yml` - CodeQL security analysis
 - `dockerhub.yml` - Docker image publication
-- `fit_*.yml` - FIT suites (Tomcat, PostgreSQL, Elasticsearch, OpenSearch, LiveSync, WA OIDCC4UI, WA OpenFGA, WA SAML2SP4UI, Zookeeper)
-- `mysql.yml`, `mariadb.yml`, `oracle.yml`, `neo4j.yml` - DB-specific runs
+- `fit_*.yml` - FIT suites: `fit_Tomcat_PostgreSQL.yml` (default `fit/core-reference`), `fit_Elasticsearch.yml`, `fit_OpenSearch.yml`, `fit_Zookeeper.yml`, `fit_Tomcat_LiveSync.yml` (`debezium-it` + `syncrepl-it`), `fit_WA_*.yml`
+- `mysql.yml`, `mariadb.yml`, `oracle.yml`, `neo4j.yml` - `core/persistence-jpa` (or `-neo4j`) unit tests + the matching `fit/core-reference` `*-it` profile
+
+Every FIT job starts with `mvn -U -T 1C -P 'skipTests,all,use-apache-snapshots'` and then runs
+the corresponding `mvn -f fit/...` command (see [Integration Tests (FIT)](#integration-tests-fit)).
 
 Quality tooling: Checkstyle, Modernizer, Apache RAT, JaCoCo, Maven Enforcer.
 
@@ -417,7 +514,10 @@ Quality tooling: Checkstyle, Modernizer, Apache RAT, JaCoCo, Maven Enforcer.
 1. **JDK errors** - build requires JDK 25 (`targetJdk=25`); older JDKs fail at compile.
 2. **OpenJPA snapshot not found** - enable Apache snapshots (`-Puse-apache-snapshots`) or build OpenJPA locally.
 3. **Checkstyle/Modernizer/RAT failures** - run the same goals as CI (see Build Commands) before submitting.
-4. **FIT failures** - most need Testcontainers/Docker; DB-specific suites need the matching DB.
+4. **FIT failures** - default FIT needs no Docker (embedded PostgreSQL via `fit/persistence-embedded`);
+   the `*-it` profiles and `fit/wa-reference` start containers with `docker-maven-plugin`, so Docker
+   must be running and its images reachable. Install the project first (`-P 'skipTests,...'`),
+   otherwise FIT resolves stale artifacts from the local repository.
 5. **Docker stack issues** - use the compose files under `docker/src/main/resources/docker-compose/`
    and check `SPRING_PROFILES_ACTIVE` matches the chosen database.
 6. **UI changes** - Console/Enduser are Wicket apps; rebuild `client/<domain>` and use the
