@@ -18,19 +18,19 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
-import static org.flowable.bpmn.constants.BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION;
-import static org.flowable.bpmn.constants.BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE;
-
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.lang.model.SourceVersion;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
+import org.flowable.bpmn.constants.BpmnXMLConstants;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.common.engine.api.FlowableException;
@@ -40,8 +40,12 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class FlowableDeployUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FlowableDeployUtils.class);
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
@@ -52,17 +56,31 @@ public final class FlowableDeployUtils {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
-    private static boolean containsExpression(final byte[] xml) throws XMLStreamException, IOException {
+    private static boolean isInvalid(final byte[] xml) throws XMLStreamException, IOException {
         try (ByteArrayInputStream in = new ByteArrayInputStream(xml)) {
             XMLStreamReader xtr = XML_INPUT_FACTORY.createXMLStreamReader(in);
             try {
                 while (xtr.hasNext()) {
                     if (xtr.next() == XMLStreamConstants.START_ELEMENT) {
                         for (int i = 0; i < xtr.getAttributeCount(); i++) {
-                            if (FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getAttributeNamespace(i))
-                                    && ATTRIBUTE_TASK_SERVICE_EXPRESSION.equals(xtr.getAttributeLocalName(i))) {
+                            if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getAttributeNamespace(i))) {
+                                switch (xtr.getAttributeLocalName(i)) {
+                                    case BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION -> {
+                                        LOG.error("expression not allowed");
+                                        return true;
+                                    }
 
-                                return true;
+                                    case BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_DELEGATEEXPRESSION -> {
+                                        String name = StringUtils.substringBetween(xtr.getAttributeValue(i), "${", "}");
+                                        if (!SourceVersion.isIdentifier(name) || SourceVersion.isKeyword(name)) {
+                                            LOG.error("delegateExpression shall contain only Spring Beans name");
+                                            return true;
+                                        }
+                                    }
+
+                                    default -> {
+                                    }
+                                }
                             }
                         }
                     }
@@ -78,8 +96,8 @@ public final class FlowableDeployUtils {
             final ProcessEngine engine, final String resourceName, final byte[] definition) {
 
         try {
-            if (containsExpression(definition)) {
-                throw new WorkflowException("Attribute flowable:expression is not allowed");
+            if (isInvalid(definition)) {
+                throw new WorkflowException("The provided XML definition contains elements not allowed");
             }
         } catch (IOException | XMLStreamException e) {
             throw new WorkflowException("While checking " + resourceName, e);
