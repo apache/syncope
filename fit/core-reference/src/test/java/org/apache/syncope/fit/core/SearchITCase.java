@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -679,16 +681,18 @@ public class SearchITCase extends AbstractITCase {
                 getTotalCount();
         assertTrue(usersWithNullable > 0);
 
-        long nonOrdered = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).build()).
-                getTotalCount();
-        assertTrue(nonOrdered > 0);
+        await().atMost(Duration.ofSeconds(MAX_WAIT_SECONDS)).pollInterval(Duration.ofSeconds(2)).untilAsserted(() -> {
+            long nonOrdered = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).build()).
+                    getTotalCount();
+            assertTrue(nonOrdered > 0);
 
-        long orderedByNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
-                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build()).
-                getTotalCount();
-        assertEquals(nonOrdered, orderedByNullable);
+            long orderedByNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
+                    orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build()).
+                    getTotalCount();
+            assertEquals(nonOrdered, orderedByNullable);
+        });
     }
 
     @Test
@@ -1006,7 +1010,7 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
                 allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
-                orElseThrow().getValues().getFirst())));
+                        orElseThrow().getValues().getFirst())));
 
         // 1. create user with similar email
         UserTO user = createUser(UserITCase.getSample("bisverdi@syncope.org")).getEntity();
@@ -1028,7 +1032,7 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
                 allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
-                orElseThrow().getValues().getFirst())));
+                        orElseThrow().getValues().getFirst())));
         assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
 
