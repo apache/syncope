@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.java.ProvisioningProperties;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
@@ -74,9 +75,29 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     @Autowired
     protected PolicyDAO policyDAO;
 
+    @Autowired
+    protected ProvisioningProperties provisioningProperties;
+
     protected Optional<ProvisionSorter> perContextProvisionSorter = Optional.empty();
 
     protected Connector connector;
+
+    /**
+     * Applies the configured timeouts to the given dispatcher, so that concurrent handling cannot wait forever
+     * for a free slot, nor forever for the submitted handler tasks to complete.
+     *
+     * @param <RHD>
+     * @param dispatcher the dispatcher to configure
+     * @return the given dispatcher
+     */
+    protected <RHD extends SyncopeResultHandlerDispatcher<?, ?, ?>> RHD configure(final RHD dispatcher) {
+        dispatcher.setSubmitTimeoutSeconds(
+                provisioningProperties.getResultHandlerDispatcher().getSubmitTimeoutSeconds());
+        dispatcher.setCompletionTimeoutSeconds(
+                provisioningProperties.getResultHandlerDispatcher().getCompletionTimeoutSeconds());
+
+        return dispatcher;
+    }
 
     @Override
     protected void init(
