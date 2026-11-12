@@ -419,6 +419,23 @@ mvn -f fit/core-reference/pom.xml -P mysql-it
 mvn -f fit/core-reference/pom.xml -P elasticsearch-it
 ```
 
+#### External search backends: index refresh and IT timing
+
+When the `elasticsearch-it` / `opensearch-it` profile is active, `AnySearchDAO` is backed by the
+external index. User / Group / AnyObject documents are written by
+`ElasticsearchIndexManager#entity` / `OpenSearchIndexManager#entity`, which are
+`@TransactionalEventListener`s invoked after commit; unlike the Realm branch, they do **not**
+pass `refresh(Refresh.True)`. Changes therefore become searchable only after the index refresh
+interval (default 1s), which can be longer on loaded CI runners.
+
+This makes ITs that assert exact counts immediately after create / update / delete racy; the
+`awaitIfExtSearchEnabled()` helper in `AbstractITCase` is only a fixed ~2s sleep, not a real
+readiness check. Prefer Awaitility polling until the expected state is observed, re-reading all
+involved values inside the retry loop. Also note that with external search `orderBy` does not
+participate in `AnySearchDAO.count(...)`, so comparing two counts only checks whether the index
+changed between the two requests. These failures typically reproduce only in CI (containerised
+ES/OS with limited heap), not locally.
+
 WA FIT deploys Core, Console, Enduser and WA WARs over HTTPS (9443) and starts `httpbin`
 and `openfga` containers:
 
@@ -525,6 +542,10 @@ Quality tooling: Checkstyle, Modernizer, Apache RAT, JaCoCo, Maven Enforcer.
 7. **Test order interference** - if a test fails only in the full module run, look for global
    static state (`ApplicationContextProvider`, `SecurityContextHolder`, JCache) that was not
    saved and restored around the test.
+8. **External-search FIT failures (counts / visibility)** - `elasticsearch-it` and
+   `opensearch-it` index writes are near-real-time (no forced refresh for Users / Groups /
+   AnyObjects), so exact-count assertions right after mutations can fail only in CI; see
+   [External search backends](#external-search-backends-index-refresh-and-it-timing).
 
 ## Repository Information
 
