@@ -197,7 +197,7 @@ public abstract class AbstractSearchDAO {
         // Contains used identifiers in order to avoid replications
         Set<String> used = new HashSet<>();
 
-        // Create several clauses: one for eanch identifiers
+        // Create several clauses: one for each identifier
         for (int i = 0; i < identifiers.size() && !used.contains(identifiers.get(i)); i++) {
             used.add(identifiers.get(i));
 
@@ -251,7 +251,7 @@ public abstract class AbstractSearchDAO {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey(field.getName());
         for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
-            if (field.getType().isAssignableFrom(attrSchemaType.getType())) {
+            if (attrSchemaType.getType().isAssignableFrom(field.getType())) {
                 schema.setType(attrSchemaType);
             }
         }

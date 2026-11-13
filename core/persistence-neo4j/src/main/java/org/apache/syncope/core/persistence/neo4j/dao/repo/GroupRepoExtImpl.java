@@ -197,12 +197,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Override
     public boolean existsUMembership(final String userKey, final String groupKey) {
-        return neo4jTemplate.count(
+        return neo4jClient.query(
                 "MATCH (u:" + Neo4jUser.NODE + " {id: $userKey})-[]-"
                 + "(n:" + Neo4jUMembership.NODE + ")-[]-"
                 + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
-                + "RETURN COUNT(n)",
-                Map.of("userKey", userKey, "groupKey", groupKey)) > 0;
+                + "RETURN n.id LIMIT 1").
+                bindAll(Map.of("userKey", userKey, "groupKey", groupKey)).
+                fetch().one().isPresent();
     }
 
     @Override
@@ -244,12 +245,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Override
     public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
-        return neo4jTemplate.count(
+        return neo4jClient.query(
                 "MATCH (a:" + Neo4jAnyObject.NODE + " {id: $anyObjectKey})-[]-"
                 + "(n:" + Neo4jAMembership.NODE + ")-[]-"
                 + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
-                + "RETURN COUNT(n)",
-                Map.of("anyObjectKey", anyObjectKey, "groupKey", groupKey)) > 0;
+                + "RETURN n.id LIMIT 1").
+                bindAll(Map.of("anyObjectKey", anyObjectKey, "groupKey", groupKey)).
+                fetch().one().isPresent();
     }
 
     @Override
@@ -273,28 +275,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Override
     public boolean isManager(final String key) {
-        long users = neo4jTemplate.count(
+        return neo4jTemplate.count(
                 "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
                 + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jUser.NODE + ") "
+                + "(p) "
+                + "WHERE p:" + Neo4jUser.NODE + " OR p:" + Neo4jGroup.NODE + " OR p:" + Neo4jAnyObject.NODE + " "
                 + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        long groups = neo4jTemplate.count(
-                "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
-                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        long anyObjects = neo4jTemplate.count(
-                "MATCH (n:" + Neo4jGroup.NODE + " {id: $key})-"
-                + "[:" + AbstractAny.GROUP_MANAGER_REL + "]-"
-                + "(p:" + Neo4jAnyObject.NODE + ") "
-                + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        return users + groups + anyObjects > 0;
+                Map.of("key", key)) > 0;
     }
 
     @Override
@@ -312,8 +299,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 userCache));
 
         // (b) see GroupDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> findUMembers(group).
-                forEach(m -> userDAO.findById(m).ifPresent(result::add)));
+        result.addAll(findAllById(
+                findManagedGroupKeys(key).flatMap(group -> findUMembers(group).stream()).toList(),
+                Neo4jUser.class,
+                userCache));
 
         return result.stream().distinct().toList();
     }
@@ -329,10 +318,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
     @Override
     public List<Group> findManagedGroups(final String key) {
-        return findManagedGroupKeys(key).map(group -> findById(group, Neo4jGroup.class, groupCache)).
-                flatMap(Optional::stream).
-                map(Group.class::cast).
-                toList();
+        return findAllById(findManagedGroupKeys(key).toList(), Neo4jGroup.class, groupCache);
     }
 
     @Override
@@ -350,8 +336,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 anyObjectCache));
 
         // (b) see GroupDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> findAMembers(group).
-                forEach(m -> anyObjectDAO.findById(m).ifPresent(result::add)));
+        result.addAll(findAllById(
+                findManagedGroupKeys(key).flatMap(group -> findAMembers(group).stream()).toList(),
+                Neo4jAnyObject.class,
+                anyObjectCache));
 
         return result.stream().distinct().toList();
     }
@@ -397,7 +385,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             Set<String> beforeTypeExts = before.getTypeExtensions().stream().map(GroupTypeExtension::getKey).
                     collect(Collectors.toSet());
             beforeTypeExts.removeAll(group.getTypeExtensions().stream().map(GroupTypeExtension::getKey).toList());
-            beforeTypeExts.forEach(r -> neo4jTemplate.deleteById(r, Neo4jGroupTypeExtension.class));
+            neo4jTemplate.deleteAllById(beforeTypeExts, Neo4jGroupTypeExtension.class);
         });
 
         S merged = neo4jTemplate.save(nodeValidator.validate(group));

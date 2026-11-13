@@ -152,9 +152,9 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     }
 
     protected EntityManagerFactory delegate() {
-        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
-            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
-        });
+        return Optional.ofNullable(delegates.get(AuthContextUtils.getDomain())).
+                orElseThrow(() -> new IllegalStateException(
+                        "Could not find EntityManagerFactory for domain " + AuthContextUtils.getDomain()));
     }
 
     @Override

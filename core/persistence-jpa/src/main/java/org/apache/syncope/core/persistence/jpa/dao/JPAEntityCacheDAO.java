@@ -81,9 +81,9 @@ public class JPAEntityCacheDAO implements EntityCacheDAO {
             classMap.put("hits", cacheStats.getHitCount(className));
             classMap.put("reads", cacheStats.getReadCount(className));
             classMap.put("writes", cacheStats.getWriteCount(className));
-            storeCache.put("total_hits", cacheStats.getTotalHitCount(className));
-            storeCache.put("total_reads", cacheStats.getTotalReadCount(className));
-            storeCache.put("total_writes", cacheStats.getTotalWriteCount(className));
+            classMap.put("total_hits", cacheStats.getTotalHitCount(className));
+            classMap.put("total_reads", cacheStats.getTotalReadCount(className));
+            classMap.put("total_writes", cacheStats.getTotalWriteCount(className));
             storeCacheDetails.add(classMap);
         });
 
@@ -109,10 +109,10 @@ public class JPAEntityCacheDAO implements EntityCacheDAO {
         queryStats.keys().forEach(queryKey -> {
             Map<String, Object> queryKeyMap = new LinkedHashMap<>();
             queryKeyMap.put("query_key", queryKey.toString());
-            queryCache.put("hits", queryStats.getHitCount(queryKey));
-            queryCache.put("executions", queryStats.getExecutionCount(queryKey));
-            queryCache.put("total_hits", queryStats.getTotalHitCount(queryKey));
-            queryCache.put("total_executions", queryStats.getTotalExecutionCount(queryKey));
+            queryKeyMap.put("hits", queryStats.getHitCount(queryKey));
+            queryKeyMap.put("executions", queryStats.getExecutionCount(queryKey));
+            queryKeyMap.put("total_hits", queryStats.getTotalHitCount(queryKey));
+            queryKeyMap.put("total_executions", queryStats.getTotalExecutionCount(queryKey));
             queryCacheDetails.add(queryKeyMap);
         });
 

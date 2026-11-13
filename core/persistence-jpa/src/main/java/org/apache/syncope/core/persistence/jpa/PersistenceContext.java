@@ -239,8 +239,9 @@ public class PersistenceContext {
                 + "FieldStrategies='"
                 + "java.util.Locale=org.apache.syncope.core.persistence.jpa.openjpa.LocaleValueHandler'");
 
-        jpaPropertyMap.put("openjpa.DataCache", "true");
-        jpaPropertyMap.put("openjpa.QueryCache", "true");
+        // bound the in-memory caches, otherwise they can grow unbounded on long-running installations
+        jpaPropertyMap.put("openjpa.DataCache", "true(CacheSize=1000,SoftReferenceSize=100)");
+        jpaPropertyMap.put("openjpa.QueryCache", "true(CacheSize=1000,SoftReferenceSize=0)");
 
         jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
 

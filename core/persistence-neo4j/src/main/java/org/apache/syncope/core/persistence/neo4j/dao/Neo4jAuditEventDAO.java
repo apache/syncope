@@ -22,8 +22,9 @@ import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
@@ -53,11 +54,12 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
             if (entityKey != null) {
                 checkEntityKey(entityKey);
 
+                String quoted = Pattern.quote(entityKey);
                 query.append(andIfNeeded()).
-                        append("(n.before =~ '.*key.*").append(entityKey).append(".*' OR ").
-                        append("n.inputs =~ '.*key.*").append(entityKey).append(".*' OR ").
-                        append("n.output =~ '.*key.*").append(entityKey).append(".*' OR ").
-                        append("n.throwable =~ '.*key.*").append(entityKey).append(".*')");
+                        append("(n.before =~ '.*key.*").append(quoted).append(".*' OR ").
+                        append("n.inputs =~ '.*key.*").append(quoted).append(".*' OR ").
+                        append("n.output =~ '.*key.*").append(quoted).append(".*' OR ").
+                        append("n.throwable =~ '.*key.*").append(quoted).append(".*')");
             }
             return this;
         }
@@ -210,9 +212,17 @@ public class Neo4jAuditEventDAO extends AbstractAuditEventDAO implements AuditEv
                     append(" LIMIT ").append(pageable.getPageSize());
         }
 
-        return neo4jClient.query(query.toString()).
+        List<String> keys = neo4jClient.query(query.toString()).
                 bindAll(parameters).fetch().all().stream().
-                map(found -> neo4jTemplate.findById(found.get("n.id"), Neo4jAuditEvent.class)).
-                flatMap(Optional::stream).map(this::toAuditEventTO).toList();
+                map(found -> found.get("n.id").toString()).toList();
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, Neo4jAuditEvent> found = new HashMap<>();
+        neo4jTemplate.findAllById(keys, Neo4jAuditEvent.class).
+                forEach(auditEvent -> found.put(auditEvent.getKey(), auditEvent));
+
+        return keys.stream().map(found::get).filter(Objects::nonNull).map(this::toAuditEventTO).toList();
     }
 }

@@ -89,7 +89,9 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
     @Override
     public void deleteById(final String key) {
         neo4jTemplate.findById(key, Neo4jRelationshipType.class).ifPresent(type -> {
-            findRelationshipsByType(type).stream().peek(relationship -> {
+            Collection<? extends Relationship<?, ?>> relationships = findRelationshipsByType(type);
+
+            relationships.forEach(relationship -> {
                 switch (relationship) {
                     case URelationship uRelationship ->
                         uRelationship.getLeftEnd().remove(uRelationship);
@@ -105,7 +107,20 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
                     }
                 }
                 relationship.setLeftEnd(null);
-            }).forEach(r -> neo4jTemplate.deleteById(r.getKey(), r.getClass()));
+            });
+
+            neo4jTemplate.deleteAllById(
+                    relationships.stream().
+                            filter(Neo4jURelationship.class::isInstance).
+                            map(Relationship::getKey).
+                            toList(),
+                    Neo4jURelationship.class);
+            neo4jTemplate.deleteAllById(
+                    relationships.stream().
+                            filter(Neo4jARelationship.class::isInstance).
+                            map(Relationship::getKey).
+                            toList(),
+                    Neo4jARelationship.class);
 
             neo4jTemplate.deleteById(key, Neo4jRelationshipType.class);
         });

@@ -76,24 +76,25 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
 
     @Override
     public Optional<? extends TaskExec<?>> findById(final String key) {
-        Optional<? extends TaskExec<?>> task = findById(TaskType.SCHEDULED, key);
-        if (task.isEmpty()) {
-            task = findById(TaskType.PULL, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.PUSH, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.MACRO, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.PROPAGATION, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.NOTIFICATION, key);
-        }
+        List<TaskType> types = List.of(TaskType.values());
 
-        return task;
+        StringBuilder query = new StringBuilder("CALL () { ");
+        for (int i = 0; i < types.size(); i++) {
+            if (i > 0) {
+                query.append(" UNION ALL ");
+            }
+            TaskType type = types.get(i);
+            query.append("MATCH (n:").append(taskUtilsFactory.getInstance(type).getTaskExecStorage()).
+                    append(") WHERE n.id = $id RETURN ").append(i).append(" AS priority, '").
+                    append(type.name()).append("' AS type");
+        }
+        query.append(" } RETURN type, priority ORDER BY priority LIMIT 1");
+
+        Optional<TaskType> type = neo4jClient.query(query.toString()).
+                bindAll(Map.of("id", key)).fetch().one().
+                map(found -> TaskType.valueOf(found.get("type").toString()));
+
+        return type.isEmpty() ? Optional.empty() : findById(type.get(), key);
     }
 
     @SuppressWarnings("unchecked")

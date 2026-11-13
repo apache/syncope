@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.neo4j.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.cache.Cache;
 import org.apache.commons.lang3.Strings;
@@ -134,9 +135,9 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
         realmSearchDAO.findChildren(realm).stream().
                 filter(child -> (policy instanceof AccountPolicy
-                && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
-                || (policy instanceof PasswordPolicy
-                && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))).
+                        && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
+                        || (policy instanceof PasswordPolicy
+                        && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))).
                 forEach(child -> {
                     result.add(child);
                     result.addAll(findSamePolicyChildren(child, policy));
@@ -243,8 +244,32 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
         S merged = neo4jTemplate.save(nodeValidator.validate(realm));
 
-        if (!fullPathAfter.equals(fullPathBefore)) {
-            realmSearchDAO.findChildren(merged).forEach(this::save);
+        if (fullPathBefore != null && !fullPathAfter.equals(fullPathBefore)) {
+            String oldPrefix = Strings.CS.appendIfMissing(fullPathBefore, "/");
+            String newPrefix = Strings.CS.appendIfMissing(fullPathAfter, "/");
+
+            List<String> descendants = neo4jClient.query(
+                    "MATCH (r:" + Neo4jRealm.NODE + ") WHERE r.fullPath STARTS WITH $oldPrefix RETURN r.id").
+                    bindAll(Map.of("oldPrefix", oldPrefix)).
+                    fetch().all().stream().
+                    map(found -> found.get("r.id").toString()).
+                    toList();
+
+            if (!descendants.isEmpty()) {
+
+                neo4jClient.query(
+                        "MATCH (r:" + Neo4jRealm.NODE + ") WHERE r.fullPath STARTS WITH $oldPrefix "
+                        + "SET r.fullPath = $newPrefix + substring(r.fullPath, size($oldPrefix))").
+                        bindAll(Map.of("oldPrefix", oldPrefix, "newPrefix", newPrefix)).
+                        run();
+
+                descendants.forEach(key -> cache.remove(EntityCacheKey.of(key)));
+
+                // descendants' attributes are untouched, so no RealmChecker#checkBeforeSave is needed for them
+                findAllById(descendants, Neo4jRealm.class, cache).forEach(descendant -> publisher.publishEvent(
+                        new EntityLifecycleEvent<>(
+                                this, SyncDeltaType.UPDATE, descendant, AuthContextUtils.getDomain())));
+            }
         }
 
         publisher.publishEvent(
@@ -276,7 +301,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
             toBeDeleted.setParent(null);
 
-            cache.remove(EntityCacheKey.of(realm.getKey()));
+            cache.remove(EntityCacheKey.of(toBeDeleted.getKey()));
 
             neo4jTemplate.deleteById(toBeDeleted.getKey(), Neo4jRealm.class);
 

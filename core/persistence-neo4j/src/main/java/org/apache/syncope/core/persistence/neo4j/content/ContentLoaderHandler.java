@@ -142,6 +142,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
 
     protected final Neo4jMappingContext mappingContext;
 
+    protected final Session session;
+
     public ContentLoaderHandler(
             final Driver driver,
             final Neo4jMappingContext mappingContext,
@@ -152,11 +154,17 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         super(rootElement, continueOnError, env);
         this.driver = driver;
         this.mappingContext = mappingContext;
+        this.session = driver.session();
+    }
+
+    @Override
+    public void endDocument() {
+        session.close();
     }
 
     @Override
     protected void fetch(final Attributes atts) {
-        try (Session session = driver.session()) {
+        try {
             String value = session.run(atts.getValue("query")).single().get(0).asString();
             String key = atts.getValue("key");
             fetches.put(key, value);
@@ -296,12 +304,22 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         if (qName.contains("_")) {
             String[] split = qName.split("_");
             query = parseRelationship(mappingContext.getNodeDescription(split[0]), split[1], atts).
-                    map(rel -> new Query(
-                    "MATCH (a:" + split[0] + " {id: '" + rel.leftId() + "'}), "
-                    + "(b:" + split[1] + " {id: '" + rel.rightId() + "'}) "
-                    + "CREATE (a)-"
-                    + "[:" + rel.type() + (rel.index() == null ? "" : " {index: " + rel.index() + "}") + "]->(b)",
-                    Map.of()));
+                    map(rel -> {
+                        Map<String, Object> props = new HashMap<>();
+                        props.put("leftId", rel.leftId());
+                        props.put("rightId", rel.rightId());
+                        if (rel.index() != null) {
+                            props.put("index", Integer.valueOf(rel.index()));
+                        }
+
+                        return new Query(
+                                "MATCH (a:" + split[0] + " {id: $leftId}), "
+                                + "(b:" + split[1] + " {id: $rightId}) "
+                                + "CREATE (a)-"
+                                + "[:" + rel.type()
+                                + (rel.index() == null ? "" : " {index: $index}") + "]->(b)",
+                                props);
+                    });
         } else {
             query = parseNode(mappingContext.getNodeDescription(qName), atts).map(node -> {
                 StringBuilder q = new StringBuilder("CREATE (n:").append(nodelabels(qName)).append(" {");
@@ -317,7 +335,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         query.ifPresent(q -> {
             LOG.debug("About to run: {}", q);
 
-            try (Session session = driver.session()) {
+            try {
                 session.run(q.statement(), q.props());
             } catch (Exception e) {
                 LOG.error("While processing {}", qName, e);

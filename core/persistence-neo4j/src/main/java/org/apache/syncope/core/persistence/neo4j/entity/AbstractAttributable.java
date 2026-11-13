@@ -62,12 +62,8 @@ public abstract class AbstractAttributable extends AbstractGeneratedKeyNode impl
             var entry = itor.next();
             Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
                 attr.setSchema(entry.getKey());
-                if (attr.getSchema() == null) {
-                    itor.remove();
-                } else {
-                    attr.getValues().forEach(value -> value.setAttr(attr));
-                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-                }
+                attr.getValues().forEach(value -> value.setAttr(attr));
+                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
             });
         }
     }

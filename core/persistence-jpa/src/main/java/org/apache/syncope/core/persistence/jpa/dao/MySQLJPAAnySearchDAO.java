@@ -72,9 +72,6 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final PlainSchema schema,
             final String fieldName) {
 
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
         obs.views.add(svs.field());
 
         item.select = new StringBuilder().append(schema.isUniqueConstraint()
@@ -88,7 +85,6 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 append(" AND usa.plainSchema ='").append(fieldName).append("'").
                 append(" LIMIT 1").
                 append(") AS ").append(fieldName).toString();
-        item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -196,7 +192,8 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 return new AttrCondQuery(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', ?" + setParameter(parameters, checked.schema().getKey())
+                        + ", NULL, '$[*].schema'"
                         + ") IS NOT NULL"));
             }
 
@@ -204,7 +201,8 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 return new AttrCondQuery(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
-                        + "plainAttrs, 'one', '" + checked.schema().getKey() + "', NULL, '$[*].schema'"
+                        + "plainAttrs, 'one', ?" + setParameter(parameters, checked.schema().getKey())
+                        + ", NULL, '$[*].schema'"
                         + ") IS NULL"));
             }
 
@@ -221,8 +219,9 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                     return new AttrCondQuery(true, new AnySearchNode.Leaf(
                             svs.field(),
                             "JSON_CONTAINS("
-                            + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
-                            + "')"));
+                            + "plainAttrs, ?" + setParameter(
+                                    parameters, POJOHelper.serialize(List.of(container)))
+                            + ")"));
                 } else {
                     AnySearchNode.Leaf node;
                     if (not && checked.schema().isMultivalue()) {

@@ -123,8 +123,9 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
 
     @Override
     public boolean existsById(final String key) {
-        return neo4jTemplate.count(
-                "MATCH (n:" + Neo4jPolicy.NODE + ") WHERE n.id = $key RETURN count(n)", Map.of("key", key)) > 0;
+        return neo4jClient.query(
+                "MATCH (n:" + Neo4jPolicy.NODE + ") WHERE n.id = $key RETURN n.id LIMIT 1").
+                bindAll(Map.of("key", key)).fetch().one().isPresent();
     }
 
     @Override

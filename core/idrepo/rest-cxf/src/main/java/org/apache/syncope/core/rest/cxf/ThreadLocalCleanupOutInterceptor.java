@@ -22,7 +22,6 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
 import org.slf4j.MDC;
@@ -38,8 +37,6 @@ public class ThreadLocalCleanupOutInterceptor extends AbstractPhaseInterceptor<M
 
     @Override
     public void handleMessage(final Message message) throws Fault {
-        FormatUtils.clear();
-
         ThreadClassLoaderManager.clearInstance();
         CurrentLocale.clear();
 
