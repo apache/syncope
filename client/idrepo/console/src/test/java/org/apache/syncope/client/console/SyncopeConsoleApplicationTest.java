@@ -39,10 +39,10 @@ import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
 
-public class SyncopeConsoleApplicationTest extends AbstractTest {
+class SyncopeConsoleApplicationTest extends AbstractTest {
 
     @Test
-    public void securityHeaders() throws IOException {
+    void securityHeaders() throws IOException {
         Map<String, String> securityHeaders = PROPS.getSecurityHeaders();
         assertEquals(4, securityHeaders.size());
 
@@ -62,7 +62,7 @@ public class SyncopeConsoleApplicationTest extends AbstractTest {
     }
 
     @Test
-    public void errors() {
+    void errors() {
         SyncopeConsoleSession session = SyncopeConsoleSession.get();
 
         assertNull(session.getFeedbackMessages().first());

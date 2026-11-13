@@ -45,7 +45,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnInstanceTest extends AbstractTest {
+class ConnInstanceTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
@@ -54,7 +54,7 @@ public class ConnInstanceTest extends AbstractTest {
     private RealmDAO realmDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<GrantedAuthority> authorities = IdMEntitlement.values().stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public void findById() {
+    void findById() {
         ConnInstance connInstance = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
         assertNotNull(connInstance);
         assertEquals("net.tirasa.connid.bundles.soap.WebServiceConnector", connInstance.getConnectorName());
@@ -90,7 +90,7 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
         connInstance.setLocation("file:" + System.getProperty("java.io.tmpdir"));
         connInstance.setVersion("1.0");
@@ -140,7 +140,7 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         ConnInstance connInstance = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
 
         connInstanceDAO.deleteById(connInstance.getKey());

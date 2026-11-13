@@ -29,10 +29,10 @@ import org.apache.syncope.core.spring.security.throttle.PasswordResetThrottleExc
 import org.junit.jupiter.api.Test;
 import org.springframework.core.env.Environment;
 
-public class RestServiceExceptionMapperTest {
+class RestServiceExceptionMapperTest {
 
     @Test
-    public void passwordResetThrottleReturnsTooManyRequests() {
+    void passwordResetThrottleReturnsTooManyRequests() {
         Response response = new RestServiceExceptionMapper(mock(Environment.class)).
                 toResponse(new PasswordResetThrottleException(42));
 

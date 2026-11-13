@@ -59,7 +59,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceLogicTest extends AbstractTest {
+class ResourceLogicTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {
@@ -125,7 +125,7 @@ public class ResourceLogicTest extends AbstractTest {
     private AnyTypeDAO anyTypeDAO;
 
     @Test
-    public void updateChangePurpose() {
+    void updateChangePurpose() {
         ResourceTO ws1 = logic.read("ws-target-resource-1");
         assertNotNull(ws1);
 
@@ -141,7 +141,7 @@ public class ResourceLogicTest extends AbstractTest {
     }
 
     @Test
-    public void updateChangeOverrideCapabilities() {
+    void updateChangeOverrideCapabilities() {
         ResourceTO ldap = logic.read("resource-ldap");
         assertNotNull(ldap);
         assertTrue(ldap.getCapabilitiesOverride().isEmpty());
@@ -157,7 +157,7 @@ public class ResourceLogicTest extends AbstractTest {
     }
 
     @Test
-    public void orgUnit() {
+    void orgUnit() {
         ResourceTO resourceTO = buildResourceTO("ws-orgunit");
         assertNull(resourceTO.getOrgUnit());
         assertNull(resourceTO.getPropagationPriority());
@@ -196,7 +196,7 @@ public class ResourceLogicTest extends AbstractTest {
     }
 
     @Test
-    public void setLatestSyncToken() {
+    void setLatestSyncToken() {
         ConnectorManager connectorManager = mock(ConnectorManager.class);
         when(connectorManager.getConnector(any(ExternalResource.class))).thenAnswer(ic -> {
             Connector connector = mock(Connector.class);

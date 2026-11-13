@@ -47,7 +47,7 @@ import tools.jackson.dataformat.csv.CsvMapper;
 import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
-public class ReconciliationLogicTest extends AbstractTest {
+class ReconciliationLogicTest extends AbstractTest {
 
     @Autowired
     private ReconciliationLogic reconciliationLogic;
@@ -56,7 +56,7 @@ public class ReconciliationLogicTest extends AbstractTest {
     private UserLogicOp userLogic;
 
     @Test
-    public void pullFromCSV() {
+    void pullFromCSV() {
         CSVPullSpec spec = new CSVPullSpec.Builder(AnyTypeKind.USER.name(), "username").build();
         InputStream csv = getClass().getResourceAsStream("/test1.csv");
 
@@ -85,7 +85,7 @@ public class ReconciliationLogicTest extends AbstractTest {
     }
 
     @Test
-    public void pushToCSV() throws IOException {
+    void pushToCSV() throws IOException {
         Page<UserTO> search = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN,
                 () -> userLogic.search(null, PageRequest.of(0, 100), SyncopeConstants.ROOT_REALM, true, false));
         assertNotNull(search);

@@ -20,7 +20,7 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 
 import org.junit.jupiter.api.BeforeAll;
 
-public class ZookeeperConfParamOpsTest extends ZookeeperConfParamOpsITCase {
+class ZookeeperConfParamOpsTest extends ZookeeperConfParamOpsITCase {
 
     @BeforeAll
     public static void setUp() throws Exception {

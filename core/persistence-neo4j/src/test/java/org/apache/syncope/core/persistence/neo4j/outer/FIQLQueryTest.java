@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class FIQLQueryTest extends AbstractTest {
+class FIQLQueryTest extends AbstractTest {
 
     @Autowired
     private FIQLQueryDAO fiqlQueryDAO;
@@ -39,7 +39,7 @@ public class FIQLQueryTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void findByOwner() {
+    void findByOwner() {
         FIQLQuery query = entityFactory.newEntity(FIQLQuery.class);
         query.setOwner(userDAO.findByUsername("rossini").orElseThrow());
         query.setName("name");

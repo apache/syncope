@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyTypeTest extends AbstractTest {
+class AnyTypeTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -45,7 +45,7 @@ public class AnyTypeTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void find() {
+    void find() {
         AnyType userType = anyTypeDAO.getUser();
         assertNotNull(userType);
         assertEquals(AnyTypeKind.USER, userType.getKind());
@@ -64,13 +64,13 @@ public class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AnyType> list = anyTypeDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         AnyType newType = entityFactory.newEntity(AnyType.class);
         newType.setKey("new type");
         newType.setKind(AnyTypeKind.ANY_OBJECT);
@@ -83,7 +83,7 @@ public class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidKind() {
+    void saveInvalidKind() {
         assertThrows(InvalidEntityException.class, () -> {
             AnyType newType = entityFactory.newEntity(AnyType.class);
             newType.setKey("new type");
@@ -94,7 +94,7 @@ public class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidName() {
+    void saveInvalidName() {
         assertThrows(InvalidEntityException.class, () -> {
             AnyType newType = entityFactory.newEntity(AnyType.class);
             newType.setKey("group");
@@ -105,7 +105,7 @@ public class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         AnyType otherType = anyTypeDAO.findById("PRINTER").orElseThrow();
         assertNotNull(otherType);
 
@@ -114,7 +114,7 @@ public class AnyTypeTest extends AbstractTest {
     }
 
     @Test
-    public void deleteInvalid() {
+    void deleteInvalid() {
         assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.deleteById(AnyTypeKind.USER.name()));
     }
 }

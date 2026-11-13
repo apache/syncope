@@ -38,7 +38,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
-public class GuardedStringDeserializerTest extends AbstractTest {
+class GuardedStringDeserializerTest extends AbstractTest {
 
     private static final String READONLY = "readOnly";
 
@@ -60,7 +60,7 @@ public class GuardedStringDeserializerTest extends AbstractTest {
     private JsonNode node;
 
     @Test
-    public void deserialize() {
+    void deserialize() {
         Map<String, JsonNode> kids = new HashMap<>();
         kids.put(READONLY, node);
         kids.put(DISPOSED, node);

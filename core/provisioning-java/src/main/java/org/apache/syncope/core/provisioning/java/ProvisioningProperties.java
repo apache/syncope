@@ -31,6 +31,8 @@ public class ProvisioningProperties {
 
     private final ExecutorProperties scheduling = new ExecutorProperties();
 
+    private final ResultHandlerDispatcherProperties resultHandlerDispatcher = new ResultHandlerDispatcherProperties();
+
     private final List<String> connIdLocation = new ArrayList<>();
 
     public ExecutorProperties getAsyncConnectorFacadeExecutor() {
@@ -43,6 +45,10 @@ public class ProvisioningProperties {
 
     public ExecutorProperties getScheduling() {
         return scheduling;
+    }
+
+    public ResultHandlerDispatcherProperties getResultHandlerDispatcher() {
+        return resultHandlerDispatcher;
     }
 
     public List<String> getConnIdLocation() {

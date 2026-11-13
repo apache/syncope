@@ -57,6 +57,9 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <doclint>none</doclint>
+        </configuration>
         <executions>
           <execution>
             <id>attach-javadocs</id>

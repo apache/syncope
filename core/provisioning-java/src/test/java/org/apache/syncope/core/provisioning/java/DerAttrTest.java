@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DerAttrTest extends AbstractTest {
+class DerAttrTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
@@ -45,7 +45,7 @@ public class DerAttrTest extends AbstractTest {
     private DerAttrHandler derAttrHandler;
 
     @Test
-    public void derAttrFromSpecialAttrs() {
+    void derAttrFromSpecialAttrs() {
         DerSchema info = derSchemaDAO.findById("info").orElseThrow();
         assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 

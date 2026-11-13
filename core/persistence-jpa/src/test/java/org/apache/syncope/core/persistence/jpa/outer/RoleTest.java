@@ -39,7 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RoleTest extends AbstractTest {
+class RoleTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
@@ -57,7 +57,7 @@ public class RoleTest extends AbstractTest {
     private DelegationDAO delegationDAO;
 
     @Test
-    public void delete() {
+    void delete() {
         // 0. create role
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
@@ -89,7 +89,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public void deleteCascadeOnDelegations() {
+    void deleteCascadeOnDelegations() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 

@@ -31,12 +31,12 @@ import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
-public class SerializationTest {
+class SerializationTest {
 
     private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
-    public void accessPolicyConf() {
+    void accessPolicyConf() {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
 
@@ -56,7 +56,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void attrReleasePolicyConf() {
+    void attrReleasePolicyConf() {
         AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
         policy.setName("Test Attribute Release Policy");
 

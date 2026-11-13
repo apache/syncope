@@ -30,10 +30,10 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class SyncTokenSerializerTest extends AbstractTest {
+class SyncTokenSerializerTest extends AbstractTest {
 
     @Test
-    public void syncTokenSerializer(
+    void syncTokenSerializer(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) throws IOException {
 

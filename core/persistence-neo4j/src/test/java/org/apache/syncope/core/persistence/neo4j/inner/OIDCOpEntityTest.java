@@ -36,13 +36,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OIDCOpEntityTest extends AbstractTest {
+class OIDCOpEntityTest extends AbstractTest {
 
     @Autowired
     private OIDCOpEntityDAO oidcOpEntityDAO;
 
     @Test
-    public void save() throws Exception {
+    void save() throws Exception {
         OIDCOpEntity oidcOpEntity = entityFactory.newEntity(OIDCOpEntity.class);
 
         RSAKey jwk = new RSAKeyGenerator(2048).

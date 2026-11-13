@@ -51,7 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-public class LDAPPasswordPullActionsTest extends AbstractTest {
+class LDAPPasswordPullActionsTest extends AbstractTest {
 
     @Mock
     private ProvisioningProfile<?, ?> profile;
@@ -67,7 +67,7 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private LDAPPasswordPullActions actions;
 
     @Test
-    public void afterWithNoUser() throws JobExecutionException {
+    void afterWithNoUser() throws JobExecutionException {
         UserTO userTO = new UserTO();
         userTO.setKey(UUID.randomUUID().toString());
         when(userDAO.findById(userTO.getKey())).thenReturn(Optional.empty());
@@ -76,7 +76,7 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after(final @Mock User user) throws JobExecutionException {
+    void after(final @Mock User user) throws JobExecutionException {
         UserTO userTO = new UserTO();
         userTO.setKey(UUID.randomUUID().toString());
         when(userDAO.findById(userTO.getKey())).thenAnswer(ic -> Optional.of(user));

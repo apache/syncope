@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
@@ -47,7 +48,7 @@ import tools.jackson.dataformat.csv.CsvMapper;
 import tools.jackson.dataformat.csv.CsvSchema;
 
 @Transactional
-public class StreamPushJobDelegateTest extends AbstractTest {
+class StreamPushJobDelegateTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -67,7 +68,7 @@ public class StreamPushJobDelegateTest extends AbstractTest {
     }
 
     @Test
-    public void push() throws IOException {
+    void push() throws IOException {
         PipedInputStream in = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream(in);
 
@@ -90,7 +91,7 @@ public class StreamPushJobDelegateTest extends AbstractTest {
                         connector,
                         List.of(),
                         pushTask,
-                        "user");
+                        AnyTypeKind.USER.name());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

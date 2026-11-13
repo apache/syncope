@@ -31,7 +31,7 @@ import com.nimbusds.jose.util.Base64URL;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class MSEntraJWSVerifierCacheLoaderTest extends AbstractTest {
+class MSEntraJWSVerifierCacheLoaderTest extends AbstractTest {
 
     @Test
     void getOpenIDMetadataDocumentUrl() {

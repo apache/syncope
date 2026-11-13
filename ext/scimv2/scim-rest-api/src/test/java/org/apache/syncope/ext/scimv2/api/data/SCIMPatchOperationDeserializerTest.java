@@ -320,6 +320,88 @@ public class SCIMPatchOperationDeserializerTest {
     }
 
     @Test
+    public void addSchemaQualifiedAttributeValue() {
+        String input =
+                "{"
+                + "  \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "  \"Operations\": [{"
+                + "      \"op\": \"add\","
+                + "      \"path\": \"urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department\","
+                + "      \"value\": \"Engineering\""
+                + "    }"
+                + "  ]"
+                + "}";
+
+        SCIMPatchOp scimPatchOp = MAPPER.readValue(input, SCIMPatchOp.class);
+        assertEquals(1, scimPatchOp.getOperations().size());
+
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
+        assertEquals(PatchOp.add, op.getOp());
+        assertEquals("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User", op.getPath().getSchema());
+        assertEquals("department", op.getPath().getAttribute());
+
+        assertEquals(1, op.getValue().size());
+
+        assertEquals("Engineering", op.getValue().getFirst());
+    }
+
+    @Test
+    public void replaceActive() {
+        String input =
+                "{"
+                + "  \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "  \"Operations\": [{"
+                + "      \"op\": \"replace\","
+                + "      \"path\": \"active\","
+                + "      \"value\": false"
+                + "    }"
+                + "  ]"
+                + "}";
+
+        SCIMPatchOp scimPatchOp = MAPPER.readValue(input, SCIMPatchOp.class);
+        assertEquals(1, scimPatchOp.getOperations().size());
+
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
+        assertEquals(PatchOp.replace, op.getOp());
+        assertEquals("active", op.getPath().getAttribute());
+
+        assertEquals(1, op.getValue().size());
+
+        assertEquals(Boolean.FALSE, op.getValue().getFirst());
+    }
+
+    @Test
+    public void replaceName() {
+        String input =
+                "{"
+                + "  \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "  \"Operations\": [{"
+                + "      \"op\": \"replace\","
+                + "      \"path\": \"name\","
+                + "      \"value\": {"
+                + "        \"givenName\": \"Babs\","
+                + "        \"familyName\": \"Jensen\""
+                + "      }"
+                + "    }"
+                + "  ]"
+                + "}";
+
+        SCIMPatchOp scimPatchOp = MAPPER.readValue(input, SCIMPatchOp.class);
+        assertEquals(1, scimPatchOp.getOperations().size());
+
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
+        assertEquals(PatchOp.replace, op.getOp());
+        assertEquals("name", op.getPath().getAttribute());
+
+        assertEquals(1, op.getValue().size());
+
+        SCIMUser user = (SCIMUser) op.getValue().getFirst();
+        assertNotNull(user.getName());
+        assertEquals("Babs", user.getName().getGivenName());
+        assertEquals("Jensen", user.getName().getFamilyName());
+    }
+
+    @Test
     public void addAttributeValue() {
         String input =
                 "{"

@@ -92,7 +92,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return findById(key).map(Any::getResources).
+        return Optional.ofNullable(authFind(key)).
+                map(Any::getResources).
                 orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }

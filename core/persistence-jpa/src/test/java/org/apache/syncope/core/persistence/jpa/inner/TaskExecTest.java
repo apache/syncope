@@ -38,7 +38,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class TaskExecTest extends AbstractTest {
+class TaskExecTest extends AbstractTest {
 
     @Autowired
     private TaskExecDAO taskExecDAO;
@@ -50,7 +50,7 @@ public class TaskExecTest extends AbstractTest {
     private TaskUtilsFactory taskUtilsFactory;
 
     @Test
-    public void findAll() {
+    void findAll() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
@@ -63,7 +63,7 @@ public class TaskExecTest extends AbstractTest {
     }
 
     @Test
-    public void findLatestStarted() {
+    void findLatestStarted() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
@@ -73,7 +73,7 @@ public class TaskExecTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE214() {
+    void issueSYNCOPE214() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);

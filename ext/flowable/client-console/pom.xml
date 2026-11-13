@@ -55,7 +55,8 @@ under the License.
       <artifactId>syncope-client-idrepo-console</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
+    <!-- TEST -->
     <dependency>
       <groupId>org.flowable</groupId>
       <artifactId>flowable-ui-modeler-frontend</artifactId>
@@ -64,6 +65,21 @@ under the License.
     <dependency>
       <groupId>org.flowable</groupId>
       <artifactId>flowable-ui-modeler-logic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-tester</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

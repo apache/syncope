@@ -46,13 +46,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AuthModuleTest extends AbstractTest {
+class AuthModuleTest extends AbstractTest {
 
     @Autowired
     private AuthModuleDAO authModuleDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AuthModule> modules = authModuleDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
@@ -60,7 +60,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void find() {
+    void find() {
         AuthModule authModule = authModuleDAO.findById("DefaultLDAPAuthModule").orElseThrow();
         assertTrue(authModule.getConf() instanceof LDAPAuthModuleConf);
 
@@ -93,7 +93,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void findByType() {
+    void findByType() {
         List<? extends AuthModule> authModules = authModuleDAO.findAll();
         assertTrue(authModules.stream().anyMatch(
                 authModule -> authModule.getConf() instanceof LDAPAuthModuleConf
@@ -151,7 +151,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithStaticModule() {
+    void saveWithStaticModule() {
         StaticAuthModuleConf conf = new StaticAuthModuleConf();
         conf.getUsers().put("user1", UUID.randomUUID().toString());
         conf.getUsers().put("user2", "user2Password123");
@@ -160,7 +160,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithJaasModule() {
+    void saveWithJaasModule() {
         JaasAuthModuleConf conf = new JaasAuthModuleConf();
         conf.setKerberosKdcSystemProperty("sample-value");
         conf.setKerberosRealmSystemProperty("sample-value");
@@ -172,7 +172,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithLdapModule() {
+    void saveWithLdapModule() {
         LDAPAuthModuleConf conf = new LDAPAuthModuleConf();
         conf.setBaseDn("dc=example,dc=org");
         conf.setSearchFilter("cn={user}");
@@ -185,7 +185,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithGoogleAuthenticatorModule() {
+    void saveWithGoogleAuthenticatorModule() {
         GoogleMfaAuthModuleConf conf = new GoogleMfaAuthModuleConf();
         conf.setCodeDigits(6);
         conf.setIssuer("SyncopeTest");
@@ -197,7 +197,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithDuoAuthenticatorModule() {
+    void saveWithDuoAuthenticatorModule() {
         DuoMfaAuthModuleConf conf = new DuoMfaAuthModuleConf();
         conf.setSecretKey("Q2IU2i6BFNd6VYflZT8Evl6lF7oPlj4PM15BmRU7");
         conf.setIntegrationKey("DIOXVRZD1UMZ8XXMNFQ6");
@@ -206,7 +206,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithOIDCAuthModule() {
+    void saveWithOIDCAuthModule() {
         OIDCAuthModuleConf conf = new OIDCAuthModuleConf();
         conf.setClientId("OIDCTestId");
         conf.setDiscoveryUri("www.testurl.com");
@@ -218,7 +218,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithJDBCModule() {
+    void saveWithJDBCModule() {
         JDBCAuthModuleConf conf = new JDBCAuthModuleConf();
         conf.setSql("SELECT * FROM table WHERE name=?");
         conf.setFieldPassword("password");
@@ -227,7 +227,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithSyncopeModule() {
+    void saveWithSyncopeModule() {
         SyncopeAuthModuleConf conf = new SyncopeAuthModuleConf();
         conf.setDomain("Master");
 
@@ -235,7 +235,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithSAML2IdPModule() {
+    void saveWithSAML2IdPModule() {
         SAML2IdPAuthModuleConf conf = new SAML2IdPAuthModuleConf();
         conf.setServiceProviderEntityId("testEntityId");
         conf.setProviderName("testProviderName");
@@ -243,7 +243,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithSimpleMfaModule() {
+    void saveWithSimpleMfaModule() {
         SimpleMfaAuthModuleConf conf = new SimpleMfaAuthModuleConf();
         conf.setTokenLength(9);
         conf.setTimeToKillInSeconds(120);
@@ -251,7 +251,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithLDAPModule() {
+    void updateWithLDAPModule() {
         AuthModule module = authModuleDAO.findById("DefaultLDAPAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         LDAPAuthModuleConf.class.cast(conf).setBaseDn("dc=example2,dc=org");
@@ -268,7 +268,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithJDBCModule() {
+    void updateWithJDBCModule() {
         AuthModule module = authModuleDAO.findById("DefaultJDBCAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         JDBCAuthModuleConf.class.cast(conf).setSql("SELECT * FROM otherTable WHERE name=?");
@@ -282,7 +282,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithGoogleMfaModule() {
+    void updateWithGoogleMfaModule() {
         AuthModule module = authModuleDAO.findById("DefaultGoogleMfaAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         GoogleMfaAuthModuleConf.class.cast(conf).setLabel("newLabel");
@@ -296,7 +296,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithDuoMfaModule() {
+    void updateWithDuoMfaModule() {
         AuthModule module = authModuleDAO.findById("DefaultDuoMfaAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         String secretKey = UUID.randomUUID().toString();
@@ -311,7 +311,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithSAML2IdPModule() {
+    void updateWithSAML2IdPModule() {
         AuthModule module = authModuleDAO.findById("DefaultSAML2IdPAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderEntityId("newEntityId");
@@ -326,7 +326,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithOIDCModule() {
+    void updateWithOIDCModule() {
         AuthModule module = authModuleDAO.findById("DefaultOIDCAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         OIDCAuthModuleConf.class.cast(conf).setResponseType("newCode");
@@ -340,7 +340,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithJaasModule() {
+    void updateWithJaasModule() {
         AuthModule module = authModuleDAO.findById("DefaultJaasAuthModule").orElseThrow();
         AuthModuleConf conf = module.getConf();
         JaasAuthModuleConf.class.cast(conf).setRealm("SYNCOPE_NEW");
@@ -354,7 +354,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithStaticModule() {
+    void updateWithStaticModule() {
         AuthModule module = authModuleDAO.findById("DefaultStaticAuthModule").orElseThrow();
         assertNotNull(module);
         assertEquals(1, StaticAuthModuleConf.class.cast(module.getConf()).getUsers().size());
@@ -370,7 +370,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithSyncopeModule() {
+    void updateWithSyncopeModule() {
         AuthModule module = authModuleDAO.findById("DefaultSyncopeAuthModule").orElseThrow();
 
         AuthModuleConf conf = module.getConf();
@@ -385,7 +385,7 @@ public class AuthModuleTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         assertTrue(authModuleDAO.findById("DefaultSyncopeAuthModule").isPresent());
 
         authModuleDAO.deleteById("DefaultSyncopeAuthModule");

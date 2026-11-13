@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SecurityQuestionTest extends AbstractTest {
+class SecurityQuestionTest extends AbstractTest {
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
@@ -38,7 +38,7 @@ public class SecurityQuestionTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void test() {
+    void test() {
         User user = userDAO.findByUsername("bellini").orElseThrow();
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());

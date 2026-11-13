@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class GroupTest extends AbstractTest {
+class GroupTest extends AbstractTest {
 
     @Autowired
     private GroupDAO groupDAO;
@@ -46,13 +46,13 @@ public class GroupTest extends AbstractTest {
     private AnyTypeDAO anyTypeDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends Group> groups = groupDAO.findAll();
         assertEquals(16, groups.size());
     }
 
     @Test
-    public void find() {
+    void find() {
         Group group = groupDAO.findByName("additional").orElseThrow();
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
@@ -60,7 +60,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void findKeysByNamePattern() {
+    void findKeysByNamePattern() {
         List<String> groups = groupDAO.findKeysByNamePattern("%child");
         assertEquals(2, groups.size());
         assertTrue(groups.contains("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
@@ -68,7 +68,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("secondChild");
         group.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
@@ -79,7 +79,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Group group = groupDAO.findById("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a").orElseThrow();
         groupDAO.deleteById(group.getKey());
 

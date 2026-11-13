@@ -36,14 +36,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class PropagationByResourceTest extends AbstractTest {
+class PropagationByResourceTest extends AbstractTest {
 
     private static final String KEY = "testKey";
 
     private final PropagationByResource<String> propagationByResource = new PropagationByResource<>();
 
     @Test
-    public void voidMethods(
+    void voidMethods(
             final @Mock Set<String> toBeCreated,
             final @Mock Set<String> toBeUpdated,
             final @Mock Set<String> toBeDeleted,
@@ -86,7 +86,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void add() {
+    void add() {
         assertTrue(propagationByResource.add(ResourceOperation.CREATE, KEY));
         assertTrue(propagationByResource.add(ResourceOperation.UPDATE, KEY));
         assertTrue(propagationByResource.add(ResourceOperation.DELETE, KEY));
@@ -94,7 +94,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void addAll() {
+    void addAll() {
         List<String> keys = new ArrayList<>();
         keys.add("testKey1");
         keys.add("testKey2");
@@ -106,7 +106,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void remove() {
+    void remove() {
         assertFalse(propagationByResource.remove(ResourceOperation.CREATE, KEY));
         assertFalse(propagationByResource.remove(ResourceOperation.UPDATE, KEY));
         assertFalse(propagationByResource.remove(ResourceOperation.DELETE, KEY));
@@ -114,7 +114,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void removeAll() {
+    void removeAll() {
         Set<String> keys = new HashSet<>();
         String key1 = "key1";
         String key2 = "key2";
@@ -134,7 +134,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void retainAll() {
+    void retainAll() {
         Set<String> keys = new HashSet<>();
         String key1 = "key1";
         String key2 = "key2";
@@ -151,7 +151,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void removeAndRetainAll() {
+    void removeAndRetainAll() {
         List<String> keys = new ArrayList<>();
         keys.add("testKey1");
         keys.add("testKey2");
@@ -161,7 +161,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void contains() {
+    void contains() {
         assertFalse(propagationByResource.contains(ResourceOperation.CREATE, KEY));
         assertFalse(propagationByResource.contains(ResourceOperation.UPDATE, KEY));
         assertFalse(propagationByResource.contains(ResourceOperation.DELETE, KEY));
@@ -176,7 +176,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void get() {
+    void get() {
         Set<String> matchingList = new HashSet<>();
         matchingList.add(KEY);
 
@@ -189,12 +189,12 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void asMap() {
+    void asMap() {
         assertEquals(Map.of(), propagationByResource.asMap());
     }
 
     @Test
-    public void set() {
+    void set() {
         Set<String> keys = new HashSet<>();
         keys.add("testKey1");
         keys.add("testKey2");
@@ -210,7 +210,7 @@ public class PropagationByResourceTest extends AbstractTest {
     }
 
     @Test
-    public void byLinkedAccount() {
+    void byLinkedAccount() {
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
         propByLinkedAccount.add(ResourceOperation.CREATE, Pair.of("resource1", "connObjectKey1"));
         propByLinkedAccount.add(ResourceOperation.CREATE, Pair.of("resource2", "connObjectKey2"));

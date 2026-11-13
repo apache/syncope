@@ -43,18 +43,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AuthProfileTest extends AbstractTest {
+class AuthProfileTest extends AbstractTest {
 
     @Autowired
     private AuthProfileDAO authProfileDAO;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         entityManager.createQuery("DELETE FROM " + JPAAuthProfile.class.getSimpleName()).executeUpdate();
     }
 
     @Test
-    public void googleMfaToken() {
+    void googleMfaToken() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
 
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
@@ -85,7 +85,7 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
-    public void webAuthnRegisteredDevice() {
+    void webAuthnRegisteredDevice() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
         String record = "[ {"
                 + "    \"userIdentity\" : {"
@@ -122,7 +122,7 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
-    public void googleMfaAccount() {
+    void googleMfaAccount() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
 
         createAuthProfileWithAccount(id);
@@ -144,7 +144,7 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
-    public void impersonationAccounts() {
+    void impersonationAccounts() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
 
         createAuthProfileWithAccount(id);
@@ -167,7 +167,7 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
-    public void findByOwnerLike() {
+    void findByOwnerLike() {
         createAuthProfileWithAccount("owner1");
         createAuthProfileWithAccount("owner2");
         createAuthProfileWithAccount("test");

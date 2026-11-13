@@ -67,7 +67,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class TaskTest extends AbstractTest {
+class TaskTest extends AbstractTest {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -82,14 +82,14 @@ public class TaskTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void findByName() {
+    void findByName() {
         Optional<SchedTask> task = taskDAO.findByName(TaskType.SCHEDULED, "SampleJob Task");
         assertTrue(task.isPresent());
         assertEquals(taskDAO.findById(TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec597979"), task);
     }
 
     @Test
-    public void findWithoutExecs() {
+    void findWithoutExecs() {
         assertEquals(3, taskDAO.countToExec(TaskType.PROPAGATION));
 
         List<PropagationTask> tasks = taskDAO.findToExec(TaskType.PROPAGATION, Pageable.unpaged());
@@ -98,7 +98,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void findPaginated() {
+    void findPaginated() {
         List<PropagationTask> tasks = taskDAO.findAll(
                 TaskType.PROPAGATION, null, null, null, null, PageRequest.of(0, 2));
         assertNotNull(tasks);
@@ -124,7 +124,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         assertEquals(6, taskDAO.findAll(TaskType.PROPAGATION).size());
         assertEquals(1, taskDAO.findAll(TaskType.NOTIFICATION).size());
         assertEquals(3, taskDAO.findAll(TaskType.SCHEDULED).size());
@@ -147,7 +147,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void savePropagationTask() {
+    void savePropagationTask() {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
@@ -170,7 +170,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveMacroTask() throws Exception {
+    void saveMacroTask() throws Exception {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setRealm(realmDAO.getRoot());
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
@@ -227,7 +227,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         PropagationTask task = (PropagationTask) taskDAO.findById(
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);

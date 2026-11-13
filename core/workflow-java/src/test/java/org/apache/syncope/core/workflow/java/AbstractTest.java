@@ -21,15 +21,26 @@ package org.apache.syncope.core.workflow.java;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.jpa.MasterDomain;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, WorkflowTestContext.class })
-public abstract class AbstractTest {
+abstract class AbstractTest {
 
     private static Supplier<Object> JDBC_URL_SUPPLIER;
 
@@ -55,5 +66,24 @@ public abstract class AbstractTest {
         registry.add("DB_URL", JDBC_URL_SUPPLIER);
         registry.add("DB_USER", DB_CRED_SUPPLIER);
         registry.add("DB_PASSWORD", DB_CRED_SUPPLIER);
+    }
+
+    @BeforeAll
+    static void setAuthContext() {
+        List<GrantedAuthority> authorities = IdRepoEntitlement.values().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
+        authorities.add(new SyncopeGrantedAuthority("PRINTER_READ", SyncopeConstants.ROOT_REALM));
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN, null));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterAll
+    static void unsetAuthContext() {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 }

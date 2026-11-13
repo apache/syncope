@@ -38,7 +38,7 @@ import org.identityconnectors.framework.common.objects.filter.NotFilter;
 import org.identityconnectors.framework.common.objects.filter.OrFilter;
 import org.junit.jupiter.api.Test;
 
-public class FilterConverterTest {
+class FilterConverterTest {
 
     private boolean equals(final Filter filter1, final Filter filter2) {
         return EqualsBuilder.reflectionEquals(filter1, filter2);
@@ -58,7 +58,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void eq() {
+    void eq() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiql);
 
@@ -68,7 +68,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void ieq() {
+    void ieq() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("rossini").query();
         assertEquals("username=~rossini", fiql);
 
@@ -78,7 +78,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void nieq() {
+    void nieq() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("rossini").
                 query();
         assertEquals("username!~rossini", fiql);
@@ -95,7 +95,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void like() {
+    void like() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiql);
 
@@ -122,7 +122,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void ilike() {
+    void ilike() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros*").query();
         assertEquals("username=~ros*", fiql);
 
@@ -135,7 +135,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void nilike() {
+    void nilike() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").query();
         assertEquals("username!~ros*", fiql);
 
@@ -148,7 +148,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void isNull() {
+    void isNull() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
         assertEquals("loginDate==" + SpecialAttr.NULL, fiql);
 
@@ -163,7 +163,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void isNotNull() {
+    void isNotNull() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
         assertEquals("loginDate!=" + SpecialAttr.NULL, fiql);
 
@@ -173,7 +173,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void hasAuxClasses() {
+    void hasAuxClasses() {
         try {
             FilterConverter.convert(SpecialAttr.AUX_CLASSES + "==clazz1");
             fail();
@@ -183,7 +183,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void hasNotAuxClasses() {
+    void hasNotAuxClasses() {
         try {
             FilterConverter.convert(SpecialAttr.AUX_CLASSES + "!=clazz1");
             fail();
@@ -193,7 +193,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void hasResources() {
+    void hasResources() {
         try {
             FilterConverter.convert(SpecialAttr.RESOURCES + "==resource");
             fail();
@@ -203,7 +203,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void hasNotResources() {
+    void hasNotResources() {
         try {
             FilterConverter.convert(SpecialAttr.RESOURCES + "!=resource");
             fail();
@@ -213,7 +213,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void and() {
+    void and() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().
                 is("fullname").equalTo("ro*").and("fullname").equalTo("*i").query();
         assertEquals("fullname==ro*;fullname==*i", fiql);
@@ -232,7 +232,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void or() {
+    void or() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().
                 is("fullname").equalTo("ro*").or("fullname").equalTo("*i").query();
         assertEquals("fullname==ro*,fullname==*i", fiql);
@@ -251,7 +251,7 @@ public class FilterConverterTest {
     }
 
     @Test
-    public void issueSYNCOPE1223() {
+    void issueSYNCOPE1223() {
         String fiql = new ConnObjectTOFiqlSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query();
 
         Filter filter = FilterBuilder.equalTo(AttributeBuilder.build("ctype", "ou=sample,o=isp"));

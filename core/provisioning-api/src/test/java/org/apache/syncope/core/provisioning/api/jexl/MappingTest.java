@@ -31,10 +31,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
-public class MappingTest extends AbstractTest {
+class MappingTest extends AbstractTest {
 
     @Test
-    public void anyConnObjectLink() {
+    void anyConnObjectLink() {
         Realm realm = mock(Realm.class);
         when(realm.getFullPath()).thenReturn("/even");
 
@@ -53,7 +53,7 @@ public class MappingTest extends AbstractTest {
     }
 
     @Test
-    public void realmConnObjectLink() {
+    void realmConnObjectLink() {
         Realm realm = mock(Realm.class);
         when(realm.getFullPath()).thenReturn("/even/two");
         assertNotNull(realm);
@@ -72,7 +72,7 @@ public class MappingTest extends AbstractTest {
     }
 
     @Test
-    public void datetime() {
+    void datetime() {
         OffsetDateTime now = OffsetDateTime.now();
 
         JexlContext jexlContext = new MapContext();

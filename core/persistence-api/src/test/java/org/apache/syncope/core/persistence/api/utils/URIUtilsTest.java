@@ -29,10 +29,10 @@ import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
 
-public class URIUtilsTest extends AbstractTest {
+class URIUtilsTest extends AbstractTest {
 
     @Test
-    public void buildForConnId() throws URISyntaxException, MalformedURLException {
+    void buildForConnId() throws URISyntaxException, MalformedURLException {
         Mutable<String> location = new MutableObject<>();
         location.setValue("www.tirasa.net");
         IllegalArgumentException exception =

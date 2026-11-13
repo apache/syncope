@@ -31,10 +31,10 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-public class ProvisioningProfileTest extends AbstractTest {
+class ProvisioningProfileTest extends AbstractTest {
 
     @Test
-    public void test(
+    void test(
             final @Mock Connector connector,
             final @Mock PushTask pushTask) {
 

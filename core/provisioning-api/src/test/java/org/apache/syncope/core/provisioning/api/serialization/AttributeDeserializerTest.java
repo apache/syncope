@@ -35,7 +35,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
-public class AttributeDeserializerTest extends AbstractTest {
+class AttributeDeserializerTest extends AbstractTest {
 
     @Mock
     private JsonParser jp;
@@ -57,7 +57,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     private String name;
 
     @BeforeEach
-    public void initTest() throws IOException {
+    void initTest() throws IOException {
         name = Name.NAME;
         when(jp.readValueAsTree()).thenReturn(tree);
         when(tree.get("name")).thenReturn(node2);
@@ -66,7 +66,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsNull() throws IOException {
+    void deserializeIsNull() throws IOException {
         when(node2.asString()).thenReturn(name);
         when(node.isNull()).thenReturn(Boolean.TRUE);
         Attribute attr = deserializer.deserialize(jp, ct);
@@ -76,7 +76,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsBoolean() throws IOException {
+    void deserializeIsBoolean() throws IOException {
         when(node2.asString()).thenReturn(name);
         when(node.isBoolean()).thenReturn(Boolean.TRUE);
         when(node.asBoolean()).thenReturn(Boolean.TRUE);
@@ -86,7 +86,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsDouble() throws IOException {
+    void deserializeIsDouble() throws IOException {
         Double number = 9000.1;
         name = "__TEST__";
         when(node2.asString()).thenReturn(name);
@@ -98,7 +98,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsLong() throws IOException {
+    void deserializeIsLong() throws IOException {
         Long number = 9000L;
         name = "__UID__";
         when(node2.asString()).thenReturn(name);
@@ -110,7 +110,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsInt() throws IOException {
+    void deserializeIsInt() throws IOException {
         Integer number = 9000;
         when(node2.asString()).thenReturn(name);
         when(node.isInt()).thenReturn(Boolean.TRUE);
@@ -121,7 +121,7 @@ public class AttributeDeserializerTest extends AbstractTest {
     }
 
     @Test
-    public void deserializeIsText() throws IOException {
+    void deserializeIsText() throws IOException {
         String text = "<binary>test";
         when(node2.asString()).thenReturn(name);
         when(node.asString()).thenReturn(text);

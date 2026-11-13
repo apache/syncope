@@ -37,10 +37,10 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class PropagationTaskInfoSerializerTest extends AbstractTest {
+class PropagationTaskInfoSerializerTest extends AbstractTest {
 
     @Test
-    public void propagationTaskInfoSerializer(
+    void propagationTaskInfoSerializer(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) {
 

@@ -38,7 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PolicyTest extends AbstractClientAppTest {
+class PolicyTest extends AbstractClientAppTest {
 
     @Autowired
     private OIDCRPClientAppDAO oidcRelyingPartyDAO;
@@ -50,7 +50,7 @@ public class PolicyTest extends AbstractClientAppTest {
     private RealmSearchDAO realmSearchDAO;
 
     @Test
-    public void authPolicyCanBeNull() {
+    void authPolicyCanBeNull() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // Create new client app and assign policy
@@ -69,7 +69,7 @@ public class PolicyTest extends AbstractClientAppTest {
     }
 
     @Test
-    public void removePolicyFromRealm() {
+    void removePolicyFromRealm() {
         AuthPolicy authPolicy = buildAndSaveAuthPolicy();
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         AttrReleasePolicy attrPolicy = buildAndSaveAttrRelPolicy();
@@ -100,7 +100,7 @@ public class PolicyTest extends AbstractClientAppTest {
     }
 
     @Test
-    public void removePolicyFromApps() {
+    void removePolicyFromApps() {
         // Create new policy
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         AuthPolicy authPolicy = buildAndSaveAuthPolicy();

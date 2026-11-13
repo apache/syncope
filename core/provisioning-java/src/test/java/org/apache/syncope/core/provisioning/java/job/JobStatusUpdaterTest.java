@@ -30,13 +30,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class JobStatusUpdaterTest extends AbstractTest {
+class JobStatusUpdaterTest extends AbstractTest {
 
     @Autowired
     private JobStatusDAO jobStatusDAO;
 
     @Test
-    public void verifyUpdate() {
+    void verifyUpdate() {
         String jobName = "job-" + SecureRandomUtils.generateRandomNumber();
 
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO);

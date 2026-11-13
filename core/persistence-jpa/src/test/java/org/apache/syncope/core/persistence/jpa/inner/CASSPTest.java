@@ -32,13 +32,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class CASSPTest extends AbstractClientAppTest {
+class CASSPTest extends AbstractClientAppTest {
 
     @Autowired
     private CASSPClientAppDAO casspDAO;
 
     @Test
-    public void find() {
+    void find() {
         long beforeCount = casspDAO.count();
 
         CASSPClientApp rp = entityFactory.newEntity(CASSPClientApp.class);

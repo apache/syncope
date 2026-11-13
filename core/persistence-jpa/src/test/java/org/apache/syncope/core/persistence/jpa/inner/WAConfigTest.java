@@ -36,13 +36,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class WAConfigTest extends AbstractTest {
+class WAConfigTest extends AbstractTest {
 
     @Autowired
     private WAConfigDAO configDAO;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         entityManager.createQuery("DELETE FROM " + JPAWAConfigEntry.class.getSimpleName()).executeUpdate();
     }
 
@@ -58,32 +58,32 @@ public class WAConfigTest extends AbstractTest {
     }
 
     @Test
-    public void saveCommaSeparatedValueStrings() {
+    void saveCommaSeparatedValueStrings() {
         create("system.example.key[0]", Arrays.asList("value1", "value2", "value3"));
         assertFalse(configDAO.findAll().isEmpty());
     }
 
     @Test
-    public void saveNumbers() {
+    void saveNumbers() {
         create("system.example.key[0]", List.of("1984"));
         assertFalse(configDAO.findAll().isEmpty());
     }
 
     @Test
-    public void saveCollection() {
+    void saveCollection() {
         WAConfigEntry entry = create("system.example.key[0]", new ArrayList<>(Arrays.asList("1", "2")));
         assertNotNull(entry.getValues());
         assertFalse(configDAO.findAll().isEmpty());
     }
 
     @Test
-    public void saveList() {
+    void saveList() {
         create("system.example.key[0].key1", List.of("value1"));
         assertFalse(configDAO.findAll().isEmpty());
     }
 
     @Test
-    public void update() {
+    void update() {
         WAConfigEntry entry = create("system.syncope.key[0]", Arrays.asList("1", "2", "3", "4"));
         assertNotNull(entry);
         entry.setValues(List.of("v1"));

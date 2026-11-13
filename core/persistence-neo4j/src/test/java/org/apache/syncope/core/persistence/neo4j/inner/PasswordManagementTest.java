@@ -38,13 +38,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PasswordManagementTest extends AbstractTest {
+class PasswordManagementTest extends AbstractTest {
 
     @Autowired
     private PasswordManagementDAO passwordManagementDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends PasswordManagement> modules = passwordManagementDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
@@ -52,7 +52,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void find() {
+    void find() {
         PasswordManagement passwordManagement = passwordManagementDAO.findById("DefaultSyncopePasswordManagement")
                 .orElseThrow();
         assertInstanceOf(SyncopePasswordManagementConf.class, passwordManagement.getConf());
@@ -65,7 +65,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void findByType() {
+    void findByType() {
         List<? extends PasswordManagement> passwordManagements = passwordManagementDAO.findAll();
         assertTrue(passwordManagements.stream().anyMatch(
                 passwordManagement -> passwordManagement.getConf() instanceof SyncopePasswordManagementConf
@@ -95,7 +95,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithSyncopeModule() {
+    void saveWithSyncopeModule() {
         SyncopePasswordManagementConf conf = new SyncopePasswordManagementConf();
         conf.setDomain("Master");
 
@@ -103,7 +103,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithLDAPModule() {
+    void saveWithLDAPModule() {
         LDAPPasswordManagementConf conf = new LDAPPasswordManagementConf();
         conf.setBaseDn("dc=example,dc=org");
         conf.setSearchFilter("cn={user}");
@@ -116,7 +116,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithJDBCModule() {
+    void saveWithJDBCModule() {
         JDBCPasswordManagementConf conf = new JDBCPasswordManagementConf();
         conf.setSqlFindEmail("SELECT email from users_table where name=?");
         conf.setSqlFindPhone("SELECT phoneNumber from users_table where name=?");
@@ -127,7 +127,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithRESTModule() {
+    void saveWithRESTModule() {
         RESTPasswordManagementConf conf = new RESTPasswordManagementConf();
         conf.setEndpointPassword("password");
         conf.setEndpointUrlAccountUnlock("http://localhost:9443/syncope-fit-build-tools/cxf/rest/unlockAccount");
@@ -145,7 +145,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithSyncopeModule() {
+    void updateWithSyncopeModule() {
         PasswordManagement module = passwordManagementDAO.findById("DefaultSyncopePasswordManagement").orElseThrow();
 
         PasswordManagementConf conf = module.getConf();
@@ -161,7 +161,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithLDAPModule() {
+    void updateWithLDAPModule() {
         PasswordManagement module = passwordManagementDAO.findById("DefaultLDAPPasswordManagement").orElseThrow();
 
         PasswordManagementConf conf = module.getConf();
@@ -179,7 +179,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithJDBCModule() {
+    void updateWithJDBCModule() {
         PasswordManagement module = passwordManagementDAO.findById("DefaultJDBCPasswordManagement").orElseThrow();
 
         PasswordManagementConf conf = module.getConf();
@@ -196,7 +196,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithRESTModule() {
+    void updateWithRESTModule() {
         PasswordManagement module = passwordManagementDAO.findById("DefaultRESTPasswordManagement").orElseThrow();
 
         PasswordManagementConf conf = module.getConf();
@@ -213,7 +213,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         assertTrue(passwordManagementDAO.findById("DefaultSyncopePasswordManagement").isPresent());
 
         passwordManagementDAO.deleteById("DefaultSyncopePasswordManagement");

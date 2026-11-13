@@ -28,12 +28,12 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
-public class AnyLayoutTest {
+class AnyLayoutTest {
 
     private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
-    public void issueSYNCOPE1554() {
+    void issueSYNCOPE1554() {
         AnyLayout defaultObj = new AnyLayout();
         defaultObj.setUser(new UserFormLayoutInfo());
         defaultObj.setGroup(new GroupFormLayoutInfo());

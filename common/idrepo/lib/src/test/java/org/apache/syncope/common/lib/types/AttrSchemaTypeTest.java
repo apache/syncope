@@ -24,7 +24,7 @@ import java.time.OffsetDateTime;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.jupiter.api.Test;
 
-public class AttrSchemaTypeTest {
+class AttrSchemaTypeTest {
 
     @Test
     void checkLong() {

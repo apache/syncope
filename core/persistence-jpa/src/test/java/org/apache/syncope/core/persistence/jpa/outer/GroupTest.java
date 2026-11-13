@@ -56,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
-public class GroupTest extends AbstractTest {
+class GroupTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -92,7 +92,7 @@ public class GroupTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @Test
-    public void findByResourcesContaining() {
+    void findByResourcesContaining() {
         List<Group> found = groupDAO.findByResourcesContaining(resourceDAO.findById("resource-csv").orElseThrow());
         assertEquals(2, found.size());
         assertTrue(found.contains(groupDAO.findById("0626100b-a4ba-4e00-9971-86fad52a6216").orElseThrow()));
@@ -103,7 +103,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void uMemberships() {
+    void uMemberships() {
         List<UMembership> memberships = groupDAO.findUMemberships(
                 groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow(), Pageable.unpaged());
         assertEquals(2, memberships.size());
@@ -127,7 +127,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithTwoManagers() {
+    void saveWithTwoManagers() {
         assertThrows(InvalidEntityException.class, () -> {
             Group root = groupDAO.findByName("root").orElseThrow();
 
@@ -144,7 +144,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void create() {
+    void create() {
         Group group = entityFactory.newEntity(Group.class);
         group.setRealm(realmDAO.getRoot());
         group.setName("new");
@@ -167,7 +167,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void createWithInternationalCharacters() {
+    void createWithInternationalCharacters() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("räksmörgås");
         group.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
@@ -177,7 +177,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Collection<Group> groups = userDAO.findAllGroups(userDAO.findByUsername("verdi").orElseThrow());
         assertTrue(groups.stream().anyMatch(g -> "b1f7c12d-ec83-441f-a50e-1691daaedf3b".equals(g.getKey())));
         int before = userDAO.findAllGroups(userDAO.findByUsername("verdi").orElseThrow()).size();
@@ -192,7 +192,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void relationships() {
+    void relationships() {
         RelationshipType groupType = entityFactory.newEntity(RelationshipType.class);
         groupType.setKey("group type");
         groupType.setLeftEndAnyType(anyTypeDAO.getGroup());
@@ -221,7 +221,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1512() {
+    void issueSYNCOPE1512() {
         Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique

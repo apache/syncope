@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SAML2IdPEntityTest extends AbstractTest {
+class SAML2IdPEntityTest extends AbstractTest {
 
     @Autowired
     private SAML2IdPEntityDAO saml2IdPEntityDAO;
@@ -53,7 +53,7 @@ public class SAML2IdPEntityTest extends AbstractTest {
     }
 
     @Test
-    public void find() {
+    void find() {
         create("Syncope");
 
         assertTrue(saml2IdPEntityDAO.findById("Syncope").isPresent());
@@ -62,12 +62,12 @@ public class SAML2IdPEntityTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         create("SyncopeCreate");
     }
 
     @Test
-    public void update() {
+    void update() {
         SAML2IdPEntity entity = create("SyncopeUpdate");
         assertNotNull(entity);
 

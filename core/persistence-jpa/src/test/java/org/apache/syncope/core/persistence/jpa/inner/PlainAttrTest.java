@@ -50,7 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PlainAttrTest extends AbstractTest {
+class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
@@ -68,7 +68,7 @@ public class PlainAttrTest extends AbstractTest {
     private EncryptorManager encryptorManager;
 
     @Test
-    public void save() throws ClassNotFoundException {
+    void save() throws ClassNotFoundException {
         PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
         PlainAttr attr = new PlainAttr();
@@ -92,7 +92,7 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void invalidValueList() {
+    void invalidValueList() {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
@@ -115,7 +115,7 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithEncrypted() throws Exception {
+    void saveWithEncrypted() throws Exception {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
@@ -138,7 +138,7 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void encryptedWithKeyAsSysProp() throws Exception {
+    void encryptedWithKeyAsSysProp() throws Exception {
         PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
 
         PlainSchema obscureWithKeyAsSysprop = entityFactory.newEntity(PlainSchema.class);
@@ -161,7 +161,7 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void encryptedWithDecodeConversionPattern() throws Exception {
+    void encryptedWithDecodeConversionPattern() throws Exception {
         PlainSchema obscureWithDecodeConversionPattern = entityFactory.newEntity(PlainSchema.class);
         obscureWithDecodeConversionPattern.setKey("obscureWithDecodeConversionPattern");
         obscureWithDecodeConversionPattern.setAnyTypeClass(anyTypeClassDAO.findById("other").orElseThrow());
@@ -187,7 +187,7 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithBinary() throws UnsupportedEncodingException {
+    void saveWithBinary() throws UnsupportedEncodingException {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         PlainSchema photoSchema = plainSchemaDAO.findById("photo").orElseThrow();

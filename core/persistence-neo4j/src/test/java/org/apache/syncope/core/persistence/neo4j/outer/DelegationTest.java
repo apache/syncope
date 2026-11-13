@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DelegationTest extends AbstractTest {
+class DelegationTest extends AbstractTest {
 
     @Autowired
     private DelegationDAO delegationDAO;
@@ -41,7 +41,7 @@ public class DelegationTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Test
-    public void findValidFor() {
+    void findValidFor() {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(userDAO.findByUsername("bellini").orElseThrow());
         delegation.setDelegated(userDAO.findByUsername("rossini").orElseThrow());

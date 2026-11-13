@@ -56,7 +56,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ResourceTest extends AbstractTest {
+class ResourceTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -77,7 +77,7 @@ public class ResourceTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void accountPolicy() {
+    void accountPolicy() {
         ExternalResource resource = resourceDAO.findById("resource-testdb").orElseThrow();
         assertEquals(
                 policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7").orElseThrow(),
@@ -85,14 +85,14 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void findByConnInstance() {
+    void findByConnInstance() {
         List<ExternalResource> resources = resourceDAO.findByConnInstance("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertEquals(6, resources.size());
         assertTrue(resources.contains(resourceDAO.findById("ws-target-resource-1").orElseThrow()));
     }
 
     @Test
-    public void findByProvisionSorter() {
+    void findByProvisionSorter() {
         Implementation impl = entityFactory.newEntity(Implementation.class);
         impl.setType(IdMImplementationType.PROVISION_SORTER);
         impl.setEngine(ImplementationEngine.GROOVY);
@@ -109,7 +109,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void findByPropagationActionsContaining() {
+    void findByPropagationActionsContaining() {
         Implementation impl = implementationDAO.findById("GenerateRandomPasswordPropagationActions").orElseThrow();
 
         assertEquals(
@@ -119,7 +119,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void createWithPasswordPolicy() {
+    void createWithPasswordPolicy() {
         final String resourceName = "resourceWithPasswordPolicy";
 
         PasswordPolicy policy = policyDAO.findById("986d1236-3ac5-4a19-810c-5ab21d79cba1", PasswordPolicy.class).
@@ -145,7 +145,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-save");
 
@@ -217,7 +217,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         ExternalResource resource = resourceDAO.findById("resource-testdb").orElseThrow();
 
         // -------------------------------------
@@ -264,7 +264,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void addAndRemovePropagationActions() {
+    void addAndRemovePropagationActions() {
         Implementation implementation = entityFactory.newEntity(Implementation.class);
         implementation.setKey(UUID.randomUUID().toString());
         implementation.setEngine(ImplementationEngine.JAVA);
@@ -291,7 +291,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void issue243() {
+    void issue243() {
         ExternalResource csv = resourceDAO.findById("resource-csv").orElseThrow();
 
         int origMapItems = csv.getProvisionByAnyType(

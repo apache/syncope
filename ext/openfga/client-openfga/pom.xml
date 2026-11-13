@@ -34,7 +34,6 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
-    <skipTests>true</skipTests>
     <skipITs>true</skipITs>
     <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
@@ -69,6 +68,7 @@ under the License.
       <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
 
+    <!-- TEST -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
@@ -125,16 +125,38 @@ under the License.
           </sourceDirectories>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--
+            tests relying on the OpenFGA Docker image are run only with the openfga profile:
+            plain unit tests are always executed
+          -->
+          <excludes>
+            <exclude>**/OpenFGAClientTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <profiles>
     <profile>
       <id>openfga</id>
-      
-      <properties>
-        <skipTests>false</skipTests>
-      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes combine.self="override"/>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
