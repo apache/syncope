@@ -32,7 +32,7 @@ import javax.cache.Caching;
 import javax.cache.expiry.Duration;
 import org.junit.jupiter.api.Test;
 
-public class MSEntraAccessTokenJWSVerifierTest extends AbstractTest {
+class MSEntraAccessTokenJWSVerifierTest extends AbstractTest {
 
     private static class TestMSEntraAccessTokenJWSVerifier extends MSEntraJWSVerifierCacheLoader {
 

@@ -33,10 +33,10 @@ import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
 
-public class UserSearchPanelTest extends AbstractAdminTest {
+class UserSearchPanelTest extends AbstractAdminTest {
 
     @Test
-    public void test() {
+    void test() {
         BasePage page = new BasePage();
         PageReference pageRef = mock(PageReference.class);
         when(pageRef.getPage()).thenReturn(page);

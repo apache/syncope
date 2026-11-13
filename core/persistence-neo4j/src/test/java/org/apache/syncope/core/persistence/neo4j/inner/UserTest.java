@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class UserTest extends AbstractTest {
+class UserTest extends AbstractTest {
 
     @Autowired
     private PasswordGenerator passwordGenerator;
@@ -67,7 +67,7 @@ public class UserTest extends AbstractTest {
     private EncryptorManager encryptorManager;
 
     @Test
-    public void find() {
+    void find() {
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
         assertEquals("puccini", user.getUsername());
         assertFalse(user.isSuspended());
@@ -83,12 +83,12 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findUsername() {
+    void findUsername() {
         assertEquals("puccini", userDAO.findUsername("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow());
     }
 
     @Test
-    public void findByToken() {
+    void findByToken() {
         assertTrue(userDAO.findByToken("WRONG TOKEN").isEmpty());
 
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
@@ -105,32 +105,32 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends User> users = userDAO.findAll();
         assertEquals(5, users.size());
     }
 
     @Test
-    public void count() {
+    void count() {
         long count = userDAO.count();
         assertNotNull(count);
         assertEquals(5, count);
     }
 
     @Test
-    public void findByKey() {
+    void findByKey() {
         assertTrue(userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").isPresent());
     }
 
     @Test
-    public void findByUsername() {
+    void findByUsername() {
         assertTrue(userDAO.findByUsername("rossini").isPresent());
         assertTrue(userDAO.findByUsername("vivaldi").isPresent());
         assertTrue(userDAO.findByUsername("user6").isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
@@ -144,7 +144,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         User user = userDAO.findById("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").orElseThrow();
 
         userDAO.deleteById(user.getKey());
@@ -153,7 +153,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issue237() {
+    void issue237() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
@@ -168,7 +168,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE391() {
+    void issueSYNCOPE391() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setCipherAlgorithm(CipherAlgorithm.AES);
@@ -181,7 +181,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void testPasswordGenerator() {
+    void testPasswordGenerator() {
         String password = passwordGenerator.generate(
                 resourceDAO.findById("ws-target-resource-nopropagation").orElseThrow(),
                 List.of(realmDAO.getRoot()));
@@ -193,7 +193,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void passwordGeneratorFailing() {
+    void passwordGeneratorFailing() {
         assertThrows(IllegalArgumentException.class, () -> {
             String password = passwordGenerator.generate(
                     resourceDAO.findById("ws-target-resource-nopropagation").orElseThrow(),
@@ -209,7 +209,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1666() {
+    void issueSYNCOPE1666() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
@@ -229,7 +229,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1937() throws Exception {
+    void issueSYNCOPE1937() throws Exception {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.getRoot());

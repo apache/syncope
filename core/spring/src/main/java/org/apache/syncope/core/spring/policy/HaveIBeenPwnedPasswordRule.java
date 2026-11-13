@@ -44,9 +44,9 @@ import org.springframework.transaction.annotation.Transactional;
 @PasswordRuleConfClass(HaveIBeenPwnedPasswordRuleConf.class)
 public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
 
-    private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
+    protected HttpClient httpClient = HttpClient.newHttpClient();
 
     @Autowired
     private EncryptorManager encryptorManager;
@@ -78,7 +78,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     uri(URI.create("https://api.pwnedpasswords.com/range/" + prefix)).
                     GET().
                     build();
-            HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 LOG.error("Error while contacting the PwnedPasswords service: HTTP {}", response.statusCode());
@@ -123,9 +123,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                 }
             }
 
-            if (clearPassword != null) {
-                enforce(clearPassword);
-            }
+            Optional.ofNullable(clearPassword).ifPresent(this::enforce);
         }
     }
 }

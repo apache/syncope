@@ -19,6 +19,10 @@
 package org.apache.syncope.common.lib.types;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,5 +35,86 @@ class OpEventTest {
         assertEquals("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", aln.toString());
 
         assertEquals(aln, OpEvent.fromString(aln.toString()));
+    }
+
+    @Test
+    void defaults() {
+        OpEvent event = new OpEvent(null, null, null, null, null);
+
+        assertEquals(OpEvent.CategoryType.CUSTOM, event.getType());
+        assertEquals(OpEvent.Outcome.SUCCESS, event.getOutcome());
+        assertEquals("[CUSTOM]:[]:[]:[]:[SUCCESS]", event.toString());
+    }
+
+    @Test
+    void fullEvent() {
+        OpEvent event = new OpEvent(
+                OpEvent.CategoryType.PROPAGATION, "category", "subcategory", "op", OpEvent.Outcome.FAILURE);
+
+        assertEquals(OpEvent.CategoryType.PROPAGATION, event.getType());
+        assertEquals("category", event.getCategory());
+        assertEquals("subcategory", event.getSubcategory());
+        assertEquals("op", event.getOp());
+        assertEquals(OpEvent.Outcome.FAILURE, event.getOutcome());
+        assertEquals("[PROPAGATION]:[category]:[subcategory]:[op]:[FAILURE]", event.toString());
+
+        assertEquals(event, OpEvent.fromString(event.toString()));
+        assertEquals(event.hashCode(), OpEvent.fromString(event.toString()).hashCode());
+    }
+
+    @Test
+    void staticToString() {
+        assertEquals("[TASK]:[]:[]:[]:[]",
+                OpEvent.toString(OpEvent.CategoryType.TASK, null, "", " ", null));
+        assertEquals("[]:[category]:[subcategory]:[op]:[SUCCESS]",
+                OpEvent.toString(null, "category", "subcategory", "op", OpEvent.Outcome.SUCCESS));
+    }
+
+    @Test
+    void fromSingleElement() {
+        OpEvent event = OpEvent.fromString("[something]");
+
+        assertEquals(OpEvent.CategoryType.CUSTOM, event.getType());
+        assertEquals(OpEvent.Outcome.SUCCESS, event.getOutcome());
+        assertEquals("[something]", event.getOp());
+    }
+
+    @Test
+    void fromPartial() {
+        OpEvent event = OpEvent.fromString("[LOGIC]:[category]:[subcategory]");
+
+        assertEquals(OpEvent.CategoryType.LOGIC, event.getType());
+        assertEquals("category", event.getCategory());
+        assertEquals("subcategory", event.getSubcategory());
+        assertEquals(OpEvent.Outcome.SUCCESS, event.getOutcome());
+        assertEquals("[LOGIC]:[category]:[subcategory]:[]:[SUCCESS]", event.toString());
+    }
+
+    @Test
+    void fromTrailingEmptyElements() {
+        OpEvent event = OpEvent.fromString("[LOGIC]:[]:[]");
+
+        assertEquals(OpEvent.CategoryType.CUSTOM, event.getType());
+        assertEquals("[LOGIC]:[]:[]", event.getOp());
+    }
+
+    @Test
+    void fromBlank() {
+        assertThrows(IllegalArgumentException.class, () -> OpEvent.fromString(null));
+        assertThrows(IllegalArgumentException.class, () -> OpEvent.fromString(""));
+        assertThrows(IllegalArgumentException.class, () -> OpEvent.fromString("   "));
+    }
+
+    @Test
+    void equalsAndHashCode() {
+        OpEvent event = new OpEvent(OpEvent.CategoryType.WA, "category", null, "op", OpEvent.Outcome.SUCCESS);
+
+        assertTrue(event.equals(event));
+        assertFalse(event.equals(null));
+        assertFalse(event.equals("string"));
+        assertNotEquals(event,
+                new OpEvent(OpEvent.CategoryType.WA, "other", null, "op", OpEvent.Outcome.SUCCESS));
+        assertEquals(event,
+                new OpEvent(OpEvent.CategoryType.WA, "category", null, "op", OpEvent.Outcome.SUCCESS));
     }
 }

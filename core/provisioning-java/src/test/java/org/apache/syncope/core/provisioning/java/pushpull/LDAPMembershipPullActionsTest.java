@@ -72,7 +72,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class LDAPMembershipPullActionsTest extends AbstractTest {
+class LDAPMembershipPullActionsTest extends AbstractTest {
 
     @Autowired
     private EntityFactory entityFactory;
@@ -129,7 +129,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     private List<ConnConfProperty> connConfProperties;
 
     @BeforeEach
-    public void initTest() {
+    void initTest() {
         user = entityFactory.newEntity(User.class);
         ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
 
@@ -170,7 +170,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
+    void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
 
@@ -182,7 +182,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeUpdate() throws JobExecutionException {
+    void beforeUpdate() throws JobExecutionException {
         entity = new UserTO();
         entity.setKey(UUID.randomUUID().toString());
 
@@ -195,7 +195,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after() throws JobExecutionException {
+    void after() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
 

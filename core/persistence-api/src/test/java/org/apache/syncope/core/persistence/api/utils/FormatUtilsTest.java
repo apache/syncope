@@ -32,14 +32,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
-public class FormatUtilsTest extends AbstractTest {
+class FormatUtilsTest extends AbstractTest {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private static final OffsetDateTime DATE = OffsetDateTime.now();
 
     @Test
-    public void formatDate() {
+    void formatDate() {
         assertEquals(
                 DATE.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
                 FormatUtils.format(DATE));
@@ -51,7 +51,7 @@ public class FormatUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void formatLongNumber() {
+    void formatLongNumber() {
         long number = RANDOM.nextLong();
         DecimalFormat df = new DecimalFormat();
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -64,7 +64,7 @@ public class FormatUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void formatDoubleNumber() {
+    void formatDoubleNumber() {
         double number = RANDOM.nextDouble();
         DecimalFormat df = new DecimalFormat();
         df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -77,7 +77,7 @@ public class FormatUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void parseDate() throws ParseException {
+    void parseDate() throws ParseException {
         String source = DATE.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         assertEquals(
                 OffsetDateTime.parse(source, DateTimeFormatter.ISO_OFFSET_DATE_TIME),
@@ -92,7 +92,7 @@ public class FormatUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void parseNumber() throws ParseException {
+    void parseNumber() throws ParseException {
         String source = String.valueOf(RANDOM.nextLong());
         String conversionPattern = "###,###";
         assertEquals(Long.valueOf(source), FormatUtils.parseNumber(source, conversionPattern));

@@ -31,31 +31,31 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import tools.jackson.core.type.TypeReference;
 
-public class POJOHelperTest extends AbstractTest {
+class POJOHelperTest extends AbstractTest {
 
     @Test
-    public void serialize() {
+    void serialize() {
         Object object = 9001;
 
         assertEquals(String.valueOf(object), POJOHelper.serialize(object));
     }
 
     @Test
-    public void deserializeWithClassReference() {
+    void deserializeWithClassReference() {
         String serialized = "false";
 
         assertEquals(Boolean.valueOf(serialized), POJOHelper.deserialize(serialized, Object.class));
     }
 
     @Test
-    public void deserializeWithTypeReference(final @Mock TypeReference<? extends Object> reference) {
+    void deserializeWithTypeReference(final @Mock TypeReference<? extends Object> reference) {
         String serialized = "false";
 
         assertNull(POJOHelper.deserialize(serialized, reference));
     }
 
     @Test
-    public void propagationData() {
+    void propagationData() {
         PropagationData original = new PropagationData(Set.of(AttributeBuilder.build("title", "title1")));
         original.setAttributeDeltas(Set.of(AttributeDeltaBuilder.build("title", List.of("title2"), List.of("title1"))));
 

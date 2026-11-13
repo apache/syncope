@@ -53,6 +53,13 @@ under the License.
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-jexl3</artifactId>
     </dependency>
+
+    <!-- TEST -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class XMLContentExporterTest extends AbstractTest {
+class XMLContentExporterTest extends AbstractTest {
 
     @Autowired
     private ContentExporter exporter;
@@ -53,7 +53,7 @@ public class XMLContentExporterTest extends AbstractTest {
      * @throws Exception exception thrown when dealing with IO.
      */
     @Test
-    public void issueSYNCOPE1128() throws Exception {
+    void issueSYNCOPE1128() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         exporter.export(SyncopeConstants.MASTER_DOMAIN, 100, baos);
@@ -65,7 +65,7 @@ public class XMLContentExporterTest extends AbstractTest {
     }
 
     @Test
-    public void exportElements() throws Exception {
+    void exportElements() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         exporter.export(SyncopeConstants.MASTER_DOMAIN, 100, baos, "AccountPolicy", "Realm");

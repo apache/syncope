@@ -102,6 +102,18 @@ under the License.
       <artifactId>swagger-ui</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- TEST -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

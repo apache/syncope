@@ -42,6 +42,6 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Unit Tests: OpenFGA'
-      run: mvn -f ext/openfga/client-openfga/pom.xml -P openfga -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      run: mvn -f ext/openfga/ -P openfga -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'WA / OpenFGA'
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=OpenFGAUIITCase

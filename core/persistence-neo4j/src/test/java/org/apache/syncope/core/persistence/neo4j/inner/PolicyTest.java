@@ -62,7 +62,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class PolicyTest extends AbstractTest {
+class PolicyTest extends AbstractTest {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -74,7 +74,7 @@ public class PolicyTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         assertEquals(17, policyDAO.count());
         assertEquals(17, policyDAO.findAll().size());
 
@@ -89,7 +89,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void findByKey() {
+    void findByKey() {
         PropagationPolicy propagationPolicy = policyDAO.findById(
                 "89d322db-9878-420c-b49c-67be13df9a12", PropagationPolicy.class).orElseThrow();
         assertEquals(BackOffStrategy.FIXED, propagationPolicy.getBackOffStrategy());
@@ -131,7 +131,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createPropagation() {
+    void createPropagation() {
         long beforeCount = policyDAO.count();
 
         PropagationPolicy propagationPolicy = entityFactory.newEntity(PropagationPolicy.class);
@@ -151,7 +151,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createPull() {
+    void createPull() {
         InboundPolicy inboundPolicy = entityFactory.newEntity(InboundPolicy.class);
         inboundPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
         inboundPolicy.setName("Pull policy");
@@ -195,7 +195,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createPush() {
+    void createPush() {
         PushPolicy pushPolicy = entityFactory.newEntity(PushPolicy.class);
         pushPolicy.setName("Push policy");
         pushPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
@@ -239,7 +239,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createAccess() {
+    void createAccess() {
         long beforeCount = policyDAO.count();
 
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
@@ -259,7 +259,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createAuth() {
+    void createAuth() {
         long beforeCount = policyDAO.count();
 
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
@@ -280,7 +280,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createAttrRelease() {
+    void createAttrRelease() {
         long beforeCount = policyDAO.count();
 
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
@@ -304,7 +304,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void createTicketExpiration() {
+    void createTicketExpiration() {
         long beforeCount = policyDAO.count();
 
         TicketExpirationPolicy ticketExpirationPolicy = entityFactory.newEntity(TicketExpirationPolicy.class);
@@ -332,7 +332,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void update() {
+    void update() {
         PasswordPolicy policy = policyDAO.findById(
                 "ce93fcda-dc3a-4369-a7b0-a6108c261c85", PasswordPolicy.class).orElseThrow();
         assertEquals(1, policy.getRules().size());
@@ -362,7 +362,7 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Policy policy = policyDAO.findById("66691e96-285f-4464-bc19-e68384ea4c85").orElseThrow();
         policyDAO.delete(policy);
         assertTrue(policyDAO.findById("66691e96-285f-4464-bc19-e68384ea4c85").isEmpty());

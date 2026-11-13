@@ -35,13 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class OIDCRPTest extends AbstractClientAppTest {
+class OIDCRPTest extends AbstractClientAppTest {
 
     @Autowired
     private OIDCRPClientAppDAO oidcrpDAO;
 
     @Test
-    public void find() {
+    void find() {
         int beforeCount = oidcrpDAO.findAll().size();
 
         OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);

@@ -75,7 +75,7 @@ import org.mockito.quality.Strictness;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class DefaultNotificationManagerTest {
+class DefaultNotificationManagerTest {
 
     private static final String DELETE_SUCCESS = OpEvent.toString(
             OpEvent.CategoryType.LOGIC, "UserLogic", null, "delete", OpEvent.Outcome.SUCCESS);

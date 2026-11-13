@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyTypeClassTest extends AbstractTest {
+class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -42,7 +42,7 @@ public class AnyTypeClassTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void create() {
+    void create() {
         PlainSchema newSchema = entityFactory.newEntity(PlainSchema.class);
         newSchema.setKey("new_plain_schema");
         newSchema.setType(AttrSchemaType.String);
@@ -71,7 +71,7 @@ public class AnyTypeClassTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         AnyTypeClass minimalUser = anyTypeClassDAO.findById("minimal user").orElseThrow();
 
         PlainSchema surname = plainSchemaDAO.findById("surname").orElseThrow();

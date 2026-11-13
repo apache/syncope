@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ConnectorManagerTest extends AbstractTest {
+class ConnectorManagerTest extends AbstractTest {
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -45,7 +45,7 @@ public class ConnectorManagerTest extends AbstractTest {
     private DefaultConnectorManager connManager;
 
     @BeforeEach
-    public void before() {
+    void before() {
         connManager = new DefaultConnectorManager(connIdBundleManager, resourceDAO, null, null, ctx);
 
         // Remove any other connector instance bean set up by standard ConnectorManager.load()
@@ -53,7 +53,7 @@ public class ConnectorManagerTest extends AbstractTest {
     }
 
     @Test
-    public void load() {
+    void load() {
         connManager.load();
 
         // only consider local connector bundles

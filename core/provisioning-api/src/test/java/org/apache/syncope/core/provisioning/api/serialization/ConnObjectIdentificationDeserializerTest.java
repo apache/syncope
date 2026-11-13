@@ -28,10 +28,10 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ConnObjectIdentificationDeserializerTest extends AbstractTest {
+class ConnObjectIdentificationDeserializerTest extends AbstractTest {
 
     @Test
-    public void deserialize() throws IOException {
+    void deserialize() throws IOException {
         ConnectorObjectIdentification source = new ConnectorObjectIdentification(ObjectClass.ACCOUNT,
                 Set.of(AttributeBuilder.build(Uid.NAME, "someuid")));
 

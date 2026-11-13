@@ -1,0 +1,57 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.common.lib.types;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Map;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
+
+class OIDCC4UITypesTest {
+
+    @Test
+    void entitlements() {
+        assertEquals(
+                Set.of(
+                        OIDCC4UIEntitlement.OP_READ,
+                        OIDCC4UIEntitlement.OP_CREATE,
+                        OIDCC4UIEntitlement.OP_UPDATE,
+                        OIDCC4UIEntitlement.OP_DELETE),
+                OIDCC4UIEntitlement.values());
+        assertTrue(OIDCC4UIEntitlement.values().contains(OIDCC4UIEntitlement.OP_READ));
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> OIDCC4UIEntitlement.values().add("unexpected"));
+    }
+
+    @Test
+    void implementationTypes() {
+        assertEquals(
+                Map.of(
+                        OIDCClientImplementationType.OP_ACTIONS,
+                        "org.apache.syncope.core.provisioning.api.OIDCC4UIProviderActions"),
+                OIDCClientImplementationType.values());
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> OIDCClientImplementationType.values().put("unexpected", "value"));
+    }
+}

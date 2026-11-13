@@ -42,7 +42,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class SyncopeTaskSchedulerTest extends AbstractTest {
+class SyncopeTaskSchedulerTest extends AbstractTest {
 
     private static final Mutable<Integer> VALUE = new MutableObject<>(0);
 
@@ -63,7 +63,7 @@ public class SyncopeTaskSchedulerTest extends AbstractTest {
     private SyncopeTaskScheduler scheduler;
 
     @Test
-    public void schedule() {
+    void schedule() {
         JobExecutionContext context = new JobExecutionContext(
                 AuthContextUtils.getDomain(),
                 TestJob.class.getSimpleName() + "_" + SecureRandomUtils.generateRandomUUID(),

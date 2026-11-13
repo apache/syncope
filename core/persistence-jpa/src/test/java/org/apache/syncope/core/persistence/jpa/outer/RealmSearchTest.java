@@ -49,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @Transactional
-public class RealmSearchTest extends AbstractTest {
+class RealmSearchTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -107,7 +107,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void byName() {
+    void byName() {
         AnyCond name = new AnyCond(AttrCond.Type.EQ);
         name.setSchema("name");
         name.setExpression("two");
@@ -121,7 +121,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void byAttr() {
+    void byAttr() {
         AttrCond attrEq = new AttrCond(AttrCond.Type.EQ);
         attrEq.setSchema("aLong");
         attrEq.setExpression("42");
@@ -176,7 +176,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void byNameAndAttr() {
+    void byNameAndAttr() {
         AnyCond name = new AnyCond(AttrCond.Type.EQ);
         name.setSchema("name");
         name.setExpression("two");
@@ -195,7 +195,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void and() {
+    void and() {
         AttrCond cond1 = new AttrCond(AttrCond.Type.EQ);
         cond1.setSchema("aLong");
         cond1.setExpression("42");
@@ -210,7 +210,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void auxClass() {
+    void auxClass() {
         AuxClassCond auxClassCond = new AuxClassCond();
         auxClassCond.setAuxClass("other");
 
@@ -224,7 +224,7 @@ public class RealmSearchTest extends AbstractTest {
     }
 
     @Test
-    public void resource() {
+    void resource() {
         ResourceCond resourceCond = new ResourceCond();
         resourceCond.setResource("resource-ldap-orgunit");
 

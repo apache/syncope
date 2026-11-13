@@ -79,7 +79,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnySearchTest extends AbstractTest {
+class AnySearchTest extends AbstractTest {
 
     private static final String LOGIN_DATE_VALUE = "2009-05-26";
 
@@ -114,7 +114,7 @@ public class AnySearchTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @BeforeEach
-    public void adjustLoginDateForLocalSystem() {
+    void adjustLoginDateForLocalSystem() {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         PlainAttr loginDate = rossini.getPlainAttr("loginDate").orElseThrow();
@@ -124,7 +124,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchTwoPlainSchemas() {
+    void searchTwoPlainSchemas() {
         AttrCond firstnameCond = new AttrCond(AttrCond.Type.EQ);
         firstnameCond.setSchema("firstname");
         firstnameCond.setExpression("Gioacchino");
@@ -179,7 +179,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithLikeCondition() {
+    void searchWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("%o%");
@@ -206,7 +206,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchCaseInsensitiveWithLikeCondition() {
+    void searchCaseInsensitiveWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.ILIKE);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("%O%");
@@ -233,7 +233,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotAttrCond() {
+    void searchWithNotAttrCond() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
@@ -251,7 +251,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotAnyCond() {
+    void searchWithNotAnyCond() {
         AnyCond usernameLeafCond = new AnyCond(AttrCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("verdi");
@@ -267,7 +267,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchCaseInsensitiveWithNotCondition() {
+    void searchCaseInsensitiveWithNotCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.IEQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("giuseppe verdi");
@@ -285,7 +285,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByBoolean() {
+    void searchByBoolean() {
         AttrCond coolLeafCond = new AttrCond(AttrCond.Type.EQ);
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
@@ -301,7 +301,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByRealm() {
+    void searchByRealm() {
         AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
         anyCond.setSchema("realm");
         anyCond.setExpression("c5b75db1-fce7-470f-b780-3b9934d82a9d");
@@ -319,7 +319,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByUManager() {
+    void searchByUManager() {
         AnyCond anyCond = new AnyCond(AttrCond.Type.EQ);
         anyCond.setSchema("uManager");
         anyCond.setExpression("823074dc-d280-436d-a7dd-07399fae48ec");
@@ -337,7 +337,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByPageAndSize() {
+    void searchByPageAndSize() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("%o%");
@@ -376,7 +376,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByGroup() {
+    void searchByGroup() {
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("child");
 
@@ -411,7 +411,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByRole() {
+    void searchByRole() {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("Other");
 
@@ -421,7 +421,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByIsNull() {
+    void searchByIsNull() {
         AttrCond coolLeafCond = new AttrCond(AttrCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
 
@@ -438,7 +438,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByAuxClass() {
+    void searchByAuxClass() {
         AuxClassCond ac = new AuxClassCond();
         ac.setAuxClass("csv");
 
@@ -448,7 +448,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByResource() {
+    void searchByResource() {
         ResourceCond ws2 = new ResourceCond();
         ws2.setResource("ws-target-resource-2");
 
@@ -464,7 +464,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByBooleanAttrCond() {
+    void searchByBooleanAttrCond() {
         AttrCond booleanCond = new AttrCond(AnyCond.Type.EQ);
         booleanCond.setSchema("show");
         booleanCond.setExpression("true");
@@ -475,7 +475,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByUsernameAndKey() {
+    void searchByUsernameAndKey() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.LIKE);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("%ini");
@@ -496,7 +496,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByGroupNameAndKey() {
+    void searchByGroupNameAndKey() {
         AnyCond groupNameLeafCond = new AnyCond(AnyCond.Type.EQ);
         groupNameLeafCond.setSchema("name");
         groupNameLeafCond.setExpression("root");
@@ -519,7 +519,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByUsernameAndFullname() {
+    void searchByUsernameAndFullname() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
@@ -538,7 +538,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByUsernameAndFullnameIgnoreCase() {
+    void searchByUsernameAndFullnameIgnoreCase() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.IEQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("RoSsini");
@@ -557,7 +557,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByKey() {
+    void searchByKey() {
         AnyCond idLeafCond = new AnyCond(AnyCond.Type.EQ);
         idLeafCond.setSchema("key");
         idLeafCond.setExpression("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
@@ -572,7 +572,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByType() {
+    void searchByType() {
         AnyTypeCond tcond = new AnyTypeCond();
         tcond.setAnyTypeKey("PRINTER");
 
@@ -590,7 +590,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByRelationshipType() {
+    void searchByRelationshipType() {
         // 1. first search for printers involved in "inclusion" relationship
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipType("inclusion");
@@ -617,7 +617,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByAnyCondDate() {
+    void searchByAnyCondDate() {
         AnyCond creationDateCond = new AnyCond(AnyCond.Type.EQ);
         creationDateCond.setSchema("creationDate");
         creationDateCond.setExpression("2021-04-15 12:45:00");
@@ -632,7 +632,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByAttrCondDate() {
+    void searchByAttrCondDate() {
         AttrCond loginDateCond = new AttrCond(AnyCond.Type.LT);
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-27");
@@ -647,7 +647,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void userOrderBy() {
+    void userOrderBy() {
         AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("rossini");
@@ -670,7 +670,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void groupOrderBy() {
+    void groupOrderBy() {
         AnyCond idLeafCond = new AnyCond(AnyCond.Type.LIKE);
         idLeafCond.setSchema("name");
         idLeafCond.setExpression("%r");
@@ -689,7 +689,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void member() {
+    void member() {
         MemberCond memberCond = new MemberCond();
         memberCond.setMember("1417acbe-cbf6-4277-9372-e75e04f97000");
         SearchCond searchCondition = SearchCond.of(memberCond);
@@ -702,7 +702,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void asGroupManager() {
+    void asGroupManager() {
         // prepare authentication
         Map<String, Set<String>> entForRealms = Map.of(
                 IdRepoEntitlement.GROUP_SEARCH,
@@ -750,7 +750,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void changePwdDate() {
+    void changePwdDate() {
         AnyCond statusCond = new AnyCond(AttrCond.Type.IEQ);
         statusCond.setSchema("status");
         statusCond.setExpression("suspended");
@@ -767,7 +767,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void findByDerAttrValue() {
+    void findByDerAttrValue() {
         List<User> list = searchDAO.findByDerAttrValue(
                 derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Vivaldi, Antonio", false, AnyTypeKind.USER);
         assertEquals(1, list.size());
@@ -782,21 +782,21 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void findByInvalidDerAttrValue() {
+    void findByInvalidDerAttrValue() {
         assertTrue(searchDAO.findByDerAttrValue(
                 derSchemaDAO.findById("cn").orElseThrow().getExpression(),
                 "Antonio, Maria, Rossi", false, AnyTypeKind.USER).isEmpty());
     }
 
     @Test
-    public void findByInvalidDerAttrExpression() {
+    void findByInvalidDerAttrExpression() {
         assertThrows(IllegalArgumentException.class, () -> searchDAO.findByDerAttrValue(
                 derSchemaDAO.findById("noschema").orElseThrow().getExpression(),
                 "Antonio, Maria", false, AnyTypeKind.USER).isEmpty());
     }
 
     @Test
-    public void issue202() {
+    void issue202() {
         ResourceCond ws2 = new ResourceCond();
         ws2.setResource("ws-target-resource-2");
 
@@ -814,7 +814,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issue242() {
+    void issue242() {
         AnyCond cond = new AnyCond(AttrCond.Type.LIKE);
         cond.setSchema("key");
         cond.setExpression("test%");
@@ -828,7 +828,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE46() {
+    void issueSYNCOPE46() {
         AnyCond cond = new AnyCond(AttrCond.Type.LIKE);
         cond.setSchema("username");
         cond.setExpression("%ossin%");
@@ -842,7 +842,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE433() {
+    void issueSYNCOPE433() {
         AttrCond isNullCond = new AttrCond(AttrCond.Type.ISNULL);
         isNullCond.setSchema("loginDate");
 
@@ -858,7 +858,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE929() {
+    void issueSYNCOPE929() {
         AttrCond rossiniCond = new AttrCond(AttrCond.Type.EQ);
         rossiniCond.setSchema("surname");
         rossiniCond.setExpression("Rossini");
@@ -881,7 +881,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE980() {
+    void issueSYNCOPE980() {
         AnyType service = entityFactory.newEntity(AnyType.class);
         service.setKey("SERVICE");
         service.setKind(AnyTypeKind.ANY_OBJECT);
@@ -929,7 +929,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE983() {
+    void issueSYNCOPE983() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("surname");
         fullnameLeafCond.setExpression("%o%");
@@ -949,7 +949,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1416() {
+    void issueSYNCOPE1416() {
         AttrCond idLeftCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         idLeftCond.setSchema("surname");
 
@@ -986,7 +986,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1419() {
+    void issueSYNCOPE1419() {
         AttrCond loginDateCond = new AttrCond(AttrCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);

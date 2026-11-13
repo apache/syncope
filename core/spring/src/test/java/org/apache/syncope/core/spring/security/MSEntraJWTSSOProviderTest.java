@@ -47,7 +47,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MSEntraJWTSSOProviderTest {
+class MSEntraJWTSSOProviderTest {
 
     private static final String TENANT_ID = "test-tenant-id";
 

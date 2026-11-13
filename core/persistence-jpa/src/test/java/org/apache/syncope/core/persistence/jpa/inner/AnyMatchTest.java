@@ -42,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyMatchTest extends AbstractTest {
+class AnyMatchTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
@@ -57,7 +57,7 @@ public class AnyMatchTest extends AbstractTest {
     private AnyMatchDAO anyMatcher;
 
     @Test
-    public void byResourceCond() {
+    void byResourceCond() {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         ResourceCond resourceCond = new ResourceCond();
@@ -69,7 +69,7 @@ public class AnyMatchTest extends AbstractTest {
     }
 
     @Test
-    public void anyObjectMatch() {
+    void anyObjectMatch() {
         AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
 
         RelationshipCond relationshipCond = new RelationshipCond();
@@ -82,7 +82,7 @@ public class AnyMatchTest extends AbstractTest {
     }
 
     @Test
-    public void userMatch() {
+    void userMatch() {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         MembershipCond groupCond = new MembershipCond();
@@ -108,7 +108,7 @@ public class AnyMatchTest extends AbstractTest {
     }
 
     @Test
-    public void groupMatch() {
+    void groupMatch() {
         Group group = groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow();
 
         AnyCond anyCond = new AnyCond();

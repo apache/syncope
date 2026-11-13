@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AnyTypeClassTest extends AbstractTest {
+class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -43,7 +43,7 @@ public class AnyTypeClassTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
-    public void find() {
+    void find() {
         AnyTypeClass minimalGroup = anyTypeClassDAO.findById("minimal group").orElseThrow();
 
         assertFalse(minimalGroup.getPlainSchemas().isEmpty());
@@ -51,13 +51,13 @@ public class AnyTypeClassTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AnyTypeClass> list = anyTypeClassDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         PlainSchema firstname = plainSchemaDAO.findById("firstname").orElseThrow();
 
         AnyTypeClass newClass = entityFactory.newEntity(AnyTypeClass.class);
@@ -77,7 +77,7 @@ public class AnyTypeClassTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         AnyTypeClass minimalUser = anyTypeClassDAO.findById("minimal user").orElseThrow();
         assertNotNull(minimalUser);
 

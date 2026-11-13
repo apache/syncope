@@ -38,7 +38,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AccessTokenTest extends AbstractTest {
+class AccessTokenTest extends AbstractTest {
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
@@ -54,7 +54,7 @@ public class AccessTokenTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         for (long i = 0; i < 5; i++) {
             create(String.valueOf(6 - i), i);
         }
@@ -90,7 +90,7 @@ public class AccessTokenTest extends AbstractTest {
     }
 
     @Test
-    public void crud() {
+    void crud() {
         AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
         accessToken.setKey(UUID.randomUUID().toString());
         accessToken.setBody("pointless body");
@@ -112,7 +112,7 @@ public class AccessTokenTest extends AbstractTest {
     }
 
     @Test
-    public void unique() {
+    void unique() {
         AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
         accessToken.setKey(UUID.randomUUID().toString());
         accessToken.setBody("pointless body");

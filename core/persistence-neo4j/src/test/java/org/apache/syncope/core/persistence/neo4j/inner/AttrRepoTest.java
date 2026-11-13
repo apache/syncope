@@ -40,13 +40,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttrRepoTest extends AbstractTest {
+class AttrRepoTest extends AbstractTest {
 
     @Autowired
     private AttrRepoDAO attrRepoDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends AttrRepo> modules = attrRepoDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
@@ -54,7 +54,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void find() {
+    void find() {
         AttrRepo attrRepo = attrRepoDAO.findById("DefaultLDAPAttrRepo").orElseThrow();
         assertTrue(attrRepo.getConf() instanceof LDAPAttrRepoConf);
 
@@ -70,7 +70,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void findByType() {
+    void findByType() {
         List<? extends AttrRepo> attrRepos = attrRepoDAO.findAll();
         assertTrue(attrRepos.stream().anyMatch(
                 attrRepo -> attrRepo.getConf() instanceof LDAPAttrRepoConf
@@ -112,7 +112,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithStubRepo() {
+    void saveWithStubRepo() {
         StubAttrRepoConf conf = new StubAttrRepoConf();
         conf.getAttributes().put("attr1", UUID.randomUUID().toString());
         conf.getAttributes().put("attr2", UUID.randomUUID().toString());
@@ -121,7 +121,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithLdapRepo() {
+    void saveWithLdapRepo() {
         LDAPAttrRepoConf conf = new LDAPAttrRepoConf();
         conf.setBaseDn("dc=example,dc=org");
         conf.setSearchFilter("cn={user}");
@@ -133,7 +133,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithJDBCRepo() {
+    void saveWithJDBCRepo() {
         JDBCAttrRepoConf conf = new JDBCAttrRepoConf();
         conf.setSql("SELECT * FROM table WHERE name=?");
         conf.setUrl("jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1");
@@ -144,7 +144,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithSyncopeRepo() {
+    void saveWithSyncopeRepo() {
         SyncopeAttrRepoConf conf = new SyncopeAttrRepoConf();
         conf.setDomain("Master");
 
@@ -152,7 +152,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithLDAPRepo() {
+    void updateWithLDAPRepo() {
         AttrRepo module = attrRepoDAO.findById("DefaultLDAPAttrRepo").orElseThrow();
         AttrRepoConf conf = module.getConf();
         LDAPAttrRepoConf.class.cast(conf).setBaseDn("dc=example2,dc=org");
@@ -169,7 +169,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithJDBCRepo() {
+    void updateWithJDBCRepo() {
         AttrRepo module = attrRepoDAO.findById("DefaultJDBCAttrRepo").orElseThrow();
         AttrRepoConf conf = module.getConf();
         JDBCAttrRepoConf.class.cast(conf).setSql("SELECT * FROM otherTable WHERE name=?");
@@ -183,7 +183,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithStubRepo() {
+    void updateWithStubRepo() {
         AttrRepo module = attrRepoDAO.findById("DefaultStubAttrRepo").orElseThrow();
         assertEquals(1, StubAttrRepoConf.class.cast(module.getConf()).getAttributes().size());
         AttrRepoConf conf = module.getConf();
@@ -197,7 +197,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithSyncopeRepo() {
+    void updateWithSyncopeRepo() {
         AttrRepo module = attrRepoDAO.findById("DefaultSyncopeAttrRepo").orElseThrow();
 
         AttrRepoConf conf = module.getConf();
@@ -212,7 +212,7 @@ public class AttrRepoTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         assertTrue(attrRepoDAO.findById("DefaultSyncopeAttrRepo").isPresent());
 
         attrRepoDAO.deleteById("DefaultSyncopeAttrRepo");

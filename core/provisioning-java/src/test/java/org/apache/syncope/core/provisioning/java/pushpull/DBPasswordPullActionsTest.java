@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -52,7 +53,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class DBPasswordPullActionsTest extends AbstractTest {
+class DBPasswordPullActionsTest extends AbstractTest {
 
     @Mock
     private SyncDelta syncDelta;
@@ -90,7 +91,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     private ConnConfProperty connConfProperty;
 
     @BeforeEach
-    public void initTest() {
+    void initTest() {
         userTO = new UserTO();
         encodedPassword = "s3cureP4ssw0rd";
         cipher = CipherAlgorithm.SHA512;
@@ -110,10 +111,10 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeProvision() throws JobExecutionException {
+    void beforeProvision() throws JobExecutionException {
         String digest = "SHA256";
         String password = "t3stPassw0rd";
-        userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "user").password(password).build();
+        userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name()).password(password).build();
         connConfProperty.getValues().clear();
         connConfProperty.getValues().add(digest);
 
@@ -129,7 +130,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void beforeUpdate() throws JobExecutionException {
+    void beforeUpdate() throws JobExecutionException {
         userUR = new UserUR.Builder(null).
                 password(new PasswordPatch.Builder().value("an0therTestP4ss").build()).
                 build();
@@ -144,7 +145,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void after(final @Mock User user) throws JobExecutionException {
+    void after(final @Mock User user) throws JobExecutionException {
         when(userDAO.findById(user.getKey())).thenAnswer(ic -> Optional.of(user));
 
         dBPasswordPullActions.after(profile, syncDelta, userTO, result);

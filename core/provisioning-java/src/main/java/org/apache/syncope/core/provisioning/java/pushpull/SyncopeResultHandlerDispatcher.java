@@ -23,12 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
@@ -49,7 +55,34 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     private static final String PLACEHOLDER_PWD = "PLACEHOLDER_PWD";
 
+    /**
+     * Default value for {@link #submitTimeoutSeconds}.
+     */
+    public static final int DEFAULT_SUBMIT_TIMEOUT_SECONDS = 300;
+
+    /**
+     * Default value for {@link #completionTimeoutSeconds}.
+     */
+    public static final int DEFAULT_COMPLETION_TIMEOUT_SECONDS = 600;
+
     protected Optional<VirtualThreadPoolTaskExecutor> tpte;
+
+    /**
+     * Only set in concurrent mode: one permit per configured pool size, so that the caller of
+     * {@link #submit(Runnable)} is blocked while no handler task can be started - but never for longer than
+     * {@link #submitTimeoutSeconds}.
+     */
+    protected Semaphore permits;
+
+    /**
+     * Maximum time to wait for a free slot before rejecting a new handler task.
+     */
+    protected int submitTimeoutSeconds = DEFAULT_SUBMIT_TIMEOUT_SECONDS;
+
+    /**
+     * Maximum overall time to wait, on {@link #shutdown()}, for the submitted handler tasks to complete.
+     */
+    protected int completionTimeoutSeconds = DEFAULT_COMPLETION_TIMEOUT_SECONDS;
 
     protected final Map<String, Supplier<RA>> suppliers = new ConcurrentHashMap<>();
 
@@ -57,12 +90,19 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     protected final List<Future<?>> futures = new ArrayList<>();
 
+    /**
+     * Number of handler tasks rejected because no free slot became available within {@link #submitTimeoutSeconds}.
+     */
+    protected int rejectedSubmissions;
+
     protected void init(final ProvisioningProfile<T, A> profile) {
         if (profile.getTask().getConcurrentSettings() == null) {
             tpte = Optional.empty();
         } else {
+            int poolSize = profile.getTask().getConcurrentSettings().getPoolSize();
+
             VirtualThreadPoolTaskExecutor t = new VirtualThreadPoolTaskExecutor();
-            t.setPoolSize(profile.getTask().getConcurrentSettings().getPoolSize());
+            t.setPoolSize(poolSize);
             t.setWaitForTasksToCompleteOnShutdown(true);
             t.setThreadNamePrefix("provisioningTask-" + profile.getTask().getKey() + "-");
             t.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
@@ -82,6 +122,8 @@ public abstract class SyncopeResultHandlerDispatcher<
 
             t.initialize();
 
+            permits = new Semaphore(poolSize);
+
             tpte = Optional.of(t);
         }
     }
@@ -94,23 +136,119 @@ public abstract class SyncopeResultHandlerDispatcher<
         return handlers.computeIfAbsent(key, k -> suppliers.get(k).get());
     }
 
+    public void setSubmitTimeoutSeconds(final int submitTimeoutSeconds) {
+        this.submitTimeoutSeconds = submitTimeoutSeconds;
+    }
+
+    public void setCompletionTimeoutSeconds(final int completionTimeoutSeconds) {
+        this.completionTimeoutSeconds = completionTimeoutSeconds;
+    }
+
     protected void submit(final Runnable runnable) {
-        tpte.ifPresent(executor -> futures.add(executor.submit(runnable)));
+        if (tpte.isEmpty()) {
+            return;
+        }
+
+        if (!acquirePermit()) {
+            rejectedSubmissions++;
+
+            throw new RejectedExecutionException("No free slot for handler task after " + submitTimeoutSeconds + 's');
+        }
+
+        try {
+            futures.add(tpte.get().submit(() -> {
+                try {
+                    runnable.run();
+                } finally {
+                    releasePermit();
+                }
+            }));
+        } catch (RuntimeException e) {
+            releasePermit();
+
+            throw e;
+        }
+    }
+
+    private boolean acquirePermit() {
+        if (permits == null) {
+            return true;
+        }
+
+        try {
+            if (permits.tryAcquire(submitTimeoutSeconds, TimeUnit.SECONDS)) {
+                return true;
+            }
+
+            LOG.error("Timeout after {}s while waiting for a free slot to submit a new handler task",
+                    submitTimeoutSeconds);
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            LOG.error("Interrupted while waiting for a free slot to submit a new handler task", e);
+            return false;
+        }
+    }
+
+    private void releasePermit() {
+        Optional.ofNullable(permits).ifPresent(Semaphore::release);
     }
 
     public void stop() {
         handlers.values().forEach(SyncopeResultHandler::stop);
     }
 
-    protected void shutdown() {
-        for (Future<?> f : this.futures) {
-            try {
-                f.get();
-            } catch (ExecutionException | InterruptedException e) {
-                LOG.error("Unexpected error when waiting for completion", e);
-            }
-        }
+    /**
+     * Waits for the submitted handler tasks to complete, for no longer than {@link #completionTimeoutSeconds} overall;
+     * any task still running at that point is cancelled.
+     *
+     * @throws JobExecutionException if not all handler tasks could be submitted and completed
+     */
+    protected void shutdown() throws JobExecutionException {
+        awaitCompletion();
+
+        List<Future<?>> notCompleted = futures.stream().filter(future -> !future.isDone()).toList();
+        notCompleted.forEach(future -> future.cancel(true));
 
         tpte.ifPresent(VirtualThreadPoolTaskExecutor::shutdown);
+
+        if (!notCompleted.isEmpty() || rejectedSubmissions > 0) {
+            throw new JobExecutionException("Concurrent handling did not complete: "
+                    + notCompleted.size() + " out of " + futures.size() + " handler task(s) still running after "
+                    + completionTimeoutSeconds + 's'
+                    + (rejectedSubmissions == 0
+                            ? ""
+                            : ", " + rejectedSubmissions + " handler task(s) not submitted within "
+                            + submitTimeoutSeconds + 's'));
+        }
+    }
+
+    private void awaitCompletion() {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(completionTimeoutSeconds);
+
+        for (Future<?> future : futures) {
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                LOG.error("Timeout after {}s while waiting for handler tasks to complete", completionTimeoutSeconds);
+                return;
+            }
+
+            try {
+                future.get(remaining, TimeUnit.NANOSECONDS);
+            } catch (TimeoutException e) {
+                LOG.error("Timeout after {}s while waiting for handler tasks to complete", completionTimeoutSeconds, e);
+                return;
+            } catch (CancellationException e) {
+                LOG.debug("Handler task was cancelled", e);
+            } catch (ExecutionException e) {
+                LOG.error("Unexpected error when waiting for completion", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+
+                LOG.error("Interrupted while waiting for completion", e);
+                return;
+            }
+        }
     }
 }

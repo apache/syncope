@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RealmTest extends AbstractTest {
+class RealmTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -58,7 +58,7 @@ public class RealmTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @Test
-    public void plainAttrs() {
+    void plainAttrs() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
         assertTrue(realm.getAnyTypeClasses().isEmpty());
         assertTrue(realm.getPlainAttrs().isEmpty());
@@ -85,7 +85,7 @@ public class RealmTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // need to remove this group in order to remove the realm, which is otherwise empty

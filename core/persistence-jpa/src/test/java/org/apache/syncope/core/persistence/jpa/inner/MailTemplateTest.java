@@ -32,27 +32,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class MailTemplateTest extends AbstractTest {
+class MailTemplateTest extends AbstractTest {
 
     @Autowired
     private MailTemplateDAO mailTemplateDAO;
 
     @Test
-    public void find() {
+    void find() {
         MailTemplate optin = mailTemplateDAO.findById("optin").orElseThrow();
         assertNotNull(optin.getTextTemplate());
         assertNotNull(optin.getHTMLTemplate());
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends MailTemplate> templates = mailTemplateDAO.findAll();
         assertNotNull(templates);
         assertFalse(templates.isEmpty());
     }
 
     @Test
-    public void save() {
+    void save() {
         MailTemplate template = entityFactory.newEntity(MailTemplate.class);
         template.setKey("new");
         template.setTextTemplate("Text template");
@@ -70,7 +70,7 @@ public class MailTemplateTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         mailTemplateDAO.deleteById("optin");
         assertTrue(mailTemplateDAO.findById("optin").isEmpty());
     }

@@ -37,10 +37,10 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class AttributeSerializerTest extends AbstractTest {
+class AttributeSerializerTest extends AbstractTest {
 
     @Test
-    public void serialize(
+    void serialize(
             final @Mock Attribute source,
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) {

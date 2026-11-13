@@ -30,7 +30,7 @@ import org.mockito.Mock;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
-public class GuardedStringSerializerTest extends AbstractTest {
+class GuardedStringSerializerTest extends AbstractTest {
 
     private static final String READONLY = "readOnly";
 
@@ -43,7 +43,7 @@ public class GuardedStringSerializerTest extends AbstractTest {
     private final GuardedStringSerializer serializer = new GuardedStringSerializer();
 
     @Test
-    public void serialize(
+    void serialize(
             final @Mock JsonGenerator jgen,
             final @Mock SerializationContext ctx) throws IOException {
 

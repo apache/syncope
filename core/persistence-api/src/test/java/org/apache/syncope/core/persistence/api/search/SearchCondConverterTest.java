@@ -37,12 +37,12 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.junit.jupiter.api.Test;
 
-public class SearchCondConverterTest {
+class SearchCondConverterTest {
 
     private static final AnySearchCondVisitor VISITOR = new AnySearchCondVisitor();
 
     @Test
-    public void eq() {
+    void eq() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiql);
 
@@ -55,7 +55,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void ieq() {
+    void ieq() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("rossini").query();
         assertEquals("username=~rossini", fiql);
 
@@ -68,7 +68,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void nieq() {
+    void nieq() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("rossini").query();
         assertEquals("username!~rossini", fiql);
 
@@ -81,7 +81,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void like() {
+    void like() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiql);
 
@@ -94,7 +94,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void ilike() {
+    void ilike() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros*").query();
         assertEquals("username=~ros*", fiql);
 
@@ -107,7 +107,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void nilike() {
+    void nilike() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").query();
         assertEquals("username!~ros*", fiql);
 
@@ -120,7 +120,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void isNull() {
+    void isNull() {
         String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
         assertEquals("loginDate==" + SpecialAttr.NULL, fiql);
 
@@ -132,7 +132,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void isNotNull() {
+    void isNotNull() {
         String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
         assertEquals("loginDate!=" + SpecialAttr.NULL, fiql);
 
@@ -144,7 +144,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void relationships() {
+    void relationships() {
         String fiql = new UserFiqlSearchConditionBuilder().
                 inRelationships("ca20ffca-1305-442f-be9a-3723a0cd88ca").query();
         assertEquals(SpecialAttr.RELATIONSHIPS + "==ca20ffca-1305-442f-be9a-3723a0cd88ca", fiql);
@@ -157,7 +157,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void relationshipTypes() {
+    void relationshipTypes() {
         String fiql = new UserFiqlSearchConditionBuilder().inRelationshipTypes("type1").query();
         assertEquals(SpecialAttr.RELATIONSHIP_TYPES + "==type1", fiql);
 
@@ -174,7 +174,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void groups() {
+    void groups() {
         String fiql = new UserFiqlSearchConditionBuilder().
                 inGroups("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed").query();
         assertEquals(SpecialAttr.GROUPS + "==e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed", fiql);
@@ -187,7 +187,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void roles() {
+    void roles() {
         String fiql = new UserFiqlSearchConditionBuilder().inRoles("User reviewer").query();
         assertEquals(SpecialAttr.ROLES + "==User reviewer", fiql);
 
@@ -199,7 +199,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void auxClasses() {
+    void auxClasses() {
         String fiql = new UserFiqlSearchConditionBuilder().hasAuxClasses("clazz1").query();
         assertEquals(SpecialAttr.AUX_CLASSES + "==clazz1", fiql);
 
@@ -211,7 +211,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void resources() {
+    void resources() {
         String fiql = new UserFiqlSearchConditionBuilder().hasResources("resource-ldap").query();
         assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiql);
 
@@ -223,7 +223,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void type() {
+    void type() {
         String fiql = new AnyObjectFiqlSearchConditionBuilder("PRINTER").query();
         assertEquals(SpecialAttr.TYPE + "==PRINTER", fiql);
 
@@ -235,7 +235,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void member() {
+    void member() {
         String fiql = new GroupFiqlSearchConditionBuilder().withMembers("rossini").query();
         assertEquals(SpecialAttr.MEMBER + "==rossini", fiql);
 
@@ -247,7 +247,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void and() {
+    void and() {
         String fiql = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query();
         assertEquals("fullname==*o*;fullname==*i*", fiql);
@@ -266,7 +266,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void or() {
+    void or() {
         String fiql = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*", "*i*", "*ini").query();
         assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiql);
@@ -292,7 +292,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void issueSYNCOPE1223() {
+    void issueSYNCOPE1223() {
         String fiql = new UserFiqlSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query();
 
         AttrCond cond = new AttrCond(AttrCond.Type.EQ);
@@ -303,7 +303,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void issueSYNCOPE1779() {
+    void issueSYNCOPE1779() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros_*").query();
         assertEquals("username=~ros_*", fiql);
 
@@ -325,7 +325,7 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void issueSYNCOPE1826() {
+    void issueSYNCOPE1826() {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("sh test app 0722").query();
         assertEquals("username=~sh test app 0722", fiql);
 

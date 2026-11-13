@@ -212,8 +212,8 @@ public class PushJobDelegate
     }
 
     protected PushResultHandlerDispatcher buildDispatcher() {
-        return ctx.getBeanFactory().createBean(PushResultHandlerDispatcher.class).
-                init(profile, this);
+        return configure(ctx.getBeanFactory().createBean(PushResultHandlerDispatcher.class).
+                init(profile, this));
     }
 
     @Override

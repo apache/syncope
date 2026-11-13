@@ -49,7 +49,7 @@ public class PasswordRuleTest {
     }
 
     @Test
-    public void concurrentPasswordRuleBuilding() {
+    void concurrentPasswordRuleBuilding() {
         String body = POJOHelper.serialize(createBaseDefaultPasswordRuleConf());
 
         assertTimeoutPreemptively(Duration.ofSeconds(30), () -> {

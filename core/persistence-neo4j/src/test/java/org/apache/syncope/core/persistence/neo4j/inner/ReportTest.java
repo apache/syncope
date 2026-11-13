@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ReportTest extends AbstractTest {
+class ReportTest extends AbstractTest {
 
     @Autowired
     private ReportDAO reportDAO;
@@ -43,7 +43,7 @@ public class ReportTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
-    public void find() {
+    void find() {
         Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertNotNull(report);
 
@@ -51,14 +51,14 @@ public class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends Report> reports = reportDAO.findAll();
         assertNotNull(reports);
         assertEquals(1, reports.size());
     }
 
     @Test
-    public void save() {
+    void save() {
         int beforeCount = reportDAO.findAll().size();
 
         Report report = entityFactory.newEntity(Report.class);
@@ -77,7 +77,7 @@ public class ReportTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertNotNull(report);
 

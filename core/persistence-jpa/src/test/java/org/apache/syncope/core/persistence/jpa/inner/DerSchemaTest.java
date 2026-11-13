@@ -33,30 +33,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class DerSchemaTest extends AbstractTest {
+class DerSchemaTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends DerSchema> list = derSchemaDAO.findAll();
         assertEquals(10, list.size());
     }
 
     @Test
-    public void findByIdLike() {
+    void findByIdLike() {
         List<? extends DerSchema> schemas = derSchemaDAO.findByIdLike("mderivedd%");
         assertEquals(1, schemas.size());
     }
 
     @Test
-    public void findByName() {
+    void findByName() {
         assertTrue(derSchemaDAO.findById("cn").isPresent());
     }
 
     @Test
-    public void save() {
+    void save() {
         DerSchema derivedAttributeSchema = entityFactory.newEntity(DerSchema.class);
         derivedAttributeSchema.setKey("cn2");
         derivedAttributeSchema.setExpression("firstname surname");
@@ -68,7 +68,7 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         DerSchema cn = derSchemaDAO.findById("cn").orElseThrow();
 
         derSchemaDAO.deleteById(cn.getKey());
@@ -84,7 +84,7 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE418() {
+    void issueSYNCOPE418() {
         DerSchema schema = entityFactory.newEntity(DerSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 

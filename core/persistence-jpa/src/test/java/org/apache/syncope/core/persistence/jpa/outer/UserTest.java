@@ -64,7 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
-public class UserTest extends AbstractTest {
+class UserTest extends AbstractTest {
 
     @Autowired
     private RelationshipTypeDAO relationshipTypeDAO;
@@ -106,7 +106,7 @@ public class UserTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     @Test
-    public void delete() {
+    void delete() {
         List<UMembership> memberships = groupDAO.findUMemberships(
                 groupDAO.findByName("managingDirector").orElseThrow(), Pageable.unpaged());
         assertFalse(memberships.isEmpty());
@@ -124,7 +124,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void ships() {
+    void ships() {
         User user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getMemberships().size());
         assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().getFirst().getRightEnd().getKey());
@@ -198,7 +198,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void findLinkedAccount() {
+    void findLinkedAccount() {
         LinkedAccount account = newLinkedAccount("findLinkedAccount");
         assertNotNull(account.getKey());
         assertEquals(1, account.getPlainAttrs().size());
@@ -218,7 +218,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void deleteLinkedAccountResourceCascade() {
+    void deleteLinkedAccountResourceCascade() {
         LinkedAccount account = newLinkedAccount("deleteLinkedAccountResourceCascade");
         assertNotNull(account.getKey());
 
@@ -232,7 +232,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void deleteCascadeOnDelegations() {
+    void deleteCascadeOnDelegations() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
@@ -260,7 +260,7 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void auxClasses() {
+    void auxClasses() {
         User user = entityFactory.newEntity(User.class);
         user.setRealm(realmDAO.getRoot());
 
@@ -287,7 +287,7 @@ public class UserTest extends AbstractTest {
      * Search by derived attribute.
      */
     @Test
-    public void issueSYNCOPE800() {
+    void issueSYNCOPE800() {
         // create derived attribute (literal as prefix)
         DerSchema prefix = entityFactory.newEntity(DerSchema.class);
         prefix.setKey("kprefix");

@@ -75,8 +75,8 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
     protected PullResultHandlerDispatcher dispatcher;
 
     protected PullResultHandlerDispatcher buildDispatcher() {
-        return ctx.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
-                init(profile, this);
+        return configure(ctx.getBeanFactory().createBean(PullResultHandlerDispatcher.class).
+                init(profile, this));
     }
 
     protected RealmPullResultHandler buildRealmHandler() {

@@ -22,17 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class AttrCompareToTest {
+class AttrCompareToTest {
 
     @Test
-    public void equals() {
+    void equals() {
         Attr first = new Attr.Builder("schema").value("value").build();
         Attr second = new Attr.Builder("schema").value("value").build();
         assertEquals(0, first.compareTo(second));
     }
 
     @Test
-    public void different() {
+    void different() {
         Attr first = new Attr.Builder("schema1").value("value1").build();
         Attr second = new Attr.Builder("schema2").value("value2").build();
         assertEquals(-1, first.compareTo(second));
@@ -40,14 +40,14 @@ public class AttrCompareToTest {
     }
 
     @Test
-    public void differentSchemaSameValue() {
+    void differentSchemaSameValue() {
         Attr first = new Attr.Builder("schema1").value("value").build();
         Attr second = new Attr.Builder("schema2").value("value").build();
         assertEquals(-1, first.compareTo(second));
     }
 
     @Test
-    public void sameSchemaDifferentValue() {
+    void sameSchemaDifferentValue() {
         Attr first = new Attr.Builder("schema").value("value1").build();
         Attr second = new Attr.Builder("schema").value("value2").build();
         assertEquals(-1, first.compareTo(second));

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java;
 
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import jakarta.persistence.EntityManager;
@@ -31,7 +32,6 @@ import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -80,7 +80,7 @@ public abstract class AbstractTest {
     protected EntityManager entityManager;
 
     @BeforeEach
-    public void initMocks() {
-        MockitoAnnotations.openMocks(this);
+    void initMocks() {
+        openMocks(this);
     }
 }

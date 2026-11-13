@@ -35,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class RoleTest extends AbstractTest {
+class RoleTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
@@ -47,7 +47,7 @@ public class RoleTest extends AbstractTest {
     private RealmSearchDAO realmSearchDAO;
 
     @Test
-    public void find() {
+    void find() {
         Role role = roleDAO.findById("User manager").orElseThrow();
         assertNotNull(role.getKey());
         assertFalse(role.getRealms().isEmpty());
@@ -56,7 +56,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public void findAll() {
+    void findAll() {
         List<? extends Role> list = roleDAO.findAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
@@ -64,7 +64,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    void save() {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
@@ -77,7 +77,7 @@ public class RoleTest extends AbstractTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         assertTrue(roleDAO.findById("Other").isPresent());
 
         roleDAO.deleteById("Other");

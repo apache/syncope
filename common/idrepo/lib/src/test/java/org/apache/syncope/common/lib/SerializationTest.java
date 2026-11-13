@@ -45,12 +45,12 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
-public class SerializationTest {
+class SerializationTest {
 
     private static final JsonMapper MAPPER = new SyncopeJsonMapper();
 
     @Test
-    public void emptyListAsRoot() throws IOException {
+    void emptyListAsRoot() throws IOException {
         List<ReportTO> original = new ArrayList<>();
 
         StringWriter writer = new StringWriter();
@@ -62,7 +62,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void nonEmptyListAsMember() throws IOException {
+    void nonEmptyListAsMember() throws IOException {
         AnyObjectCR original = new AnyObjectCR();
         original.setName("newPrinter");
         original.setType("PRINTER");
@@ -76,7 +76,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void map() throws IOException {
+    void map() throws IOException {
         GroupUR req = new GroupUR();
         req.setKey(UUID.randomUUID().toString());
 
@@ -88,7 +88,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void patch() throws IOException {
+    void patch() throws IOException {
         UserUR req = new UserUR();
         req.setKey(UUID.randomUUID().toString());
         req.setUsername(new StringReplacePatchItem.Builder().value("newusername").build());
@@ -109,7 +109,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void pagedResult() throws IOException {
+    void pagedResult() throws IOException {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
@@ -129,7 +129,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void provisioningResult() throws IOException {
+    void provisioningResult() throws IOException {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
@@ -151,7 +151,7 @@ public class SerializationTest {
     }
 
     @Test
-    public void manager() {
+    void manager() {
         GroupCR originalCR = new GroupCR();
         originalCR.setgManager("manager");
 

@@ -48,7 +48,7 @@ import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class UserSelfLogicPasswordResetTest {
+class UserSelfLogicPasswordResetTest {
 
     private static final Cache<String, ThrottlerAttempts> CACHE =
             Caching.getCachingProvider().getCacheManager().createCache(

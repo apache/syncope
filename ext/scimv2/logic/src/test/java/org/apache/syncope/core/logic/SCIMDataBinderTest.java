@@ -265,6 +265,24 @@ class SCIMDataBinderTest {
     }
 
     @Test
+    void filter2JexlExpression() {
+        assertEquals("displayName =~ \"Jensen\"",
+                SCIMDataBinder.filter2JexlExpression("displayName co \"Jensen\""));
+        assertEquals("displayName =^ \"J\"",
+                SCIMDataBinder.filter2JexlExpression("displayName sw \"J\""));
+        assertEquals("displayName =$ \"Jensen\"",
+                SCIMDataBinder.filter2JexlExpression("displayName ew \"Jensen\""));
+
+        assertEquals("not(empty(title))", SCIMDataBinder.filter2JexlExpression("title pr"));
+        assertEquals("not(empty(title)) and displayName eq \"Jensen\"",
+                SCIMDataBinder.filter2JexlExpression("title pr and displayName eq \"Jensen\""));
+        assertEquals("not(empty(title)) or not(empty(nickName))",
+                SCIMDataBinder.filter2JexlExpression("title pr or nickName pr"));
+        assertEquals("not(empty(nickName)) and not(empty(title))",
+                SCIMDataBinder.filter2JexlExpression("nickName pr and title pr"));
+    }
+
+    @Test
     void groups() {
         when(groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806")).thenAnswer(ic -> {
             org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup =

@@ -49,7 +49,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class ReportLogicTest extends AbstractTest {
+class ReportLogicTest extends AbstractTest {
 
     public static class TestReportJobDelegate extends AbstractReportJobDelegate {
 
@@ -100,7 +100,7 @@ public class ReportLogicTest extends AbstractTest {
     }
 
     @Test
-    public void executeAndExport() throws Exception {
+    void executeAndExport() throws Exception {
         ReportTO report = logic.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
         assertTrue(report.isActive());
