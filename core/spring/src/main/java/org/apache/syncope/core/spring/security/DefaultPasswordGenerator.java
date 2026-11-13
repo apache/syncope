@@ -150,7 +150,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
                 result.setRepeatSame(ruleConf.getRepeatSame());
             }
 
-            if (!result.isUsernameAllowed()) {
+            if (result.isUsernameAllowed()) {
                 result.setUsernameAllowed(ruleConf.isUsernameAllowed());
             }
 
