@@ -19,11 +19,13 @@
 package org.apache.syncope.core.spring.security;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -149,5 +151,66 @@ public class PasswordGeneratorTest {
 
         password = passwordGenerator.generate(List.of(new TestPasswordPolicy(passwordRule)));
         assertNotNull(password);
+    }
+
+    private static DefaultPasswordRuleConf configRule(final boolean usernameAllowed) {
+        DefaultPasswordRuleConf conf = new DefaultPasswordRuleConf();
+        conf.setUsernameAllowed(usernameAllowed);
+        return conf;
+    }
+
+    @Test
+    public void allForbid() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(false));
+        rules.add(configRule(false));
+        assertFalse(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void singleTrue() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(true));
+        assertTrue(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void singleFalse() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(false));
+        assertFalse(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void twoTrue() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(true));
+        rules.add(configRule(true));
+        assertTrue(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void trueThenFalse() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(true));
+        rules.add(configRule(false));
+        assertFalse(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void falseThenTrue() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(false));
+        rules.add(configRule(true));
+        assertFalse(passwordGenerator.merge(rules).isUsernameAllowed());
+    }
+
+    @Test
+    public void falseInTheMiddle() {
+        List<DefaultPasswordRuleConf> rules = new ArrayList<>();
+        rules.add(configRule(true));
+        rules.add(configRule(false));
+        rules.add(configRule(true));
+        assertFalse(passwordGenerator.merge(rules).isUsernameAllowed());
     }
 }
