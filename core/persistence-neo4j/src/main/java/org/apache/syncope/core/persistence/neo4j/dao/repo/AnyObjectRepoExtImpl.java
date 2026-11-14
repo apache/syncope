@@ -266,12 +266,12 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             Set<String> beforeMembs = before.getMemberships().stream().map(AMembership::getKey).
                     collect(Collectors.toSet());
             beforeMembs.removeAll(anyObject.getMemberships().stream().map(AMembership::getKey).toList());
-            beforeMembs.forEach(m -> neo4jTemplate.deleteById(m, Neo4jAMembership.class));
+            neo4jTemplate.deleteAllById(beforeMembs, Neo4jAMembership.class);
 
             Set<String> beforeRels = before.getRelationships().stream().map(ARelationship::getKey).
                     collect(Collectors.toSet());
             beforeRels.removeAll(anyObject.getRelationships().stream().map(ARelationship::getKey).toList());
-            beforeRels.forEach(r -> neo4jTemplate.deleteById(r, Neo4jARelationship.class));
+            neo4jTemplate.deleteAllById(beforeRels, Neo4jARelationship.class);
         });
 
         S merged = neo4jTemplate.save(nodeValidator.validate(anyObject));

@@ -99,15 +99,12 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final PlainSchema schema,
             final String fieldName) {
 
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
         obs.views.add(svs.table());
 
         item.select = schema.getKey() + "."
                 + (schema.isUniqueConstraint() ? "uniqueValue" : "valuez")
                 + " AS " + schema.getKey();
-        item.where = StringUtils.EMPTY;
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -119,7 +116,6 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final Sort.Order clause) {
 
         item.select = svs.table().alias() + '.' + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = svs.table().alias() + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 

@@ -224,7 +224,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
         return query(
-                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?",
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyObject_id=?",
                 rs -> {
                     rs.next();
                     return rs.getLong(1);
@@ -283,8 +283,17 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         result.addAll(query.getResultList());
 
         // (b) see GroupDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> findUMembers(group).
-                forEach(m -> userDAO.findById(m).ifPresent(result::add)));
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (!managedGroupKeys.isEmpty()) {
+            List<String> memberKeys = entityManager.createQuery(
+                    "SELECT DISTINCT m.leftEnd.id FROM " + JPAUMembership.class.getSimpleName()
+                    + " m WHERE m.rightEnd.id IN :groupKeys", String.class).
+                    setParameter("groupKeys", managedGroupKeys).
+                    getResultList();
+            if (!memberKeys.isEmpty()) {
+                result.addAll(userDAO.findByKeys(memberKeys));
+            }
+        }
 
         return result.stream().distinct().toList();
     }
@@ -304,11 +313,19 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public List<Group> findManagedGroups(final String key) {
-        return findManagedGroupKeys(key).
-                map(group -> Optional.ofNullable(entityManager.find(JPAGroup.class, group))).
-                flatMap(Optional::stream).
-                map(Group.class::cast).
-                toList();
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (managedGroupKeys.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, Group> found = new HashMap<>();
+        entityManager.createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.id IN :keys", Group.class).
+                setParameter("keys", managedGroupKeys).
+                getResultList().
+                forEach(group -> found.put(group.getKey(), group));
+
+        return managedGroupKeys.stream().map(found::get).filter(Objects::nonNull).toList();
     }
 
     @Override
@@ -322,8 +339,17 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         result.addAll(query.getResultList());
 
         // (b) see GroupDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> findAMembers(group).
-                forEach(m -> anyObjectDAO.findById(m).ifPresent(result::add)));
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (!managedGroupKeys.isEmpty()) {
+            List<String> memberKeys = entityManager.createQuery(
+                    "SELECT DISTINCT m.leftEnd.id FROM " + JPAAMembership.class.getSimpleName()
+                    + " m WHERE m.rightEnd.id IN :groupKeys", String.class).
+                    setParameter("groupKeys", managedGroupKeys).
+                    getResultList();
+            if (!memberKeys.isEmpty()) {
+                result.addAll(anyObjectDAO.findByKeys(memberKeys));
+            }
+        }
 
         return result.stream().distinct().toList();
     }

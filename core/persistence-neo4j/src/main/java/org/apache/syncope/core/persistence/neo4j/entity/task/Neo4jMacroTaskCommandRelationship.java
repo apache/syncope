@@ -21,14 +21,14 @@ package org.apache.syncope.core.persistence.neo4j.entity.task;
 import java.util.function.BiFunction;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSortedRelationsihip;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSortedRelationship;
 import org.springframework.data.neo4j.core.schema.RelationshipId;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
 @RelationshipProperties
 public class Neo4jMacroTaskCommandRelationship
-        extends Neo4jSortedRelationsihip<Neo4jMacroTaskCommand>
+        extends Neo4jSortedRelationship<Neo4jMacroTaskCommand>
         implements Comparable<Neo4jMacroTaskCommandRelationship> {
 
     public static BiFunction<Integer, Neo4jMacroTaskCommand, Neo4jMacroTaskCommandRelationship> builder() {

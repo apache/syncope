@@ -95,7 +95,7 @@ public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
         beanFactory().removeBeanDefinition(domain + "ContentXML");
 
         // domainDriver
-        unregisterSingleton(domain + "Driver");
+        unregisterSingleton(domain.toLowerCase() + "Driver");
 
         beanFactory().getBean(DomainHolder.class).getDomains().remove(domain);
     }

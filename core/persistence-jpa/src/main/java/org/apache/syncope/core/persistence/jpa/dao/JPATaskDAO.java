@@ -28,7 +28,9 @@ import jakarta.persistence.TypedQuery;
 import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +73,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 public class JPATaskDAO implements TaskDAO {
+
+    protected static final int IN_CLAUSE_MAX_SIZE = 500;
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDAO.class);
 
@@ -478,8 +482,9 @@ public class JPATaskDAO implements TaskDAO {
             queryString.insert(0, "SELECT T.id FROM (").append(") T");
         }
 
-        queryString.append(toOrderByStatement(
-                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream(), ""));
+        Class<? extends Task<?>> taskEntity = taskUtilsFactory.getInstance(type).getTaskEntity();
+
+        queryString.append(toOrderByStatement(taskEntity, pageable.getSort().stream(), ""));
 
         Query query = entityManager.createNativeQuery(queryString.toString());
 
@@ -496,9 +501,30 @@ public class JPATaskDAO implements TaskDAO {
 
         @SuppressWarnings("unchecked")
         List<Object> raw = query.getResultList();
-        raw.forEach(key -> findById(type, key.toString()).ifPresentOrElse(
-                task -> result.add((T) task),
-                () -> LOG.error("Could not find task with key {}, even if returned by native query", key)));
+        List<String> keys = raw.stream().map(Object::toString).toList();
+
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, Task<?>> found = new HashMap<>();
+        for (int i = 0; i < keys.size(); i += IN_CLAUSE_MAX_SIZE) {
+            List<String> chunk = keys.subList(i, Math.min(i + IN_CLAUSE_MAX_SIZE, keys.size()));
+            entityManager.createQuery(
+                    "SELECT e FROM " + taskEntity.getSimpleName() + " e WHERE e.id IN :keys", taskEntity).
+                    setParameter("keys", chunk).
+                    getResultList().
+                    forEach(task -> found.put(task.getKey(), task));
+        }
+
+        keys.forEach(key -> {
+            Task<?> task = found.get(key);
+            if (task == null) {
+                LOG.error("Could not find task with key {}, even if returned by native query", key);
+            } else {
+                result.add((T) task);
+            }
+        });
 
         return result;
     }
@@ -561,8 +587,7 @@ public class JPATaskDAO implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        findAll(type, resource, null, null, null, Pageable.unpaged()).
-                stream().map(Task<?>::getKey).forEach(key -> delete(type, key));
+        findAll(type, resource, null, null, null, Pageable.unpaged()).forEach(this::delete);
     }
 
     @Override

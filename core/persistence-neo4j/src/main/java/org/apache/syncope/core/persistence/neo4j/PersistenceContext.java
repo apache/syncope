@@ -874,7 +874,8 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache,
             final Cache<EntityCacheKey, Neo4jRole> roleCache,
-            final Cache<EntityCacheKey, Neo4jUser> userCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jConnInstance> connInstanceCache) {
 
         return new Neo4jEntityCacheDAO(
                 anyTypeCache,
@@ -887,7 +888,8 @@ public class PersistenceContext {
                 plainSchemaCache,
                 realmCache,
                 roleCache,
-                userCache);
+                userCache,
+                connInstanceCache);
     }
 
     @ConditionalOnMissingBean

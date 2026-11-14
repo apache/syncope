@@ -168,8 +168,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         result.addAll(users.getResultList());
 
         // (b) see UserDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
-                forEach(m -> Optional.ofNullable(entityManager.find(JPAUser.class, m)).ifPresent(result::add)));
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (!managedGroupKeys.isEmpty()) {
+            List<String> memberKeys = entityManager.createQuery(
+                    "SELECT DISTINCT m.leftEnd.id FROM " + JPAUMembership.class.getSimpleName()
+                    + " m WHERE m.rightEnd.id IN :groupKeys", String.class).
+                    setParameter("groupKeys", managedGroupKeys).
+                    getResultList();
+            if (!memberKeys.isEmpty()) {
+                result.addAll(entityManager.createQuery(
+                        "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE e.id IN :keys", User.class).
+                        setParameter("keys", memberKeys).
+                        getResultList());
+            }
+        }
 
         // (c) see UserDAO#findManagedUsers
         // (d) see UserDAO#findManagedUsers
@@ -193,7 +205,10 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         List<Group> result = new ArrayList<>();
 
         // (a) see UserDAO#findManagedGroups
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findById(group).ifPresent(result::add));
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (!managedGroupKeys.isEmpty()) {
+            result.addAll(groupDAO.findByKeys(managedGroupKeys));
+        }
 
         // (b) see UserDAO#findManagedGroups
         findUMembershipGroups(key).forEach(g -> result.addAll(groupDAO.findManagedGroups(g)));
@@ -212,8 +227,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         result.addAll(anyObjects.getResultList());
 
         // (b) see UserDAO#findManagedAnyObjects
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findAMembers(group).
-                forEach(m -> Optional.ofNullable(entityManager.find(JPAAnyObject.class, m)).ifPresent(result::add)));
+        List<String> managedGroupKeys = findManagedGroupKeys(key).toList();
+        if (!managedGroupKeys.isEmpty()) {
+            List<String> memberKeys = entityManager.createQuery(
+                    "SELECT DISTINCT m.leftEnd.id FROM " + JPAAMembership.class.getSimpleName()
+                    + " m WHERE m.rightEnd.id IN :groupKeys", String.class).
+                    setParameter("groupKeys", managedGroupKeys).
+                    getResultList();
+            if (!memberKeys.isEmpty()) {
+                result.addAll(entityManager.createQuery(
+                        "SELECT e FROM " + JPAAnyObject.class.getSimpleName()
+                        + " e WHERE e.id IN :keys", AnyObject.class).
+                        setParameter("keys", memberKeys).
+                        getResultList());
+            }
+        }
 
         Query query = entityManager.createNativeQuery(
                 "SELECT DISTINCT group_id FROM " + JPAAMembership.TABLE + " WHERE anyObject_id=?");

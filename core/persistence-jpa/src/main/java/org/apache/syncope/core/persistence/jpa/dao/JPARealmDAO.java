@@ -23,7 +23,9 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -115,20 +117,40 @@ public class JPARealmDAO implements RealmDAO {
         return Optional.ofNullable(entityManager.find(JPARealm.class, key));
     }
 
-    protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
-        List<Realm> result = new ArrayList<>();
-
-        realmSearchDAO.findChildren(realm).stream().
-                filter(child -> (policy instanceof AccountPolicy
-                && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
+    protected <T extends Policy> boolean samePolicy(final Realm realm, final T policy) {
+        return (policy instanceof AccountPolicy
+                && realm.getAccountPolicy() == null || policy.equals(realm.getAccountPolicy()))
                 || (policy instanceof PasswordPolicy
-                && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))).
+                && realm.getPasswordPolicy() == null || policy.equals(realm.getPasswordPolicy()));
+    }
+
+    protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
+        // load the whole subtree at once, then walk it in memory: querying children at each level
+        // results in one query per node for each policy of the realm being changed / deleted
+        Map<String, List<Realm>> children = new HashMap<>();
+        realmSearchDAO.findDescendants(realm.getFullPath(), null).stream().
+                filter(child -> child.getParent() != null).
+                filter(child -> !child.getKey().equals(realm.getKey())).
+                forEach(child -> children.computeIfAbsent(child.getParent().getKey(), k -> new ArrayList<>()).
+                add(child));
+
+        List<Realm> result = new ArrayList<>();
+        collectSamePolicyChildren(realm.getKey(), policy, children, result);
+        return result;
+    }
+
+    protected <T extends Policy> void collectSamePolicyChildren(
+            final String parentKey,
+            final T policy,
+            final Map<String, List<Realm>> children,
+            final List<Realm> result) {
+
+        children.getOrDefault(parentKey, List.of()).stream().
+                filter(child -> samePolicy(child, policy)).
                 forEach(child -> {
                     result.add(child);
-                    result.addAll(findSamePolicyChildren(child, policy));
+                    collectSamePolicyChildren(child.getKey(), policy, children, result);
                 });
-
-        return result;
     }
 
     @Override

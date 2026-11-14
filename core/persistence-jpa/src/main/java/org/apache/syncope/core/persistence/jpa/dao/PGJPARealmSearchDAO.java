@@ -46,11 +46,14 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
         for (char toEscape : REGEX_CHARS.toCharArray()) {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
-        return output.replace("'", "''");
+        // a double quote would otherwise terminate the JSON path string; the single quote is doubled for SQL
+        return output.replace("\"", "\\\"").replace("'", "''");
     }
 
     protected static String escapeIfString(final String value, final boolean isStr) {
-        return isStr ? '"' + value.replace("'", "''") + '"' : value;
+        return isStr
+                ? '"' + value.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "''") + '"'
+                : value;
     }
 
     public PGJPARealmSearchDAO(
@@ -73,11 +76,7 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             final PlainSchema schema,
             final String fieldName) {
 
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
         item.select = fieldName + " -> 0 AS " + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -143,7 +142,7 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
                         append(" ? (");
                 if (StringUtils.containsAny(value, REGEX_CHARS) || lower) {
                     clause.append("@.").append(key).append(" like_regex \"^").
-                            append(escapeForLikeRegex(value).replace("'", "''")).append("$\"");
+                            append(escapeForLikeRegex(value)).append("$\"");
                 } else if (isStr) {
                     clause.append("@.").append(key).append(" == ").append(escapeIfString(value, true));
                 } else {

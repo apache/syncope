@@ -95,44 +95,42 @@ public class Neo4jAnyChecker extends AnyChecker {
         switch (any) {
             case User user ->
                 user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().forEach(typeExt -> {
-                    Set<AnyTypeClass> classes = new HashSet<>();
+                    Set<AnyTypeClass> classes = gTypeExtensionClasses.computeIfAbsent(
+                            memb.getRightEnd(), group -> new HashSet<>());
                     typeExt.getAuxClasses().forEach(atc -> anyTypeClassDAO.findById(atc.getKey()).
                             ifPresent(classes::add));
-
-                    gTypeExtensionClasses.put(memb.getRightEnd(), classes);
                 }));
 
             case AnyObject anyObject ->
                 anyObject.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
                         filter(typeExt -> any.getType().equals(typeExt.getAnyType())).forEach(typeExt -> {
 
-                    Set<AnyTypeClass> classes = new HashSet<>();
+                    Set<AnyTypeClass> classes = gTypeExtensionClasses.computeIfAbsent(
+                            memb.getRightEnd(), group -> new HashSet<>());
                     typeExt.getAuxClasses().forEach(atc -> anyTypeClassDAO.findById(atc.getKey()).
                             ifPresent(classes::add));
-
-                    gTypeExtensionClasses.put(memb.getRightEnd(), classes);
                 }));
 
             default -> {
             }
         }
 
-        gTypeExtensionClasses.entrySet().stream().peek(
-                entry -> result.memberships().put(entry.getKey(), new HashSet<>())).
-                forEach(entry -> entry.getValue().forEach(atc -> {
-
-            if (reference.equals(PlainSchema.class)) {
-                atc.getPlainSchemas().stream().
-                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
-            } else if (reference.equals(DerSchema.class)) {
-                atc.getDerSchemas().stream().
-                        map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.memberships().get(entry.getKey()).add((S) schema));
-            }
-        }));
+        gTypeExtensionClasses.forEach((group, classes) -> {
+            Set<S> memberhips = result.memberships().computeIfAbsent(group, g -> new HashSet<>());
+            classes.forEach(atc -> {
+                if (reference.equals(PlainSchema.class)) {
+                    atc.getPlainSchemas().stream().
+                            map(schema -> plainSchemaDAO.findById(schema.getKey())).
+                            flatMap(Optional::stream).
+                            forEach(schema -> memberhips.add((S) schema));
+                } else if (reference.equals(DerSchema.class)) {
+                    atc.getDerSchemas().stream().
+                            map(schema -> derSchemaDAO.findById(schema.getKey())).
+                            flatMap(Optional::stream).
+                            forEach(schema -> memberhips.add((S) schema));
+                }
+            });
+        });
 
         // schemas given by relationship type extensions
         Map<RelationshipType, Set<AnyTypeClass>> rTypeExtensionClasses = new HashMap<>();
@@ -140,44 +138,42 @@ public class Neo4jAnyChecker extends AnyChecker {
         switch (any) {
             case User user ->
                 user.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().forEach(typeExt -> {
-                    Set<AnyTypeClass> classes = new HashSet<>();
+                    Set<AnyTypeClass> classes = rTypeExtensionClasses.computeIfAbsent(
+                            rel.getType(), relationshipType -> new HashSet<>());
                     typeExt.getAuxClasses().forEach(atc -> anyTypeClassDAO.findById(atc.getKey()).
                             ifPresent(classes::add));
-
-                    rTypeExtensionClasses.put(rel.getType(), classes);
                 }));
 
             case AnyObject anyObject ->
                 anyObject.getRelationships().forEach(rel -> rel.getType().getTypeExtensions().stream().
                         filter(typeExt -> any.getType().equals(typeExt.getAnyType())).forEach(typeExt -> {
 
-                    Set<AnyTypeClass> classes = new HashSet<>();
+                    Set<AnyTypeClass> classes = rTypeExtensionClasses.computeIfAbsent(
+                            rel.getType(), relationshipType -> new HashSet<>());
                     typeExt.getAuxClasses().forEach(atc -> anyTypeClassDAO.findById(atc.getKey()).
                             ifPresent(classes::add));
-
-                    rTypeExtensionClasses.put(rel.getType(), classes);
                 }));
 
             default -> {
             }
         }
 
-        rTypeExtensionClasses.entrySet().stream().peek(
-                entry -> result.relationshipTypes().put(entry.getKey(), new HashSet<>())).
-                forEach(entry -> entry.getValue().forEach(atc -> {
-
-            if (reference.equals(PlainSchema.class)) {
-                atc.getPlainSchemas().stream().
-                        map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
-            } else if (reference.equals(DerSchema.class)) {
-                atc.getDerSchemas().stream().
-                        map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.relationshipTypes().get(entry.getKey()).add((S) schema));
-            }
-        }));
+        rTypeExtensionClasses.forEach((relationshipType, classes) -> {
+            Set<S> relatioships = result.relationshipTypes().computeIfAbsent(relationshipType, rt -> new HashSet<>());
+            classes.forEach(atc -> {
+                if (reference.equals(PlainSchema.class)) {
+                    atc.getPlainSchemas().stream().
+                            map(schema -> plainSchemaDAO.findById(schema.getKey())).
+                            flatMap(Optional::stream).
+                            forEach(schema -> relatioships.add((S) schema));
+                } else if (reference.equals(DerSchema.class)) {
+                    atc.getDerSchemas().stream().
+                            map(schema -> derSchemaDAO.findById(schema.getKey())).
+                            flatMap(Optional::stream).
+                            forEach(schema -> relatioships.add((S) schema));
+                }
+            });
+        });
 
         return result;
     }

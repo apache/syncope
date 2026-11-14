@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public abstract class Neo4jSortedRelationsihip<E extends Entity> {
+public abstract class Neo4jSortedRelationship<E extends Entity> {
 
     public abstract int getIndex();
 

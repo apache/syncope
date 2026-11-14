@@ -37,9 +37,12 @@ public class DomainRoutingDriver implements Driver {
     }
 
     protected Driver delegate() {
-        return domainHolder.getDomains().computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
+        final String domain = AuthContextUtils.getDomain();
+        final Driver driver = domainHolder.getDomains().get(domain);
+        if (driver == null) {
             throw new IllegalStateException("Could not find Driver for domain " + domain);
-        });
+        }
+        return driver;
     }
 
     @Override

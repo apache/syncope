@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.Batch;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAccessToken;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jBatch;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -91,12 +90,11 @@ public class Neo4jBatchDAO implements BatchDAO {
 
     @Override
     public long deleteExpired() {
-        Map<String, Object> result = neo4jClient.query(
-                "MATCH (n:" + Neo4jAccessToken.NODE + " WHERE n.expirationTime < $now) "
+        return neo4jClient.query(
+                "MATCH (n:" + Neo4jBatch.NODE + ") WHERE n.expiryTime < $now "
                 + "DETACH DELETE n "
                 + "RETURN count(*) AS deleted").bindAll(Map.of("now", OffsetDateTime.now())).
-                fetch().one().orElseGet(() -> Map.of("deleted", 0L));
-
-        return (long) result.getOrDefault(result.get("deleted"), 0L);
+                fetch().one().map(result -> ((Number) result.getOrDefault("deleted", 0L)).longValue()).
+                orElse(0L);
     }
 }

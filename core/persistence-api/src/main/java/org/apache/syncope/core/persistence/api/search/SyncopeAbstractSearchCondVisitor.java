@@ -50,7 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 public abstract class SyncopeAbstractSearchCondVisitor
         extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
-    protected static final ThreadLocal<SearchCond> SEARCH_COND = new ThreadLocal<>();
+    protected SearchCond searchCond;
 
     protected static AttrCond createAttrCond(final String schema) {
         AttrCond attrCond = SearchableFields.contains(schema)
@@ -264,11 +264,11 @@ public abstract class SyncopeAbstractSearchCondVisitor
 
     @Override
     public void visit(final SearchCondition<SearchBean> sc) {
-        SEARCH_COND.set(sc.getStatement() == null ? visitCompound(sc) : visitPrimitive(sc));
+        searchCond = sc.getStatement() == null ? visitCompound(sc) : visitPrimitive(sc);
     }
 
     @Override
     public SearchCond getQuery() {
-        return SEARCH_COND.get();
+        return searchCond;
     }
 }

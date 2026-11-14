@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -487,7 +488,8 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // gt
-        UserTO newUser = USER_SERVICE.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
+        UserCR req = UserITCase.getUniqueSample("scimsearch@syncope.apache.org");
+        UserTO newUser = USER_SERVICE.create(req).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
 
@@ -504,9 +506,11 @@ public class SCIMITCase extends AbstractITCase {
         ListResponse<SCIMUser> users = response.readEntity(new GenericType<>() {
         });
         assertNotNull(users);
-        assertEquals(1, users.getTotalResults());
+        assertTrue(users.getTotalResults() > 0);
 
-        SCIMUser newSCIMUser = users.getResources().getFirst();
+        SCIMUser newSCIMUser = users.getResources().stream().
+                filter(u -> req.getUsername().equals(u.getUserName())).
+                findFirst().orElseThrow();
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
 
         SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();

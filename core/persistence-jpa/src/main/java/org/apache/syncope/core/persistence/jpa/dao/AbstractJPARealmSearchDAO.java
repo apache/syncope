@@ -23,8 +23,10 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -55,6 +57,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
+
+    protected static final int IN_CLAUSE_MAX_SIZE = 500;
 
     protected record QueryInfo(RealmSearchNode node, Set<String> plainSchemas) {
 
@@ -200,13 +204,13 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
                     node = cond.asLeaf(AnyCond.class)
                             .map(anyCond -> getQuery(anyCond, not, parameters))
                             .or(() -> cond.asLeaf(AttrCond.class).map(attrCond -> {
-                        CheckResult<AttrCond> checked = check(attrCond);
-                        AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
-                        if (query.addPlainSchemas()) {
-                            plainSchemas.add(checked.schema().getKey());
-                        }
-                        return query.node();
-                    }));
+                                CheckResult<AttrCond> checked = check(attrCond);
+                                AttrCondQuery query = getQuery(attrCond, not, checked, parameters);
+                                if (query.addPlainSchemas()) {
+                                    plainSchemas.add(checked.schema().getKey());
+                                }
+                                return query.node();
+                            }));
                 }
 
                 if (node.isEmpty()) {
@@ -423,8 +427,8 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
     protected String buildWhere(final Set<String> bases, final QueryInfo queryInfo, final List<Object> parameters) {
         String fullPaths = bases.stream().
                 map(base -> "r.fullPath=?" + setParameter(parameters, base)
-                + " OR r.fullPath LIKE ?" + setParameter(
-                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                        + " OR r.fullPath LIKE ?" + setParameter(
+                                parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
                 collect(Collectors.joining(" OR "));
 
         RealmSearchNode root;
@@ -481,7 +485,6 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
             final Sort.Order clause) {
 
         item.select = "r." + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = "r." + fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -580,9 +583,27 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
         @SuppressWarnings("unchecked")
         List<String> keys = query.getResultList().stream().
                 map(key -> key instanceof Object[] array ? (array)[0] : key).
+                map(Object::toString).
                 toList();
 
-        return keys.stream().map(k -> entityManager.find(JPARealm.class, k)).
-                filter(Objects::nonNull).map(Realm.class::cast).toList();
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, Realm> found = new HashMap<>();
+        for (int i = 0; i < keys.size(); i += IN_CLAUSE_MAX_SIZE) {
+            List<String> chunk = keys.subList(i, Math.min(i + IN_CLAUSE_MAX_SIZE, keys.size()));
+            entityManager.createQuery(
+                    "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.id IN :keys", JPARealm.class).
+                    setParameter("keys", chunk).
+                    getResultList().
+                    forEach(realm -> found.put(realm.getKey(), realm));
+        }
+
+        return keys.stream().
+                map(found::get).
+                filter(Objects::nonNull).
+                map(Realm.class::cast).
+                toList();
     }
 }

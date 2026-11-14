@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<E>> implements List<E> {
+public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationship<E>> implements List<E> {
 
     private class SortedSetListIterator implements Iterator<E> {
 
@@ -81,12 +81,12 @@ public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<
 
         @Override
         public int characteristics() {
-            return ditor.characteristics();
+            return ditor.characteristics() & ~Spliterator.SORTED;
         }
 
         @Override
         public Comparator<? super E> getComparator() {
-            throw new UnsupportedOperationException("NOT FOR NOW");
+            return null;
         }
     }
 
@@ -130,28 +130,28 @@ public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<
     @Override
     public Object[] toArray() {
         return delegate.stream().
-                sorted(Comparator.comparing(Neo4jSortedRelationsihip::getIndex)).
-                map(Neo4jSortedRelationsihip::getEntity).toList().toArray();
+                sorted(Comparator.comparing(Neo4jSortedRelationship::getIndex)).
+                map(Neo4jSortedRelationship::getEntity).toArray();
     }
 
     @Override
     public <T> T[] toArray(final T[] a) {
         return delegate.stream().
-                sorted(Comparator.comparing(Neo4jSortedRelationsihip::getIndex)).
-                map(Neo4jSortedRelationsihip::getEntity).toList().toArray(a);
+                sorted(Comparator.comparing(Neo4jSortedRelationship::getIndex)).
+                map(Neo4jSortedRelationship::getEntity).toList().toArray(a);
     }
 
     @Override
     public boolean add(final E e) {
         return delegate.add(builder.apply(
-                delegate.stream().map(Neo4jSortedRelationsihip::getIndex).
+                delegate.stream().map(Neo4jSortedRelationship::getIndex).
                         max(Comparator.naturalOrder()).orElse(0) + 1,
                 e));
     }
 
     @Override
     public boolean remove(final Object o) {
-        return delegate.removeIf(o::equals);
+        return delegate.removeIf(r -> r.getEntity().equals(o));
     }
 
     @Override
@@ -194,7 +194,7 @@ public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<
         for (Iterator<R> itor = delegate.iterator();
                 idx <= index && itor.hasNext(); idx++) {
 
-            Neo4jSortedRelationsihip<E> next = itor.next();
+            Neo4jSortedRelationship<E> next = itor.next();
             if (idx == index) {
                 return next.getEntity();
             }
@@ -205,7 +205,7 @@ public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<
 
     @Override
     public Stream<E> stream() {
-        return delegate.stream().map(Neo4jSortedRelationsihip::getEntity);
+        return delegate.stream().map(Neo4jSortedRelationship::getEntity);
     }
 
     @Override

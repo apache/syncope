@@ -20,8 +20,10 @@ package org.apache.syncope.core.persistence.common.dao;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -272,11 +274,17 @@ public abstract class AbstractAnySearchDAO extends AbstractSearchDAO implements 
                 map(key -> key instanceof Object[] array ? (String) (array)[0] : ((String) key)).
                 toList();
 
+        Map<String, Integer> keyPositions = new HashMap<>();
+        for (int i = 0; i < keys.size(); i++) {
+            keyPositions.put(keys.get(i), i);
+        }
+
         // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual query results
         List<Any> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
-                sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
+                sorted(Comparator.comparingInt(any -> keyPositions.getOrDefault(any.getKey(), -1))).toList();
 
-        keys.stream().filter(key -> anys.stream().noneMatch(any -> key.equals(any.getKey()))).
+        Set<String> foundKeys = anys.stream().map(Any::getKey).collect(Collectors.toSet());
+        keys.stream().filter(key -> !foundKeys.contains(key)).
                 forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
 
         return (List<T>) anys;

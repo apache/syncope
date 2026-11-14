@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
@@ -173,27 +174,28 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
     @Override
     public Optional<? extends Task<?>> findById(final String key) {
-        Optional<? extends Task<?>> task = findById(TaskType.SCHEDULED, key);
-        if (task.isEmpty()) {
-            task = findById(TaskType.LIVE_SYNC, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.PULL, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.PUSH, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.MACRO, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.PROPAGATION, key);
-        }
-        if (task.isEmpty()) {
-            task = findById(TaskType.NOTIFICATION, key);
-        }
+        // concrete task types first: their labels are more specific than the shared SchedTask one
+        List<TaskType> types = new ArrayList<>(List.of(TaskType.values()));
+        types.remove(TaskType.SCHEDULED);
+        types.add(TaskType.SCHEDULED);
 
-        return task;
+        StringBuilder query = new StringBuilder("CALL () { ");
+        for (int i = 0; i < types.size(); i++) {
+            if (i > 0) {
+                query.append(" UNION ALL ");
+            }
+            TaskType type = types.get(i);
+            query.append("MATCH (n:").append(taskUtilsFactory.getInstance(type).getTaskStorage()).
+                    append(") WHERE n.id = $id RETURN ").append(i).append(" AS priority, '").
+                    append(type.name()).append("' AS type");
+        }
+        query.append(" } RETURN type, priority ORDER BY priority LIMIT 1");
+
+        Optional<TaskType> type = neo4jClient.query(query.toString()).
+                bindAll(Map.of("id", key)).fetch().one().
+                map(found -> TaskType.valueOf(found.get("type").toString()));
+
+        return type.isEmpty() ? Optional.empty() : findById(type.get(), key);
     }
 
     @Override
@@ -358,22 +360,19 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         }
 
         List<Pair<String, String>> relationships = new ArrayList<>();
-        List<String> properties = new ArrayList<>();
+        List<String> nodeConditions = new ArrayList<>();
 
-        boolean optionalMatch = true;
         if (anyTypeKind != null) {
-            properties.add("n.anyTypeKind = $anyTypeKind");
+            nodeConditions.add("n.anyTypeKind = $anyTypeKind");
             parameters.put("anyTypeKind", anyTypeKind.name());
-            optionalMatch = false;
         }
         if (entityKey != null) {
-            properties.add("n.entityKey = $entityKey");
+            nodeConditions.add("n.entityKey = $entityKey");
             parameters.put("entityKey", entityKey);
-            optionalMatch = false;
         }
 
-        relationships.add(Pair.of(
-                (optionalMatch ? "OPTIONAL " : "") + "MATCH (n)-[]-(p:" + taskUtils.getTaskExecStorage() + ")", null));
+        // OPTIONAL: tasks without executions are legitimate search results
+        relationships.add(Pair.of("OPTIONAL MATCH (n)-[]-(p:" + taskUtils.getTaskExecStorage() + ")", null));
 
         if (resource != null) {
             relationships.add(Pair.of("MATCH (n)-[]-(e:" + Neo4jExternalResource.NODE + " {id: $eid})", null));
@@ -399,7 +398,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             String realmCond = realmKeys.map(realm -> {
                 int idx = index.incrementAndGet();
                 parameters.put("realm" + idx, realm);
-                return "q.id: $realm," + idx;
+                return "q.id = $realm" + idx;
             }).collect(Collectors.joining(" OR "));
 
             relationships.add(Pair.of("MATCH (n)-[]-(q:" + Neo4jRealm.NODE + ")", "(" + realmCond + ")"));
@@ -408,17 +407,25 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         StringBuilder query = new StringBuilder("MATCH (n:").append(taskUtils.getTaskStorage()).append(")");
 
         if (type == TaskType.SCHEDULED) {
-            query.append(
-                    " WHERE NOT n:" + Neo4jMacroTask.NODE
-                    + " AND NOT n:" + Neo4jPullTask.NODE
-                    + " AND NOT n:" + Neo4jPushTask.NODE);
+            nodeConditions.add("NOT n:" + Neo4jMacroTask.NODE);
+            nodeConditions.add("NOT n:" + Neo4jPullTask.NODE);
+            nodeConditions.add("NOT n:" + Neo4jPushTask.NODE);
+        }
+
+        if (!nodeConditions.isEmpty()) {
+            // conditions on n only must be part of the first MATCH: inside OPTIONAL MATCH they would not filter n
+            // out, and the planner would not be able to use indexes on n
+            query.append(" WHERE ").append(String.join(" AND ", nodeConditions));
         }
 
         query.append(relationships.stream().map(r -> " " + r.getLeft()).collect(Collectors.joining()));
-        properties.addAll(relationships.stream().filter(r -> r.getRight() != null).map(Pair::getRight).toList());
 
-        if (!properties.isEmpty()) {
-            query.append(" WHERE ").append(String.join(" AND ", properties));
+        List<String> relatedConditions = relationships.stream().
+                filter(r -> r.getRight() != null).
+                map(Pair::getRight).
+                toList();
+        if (!relatedConditions.isEmpty()) {
+            query.append(" WHERE ").append(String.join(" AND ", relatedConditions));
         }
 
         return query;
@@ -497,7 +504,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task<?>> T save(final T task) {
-        task.getExecs().forEach(exec -> neo4jTemplate.save(nodeValidator.validate(exec)));
+        List<TaskExec<?>> execs = task.getExecs().stream().<TaskExec<?>>map(nodeValidator::validate).toList();
+        if (!execs.isEmpty()) {
+            neo4jTemplate.saveAll(execs);
+        }
 
         T saved = neo4jTemplate.save(nodeValidator.validate(task));
 
@@ -566,15 +576,18 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         switch (task) {
             case PullTask pullTask -> {
                 remediationDAO.findByPullTask(pullTask).forEach(remediation -> remediation.setPullTask(null));
-                pullTask.getTemplates().
-                        forEach(e -> neo4jTemplate.deleteById(e.getKey(), Neo4jAnyTemplatePullTask.class));
+                neo4jTemplate.deleteAllById(
+                        pullTask.getTemplates().stream().map(e -> e.getKey()).toList(),
+                        Neo4jAnyTemplatePullTask.class);
             }
 
             case MacroTask macroTask -> {
-                macroTask.getCommands().
-                        forEach(e -> neo4jTemplate.deleteById(e.getKey(), Neo4jMacroTaskCommand.class));
-                macroTask.getFormPropertyDefs().
-                        forEach(e -> neo4jTemplate.deleteById(e.getKey(), Neo4jFormPropertyDef.class));
+                neo4jTemplate.deleteAllById(
+                        macroTask.getCommands().stream().map(e -> e.getKey()).toList(),
+                        Neo4jMacroTaskCommand.class);
+                neo4jTemplate.deleteAllById(
+                        macroTask.getFormPropertyDefs().stream().map(e -> e.getKey()).toList(),
+                        Neo4jFormPropertyDef.class);
             }
 
             default -> {
@@ -583,7 +596,9 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
-        task.getExecs().forEach(exec -> neo4jTemplate.deleteById(exec.getKey(), taskUtils.getTaskExecEntity()));
+        neo4jTemplate.deleteAllById(
+                task.getExecs().stream().map(e -> e.getKey()).toList(),
+                taskUtils.getTaskExecEntity());
 
         neo4jTemplate.deleteById(task.getKey(), taskUtils.getTaskEntity());
     }
@@ -624,9 +639,9 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                     append(")");
         }
         if (!CollectionUtils.isEmpty(resources)) {
+            AtomicInteger index = new AtomicInteger(0);
             query.append(" AND (").
                     append(resources.stream().map(r -> {
-                        AtomicInteger index = new AtomicInteger(0);
                         int idx = index.incrementAndGet();
                         parameters.put("rid" + idx, r);
                         return "r.id = $rid" + idx;

@@ -30,6 +30,8 @@ public class WASamlIdPMetadataCacheRefresher {
 
     protected static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataCacheRefresher.class);
 
+    public static final String SAML_IDP_METADATA_CACHE = "samlIdPMetadataCache";
+
     protected final Cache<String, SamlIdPMetadataDocument> metadataCache;
 
     public WASamlIdPMetadataCacheRefresher(final Cache<String, SamlIdPMetadataDocument> metadataCache) {
