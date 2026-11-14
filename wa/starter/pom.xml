@@ -566,5 +566,19 @@ under the License.
         </resources>
       </build>
     </profile>
+
+    <!-- TMP until Spring's "Unable to instantiate proxy using Objenesis, and regular proxy instantiation via default
+    constructor fails as well" error is fixed -->
+    <profile>
+      <id>jdk28</id>
+
+      <activation>
+        <jdk>28</jdk>
+      </activation>
+
+      <properties>
+        <maven.test.skip>true</maven.test.skip>
+      </properties>
+    </profile>
   </profiles>
 </project>

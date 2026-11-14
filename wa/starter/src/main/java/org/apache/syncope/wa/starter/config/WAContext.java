@@ -303,8 +303,11 @@ public class WAContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher() {
-        return new WASamlIdPMetadataCacheRefresher();
+    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher(
+            @Qualifier(WASamlIdPMetadataCacheRefresher.SAML_IDP_METADATA_CACHE)
+            final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache) {
+
+        return new WASamlIdPMetadataCacheRefresher(samlIdPMetadataCache);
     }
 
     @Bean

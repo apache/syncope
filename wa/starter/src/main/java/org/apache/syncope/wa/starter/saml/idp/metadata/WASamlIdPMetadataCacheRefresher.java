@@ -20,7 +20,6 @@ package org.apache.syncope.wa.starter.saml.idp.metadata;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
-import org.apereo.cas.util.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.context.scope.refresh.RefreshScopeRefreshedEvent;
@@ -33,17 +32,16 @@ public class WASamlIdPMetadataCacheRefresher {
 
     public static final String SAML_IDP_METADATA_CACHE = "samlIdPMetadataCache";
 
+    protected final Cache<String, SamlIdPMetadataDocument> metadataCache;
+
+    public WASamlIdPMetadataCacheRefresher(final Cache<String, SamlIdPMetadataDocument> metadataCache) {
+        this.metadataCache = metadataCache;
+    }
+
     @EventListener(RefreshScopeRefreshedEvent.class)
     @Async
     public void onRefresh(final RefreshScopeRefreshedEvent event) {
         LOG.info("Cleaning up SAML IdP cache");
-        try {
-            @SuppressWarnings("unchecked")
-            Cache<String, SamlIdPMetadataDocument> metadataCache = ApplicationContextProvider.getApplicationContext().
-                    getBean(SAML_IDP_METADATA_CACHE, Cache.class);
-            metadataCache.invalidateAll();
-        } catch (Exception e) {
-            LOG.error("Could not clear the SAML IdP metadata cache", e);
-        }
+        metadataCache.invalidateAll();
     }
 }
