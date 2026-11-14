@@ -67,13 +67,10 @@ public class OracleJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
             final PlainSchema schema,
             final String fieldName) {
 
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
         item.select = schema.getKey() + "."
                 + (schema.isUniqueConstraint() ? "uniqueValue" : "valuez")
                 + " AS " + schema.getKey();
-        item.where = StringUtils.EMPTY;
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 

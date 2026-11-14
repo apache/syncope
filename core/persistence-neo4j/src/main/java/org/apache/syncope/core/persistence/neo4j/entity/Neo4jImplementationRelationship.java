@@ -27,7 +27,7 @@ import org.springframework.data.neo4j.core.schema.TargetNode;
 
 @RelationshipProperties
 public class Neo4jImplementationRelationship
-        extends Neo4jSortedRelationsihip<Neo4jImplementation>
+        extends Neo4jSortedRelationship<Neo4jImplementation>
         implements Comparable<Neo4jImplementationRelationship> {
 
     public static BiFunction<Integer, Neo4jImplementation, Neo4jImplementationRelationship> builder() {

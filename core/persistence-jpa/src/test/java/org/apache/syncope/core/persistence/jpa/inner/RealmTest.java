@@ -166,6 +166,68 @@ class RealmTest extends AbstractTest {
     }
 
     @Test
+    void renameAndMoveWithDescendants() {
+        Realm even = realmSearchDAO.findByFullPath("/even").orElseThrow();
+
+        // sibling whose name shares the prefix with "two", to prove descendant lookup is prefix-exact
+        Realm twob = entityFactory.newEntity(Realm.class);
+        twob.setName("twob");
+        twob.setParent(even);
+        realmDAO.save(twob);
+
+        Realm two = realmSearchDAO.findByFullPath("/even/two").orElseThrow();
+
+        Realm child = entityFactory.newEntity(Realm.class);
+        child.setName("child");
+        child.setParent(two);
+        child = realmDAO.save(child);
+
+        Realm grandChild = entityFactory.newEntity(Realm.class);
+        grandChild.setName("grandChild");
+        grandChild.setParent(child);
+        grandChild = realmDAO.save(grandChild);
+        assertEquals("/even/two/child/grandChild", grandChild.getFullPath());
+
+        // rename: fullPath of all descendants is rewritten, sibling left alone
+        two.setName("due");
+        realmDAO.save(two);
+
+        assertTrue(realmSearchDAO.findByFullPath("/even/two").isEmpty());
+        assertEquals("/even/due", realmSearchDAO.findByFullPath("/even/due").orElseThrow().getFullPath());
+        assertEquals("/even/due/child", realmSearchDAO.findByFullPath("/even/due/child").orElseThrow().getFullPath());
+        assertEquals(
+                "/even/due/child/grandChild",
+                realmSearchDAO.findByFullPath("/even/due/child/grandChild").orElseThrow().getFullPath());
+        assertTrue(realmSearchDAO.findByFullPath("/even/two/child/grandChild").isEmpty());
+        assertEquals("/even/twob", realmSearchDAO.findByFullPath("/even/twob").orElseThrow().getFullPath());
+
+        // descendants are cache-first: without eviction these would return the pre-rename fullPath
+        assertEquals("/even/due/child", realmDAO.findById(child.getKey()).orElseThrow().getFullPath());
+        assertEquals(
+                "/even/due/child/grandChild",
+                realmDAO.findById(grandChild.getKey()).orElseThrow().getFullPath());
+
+        // move: the same subtree is rewritten under a different parent
+        Realm due = realmSearchDAO.findByFullPath("/even/due").orElseThrow();
+        due.setParent(realmSearchDAO.findByFullPath("/odd").orElseThrow());
+        realmDAO.save(due);
+
+        assertTrue(realmSearchDAO.findByFullPath("/even/due").isEmpty());
+        assertTrue(realmSearchDAO.findByFullPath("/even/due/child/grandChild").isEmpty());
+        assertEquals("/odd/due", realmSearchDAO.findByFullPath("/odd/due").orElseThrow().getFullPath());
+        assertEquals("/odd/due/child", realmSearchDAO.findByFullPath("/odd/due/child").orElseThrow().getFullPath());
+        assertEquals(
+                "/odd/due/child/grandChild",
+                realmSearchDAO.findByFullPath("/odd/due/child/grandChild").orElseThrow().getFullPath());
+        assertEquals(
+                "/odd/due/child/grandChild",
+                realmDAO.findById(grandChild.getKey()).orElseThrow().getFullPath());
+
+        // still untouched
+        assertEquals("/even/twob", realmSearchDAO.findByFullPath("/even/twob").orElseThrow().getFullPath());
+    }
+
+    @Test
     void delete() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("name");

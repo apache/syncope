@@ -41,12 +41,6 @@ public final class FormatUtils {
 
     private static final String NO_CONVERSION_PATTERN = "#,##0.###";
 
-    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(() -> {
-        DecimalFormat df = new DecimalFormat(NO_CONVERSION_PATTERN);
-        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-        return df;
-    });
-
     public static final ZoneOffset DEFAULT_OFFSET = OffsetDateTime.now().getOffset();
 
     public static String format(final TemporalAccessor temporal) {
@@ -64,20 +58,9 @@ public final class FormatUtils {
     }
 
     public static String format(final long number, final String conversionPattern) {
-        DecimalFormat df = DECIMAL_FORMAT.get();
-
-        String previous = df.toPattern();
-        if (!previous.equals(conversionPattern)) {
-            df.applyPattern(conversionPattern);
-        }
-
-        String formatted = df.format(number);
-
-        if (!previous.equals(conversionPattern)) {
-            df.applyPattern(previous);
-        }
-
-        return formatted;
+        final DecimalFormat df = new DecimalFormat(conversionPattern);
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        return df.format(number);
     }
 
     public static String format(final double number) {
@@ -85,20 +68,9 @@ public final class FormatUtils {
     }
 
     public static String format(final double number, final String conversionPattern) {
-        DecimalFormat df = DECIMAL_FORMAT.get();
-
-        String previous = df.toPattern();
-        if (!previous.equals(conversionPattern)) {
-            df.applyPattern(conversionPattern);
-        }
-
-        String formatted = df.format(number);
-
-        if (!previous.equals(conversionPattern)) {
-            df.applyPattern(previous);
-        }
-
-        return formatted;
+        final DecimalFormat df = new DecimalFormat(conversionPattern);
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        return df.format(number);
     }
 
     public static OffsetDateTime parseDate(final String source)
@@ -141,13 +113,9 @@ public final class FormatUtils {
     }
 
     public static Number parseNumber(final String source, final String conversionPattern) throws ParseException {
-        DecimalFormat df = DECIMAL_FORMAT.get();
-        df.applyPattern(conversionPattern);
+        final DecimalFormat df = new DecimalFormat(conversionPattern);
+        df.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
         return df.parse(source);
-    }
-
-    public static void clear() {
-        DECIMAL_FORMAT.remove();
     }
 
     private FormatUtils() {

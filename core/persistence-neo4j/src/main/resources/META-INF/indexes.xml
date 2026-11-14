@@ -65,4 +65,57 @@ under the License.
 
   <entry key="SyncopeUser_id">CREATE INDEX SyncopeUser_id FOR (n:SyncopeUser) ON (n.id)</entry>
   <entry key="SyncopeUser_username">CREATE CONSTRAINT SyncopeUser_username FOR (n:SyncopeUser) REQUIRE n.username IS UNIQUE</entry>
+  <entry key="SyncopeUser_token">CREATE INDEX SyncopeUser_token FOR (n:SyncopeUser) ON (n.token)</entry>
+
+  <entry key="Realm_name">CREATE INDEX Realm_name FOR (n:Realm) ON (n.name)</entry>
+
+  <entry key="ExternalResource_id">CREATE INDEX ExternalResource_id FOR (n:ExternalResource) ON (n.id)</entry>
+  <entry key="SyncopeRole_id">CREATE INDEX SyncopeRole_id FOR (n:SyncopeRole) ON (n.id)</entry>
+  <entry key="Implementation_id">CREATE INDEX Implementation_id FOR (n:Implementation) ON (n.id)</entry>
+  <entry key="Delegation_id">CREATE INDEX Delegation_id FOR (n:Delegation) ON (n.id)</entry>
+  <entry key="Delegation_startDate">CREATE INDEX Delegation_startDate FOR (n:Delegation) ON (n.startDate)</entry>
+  <entry key="Delegation_endDate">CREATE INDEX Delegation_endDate FOR (n:Delegation) ON (n.endDate)</entry>
+  <entry key="Batch_expiryTime">CREATE INDEX Batch_expiryTime FOR (n:Batch) ON (n.expiryTime)</entry>
+  <entry key="AttrRepo_id">CREATE INDEX AttrRepo_id FOR (n:AttrRepo) ON (n.id)</entry>
+  <entry key="AuthModule_id">CREATE INDEX AuthModule_id FOR (n:AuthModule) ON (n.id)</entry>
+  <entry key="AuthProfile_id">CREATE INDEX AuthProfile_id FOR (n:AuthProfile) ON (n.id)</entry>
+  <entry key="FIQLQuery_id">CREATE INDEX FIQLQuery_id FOR (n:FIQLQuery) ON (n.id)</entry>
+  <entry key="MailTemplate_id">CREATE INDEX MailTemplate_id FOR (n:MailTemplate) ON (n.id)</entry>
+  <entry key="Notification_id">CREATE INDEX Notification_id FOR (n:Notification) ON (n.id)</entry>
+  <entry key="Remediation_id">CREATE INDEX Remediation_id FOR (n:Remediation) ON (n.id)</entry>
+  <entry key="ReportExec_id">CREATE INDEX ReportExec_id FOR (n:ReportExec) ON (n.id)</entry>
+  <entry key="ReportExec_endDate">CREATE INDEX ReportExec_endDate FOR (n:ReportExec) ON (n.endDate)</entry>
+  <entry key="RelationshipType_id">CREATE INDEX RelationshipType_id FOR (n:RelationshipType) ON (n.id)</entry>
+  <entry key="LinkedAccount_connObjectKeyValue">CREATE INDEX LinkedAccount_connObjectKeyValue FOR (n:LinkedAccount) ON (n.connObjectKeyValue)</entry>
+
+  <entry key="Policy_id">CREATE INDEX Policy_id FOR (n:Policy) ON (n.id)</entry>
+
+  <entry key="AuditEvent_when">CREATE INDEX AuditEvent_when FOR (n:AuditEvent) ON (n.when)</entry>
+  <entry key="AuditEvent_who">CREATE INDEX AuditEvent_who FOR (n:AuditEvent) ON (n.who)</entry>
+  <entry key="AuditEvent_opEvent">CREATE INDEX AuditEvent_opEvent FOR (n:AuditEvent) ON (n.opEvent)</entry>
+
+  <!-- LiveSync/Pull/Push/Macro tasks also carry the SchedTask label, so SchedTask_id covers their lookups -->
+  <entry key="SchedTask_id">CREATE INDEX SchedTask_id FOR (n:SchedTask) ON (n.id)</entry>
+  <entry key="PropagationTask_id">CREATE INDEX PropagationTask_id FOR (n:PropagationTask) ON (n.id)</entry>
+  <!-- task search filters on anyTypeKind and entityKey together (see Neo4jTaskDAO#query) -->
+  <entry key="PropagationTask_anyTypeKind_entityKey">CREATE INDEX PropagationTask_anyTypeKind_entityKey FOR (n:PropagationTask) ON (n.anyTypeKind, n.entityKey)</entry>
+  <entry key="NotificationTask_id">CREATE INDEX NotificationTask_id FOR (n:NotificationTask) ON (n.id)</entry>
+
+  <entry key="SchedTaskExec_id">CREATE INDEX SchedTaskExec_id FOR (n:SchedTaskExec) ON (n.id)</entry>
+  <entry key="SchedTaskExec_endDate">CREATE INDEX SchedTaskExec_endDate FOR (n:SchedTaskExec) ON (n.endDate)</entry>
+  <entry key="LiveSyncTaskExec_id">CREATE INDEX LiveSyncTaskExec_id FOR (n:LiveSyncTaskExec) ON (n.id)</entry>
+  <entry key="LiveSyncTaskExec_endDate">CREATE INDEX LiveSyncTaskExec_endDate FOR (n:LiveSyncTaskExec) ON (n.endDate)</entry>
+  <entry key="PullTaskExec_id">CREATE INDEX PullTaskExec_id FOR (n:PullTaskExec) ON (n.id)</entry>
+  <entry key="PullTaskExec_endDate">CREATE INDEX PullTaskExec_endDate FOR (n:PullTaskExec) ON (n.endDate)</entry>
+  <entry key="PushTaskExec_id">CREATE INDEX PushTaskExec_id FOR (n:PushTaskExec) ON (n.id)</entry>
+  <entry key="PushTaskExec_endDate">CREATE INDEX PushTaskExec_endDate FOR (n:PushTaskExec) ON (n.endDate)</entry>
+  <entry key="MacroTaskExec_id">CREATE INDEX MacroTaskExec_id FOR (n:MacroTaskExec) ON (n.id)</entry>
+  <entry key="MacroTaskExec_endDate">CREATE INDEX MacroTaskExec_endDate FOR (n:MacroTaskExec) ON (n.endDate)</entry>
+  <entry key="PropagationTaskExec_id">CREATE INDEX PropagationTaskExec_id FOR (n:PropagationTaskExec) ON (n.id)</entry>
+  <entry key="PropagationTaskExec_endDate">CREATE INDEX PropagationTaskExec_endDate FOR (n:PropagationTaskExec) ON (n.endDate)</entry>
+  <entry key="PropagationTaskExec_status">CREATE INDEX PropagationTaskExec_status FOR (n:PropagationTaskExec) ON (n.status)</entry>
+  <entry key="NotificationTaskExec_id">CREATE INDEX NotificationTaskExec_id FOR (n:NotificationTaskExec) ON (n.id)</entry>
+  <entry key="NotificationTaskExec_endDate">CREATE INDEX NotificationTaskExec_endDate FOR (n:NotificationTaskExec) ON (n.endDate)</entry>
+
+  <entry key="NetworkService_type">CREATE INDEX NetworkService_type FOR (n:NetworkService) ON (n.type)</entry>
 </properties>

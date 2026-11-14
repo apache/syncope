@@ -484,7 +484,7 @@ under the License.
     <chartjs.version>4.6.1</chartjs.version>
 
     <wicket.version>11.0.0</wicket.version>
-    <wicketstuff.version>11.0.0-SNAPSHOT</wicketstuff.version>
+    <wicketstuff.version>11.0.0</wicketstuff.version>
     <wicket-bootstrap.version>8.0.0</wicket-bootstrap.version>
     <wicket-spring-boot.version>5.0.0</wicket-spring-boot.version>
 
@@ -525,7 +525,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>11.0.27</tomcat.version>
+    <tomcat.version>11.0.29</tomcat.version>
 
     <docker.postgresql.version>18-alpine</docker.postgresql.version>
     <docker.mysql.version>9</docker.mysql.version>
@@ -2140,19 +2140,19 @@ under the License.
             <link>https://www.slf4j.org/api/</link>
             <link>https://connid.tirasa.net/apidocs/1.6/</link>
             <link>https://cxf.apache.org/javadoc/latest/</link>
-            <link>https://javadoc.io/static/tools.jackson.core/jackson-core/3.0.3/</link>
-            <link>https://javadoc.io/static/tools.jackson.core/jackson-databind/3.0.3/</link>
+            <link>https://javadoc.io/static/tools.jackson.core/jackson-core/3.1.8/</link>
+            <link>https://javadoc.io/static/tools.jackson.core/jackson-databind/3.1.8/</link>
             <link>https://javadoc.io/static/tools.jackson.dataformat/jackson-dataformat-csv/3.0.3/</link>
-            <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
+            <link>https://nightlies.apache.org/wicket/apidocs/11.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/4.2.0/api/</link>
-            <link>https://docs.hibernate.org/orm/7.3/javadocs/</link>
-            <link>https://docs.spring.io/spring-boot/4.1/api/java/</link>
-            <link>https://docs.spring.io/spring-framework/docs/7.0.x/javadoc-api/</link>
-            <link>https://docs.spring.io/spring-security/site/docs/7.0.x/api/</link>
+            <link>https://docs.hibernate.org/orm/7.4/javadocs/</link>
+            <link>https://docs.spring.io/spring-boot/4.2/api/java/</link>
+            <link>https://docs.spring.io/spring-framework/docs/7.1.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/7.2.x/api/</link>
             <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.2/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.55/apidocs/</link>
+            <link>https://docs.swagger.io/swagger-core/v3.0.0/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>

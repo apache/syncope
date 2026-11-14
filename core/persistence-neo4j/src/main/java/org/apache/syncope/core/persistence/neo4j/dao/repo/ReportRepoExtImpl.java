@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jReport;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jReportExec;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -38,7 +39,9 @@ public class ReportRepoExtImpl implements ReportRepoExt {
 
     @Override
     public void delete(final Report report) {
-        report.getExecs().forEach(exec -> neo4jTemplate.deleteById(exec.getKey(), Neo4jReportExec.class));
+        neo4jTemplate.deleteAllById(
+                report.getExecs().stream().map(ReportExec::getKey).toList(),
+                Neo4jReportExec.class);
 
         neo4jTemplate.deleteById(report.getKey(), Neo4jReport.class);
     }

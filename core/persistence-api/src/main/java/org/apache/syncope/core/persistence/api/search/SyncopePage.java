@@ -47,9 +47,15 @@ public class SyncopePage<T> extends PageImpl<T> {
 
     @Override
     public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof SyncopePage<?> other)) {
+            return false;
+        }
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
-                append(total, total).
+                append(total, other.total).
                 build();
     }
 

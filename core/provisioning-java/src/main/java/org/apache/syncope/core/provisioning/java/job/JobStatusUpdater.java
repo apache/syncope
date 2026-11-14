@@ -30,16 +30,10 @@ public class JobStatusUpdater {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JobStatusUpdater.class);
 
-    protected final JobStatusDAO jobStatusDAO;
+    protected JobStatusDAO jobStatusDAO;
 
-    protected boolean initCompleted = false;
-
-    public JobStatusUpdater(final JobStatusDAO jobStatusDAO) {
+    public void initComplete(final JobStatusDAO jobStatusDAO) {
         this.jobStatusDAO = jobStatusDAO;
-    }
-
-    public void initComplete() {
-        initCompleted = true;
     }
 
     /**
@@ -53,7 +47,7 @@ public class JobStatusUpdater {
     @Async("jobStatusUpdaterThreadExecutor")
     @EventListener
     public void update(final JobStatusEvent event) {
-        if (!initCompleted) {
+        if (jobStatusDAO == null) {
             LOG.debug("Core initialization not yet completed, discarding {}", event);
             return;
         }

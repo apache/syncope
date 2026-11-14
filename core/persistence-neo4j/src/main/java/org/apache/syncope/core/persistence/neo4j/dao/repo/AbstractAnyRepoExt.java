@@ -20,11 +20,9 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.dao.AnyChecker;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -51,29 +49,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         extends AbstractDAO implements AnyRepoExt<A> {
-
-    /**
-     * Split an attribute value recurring on provided literals/tokens.
-     *
-     * @param attrValue value to be split
-     * @param literals literals/tokens
-     * @return split value
-     */
-    protected static List<String> split(final String attrValue, final List<String> literals) {
-        final List<String> attrValues = new ArrayList<>();
-
-        if (literals.isEmpty()) {
-            attrValues.add(attrValue);
-        } else {
-            for (String token : attrValue.split(Pattern.quote(literals.getFirst()))) {
-                if (!token.isEmpty()) {
-                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
-                }
-            }
-        }
-
-        return attrValues;
-    }
 
     protected final AnyTypeDAO anyTypeDAO;
 

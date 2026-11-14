@@ -23,11 +23,13 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -181,12 +183,6 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                             orElse(null));
                 }
 
-                if (match == null) {
-                    match = cond.asLeaf(AttrCond.class).
-                            map(leaf -> matches(any, leaf, not)).
-                            orElse(null);
-                }
-
                 return BooleanUtils.toBoolean(match);
             }
             case AND -> {
@@ -299,7 +295,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 case LIKE, ILIKE -> {
                     if (schema.getType().isStringClass()) {
                         StringBuilder output = new StringBuilder();
-                        for (char c : cond.getExpression().toLowerCase().toCharArray()) {
+                        for (char c : cond.getExpression().toLowerCase(Locale.ROOT).toCharArray()) {
                             if (c == '%') {
                                 output.append(".*");
                             } else if (Character.isLetter(c)) {
@@ -428,11 +424,19 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 boolean foundBooleanMin = false;
                 boolean foundBooleanMax = false;
                 if (Integer.class.equals(pd.getPropertyType())) {
-                    for (Annotation annotation : pd.getPropertyType().getAnnotations()) {
-                        if (Min.class.equals(annotation.annotationType())) {
-                            foundBooleanMin = ((Min) annotation).value() == 0;
-                        } else if (Max.class.equals(annotation.annotationType())) {
-                            foundBooleanMax = ((Max) annotation).value() == 1;
+                    for (Class<?> clazz = any.getClass(); clazz != null; clazz = clazz.getSuperclass()) {
+                        try {
+                            final Field field = clazz.getDeclaredField(pd.getName());
+                            for (final Annotation annotation : field.getAnnotations()) {
+                                if (Min.class.equals(annotation.annotationType())) {
+                                    foundBooleanMin = ((Min) annotation).value() == 0;
+                                } else if (Max.class.equals(annotation.annotationType())) {
+                                    foundBooleanMax = ((Max) annotation).value() == 1;
+                                }
+                            }
+                            break;
+                        } catch (final NoSuchFieldException e) {
+                            // continue walking up the class hierarchy
                         }
                     }
                 }

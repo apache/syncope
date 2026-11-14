@@ -72,7 +72,6 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> implements UserRepoExt {
@@ -168,28 +167,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
 
     @Override
     public boolean isManager(final String key) {
-        long users = neo4jTemplate.count(
+        return neo4jTemplate.count(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
                 + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
-                + "(p:" + Neo4jUser.NODE + ") "
+                + "(p) "
+                + "WHERE p:" + Neo4jUser.NODE + " OR p:" + Neo4jGroup.NODE + " OR p:" + Neo4jAnyObject.NODE + " "
                 + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        long groups = neo4jTemplate.count(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
-                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
-                + "(p:" + Neo4jGroup.NODE + ") "
-                + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        long anyObjects = neo4jTemplate.count(
-                "MATCH (n:" + Neo4jUser.NODE + " {id: $key})-"
-                + "[:" + AbstractAny.USER_MANAGER_REL + "]-"
-                + "(p:" + Neo4jAnyObject.NODE + ") "
-                + "RETURN COUNT(p.id)",
-                Map.of("key", key));
-
-        return users + groups + anyObjects > 0;
+                Map.of("key", key)) > 0;
     }
 
     protected Stream<String> findUMembershipGroups(final String key) {
@@ -216,8 +200,10 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 userCache));
 
         // (b) see UserDAO#findManagedUsers
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findUMembers(group).
-                forEach(m -> findById(m).ifPresent(result::add)));
+        result.addAll(findAllById(
+                findManagedGroupKeys(key).flatMap(group -> groupDAO.findUMembers(group).stream()).toList(),
+                Neo4jUser.class,
+                userCache));
 
         // (c) see UserDAO#findManagedUsers
         // (d) see UserDAO#findManagedUsers
@@ -240,7 +226,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         List<Group> result = new ArrayList<>();
 
         // (a) see UserDAO#findManagedGroups
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findById(group).ifPresent(result::add));
+        result.addAll(findAllById(findManagedGroupKeys(key).toList(), Neo4jGroup.class, groupCache));
 
         // (b) see UserDAO#findManagedGroups
         findUMembershipGroups(key).forEach(g -> result.addAll(groupDAO.findManagedGroups(g)));
@@ -263,8 +249,10 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 anyObjectCache));
 
         // (b) see UserDAO#findManagedAnyObjects
-        findManagedGroupKeys(key).forEach(group -> groupDAO.findAMembers(group).
-                forEach(m -> findById(m, Neo4jAnyObject.class, anyObjectCache).ifPresent(result::add)));
+        result.addAll(findAllById(
+                findManagedGroupKeys(key).flatMap(group -> groupDAO.findAMembers(group).stream()).toList(),
+                Neo4jAnyObject.class,
+                anyObjectCache));
 
         Collection<Map<String, Object>> membershipQueryResult = neo4jClient.query(
                 "MATCH (u:" + Neo4jAnyObject.NODE + " {id: $key})-[]-"
@@ -407,17 +395,17 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             Set<String> beforeMembs = before.getMemberships().stream().map(UMembership::getKey).
                     collect(Collectors.toSet());
             beforeMembs.removeAll(user.getMemberships().stream().map(UMembership::getKey).toList());
-            beforeMembs.forEach(m -> neo4jTemplate.deleteById(m, Neo4jUMembership.class));
+            neo4jTemplate.deleteAllById(beforeMembs, Neo4jUMembership.class);
 
             Set<String> beforeRels = before.getRelationships().stream().map(URelationship::getKey).
                     collect(Collectors.toSet());
             beforeRels.removeAll(user.getRelationships().stream().map(URelationship::getKey).toList());
-            beforeRels.forEach(r -> neo4jTemplate.deleteById(r, Neo4jURelationship.class));
+            neo4jTemplate.deleteAllById(beforeRels, Neo4jURelationship.class);
 
             Set<String> beforeLAs = before.getLinkedAccounts().stream().map(LinkedAccount::getKey).
                     collect(Collectors.toSet());
             beforeLAs.removeAll(user.getLinkedAccounts().stream().map(LinkedAccount::getKey).toList());
-            beforeLAs.forEach(la -> neo4jTemplate.deleteById(la, Neo4jLinkedAccount.class));
+            neo4jTemplate.deleteAllById(beforeLAs, Neo4jLinkedAccount.class);
         });
 
         User merged = neo4jTemplate.save(nodeValidator.validate(user));
@@ -456,7 +444,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         neo4jTemplate.deleteById(user.getKey(), Neo4jUser.class);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
         Set<Role> result = new HashSet<>();
@@ -465,7 +453,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
@@ -475,19 +463,19 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
         return findAllGroups(user).stream().map(Group::getKey).toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
         return findAllGroups(user).stream().map(Group::getName).toList();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
@@ -510,11 +498,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             return false;
         }
 
-        return neo4jTemplate.count(
+        return neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-[]-(p:" + Neo4jLinkedAccount.NODE + ") "
                 + "WHERE p.connObjectKeyValue = $connObjectKeyValue "
-                + "RETURN COUNT(p)",
-                Map.of("id", userKey, "connObjectKeyValue", connObjectKeyValue)) > 0;
+                + "RETURN p.id LIMIT 1").
+                bindAll(Map.of("id", userKey, "connObjectKeyValue", connObjectKeyValue)).
+                fetch().one().isPresent();
     }
 
     @Override

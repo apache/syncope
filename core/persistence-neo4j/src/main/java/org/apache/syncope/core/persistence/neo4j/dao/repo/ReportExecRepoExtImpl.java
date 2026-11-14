@@ -56,7 +56,7 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
                 + "[:" + Neo4jReport.REPORT_EXEC_REL + "]-"
                 + "(p:" + Neo4jReport.NODE + " {id: $id}) "
                 + "WHERE n.endDate IS NOT NULL "
-                + "RETURN n.id ORDER BY n.end DateDESC LIMIT " + max).fetch().all(),
+                + "RETURN n.id ORDER BY n.endDate DESC LIMIT " + max).fetch().all(),
                 "n.id",
                 Neo4jReportExec.class,
                 null);

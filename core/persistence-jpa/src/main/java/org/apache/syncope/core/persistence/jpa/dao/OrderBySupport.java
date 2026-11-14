@@ -29,13 +29,10 @@ public class OrderBySupport {
 
         protected String select;
 
-        protected String where;
-
         protected String orderBy;
 
         protected boolean isEmpty() {
             return (select == null || select.isEmpty())
-                    && (where == null || where.isEmpty())
                     && (orderBy == null || orderBy.isEmpty());
         }
     }
@@ -43,7 +40,5 @@ public class OrderBySupport {
     protected Set<SearchSupport.SearchView> views = new HashSet<>();
 
     protected List<Item> items = new ArrayList<>();
-
-    protected boolean nonMandatorySchemas = false;
 
 }

@@ -89,16 +89,6 @@ class ReportLogicTest extends AbstractTest {
     @Autowired
     private ReportLogic logic;
 
-    private void checkExport(final String execKey) throws IOException {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-        logic.exportExecutionResult(os, execKey);
-
-        os.close();
-        byte[] entity = os.toByteArray();
-        assertTrue(entity.length > 0);
-    }
-
     @Test
     void executeAndExport() throws Exception {
         ReportTO report = logic.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
@@ -123,6 +113,12 @@ class ReportLogicTest extends AbstractTest {
 
         String execKey = report.getExecutions().getFirst().getKey();
 
-        checkExport(execKey);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        logic.exportExecutionResult(os, execKey);
+
+        os.close();
+        byte[] entity = os.toByteArray();
+        assertTrue(entity.length > 0);
     }
 }

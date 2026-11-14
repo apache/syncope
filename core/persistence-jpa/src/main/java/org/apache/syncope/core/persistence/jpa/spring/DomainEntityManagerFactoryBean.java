@@ -23,10 +23,10 @@ import javax.cache.CacheManager;
 import javax.cache.configuration.FactoryBuilder;
 import javax.cache.configuration.MutableCacheEntryListenerConfiguration;
 import org.apache.syncope.core.persistence.jpa.ConnectorManagerCacheEntryListener;
+import org.apache.syncope.core.persistence.jpa.ImplementationManagerCacheEntryListener;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerCacheEntryListener;
 import org.hibernate.cache.spi.support.RegionNameQualifier;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 

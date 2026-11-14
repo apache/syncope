@@ -181,11 +181,9 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Map<String, Object> parameters) {
 
         return processRealms(base, recursive, adminRealms, realmKeys -> {
-            if (realmKeys.isEmpty()) {
-                return "(n)-[]-(:" + Neo4jRealm.NODE + ")";
-            }
+            parameters.put("adminRealmKeys", realmKeys);
 
-            return "(n)-[]-(r:" + Neo4jRealm.NODE + ") WHERE r.id IN $" + setParameter(parameters, realmKeys);
+            return "(n)-[]-(r:" + Neo4jRealm.NODE + ") WHERE size($adminRealmKeys) = 0 OR r.id IN $adminRealmKeys";
         });
     }
 
@@ -222,7 +220,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "EXISTS { MATCH (n)-[]-(r:" + relTypeNode + ")-[]-"
                 + "(t:" + Neo4jRelationshipType.NODE
-                + " {id: $ " + setParameter(parameters, cond.getRelationshipTypeKey()) + "}) } ";
+                + " {id: $" + setParameter(parameters, cond.getRelationshipTypeKey()) + "}) } ";
     }
 
     protected String getQuery(
@@ -252,8 +250,14 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final boolean not,
             final Map<String, Object> parameters) {
 
-        cond.setGroup(cond.getGroup().replace("%", ".*"));
-        List<String> groupKeys = check(cond);
+        String group = cond.getGroup();
+        List<String> groupKeys;
+        try {
+            cond.setGroup(group.replace("%", ".*"));
+            groupKeys = check(cond);
+        } finally {
+            cond.setGroup(group);
+        }
 
         String param = setParameter(parameters, groupKeys);
         return "MATCH (n) "
@@ -472,11 +476,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             query.append(')');
             return;
         }
-        if (not && cond.getType() == AttrCond.Type.ISNULL) {
-            cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(query, attrValue, schema, cond, true, parameters);
-            return;
-        }
 
         boolean lower = schema.getType().isStringClass()
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
@@ -572,16 +571,17 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Map<String, Object> parameters) {
 
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema())) {
-            if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
-                Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
+            String expression = cond.getExpression();
+            if (!SyncopeConstants.UUID_PATTERN.matcher(expression).matches()) {
+                Realm realm = realmSearchDAO.findByFullPath(expression).
                         orElseThrow(() -> new IllegalArgumentException(
                                 "Invalid Realm full path: " + cond.getExpression()));
-                cond.setExpression(realm.getKey());
+                expression = realm.getKey();
             }
 
             return new AnyCondQuery(
                     "MATCH (n)-[]-"
-                    + "(:" + Neo4jRealm.NODE + " {id: $" + setParameter(parameters, cond.getExpression()) + "}) ",
+                    + "(:" + Neo4jRealm.NODE + " {id: $" + setParameter(parameters, expression) + "}) ",
                     null);
         }
 
@@ -861,7 +861,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 map(mac -> "(EXISTS { " + mac.query() + "} )").
                 collect(Collectors.joining(" AND ")));
 
-        query.append(" AND EXISTS { (m)-[]-(r:Realm) WHERE r.id IN $param0 } ").
+        query.append(" AND EXISTS { (m)-[]-(r:").append(Neo4jRealm.NODE).
+                append(") WHERE size($adminRealmKeys) = 0 OR r.id IN $adminRealmKeys } ").
                 append(returnStmt).
                 append(" } ");
     }

@@ -47,8 +47,8 @@ import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.jpa.ConnectorManagerCacheEntryListener;
+import org.apache.syncope.core.persistence.jpa.ImplementationManagerCacheEntryListener;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
-import org.apache.syncope.core.persistence.jpa.openjpa.ImplementationManagerCacheEntryListener;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -166,9 +166,9 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     }
 
     protected EntityManagerFactory delegate() {
-        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
-            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
-        });
+        return Optional.ofNullable(delegates.get(AuthContextUtils.getDomain())).
+                orElseThrow(() -> new IllegalStateException(
+                        "Could not find EntityManagerFactory for domain " + AuthContextUtils.getDomain()));
     }
 
     @Override
