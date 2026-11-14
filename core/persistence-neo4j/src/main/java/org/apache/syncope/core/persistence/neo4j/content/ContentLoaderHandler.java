@@ -68,7 +68,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
 
     }
 
-    protected record Relationship(String leftId, String rightId, String type, String index) {
+    protected record Relationship(String leftId, String rightId, String type, Optional<Integer> index) {
 
     }
 
@@ -264,7 +264,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         String left = null;
         String right = null;
         String type = null;
-        String index = null;
+        Integer index = null;
         for (int i = 0; i < atts.getLength(); i++) {
             if ("left".equalsIgnoreCase(atts.getQName(i))) {
                 left = atts.getValue(i);
@@ -273,7 +273,11 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
             } else if ("type".equalsIgnoreCase(atts.getQName(i))) {
                 type = atts.getValue(i);
             } else if ("index".equalsIgnoreCase(atts.getQName(i))) {
-                index = atts.getValue(i);
+                try {
+                    index = Integer.valueOf(atts.getValue(i));
+                } catch (NumberFormatException e) {
+                    LOG.error("Integer expected, found {}", atts.getValue(i), e);
+                }
             }
         }
         if (left == null || right == null) {
@@ -284,18 +288,21 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         String leftId = left;
         String rightId = right;
         String relType = type;
-        String indexValue = index;
+        Integer indexValue = index;
         return nodeDesc.getRelationships().stream().
                 filter(rel -> rightNode.equals(rel.getTarget().getPrimaryLabel())
-                && (relType == null || relType.equals(rel.getType()))).
-                findFirst().map(rel -> new Relationship(
-                leftId,
-                rightId,
-                rel.getType(),
-                Optional.ofNullable(rel.getRelationshipPropertiesEntity()).
-                        filter(e -> Neo4jImplementationRelationship.class.getSimpleName().equals(e.getPrimaryLabel())
-                        || Neo4jMacroTaskCommandRelationship.class.getSimpleName().equals(e.getPrimaryLabel())).
-                        map(e -> indexValue).orElse(null)));
+                        && (relType == null || relType.equals(rel.getType()))).
+                findFirst().
+                map(rel -> new Relationship(
+                        leftId,
+                        rightId,
+                        rel.getType(),
+                        Optional.ofNullable(rel.getRelationshipPropertiesEntity()).
+                                filter(e -> Neo4jImplementationRelationship.class.getSimpleName().
+                                        equals(e.getPrimaryLabel())
+                                        || Neo4jMacroTaskCommandRelationship.class.getSimpleName().
+                                                equals(e.getPrimaryLabel())).
+                                map(e -> indexValue)));
     }
 
     @Override
@@ -308,9 +315,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                         Map<String, Object> props = new HashMap<>();
                         props.put("leftId", rel.leftId());
                         props.put("rightId", rel.rightId());
-                        if (rel.index() != null) {
-                            props.put("index", Integer.valueOf(rel.index()));
-                        }
+                        rel.index().ifPresent(index -> props.put("index", index));
 
                         return new Query(
                                 "MATCH (a:" + split[0] + " {id: $leftId}), "

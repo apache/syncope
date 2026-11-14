@@ -280,7 +280,7 @@ public class WAContext {
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @Bean
+    @Bean(name = WASamlIdPMetadataCacheRefresher.SAML_IDP_METADATA_CACHE)
     public Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache() {
         return Caffeine.newBuilder().build();
     }
@@ -289,7 +289,7 @@ public class WAContext {
     public SamlIdPMetadataLocator samlIdPMetadataLocator(
             @Qualifier("samlIdPMetadataGeneratorCipherExecutor")
             final CipherExecutor<String, String> cipherExecutor,
-            @Qualifier("samlIdPMetadataCache")
+            @Qualifier(WASamlIdPMetadataCacheRefresher.SAML_IDP_METADATA_CACHE)
             final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache,
             final ApplicationContext applicationContext,
             final WARestClient waRestClient) {
@@ -303,11 +303,8 @@ public class WAContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher(
-            @Qualifier("samlIdPMetadataCache")
-            final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache) {
-
-        return new WASamlIdPMetadataCacheRefresher(samlIdPMetadataCache);
+    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher() {
+        return new WASamlIdPMetadataCacheRefresher();
     }
 
     @Bean
