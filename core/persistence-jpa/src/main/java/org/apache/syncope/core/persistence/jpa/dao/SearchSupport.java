@@ -31,8 +31,6 @@ public class SearchSupport {
 
     protected final AnyTypeKind anyTypeKind;
 
-    protected boolean nonMandatorySchemas = false;
-
     public SearchSupport(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
     }
@@ -81,16 +79,16 @@ public class SearchSupport {
 
     public SearchView relationship() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : anyTypeKind == AnyTypeKind.GROUP ? "g" : "a";
-        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "relationship");
+        return new SearchView("sv" + kind + "rel", field().name + '_' + kind + "relationship");
     }
 
     public SearchView membership() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "membership");
+        return new SearchView("sv" + kind + "mem", field().name + '_' + kind + "membership");
     }
 
     public SearchView role() {
-        return new SearchView("svr", field().name + "_role");
+        return new SearchView("svrole", field().name + "_role");
     }
 
     public SearchView auxClass() {
@@ -98,7 +96,7 @@ public class SearchSupport {
     }
 
     public SearchView resource() {
-        return new SearchView("svr", field().name + "_resource");
+        return new SearchView("svres", field().name + "_resource");
     }
 
     public SearchView groupResource() {

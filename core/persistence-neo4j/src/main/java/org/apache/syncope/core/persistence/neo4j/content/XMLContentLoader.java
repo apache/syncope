@@ -91,8 +91,13 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
     protected void loadDefaultContent(final String domain, final String contentXML) throws Exception {
         InputStream in = ctx.getBeanFactory().getBean(contentXML, InputStream.class);
         try (in) {
-            saxParser().parse(in, new ContentLoaderHandler(
-                    domainHolder.getDomains().get(domain), mappingContext, ROOT_ELEMENT, true, ctx.getEnvironment()));
+            ContentLoaderHandler handler = new ContentLoaderHandler(
+                    domainHolder.getDomains().get(domain), mappingContext, ROOT_ELEMENT, true, ctx.getEnvironment());
+            try {
+                saxParser().parse(in, handler);
+            } finally {
+                handler.endDocument();
+            }
             LOG.debug("[{}] Default content successfully loaded", domain);
         }
     }

@@ -23,6 +23,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.provisioning.java.job.JobStatusUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
     private final DomainHolder<?> domainHolder;
 
     private final boolean enableAutoRegistration;
-    
+
     public SyncopeCoreStart(final DomainHolder<?> domainHolder, final boolean enableAutoRegistration) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
@@ -78,6 +79,7 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
             super.onApplicationEvent(event);
         }
 
-        event.getApplicationContext().getBean(JobStatusUpdater.class).initComplete();
+        event.getApplicationContext().getBean(JobStatusUpdater.class).
+                initComplete(event.getApplicationContext().getBean(JobStatusDAO.class));
     }
 }

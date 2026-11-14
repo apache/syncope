@@ -49,12 +49,16 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
         for (char toEscape : REGEX_CHARS.toCharArray()) {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
-        return output.replace("'", "''");
+        // a double quote would otherwise terminate the JSON path string; the single quote is doubled for SQL
+        return output.replace("\"", "\\\"").replace("'", "''");
     }
 
     protected static String escapeIfString(final String value, final boolean isStr) {
         return isStr
-                ? new StringBuilder().append('"').append(value.replace("'", "''")).append('"').toString()
+                ? new StringBuilder().append('"').
+                        append(value.replace("\\", "\\\\").replace("\"", "\\\"").replace("'", "''")).
+                        append('"').
+                        toString()
                 : value;
     }
 
@@ -100,13 +104,9 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final PlainSchema schema,
             final String fieldName) {
 
-        // keep track of involvement of non-mandatory schemas in the order by clauses
-        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
         obs.views.add(svs.table());
 
         item.select = fieldName + " -> 0 AS " + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -118,7 +118,6 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final Sort.Order clause) {
 
         item.select = svs.table().alias() + '.' + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = svs.table().alias() + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 
@@ -190,7 +189,7 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
                 if (StringUtils.containsAny(value, REGEX_CHARS) || lower) {
                     clause.append(" like_regex \"^").
-                            append(escapeForLikeRegex(value).replace("'", "''")).
+                            append(escapeForLikeRegex(value)).
                             append("$\"");
                 } else {
                     clause.append(" == ").append(escapeIfString(value, isStr));

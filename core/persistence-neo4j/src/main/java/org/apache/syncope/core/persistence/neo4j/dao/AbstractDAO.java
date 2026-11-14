@@ -18,23 +18,22 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractNode;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
 public abstract class AbstractDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractDAO.class);
 
     protected final Neo4jTemplate neo4jTemplate;
 
@@ -57,10 +56,10 @@ public abstract class AbstractDAO {
         EntityCacheKey cacheKey = EntityCacheKey.of(key);
         return Optional.ofNullable(cache.get(cacheKey)).
                 or(() -> neo4jTemplate.findById(key, domainType).
-                map(value -> {
-                    cache.put(cacheKey, value);
-                    return value;
-                }));
+                        map(value -> {
+                            cache.put(cacheKey, value);
+                            return value;
+                        }));
     }
 
     protected <E extends Entity, N extends AbstractNode> List<E> findByRelationship(
@@ -110,9 +109,47 @@ public abstract class AbstractDAO {
             final Class<N> domainType,
             final Cache<EntityCacheKey, N> cache) {
 
-        return result.stream().
-                map(found -> findById(found.get(property).toString(), domainType, cache)).
-                flatMap(Optional::stream).map(n -> (E) n).toList();
+        return findAllById(
+                result.stream().map(found -> found.get(property).toString()).toList(),
+                domainType,
+                cache);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <E extends Entity, N extends AbstractNode> List<E> findAllById(
+            final Collection<String> keys,
+            final Class<N> domainType,
+            final Cache<EntityCacheKey, N> cache) {
+
+        if (keys.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> distinctKeys = keys.stream().distinct().toList();
+        Map<String, N> result = new HashMap<>(distinctKeys.size());
+        List<String> missing = new ArrayList<>(distinctKeys.size());
+
+        distinctKeys.forEach(key -> {
+            N cached = cache == null
+                    ? null
+                    : cache.get(EntityCacheKey.of(key));
+            if (cached == null) {
+                missing.add(key);
+            } else {
+                result.put(key, cached);
+            }
+        });
+
+        if (!missing.isEmpty()) {
+            neo4jTemplate.findAllById(missing, domainType).forEach(node -> {
+                result.put(node.getKey(), node);
+                if (cache != null) {
+                    cache.put(EntityCacheKey.of(node.getKey()), node);
+                }
+            });
+        }
+
+        return keys.stream().map(result::get).filter(Objects::nonNull).map(n -> (E) n).toList();
     }
 
     protected void cascadeDelete(
@@ -120,14 +157,10 @@ public abstract class AbstractDAO {
             final String rightNode,
             final String rightNodeKey) {
 
-        try {
-            neo4jClient.query(
-                    "MATCH (n:" + leftNode + ")-[]-(p:" + rightNode + " {id: $id}) DETACH DELETE n").
-                    bindAll(Map.of("id", rightNodeKey)).
-                    run();
-        } catch (Exception e) {
-            LOG.error("While removing n via (n:{})-[]-(p:{} {id: {}})", leftNode, rightNode, rightNodeKey, e);
-        }
+        neo4jClient.query(
+                "MATCH (n:" + leftNode + ")-[]-(p:" + rightNode + " {id: $id}) DETACH DELETE n").
+                bindAll(Map.of("id", rightNodeKey)).
+                run();
     }
 
     protected void deleteRelationship(
@@ -137,17 +170,12 @@ public abstract class AbstractDAO {
             final String rightNodeKey,
             final String relationshipType) {
 
-        try {
-            neo4jClient.query(
-                    "MATCH (n:" + leftNode + " {id: $tid})-"
-                    + "[r:" + relationshipType + "]-"
-                    + "(p:" + rightNode + "{id: $iid}) "
-                    + "DELETE r").
-                    bindAll(Map.of("tid", leftNodeKey, "iid", rightNodeKey)).
-                    run();
-        } catch (Exception e) {
-            LOG.error("While removing r via (n:{} {id: {}})-[r]-(p:{} {id: {}})",
-                    leftNode, leftNodeKey, rightNode, rightNodeKey, e);
-        }
+        neo4jClient.query(
+                "MATCH (n:" + leftNode + " {id: $tid})-"
+                + "[r:" + relationshipType + "]-"
+                + "(p:" + rightNode + " {id: $iid}) "
+                + "DELETE r").
+                bindAll(Map.of("tid", leftNodeKey, "iid", rightNodeKey)).
+                run();
     }
 }

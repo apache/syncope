@@ -34,7 +34,7 @@ public class SyncopeNeo4jRepository<T, ID> extends SimpleNeo4jRepository<T, ID> 
 
     protected final Neo4jPersistentEntity<T> entityMetaData;
 
-    private NodeValidator nodeValidator;
+    private volatile NodeValidator nodeValidator;
 
     public SyncopeNeo4jRepository(
             final Neo4jOperations neo4jOperations,
@@ -47,12 +47,17 @@ public class SyncopeNeo4jRepository<T, ID> extends SimpleNeo4jRepository<T, ID> 
     }
 
     protected NodeValidator nodeValidator() {
-        synchronized (this) {
-            if (nodeValidator == null) {
-                nodeValidator = ApplicationContextProvider.getApplicationContext().getBean(NodeValidator.class);
+        NodeValidator validator = nodeValidator;
+        if (validator == null) {
+            synchronized (this) {
+                validator = nodeValidator;
+                if (validator == null) {
+                    validator = ApplicationContextProvider.getApplicationContext().getBean(NodeValidator.class);
+                    nodeValidator = validator;
+                }
             }
         }
-        return nodeValidator;
+        return validator;
     }
 
     @Override

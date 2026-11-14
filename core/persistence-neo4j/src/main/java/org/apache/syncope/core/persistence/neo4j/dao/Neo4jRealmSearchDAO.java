@@ -191,14 +191,16 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
         Map<String, Object> parameters = new HashMap<>();
 
         StringBuilder query = new StringBuilder("MATCH (n:").append(Neo4jRealm.NODE).append(") ").
-                append("WHERE (").append("n.fullPath = $base OR n.fullPath =~ $like").append(')');
+                append("WHERE (n.fullPath = $base OR n.fullPath STARTS WITH $basePrefix)");
         parameters.put("base", base);
-        parameters.put("like", SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*");
+        parameters.put("basePrefix", SyncopeConstants.ROOT_REALM.equals(base) ? SyncopeConstants.ROOT_REALM
+                : base + '/');
 
         if (prefix != null) {
-            query.append(" AND (n.fullPath = $prefix OR n.fullPath =~ $likePrefix)");
+            query.append(" AND (n.fullPath = $prefix OR n.fullPath STARTS WITH $prefixPrefix)");
             parameters.put("prefix", prefix);
-            parameters.put("likePrefix", SyncopeConstants.ROOT_REALM.equals(prefix) ? "/.*" : prefix + "/.*");
+            parameters.put("prefixPrefix", SyncopeConstants.ROOT_REALM.equals(prefix)
+                    ? SyncopeConstants.ROOT_REALM : prefix + '/');
         }
 
         query.append(" RETURN n.id ORDER BY n.fullPath");
@@ -307,8 +309,9 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
         String basesClause = bases.stream().map(base -> {
             int idx = index.incrementAndGet();
             parameters.put("base" + idx, base);
-            parameters.put("like" + idx, SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*");
-            return "n.fullPath = $base" + idx + " OR n.fullPath =~ $like" + idx;
+            parameters.put("basePrefix" + idx, SyncopeConstants.ROOT_REALM.equals(base)
+                    ? SyncopeConstants.ROOT_REALM : base + '/');
+            return "n.fullPath = $base" + idx + " OR n.fullPath STARTS WITH $basePrefix" + idx;
         }).collect(Collectors.joining(" OR "));
         if (query.startsWith("MATCH (n)")) {
             query.replaceFirst("MATCH (n)", match + " WHERE (EXISTS { MATCH (n)");
@@ -514,11 +517,6 @@ public class Neo4jRealmSearchDAO extends AbstractRealmSearchDAO {
             query.append("NOT (");
             fillAttrQuery(query, attrValue, schema, cond, false, parameters);
             query.append(')');
-            return;
-        }
-        if (not && cond.getType() == AttrCond.Type.ISNULL) {
-            cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(query, attrValue, schema, cond, true, parameters);
             return;
         }
 

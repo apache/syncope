@@ -755,7 +755,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         fillWithParameters(countQuery, parameters);
 
         // 5. execute the query and return the result
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ((Number) countQuery.getSingleResult()).longValue();
     }
 
     protected abstract void parseOrderByForPlainSchema(
@@ -773,7 +773,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             final Sort.Order clause) {
 
         item.select = defaultSV(svs).alias() + '.' + fieldName;
-        item.where = StringUtils.EMPTY;
         item.orderBy = defaultSV(svs).alias() + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 

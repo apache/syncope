@@ -22,7 +22,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +41,8 @@ import org.springframework.util.CollectionUtils;
 
 public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEventDAO {
 
+    protected static final int IN_CLAUSE_MAX_SIZE = 500;
+
     protected static class AuditEventCriteriaBuilder {
 
         protected final StringBuilder query = new StringBuilder();
@@ -52,15 +56,16 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
             return parameters.size();
         }
 
-        protected AuditEventCriteriaBuilder entityKey(final String entityKey) {
+        protected AuditEventCriteriaBuilder entityKey(final String entityKey, final List<Object> parameters) {
             if (entityKey != null) {
                 checkEntityKey(entityKey);
 
+                String pattern = "%\"key\":\"" + entityKey + "\"%";
                 query.append(andIfNeeded()).
-                        append("(beforeValue LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
-                        append("inputs LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
-                        append("output LIKE '%\"key\":\"").append(entityKey).append("\"%' OR ").
-                        append("throwable LIKE '%\"key\":\"").append(entityKey).append("\"%')");
+                        append("(beforeValue LIKE ?").append(setParameter(parameters, pattern)).append(" ESCAPE '#'").
+                        append(" OR inputs LIKE ?").append(setParameter(parameters, pattern)).append(" ESCAPE '#'").
+                        append(" OR output LIKE ?").append(setParameter(parameters, pattern)).append(" ESCAPE '#'").
+                        append(" OR throwable LIKE ?").append(setParameter(parameters, pattern)).append(" ESCAPE '#')");
             }
             return this;
         }
@@ -142,8 +147,8 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         return entityManager.merge(auditEvent);
     }
 
-    protected AuditEventCriteriaBuilder criteriaBuilder(final String entityKey) {
-        return new AuditEventCriteriaBuilder().entityKey(entityKey);
+    protected AuditEventCriteriaBuilder criteriaBuilder(final String entityKey, final List<Object> parameters) {
+        return new AuditEventCriteriaBuilder().entityKey(entityKey, parameters);
     }
 
     protected void fillWithParameters(final Query query, final List<Object> parameters) {
@@ -173,7 +178,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + JPAAuditEvent.TABLE
-                + " WHERE" + criteriaBuilder(entityKey).
+                + " WHERE" + criteriaBuilder(entityKey, parameters).
                         username(username, parameters).
                         who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome, parameters).
@@ -204,7 +209,7 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
         List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT id"
                 + " FROM " + JPAAuditEvent.TABLE
-                + " WHERE" + criteriaBuilder(entityKey).
+                + " WHERE" + criteriaBuilder(entityKey, parameters).
                         username(username, parameters).
                         who(who, parameters).
                         opEvent(type, category, subcategory, op, outcome, parameters).
@@ -231,8 +236,27 @@ public class JPAAuditEventDAO extends AbstractAuditEventDAO implements AuditEven
 
         @SuppressWarnings("unchecked")
         List<Object> entries = query.getResultList();
-        return entries.stream().
-                map(row -> entityManager.find(JPAAuditEvent.class, row.toString())).
-                filter(Objects::nonNull).map(this::toAuditEventTO).toList();
+        List<String> ids = entries.stream().map(Object::toString).toList();
+
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        Map<String, JPAAuditEvent> found = new HashMap<>();
+        for (int i = 0; i < ids.size(); i += IN_CLAUSE_MAX_SIZE) {
+            List<String> chunk = ids.subList(i, Math.min(i + IN_CLAUSE_MAX_SIZE, ids.size()));
+            entityManager.createQuery(
+                    "SELECT e FROM " + JPAAuditEvent.class.getSimpleName() + " e WHERE e.id IN :ids",
+                    JPAAuditEvent.class).
+                    setParameter("ids", chunk).
+                    getResultList().
+                    forEach(event -> found.put(event.getKey(), event));
+        }
+
+        return ids.stream().
+                map(found::get).
+                filter(Objects::nonNull).
+                map(this::toAuditEventTO).
+                toList();
     }
 }
