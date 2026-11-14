@@ -322,7 +322,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                                 + "(b:" + split[1] + " {id: $rightId}) "
                                 + "CREATE (a)-"
                                 + "[:" + rel.type()
-                                + (rel.index() == null ? "" : " {index: $index}") + "]->(b)",
+                                + (rel.index().isEmpty() ? "" : " {index: $index}") + "]->(b)",
                                 props);
                     });
         } else {
