@@ -39,8 +39,8 @@ class JobStatusUpdaterTest extends AbstractTest {
     void verifyUpdate() {
         String jobName = "job-" + SecureRandomUtils.generateRandomNumber();
 
-        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO);
-        jobStatusUpdater.initComplete();
+        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater();
+        jobStatusUpdater.initComplete(jobStatusDAO);
 
         jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, "Started"));
         assertEquals(JobStatusDAO.UNKNOWN_STATUS, jobStatusDAO.get(jobName));
