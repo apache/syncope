@@ -473,7 +473,6 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
     }
 
     protected abstract void parseOrderByForPlainSchema(
-            OrderBySupport obs,
             OrderBySupport.Item item,
             Sort.Order clause,
             PlainSchema schema,
@@ -531,7 +530,7 @@ public abstract class AbstractJPARealmSearchDAO extends AbstractRealmSearchDAO {
                                             + "remove one from " + (orderByUniquePlainSchemas.size() > 1
                                             ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas)).get();
                                 }
-                                parseOrderByForPlainSchema(obs, item, clause, schema, clause.getProperty());
+                                parseOrderByForPlainSchema(item, clause, schema, clause.getProperty());
                             });
                         });
             }
