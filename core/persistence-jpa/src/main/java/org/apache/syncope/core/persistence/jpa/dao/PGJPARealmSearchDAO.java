@@ -70,7 +70,6 @@ public class PGJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
     @Override
     protected void parseOrderByForPlainSchema(
-            final OrderBySupport obs,
             final OrderBySupport.Item item,
             final Sort.Order clause,
             final PlainSchema schema,

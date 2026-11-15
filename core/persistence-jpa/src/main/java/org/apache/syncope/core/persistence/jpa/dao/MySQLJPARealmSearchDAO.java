@@ -84,12 +84,10 @@ public class MySQLJPARealmSearchDAO extends AbstractJPARealmSearchDAO {
 
     @Override
     protected void parseOrderByForPlainSchema(
-            final OrderBySupport obs,
             final OrderBySupport.Item item,
             final Sort.Order clause,
             final PlainSchema schema,
             final String fieldName) {
-
 
         item.select = schema.getKey() + "."
                 + (schema.isUniqueConstraint() ? "uniqueValue" : "valuez")
