@@ -71,7 +71,16 @@ under the License.
     
   <!-- Checks for Size Violations.                    -->
   <!-- See http://checkstyle.sf.net/config_sizes.html -->
-  <module name="FileLength"/>
+  <module name="FileLength">
+    <property name="id" value="standardFileLength"/>
+    <property name="max" value="2000"/>
+  </module>
+
+  <!-- Esclude i test IT soltanto dal limite ordinario -->
+  <module name="SuppressionSingleFilter">
+    <property name="id" value="standardFileLength"/>
+    <property name="files" value="[/\\]src[/\\]test[/\\]java[/\\].*ITCase\.java$"/>
+  </module>
     
   <!-- Checks for whitespace                               -->
   <!-- See http://checkstyle.sf.net/config_whitespace.html -->
