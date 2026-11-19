@@ -1688,7 +1688,7 @@ public class UserIssuesITCase extends AbstractITCase {
             }
 
             // the DELETE propagation task has successfully been executed
-            await().until(() -> {
+            await().atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
                 List<PropagationTaskTO> deleteTasks = TASK_SERVICE.search(
                                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
                                         .anyTypeKind(AnyTypeKind.USER)
