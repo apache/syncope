@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -42,7 +43,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -116,7 +116,6 @@ import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropaga
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -1653,8 +1652,8 @@ public class UserIssuesITCase extends AbstractITCase {
             ANY_TYPE_CLASS_SERVICE.update(minimalUser);
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
             restResourceTO.setPropagationPriority(null);
-            restResourceTO.getProvision(AnyTypeKind.USER.name())
-                    .ifPresent(p -> p.setUidOnCreate(externalKeySchemaTO.getKey()));
+            Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+            provision.setUidOnCreate(externalKeySchemaTO.getKey());
             RESOURCE_SERVICE.update(restResourceTO);
             UserCR userCR = UserITCase.getUniqueSample("rest@syncope.apache.org");
             userCR.getResources().clear();
@@ -1680,15 +1679,11 @@ public class UserIssuesITCase extends AbstractITCase {
                     });
 
             // user has been remotely deleted
-            try {
-                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_REST, AnyTypeKind.USER.name(), entityKey);
-                Assertions.fail("Should not arrive here");
-            } catch (SyncopeClientException sce) {
-                assertEquals(ClientExceptionType.NotFound, sce.getType());
-            }
+            assertThrows(SyncopeClientException.class,
+                    () -> RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_REST, AnyTypeKind.USER.name(), entityKey));
 
             // the DELETE propagation task has successfully been executed
-            await().atMost(30, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
                 List<PropagationTaskTO> deleteTasks = TASK_SERVICE.search(
                                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
                                         .anyTypeKind(AnyTypeKind.USER)
@@ -1698,7 +1693,7 @@ public class UserIssuesITCase extends AbstractITCase {
                         .stream()
                         .map(PropagationTaskTO.class::cast)
                         .filter(task -> ResourceOperation.DELETE == task.getOperation())
-                        .collect(Collectors.toList());
+                        .toList();
 
                 return !deleteTasks.isEmpty() && ExecStatus.SUCCESS.name()
                         .equals(deleteTasks.get(0).getLatestExecStatus());
@@ -1707,7 +1702,8 @@ public class UserIssuesITCase extends AbstractITCase {
             // restore resource priority and uidOnCreate
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
             restResourceTO.setPropagationPriority(0);
-            restResourceTO.getProvision(AnyTypeKind.USER.name()).ifPresent(p -> p.setUidOnCreate(null));
+            Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+            provision.setUidOnCreate(null);
             RESOURCE_SERVICE.update(restResourceTO);
             // remove additional externalKey schema
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());

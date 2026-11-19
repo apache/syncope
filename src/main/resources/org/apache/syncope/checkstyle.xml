@@ -76,7 +76,6 @@ under the License.
     <property name="max" value="2000"/>
   </module>
 
-  <!-- Esclude i test IT soltanto dal limite ordinario -->
   <module name="SuppressionSingleFilter">
     <property name="id" value="standardFileLength"/>
     <property name="files" value="[/\\]src[/\\]test[/\\]java[/\\].*ITCase\.java$"/>
