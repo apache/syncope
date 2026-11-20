@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
@@ -1638,6 +1639,78 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
+    public void issueSYNCOPE2006() {
+        // 1. add a new schema externalKey and update provision accordingly
+        PlainSchemaTO externalKeySchemaTO = new PlainSchemaTO();
+        externalKeySchemaTO.setKey("externalKey");
+        externalKeySchemaTO.setType(AttrSchemaType.String);
+        externalKeySchemaTO.setReadonly(true);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, externalKeySchemaTO);
+        try {
+            AnyTypeClassTO minimalUser = ANY_TYPE_CLASS_SERVICE.read("minimal user");
+            minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
+            ANY_TYPE_CLASS_SERVICE.update(minimalUser);
+            ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.setPropagationPriority(null);
+            Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+            provision.setUidOnCreate(externalKeySchemaTO.getKey());
+            RESOURCE_SERVICE.update(restResourceTO);
+            UserCR userCR = UserITCase.getUniqueSample("rest@syncope.apache.org");
+            userCR.getResources().clear();
+            userCR.getResources().add(RESOURCE_NAME_REST);
+
+            // 2. create
+            ProvisioningResult<UserTO> result = createUser(userCR);
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+            assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals("surname", result.getEntity().getPlainAttr("surname").orElseThrow().getValues().getFirst());
+            // externalKey is going to be populated on create
+            assertTrue(result.getEntity().getPlainAttr("externalKey").isPresent());
+            String entityKey = result.getEntity().getKey();
+            assertEquals(entityKey,
+                    result.getEntity().getPlainAttr("externalKey").orElseThrow().getValues().getFirst());
+            // 3. delete user from the resource with null-priority-async header set to true
+            // externalKey is going to be removed with the user itself
+            result = SyncopeClient.nullPriorityAsync(
+                            CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD).getService(UserService.class), true)
+                    .delete(entityKey)
+                    .readEntity(new GenericType<>() {
+                    });
+
+            // user has been remotely deleted
+            assertThrows(SyncopeClientException.class,
+                    () -> RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_REST, AnyTypeKind.USER.name(), entityKey));
+
+            // the DELETE propagation task has successfully been executed
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
+                List<PropagationTaskTO> deleteTasks = TASK_SERVICE.search(
+                                new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
+                                        .anyTypeKind(AnyTypeKind.USER)
+                                        .entityKey(entityKey)
+                                        .build())
+                        .getResult()
+                        .stream()
+                        .map(PropagationTaskTO.class::cast)
+                        .filter(task -> ResourceOperation.DELETE == task.getOperation())
+                        .toList();
+
+                return !deleteTasks.isEmpty() && ExecStatus.SUCCESS.name()
+                        .equals(deleteTasks.get(0).getLatestExecStatus());
+            });
+        } finally {
+            // restore resource priority and uidOnCreate
+            ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.setPropagationPriority(0);
+            Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+            provision.setUidOnCreate(null);
+            RESOURCE_SERVICE.update(restResourceTO);
+            // remove additional externalKey schema
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());
+        }
+    }
+
+    @Test
     void issueSYNCOPE1818() {
         UserTO rossini = USER_SERVICE.read("rossini");
         try {
@@ -1712,7 +1785,7 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals("active", rossini.getStatus());
 
             if (!IS_FLOWABLE_ENABLED) {
-                // we can check update only if on default workflow since flowable test workflow definition does not 
+                // we can check update only if on default workflow since flowable test workflow definition does not
                 // support update of suspended users
                 assertTrue(rossini.getPlainAttr("email").orElseThrow().
                         getValues().contains("rossini.gioacchino@apache.org"));
