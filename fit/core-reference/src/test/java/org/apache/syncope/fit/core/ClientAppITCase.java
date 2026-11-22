@@ -21,11 +21,13 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -151,6 +153,14 @@ public class ClientAppITCase extends AbstractITCase {
         assertEquals("PT5M", found.getIdTokenTimeToKill());
         assertEquals("PT30S", found.getAuthorizationCodeTimeToLive());
         assertEquals(List.of("https://api.apache.org"), found.getAudience());
+        assertEquals(List.of("https://api\\.example\\.org/.*"), found.getTokenExchangeAllowedResources());
+        assertEquals(List.of("service-[0-9]+"), found.getTokenExchangeAllowedAudience());
+        assertEquals(List.of("urn:ietf:params:oauth:token-type:access_token"),
+                found.getTokenExchangeAllowedActorTokenTypes());
+        assertEquals(Map.of("service", List.of("api-.*", " backend ")),
+                found.getTokenExchangeRequiredActorTokenAttributes());
+        assertEquals(List.of("urn:ietf:params:oauth:token-type:access_token"),
+                found.getTokenExchangeAllowedTokenTypes());
     }
 
     @Test
@@ -204,6 +214,16 @@ public class ClientAppITCase extends AbstractITCase {
         oidcrpTO.setAuthorizationCodeTimeToLive("PT1M");
         oidcrpTO.getAudience().clear();
         oidcrpTO.getAudience().add("https://new-api.apache.org");
+        oidcrpTO.getTokenExchangeAllowedResources().clear();
+        oidcrpTO.getTokenExchangeAllowedResources().add("updated-0");
+        oidcrpTO.getTokenExchangeAllowedAudience().clear();
+        oidcrpTO.getTokenExchangeAllowedAudience().add("updated-1");
+        oidcrpTO.getTokenExchangeAllowedTokenTypes().clear();
+        oidcrpTO.getTokenExchangeAllowedTokenTypes().add("updated-2");
+        oidcrpTO.getTokenExchangeAllowedActorTokenTypes().clear();
+        oidcrpTO.getTokenExchangeAllowedActorTokenTypes().add("updated-actor");
+        oidcrpTO.getTokenExchangeRequiredActorTokenAttributes().clear();
+        oidcrpTO.getTokenExchangeRequiredActorTokenAttributes().put("other", List.of("new-.*"));
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, oidcrpTO);
         OIDCRPClientAppTO updated = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, oidcrpTO.getKey());
@@ -216,6 +236,53 @@ public class ClientAppITCase extends AbstractITCase {
         assertEquals("PT10M", updated.getIdTokenTimeToKill());
         assertEquals("PT1M", updated.getAuthorizationCodeTimeToLive());
         assertEquals(List.of("https://new-api.apache.org"), updated.getAudience());
+        assertEquals(List.of("updated-0"), updated.getTokenExchangeAllowedResources());
+        assertEquals(List.of("updated-1"), updated.getTokenExchangeAllowedAudience());
+        assertEquals(List.of("updated-2"), updated.getTokenExchangeAllowedTokenTypes());
+        assertEquals(List.of("updated-actor"), updated.getTokenExchangeAllowedActorTokenTypes());
+        assertEquals(Map.of("other", List.of("new-.*")), updated.getTokenExchangeRequiredActorTokenAttributes());
+
+        updated.getTokenExchangeAllowedActorTokenTypes().clear();
+        updated.getTokenExchangeRequiredActorTokenAttributes().clear();
+        CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, updated);
+        updated = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, updated.getKey());
+        assertTrue(updated.getTokenExchangeAllowedActorTokenTypes().isEmpty());
+        assertTrue(updated.getTokenExchangeRequiredActorTokenAttributes().isEmpty());
+    }
+
+    @Test
+    public void invalidActorTokenAttributes() {
+        OIDCRPClientAppTO original = createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
+        List<Map<String, List<String>>> invalid = List.of(
+                Map.of(" ", List.of(".*")), Map.of("service", List.of()),
+                Map.of("service", List.of(" ")), Map.of("service", List.of("[")));
+        for (Map<String, List<String>> attributes : invalid) {
+            OIDCRPClientAppTO update = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, original.getKey());
+            update.getTokenExchangeRequiredActorTokenAttributes().clear();
+            update.getTokenExchangeRequiredActorTokenAttributes().putAll(attributes);
+            SyncopeClientException error = assertThrows(SyncopeClientException.class,
+                    () -> CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, update));
+            assertEquals(ClientExceptionType.InvalidValues, error.getType());
+            OIDCRPClientAppTO unchanged = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, original.getKey());
+            assertEquals(original.getTokenExchangeRequiredActorTokenAttributes(),
+                    unchanged.getTokenExchangeRequiredActorTokenAttributes());
+        }
+    }
+
+    @Test
+    public void invalidActorTokenType() {
+        OIDCRPClientAppTO original = createClientApp(ClientAppType.OIDCRP, buildOIDCRP());
+        OIDCRPClientAppTO update = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, original.getKey());
+        update.getTokenExchangeAllowedActorTokenTypes().clear();
+        update.getTokenExchangeAllowedActorTokenTypes().add(" ");
+
+        SyncopeClientException error = assertThrows(SyncopeClientException.class,
+                () -> CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, update));
+        assertEquals(ClientExceptionType.InvalidValues, error.getType());
+
+        OIDCRPClientAppTO unchanged = CLIENT_APP_SERVICE.read(ClientAppType.OIDCRP, original.getKey());
+        assertEquals(original.getTokenExchangeAllowedActorTokenTypes(),
+                unchanged.getTokenExchangeAllowedActorTokenTypes());
     }
 
     @Test

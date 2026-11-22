@@ -24,9 +24,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.List;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.junit.jupiter.api.Test;
 
 public class SerializationTest {
@@ -51,5 +53,23 @@ public class SerializationTest {
 
         AccessPolicyTO actual = MAPPER.readValue(writer.toString(), AccessPolicyTO.class);
         assertEquals(policy, actual);
+    }
+
+    @Test
+    public void oidcTokenExchangePolicy() throws IOException {
+        OIDCRPClientAppTO client = new OIDCRPClientAppTO();
+        client.getTokenExchangeAllowedResources().add("https://api\\.example/.*");
+        client.getTokenExchangeAllowedAudience().add("service-[0-9]+");
+        client.getTokenExchangeAllowedTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        client.getTokenExchangeAllowedActorTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        client.getTokenExchangeRequiredActorTokenAttributes().put("service", List.of("api-.*", " backend "));
+
+        OIDCRPClientAppTO actual = MAPPER.readValue(MAPPER.writeValueAsString(client), OIDCRPClientAppTO.class);
+        assertEquals(client.getTokenExchangeAllowedResources(), actual.getTokenExchangeAllowedResources());
+        assertEquals(client.getTokenExchangeAllowedAudience(), actual.getTokenExchangeAllowedAudience());
+        assertEquals(client.getTokenExchangeAllowedTokenTypes(), actual.getTokenExchangeAllowedTokenTypes());
+        assertEquals(client.getTokenExchangeAllowedActorTokenTypes(), actual.getTokenExchangeAllowedActorTokenTypes());
+        assertEquals(client.getTokenExchangeRequiredActorTokenAttributes(),
+                actual.getTokenExchangeRequiredActorTokenAttributes());
     }
 }

@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.client.console.clientapps;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -28,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -91,6 +97,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.validation.IValidatable;
+import org.apache.wicket.validation.IValidator;
+import org.apache.wicket.validation.ValidationError;
 import org.apache.wicket.validation.validator.UrlValidator;
 
 public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractModalPanelBuilder<T> {
@@ -527,6 +536,35 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "audience")).build(
                             "field", "audience", audience));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedResources =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedResources", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedResources")).build(
+                            "field", "tokenExchangeAllowedResources", tokenExchangeAllowedResources));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedAudience =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedAudience", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedAudience")).build(
+                            "field", "tokenExchangeAllowedAudience", tokenExchangeAllowedAudience));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedTokenTypes =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedTokenTypes", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedTokenTypes")).build(
+                            "field", "tokenExchangeAllowedTokenTypes", tokenExchangeAllowedTokenTypes));
+
+                    AjaxTextFieldPanel actorTokenTypes =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedActorTokenTypes", Model.of());
+                    actorTokenTypes.setRequired(true);
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedActorTokenTypes")).build(
+                            "field", "tokenExchangeAllowedActorTokenTypes", actorTokenTypes));
+
+                    ActorTokenAttributesModel actorAttributesModel = new ActorTokenAttributesModel(
+                            ((OIDCRPClientAppTO) clientAppTO).getTokenExchangeRequiredActorTokenAttributes());
+                    fields.add(new ActorTokenAttributesPanel("field", actorAttributesModel));
                     break;
 
                 case SAML2SP:
@@ -787,4 +825,89 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
+
+    static class ActorTokenAttributesPanel extends AjaxTextFieldPanel {
+
+        private static final long serialVersionUID = 56794821903485937L;
+
+        ActorTokenAttributesPanel(final String id, final ActorTokenAttributesModel model) {
+            super(id, "tokenExchangeRequiredActorTokenAttributes", model, false);
+            addValidator(model);
+        }
+
+        @Override
+        protected AjaxTextFieldPanel setHTMLInputNotAllowed() {
+            // JSON is validated as data; regular expressions may contain '<'.
+            return this;
+        }
+    }
+
+    static class ActorTokenAttributesModel implements IModel<String>, IValidator<String> {
+
+        private static final long serialVersionUID = -6624847712115504157L;
+
+        private static final JsonMapper MAPPER = JsonMapper.builder().
+                enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
+                enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS).build();
+
+        private final Map<String, List<String>> attributes;
+
+        ActorTokenAttributesModel(final Map<String, List<String>> attributes) {
+            this.attributes = attributes;
+        }
+
+        @Override
+        public String getObject() {
+            return MAPPER.valueToTree(attributes).toString();
+        }
+
+        @Override
+        public void setObject(final String object) {
+            Map<String, List<String>> parsed = parse(object);
+            attributes.clear();
+            attributes.putAll(parsed);
+        }
+
+        @Override
+        public void validate(final IValidatable<String> validatable) {
+            try {
+                parse(validatable.getValue());
+            } catch (IllegalArgumentException e) {
+                validatable.error(new ValidationError().
+                        addKey("tokenExchangeRequiredActorTokenAttributes.invalid"));
+            }
+        }
+
+        private Map<String, List<String>> parse(final String value) {
+            Map<String, List<String>> parsed = new LinkedHashMap<>();
+            if (StringUtils.isBlank(value)) {
+                return parsed;
+            }
+            try {
+                JsonNode root = MAPPER.readTree(value);
+                if (!root.isObject()) {
+                    throw new IllegalArgumentException("Expected an object of actor token attributes");
+                }
+                root.properties().forEach(entry -> {
+                    JsonNode expressions = entry.getValue();
+                    if (StringUtils.isBlank(entry.getKey()) || !expressions.isArray() || expressions.isEmpty()) {
+                        throw new IllegalArgumentException("Expected an attribute name and expressions");
+                    }
+                    List<String> patterns = new ArrayList<>();
+                    expressions.forEach(expression -> {
+                        if (!expression.isTextual() || StringUtils.isBlank(expression.textValue())) {
+                            throw new IllegalArgumentException("Expected a non-blank expression");
+                        }
+                        Pattern.compile(expression.textValue());
+                        patterns.add(expression.textValue());
+                    });
+                    parsed.put(entry.getKey(), patterns);
+                });
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("Invalid actor token attributes JSON", e);
+            }
+            return parsed;
+        }
+    }
+
 }

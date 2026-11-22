@@ -31,7 +31,10 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
@@ -51,6 +54,10 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     private static final long serialVersionUID = 7422422526695279794L;
 
     public static final String TABLE = "OIDCRPClientApp";
+
+    protected static final TypeReference<Map<String, List<String>>> ACTOR_ATTRIBUTES_TYPEREF =
+            new TypeReference<Map<String, List<String>>>() {
+    };
 
     protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
     };
@@ -168,6 +175,36 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Transient
     private Set<String> audienceSet = new HashSet<>();
+
+    @Lob
+    private String tokenExchangeAllowedResources;
+
+    @Transient
+    private Set<String> tokenExchangeAllowedResourcesSet = new HashSet<>();
+
+    @Lob
+    private String tokenExchangeAllowedAudience;
+
+    @Transient
+    private Set<String> tokenExchangeAllowedAudienceSet = new HashSet<>();
+
+    @Lob
+    private String tokenExchangeAllowedTokenTypes;
+
+    @Transient
+    private Set<String> tokenExchangeAllowedTokenTypesSet = new HashSet<>();
+
+    @Lob
+    private String tokenExchangeAllowedActorTokenTypes;
+
+    @Transient
+    private Set<String> tokenExchangeAllowedActorTokenTypesSet = new HashSet<>();
+
+    @Lob
+    private String tokenExchangeRequiredActorTokenAttributes;
+
+    @Transient
+    private Map<String, List<String>> tokenExchangeRequiredActorTokenAttributesMap = new HashMap<>();
 
     @Override
     public Set<String> getRedirectUris() {
@@ -496,12 +533,42 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         return audienceSet;
     }
 
+    @Override
+    public Set<String> getTokenExchangeAllowedResources() {
+        return tokenExchangeAllowedResourcesSet;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedAudience() {
+        return tokenExchangeAllowedAudienceSet;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedTokenTypes() {
+        return tokenExchangeAllowedTokenTypesSet;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedActorTokenTypes() {
+        return tokenExchangeAllowedActorTokenTypesSet;
+    }
+
+    @Override
+    public Map<String, List<String>> getTokenExchangeRequiredActorTokenAttributes() {
+        return tokenExchangeRequiredActorTokenAttributesMap;
+    }
+
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
             getRedirectUris().clear();
             getSupportedGrantTypes().clear();
             getSupportedResponseTypes().clear();
             getAudience().clear();
+            getTokenExchangeAllowedResources().clear();
+            getTokenExchangeAllowedAudience().clear();
+            getTokenExchangeAllowedTokenTypes().clear();
+            getTokenExchangeAllowedActorTokenTypes().clear();
+            getTokenExchangeRequiredActorTokenAttributes().clear();
         }
         if (redirectUris != null) {
             getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
@@ -517,6 +584,26 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         }
         if (audience != null) {
             getAudience().addAll(POJOHelper.deserialize(audience, STRING_TYPEREF));
+        }
+        if (tokenExchangeAllowedResources != null) {
+            getTokenExchangeAllowedResources().addAll(
+                    POJOHelper.deserialize(tokenExchangeAllowedResources, STRING_TYPEREF));
+        }
+        if (tokenExchangeAllowedAudience != null) {
+            getTokenExchangeAllowedAudience().addAll(
+                    POJOHelper.deserialize(tokenExchangeAllowedAudience, STRING_TYPEREF));
+        }
+        if (tokenExchangeAllowedTokenTypes != null) {
+            getTokenExchangeAllowedTokenTypes().addAll(
+                    POJOHelper.deserialize(tokenExchangeAllowedTokenTypes, STRING_TYPEREF));
+        }
+        if (tokenExchangeAllowedActorTokenTypes != null) {
+            getTokenExchangeAllowedActorTokenTypes().addAll(
+                    POJOHelper.deserialize(tokenExchangeAllowedActorTokenTypes, STRING_TYPEREF));
+        }
+        if (tokenExchangeRequiredActorTokenAttributes != null) {
+            getTokenExchangeRequiredActorTokenAttributes().putAll(
+                    POJOHelper.deserialize(tokenExchangeRequiredActorTokenAttributes, ACTOR_ATTRIBUTES_TYPEREF));
         }
     }
 
@@ -539,5 +626,11 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
         scopes = POJOHelper.serialize(getScopes());
         audience = POJOHelper.serialize(getAudience());
+        tokenExchangeAllowedResources = POJOHelper.serialize(getTokenExchangeAllowedResources());
+        tokenExchangeAllowedAudience = POJOHelper.serialize(getTokenExchangeAllowedAudience());
+        tokenExchangeAllowedTokenTypes = POJOHelper.serialize(getTokenExchangeAllowedTokenTypes());
+        tokenExchangeAllowedActorTokenTypes = POJOHelper.serialize(getTokenExchangeAllowedActorTokenTypes());
+        tokenExchangeRequiredActorTokenAttributes =
+                POJOHelper.serialize(getTokenExchangeRequiredActorTokenAttributes());
     }
 }

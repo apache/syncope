@@ -21,7 +21,9 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -103,6 +105,16 @@ public class OIDCRPClientAppTO extends ClientAppTO {
     private String authorizationCodeTimeToLive;
 
     private final List<String> audience = new ArrayList<>();
+
+    private final List<String> tokenExchangeAllowedResources = new ArrayList<>();
+
+    private final List<String> tokenExchangeAllowedAudience = new ArrayList<>();
+
+    private final List<String> tokenExchangeAllowedTokenTypes = new ArrayList<>();
+
+    private final List<String> tokenExchangeAllowedActorTokenTypes = new ArrayList<>();
+
+    private final Map<String, List<String>> tokenExchangeRequiredActorTokenAttributes = new HashMap<>();
 
     private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod =
             OIDCClientAuthenticationMethod.client_secret_basic;
@@ -378,6 +390,26 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         return audience;
     }
 
+    public List<String> getTokenExchangeAllowedResources() {
+        return tokenExchangeAllowedResources;
+    }
+
+    public List<String> getTokenExchangeAllowedAudience() {
+        return tokenExchangeAllowedAudience;
+    }
+
+    public List<String> getTokenExchangeAllowedTokenTypes() {
+        return tokenExchangeAllowedTokenTypes;
+    }
+
+    public List<String> getTokenExchangeAllowedActorTokenTypes() {
+        return tokenExchangeAllowedActorTokenTypes;
+    }
+
+    public Map<String, List<String>> getTokenExchangeRequiredActorTokenAttributes() {
+        return tokenExchangeRequiredActorTokenAttributes;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -427,6 +459,11 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.idTokenTimeToKill, rhs.idTokenTimeToKill)
                 .append(this.authorizationCodeTimeToLive, rhs.authorizationCodeTimeToLive)
                 .append(this.audience, rhs.audience)
+                .append(this.tokenExchangeAllowedResources, rhs.tokenExchangeAllowedResources)
+                .append(this.tokenExchangeAllowedAudience, rhs.tokenExchangeAllowedAudience)
+                .append(this.tokenExchangeAllowedTokenTypes, rhs.tokenExchangeAllowedTokenTypes)
+                .append(this.tokenExchangeAllowedActorTokenTypes, rhs.tokenExchangeAllowedActorTokenTypes)
+                .append(this.tokenExchangeRequiredActorTokenAttributes, rhs.tokenExchangeRequiredActorTokenAttributes)
                 .isEquals();
     }
 
@@ -469,6 +506,11 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(idTokenTimeToKill)
                 .append(authorizationCodeTimeToLive)
                 .append(audience)
+                .append(tokenExchangeAllowedResources)
+                .append(tokenExchangeAllowedAudience)
+                .append(tokenExchangeAllowedTokenTypes)
+                .append(tokenExchangeAllowedActorTokenTypes)
+                .append(tokenExchangeRequiredActorTokenAttributes)
                 .toHashCode();
     }
 }
