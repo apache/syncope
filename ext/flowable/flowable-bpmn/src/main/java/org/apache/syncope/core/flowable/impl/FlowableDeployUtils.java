@@ -127,7 +127,7 @@ public final class FlowableDeployUtils {
     private static void checkAttributes(final XMLStreamReader xtr) {
         Set<String> unqualifiedAttributes = BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getNamespaceURI())
                 ? FLOWABLE_ELEMENT_ATTRIBUTES.get(xtr.getLocalName())
-                : Set.of();
+                : null;
 
         for (int i = 0; i < xtr.getAttributeCount(); i++) {
             String attributeNamespace = xtr.getAttributeNamespace(i);
@@ -138,7 +138,9 @@ public final class FlowableDeployUtils {
                 if (FLOWABLE_EXPRESSION_ATTRIBUTES.contains(attributeName)) {
                     checkExpression(xtr.getAttributeValue(i), reference);
                 }
-            } else if (StringUtils.isBlank(attributeNamespace) && unqualifiedAttributes.contains(attributeName)) {
+            } else if (StringUtils.isBlank(attributeNamespace)
+                    && (unqualifiedAttributes != null && unqualifiedAttributes.contains(attributeName))) {
+
                 checkExpression(xtr.getAttributeValue(i), reference);
             }
         }
