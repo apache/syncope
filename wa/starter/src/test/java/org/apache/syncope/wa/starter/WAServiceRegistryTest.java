@@ -19,7 +19,9 @@
 package org.apache.syncope.wa.starter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
@@ -48,6 +50,7 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
@@ -57,6 +60,7 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceLogoutType;
 import org.apereo.cas.services.ServicesManager;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthTokenExchangePolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
 import org.junit.jupiter.api.Test;
@@ -83,6 +87,11 @@ public class WAServiceRegistryTest extends AbstractTest {
         oidcrpTO.setIdTokenTimeToKill("PT5M");
         oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
         oidcrpTO.getAudience().add("https://api.example.org");
+        oidcrpTO.getTokenExchangeAllowedResources().add("https://api\\.example\\.org/.*");
+        oidcrpTO.getTokenExchangeAllowedAudience().add("service-[0-9]+");
+        oidcrpTO.getTokenExchangeAllowedTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        oidcrpTO.getTokenExchangeAllowedActorTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        oidcrpTO.getTokenExchangeRequiredActorTokenAttributes().put("service", List.of("api-.*", " backend "));
 
         return oidcrpTO;
     }
@@ -191,6 +200,19 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals("PT30S", oidc.getCodeExpirationPolicy().getTimeToLive());
         assertEquals(1, oidc.getCodeExpirationPolicy().getNumberOfUses());
         assertEquals(Set.of("https://api.example.org"), oidc.getAudience());
+        assertNotNull(oidc.getTokenExchangePolicy());
+        DefaultRegisteredServiceOAuthTokenExchangePolicy actorPolicy =
+                (DefaultRegisteredServiceOAuthTokenExchangePolicy) oidc.getTokenExchangePolicy();
+        assertEquals(Set.copyOf(oidcrpto.getTokenExchangeAllowedActorTokenTypes()),
+                actorPolicy.getAllowedActorTokenTypes());
+        assertEquals(oidcrpto.getTokenExchangeRequiredActorTokenAttributes(),
+                actorPolicy.getRequiredActorTokenAttributes());
+        DefaultRegisteredServiceOAuthTokenExchangePolicy tokenExchangePolicy =
+                (DefaultRegisteredServiceOAuthTokenExchangePolicy) oidc.getTokenExchangePolicy();
+        assertEquals(Set.of("https://api\\.example\\.org/.*"), tokenExchangePolicy.getAllowedResources());
+        assertEquals(Set.of("service-[0-9]+"), tokenExchangePolicy.getAllowedAudience());
+        assertEquals(Set.of("urn:ietf:params:oauth:token-type:access_token"),
+                tokenExchangePolicy.getAllowedTokenTypes());
         assertTrue(oidc.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());
@@ -235,6 +257,81 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
+    }
+
+    @Test
+    public void actorOnlyTokenExchangePolicy() {
+        OIDCRPClientAppTO rp = buildOIDCRP();
+        rp.getTokenExchangeAllowedResources().clear();
+        rp.getTokenExchangeAllowedAudience().clear();
+        rp.getTokenExchangeAllowedTokenTypes().clear();
+        WAClientApp app = new WAClientApp();
+        app.setClientAppTO(rp);
+        OIDCRPClientAppTOMapper mapper = new OIDCRPClientAppTOMapper();
+        for (int i = 0; i < 2; i++) {
+            if (i == 1) {
+                rp.getTokenExchangeAllowedActorTokenTypes().clear();
+            }
+            OidcRegisteredService mapped = (OidcRegisteredService) mapper.map(
+                    app, null, null, null, null, null, null, null, null);
+            DefaultRegisteredServiceOAuthTokenExchangePolicy policy =
+                    (DefaultRegisteredServiceOAuthTokenExchangePolicy) mapped.getTokenExchangePolicy();
+            assertNotNull(policy);
+            assertNull(policy.getAllowedResources());
+            assertNull(policy.getAllowedAudience());
+            assertNull(policy.getAllowedTokenTypes());
+            assertEquals(rp.getTokenExchangeRequiredActorTokenAttributes(), policy.getRequiredActorTokenAttributes());
+            if (i == 0) {
+                assertEquals(Set.copyOf(rp.getTokenExchangeAllowedActorTokenTypes()),
+                        policy.getAllowedActorTokenTypes());
+            } else {
+                assertNull(policy.getAllowedActorTokenTypes());
+            }
+            assertFalse(mapped.getSupportedGrantTypes().contains(OIDCGrantType.token_exchange.getExternalForm()));
+        }
+        rp.getTokenExchangeRequiredActorTokenAttributes().clear();
+        rp.getTokenExchangeAllowedActorTokenTypes().add("actor-type");
+        OidcRegisteredService mapped = (OidcRegisteredService) mapper.map(
+                app, null, null, null, null, null, null, null, null);
+        DefaultRegisteredServiceOAuthTokenExchangePolicy policy =
+                (DefaultRegisteredServiceOAuthTokenExchangePolicy) mapped.getTokenExchangePolicy();
+        assertEquals(Set.of("actor-type"), policy.getAllowedActorTokenTypes());
+        assertNull(policy.getRequiredActorTokenAttributes());
+
+        rp.getSupportedGrantTypes().add(OIDCGrantType.token_exchange);
+        rp.getTokenExchangeAllowedActorTokenTypes().clear();
+        rp.getTokenExchangeAllowedActorTokenTypes().add(" ");
+        mapped = (OidcRegisteredService) mapper.map(app, null, null, null, null, null, null, null, null);
+        policy = (DefaultRegisteredServiceOAuthTokenExchangePolicy) mapped.getTokenExchangePolicy();
+        assertNotNull(policy);
+        assertTrue(policy.getAllowedActorTokenTypes().isEmpty());
+
+        rp.getTokenExchangeAllowedActorTokenTypes().clear();
+        mapped = (OidcRegisteredService) mapper.map(app, null, null, null, null, null, null, null, null);
+        assertNull(mapped.getTokenExchangePolicy());
+        assertTrue(mapped.getSupportedGrantTypes().contains(OIDCGrantType.token_exchange.getExternalForm()));
+    }
+
+    @Test
+    public void tokenExchangePolicyWithoutActorConstraints() {
+        OIDCRPClientAppTO rp = buildOIDCRP();
+        rp.getSupportedGrantTypes().add(OIDCGrantType.token_exchange);
+        rp.getTokenExchangeAllowedActorTokenTypes().clear();
+        rp.getTokenExchangeRequiredActorTokenAttributes().clear();
+        WAClientApp app = new WAClientApp();
+        app.setClientAppTO(rp);
+
+        OidcRegisteredService mapped = (OidcRegisteredService) new OIDCRPClientAppTOMapper().map(
+                app, null, null, null, null, null, null, null, null);
+        DefaultRegisteredServiceOAuthTokenExchangePolicy policy =
+                (DefaultRegisteredServiceOAuthTokenExchangePolicy) mapped.getTokenExchangePolicy();
+        assertNotNull(policy);
+        assertEquals(Set.copyOf(rp.getTokenExchangeAllowedResources()), policy.getAllowedResources());
+        assertEquals(Set.copyOf(rp.getTokenExchangeAllowedAudience()), policy.getAllowedAudience());
+        assertEquals(Set.copyOf(rp.getTokenExchangeAllowedTokenTypes()), policy.getAllowedTokenTypes());
+        assertNull(policy.getAllowedActorTokenTypes());
+        assertNull(policy.getRequiredActorTokenAttributes());
+        assertTrue(mapped.getSupportedGrantTypes().contains(OIDCGrantType.token_exchange.getExternalForm()));
     }
 
     @Test

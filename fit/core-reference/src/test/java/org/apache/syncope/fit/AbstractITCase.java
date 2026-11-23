@@ -1001,6 +1001,11 @@ public abstract class AbstractITCase {
         oidcrpTO.setIdTokenTimeToKill("PT5M");
         oidcrpTO.setAuthorizationCodeTimeToLive("PT30S");
         oidcrpTO.getAudience().add("https://api.apache.org");
+        oidcrpTO.getTokenExchangeAllowedResources().add("https://api\\.example\\.org/.*");
+        oidcrpTO.getTokenExchangeAllowedAudience().add("service-[0-9]+");
+        oidcrpTO.getTokenExchangeAllowedTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        oidcrpTO.getTokenExchangeAllowedActorTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        oidcrpTO.getTokenExchangeRequiredActorTokenAttributes().put("service", List.of("api-.*", " backend "));
         return oidcrpTO;
     }
 

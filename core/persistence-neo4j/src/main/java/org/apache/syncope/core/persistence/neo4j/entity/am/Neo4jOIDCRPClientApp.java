@@ -19,7 +19,10 @@
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -33,6 +36,7 @@ import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.neo4j.converters.OIDCGrantTypeSetConverter;
 import org.apache.syncope.core.persistence.neo4j.converters.OIDCResponseTypeSetConverter;
+import org.apache.syncope.core.persistence.neo4j.converters.String2ListOfStringMapConverter;
 import org.apache.syncope.core.persistence.neo4j.converters.StringSetConverter;
 import org.springframework.data.neo4j.core.convert.ConvertWith;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -121,6 +125,21 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     @ConvertWith(converter = StringSetConverter.class)
     private Set<String> audience = new HashSet<>();
+
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> tokenExchangeAllowedResources = new HashSet<>();
+
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> tokenExchangeAllowedAudience = new HashSet<>();
+
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> tokenExchangeAllowedTokenTypes = new HashSet<>();
+
+    @ConvertWith(converter = StringSetConverter.class)
+    private Set<String> tokenExchangeAllowedActorTokenTypes = new HashSet<>();
+
+    @ConvertWith(converter = String2ListOfStringMapConverter.class)
+    private Map<String, List<String>> tokenExchangeRequiredActorTokenAttributes = new HashMap<>();
 
     @Override
     public Set<String> getRedirectUris() {
@@ -457,5 +476,30 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public Set<String> getAudience() {
         return audience;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedResources() {
+        return tokenExchangeAllowedResources;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedAudience() {
+        return tokenExchangeAllowedAudience;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedTokenTypes() {
+        return tokenExchangeAllowedTokenTypes;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedActorTokenTypes() {
+        return tokenExchangeAllowedActorTokenTypes;
+    }
+
+    @Override
+    public Map<String, List<String>> getTokenExchangeRequiredActorTokenAttributes() {
+        return tokenExchangeRequiredActorTokenAttributes;
     }
 }

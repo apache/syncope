@@ -45,6 +45,7 @@ import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthAccess
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthCodeExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthDeviceTokenExpirationPolicy;
 import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthRefreshTokenExpirationPolicy;
+import org.apereo.cas.support.oauth.services.DefaultRegisteredServiceOAuthTokenExchangePolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -133,6 +134,41 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                 filter(StringUtils::isNotBlank).collect(Collectors.toSet());
         if (!audience.isEmpty()) {
             service.setAudience(audience);
+        }
+
+        Set<String> tokenExchangeAllowedResources = rp.getTokenExchangeAllowedResources().stream().
+                filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        Set<String> tokenExchangeAllowedAudience = rp.getTokenExchangeAllowedAudience().stream().
+                filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        Set<String> tokenExchangeAllowedTokenTypes = rp.getTokenExchangeAllowedTokenTypes().stream().
+                filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        Set<String> tokenExchangeAllowedActorTokenTypes = rp.getTokenExchangeAllowedActorTokenTypes().stream().
+                filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        if (!tokenExchangeAllowedResources.isEmpty()
+                || !tokenExchangeAllowedAudience.isEmpty()
+                || !tokenExchangeAllowedTokenTypes.isEmpty()
+                || !rp.getTokenExchangeAllowedActorTokenTypes().isEmpty()
+                || !rp.getTokenExchangeRequiredActorTokenAttributes().isEmpty()) {
+
+            DefaultRegisteredServiceOAuthTokenExchangePolicy policy =
+                    new DefaultRegisteredServiceOAuthTokenExchangePolicy();
+            if (!tokenExchangeAllowedResources.isEmpty()) {
+                policy.setAllowedResources(tokenExchangeAllowedResources);
+            }
+            if (!tokenExchangeAllowedAudience.isEmpty()) {
+                policy.setAllowedAudience(tokenExchangeAllowedAudience);
+            }
+            if (!tokenExchangeAllowedTokenTypes.isEmpty()) {
+                policy.setAllowedTokenTypes(tokenExchangeAllowedTokenTypes);
+            }
+            if (!rp.getTokenExchangeAllowedActorTokenTypes().isEmpty()) {
+                // A previously stored blank-only list must still deny all actor token types.
+                policy.setAllowedActorTokenTypes(tokenExchangeAllowedActorTokenTypes);
+            }
+            if (!rp.getTokenExchangeRequiredActorTokenAttributes().isEmpty()) {
+                policy.setRequiredActorTokenAttributes(rp.getTokenExchangeRequiredActorTokenAttributes());
+            }
+            service.setTokenExchangePolicy(policy);
         }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
