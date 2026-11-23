@@ -21,7 +21,6 @@ package org.apache.syncope.core.flowable.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,43 +67,6 @@ public final class FlowableDeployUtils {
             BpmnXMLConstants.ATTRIBUTE_TIMER_DURATION,
             BpmnXMLConstants.ATTRIBUTE_TIMER_CYCLE);
 
-    /**
-     * Attributes in the Flowable extensions namespace carrying (UEL) expressions.
-     */
-    private static final Set<String> FLOWABLE_EXPRESSION_ATTRIBUTES = Set.of(
-            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_DELEGATEEXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_SKIP_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_MESSAGE_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_SIGNAL_EXPRESSION);
-
-    private static final Set<String> LISTENER_ATTRIBUTES = Set.of(
-            BpmnXMLConstants.ATTRIBUTE_LISTENER_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_LISTENER_DELEGATEEXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_LISTENER_CUSTOM_PROPERTIES_RESOLVER_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_LISTENER_CUSTOM_PROPERTIES_RESOLVER_DELEGATEEXPRESSION);
-
-    private static final Set<String> IO_ATTRIBUTES = Set.of(
-            BpmnXMLConstants.ATTRIBUTE_IOPARAMETER_SOURCE_EXPRESSION,
-            BpmnXMLConstants.ATTRIBUTE_IOPARAMETER_TARGET_EXPRESSION);
-
-    /**
-     * Unqualified attributes carrying (UEL) expressions, keyed by the Flowable extension element they belong to.
-     */
-    private static final Map<String, Set<String>> FLOWABLE_ELEMENT_ATTRIBUTES = Map.of(
-            BpmnXMLConstants.ELEMENT_EXECUTION_LISTENER, LISTENER_ATTRIBUTES,
-            BpmnXMLConstants.ELEMENT_TASK_LISTENER, LISTENER_ATTRIBUTES,
-            BpmnXMLConstants.ELEMENT_EVENT_LISTENER, LISTENER_ATTRIBUTES,
-            BpmnXMLConstants.ELEMENT_FIELD, Set.of(BpmnXMLConstants.ATTRIBUTE_FIELD_EXPRESSION),
-            BpmnXMLConstants.ELEMENT_FORMPROPERTY, Set.of(
-                    BpmnXMLConstants.ATTRIBUTE_FORM_EXPRESSION, BpmnXMLConstants.ATTRIBUTE_FORM_DEFAULT),
-            BpmnXMLConstants.ELEMENT_IN_PARAMETERS, IO_ATTRIBUTES,
-            BpmnXMLConstants.ELEMENT_OUT_PARAMETERS, IO_ATTRIBUTES,
-            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_COLLECTION, Set.of(
-                    BpmnXMLConstants.ATTRIBUTE_MULTIINSTANCE_COLLECTION_DELEGATEEXPRESSION),
-            BpmnXMLConstants.ELEMENT_VARIABLE_AGGREGATION, IO_ATTRIBUTES,
-            BpmnXMLConstants.ATTRIBUTE_VARIABLE_AGGREGATION_VARIABLE, IO_ATTRIBUTES);
-
     private static final Pattern UEL_SEGMENT = Pattern.compile("\\$\\{.*?}", Pattern.DOTALL);
 
     private static void checkExpression(final String expression, final String reference) {
@@ -125,23 +87,14 @@ public final class FlowableDeployUtils {
     }
 
     private static void checkAttributes(final XMLStreamReader xtr) {
-        Set<String> unqualifiedAttributes = BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getNamespaceURI())
-                ? FLOWABLE_ELEMENT_ATTRIBUTES.get(xtr.getLocalName())
-                : null;
-
         for (int i = 0; i < xtr.getAttributeCount(); i++) {
-            String attributeNamespace = xtr.getAttributeNamespace(i);
-            String attributeName = xtr.getAttributeLocalName(i);
-            String reference = xtr.getLocalName() + "/@" + attributeName;
+            String attributeValue = xtr.getAttributeValue(i);
+            if (StringUtils.isBlank(attributeValue)) {
+                continue;
+            }
 
-            if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(attributeNamespace)) {
-                if (FLOWABLE_EXPRESSION_ATTRIBUTES.contains(attributeName)) {
-                    checkExpression(xtr.getAttributeValue(i), reference);
-                }
-            } else if (StringUtils.isBlank(attributeNamespace)
-                    && (unqualifiedAttributes != null && unqualifiedAttributes.contains(attributeName))) {
-
-                checkExpression(xtr.getAttributeValue(i), reference);
+            if (attributeValue.contains("${") || attributeValue.contains("#{")) {
+                checkFormalExpression(attributeValue, xtr.getLocalName() + "/@" + xtr.getAttributeLocalName(i));
             }
         }
     }
