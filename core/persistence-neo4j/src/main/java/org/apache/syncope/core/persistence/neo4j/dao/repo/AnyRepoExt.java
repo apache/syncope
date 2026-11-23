@@ -38,7 +38,7 @@ public interface AnyRepoExt<A extends Any> {
     String REGEX_CHARS = "{}[]()?+*.\"'";
 
     static String escapeForLikeRegex(final String input) {
-        String output = input;
+        String output = input.replace("\\", "\\\\");
         for (char toEscape : REGEX_CHARS.toCharArray()) {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
