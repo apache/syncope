@@ -23,7 +23,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.lang.model.SourceVersion;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -40,12 +43,8 @@ import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.Model;
 import org.flowable.engine.repository.ProcessDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class FlowableDeployUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FlowableDeployUtils.class);
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
@@ -56,36 +55,117 @@ public final class FlowableDeployUtils {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
-    private static boolean isInvalid(final byte[] xml) throws XMLStreamException, IOException {
+    /**
+     * Element texts that Flowable's BPMN converter reads as (UEL) expressions.
+     */
+    private static final Set<String> UEL_TEXT_ELEMENTS = Set.of(
+            BpmnXMLConstants.ELEMENT_FLOW_CONDITION,
+            BpmnXMLConstants.ELEMENT_CONDITION,
+            BpmnXMLConstants.ELEMENT_COMPLETION_CONDITION,
+            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_CARDINALITY,
+            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_DATAINPUT,
+            BpmnXMLConstants.ATTRIBUTE_TIMER_DATE,
+            BpmnXMLConstants.ATTRIBUTE_TIMER_DURATION,
+            BpmnXMLConstants.ATTRIBUTE_TIMER_CYCLE);
+
+    /**
+     * Attributes in the Flowable extensions namespace carrying (UEL) expressions.
+     */
+    private static final Set<String> FLOWABLE_EXPRESSION_ATTRIBUTES = Set.of(
+            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_DELEGATEEXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_SKIP_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_MESSAGE_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_SIGNAL_EXPRESSION);
+
+    private static final Set<String> LISTENER_ATTRIBUTES = Set.of(
+            BpmnXMLConstants.ATTRIBUTE_LISTENER_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_LISTENER_DELEGATEEXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_LISTENER_CUSTOM_PROPERTIES_RESOLVER_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_LISTENER_CUSTOM_PROPERTIES_RESOLVER_DELEGATEEXPRESSION);
+
+    private static final Set<String> IO_ATTRIBUTES = Set.of(
+            BpmnXMLConstants.ATTRIBUTE_IOPARAMETER_SOURCE_EXPRESSION,
+            BpmnXMLConstants.ATTRIBUTE_IOPARAMETER_TARGET_EXPRESSION);
+
+    /**
+     * Unqualified attributes carrying (UEL) expressions, keyed by the Flowable extension element they belong to.
+     */
+    private static final Map<String, Set<String>> FLOWABLE_ELEMENT_ATTRIBUTES = Map.of(
+            BpmnXMLConstants.ELEMENT_EXECUTION_LISTENER, LISTENER_ATTRIBUTES,
+            BpmnXMLConstants.ELEMENT_TASK_LISTENER, LISTENER_ATTRIBUTES,
+            BpmnXMLConstants.ELEMENT_EVENT_LISTENER, LISTENER_ATTRIBUTES,
+            BpmnXMLConstants.ELEMENT_FIELD, Set.of(BpmnXMLConstants.ATTRIBUTE_FIELD_EXPRESSION),
+            BpmnXMLConstants.ELEMENT_FORMPROPERTY, Set.of(
+                    BpmnXMLConstants.ATTRIBUTE_FORM_EXPRESSION, BpmnXMLConstants.ATTRIBUTE_FORM_DEFAULT),
+            BpmnXMLConstants.ELEMENT_IN_PARAMETERS, IO_ATTRIBUTES,
+            BpmnXMLConstants.ELEMENT_OUT_PARAMETERS, IO_ATTRIBUTES,
+            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_COLLECTION, Set.of(
+                    BpmnXMLConstants.ATTRIBUTE_MULTIINSTANCE_COLLECTION_DELEGATEEXPRESSION),
+            BpmnXMLConstants.ELEMENT_VARIABLE_AGGREGATION, IO_ATTRIBUTES,
+            BpmnXMLConstants.ATTRIBUTE_VARIABLE_AGGREGATION_VARIABLE, IO_ATTRIBUTES);
+
+    private static final Pattern UEL_SEGMENT = Pattern.compile("\\$\\{.*?}", Pattern.DOTALL);
+
+    private static void checkExpression(final String expression, final String reference) {
+        if (!UELSandbox.isAllowed(expression)) {
+            throw new WorkflowException("UEL expression not allowed in " + reference + ": " + expression);
+        }
+    }
+
+    /**
+     * A formalExpression can be a plain assignment (e.g. {@code group(admin)}) as well as a UEL expression;
+     * only the embedded {@code ${...}} segments are validated.
+     */
+    private static void checkFormalExpression(final String text, final String reference) {
+        Matcher matcher = UEL_SEGMENT.matcher(text);
+        while (matcher.find()) {
+            checkExpression(matcher.group(), reference);
+        }
+    }
+
+    private static void checkAttributes(final XMLStreamReader xtr) {
+        Set<String> unqualifiedAttributes = BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getNamespaceURI())
+                ? FLOWABLE_ELEMENT_ATTRIBUTES.get(xtr.getLocalName())
+                : Set.of();
+
+        for (int i = 0; i < xtr.getAttributeCount(); i++) {
+            String attributeNamespace = xtr.getAttributeNamespace(i);
+            String attributeName = xtr.getAttributeLocalName(i);
+            String reference = xtr.getLocalName() + "/@" + attributeName;
+
+            if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(attributeNamespace)) {
+                if (FLOWABLE_EXPRESSION_ATTRIBUTES.contains(attributeName)) {
+                    checkExpression(xtr.getAttributeValue(i), reference);
+                }
+            } else if (StringUtils.isBlank(attributeNamespace) && unqualifiedAttributes.contains(attributeName)) {
+                checkExpression(xtr.getAttributeValue(i), reference);
+            }
+        }
+    }
+
+    static void checkDefinition(final byte[] xml) throws XMLStreamException, IOException {
         try (ByteArrayInputStream in = new ByteArrayInputStream(xml)) {
             XMLStreamReader xtr = XML_INPUT_FACTORY.createXMLStreamReader(in);
             try {
                 while (xtr.hasNext()) {
-                    if (xtr.next() == XMLStreamConstants.START_ELEMENT) {
-                        for (int i = 0; i < xtr.getAttributeCount(); i++) {
-                            if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getAttributeNamespace(i))) {
-                                switch (xtr.getAttributeLocalName(i)) {
-                                    case BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_EXPRESSION -> {
-                                        LOG.error("expression not allowed");
-                                        return true;
-                                    }
+                    if (xtr.next() != XMLStreamConstants.START_ELEMENT) {
+                        continue;
+                    }
 
-                                    case BpmnXMLConstants.ATTRIBUTE_TASK_SERVICE_DELEGATEEXPRESSION -> {
-                                        String name = StringUtils.substringBetween(xtr.getAttributeValue(i), "${", "}");
-                                        if (!SourceVersion.isIdentifier(name) || SourceVersion.isKeyword(name)) {
-                                            LOG.error("delegateExpression shall contain only Spring Beans name");
-                                            return true;
-                                        }
-                                    }
+                    checkAttributes(xtr);
 
-                                    default -> {
-                                    }
-                                }
-                            }
+                    String localName = xtr.getLocalName();
+                    if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getNamespaceURI())) {
+                        if (BpmnXMLConstants.ATTRIBUTE_LISTENER_EXPRESSION.equals(localName)) {
+                            checkExpression(xtr.getElementText(), localName);
                         }
+                    } else if (UEL_TEXT_ELEMENTS.contains(localName)) {
+                        checkExpression(xtr.getElementText(), localName);
+                    } else if (BpmnXMLConstants.ELEMENT_FORMAL_EXPRESSION.equals(localName)) {
+                        checkFormalExpression(xtr.getElementText(), localName);
                     }
                 }
-                return false;
             } finally {
                 xtr.close();
             }
@@ -96,9 +176,7 @@ public final class FlowableDeployUtils {
             final ProcessEngine engine, final String resourceName, final byte[] definition) {
 
         try {
-            if (isInvalid(definition)) {
-                throw new WorkflowException("The provided XML definition contains elements not allowed");
-            }
+            checkDefinition(definition);
         } catch (IOException | XMLStreamException e) {
             throw new WorkflowException("While checking " + resourceName, e);
         }

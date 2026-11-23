@@ -32,7 +32,7 @@ under the License.
   <groupId>org.apache.syncope.ext.flowable</groupId>
   <artifactId>syncope-ext-flowable-bpmn</artifactId>
   <packaging>jar</packaging>
-  
+
   <properties>
     <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
@@ -69,6 +69,18 @@ under the License.
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-workflow-java</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <!-- TEST -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
