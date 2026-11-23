@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
@@ -53,6 +56,11 @@ public class OIDCRPTest extends AbstractClientAppTest {
         rp.setSubjectType(OIDCSubjectType.PUBLIC);
         rp.getSupportedGrantTypes().add(OIDCGrantType.password);
         rp.getSupportedResponseTypes().add(OIDCResponseType.CODE);
+        rp.getTokenExchangeAllowedResources().add("https://api\\.example\\.org/.*");
+        rp.getTokenExchangeAllowedAudience().add("service-[0-9]+");
+        rp.getTokenExchangeAllowedTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        rp.getTokenExchangeAllowedActorTokenTypes().add("actor-type");
+        rp.getTokenExchangeRequiredActorTokenAttributes().put("service", List.of("api-.*", " backend "));
 
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         rp.setAccessPolicy(accessPolicy);
@@ -70,6 +78,12 @@ public class OIDCRPTest extends AbstractClientAppTest {
 
         rp = oidcrpDAO.findByClientId("clientid").orElseThrow();
         assertNotNull(rp.getAuthPolicy());
+        assertEquals(Set.of("actor-type"), rp.getTokenExchangeAllowedActorTokenTypes());
+        assertEquals(Map.of("service", List.of("api-.*", " backend ")),
+                rp.getTokenExchangeRequiredActorTokenAttributes());
+        assertEquals(Set.of("https://api\\.example\\.org/.*"), rp.getTokenExchangeAllowedResources());
+        assertEquals(Set.of("service-[0-9]+"), rp.getTokenExchangeAllowedAudience());
+        assertEquals(Set.of("urn:ietf:params:oauth:token-type:access_token"), rp.getTokenExchangeAllowedTokenTypes());
 
         rp = oidcrpDAO.findByName("OIDC").orElseThrow();
 
