@@ -32,7 +32,7 @@ under the License.
   <groupId>org.apache.syncope.ext.flowable</groupId>
   <artifactId>syncope-ext-flowable-bpmn</artifactId>
   <packaging>jar</packaging>
-  
+
   <properties>
     <rootpom.basedir>${basedir}/../../..</rootpom.basedir>
   </properties>
