@@ -119,7 +119,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -130,7 +130,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -142,7 +142,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -154,7 +154,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -166,7 +166,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -178,7 +178,7 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
@@ -190,7 +190,47 @@ class FlowableDeployUtilsTest {
 
         assertThrows(
                 WorkflowException.class,
-                () -> FlowableDeployUtils.deployDefinition(mock(ProcessEngine.class), "", bpmn.getBytes()));
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
+    }
+
+    @Test
+    void maliciousAssigneeRejected() {
+        String bpmn = bpmn(
+                "<userTask id=\"t\" flowable:assignee=\"" + MALICIOUS + "\"/>");
+
+        assertThrows(
+                WorkflowException.class,
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
+    }
+
+    @Test
+    void maliciousCandidateUsersRejected() {
+        String bpmn = bpmn(
+                "<userTask id=\"t\" flowable:candidateUsers=\"" + MALICIOUS + "\"/>");
+
+        assertThrows(
+                WorkflowException.class,
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
+    }
+
+    @Test
+    void maliciousCandidateGroupsRejected() {
+        String bpmn = bpmn(
+                "<userTask id=\"t\" flowable:candidateGroups=\"" + MALICIOUS + "\"/>");
+
+        assertThrows(
+                WorkflowException.class,
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
+    }
+
+    @Test
+    void maliciousDueDateRejected() {
+        String bpmn = bpmn(
+                "<userTask id=\"t\" flowable:dueDate=\"" + MALICIOUS + "\"/>");
+
+        assertThrows(
+                WorkflowException.class,
+                () -> FlowableDeployUtils.deployDefinition(mockEngine(), "", bpmn.getBytes()));
     }
 
     @Test
