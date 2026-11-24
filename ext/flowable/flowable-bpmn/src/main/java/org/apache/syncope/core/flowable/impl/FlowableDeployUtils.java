@@ -20,19 +20,11 @@ package org.apache.syncope.core.flowable.impl;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.flowable.bpmn.constants.BpmnXMLConstants;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.common.engine.api.FlowableException;
@@ -54,87 +46,8 @@ public final class FlowableDeployUtils {
         XML_INPUT_FACTORY.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
     }
 
-    /**
-     * Element texts that Flowable's BPMN converter reads as (UEL) expressions.
-     */
-    private static final Set<String> UEL_TEXT_ELEMENTS = Set.of(
-            BpmnXMLConstants.ELEMENT_FLOW_CONDITION,
-            BpmnXMLConstants.ELEMENT_CONDITION,
-            BpmnXMLConstants.ELEMENT_COMPLETION_CONDITION,
-            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_CARDINALITY,
-            BpmnXMLConstants.ELEMENT_MULTIINSTANCE_DATAINPUT,
-            BpmnXMLConstants.ATTRIBUTE_TIMER_DATE,
-            BpmnXMLConstants.ATTRIBUTE_TIMER_DURATION,
-            BpmnXMLConstants.ATTRIBUTE_TIMER_CYCLE);
-
-    private static final Pattern UEL_SEGMENT = Pattern.compile("\\$\\{.*?}", Pattern.DOTALL);
-
-    private static void checkExpression(final String expression, final String reference) {
-        if (!UELSandbox.isAllowed(expression)) {
-            throw new WorkflowException("UEL expression not allowed in " + reference + ": " + expression);
-        }
-    }
-
-    /**
-     * A formalExpression can be a plain assignment (e.g. {@code group(admin)}) as well as a UEL expression;
-     * only the embedded {@code ${...}} segments are validated.
-     */
-    private static void checkFormalExpression(final String text, final String reference) {
-        Matcher matcher = UEL_SEGMENT.matcher(text);
-        while (matcher.find()) {
-            checkExpression(matcher.group(), reference);
-        }
-    }
-
-    private static void checkAttributes(final XMLStreamReader xtr) {
-        for (int i = 0; i < xtr.getAttributeCount(); i++) {
-            String attributeValue = xtr.getAttributeValue(i);
-            if (StringUtils.isBlank(attributeValue)) {
-                continue;
-            }
-
-            if (attributeValue.contains("${") || attributeValue.contains("#{")) {
-                checkFormalExpression(attributeValue, xtr.getLocalName() + "/@" + xtr.getAttributeLocalName(i));
-            }
-        }
-    }
-
-    static void checkDefinition(final byte[] xml) throws XMLStreamException, IOException {
-        try (ByteArrayInputStream in = new ByteArrayInputStream(xml)) {
-            XMLStreamReader xtr = XML_INPUT_FACTORY.createXMLStreamReader(in);
-            try {
-                while (xtr.hasNext()) {
-                    if (xtr.next() != XMLStreamConstants.START_ELEMENT) {
-                        continue;
-                    }
-
-                    checkAttributes(xtr);
-
-                    String localName = xtr.getLocalName();
-                    if (BpmnXMLConstants.FLOWABLE_EXTENSIONS_NAMESPACE.equals(xtr.getNamespaceURI())) {
-                        if (BpmnXMLConstants.ATTRIBUTE_LISTENER_EXPRESSION.equals(localName)) {
-                            checkExpression(xtr.getElementText(), localName);
-                        }
-                    } else if (UEL_TEXT_ELEMENTS.contains(localName)) {
-                        checkExpression(xtr.getElementText(), localName);
-                    } else if (BpmnXMLConstants.ELEMENT_FORMAL_EXPRESSION.equals(localName)) {
-                        checkFormalExpression(xtr.getElementText(), localName);
-                    }
-                }
-            } finally {
-                xtr.close();
-            }
-        }
-    }
-
     public static Deployment deployDefinition(
             final ProcessEngine engine, final String resourceName, final byte[] definition) {
-
-        try {
-            checkDefinition(definition);
-        } catch (IOException | XMLStreamException e) {
-            throw new WorkflowException("While checking " + resourceName, e);
-        }
 
         try {
             return engine.getRepositoryService().createDeployment().addBytes(resourceName, definition).deploy();

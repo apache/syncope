@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.flowable.common.engine.impl.cfg.SpringBeanFactoryProxyMap;
 import org.flowable.engine.ProcessEngine;
-import org.flowable.engine.impl.el.ProcessExpressionManager;
 import org.flowable.engine.impl.util.EngineServiceUtil;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.spring.SpringProcessEngineConfiguration;
@@ -71,9 +70,8 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
         if (conf.getBeans() == null) {
             conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
         }
-        if (conf.getExpressionManager() == null) {
-            conf.setExpressionManager(new ProcessExpressionManager(conf.getBeans()));
-        }
+        // install a sandboxing BeanELResolver to prevent arbitrary method invocation (e.g. getClass()).
+        conf.setExpressionManager(new SandboxedProcessExpressionManager(new AllowedBeansMap(ctx)));
         if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
             SpringIdmEngineConfiguration spiec = ctx.getBean(SpringIdmEngineConfiguration.class);
             conf.addEngineConfiguration(spiec.getEngineCfgKey(), spiec.getEngineScopeType(), spiec);
