@@ -452,7 +452,7 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.3.8</elasticsearch.version>
-    <opensearch.version>3.10.0</opensearch.version>
+    <opensearch.version>3.10.1</opensearch.version>
     <opensearch-java.version>3.11.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
@@ -538,7 +538,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.14</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.15</jdbc.postgresql.version>
     <jdbc.mysql.version>26.10.0</jdbc.mysql.version>
     <jdbc.mariadb.version>4.0.0</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.4.0.0</jdbc.oracle.version>
@@ -940,7 +940,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.3.3</version>
+        <version>3.4.0</version>
       </dependency>
 
       <dependency>
@@ -2260,7 +2260,7 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.3.3/api/</link>
+            <link>https://tika.apache.org/3.4.0/api/</link>
             <link>https://docs.spring.io/spring-boot/3.5/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/6.5.x/api/</link>
