@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -42,6 +43,8 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
     protected final ApplicationEventPublisher publisher;
+
+    protected final AccessTokenManager accessTokenManager;
 
     protected final AnyMatchDAO anyMatchDAO;
 
@@ -55,6 +58,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
     public RoleRepoExtImpl(
             final ApplicationEventPublisher publisher,
+            final AccessTokenManager accessTokenManager,
             final AnyMatchDAO anyMatchDAO,
             final AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
@@ -65,6 +69,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
         super(neo4jTemplate, neo4jClient);
         this.publisher = publisher;
+        this.accessTokenManager = accessTokenManager;
         this.anyMatchDAO = anyMatchDAO;
         this.anySearchDAO = anySearchDAO;
         this.delegationDAO = delegationDAO;
@@ -86,6 +91,11 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
     public Role save(final Role role) {
         Role saved = neo4jTemplate.save(nodeValidator.validate(role));
         cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jRole) saved);
+
+        List<Neo4jUser> members = findByRelationship(
+                Neo4jUser.NODE, Neo4jRole.NODE, saved.getKey(), Neo4jUser.ROLE_MEMBERSHIP_REL, Neo4jUser.class, null);
+        members.forEach(user -> accessTokenManager.evict(user.getUsername()));
+
         return saved;
     }
 
@@ -96,13 +106,15 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
     @Override
     public void delete(final Role role) {
-        List<Neo4jUser> users = findByRelationship(
+        List<Neo4jUser> members = findByRelationship(
                 Neo4jUser.NODE, Neo4jRole.NODE, role.getKey(), Neo4jUser.ROLE_MEMBERSHIP_REL, Neo4jUser.class, null);
 
-        users.forEach(user -> {
+        members.forEach(user -> {
             user.getRoles().remove(role);
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
+
+            accessTokenManager.evict(user.getUsername());
         });
 
         delegationDAO.findByRoles(role).forEach(delegation -> delegation.getRoles().remove(role));

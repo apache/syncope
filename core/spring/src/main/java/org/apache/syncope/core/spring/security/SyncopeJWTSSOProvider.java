@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -45,6 +46,12 @@ import tools.jackson.core.type.TypeReference;
  */
 public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
+    public static boolean isSinglePurpose(final Set<SyncopeGrantedAuthority> authorities) {
+        return authorities.stream().
+                anyMatch(authority -> IdRepoEntitlement.MFA_ENROLL.equals(authority.getAuthority())
+                        || IdRepoEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority()));
+    }
+
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
 
     protected final SecurityProperties securityProperties;
@@ -57,18 +64,26 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     protected final AccessTokenDAO accessTokenDAO;
 
+    protected final AccessTokenManager accessTokenManager;
+
+    protected final AuthDataAccessor authDataAccessor;
+
     public SyncopeJWTSSOProvider(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier delegate,
             final UserDAO userDAO,
-            final AccessTokenDAO accessTokenDAO) {
+            final AccessTokenDAO accessTokenDAO,
+            final AccessTokenManager accessTokenManager,
+            final AuthDataAccessor authDataAccessorProvider) {
 
         this.securityProperties = securityProperties;
         this.encryptorManager = encryptorManager;
         this.delegate = delegate;
         this.userDAO = userDAO;
         this.accessTokenDAO = accessTokenDAO;
+        this.accessTokenManager = accessTokenManager;
+        this.authDataAccessor = authDataAccessorProvider;
     }
 
     @Override
@@ -106,10 +121,10 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
             throw new AuthenticationCredentialsNotFoundException("Access Token owner does not match JWT subject");
         }
 
-        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+        Set<SyncopeGrantedAuthority> stored = new HashSet<>();
         if (accessToken.getAuthorities() != null) {
             try {
-                authorities.addAll(POJOHelper.deserialize(
+                stored.addAll(POJOHelper.deserialize(
                         encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
                         new TypeReference<>() {
                 }));
@@ -118,6 +133,19 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
             }
         }
 
-        return userDAO.findByUsername(jwtClaims.getSubject()).map(user -> new ResolvedClaims(user, authorities));
+        return userDAO.findByUsername(jwtClaims.getSubject()).map(user -> {
+            // Never trust the snapshot stored in the token: always resolve the authorities from the current
+            // user state, with a short-lived cache to avoid hitting the database on every single request.
+            // Single-purpose authorities (MFA enrollment, must-change-password) must be preserved, though.
+            Set<SyncopeGrantedAuthority> authorities = isSinglePurpose(stored)
+                    ? stored
+                    : accessTokenManager.getAuthorities(
+                            AuthContextUtils.getDomain(),
+                            user.getUsername(),
+                            null,
+                            () -> authDataAccessor.getAuthorities(user.getUsername(), null));
+
+            return new ResolvedClaims(user, authorities);
+        });
     }
 }

@@ -62,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,7 +90,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             final OutboundMatcher outboundMatcher,
             final AnySearchCondVisitor searchCondVisitor,
             final PlainAttrValidationManager validator,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -108,7 +110,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                 intAttrNameParser,
                 outboundMatcher,
                 validator,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
 
         this.searchCondVisitor = searchCondVisitor;
     }
@@ -151,8 +154,8 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                     group.add(typeExt);
 
                     typeExtTO.getAuxClasses().forEach(name -> anyTypeClassDAO.findById(name).ifPresentOrElse(
-                    typeExt::add,
-                    () -> LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name)));
+                            typeExt::add,
+                            () -> LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name)));
 
                     if (typeExt.getAuxClasses().isEmpty()) {
                         group.getTypeExtensions().remove(typeExt);
@@ -285,10 +288,10 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             // relationships
             groupTO.getRelationships().addAll(group.getRelationships().stream().
                     map(relationship -> getRelationshipTO(group.getPlainAttrs(relationship),
-                    derAttrHandler.getValues(group, relationship),
-                    relationship.getType().getKey(),
-                    RelationshipTO.End.LEFT,
-                    relationship.getRightEnd())).toList());
+                            derAttrHandler.getValues(group, relationship),
+                            relationship.getType().getKey(),
+                            RelationshipTO.End.LEFT,
+                            relationship.getRightEnd())).toList());
         }
 
         return groupTO;

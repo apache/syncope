@@ -31,7 +31,6 @@ import javax.cache.configuration.MutableConfiguration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.throttle.PasswordResetThrottleException;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
@@ -81,7 +81,7 @@ class UserSelfLogicPasswordResetTest {
                 mock(EncryptorManager.class),
                 confParamOps,
                 mock(DelegationDAO.class),
-                mock(AccessTokenDAO.class),
+                mock(AccessTokenManager.class),
                 mock(ExternalResourceDAO.class),
                 mock(RuleProvider.class),
                 securityProperties,

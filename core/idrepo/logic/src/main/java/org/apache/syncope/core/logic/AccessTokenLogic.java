@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -33,7 +34,10 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
+import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,28 +52,31 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     protected final AccessTokenDAO accessTokenDAO;
 
+    protected final AuthDataAccessor authDataAccessor;
+
     public AccessTokenLogic(
             final SecurityProperties securityProperties,
             final EncryptorManager encryptorManager,
             final AccessTokenDataBinder binder,
-            final AccessTokenDAO accessTokenDAO) {
+            final AccessTokenDAO accessTokenDAO,
+            final AuthDataAccessor authDataAccessor) {
 
         this.securityProperties = securityProperties;
         this.encryptorManager = encryptorManager;
         this.binder = binder;
         this.accessTokenDAO = accessTokenDAO;
+        this.authDataAccessor = authDataAccessor;
     }
 
-    protected String getAuthorities() {
-        String authorities = null;
+    protected String getAuthorities(final Set<SyncopeGrantedAuthority> authorities) {
+        String encoded = null;
         try {
-            authorities = encryptorManager.getInstance().
-                    encode(POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES);
+            encoded = encryptorManager.getInstance().encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES);
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }
 
-        return authorities;
+        return encoded;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -84,16 +91,25 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
                 Optional.empty(),
                 AuthContextUtils.getUsername(),
                 Map.of(),
-                getAuthorities(),
+                getAuthorities(AuthContextUtils.getAuthorities()),
                 false);
     }
 
     @PreAuthorize("isAuthenticated()")
     public AccessTokenDataBinder.AccessTokenInfo refresh() {
-        AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
-                orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
+        String username = AuthContextUtils.getUsername();
+        AccessToken accessToken = accessTokenDAO.findByOwner(username).
+                orElseThrow(() -> new NotFoundException("AccessToken for " + username));
 
-        return binder.update(accessToken, getAuthorities());
+        Set<SyncopeGrantedAuthority> authorities = AuthContextUtils.getAuthorities();
+
+        // Never recycle the snapshot carried by the current token: recompute authorities from the current
+        // user state, unless the session is intentionally limited to a single purpose.
+        if (!SyncopeJWTSSOProvider.isSinglePurpose(authorities)) {
+            authorities = authDataAccessor.getAuthorities(username, null);
+        }
+
+        return binder.update(accessToken, getAuthorities(authorities));
     }
 
     @PreAuthorize("isAuthenticated()")

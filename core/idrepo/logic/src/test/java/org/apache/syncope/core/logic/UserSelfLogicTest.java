@@ -50,7 +50,6 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -66,6 +65,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
 import org.junit.jupiter.api.AfterEach;
@@ -88,7 +88,7 @@ class UserSelfLogicTest {
 
     private DelegationDAO delegationDAO;
 
-    private AccessTokenDAO accessTokenDAO;
+    private AccessTokenManager accessTokenManager;
 
     private ExternalResourceDAO resourceDAO;
 
@@ -108,7 +108,7 @@ class UserSelfLogicTest {
         provisioningManager = mock(UserProvisioningManager.class);
         confParamOps = mock(ConfParamOps.class);
         delegationDAO = mock(DelegationDAO.class);
-        accessTokenDAO = mock(AccessTokenDAO.class);
+        accessTokenManager = mock(AccessTokenManager.class);
         resourceDAO = mock(ExternalResourceDAO.class);
         ruleProvider = mock(RuleProvider.class);
         securityProperties = new SecurityProperties();
@@ -127,7 +127,7 @@ class UserSelfLogicTest {
                 mock(EncryptorManager.class),
                 confParamOps,
                 delegationDAO,
-                accessTokenDAO,
+                accessTokenManager,
                 resourceDAO,
                 ruleProvider,
                 securityProperties,
@@ -178,7 +178,7 @@ class UserSelfLogicTest {
 
         logic.update(userUR, false);
 
-        verify(accessTokenDAO).deleteByOwner("user");
+        verify(accessTokenManager).invalidate("user");
     }
 
     @Test
@@ -210,7 +210,7 @@ class UserSelfLogicTest {
 
         logic.update(userUR, false);
 
-        verify(accessTokenDAO, never()).deleteByOwner(any());
+        verify(accessTokenManager, never()).invalidate(any());
     }
 
     @Test
@@ -286,7 +286,7 @@ class UserSelfLogicTest {
 
         logic.mustChangePassword(password, false);
 
-        verify(accessTokenDAO).deleteByOwner("user");
+        verify(accessTokenManager).invalidate("user");
     }
 
     @Test

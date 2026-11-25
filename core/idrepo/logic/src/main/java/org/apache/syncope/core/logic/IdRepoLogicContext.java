@@ -101,6 +101,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
@@ -158,9 +160,10 @@ public class IdRepoLogicContext {
             final AccessTokenDataBinder binder,
             final AccessTokenDAO accessTokenDAO,
             final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final AuthDataAccessor authDataAccessor) {
 
-        return new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO);
+        return new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO, authDataAccessor);
     }
 
     @ConditionalOnMissingBean
@@ -247,9 +250,10 @@ public class IdRepoLogicContext {
     public DelegationLogic delegationLogic(
             final DelegationDataBinder binder,
             final UserDAO userDAO,
-            final DelegationDAO delegationDAO) {
+            final DelegationDAO delegationDAO,
+            final AccessTokenManager accessTokenManager) {
 
-        return new DelegationLogic(binder, delegationDAO, userDAO);
+        return new DelegationLogic(binder, delegationDAO, userDAO, accessTokenManager);
     }
 
     @ConditionalOnMissingBean
@@ -525,7 +529,7 @@ public class IdRepoLogicContext {
             final EncryptorManager encryptorManager,
             final ConfParamOps confParamOps,
             final DelegationDAO delegationDAO,
-            final AccessTokenDAO accessTokenDAO,
+            final AccessTokenManager accessTokenManager,
             final ExternalResourceDAO resourceDAO,
             final RuleProvider ruleProvider,
             final SecurityProperties securityProperties,
@@ -542,7 +546,7 @@ public class IdRepoLogicContext {
                 encryptorManager,
                 confParamOps,
                 delegationDAO,
-                accessTokenDAO,
+                accessTokenManager,
                 resourceDAO,
                 ruleProvider,
                 securityProperties,
