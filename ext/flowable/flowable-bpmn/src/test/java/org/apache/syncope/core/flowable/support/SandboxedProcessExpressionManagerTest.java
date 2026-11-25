@@ -28,7 +28,9 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -83,6 +85,14 @@ class SandboxedProcessExpressionManagerTest {
         }
     }
 
+    /**
+     * JUEL treats backslashes inside string literals as escape characters, so Windows paths must be
+     * normalised before being embedded in an expression.
+     */
+    private static String juelPath(final Path path) {
+        return path.toString().replace('\\', '/');
+    }
+
     @TempDir
     private Path tempDir;
 
@@ -97,7 +107,7 @@ class SandboxedProcessExpressionManagerTest {
     void blocksBracketNotationPayload() {
         Path target = tempDir.resolve("bracket-notation");
         String expression = "${''['getClass']()['forName']('java.lang.Runtime')"
-                + "['getMethod']('getRuntime')['invoke'](null)['exec']('touch " + target + "') != null}";
+                + "['getMethod']('getRuntime')['invoke'](null)['exec']('touch " + juelPath(target) + "') != null}";
 
         FlowableException ex = assertThrows(FlowableException.class,
                 () -> evaluate(expression, VariableContainer.empty()));
@@ -109,7 +119,7 @@ class SandboxedProcessExpressionManagerTest {
     void blocksDotNotationPayload() {
         Path target = tempDir.resolve("dot-notation");
         String expression = "${''.getClass().forName('java.lang.Runtime')"
-                + ".getMethod('getRuntime').invoke(null).exec('touch " + target + "') != null}";
+                + ".getMethod('getRuntime').invoke(null).exec('touch " + juelPath(target) + "') != null}";
 
         FlowableException ex = assertThrows(FlowableException.class,
                 () -> evaluate(expression, VariableContainer.empty()));
@@ -121,7 +131,7 @@ class SandboxedProcessExpressionManagerTest {
     void blocksHashNotationPayload() {
         Path target = tempDir.resolve("hash-notation");
         String expression = "#{\"\".getClass().forName(\"java.lang.Runtime\")"
-                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch " + target + "\").toString()}";
+                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch " + juelPath(target) + "\").toString()}";
 
         FlowableException ex = assertThrows(FlowableException.class,
                 () -> evaluate(expression, VariableContainer.empty()));
@@ -133,7 +143,7 @@ class SandboxedProcessExpressionManagerTest {
     void blocksPayloadWithClosingBraceInStringLiteral() {
         Path target = tempDir.resolve("closing-brace");
         String expression = "${'}'.concat(\"\".getClass().forName(\"java.lang.Runtime\")"
-                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch " + target + "\").toString())}";
+                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch " + juelPath(target) + "\").toString())}";
 
         FlowableException ex = assertThrows(FlowableException.class,
                 () -> evaluate(expression, VariableContainer.empty()));
@@ -145,7 +155,7 @@ class SandboxedProcessExpressionManagerTest {
     void blocksDoubleQuotedPayloadWithMultilineArgument() {
         Path target = tempDir.resolve("multiline");
         String expression = "${\"\".getClass().forName(\"java.lang.Runtime\")"
-                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch\n" + target + "\") != null}";
+                + ".getMethod(\"getRuntime\").invoke(null).exec(\"touch\n" + juelPath(target) + "\") != null}";
 
         FlowableException ex = assertThrows(FlowableException.class,
                 () -> evaluate(expression, VariableContainer.empty()));
@@ -179,8 +189,61 @@ class SandboxedProcessExpressionManagerTest {
 
     @Test
     void blocksNonWhitelistedMethod() {
-        assertThrows(FlowableException.class,
-                () -> evaluate("${'abc'.toUpperCase()}", VariableContainer.empty()));
+        TestVariableContainer variables = new TestVariableContainer(Map.of("obj", new Object()));
+
+        assertThrows(FlowableException.class, () -> evaluate("${obj.toString()}", variables));
+    }
+
+    @Test
+    void allowsStringAndCollectionMethods() {
+        UserTO userTO = new UserTO();
+        userTO.setUsername("admin");
+
+        TestVariableContainer variables = new TestVariableContainer(Map.of(
+                "userTO", userTO,
+                "list", new ArrayList<>(List.of("a", "b")),
+                "map", new HashMap<>(Map.of("k", "v"))));
+
+        assertEquals(5, ((Number) evaluate("${userTO.username.length()}", variables)).intValue());
+        assertEquals("ADMIN", evaluate("${userTO.username.toUpperCase()}", variables));
+        assertEquals(0, ((Number) evaluate("${userTO.plainAttrs.size()}", variables)).intValue());
+        assertEquals(2, ((Number) evaluate("${list.size()}", variables)).intValue());
+        assertEquals("a", evaluate("${list.get(0)}", variables));
+        assertEquals(1, ((Number) evaluate("${map.size()}", variables)).intValue());
+        assertEquals("v", evaluate("${map.get('k')}", variables));
+        assertEquals(Boolean.TRUE, evaluate("${map.containsKey('k')}", variables));
+    }
+
+    @Test
+    void blocksReflectionOnStringAndCollectionTypes() {
+        TestVariableContainer variables = new TestVariableContainer(Map.of(
+                "list", new ArrayList<>(List.of("a")),
+                "map", new HashMap<>(Map.of("k", "v"))));
+
+        for (String expression : List.of(
+                "${'abc'.getClass()}",
+                "${list.getClass()}",
+                "${map.getClass()}",
+                "${list.getClass().forName('java.lang.Runtime')}")) {
+
+            FlowableException ex = assertThrows(FlowableException.class,
+                    () -> evaluate(expression, variables), expression);
+            assertTrue(ex.getMessage().contains("Unknown method used in expression"), ex.getMessage());
+        }
+    }
+
+    @Test
+    void allowsPropertyAndMapKeyAccess() {
+        UserTO userTO = new UserTO();
+        userTO.setUsername("admin");
+
+        TestVariableContainer variables = new TestVariableContainer(Map.of(
+                "userTO", userTO,
+                "map", new HashMap<>(Map.of("k", "v"))));
+
+        assertEquals("admin", evaluate("${userTO.username}", variables));
+        assertTrue(evaluate("${userTO.plainAttrs}", variables) instanceof Set);
+        assertEquals("v", evaluate("${map['k']}", variables));
     }
 
     @Test
