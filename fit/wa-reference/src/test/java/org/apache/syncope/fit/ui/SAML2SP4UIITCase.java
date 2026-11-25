@@ -303,19 +303,20 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
     }
 
     @Override
-    protected void ssoMustChangePassword(final String username, final String password) throws IOException {
+    protected void ssoMustChangePassword(final String baseURL, final String username, final String password)
+            throws IOException {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpClientContext context = HttpClientContext.create();
             context.setCookieStore(new BasicCookieStore());
 
             // 1. fetch login page
-            HttpGet get = new HttpGet(CONSOLE_ADDRESS);
+            HttpGet get = new HttpGet(baseURL);
             try (CloseableHttpResponse response = httpclient.execute(get, context)) {
                 assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             }
 
             // 2. click on the SAML 2.0 IdP
-            get = new HttpGet(CONSOLE_ADDRESS + SAML2SP4UIConstants.URL_CONTEXT
+            get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
                     + "/login?idp=https%3A//localhost%3A9443/syncope-wa/saml");
             String responseBody;
             try (CloseableHttpResponse response = httpclient.execute(get, context)) {
@@ -411,8 +412,8 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
                 location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
             }
 
-            // 3. verify the error on the Console login page
-            get = new HttpGet(CONSOLE_ADDRESS + Strings.CS.removeStart(location, "../"));
+            // 3. verify the error on the login page
+            get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
             try (CloseableHttpResponse response = httpclient.execute(get, context)) {
                 assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));

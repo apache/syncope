@@ -367,19 +367,20 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
     }
 
     @Override
-    protected void ssoMustChangePassword(final String username, final String password) throws IOException {
+    protected void ssoMustChangePassword(final String baseURL, final String username, final String password)
+            throws IOException {
         try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
             HttpClientContext context = HttpClientContext.create();
             context.setCookieStore(new BasicCookieStore());
 
             // 1. fetch login page
-            HttpGet get = new HttpGet(CONSOLE_ADDRESS);
+            HttpGet get = new HttpGet(baseURL);
             CloseableHttpResponse response = httpclient.execute(get, context);
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
             // 2. click on the OpenID Connect Provider
-            get = new HttpGet(CONSOLE_ADDRESS + OIDCC4UIConstants.URL_CONTEXT
-                    + "/login?op=" + getAppName(CONSOLE_ADDRESS));
+            get = new HttpGet(baseURL + OIDCC4UIConstants.URL_CONTEXT
+                    + "/login?op=" + getAppName(baseURL));
             get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
             get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             response = httpclient.execute(get, context);
@@ -434,7 +435,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
             response = httpclient.execute(get, context);
 
-            // 3. verify the error on the Console login page
+            // 3. verify the error on the login page
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));
         }

@@ -154,10 +154,19 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         sso(ENDUSER_ADDRESS, "bellini", "password");
     }
 
-    protected abstract void ssoMustChangePassword(String username, String password) throws IOException;
+    protected abstract void ssoMustChangePassword(String baseURL, String username, String password) throws IOException;
 
     @Test
-    public void ssoMustChangePassword() throws IOException {
+    public void ssoConsoleMustChangePassword() throws IOException {
+        ssoMustChangePassword(CONSOLE_ADDRESS);
+    }
+
+    @Test
+    public void ssoEnduserMustChangePassword() throws IOException {
+        ssoMustChangePassword(ENDUSER_ADDRESS);
+    }
+
+    private void ssoMustChangePassword(final String baseURL) throws IOException {
         String username = "pullFromLDAP";
         String password = "Password123";
         UserTO userTO = null;
@@ -184,7 +193,7 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                 setMustChangePassword(userTO.getKey(), true);
             }
 
-            ssoMustChangePassword(username, password);
+            ssoMustChangePassword(baseURL, username, password);
         } finally {
             if (userKey != null) {
                 USER_SERVICE.delete(userKey).close();
