@@ -451,7 +451,7 @@ under the License.
     <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>9.5.6</elasticsearch.version>
-    <opensearch.version>3.10.0</opensearch.version>
+    <opensearch.version>3.10.1</opensearch.version>
     <opensearch-java.version>3.11.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
@@ -533,7 +533,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.14</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.15</jdbc.postgresql.version>
     <jdbc.mysql.version>26.10.0</jdbc.mysql.version>
     <jdbc.mariadb.version>4.0.0</jdbc.mariadb.version>
     <jdbc.oracle.version>23.26.4.0.0</jdbc.oracle.version>
