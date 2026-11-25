@@ -22,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -77,6 +80,12 @@ class SyncopeJWTSSOProviderTest {
     private AccessTokenDAO accessTokenDAO;
 
     @Mock
+    protected AccessTokenManager accessTokenManager;
+
+    @Mock
+    protected AuthDataAccessor authDataAccessor;
+
+    @Mock
     private AccessToken accessToken;
 
     @Mock
@@ -98,7 +107,13 @@ class SyncopeJWTSSOProviderTest {
         securityProperties.setJwtIssuer(ISSUER);
 
         provider = new SyncopeJWTSSOProvider(
-                securityProperties, encryptorManager, delegate, userDAO, accessTokenDAO);
+                securityProperties,
+                encryptorManager,
+                delegate,
+                userDAO,
+                accessTokenDAO,
+                accessTokenManager,
+                authDataAccessor);
     }
 
     private JWTClaimsSet claims(final String subject, final String jwtID) {
@@ -200,9 +215,14 @@ class SyncopeJWTSSOProviderTest {
         mockAccessToken(USERNAME);
         when(accessToken.getAuthorities()).thenReturn("encoded-authorities");
         when(encryptorManager.getInstance()).thenReturn(encryptor);
-        when(encryptor.decode("encoded-authorities", CipherAlgorithm.AES)).
-                thenReturn(POJOHelper.serialize(stored));
+        when(encryptor.decode("encoded-authorities", CipherAlgorithm.AES)).thenReturn(POJOHelper.serialize(stored));
         doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
+        when(user.getUsername()).thenReturn(USERNAME);
+        when(accessTokenManager.getAuthorities(
+                anyString(),
+                anyString(),
+                isNull(),
+                any())).thenReturn(stored);
 
         JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();
 

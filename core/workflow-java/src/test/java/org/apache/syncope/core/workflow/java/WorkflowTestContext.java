@@ -51,6 +51,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -70,6 +71,11 @@ import org.springframework.context.annotation.PropertySource;
 })
 @Configuration(proxyBeanMethods = false)
 public class WorkflowTestContext {
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
+    }
 
     @Bean
     public TestInitializer testInitializer(
@@ -165,8 +171,7 @@ public class WorkflowTestContext {
         return mock(ConnectorManager.class);
     }
 
-    @Bean
-    public CacheManager cacheManager() {
-        return Caching.getCachingProvider().getCacheManager();
+    public AuthDataAccessor authDataAccessor() {
+        return mock(AuthDataAccessor.class);
     }
 }

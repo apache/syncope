@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.neo4j;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
@@ -33,6 +35,7 @@ import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
@@ -106,6 +109,11 @@ public class PersistenceTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return new DummyConnectorManager();
+    }
+
+    @Bean
+    public AccessTokenManager accessTokenManager() {
+        return mock(AccessTokenManager.class);
     }
 
     @Bean

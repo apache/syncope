@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
@@ -146,7 +147,7 @@ class AttrRepoTest extends AbstractTest {
     @Test
     void saveWithSyncopeRepo() {
         SyncopeAttrRepoConf conf = new SyncopeAttrRepoConf();
-        conf.setDomain("Master");
+        conf.setDomain(SyncopeConstants.MASTER_DOMAIN);
 
         saveAttrRepo("SyncopeAttrRepoTest", conf);
     }

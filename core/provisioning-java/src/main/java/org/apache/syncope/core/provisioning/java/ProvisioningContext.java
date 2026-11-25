@@ -160,6 +160,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskSaver;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -726,7 +727,8 @@ public class ProvisioningContext {
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         return new AnyObjectDataBinderImpl(
                 anyTypeDAO,
@@ -746,7 +748,8 @@ public class ProvisioningContext {
                 intAttrNameParser,
                 outboundMatcher,
                 validator,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
     }
 
     @ConditionalOnMissingBean
@@ -764,19 +767,15 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyTypeDataBinder anyTypeDataBinder(
-            final EntityFactory entityFactory,
-            final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager,
+            final AccessTokenManager accessTokenManager,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final AccessTokenDAO accessTokenDAO) {
+            final EntityFactory entityFactory) {
 
         return new AnyTypeDataBinderImpl(
-                securityProperties,
-                encryptorManager,
+                accessTokenManager,
                 anyTypeDAO,
                 anyTypeClassDAO,
-                accessTokenDAO,
                 entityFactory);
     }
 
@@ -873,7 +872,8 @@ public class ProvisioningContext {
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         return new GroupDataBinderImpl(
                 anyTypeDAO,
@@ -894,7 +894,8 @@ public class ProvisioningContext {
                 outboundMatcher,
                 searchCondVisitor,
                 validator,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
     }
 
     @ConditionalOnMissingBean
@@ -1129,7 +1130,8 @@ public class ProvisioningContext {
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         return new UserDataBinderImpl(
                 anyTypeDAO,
@@ -1155,7 +1157,8 @@ public class ProvisioningContext {
                 delegationDAO,
                 confParamOps,
                 securityProperties,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
     }
 
     @ConditionalOnMissingBean

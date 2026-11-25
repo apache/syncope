@@ -35,10 +35,17 @@ import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
+import java.util.Set;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
@@ -48,12 +55,14 @@ import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -150,6 +159,28 @@ public class SecurityContext {
         return new AccessTokenJWSSigner(jwsAlgorithm, jwsKey(jwsAlgorithm, props));
     }
 
+    @ConditionalOnMissingBean(name = AccessTokenManager.CACHE)
+    @Bean(name = AccessTokenManager.CACHE)
+    public Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache(final CacheManager cacheManager) {
+        MutableConfiguration<String, Set<SyncopeGrantedAuthority>> config =
+                new MutableConfiguration<String, Set<SyncopeGrantedAuthority>>().
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE));
+
+        return cacheManager.createCache(AccessTokenManager.CACHE, config);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AccessTokenManager accessTokenManager(
+            final AccessTokenDAO accessTokenDAO,
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
+            @Qualifier(AccessTokenManager.CACHE)
+            final Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache) {
+
+        return new AccessTokenManager(accessTokenDAO, userDAO, groupDAO, authoritiesCache);
+    }
+
     @ConditionalOnMissingBean
     @Bean
     public SyncopeJWTSSOProvider syncopeJWTSSOProvider(
@@ -157,9 +188,18 @@ public class SecurityContext {
             final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier accessTokenJWSVerifier,
             final UserDAO userDAO,
-            final AccessTokenDAO accessTokenDAO) {
+            final AccessTokenDAO accessTokenDAO,
+            final AccessTokenManager accessTokenManager,
+            final @Lazy AuthDataAccessor authDataAccessor) {
 
-        return new SyncopeJWTSSOProvider(props, encryptorManager, accessTokenJWSVerifier, userDAO, accessTokenDAO);
+        return new SyncopeJWTSSOProvider(
+                props,
+                encryptorManager,
+                accessTokenJWSVerifier,
+                userDAO,
+                accessTokenDAO,
+                accessTokenManager,
+                authDataAccessor);
     }
 
     @ConditionalOnMissingBean

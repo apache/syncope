@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,8 @@ class DelegationLogicTest {
 
     private UserDAO userDAO;
 
+    private AccessTokenManager accessTokenManager;
+
     private DelegationLogic logic;
 
     @BeforeEach
@@ -60,7 +63,8 @@ class DelegationLogicTest {
         binder = mock(DelegationDataBinder.class);
         delegationDAO = mock(DelegationDAO.class);
         userDAO = mock(UserDAO.class);
-        logic = new DelegationLogic(binder, delegationDAO, userDAO);
+        accessTokenManager = mock(AccessTokenManager.class);
+        logic = new DelegationLogic(binder, delegationDAO, userDAO, accessTokenManager);
     }
 
     @AfterEach
@@ -125,6 +129,7 @@ class DelegationLogicTest {
         to.setDelegating(DELEGATING);
 
         Delegation delegation = mock(Delegation.class);
+        when(delegation.getDelegated()).thenAnswer(ic -> mock(User.class));
         when(binder.create(to)).thenReturn(delegation);
         when(delegationDAO.save(delegation)).thenReturn(delegation);
         when(binder.getDelegationTO(delegation)).thenReturn(to);
@@ -150,9 +155,10 @@ class DelegationLogicTest {
         to.setKey("key");
         to.setDelegating(DELEGATING);
 
-        Delegation delegation = mock(Delegation.class);
         User delegating = mock(User.class);
         when(delegating.getKey()).thenReturn(DELEGATING);
+        Delegation delegation = mock(Delegation.class);
+        when(delegation.getDelegated()).thenReturn(delegating);
         when(delegation.getDelegating()).thenReturn(delegating);
         doReturn(Optional.of(delegation)).when(delegationDAO).findById("key");
         when(binder.update(delegation, to)).thenReturn(delegation);
@@ -181,6 +187,7 @@ class DelegationLogicTest {
 
         when(delegating.getKey()).thenReturn(DELEGATING);
         when(delegation.getDelegating()).thenReturn(delegating);
+        when(delegation.getDelegated()).thenAnswer(ic -> mock(User.class));
         doReturn(Optional.of(delegation)).when(delegationDAO).findById("key");
         when(binder.getDelegationTO(delegation)).thenReturn(to);
 

@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,14 +46,18 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     protected final UserDAO userDAO;
 
+    protected final AccessTokenManager accessTokenManager;
+
     public DelegationLogic(
             final DelegationDataBinder binder,
             final DelegationDAO delegationDAO,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final AccessTokenManager accessTokenManager) {
 
         this.binder = binder;
         this.delegationDAO = delegationDAO;
         this.userDAO = userDAO;
+        this.accessTokenManager = accessTokenManager;
     }
 
     protected void securityChecks(final String delegating, final String entitlement) {
@@ -105,7 +110,9 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
         securityChecks(delegationTO.getDelegating(), IdRepoEntitlement.DELEGATION_CREATE);
 
-        return binder.getDelegationTO(delegationDAO.save(binder.create(delegationTO)));
+        Delegation delegation = delegationDAO.save(binder.create(delegationTO));
+        accessTokenManager.invalidate(delegation.getDelegated().getUsername());
+        return binder.getDelegationTO(delegation);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -115,7 +122,9 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
         securityChecks(delegation.getDelegating().getKey(), IdRepoEntitlement.DELEGATION_UPDATE);
 
-        return binder.getDelegationTO(delegationDAO.save(binder.update(delegation, delegationTO)));
+        Delegation updated = delegationDAO.save(binder.update(delegation, delegationTO));
+        accessTokenManager.invalidate(delegation.getDelegated().getUsername());
+        return binder.getDelegationTO(updated);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -126,6 +135,7 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         securityChecks(delegation.getDelegating().getKey(), IdRepoEntitlement.DELEGATION_DELETE);
 
         DelegationTO deleted = binder.getDelegationTO(delegation);
+        accessTokenManager.invalidate(delegation.getDelegated().getUsername());
         delegationDAO.deleteById(key);
         return deleted;
     }

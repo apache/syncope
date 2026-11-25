@@ -18,62 +18,43 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tools.jackson.core.type.TypeReference;
 
 public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeDataBinder.class);
 
-    protected final SecurityProperties securityProperties;
-
-    protected final EncryptorManager encryptorManager;
+    protected final AccessTokenManager accessTokenManager;
 
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    protected final AccessTokenDAO accessTokenDAO;
-
     protected final EntityFactory entityFactory;
 
     public AnyTypeDataBinderImpl(
-            final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager,
+            final AccessTokenManager accessTokenManager,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final AccessTokenDAO accessTokenDAO,
             final EntityFactory entityFactory) {
 
-        this.securityProperties = securityProperties;
-        this.encryptorManager = encryptorManager;
+        this.accessTokenManager = accessTokenManager;
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
-        this.accessTokenDAO = accessTokenDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -82,27 +63,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         AnyType anyType = entityFactory.newEntity(AnyType.class);
         update(anyType, anyTypeTO);
 
-        Set<String> added = EntitlementsHolder.getInstance().addFor(anyType.getKey());
+        EntitlementsHolder.getInstance().addFor(anyType.getKey());
 
-        if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
-            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
-                    orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
-            try {
-                Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
-                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
-                }));
-
-                added.forEach(e -> authorities.add(new SyncopeGrantedAuthority(e, SyncopeConstants.ROOT_REALM)));
-
-                accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
-
-                accessTokenDAO.save(accessToken);
-            } catch (Exception e) {
-                LOG.error("Could not fetch or store authorities", e);
-            }
-        }
+        accessTokenManager.evict(AuthContextUtils.getUsername());
 
         return anyType;
     }
@@ -133,29 +96,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         anyTypeDAO.deleteById(anyType.getKey());
 
-        Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
+        EntitlementsHolder.getInstance().removeFor(deleted.getKey());
 
-        if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
-            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
-                    orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
-            try {
-                Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        encryptorManager.getInstance().
-                                decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
-                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
-                }));
-
-                authorities.removeAll(authorities.stream().
-                        filter(authority -> removed.contains(authority.getAuthority())).toList());
-
-                accessToken.setAuthorities(encryptorManager.getInstance().
-                        encode(POJOHelper.serialize(authorities), CipherAlgorithm.AES));
-
-                accessTokenDAO.save(accessToken);
-            } catch (Exception e) {
-                LOG.error("Could not fetch or store authorities", e);
-            }
-        }
+        accessTokenManager.evict(AuthContextUtils.getUsername());
 
         return deleted;
     }

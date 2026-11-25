@@ -211,6 +211,7 @@ import org.apache.syncope.core.persistence.neo4j.spring.CacheCleaningTransaction
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.persistence.neo4j.spring.PlainAttrsConverter;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.neo4j.cypherdsl.core.renderer.Dialect;
 import org.neo4j.driver.Driver;
@@ -1317,6 +1318,7 @@ public class PersistenceContext {
     @Bean
     public RoleRepoExt roleRepoExt(
             final ApplicationEventPublisher publisher,
+            final AccessTokenManager accessTokenManager,
             final @Lazy AnyMatchDAO anyMatchDAO,
             final @Lazy AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
@@ -1327,6 +1329,7 @@ public class PersistenceContext {
 
         return new RoleRepoExtImpl(
                 publisher,
+                accessTokenManager,
                 anyMatchDAO,
                 anySearchDAO,
                 delegationDAO,

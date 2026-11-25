@@ -46,7 +46,7 @@ public class TemplateUtils {
     protected static void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
         template.getRelationships().stream().
                 filter(relationship -> any.getRelationship(
-                relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
+                        relationship.getOtherEndKey(), relationship.getOtherEndKey()).isEmpty()).
                 forEachOrdered(relationship -> any.getRelationships().add(relationship));
     }
 
@@ -74,7 +74,7 @@ public class TemplateUtils {
         templates.values().forEach(value -> {
             value.getPlainAttrs().stream().
                     filter(attr -> !attr.getValues().isEmpty()
-                    && !jexlTools.isExpressionValid(attr.getValues().getFirst())).
+                            && !jexlTools.isExpressionValid(attr.getValues().getFirst())).
                     forEach(attr -> sce.getElements().add("Invalid JEXL: " + attr.getValues().getFirst()));
 
             switch (value) {
@@ -166,7 +166,7 @@ public class TemplateUtils {
                 case AnyTO arm ->
                     arm.setuManager(uManager.getKey());
                 case AnyCR arm ->
-                    arm.setgManager(uManager.getKey());
+                    arm.setuManager(uManager.getKey());
                 default -> {
                 }
             }
@@ -174,7 +174,7 @@ public class TemplateUtils {
         Optional.ofNullable(template.getgManager()).flatMap(groupDAO::findById).ifPresent(gManager -> {
             switch (realmMember) {
                 case AnyTO arm ->
-                    arm.setuManager(gManager.getKey());
+                    arm.setgManager(gManager.getKey());
                 case AnyCR arm ->
                     arm.setgManager(gManager.getKey());
                 default -> {
@@ -246,12 +246,12 @@ public class TemplateUtils {
                 userTO.getLinkedAccounts().forEach(account -> {
                     if (realmMember instanceof UserTO urm && urm.getLinkedAccounts().stream().
                             noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
-                            && Objects.equals(account.getResource(), a.getResource()))) {
+                                    && Objects.equals(account.getResource(), a.getResource()))) {
 
                         urm.getLinkedAccounts().add(account);
                     } else if (realmMember instanceof UserCR urm && urm.getLinkedAccounts().stream().
                             noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
-                            && Objects.equals(account.getResource(), a.getResource()))) {
+                                    && Objects.equals(account.getResource(), a.getResource()))) {
 
                         urm.getLinkedAccounts().add(account);
                     }

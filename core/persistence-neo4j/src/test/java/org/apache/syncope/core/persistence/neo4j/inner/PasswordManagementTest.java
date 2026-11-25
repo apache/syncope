@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.password.JDBCPasswordManagementConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordManagementConf;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
@@ -97,7 +98,7 @@ class PasswordManagementTest extends AbstractTest {
     @Test
     void saveWithSyncopeModule() {
         SyncopePasswordManagementConf conf = new SyncopePasswordManagementConf();
-        conf.setDomain("Master");
+        conf.setDomain(SyncopeConstants.MASTER_DOMAIN);
 
         savePasswordManagement("SyncopePasswordManagementTest", conf);
     }

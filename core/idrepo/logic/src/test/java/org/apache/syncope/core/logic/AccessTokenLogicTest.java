@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,8 @@ class AccessTokenLogicTest {
 
     private AccessTokenDAO accessTokenDAO;
 
+    private AuthDataAccessor authDataAccessor;
+
     private AccessTokenLogic logic;
 
     @BeforeEach
@@ -66,8 +69,9 @@ class AccessTokenLogicTest {
         encryptorManager = mock(EncryptorManager.class);
         binder = mock(AccessTokenDataBinder.class);
         accessTokenDAO = mock(AccessTokenDAO.class);
+        authDataAccessor = mock(AuthDataAccessor.class);
 
-        logic = new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO);
+        logic = new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO, authDataAccessor);
     }
 
     @AfterEach
