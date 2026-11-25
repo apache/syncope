@@ -20,6 +20,8 @@ package org.apache.syncope.core.flowable.support;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +62,11 @@ public class SandboxingBeanELResolver extends BeanELResolver {
             UserCR.class, methodNames(UserCR.class),
             UserUR.class, methodNames(UserUR.class),
             UserTO.class, methodNames(UserTO.class),
-            FlowableWorkflowUtils.class, methodNames(FlowableWorkflowUtils.class));
+            FlowableWorkflowUtils.class, methodNames(FlowableWorkflowUtils.class),
+            String.class, methodNames(String.class),
+            Collection.class, methodNames(Collection.class),
+            List.class, methodNames(List.class),
+            Map.class, methodNames(Map.class));
 
     protected static final Set<Class<?>> FORBIDDEN_BASE_TYPES = Set.of(
             Class.class,

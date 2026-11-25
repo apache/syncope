@@ -27,6 +27,7 @@ import org.apache.syncope.core.flowable.impl.FlowableBpmnProcessManager;
 import org.apache.syncope.core.flowable.impl.FlowableUserRequestHandler;
 import org.apache.syncope.core.flowable.impl.FlowableUserWorkflowAdapter;
 import org.apache.syncope.core.flowable.impl.FlowableWorkflowUtils;
+import org.apache.syncope.core.flowable.support.ClassInstantiationDisablingBpmnParseHandler;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.flowable.support.DomainProcessEngineFactoryBean;
 import org.apache.syncope.core.flowable.support.ShellServiceTaskDisablingBpmnParseHandler;
@@ -161,7 +162,9 @@ public class FlowableWorkflowContext {
         conf.setCustomPreVariableTypes(List.of(syncopeEntitiesVariableType));
         conf.setFormHandlerHelper(syncopeFormHandlerHelper);
         conf.setIdGenerator(idGenerator);
-        conf.setPreBpmnParseHandlers(List.of(new ShellServiceTaskDisablingBpmnParseHandler()));
+        conf.setPreBpmnParseHandlers(List.of(
+                new ShellServiceTaskDisablingBpmnParseHandler(),
+                new ClassInstantiationDisablingBpmnParseHandler()));
 
         ScriptEngine groovyScriptEngine = new GroovySandboxScriptEngineImpl(groovyBlackList);
         groovyScriptEngine.getContext().

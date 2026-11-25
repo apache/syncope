@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.core.flowable.support;
 
+import java.util.Set;
 import org.flowable.bpmn.model.BaseElement;
+import org.flowable.bpmn.model.CaseServiceTask;
+import org.flowable.bpmn.model.ExternalWorkerServiceTask;
+import org.flowable.bpmn.model.FormAwareServiceTask;
+import org.flowable.bpmn.model.HttpServiceTask;
+import org.flowable.bpmn.model.SendEventServiceTask;
 import org.flowable.bpmn.model.ServiceTask;
 import org.flowable.engine.impl.bpmn.parser.BpmnParse;
 import org.flowable.engine.impl.bpmn.parser.handler.AbstractBpmnParseHandler;
@@ -31,8 +37,21 @@ public class ShellServiceTaskDisablingBpmnParseHandler extends AbstractBpmnParse
     }
 
     @Override
+    public Set<Class<? extends BaseElement>> getHandledTypes() {
+        // Flowable looks up parse handlers by exact element class, so all known ServiceTask subclasses need to be
+        // registered explicitly; otherwise flowable:type="shell" can be used on e.g. a FormAwareServiceTask.
+        return Set.of(
+                ServiceTask.class,
+                CaseServiceTask.class,
+                ExternalWorkerServiceTask.class,
+                FormAwareServiceTask.class,
+                HttpServiceTask.class,
+                SendEventServiceTask.class);
+    }
+
+    @Override
     protected void executeParse(final BpmnParse bpmnParse, final ServiceTask element) {
-        if (ServiceTask.SHELL_TASK.equals(element.getType())) {
+        if (ServiceTask.SHELL_TASK.equalsIgnoreCase(element.getType())) {
             throw new IllegalArgumentException("Shell Service Tasks are not allowed");
         }
     }
