@@ -245,7 +245,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                 getService(MfaService.class).enroll(mfa);
     }
 
-    private Optional<String> mustChangePassword(final ForbiddenException e) {
+    protected Optional<String> mustChangePassword(final ForbiddenException e) {
         return Optional.ofNullable(e.getResponse()).
                 flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
                 filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals);
