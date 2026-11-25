@@ -156,6 +156,11 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
     }
 
     @Override
+    public void ssoConsoleMustChangePassword() {
+        assumeFalse(true);
+    }
+
+    @Override
     public void passwordManagementConsole() {
         assumeFalse(true);
     }
