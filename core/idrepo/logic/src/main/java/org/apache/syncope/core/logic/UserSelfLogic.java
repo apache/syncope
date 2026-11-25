@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -65,6 +64,7 @@ import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
@@ -89,7 +89,7 @@ public class UserSelfLogic extends AbstractUserLogic {
 
     protected final DelegationDAO delegationDAO;
 
-    protected final AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenManager accessTokenManager;
 
     protected final ExternalResourceDAO resourceDAO;
 
@@ -107,7 +107,7 @@ public class UserSelfLogic extends AbstractUserLogic {
             final EncryptorManager encryptorManager,
             final ConfParamOps confParamOps,
             final DelegationDAO delegationDAO,
-            final AccessTokenDAO accessTokenDAO,
+            final AccessTokenManager accessTokenManager,
             final ExternalResourceDAO resourceDAO,
             final RuleProvider ruleProvider,
             final SecurityProperties securityProperties,
@@ -123,7 +123,7 @@ public class UserSelfLogic extends AbstractUserLogic {
                 confParamOps);
         this.securityProperties = securityProperties;
         this.delegationDAO = delegationDAO;
-        this.accessTokenDAO = accessTokenDAO;
+        this.accessTokenManager = accessTokenManager;
         this.resourceDAO = resourceDAO;
         this.ruleProvider = ruleProvider;
         this.passwordResetRequestThrottler = new PasswordResetRequestThrottler(
@@ -198,7 +198,7 @@ public class UserSelfLogic extends AbstractUserLogic {
                 AuthContextUtils.getDomain(), StandardConfParams.AUTHENTICATION_STATUSES, new String[] {},
                 String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            accessTokenDAO.findByOwner(updated.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
+            accessTokenManager.invalidate(updated.getEntity().getUsername());
         }
 
         return updated;
@@ -240,7 +240,7 @@ public class UserSelfLogic extends AbstractUserLogic {
                 build();
         ProvisioningResult<UserTO> result = update(userUR, nullPriorityAsync);
 
-        accessTokenDAO.findByOwner(result.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
+        accessTokenManager.invalidate(result.getEntity().getUsername());
 
         return result;
     }
@@ -352,5 +352,7 @@ public class UserSelfLogic extends AbstractUserLogic {
 
         provisioningManager.confirmPasswordReset(
                 user.getKey(), token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
+
+        accessTokenManager.invalidate(user.getUsername());
     }
 }

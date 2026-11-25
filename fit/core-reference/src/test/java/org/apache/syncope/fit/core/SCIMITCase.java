@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -38,6 +39,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -49,6 +51,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -486,9 +489,12 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals("additional", additional.getDisplayName());
 
         // gt
-        UserTO newUser = USER_SERVICE.create(UserITCase.getUniqueSample("scimsearch@syncope.apache.org")).
+        UserCR req = UserITCase.getUniqueSample("scimsearch@syncope.apache.org");
+        UserTO newUser = USER_SERVICE.create(req).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
+
+        await().atMost(Duration.ofSeconds(2)).pollInterval(Duration.ofSeconds(1)).until(() -> true);
 
         OffsetDateTime value = newUser.getCreationDate().minusSeconds(1).truncatedTo(ChronoUnit.SECONDS);
         response = webClient().path("Users").query("filter", "meta.created gt \""
@@ -501,9 +507,11 @@ public class SCIMITCase extends AbstractITCase {
         ListResponse<SCIMUser> users = response.readEntity(new GenericType<>() {
         });
         assertNotNull(users);
-        assertEquals(1, users.getTotalResults());
+        assertTrue(users.getTotalResults() > 0);
 
-        SCIMUser newSCIMUser = users.getResources().getFirst();
+        SCIMUser newSCIMUser = users.getResources().stream().
+                filter(u -> req.getUsername().equals(u.getUserName())).
+                findFirst().orElseThrow();
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
 
         SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();

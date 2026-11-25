@@ -68,6 +68,7 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -205,6 +206,79 @@ public class AuthenticationITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertTrue(matchingUsers.getResult().stream().allMatch(matching -> "/even/two".equals(matching.getRealm())));
+    }
+
+    @Test
+    public void roleRevocationInvalidatesAccessToken() {
+        String roleKey = "roleRevocation" + getUUIDString();
+        String userKey = null;
+        boolean roleCreated = false;
+        try {
+            // 1. create a role granting user search / read on the root realm
+            RoleTO role = new RoleTO();
+            role.setKey(roleKey);
+            role.getEntitlements().add(IdRepoEntitlement.USER_SEARCH);
+            role.getEntitlements().add(IdRepoEntitlement.USER_READ);
+            role.getRealms().add(SyncopeConstants.ROOT_REALM);
+            role = createRole(role);
+            roleCreated = true;
+
+            // 2. create a user with that role
+            UserCR userCR = UserITCase.getUniqueSample("jwtRevocation@syncope.apache.org");
+            userCR.getRoles().add(role.getKey());
+            UserTO userTO = createUser(userCR).getEntity();
+            userKey = userTO.getKey();
+
+            // 3. obtain an access token for the user
+            SyncopeClient userClient = CLIENT_FACTORY.create(userTO.getUsername(), DEFAULT_PASSWORD);
+            Response loginResponse = userClient.getService(AccessTokenService.class).login();
+            String token = loginResponse.getHeaderString(RESTHeaders.TOKEN);
+            assertNotNull(token);
+
+            // 4. the token can be used to search users
+            SyncopeClient jwtClient = CLIENT_FACTORY.create(token);
+            PagedResult<UserTO> matching = jwtClient.getService(UserService.class).search(
+                    new AnyQuery.Builder().
+                            realm(SyncopeConstants.ROOT_REALM).
+                            fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).
+                            build());
+            assertNotNull(matching);
+
+            // 5. revoke the role as admin
+            UserUR userUR = new UserUR();
+            userUR.setKey(userKey);
+            userUR.getRoles().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).
+                    value(role.getKey()).
+                    build());
+            updateUser(userUR);
+            assertTrue(USER_SERVICE.read(userKey).getRoles().isEmpty());
+
+            // 6. the access token obtained before the revocation is no longer usable
+            assertThrows(NotAuthorizedException.class, () -> jwtClient.getService(UserService.class).search(
+                    new AnyQuery.Builder().
+                            realm(SyncopeConstants.ROOT_REALM).
+                            fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).
+                            build()));
+
+            // 7. and it cannot be refreshed to get the revoked entitlements back
+            assertThrows(NotAuthorizedException.class, () -> jwtClient.getService(AccessTokenService.class).refresh());
+        } finally {
+            if (userKey != null) {
+                try {
+                    USER_SERVICE.delete(userKey);
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+            if (roleCreated) {
+                try {
+                    ROLE_SERVICE.delete(roleKey);
+                } catch (Exception e) {
+                    // ignore
+                }
+            }
+        }
     }
 
     @Test

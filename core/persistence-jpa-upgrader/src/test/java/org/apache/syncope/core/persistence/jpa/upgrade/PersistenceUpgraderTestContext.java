@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.upgrade;
 
+import static org.mockito.Mockito.mock;
+
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -30,6 +32,7 @@ import org.apache.syncope.core.persistence.jpa.OraclePersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PGPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,5 +69,10 @@ public class PersistenceUpgraderTestContext {
     @Bean
     public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
+    }
+
+    @Bean
+    public AuthDataAccessor authDataAccessor() {
+        return mock(AuthDataAccessor.class);
     }
 }

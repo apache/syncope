@@ -23,6 +23,8 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import java.time.OffsetDateTime;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -43,6 +45,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -62,6 +65,11 @@ import org.springframework.context.annotation.PropertySource;
 })
 @Configuration(proxyBeanMethods = false)
 public class WorkflowTestContext {
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
+    }
 
     @Bean
     public TestInitializer testInitializer(
@@ -121,5 +129,10 @@ public class WorkflowTestContext {
     @Bean
     public NotificationManager notificationManager() {
         return mock(NotificationManager.class);
+    }
+
+    @Bean
+    public AuthDataAccessor authDataAccessor() {
+        return mock(AuthDataAccessor.class);
     }
 }

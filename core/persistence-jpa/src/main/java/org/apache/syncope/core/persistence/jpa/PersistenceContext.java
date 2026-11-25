@@ -185,6 +185,7 @@ import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManager
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
 import org.apache.syncope.core.persistence.jpa.spring.SyncopeJPARepository;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -854,11 +855,13 @@ public class PersistenceContext {
     @Bean
     public RoleRepoExt roleRepoExt(
             final ApplicationEventPublisher publisher,
+            final AccessTokenManager accessTokenManager,
             final DelegationDAO delegationDAO,
             final EntityManager entityManager) {
 
         return new RoleRepoExtImpl(
                 publisher,
+                accessTokenManager,
                 delegationDAO,
                 entityManager);
     }

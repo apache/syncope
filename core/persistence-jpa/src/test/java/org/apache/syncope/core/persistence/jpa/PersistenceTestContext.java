@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import static org.mockito.Mockito.mock;
+
 import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
 import javax.sql.DataSource;
@@ -35,6 +37,7 @@ import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactory
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
@@ -116,6 +119,11 @@ public class PersistenceTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return new DummyConnectorManager();
+    }
+
+    @Bean
+    public AccessTokenManager accessTokenManager() {
+        return mock(AccessTokenManager.class);
     }
 
     @Bean
