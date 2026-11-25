@@ -367,6 +367,80 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
     }
 
     @Override
+    protected void ssoMustChangePassword(final String username, final String password) throws IOException {
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            // 1. fetch login page
+            HttpGet get = new HttpGet(CONSOLE_ADDRESS);
+            CloseableHttpResponse response = httpclient.execute(get, context);
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            // 2. click on the OpenID Connect Provider
+            get = new HttpGet(CONSOLE_ADDRESS + OIDCC4UIConstants.URL_CONTEXT
+                    + "/login?op=" + getAppName(CONSOLE_ADDRESS));
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            response = httpclient.execute(get, context);
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            // 2a. redirected to WA login screen
+            String responseBody = EntityUtils.toString(response.getEntity());
+            response = authenticateToWA(username, password, responseBody, httpclient, context);
+
+            // 2b. WA attribute consent screen
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                responseBody = EntityUtils.toString(response.getEntity());
+
+                // check attribute repository
+                assertTrue(responseBody.contains("identifier"));
+                assertTrue(responseBody.contains("[value1]"));
+
+                String execution = extractWAExecution(responseBody);
+
+                List<NameValuePair> form = new ArrayList<>();
+                form.add(new BasicNameValuePair("_eventId", "confirm"));
+                form.add(new BasicNameValuePair("execution", execution));
+                form.add(new BasicNameValuePair("option", "1"));
+                form.add(new BasicNameValuePair("reminder", "30"));
+                form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
+
+                HttpPost post = new HttpPost(WA_ADDRESS + "/login");
+                post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+                post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+                post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+                response = httpclient.execute(post, context);
+            }
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+
+            // 2c. WA scope consent screen
+            get = new HttpGet(response.getLastHeader(HttpHeaders.LOCATION).getValue());
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            response = httpclient.execute(get, context);
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            responseBody = EntityUtils.toString(response.getEntity());
+
+            String allow = Jsoup.parse(responseBody).body().
+                    getElementsByTag("a").select("a[name=allow]").first().
+                    attr("href");
+            assertNotNull(allow);
+
+            // 2d. finally get requested content
+            get = new HttpGet(allow);
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            response = httpclient.execute(get, context);
+
+            // 3. verify the error on the Console login page
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Override
     protected void passwordManagement(final String baseURL, final String username, final String password)
             throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();

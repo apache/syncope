@@ -34,7 +34,10 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -126,6 +129,19 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         return execution.get();
     }
 
+    private static void setMustChangePassword(final String key, final boolean value) {
+        UserUR user = new UserUR.Builder(key).
+                mustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build()).build();
+        try (Response response = USER_SERVICE.update(user)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatus());
+        }
+    }
+
+    protected static void assertPasswordChangeRequired(final String body) {
+        assertNotNull(Jsoup.parse(body).selectFirst("form.form-signin"));
+        assertTrue(body.contains("Please change your password first"));
+    }
+
     protected abstract void sso(String baseURL, String username, String password) throws IOException;
 
     @Test
@@ -136,6 +152,46 @@ public abstract class AbstractUIITCase extends AbstractITCase {
     @Test
     public void sso2Enduser() throws IOException {
         sso(ENDUSER_ADDRESS, "bellini", "password");
+    }
+
+    protected abstract void ssoMustChangePassword(String username, String password) throws IOException;
+
+    @Test
+    public void ssoMustChangePassword() throws IOException {
+        String username = "pullFromLDAP";
+        String password = "Password123";
+        UserTO userTO = null;
+        try {
+            userTO = USER_SERVICE.read(username);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        String userKey = null;
+        boolean enablePasswordChange = userTO != null && !userTO.isMustChangePassword();
+        try {
+            if (userTO == null) {
+                UserCR user = new UserCR.Builder(SyncopeConstants.ROOT_REALM, username)
+                        .mustChangePassword(true)
+                        .plainAttr(new Attr.Builder("fullname").value(username).build())
+                        .plainAttr(new Attr.Builder("userId").value(username + "@syncope.org").build())
+                        .plainAttr(new Attr.Builder("surname").value(username).build()).build();
+                try (Response response = USER_SERVICE.create(user)) {
+                    assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+                    userKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+                }
+            } else if (enablePasswordChange) {
+                setMustChangePassword(userTO.getKey(), true);
+            }
+
+            ssoMustChangePassword(username, password);
+        } finally {
+            if (userKey != null) {
+                USER_SERVICE.delete(userKey).close();
+            } else if (enablePasswordChange) {
+                setMustChangePassword(userTO.getKey(), false);
+            }
+        }
     }
 
     protected abstract void passwordManagement(String baseURL, String username, String password) throws IOException;

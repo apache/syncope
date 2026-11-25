@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import jakarta.ws.rs.ForbiddenException;
 import java.time.Instant;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -56,7 +57,15 @@ public class OIDCClientLogin extends WebPage {
             setResponsePage(Login.class, loginParameters);
         }
 
-        if (SyncopeConsoleSession.get().authenticate(jwt, jwtExpiration)) {
+        boolean authenticated = false;
+        String errorMessage = OIDC_ACCESS_ERROR;
+        try {
+            authenticated = SyncopeConsoleSession.get().authenticate(jwt, jwtExpiration);
+        } catch (ForbiddenException e) {
+            errorMessage = e.getMessage();
+        }
+
+        if (authenticated) {
             if (parameters.get(OIDCC4UIConstants.OIDCC4UI_SLO_SUPPORTED).toBoolean(false)) {
                 SyncopeConsoleSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, OIDCClientBeforeLogout.class);
             }
@@ -67,7 +76,7 @@ public class OIDCClientLogin extends WebPage {
             setResponsePage(getApplication().getHomePage());
         } else {
             PageParameters loginParameters = new PageParameters();
-            loginParameters.add(Constants.NOTIFICATION_MSG_PARAM, OIDC_ACCESS_ERROR);
+            loginParameters.add(Constants.NOTIFICATION_MSG_PARAM, errorMessage);
             loginParameters.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.ERROR);
             setResponsePage(Login.class, loginParameters);
         }
