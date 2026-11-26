@@ -243,14 +243,83 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         oidcSetup(getAppName(ENDUSER_ADDRESS), false, true);
     }
 
-    private void loginlogout(
+    private void success(
             final CloseableHttpClient httpclient,
             final HttpClientContext context,
+            final String allow,
             final String baseURL,
+            final String username,
+            final boolean backChannelLogout) throws IOException {
+
+        // 3. finally get requested content
+        HttpGet get = new HttpGet(allow);
+        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        try (CloseableHttpResponse response = HttpClients.createDefault().execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            // 3. verify that user is now authenticated
+            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+        }
+
+        if (backChannelLogout) {
+            String accessToken = context.getRedirectLocations().stream().
+                    flatMap(uri -> URLEncodedUtils.parse(uri, StandardCharsets.UTF_8).stream()).
+                    filter(param -> OIDCC4UIConstants.OIDCC4UI_JWT.equals(param.getName())).
+                    map(NameValuePair::getValue).
+                    findFirst().orElseThrow(() -> new AssertionError("No Syncope JWT in console login redirect"));
+
+            // Confirm that the console's token works before logging out directly from WA.
+            try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
+                    header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
+                assertEquals(HttpStatus.SC_OK, self.getStatus());
+            }
+            try (CloseableHttpResponse logout = httpclient.execute(new HttpGet(WA_ADDRESS + "/logout"), context)) {
+                assertEquals(HttpStatus.SC_OK, logout.getStatusLine().getStatusCode());
+                EntityUtils.consume(logout.getEntity());
+            }
+
+            // WA sends back-channel logout asynchronously; the same JWT must then be rejected by Core.
+            await().atMost(30, TimeUnit.SECONDS).untilAsserted(() -> {
+                try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
+                        header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
+                    assertEquals(HttpStatus.SC_UNAUTHORIZED, self.getStatus());
+                }
+            });
+        } else {
+            // 4. logout
+            get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
+                    ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
+                    : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+        }
+    }
+
+    private void failure(
+            final CloseableHttpClient httpclient,
+            final HttpClientContext context,
+            final String allow) throws IOException {
+
+        // 2d. finally get requested content
+        HttpGet get = new HttpGet(allow);
+        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+
+            // 3. verify the error on the login page
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    private String allow(
+            final CloseableHttpClient httpclient,
+            final HttpClientContext context,
             final String loginPageBody,
             final String username,
-            final String password,
-            final boolean backChannelLogout) throws IOException {
+            final String password) throws IOException {
 
         // 1. redirected to WA login screen
         Mutable<String> location = new MutableObject<>();
@@ -311,50 +380,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         }
         assertNotNull(allow);
 
-        // 3. finally get requested content
-        get = new HttpGet(allow);
-        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
-        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
-        try (CloseableHttpResponse response = HttpClients.createDefault().execute(get, context)) {
-            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-
-            // 3. verify that user is now authenticated
-            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
-        }
-
-        if (backChannelLogout) {
-            String accessToken = context.getRedirectLocations().stream().
-                    flatMap(uri -> URLEncodedUtils.parse(uri, StandardCharsets.UTF_8).stream()).
-                    filter(param -> OIDCC4UIConstants.OIDCC4UI_JWT.equals(param.getName())).
-                    map(NameValuePair::getValue).
-                    findFirst().orElseThrow(() -> new AssertionError("No Syncope JWT in console login redirect"));
-
-            // Confirm that the console's token works before logging out directly from WA.
-            try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
-                    header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
-                assertEquals(HttpStatus.SC_OK, self.getStatus());
-            }
-            try (CloseableHttpResponse logout = httpclient.execute(new HttpGet(WA_ADDRESS + "/logout"), context)) {
-                assertEquals(HttpStatus.SC_OK, logout.getStatusLine().getStatusCode());
-                EntityUtils.consume(logout.getEntity());
-            }
-
-            // WA sends back-channel logout asynchronously; the same JWT must then be rejected by Core.
-            await().atMost(30, TimeUnit.SECONDS).untilAsserted(() -> {
-                try (Response self = WebClient.create(CORE_ADDRESS + "/users/self").
-                        header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken).get()) {
-                    assertEquals(HttpStatus.SC_UNAUTHORIZED, self.getStatus());
-                }
-            });
-        } else {
-            // 4. logout
-            get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
-                    ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
-                    : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
-            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
-                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            }
-        }
+        return allow;
     }
 
     @Test
@@ -390,7 +416,13 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertNotNull(loginPageBody);
 
             // 3. login and logout
-            loginlogout(httpclient, context, CONSOLE_ADDRESS, loginPageBody, "bellini", "password", true);
+            success(
+                    httpclient,
+                    context,
+                    allow(httpclient, context, loginPageBody, "bellini", "password"),
+                    CONSOLE_ADDRESS,
+                    "bellini",
+                    true);
         }
     }
 
@@ -419,7 +451,47 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertNotNull(loginPageBody);
 
             // 3. login and logout
-            loginlogout(httpclient, context, baseURL, loginPageBody, username, password, false);
+            success(
+                    httpclient,
+                    context,
+                    allow(httpclient, context, loginPageBody, username, password),
+                    CONSOLE_ADDRESS,
+                    username,
+                    false);
+        }
+    }
+
+    @Override
+    protected void ssoMustChangePassword(final String baseURL, final String username, final String password)
+            throws IOException {
+
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            // 1. fetch login page
+            HttpGet get = new HttpGet(baseURL);
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+
+            // 2. click on the OpenID Connect Provider
+            get = new HttpGet(baseURL + OIDCC4UIConstants.URL_CONTEXT + "/login?op=" + getAppName(baseURL));
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            String loginPageBody;
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+                loginPageBody = EntityUtils.toString(response.getEntity());
+            }
+            assertNotNull(loginPageBody);
+
+            // 3. login
+            failure(
+                    httpclient,
+                    context,
+                    allow(httpclient, context, loginPageBody, username, password));
         }
     }
 
@@ -517,7 +589,13 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             assertTrue(loginPageBody.contains("password"));
 
             // 5. login and logout with new password
-            loginlogout(httpclient, context, baseURL, loginPageBody, username, newpassword, false);
+            success(
+                    httpclient,
+                    context,
+                    allow(httpclient, context, loginPageBody, username, newpassword),
+                    CONSOLE_ADDRESS,
+                    username,
+                    false);
         }
     }
 

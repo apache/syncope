@@ -180,10 +180,46 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         }
     }
 
-    private void loginlogout(
+    private void success(
             final CloseableHttpClient httpclient,
             final HttpClientContext context,
             final String baseURL,
+            final String location,
+            final String username) throws IOException {
+
+        // 3. verify that user is now authenticated
+        HttpGet get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+        }
+
+        // 4. logout
+        get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
+                ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
+                : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        }
+    }
+
+    private void failure(
+            final CloseableHttpClient httpclient,
+            final HttpClientContext context,
+            final String baseURL,
+            final String location) throws IOException {
+
+        // 3. verify the error on the login page
+        HttpGet get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    private String location(
+            final CloseableHttpClient httpclient,
+            final HttpClientContext context,
             final String username,
             final String password,
             final String initialLocation,
@@ -268,20 +304,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
         }
 
-        // 3. verify that user is now authenticated
-        get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
-        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
-            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
-        }
-
-        // 4. logout
-        get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
-                ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
-                : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
-        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
-            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-        }
+        return location;
     }
 
     @Override
@@ -319,7 +342,57 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             }
 
             // 3. login and logout
-            loginlogout(httpclient, context, baseURL, username, password, location, get.getURI().toASCIIString());
+            success(
+                    httpclient,
+                    context,
+                    baseURL,
+                    location(httpclient, context, username, password, location, get.getURI().toASCIIString()),
+                    username);
+        }
+    }
+
+    @Override
+    protected void ssoMustChangePassword(final String baseURL, final String username, final String password)
+            throws IOException {
+
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            // 1. fetch login page
+            HttpGet get = new HttpGet(baseURL);
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+
+            // 2. click on the SAML 2.0 IdP
+            get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
+                    + "/login?idp=https%3A//localhost%3A9443/syncope-wa/saml");
+            String responseBody;
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                responseBody = EntityUtils.toString(response.getEntity());
+            }
+            SAMLForm parsed = parseSAMLRequestForm(responseBody);
+
+            // 2a. post SAML request
+            HttpPost post = new HttpPost(parsed.action());
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.setEntity(new UrlEncodedFormEntity(
+                    List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                            new BasicNameValuePair("SAMLRequest", parsed.payload())), Consts.UTF_8));
+            String location;
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+            }
+
+            // 3. login
+            failure(
+                    httpclient,
+                    context,
+                    baseURL,
+                    location(httpclient, context, username, password, location, get.getURI().toASCIIString()));
         }
     }
 
@@ -432,7 +505,12 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             }
 
             // 5. login and logout
-            loginlogout(httpclient, context, baseURL, username, newpassword, location, get.getURI().toASCIIString());
+            success(
+                    httpclient,
+                    context,
+                    baseURL,
+                    location(httpclient, context, username, newpassword, location, get.getURI().toASCIIString()),
+                    username);
         }
     }
 
