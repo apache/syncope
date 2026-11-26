@@ -21,9 +21,12 @@ package org.apache.syncope.ext.scimv2.api.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
+import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.junit.jupiter.api.Test;
@@ -428,5 +431,28 @@ public class SCIMPatchOperationDeserializerTest {
 
         String value = (String) op.getValue().getFirst();
         assertEquals("da91cb5d-addb-424f-aa41-799fda8658c3", value);
+    }
+
+    @Test
+    public void rejectExpressionInPathFilter() {
+        String input = "{"
+                + "  \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "  \"Operations\": [{"
+                + "      \"op\": \"replace\","
+                + "      \"path\": \"emails[type eq \\\"work\\\" and "
+                + "((n) -> { var i = 0; while (i < n) { i = i + 1 }; true })(2000000)].value\","
+                + "      \"value\": \"x@example.com\""
+                + "    }"
+                + "  ]"
+                + "}";
+
+        Exception ex = assertThrows(Exception.class, () -> MAPPER.readValue(input, SCIMPatchOp.class));
+
+        Throwable cause = ex;
+        while (!(cause instanceof BadRequestException) && cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        assertTrue(cause instanceof BadRequestException);
+        assertEquals(ErrorType.invalidFilter, ((BadRequestException) cause).getErrorType());
     }
 }
