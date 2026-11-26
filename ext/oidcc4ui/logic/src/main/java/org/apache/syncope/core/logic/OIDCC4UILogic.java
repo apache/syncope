@@ -38,21 +38,17 @@ import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.oidc.OIDCC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
@@ -80,8 +76,6 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final OIDCClientCache oidcClientCacheLogout;
 
-    protected final AuthDataAccessor authDataAccessor;
-
     protected final AccessTokenDataBinder accessTokenDataBinder;
 
     protected final OIDCC4UIProviderDAO opDAO;
@@ -90,29 +84,23 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final OIDCUserManager userManager;
 
-    protected final EncryptorManager encryptorManager;
-
     protected final SessionStore sessionStore;
 
     public OIDCC4UILogic(
             final OIDCClientCache oidcClientCacheLogin,
             final OIDCClientCache oidcClientCacheLogout,
-            final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCC4UIProviderDAO opDAO,
             final AccessTokenDAO accessTokenDAO,
             final OIDCUserManager userManager,
-            final EncryptorManager encryptorManager,
             final SessionStore sessionStore) {
 
         this.oidcClientCacheLogin = oidcClientCacheLogin;
         this.oidcClientCacheLogout = oidcClientCacheLogout;
-        this.authDataAccessor = authDataAccessor;
         this.accessTokenDataBinder = accessTokenDataBinder;
         this.opDAO = opDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.userManager = userManager;
-        this.encryptorManager = encryptorManager;
         this.sessionStore = sessionStore;
     }
 
@@ -291,19 +279,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         claims.put(JWT_CLAIM_OP_NAME, opName);
         Optional.ofNullable(idTokenHint).ifPresent(v -> claims.put(JWT_CLAIM_ID_TOKEN, v));
 
-        String authorities = null;
-        try {
-            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES);
-        } catch (Exception e) {
-            LOG.error("Could not fetch authorities", e);
-        }
-
         AccessTokenDataBinder.AccessTokenInfo accessTokenInfo = accessTokenDataBinder.create(
                 Optional.ofNullable(claimsSet.getClaim(Pac4jConstants.OIDC_CLAIM_SESSIONID)).map(Object::toString),
                 loginResp.getUsername(),
                 claims,
-                authorities,
                 true);
         loginResp.setAccessToken(accessTokenInfo.jwt());
         loginResp.setAccessTokenExpiryTime(accessTokenInfo.expiration());

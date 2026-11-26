@@ -102,7 +102,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.spring.security.AccessTokenManager;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.throttle.PasswordResetRequestThrottler;
 import org.apache.syncope.core.spring.security.throttle.ThrottlerAttempts;
@@ -159,11 +158,9 @@ public class IdRepoLogicContext {
     public AccessTokenLogic accessTokenLogic(
             final AccessTokenDataBinder binder,
             final AccessTokenDAO accessTokenDAO,
-            final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager,
-            final AuthDataAccessor authDataAccessor) {
+            final SecurityProperties securityProperties) {
 
-        return new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO, authDataAccessor);
+        return new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean

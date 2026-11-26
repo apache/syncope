@@ -31,8 +31,8 @@ public class AccessTokenManager {
 
     public static final String CACHE = "AuthoritiesCache";
 
-    protected static String key(final String domain, final String username, final String delegationKey) {
-        return domain + '|' + username + (delegationKey == null ? "" : "|" + delegationKey);
+    protected static String key(final String domain, final String username) {
+        return domain + '|' + username;
     }
 
     protected final AccessTokenDAO accessTokenDAO;
@@ -58,10 +58,9 @@ public class AccessTokenManager {
     public Set<SyncopeGrantedAuthority> getAuthorities(
             final String domain,
             final String username,
-            final String delegationKey,
             final Supplier<Set<SyncopeGrantedAuthority>> loader) {
 
-        String key = key(domain, username, delegationKey);
+        String key = key(domain, username);
         Set<SyncopeGrantedAuthority> authorities = authoritiesCache.get(key);
         if (authorities == null) {
             authorities = loader.get();
@@ -78,7 +77,7 @@ public class AccessTokenManager {
     }
 
     public void evict(final String username) {
-        authoritiesCache.remove(key(AuthContextUtils.getDomain(), username, null));
+        authoritiesCache.remove(key(AuthContextUtils.getDomain(), username));
     }
 
     @Transactional

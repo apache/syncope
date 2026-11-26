@@ -108,7 +108,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     protected AccessToken replace(
             final String subject,
             final Map<String, Object> claims,
-            final String authorities,
             final AccessToken accessToken) {
 
         AccessTokenInfo generated = generateJWT(
@@ -122,10 +121,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         accessToken.setExpirationTime(generated.expiration());
         accessToken.setOwner(subject);
 
-        if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
-            accessToken.setAuthorities(authorities);
-        }
-
         return accessTokenDAO.save(accessToken);
     }
 
@@ -134,7 +129,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final Optional<String> key,
             final String subject,
             final Map<String, Object> claims,
-            final String authorities,
             final boolean replace) {
 
         AccessToken accessToken = accessTokenDAO.findByOwner(subject).
@@ -144,7 +138,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                             || at.getExpirationTime().isBefore(OffsetDateTime.now())) {
 
                         // AccessToken found, but either replace was requested or it is expired: update existing
-                        return replace(subject, claims, authorities, at);
+                        return replace(subject, claims, at);
                     }
                     return at;
                 }).
@@ -153,14 +147,14 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                     AccessToken at = entityFactory.newEntity(AccessToken.class);
                     at.setKey(key.orElseGet(() -> SecureRandomUtils.generateRandomUUID().toString()));
 
-                    return replace(subject, claims, authorities, at);
+                    return replace(subject, claims, at);
                 });
 
         return new AccessTokenInfo(accessToken.getBody(), accessToken.getExpirationTime());
     }
 
     @Override
-    public AccessTokenInfo update(final AccessToken accessToken, final String authorities) {
+    public AccessTokenInfo update(final AccessToken accessToken) {
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
         long duration = confParamOps.get(
@@ -187,10 +181,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessToken.setBody(body);
         accessToken.setExpirationTime(expiration);
-
-        if (!securityProperties.getAdminUser().equals(accessToken.getOwner())) {
-            accessToken.setAuthorities(authorities);
-        }
 
         accessTokenDAO.save(accessToken);
 

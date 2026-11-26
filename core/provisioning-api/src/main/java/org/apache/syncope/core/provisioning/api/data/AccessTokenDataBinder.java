@@ -30,10 +30,9 @@ public interface AccessTokenDataBinder {
 
     }
 
-    AccessTokenInfo create(
-            Optional<String> key, String subject, Map<String, Object> claims, String authorities, boolean replace);
+    AccessTokenInfo create(Optional<String> key, String subject, Map<String, Object> claims, boolean replace);
 
-    AccessTokenInfo update(AccessToken accessToken, String authorities);
+    AccessTokenInfo update(AccessToken accessToken);
 
     AccessTokenTO getAccessTokenTO(AccessToken accessToken);
 }

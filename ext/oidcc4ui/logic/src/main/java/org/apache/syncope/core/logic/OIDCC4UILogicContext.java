@@ -42,7 +42,6 @@ import org.apache.syncope.core.provisioning.api.data.OIDCC4UIProviderDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.session.SessionStore;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -130,24 +129,20 @@ public class OIDCC4UILogicContext {
             final OIDCClientCache oidcClientCacheLogin,
             @Qualifier("oidcClientCacheLogout")
             final OIDCClientCache oidcClientCacheLogout,
-            final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCC4UIProviderDAO opDAO,
             final AccessTokenDAO accessTokenDAO,
             final OIDCUserManager userManager,
-            final EncryptorManager encryptorManager,
             @Qualifier("oidcSessionStore")
             final SessionStore oidcSessionStore) {
 
         return new OIDCC4UILogic(
                 oidcClientCacheLogin,
                 oidcClientCacheLogout,
-                authDataAccessor,
                 accessTokenDataBinder,
                 opDAO,
                 accessTokenDAO,
                 userManager,
-                encryptorManager,
                 oidcSessionStore);
     }
 

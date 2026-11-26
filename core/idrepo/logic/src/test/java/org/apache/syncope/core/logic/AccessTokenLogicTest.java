@@ -34,12 +34,10 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,13 +49,9 @@ class AccessTokenLogicTest {
 
     private SecurityProperties securityProperties;
 
-    private EncryptorManager encryptorManager;
-
     private AccessTokenDataBinder binder;
 
     private AccessTokenDAO accessTokenDAO;
-
-    private AuthDataAccessor authDataAccessor;
 
     private AccessTokenLogic logic;
 
@@ -66,12 +60,10 @@ class AccessTokenLogicTest {
         securityProperties = new SecurityProperties();
         securityProperties.setAnonymousUser("anonymous");
 
-        encryptorManager = mock(EncryptorManager.class);
         binder = mock(AccessTokenDataBinder.class);
         accessTokenDAO = mock(AccessTokenDAO.class);
-        authDataAccessor = mock(AuthDataAccessor.class);
 
-        logic = new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO, authDataAccessor);
+        logic = new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
     }
 
     @AfterEach
@@ -92,7 +84,7 @@ class AccessTokenLogicTest {
 
         AccessTokenDataBinder.AccessTokenInfo info =
                 new AccessTokenDataBinder.AccessTokenInfo("jwt", OffsetDateTime.now());
-        when(binder.create(any(), eq("user"), anyMap(), any(), anyBoolean())).thenReturn(info);
+        when(binder.create(any(), eq("user"), anyMap(), anyBoolean())).thenReturn(info);
 
         assertSame(info, logic.login());
     }
@@ -113,7 +105,7 @@ class AccessTokenLogicTest {
                 new AccessTokenDataBinder.AccessTokenInfo("jwt", OffsetDateTime.now());
 
         when(accessTokenDAO.findByOwner("user")).thenReturn(Optional.of(accessToken));
-        when(binder.update(eq(accessToken), any())).thenReturn(info);
+        when(binder.update(eq(accessToken))).thenReturn(info);
 
         assertSame(info, logic.refresh());
     }
