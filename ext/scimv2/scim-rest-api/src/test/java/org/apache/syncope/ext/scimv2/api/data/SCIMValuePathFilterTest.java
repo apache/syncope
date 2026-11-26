@@ -40,6 +40,12 @@ public class SCIMValuePathFilterTest {
     }
 
     @Test
+    public void attributeNamesAreCaseInsensitive() {
+        assertTrue(SCIMValuePathFilter.matches("TYPE eq \"work\"", Map.of("type", "work")));
+        assertTrue(SCIMValuePathFilter.matches("VaLuE Pr", Map.of("value", "work@example.com")));
+    }
+
+    @Test
     public void ne() {
         assertTrue(SCIMValuePathFilter.matches("type ne \"work\"", Map.of("type", "home")));
         assertFalse(SCIMValuePathFilter.matches("type ne \"work\"", Map.of("type", "work")));

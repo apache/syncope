@@ -194,7 +194,8 @@ public final class SCIMValuePathFilter {
         }
 
         private Node parseComparison() {
-            String attribute = readIdentifier();
+            // SCIM attribute names are case-insensitive (RFC 7644, section 2.2).
+            String attribute = readIdentifier().toLowerCase(Locale.ROOT);
 
             if (consumeKeyword("pr")) {
                 countTerm();
