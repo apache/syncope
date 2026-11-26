@@ -38,7 +38,6 @@ import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.ext.scimv2.api.service.SCIMAnyObjectService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
@@ -145,8 +144,7 @@ public class SCIMv2RESTCXFContext {
             final GroupLogicOp groupLogic,
             final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
-            final SCIMConfManager confManager,
-            final JexlTools jexlTools) {
+            final SCIMConfManager confManager) {
 
         return new SCIMGroupServiceImpl(
                 userDAO,
@@ -156,8 +154,7 @@ public class SCIMv2RESTCXFContext {
                 groupLogic,
                 anyObjectLogic,
                 binder,
-                confManager,
-                jexlTools);
+                confManager);
     }
 
     @ConditionalOnMissingBean

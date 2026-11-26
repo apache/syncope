@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
@@ -69,8 +68,6 @@ import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.provisioning.api.jexl.JexlContextBuilder;
-import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.Group;
@@ -87,6 +84,7 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUserAddress;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUserManager;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUserName;
+import org.apache.syncope.ext.scimv2.api.data.SCIMValuePathFilter;
 import org.apache.syncope.ext.scimv2.api.data.Value;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Function;
@@ -102,36 +100,6 @@ public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
 
-    /**
-     * Translates the given SCIM filter into the equivalent JEXL expression.
-     *
-     * @param filter SCIM filter according to https://www.rfc-editor.org/rfc/rfc7644#section-3.4.2.2
-     * @return translated JEXL expression; see https://commons.apache.org/proper/commons-jexl/reference/syntax.html
-     * */
-    public static String filter2JexlExpression(final String filter) {
-        String jexlExpression = filter.
-                replace(" co ", " =~ ").
-                replace(" sw ", " =^ ").
-                replace(" ew ", " =$ ");
-
-        boolean endsWithPR = jexlExpression.endsWith(" pr");
-        int pr = endsWithPR ? jexlExpression.indexOf(" pr") : jexlExpression.indexOf(" pr ");
-        while (pr != -1) {
-            String before = jexlExpression.substring(0, pr);
-            int start = before.indexOf(' ') == -1 ? 0 : jexlExpression.substring(0, pr).lastIndexOf(' ', pr) + 1;
-            String literal = jexlExpression.substring(start, pr);
-
-            endsWithPR = jexlExpression.endsWith(" pr");
-            jexlExpression = jexlExpression.replace(
-                    literal + " pr" + (endsWithPR ? "" : " "),
-                    "not(empty(" + literal + "))" + (endsWithPR ? "" : " "));
-
-            pr = endsWithPR ? jexlExpression.indexOf(" pr") : jexlExpression.indexOf(" pr ");
-        }
-
-        return jexlExpression;
-    }
-
     protected final SCIMConfManager confManager;
 
     protected final UserLogicOp userLogic;
@@ -140,20 +108,16 @@ public class SCIMDataBinder {
 
     protected final GroupDAO groupDAO;
 
-    protected final JexlTools jexlTools;
-
     public SCIMDataBinder(
             final SCIMConfManager confManager,
             final UserLogicOp userLogic,
             final AuthDataAccessor authDataAccessor,
-            final GroupDAO groupDAO,
-            final JexlTools jexlTools) {
+            final GroupDAO groupDAO) {
 
         this.confManager = confManager;
         this.userLogic = userLogic;
         this.authDataAccessor = authDataAccessor;
         this.groupDAO = groupDAO;
-        this.jexlTools = jexlTools;
     }
 
     protected <E extends Enum<?>> void fill(
@@ -1103,10 +1067,10 @@ public class SCIMDataBinder {
             final List<SCIMComplexConf<E>> confs,
             final SCIMPatchOperation op) {
 
+        SCIMValuePathFilter filter = SCIMValuePathFilter.parse(op.getPath().getFilter());
+
         confs.stream().
-                filter(conf -> BooleanUtils.toBoolean(jexlTools.evaluateExpression(
-                filter2JexlExpression(op.getPath().getFilter()),
-                new MapContext(Map.of("type", conf.getType().name()))).toString())).findFirst().
+                filter(conf -> filter.matches(Map.of("type", conf.getType().name()))).findFirst().
                 ifPresent(conf -> {
                     if (op.getPath().getSub() == null || "display".equals(op.getPath().getSub())) {
                         setAttribute(attrs, conf.getDisplay(), op);
@@ -1362,12 +1326,12 @@ public class SCIMDataBinder {
                                         .ifPresent(ac -> setAttribute(userURs.get(numberUR.get().intValue()).
                                         getPlainAttrs(), ac, op)));
                     } else if (op.getPath().getFilter() != null) {
+                        SCIMValuePathFilter filter = SCIMValuePathFilter.parse(op.getPath().getFilter());
+
                         conf.getUserConf().getAddresses().stream().
-                                filter(address -> BooleanUtils.toBoolean(
-                                jexlTools.evaluateExpression(filter2JexlExpression(op.getPath().getFilter()),
-                                        new JexlContextBuilder().with("type", address.getType().name()).build()).
-                                        toString())).findFirst()
-                                .ifPresent(ac -> setAttribute(userURs.get(numberUR.get().intValue()).
+                                filter(address -> filter.matches(Map.of("type", address.getType().name()))).
+                                findFirst().
+                                ifPresent(ac -> setAttribute(userURs.get(numberUR.get().intValue()).
                                 getPlainAttrs(), ac, op));
                     }
                 }

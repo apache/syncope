@@ -95,8 +95,14 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
 
                 path.setAttribute(StringUtils.uncapitalize(matcher.group("attribute")));
 
-                Optional.ofNullable(matcher.group("filter")).
-                        ifPresent(condition -> path.setFilter(condition.substring(1, condition.length() - 1)));
+                Optional.ofNullable(matcher.group("filter")).ifPresent(condition -> {
+                    String filter = condition.substring(1, condition.length() - 1);
+
+                    // Validate before storing: only SCIM value path filters are accepted, never raw expressions.
+                    SCIMValuePathFilter.parse(filter);
+
+                    path.setFilter(filter);
+                });
 
                 Optional.ofNullable(matcher.group("sub")).
                         ifPresent(sub -> path.setSub(StringUtils.uncapitalize(sub.substring(1))));
