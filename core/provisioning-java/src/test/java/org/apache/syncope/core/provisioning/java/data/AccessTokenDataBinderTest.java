@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
@@ -48,7 +47,7 @@ class AccessTokenDataBinderTest extends AbstractDataBinderTest {
     @Test
     void create() {
         AccessTokenInfo info = binder.create(
-                Optional.of("access-token-key"), OWNER, Map.of("claim", "claimValue"), "AUTH1", false);
+                Optional.of("access-token-key"), OWNER, Map.of("claim", "claimValue"), false);
 
         assertNotNull(info.jwt());
         assertTrue(info.expiration().isAfter(OffsetDateTime.now()));
@@ -57,7 +56,6 @@ class AccessTokenDataBinderTest extends AbstractDataBinderTest {
         assertEquals("access-token-key", accessToken.getKey());
         assertEquals(info.jwt(), accessToken.getBody());
         assertEquals(OWNER, accessToken.getOwner());
-        assertEquals("AUTH1", accessToken.getAuthorities());
 
         AccessTokenTO accessTokenTO = binder.getAccessTokenTO(accessToken);
         assertEquals(accessToken.getKey(), accessTokenTO.getKey());
@@ -67,11 +65,10 @@ class AccessTokenDataBinderTest extends AbstractDataBinderTest {
 
     @Test
     void createWithoutReplace() {
-        AccessTokenInfo first = binder.create(Optional.empty(), OWNER, Map.of(), "AUTH1", false);
-        AccessTokenInfo second = binder.create(Optional.empty(), OWNER, Map.of(), "AUTH2", false);
+        AccessTokenInfo first = binder.create(Optional.empty(), OWNER, Map.of(), false);
+        AccessTokenInfo second = binder.create(Optional.empty(), OWNER, Map.of(), false);
 
         assertEquals(first.jwt(), second.jwt());
-        assertEquals("AUTH1", accessTokenDAO.findByOwner(OWNER).orElseThrow().getAuthorities());
 
         AccessToken existing = accessTokenDAO.findByOwner(OWNER).orElseThrow();
         String key = existing.getKey();
@@ -79,45 +76,42 @@ class AccessTokenDataBinderTest extends AbstractDataBinderTest {
         accessTokenDAO.save(existing);
         entityManager.flush();
 
-        AccessTokenInfo refreshed = binder.create(Optional.empty(), OWNER, Map.of(), "AUTH2", false);
+        AccessTokenInfo refreshed = binder.create(Optional.empty(), OWNER, Map.of(), false);
         AccessToken afterRefresh = accessTokenDAO.findByOwner(OWNER).orElseThrow();
         assertEquals(key, afterRefresh.getKey());
         assertEquals(refreshed.jwt(), afterRefresh.getBody());
         assertTrue(afterRefresh.getExpirationTime().isAfter(OffsetDateTime.now()));
-        assertEquals("AUTH2", afterRefresh.getAuthorities());
     }
 
     @Test
     void createWithReplace() {
-        binder.create(Optional.empty(), OWNER, Map.of(), "AUTH1", false);
+        binder.create(Optional.empty(), OWNER, Map.of(), false);
         AccessToken before = accessTokenDAO.findByOwner(OWNER).orElseThrow();
         String key = before.getKey();
 
-        AccessTokenInfo replaced = binder.create(Optional.empty(), OWNER, Map.of(), "AUTH2", true);
+        AccessTokenInfo replaced = binder.create(Optional.empty(), OWNER, Map.of(), true);
 
         assertNotNull(replaced.jwt());
         AccessToken accessToken = accessTokenDAO.findByOwner(OWNER).orElseThrow();
         assertEquals(key, accessToken.getKey());
         assertEquals(replaced.jwt(), accessToken.getBody());
-        assertEquals("AUTH2", accessToken.getAuthorities());
     }
 
     @Test
     void createForAdmin() {
-        AccessTokenInfo info = binder.create(Optional.empty(), "admin", Map.of(), "AUTH", false);
+        AccessTokenInfo info = binder.create(Optional.empty(), "admin", Map.of(), false);
 
         assertNotNull(info.jwt());
-        AccessToken accessToken = accessTokenDAO.findByOwner("admin").orElseThrow();
-        assertNull(accessToken.getAuthorities());
+        assertTrue(accessTokenDAO.findByOwner("admin").isPresent());
     }
 
     @Test
     void update() {
-        binder.create(Optional.empty(), OWNER, Map.of(), "AUTH1", false);
+        binder.create(Optional.empty(), OWNER, Map.of(), false);
         AccessToken accessToken = accessTokenDAO.findByOwner(OWNER).orElseThrow();
         String key = accessToken.getKey();
 
-        AccessTokenInfo updated = binder.update(accessToken, "AUTH2");
+        AccessTokenInfo updated = binder.update(accessToken);
 
         assertTrue(updated.expiration().isAfter(OffsetDateTime.now()));
 
@@ -125,7 +119,6 @@ class AccessTokenDataBinderTest extends AbstractDataBinderTest {
         assertEquals(key, actual.getKey());
         assertEquals(updated.jwt(), actual.getBody());
         assertEquals(updated.expiration(), actual.getExpirationTime());
-        assertEquals("AUTH2", actual.getAuthorities());
         assertFalse(actual.getBody().isEmpty());
     }
 }

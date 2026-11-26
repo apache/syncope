@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -48,17 +47,14 @@ import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -108,10 +104,6 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
     protected final SAML2SP4UIIdPDAO idpDAO;
 
-    protected final AuthDataAccessor authDataAccessor;
-
-    protected final EncryptorManager encryptorManager;
-
     protected final Map<String, String> metadataCache = new ConcurrentHashMap<>();
 
     protected final Map<String, RequestedAuthnContextProvider> perContextRACP = new ConcurrentHashMap<>();
@@ -123,9 +115,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             final SAML2ClientCache saml2ClientCacheLogin,
             final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
-            final SAML2SP4UIIdPDAO idpDAO,
-            final AuthDataAccessor authDataAccessor,
-            final EncryptorManager encryptorManager) {
+            final SAML2SP4UIIdPDAO idpDAO) {
 
         super(props, resourceResolver);
 
@@ -134,8 +124,6 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         this.saml2ClientCacheLogout = saml2ClientCacheLogout;
         this.userManager = userManager;
         this.idpDAO = idpDAO;
-        this.authDataAccessor = authDataAccessor;
-        this.encryptorManager = encryptorManager;
     }
 
     protected static String validateUrl(final String url) {
@@ -438,16 +426,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         claims.put(JWT_CLAIM_NAMEID_VALUE, nameID.getValue());
         claims.put(JWT_CLAIM_SESSIONINDEX, loginResp.getSessionIndex());
 
-        String authorities = null;
-        try {
-            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES);
-        } catch (Exception e) {
-            LOG.error("Could not fetch authorities", e);
-        }
-
         AccessTokenDataBinder.AccessTokenInfo accessTokenInfo = accessTokenDataBinder.create(
-                Optional.of(loginResp.getSessionIndex()), loginResp.getUsername(), claims, authorities, true);
+                Optional.of(loginResp.getSessionIndex()), loginResp.getUsername(), claims, true);
         loginResp.setAccessToken(accessTokenInfo.jwt());
         loginResp.setAccessTokenExpiryTime(accessTokenInfo.expiration());
 

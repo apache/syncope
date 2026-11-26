@@ -22,12 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.nimbusds.jose.JOSEException;
@@ -38,15 +34,11 @@ import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.Encryptor;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,9 +55,6 @@ class SyncopeJWTSSOProviderTest {
     private static final String USERNAME = "bob";
 
     private static final String ISSUER = "configured-issuer";
-
-    @Mock
-    private EncryptorManager encryptorManager;
 
     @Mock
     private Encryptor encryptor;
@@ -108,7 +97,6 @@ class SyncopeJWTSSOProviderTest {
 
         provider = new SyncopeJWTSSOProvider(
                 securityProperties,
-                encryptorManager,
                 delegate,
                 userDAO,
                 accessTokenDAO,
@@ -193,80 +181,11 @@ class SyncopeJWTSSOProviderTest {
         doReturn(Optional.empty()).when(userDAO).findByUsername(USERNAME);
 
         assertTrue(provider.resolve(claims(USERNAME, JWT_ID)).isEmpty());
-        verifyNoInteractions(encryptorManager);
     }
 
     @Test
     void resolveReturnsUserWithoutAuthoritiesWhenAccessTokenHasNone() {
         mockAccessToken(USERNAME);
-        doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
-
-        JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();
-
-        assertSame(user, resolved.user());
-        assertTrue(resolved.authorities().isEmpty());
-        verifyNoInteractions(encryptorManager);
-    }
-
-    @Test
-    void resolveDecodesStoredAuthorities() throws Exception {
-        Set<SyncopeGrantedAuthority> stored = Set.of(
-                new SyncopeGrantedAuthority(IdRepoEntitlement.USER_READ, "/users"));
-        mockAccessToken(USERNAME);
-        when(accessToken.getAuthorities()).thenReturn("encoded-authorities");
-        when(encryptorManager.getInstance()).thenReturn(encryptor);
-        when(encryptor.decode("encoded-authorities", CipherAlgorithm.AES)).thenReturn(POJOHelper.serialize(stored));
-        doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
-        when(user.getUsername()).thenReturn(USERNAME);
-        when(accessTokenManager.getAuthorities(
-                anyString(),
-                anyString(),
-                isNull(),
-                any())).thenReturn(stored);
-
-        JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();
-
-        assertEquals(1, resolved.authorities().size());
-        SyncopeGrantedAuthority authority = resolved.authorities().iterator().next();
-        assertEquals(IdRepoEntitlement.USER_READ, authority.getAuthority());
-        assertEquals(Set.of("/users"), authority.getRealms());
-        verify(encryptor).decode("encoded-authorities", CipherAlgorithm.AES);
-    }
-
-    @Test
-    void resolveReturnsUserWithoutAuthoritiesWhenDecodingFails() throws Exception {
-        mockAccessToken(USERNAME);
-        when(accessToken.getAuthorities()).thenReturn("encoded-authorities");
-        when(encryptorManager.getInstance()).thenReturn(encryptor);
-        when(encryptor.decode("encoded-authorities", CipherAlgorithm.AES)).
-                thenThrow(new IllegalStateException("boom"));
-        doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
-
-        JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();
-
-        assertSame(user, resolved.user());
-        assertTrue(resolved.authorities().isEmpty());
-    }
-
-    @Test
-    void resolveReturnsUserWithoutAuthoritiesWhenDeserializationFails() throws Exception {
-        mockAccessToken(USERNAME);
-        when(accessToken.getAuthorities()).thenReturn("encoded-authorities");
-        when(encryptorManager.getInstance()).thenReturn(encryptor);
-        when(encryptor.decode("encoded-authorities", CipherAlgorithm.AES)).thenReturn("not-json");
-        doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
-
-        JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();
-
-        assertSame(user, resolved.user());
-        assertTrue(resolved.authorities().isEmpty());
-    }
-
-    @Test
-    void resolveReturnsUserWithoutAuthoritiesWhenEncryptorManagerFails() {
-        mockAccessToken(USERNAME);
-        when(accessToken.getAuthorities()).thenReturn("encoded-authorities");
-        when(encryptorManager.getInstance()).thenThrow(new IllegalStateException("boom"));
         doReturn(Optional.of(user)).when(userDAO).findByUsername(USERNAME);
 
         JWTSSOProvider.ResolvedClaims resolved = provider.resolve(claims(USERNAME, JWT_ID)).orElseThrow();

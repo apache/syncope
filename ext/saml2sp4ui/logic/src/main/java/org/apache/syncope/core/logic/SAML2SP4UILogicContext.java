@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -32,7 +31,6 @@ import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -117,9 +115,7 @@ public class SAML2SP4UILogicContext {
             @Qualifier("saml2ClientCacheLogout")
             final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
-            final SAML2SP4UIIdPDAO idpDAO,
-            final AuthDataAccessor authDataAccessor,
-            final EncryptorManager encryptorManager) {
+            final SAML2SP4UIIdPDAO idpDAO) {
 
         return new SAML2SP4UILogic(
                 props,
@@ -128,8 +124,6 @@ public class SAML2SP4UILogicContext {
                 saml2ClientCacheLogin,
                 saml2ClientCacheLogout,
                 userManager,
-                idpDAO,
-                authDataAccessor,
-                encryptorManager);
+                idpDAO);
     }
 }

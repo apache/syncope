@@ -43,23 +43,18 @@ import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
-import org.apache.syncope.core.persistence.api.Encryptor;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.context.CallContext;
@@ -89,8 +84,6 @@ class OIDCC4UILogicTest {
 
     private OIDCClientCache logoutCache;
 
-    private AuthDataAccessor authDataAccessor;
-
     private AccessTokenDataBinder accessTokenDataBinder;
 
     private OIDCC4UIProviderDAO opDAO;
@@ -99,33 +92,24 @@ class OIDCC4UILogicTest {
 
     private OIDCUserManager userManager;
 
-    private Encryptor encryptor;
-
     private OIDCC4UILogic logic;
 
     @BeforeEach
     void setUp() {
         loginCache = mock(OIDCClientCache.class);
         logoutCache = mock(OIDCClientCache.class);
-        authDataAccessor = mock(AuthDataAccessor.class);
         accessTokenDataBinder = mock(AccessTokenDataBinder.class);
         opDAO = mock(OIDCC4UIProviderDAO.class);
         accessTokenDAO = mock(AccessTokenDAO.class);
         userManager = mock(OIDCUserManager.class);
 
-        EncryptorManager encryptorManager = mock(EncryptorManager.class);
-        encryptor = mock(Encryptor.class);
-        when(encryptorManager.getInstance()).thenReturn(encryptor);
-
         logic = new OIDCC4UILogic(
                 loginCache,
                 logoutCache,
-                authDataAccessor,
                 accessTokenDataBinder,
                 opDAO,
                 accessTokenDAO,
                 userManager,
-                encryptorManager,
                 mock(SessionStore.class));
     }
 
@@ -233,12 +217,9 @@ class OIDCC4UILogicTest {
         when(userManager.findMatchingUser(eq("sub"), any(Item.class))).thenReturn(List.of("john"));
         when(op.isUpdateMatching()).thenReturn(false);
 
-        when(encryptor.encode(anyString(), eq(CipherAlgorithm.AES))).thenReturn("AUTH");
-        when(authDataAccessor.getAuthorities("john", null)).thenReturn(Set.of());
-
         OffsetDateTime expiration = OffsetDateTime.now().plusMinutes(5);
         when(accessTokenDataBinder.create(
-                eq(Optional.empty()), eq("john"), anyMap(), eq("AUTH"), eq(true))).
+                eq(Optional.empty()), eq("john"), anyMap(), eq(true))).
                 thenReturn(new AccessTokenDataBinder.AccessTokenInfo("jwt", expiration));
 
         OIDCLoginResponse response = logic.login("requestId", "https://client/callback", "code", "op");
@@ -279,7 +260,7 @@ class OIDCC4UILogicTest {
         assertTrue(response.isSelfReg());
         assertEquals("sub", response.getUsername());
         assertEquals(null, response.getAccessToken());
-        verify(accessTokenDataBinder, never()).create(any(), anyString(), anyMap(), any(), eq(true));
+        verify(accessTokenDataBinder, never()).create(any(), anyString(), anyMap(), eq(true));
     }
 
     @Test

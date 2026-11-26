@@ -31,10 +31,8 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pac4j.core.exception.http.FoundAction;
@@ -54,9 +52,7 @@ class SAML2SP4UILogicTest {
                 mock(SAML2ClientCache.class),
                 mock(SAML2ClientCache.class),
                 mock(SAML2SP4UIUserManager.class),
-                mock(SAML2SP4UIIdPDAO.class),
-                mock(AuthDataAccessor.class),
-                mock(EncryptorManager.class));
+                mock(SAML2SP4UIIdPDAO.class));
     }
 
     @Test
