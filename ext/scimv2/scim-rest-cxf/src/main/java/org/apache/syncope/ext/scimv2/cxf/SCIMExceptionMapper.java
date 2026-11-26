@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
+import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.SCIMError;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -205,8 +206,11 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         } else if (ex instanceof final BadRequestException badRequestException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError(badRequestException));
         } else if (ExceptionUtils.getRootCause(ex) instanceof final BadRequestException badRequestException) {
-            // e.g. a filter rejected while deserializing a PATCH operation
-            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError(badRequestException));
+            // e.g. a filter rejected while deserializing a PATCH operation:
+            // the response media type has not been negotiated yet, so set it explicitly
+            return Response.status(Response.Status.BAD_REQUEST).
+                    type(SCIMConstants.APPLICATION_SCIM_JSON_TYPE).
+                    entity(new SCIMError(badRequestException));
         }
 
         return null;
