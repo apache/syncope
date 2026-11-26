@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,9 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.apache.commons.jexl3.JexlBuilder;
-import org.apache.commons.jexl3.JexlEngine;
-import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -48,9 +46,8 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.provisioning.api.jexl.EmptyClassLoader;
-import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
@@ -90,16 +87,7 @@ class SCIMDataBinderTest {
         AuthDataAccessor authDataAccessor = mock(AuthDataAccessor.class);
         groupDAO = mock(GroupDAO.class);
 
-        JexlEngine jexlEngine = new JexlBuilder().
-                loader(new EmptyClassLoader()).
-                permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
-                cache(512).
-                silent(false).
-                strict(false).
-                create();
-        JexlTools jexlTools = new JexlTools(jexlEngine);
-
-        dataBinder = new SCIMDataBinder(scimConfManager, userLogic, authDataAccessor, groupDAO, jexlTools);
+        dataBinder = new SCIMDataBinder(scimConfManager, userLogic, authDataAccessor, groupDAO);
     }
 
     private static SCIMPatchOperation operation(
@@ -237,8 +225,8 @@ class SCIMDataBinderTest {
         assertEquals(1, result.getLeft().getFirst().getPlainAttrs().size());
         assertTrue(result.getLeft().getFirst().getPlainAttrs().stream().
                 anyMatch(attrPatch -> PatchOperation.ADD_REPLACE.equals(attrPatch.getOperation())
-                && attrPatch.getAttr().getSchema().equals("surname")
-                && attrPatch.getAttr().getValues().contains("Bellini")));
+                        && attrPatch.getAttr().getSchema().equals("surname")
+                        && attrPatch.getAttr().getValues().contains("Bellini")));
 
         userTO.setUsername("bellini");
         userTO.setSuspended(true);
@@ -262,24 +250,6 @@ class SCIMDataBinderTest {
         assertTrue(result.getLeft().getFirst().getRoles().stream().anyMatch(
                 role -> PatchOperation.ADD_REPLACE.equals(role.getOperation())
                 && role.getValue().equals("User reviewer")));
-    }
-
-    @Test
-    void filter2JexlExpression() {
-        assertEquals("displayName =~ \"Jensen\"",
-                SCIMDataBinder.filter2JexlExpression("displayName co \"Jensen\""));
-        assertEquals("displayName =^ \"J\"",
-                SCIMDataBinder.filter2JexlExpression("displayName sw \"J\""));
-        assertEquals("displayName =$ \"Jensen\"",
-                SCIMDataBinder.filter2JexlExpression("displayName ew \"Jensen\""));
-
-        assertEquals("not(empty(title))", SCIMDataBinder.filter2JexlExpression("title pr"));
-        assertEquals("not(empty(title)) and displayName eq \"Jensen\"",
-                SCIMDataBinder.filter2JexlExpression("title pr and displayName eq \"Jensen\""));
-        assertEquals("not(empty(title)) or not(empty(nickName))",
-                SCIMDataBinder.filter2JexlExpression("title pr or nickName pr"));
-        assertEquals("not(empty(nickName)) and not(empty(title))",
-                SCIMDataBinder.filter2JexlExpression("nickName pr and title pr"));
     }
 
     @Test
@@ -363,5 +333,23 @@ class SCIMDataBinderTest {
         assertTrue(result.getLeft().get(2).getMemberships().stream().anyMatch(
                 membershipUR -> PatchOperation.ADD_REPLACE.equals(membershipUR.getOperation())
                 && membershipUR.getGroup().equals("f779c0d4-633b-4be5-8f57-32eb478a3ca5")));
+    }
+
+    @Test
+    void rejectExpressionInPathFilter() {
+        SCIMPatchOperation operation = new SCIMPatchOperation();
+        SCIMPatchPath scimPatchPath = new SCIMPatchPath();
+        scimPatchPath.setAttribute("emails");
+        scimPatchPath.setSub("value");
+        operation.setOp(PatchOp.replace);
+        operation.setPath(scimPatchPath);
+        operation.getValue().add("x@example.com");
+        operation.getPath().setFilter(
+                "type eq \"work\" and ((n) -> { var i = 0; while (i < n) { i = i + 1 }; true })(2000000)");
+
+        SCIMPatchOp patch = new SCIMPatchOp();
+        patch.getOperations().add(operation);
+
+        assertThrows(BadRequestException.class, () -> dataBinder.toUserUpdate(new UserTO(), patch));
     }
 }

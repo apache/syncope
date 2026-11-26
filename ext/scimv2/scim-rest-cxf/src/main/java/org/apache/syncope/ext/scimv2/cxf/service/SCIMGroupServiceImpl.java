@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -50,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.Member;
@@ -58,6 +55,7 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
+import org.apache.syncope.ext.scimv2.api.data.SCIMValuePathFilter;
 import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
@@ -68,8 +66,6 @@ import org.springframework.util.CollectionUtils;
 
 public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements SCIMGroupService {
 
-    protected final JexlTools jexlTools;
-
     public SCIMGroupServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -78,11 +74,9 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
             final GroupLogicOp groupLogic,
             final AnyObjectLogicOp anyObjectLogic,
             final SCIMDataBinder binder,
-            final SCIMConfManager confManager,
-            final JexlTools jexlTools) {
+            final SCIMConfManager confManager) {
 
         super(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder, confManager);
-        this.jexlTools = jexlTools;
     }
 
     private void changeMembership(final String user, final String group, final PatchOp patchOp) {
@@ -159,11 +153,12 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
         patch.getOperations().forEach(op -> {
             if (op.getPath() != null && "members".equals(op.getPath().getAttribute())) {
                 if (CollectionUtils.isEmpty(op.getValue())) {
-                    members(id).stream().filter(member -> op.getPath().getFilter() == null
-                            ? true
-                            : BooleanUtils.toBoolean(jexlTools.evaluateExpression(
-                                    SCIMDataBinder.filter2JexlExpression(op.getPath().getFilter()),
-                                    new MapContext(Map.of("value", member))).toString())).
+                    SCIMValuePathFilter filter = op.getPath().getFilter() == null
+                            ? null
+                            : SCIMValuePathFilter.parse(op.getPath().getFilter());
+
+                    members(id).stream().filter(member -> filter == null
+                            || filter.matches(Map.of("value", member))).
                             forEach(member -> changeMembership(member, id, op.getOp()));
                 } else {
                     op.getValue().stream().map(Member.class::cast).

@@ -204,6 +204,9 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             return builder(ClientExceptionType.InvalidPath, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof final BadRequestException badRequestException) {
             return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError(badRequestException));
+        } else if (ExceptionUtils.getRootCause(ex) instanceof final BadRequestException badRequestException) {
+            // e.g. a filter rejected while deserializing a PATCH operation
+            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError(badRequestException));
         }
 
         return null;
