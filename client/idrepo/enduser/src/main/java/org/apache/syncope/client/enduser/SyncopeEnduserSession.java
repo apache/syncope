@@ -229,6 +229,12 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
                 getService(MfaService.class).enroll(mfa);
     }
 
+    protected Optional<String> mustChangePassword(final ForbiddenException e) {
+        return Optional.ofNullable(e.getResponse()).
+                flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
+                filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals);
+    }
+
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
@@ -240,9 +246,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
             authenticated = true;
         } catch (ForbiddenException e) {
-            client = Optional.ofNullable(e.getResponse()).
-                    flatMap(r -> Optional.ofNullable(r.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS))).
-                    filter(IdRepoEntitlement.MUST_CHANGE_PASSWORD::equals).
+            client = mustChangePassword(e).
                     map(code -> clientFactory.setDomain(getDomain()).
                     create(new BasicAuthenticationHandler(username, password))).
                     orElse(null);
@@ -271,6 +275,14 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
             refreshSelf();
 
             authenticated = true;
+        } catch (ForbiddenException e) {
+            if (mustChangePassword(e).isPresent()) {
+                cleanup();
+                signIn(false);
+                throw e;
+            }
+
+            LOG.error("Authentication failed", e);
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }

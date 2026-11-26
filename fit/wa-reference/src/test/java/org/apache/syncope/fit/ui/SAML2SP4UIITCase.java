@@ -303,6 +303,125 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
     }
 
     @Override
+    protected void ssoMustChangePassword(final String baseURL, final String username, final String password)
+            throws IOException {
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            HttpClientContext context = HttpClientContext.create();
+            context.setCookieStore(new BasicCookieStore());
+
+            // 1. fetch login page
+            HttpGet get = new HttpGet(baseURL);
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            }
+
+            // 2. click on the SAML 2.0 IdP
+            get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
+                    + "/login?idp=https%3A//localhost%3A9443/syncope-wa/saml");
+            String responseBody;
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                responseBody = EntityUtils.toString(response.getEntity());
+            }
+            SAMLForm parsed = parseSAMLRequestForm(responseBody);
+
+            // 2a. post SAML request
+            HttpPost post = new HttpPost(parsed.action());
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.setEntity(new UrlEncodedFormEntity(
+                    List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                            new BasicNameValuePair("SAMLRequest", parsed.payload())), Consts.UTF_8));
+            String location;
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+            }
+
+            // 2b. authenticate
+            post = new HttpPost(location);
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.addHeader(HttpHeaders.REFERER, get.getURI().toASCIIString());
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                responseBody = EntityUtils.toString(response.getEntity());
+            }
+            boolean isOk = false;
+            try (CloseableHttpResponse response =
+                    authenticateToWA(username, password, responseBody, httpclient, context)) {
+
+                switch (response.getStatusLine().getStatusCode()) {
+                    case HttpStatus.SC_OK:
+                        isOk = true;
+                        responseBody = EntityUtils.toString(response.getEntity());
+                        break;
+
+                    case HttpStatus.SC_MOVED_TEMPORARILY:
+                        location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+                        break;
+
+                    default:
+                        fail();
+                }
+            }
+
+            // 2c. WA attribute consent screen
+            if (isOk) {
+                String execution = extractWAExecution(responseBody);
+
+                List<NameValuePair> form = new ArrayList<>();
+                form.add(new BasicNameValuePair("_eventId", "confirm"));
+                form.add(new BasicNameValuePair("execution", execution));
+                form.add(new BasicNameValuePair("option", "1"));
+                form.add(new BasicNameValuePair("reminder", "30"));
+                form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
+
+                post = new HttpPost(WA_ADDRESS + "/login");
+                post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+                post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+                post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+                try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                    assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                    location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+                }
+            }
+
+            if (location.startsWith("http://localhost:8080/syncope-wa")) {
+                location = WA_ADDRESS + StringUtils.substringAfter(location, "http://localhost:8080/syncope-wa");
+            }
+
+            get = new HttpGet(location);
+            get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                responseBody = EntityUtils.toString(response.getEntity());
+            }
+
+            // 2d. post SAML response
+            parsed = parseSAMLResponseForm(responseBody);
+
+            post = new HttpPost(parsed.action());
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.setEntity(new UrlEncodedFormEntity(
+                    List.of(new BasicNameValuePair("RelayState", parsed.relayState()),
+                            new BasicNameValuePair("SAMLResponse", parsed.payload())), Consts.UTF_8));
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+            }
+
+            // 3. verify the error on the login page
+            get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
+            try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+                assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                assertPasswordChangeRequired(EntityUtils.toString(response.getEntity()));
+            }
+        }
+    }
+
+    @Override
     protected void passwordManagement(final String baseURL, final String username, final String password)
             throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
