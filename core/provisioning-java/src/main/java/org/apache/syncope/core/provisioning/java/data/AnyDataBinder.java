@@ -608,6 +608,10 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                                 propByRes.addAll(
                                         ResourceOperation.UPDATE,
                                         groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()));
+
+                                if (any instanceof User user && groupDAO.isManager(membership.getRightEnd().getKey())) {
+                                    accessTokenManager.evict(user.getUsername());
+                                }
                             },
                             () -> LOG.debug("No membership ({},{}) was found, nothing to delete",
                                     anyTO.getKey(), patch.getGroup()));
@@ -630,6 +634,10 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                         Membership<?> membership = any.getMembership(patch.getGroup()).orElse(null);
                         if (membership == null) {
                             membership = anyUtils.add(any, group);
+
+                            if (any instanceof User user && groupDAO.isManager(membership.getRightEnd().getKey())) {
+                                accessTokenManager.evict(user.getUsername());
+                            }
                         } else {
                             any.getPlainAttrs(membership).forEach(any::remove);
                         }

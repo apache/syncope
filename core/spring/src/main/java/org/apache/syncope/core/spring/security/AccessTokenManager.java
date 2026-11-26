@@ -85,6 +85,6 @@ public class AccessTokenManager {
     public void evictForMembers(final String group) {
         groupDAO.findUMembers(group).stream().
                 map(userDAO::findById).flatMap(Optional::stream).
-                forEach(m -> authoritiesCache.remove(key(AuthContextUtils.getDomain(), m.getUsername(), null)));
+                forEach(m -> evict(m.getUsername()));
     }
 }

@@ -96,7 +96,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
 
         List<Neo4jUser> members = findByRelationship(
                 Neo4jUser.NODE, Neo4jRole.NODE, saved.getKey(), Neo4jUser.ROLE_MEMBERSHIP_REL, Neo4jUser.class, null);
-        members.forEach(user -> accessTokenManager.invalidate(user.getUsername()));
+        members.forEach(user -> accessTokenManager.evict(user.getUsername()));
 
         return saved;
     }
@@ -116,7 +116,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
 
-            accessTokenManager.invalidate(user.getUsername());
+            accessTokenManager.evict(user.getUsername());
         });
 
         delegationDAO.findByRoles(role).forEach(delegation -> delegation.getRoles().remove(role));

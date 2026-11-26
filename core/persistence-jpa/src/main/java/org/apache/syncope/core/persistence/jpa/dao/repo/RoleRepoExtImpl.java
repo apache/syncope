@@ -64,7 +64,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
     public Role save(final Role role) {
         ((JPARole) role).list2json();
         Role saved = entityManager.merge(role);
-        getMembers(saved).forEach(user -> accessTokenManager.invalidate(user.getUsername()));
+        getMembers(saved).forEach(user -> accessTokenManager.evict(user.getUsername()));
         return saved;
     }
 
@@ -75,7 +75,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
 
-            accessTokenManager.invalidate(user.getUsername());
+            accessTokenManager.evict(user.getUsername());
         });
 
         delegationDAO.findByRoles(role).forEach(delegation -> delegation.getRoles().remove(role));
