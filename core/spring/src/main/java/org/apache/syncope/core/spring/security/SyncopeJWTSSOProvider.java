@@ -18,26 +18,18 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jca.JCAContext;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,17 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
-    public static boolean isSinglePurpose(final Set<SyncopeGrantedAuthority> authorities) {
-        return authorities.stream().
-                anyMatch(authority -> IdRepoEntitlement.MFA_ENROLL.equals(authority.getAuthority())
-                        || IdRepoEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority()));
-    }
-
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
-
     protected final SecurityProperties securityProperties;
-
-    protected final EncryptorManager encryptorManager;
 
     protected final AccessTokenJWSVerifier delegate;
 
@@ -70,7 +52,6 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     public SyncopeJWTSSOProvider(
             final SecurityProperties securityProperties,
-            final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier delegate,
             final UserDAO userDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -78,7 +59,6 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
             final AuthDataAccessor authDataAccessorProvider) {
 
         this.securityProperties = securityProperties;
-        this.encryptorManager = encryptorManager;
         this.delegate = delegate;
         this.userDAO = userDAO;
         this.accessTokenDAO = accessTokenDAO;
@@ -121,29 +101,13 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
             throw new AuthenticationCredentialsNotFoundException("Access Token owner does not match JWT subject");
         }
 
-        Set<SyncopeGrantedAuthority> stored = new HashSet<>();
-        if (accessToken.getAuthorities() != null) {
-            try {
-                stored.addAll(POJOHelper.deserialize(
-                        encryptorManager.getInstance().decode(accessToken.getAuthorities(), CipherAlgorithm.AES),
-                        new TypeReference<>() {
-                }));
-            } catch (Throwable t) {
-                LOG.error("Could not read stored authorities", t);
-            }
-        }
-
         return userDAO.findByUsername(jwtClaims.getSubject()).map(user -> {
-            // Never trust the snapshot stored in the token: always resolve the authorities from the current
-            // user state, with a short-lived cache to avoid hitting the database on every single request.
-            // Single-purpose authorities (MFA enrollment, must-change-password) must be preserved, though.
-            Set<SyncopeGrantedAuthority> authorities = isSinglePurpose(stored)
-                    ? stored
-                    : accessTokenManager.getAuthorities(
-                            AuthContextUtils.getDomain(),
-                            user.getUsername(),
-                            null,
-                            () -> authDataAccessor.getAuthorities(user.getUsername(), null));
+            // Resolve the authorities from the current user state, with a short-lived cache to avoid hitting the
+            // database on every single request.
+            Set<SyncopeGrantedAuthority> authorities = accessTokenManager.getAuthorities(
+                    AuthContextUtils.getDomain(),
+                    user.getUsername(),
+                    () -> authDataAccessor.getAuthorities(user.getUsername(), null));
 
             return new ResolvedClaims(user, authorities);
         });

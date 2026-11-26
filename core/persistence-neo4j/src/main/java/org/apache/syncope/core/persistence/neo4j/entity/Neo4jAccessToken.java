@@ -35,8 +35,6 @@ public class Neo4jAccessToken extends AbstractProvidedKeyNode implements AccessT
 
     private String owner;
 
-    private String authorities;
-
     @Override
     public String getBody() {
         return body;
@@ -65,15 +63,5 @@ public class Neo4jAccessToken extends AbstractProvidedKeyNode implements AccessT
     @Override
     public void setOwner(final String owner) {
         this.owner = owner;
-    }
-
-    @Override
-    public String getAuthorities() {
-        return authorities;
-    }
-
-    @Override
-    public void setAuthorities(final String authorities) {
-        this.authorities = authorities;
     }
 }

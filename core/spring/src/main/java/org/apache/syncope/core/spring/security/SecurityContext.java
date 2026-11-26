@@ -185,7 +185,6 @@ public class SecurityContext {
     @Bean
     public SyncopeJWTSSOProvider syncopeJWTSSOProvider(
             final SecurityProperties props,
-            final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier accessTokenJWSVerifier,
             final UserDAO userDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -194,7 +193,6 @@ public class SecurityContext {
 
         return new SyncopeJWTSSOProvider(
                 props,
-                encryptorManager,
                 accessTokenJWSVerifier,
                 userDAO,
                 accessTokenDAO,
