@@ -63,6 +63,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -82,6 +83,9 @@ public abstract class AbstractPullResultHandler
 
     @Autowired
     protected AuditManager auditManager;
+
+    @Autowired
+    protected AccessTokenManager accessTokenManager;
 
     @Autowired
     protected ConnObjectUtils connObjectUtils;
@@ -120,8 +124,8 @@ public abstract class AbstractPullResultHandler
             provision = profile.getTask().getResource().
                     getProvisionByObjectClass(delta.getObject().getObjectClass().getObjectClassValue()).
                     orElseThrow(() -> new JobExecutionException(
-                    "No provision found on " + profile.getTask().getResource()
-                    + " for " + delta.getObject().getObjectClass()));
+                            "No provision found on " + profile.getTask().getResource()
+                            + " for " + delta.getObject().getObjectClass()));
 
             String anyType = provision.getAnyType();
             OpEvent.Outcome latestResult = doHandle(
@@ -1002,8 +1006,22 @@ public abstract class AbstractPullResultHandler
                             manager,
                             profile.getTask().getResource(),
                             profile.getConnector()).
-                            ifPresent(match -> any.setuManager((User) match.getAny())),
-                    () -> any.setuManager(null));
+                            ifPresent(match -> {
+                                Optional.ofNullable(any.getuManager()).
+                                        map(User::getUsername).
+                                        ifPresent(accessTokenManager::evict);
+
+                                any.setuManager((User) match.getAny());
+
+                                accessTokenManager.evict(any.getuManager().getUsername());
+                            }),
+                    () -> {
+                        Optional.ofNullable(any.getuManager()).
+                                map(User::getUsername).
+                                ifPresent(accessTokenManager::evict);
+
+                        any.setuManager(null);
+                    });
 
             anyUtils().dao().save(any);
         });
@@ -1017,8 +1035,22 @@ public abstract class AbstractPullResultHandler
                             manager,
                             profile.getTask().getResource(),
                             profile.getConnector()).
-                            ifPresent(match -> any.setgManager((Group) match.getAny())),
-                    () -> any.setgManager(null));
+                            ifPresent(match -> {
+                                Optional.ofNullable(any.getgManager()).
+                                        map(Group::getKey).
+                                        ifPresent(accessTokenManager::evictForMembers);
+
+                                any.setgManager((Group) match.getAny());
+
+                                accessTokenManager.evictForMembers(any.getgManager().getKey());
+                            }),
+                    () -> {
+                        Optional.ofNullable(any.getgManager()).
+                                map(Group::getKey).
+                                ifPresent(accessTokenManager::evictForMembers);
+
+                        any.setgManager(null);
+                    });
 
             anyUtils().dao().save(any);
         });

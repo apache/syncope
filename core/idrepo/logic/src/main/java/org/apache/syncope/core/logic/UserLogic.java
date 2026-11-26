@@ -54,7 +54,6 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.TemplateUtils;
-import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,8 +70,6 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
 
     protected final AnySearchDAO searchDAO;
 
-    protected final AccessTokenManager accessTokenManager;
-
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -83,8 +80,7 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
             final EncryptorManager encryptorManager,
             final ConfParamOps confParamOps,
             final GroupDAO groupDAO,
-            final AnySearchDAO searchDAO,
-            final AccessTokenManager accessTokenManager) {
+            final AnySearchDAO searchDAO) {
 
         super(realmSearchDAO,
                 anyTypeDAO,
@@ -96,7 +92,6 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
                 confParamOps);
         this.groupDAO = groupDAO;
         this.searchDAO = searchDAO;
-        this.accessTokenManager = accessTokenManager;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")
@@ -144,17 +139,7 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> update(final UserUR userUR, final boolean nullPriorityAsync) {
-        ProvisioningResult<UserTO> result = doUpdate(userUR, false, nullPriorityAsync);
-
-        // Roles and password both concur in determining the authorities granted to a user: make sure that any
-        // existing access token is invalidated as soon as one of them changes.
-        // The must-change-password flag is deliberately not considered here: existing sessions must keep working
-        // (with reduced authorities) so that the password can actually be changed.
-        if (!userUR.getRoles().isEmpty() || userUR.getPassword() != null) {
-            accessTokenManager.invalidate(result.getEntity().getUsername());
-        }
-
-        return result;
+        return doUpdate(userUR, false, nullPriorityAsync);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
@@ -176,9 +161,7 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
         // call above works with username as well
         statusR.setKey(toUpdate.getKey());
 
-        ProvisioningResult<UserTO> result = doStatus(statusR, nullPriorityAsync);
-        accessTokenManager.invalidate(result.getEntity().getUsername());
-        return result;
+        return doStatus(statusR, nullPriorityAsync);
     }
 
     protected void updateChecks(final String key) {
@@ -301,11 +284,6 @@ public class UserLogic extends AbstractUserLogic implements UserLogicOp {
         result.setEntity(binder.getUserTO(key));
         result.getPropagationStatuses().addAll(statuses);
         result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
-
-        if (changePwd) {
-            accessTokenManager.invalidate(result.getEntity().getUsername());
-        }
-
         return result;
     }
 

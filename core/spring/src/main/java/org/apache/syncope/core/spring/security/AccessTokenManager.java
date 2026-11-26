@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AccessTokenManager {
@@ -34,13 +37,21 @@ public class AccessTokenManager {
 
     protected final AccessTokenDAO accessTokenDAO;
 
+    protected final UserDAO userDAO;
+
+    protected final GroupDAO groupDAO;
+
     protected final Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache;
 
     public AccessTokenManager(
             final AccessTokenDAO accessTokenDAO,
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
             final Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache) {
 
         this.accessTokenDAO = accessTokenDAO;
+        this.userDAO = userDAO;
+        this.groupDAO = groupDAO;
         this.authoritiesCache = authoritiesCache;
     }
 
@@ -61,10 +72,19 @@ public class AccessTokenManager {
 
     @Transactional
     public void invalidate(final String username) {
-        if (username != null) {
-            accessTokenDAO.deleteByOwner(username);
+        accessTokenDAO.deleteByOwner(username);
 
-            authoritiesCache.remove(key(AuthContextUtils.getDomain(), username, null));
-        }
+        evict(username);
+    }
+
+    public void evict(final String username) {
+        authoritiesCache.remove(key(AuthContextUtils.getDomain(), username, null));
+    }
+
+    @Transactional
+    public void evictForMembers(final String group) {
+        groupDAO.findUMembers(group).stream().
+                map(userDAO::findById).flatMap(Optional::stream).
+                forEach(m -> authoritiesCache.remove(key(AuthContextUtils.getDomain(), m.getUsername(), null)));
     }
 }

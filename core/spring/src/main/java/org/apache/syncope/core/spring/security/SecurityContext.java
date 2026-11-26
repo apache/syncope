@@ -39,12 +39,13 @@ import java.util.Set;
 import javax.cache.Cache;
 import javax.cache.CacheManager;
 import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
-import javax.cache.expiry.TouchedExpiryPolicy;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
@@ -163,7 +164,7 @@ public class SecurityContext {
     public Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache(final CacheManager cacheManager) {
         MutableConfiguration<String, Set<SyncopeGrantedAuthority>> config =
                 new MutableConfiguration<String, Set<SyncopeGrantedAuthority>>().
-                        setExpiryPolicyFactory(TouchedExpiryPolicy.factoryOf(Duration.ONE_MINUTE));
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ONE_MINUTE));
 
         return cacheManager.createCache(AccessTokenManager.CACHE, config);
     }
@@ -172,10 +173,12 @@ public class SecurityContext {
     @Bean
     public AccessTokenManager accessTokenManager(
             final AccessTokenDAO accessTokenDAO,
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
             @Qualifier(AccessTokenManager.CACHE)
             final Cache<String, Set<SyncopeGrantedAuthority>> authoritiesCache) {
 
-        return new AccessTokenManager(accessTokenDAO, authoritiesCache);
+        return new AccessTokenManager(accessTokenDAO, userDAO, groupDAO, authoritiesCache);
     }
 
     @ConditionalOnMissingBean

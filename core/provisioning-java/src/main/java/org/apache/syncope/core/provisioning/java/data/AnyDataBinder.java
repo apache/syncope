@@ -87,6 +87,7 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
@@ -181,6 +182,8 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
     protected final OutboundMatcher outboundMatcher;
 
+    protected final AccessTokenManager accessTokenManager;
+
     protected AnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final RealmSearchDAO realmSearchDAO,
@@ -198,7 +201,8 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser, jexlTools);
         this.anyTypeDAO = anyTypeDAO;
@@ -212,6 +216,7 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
         this.outboundMatcher = outboundMatcher;
+        this.accessTokenManager = accessTokenManager;
     }
 
     protected void setRealm(final Any any, final AnyUR anyUR) {
@@ -232,28 +237,29 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         resources.stream().map(resourceDAO::findById).flatMap(Optional::stream).
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
-                ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
+                        ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
-            MappingManager.PreparedAttrs prepared = mappingManager.prepareAttrsFromAny(
-                    any, password, changePwdRes.contains(resource.getKey()), true, resource, provision);
+                            MappingManager.PreparedAttrs prepared = mappingManager.prepareAttrsFromAny(
+                                    any, password, changePwdRes.contains(resource.getKey()), true, resource, provision);
 
-            ConnObject connObjectTO;
-            if (StringUtils.isBlank(prepared.connObjectLink())) {
-                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.attributes());
-            } else {
-                ConnectorObject connectorObject = new ConnectorObjectBuilder().
-                        addAttributes(prepared.attributes()).
-                        addAttribute(new Uid(prepared.connObjectLink())).
-                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.connObjectLink())).
-                        build();
+                            ConnObject connObjectTO;
+                            if (StringUtils.isBlank(prepared.connObjectLink())) {
+                                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.attributes());
+                            } else {
+                                ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                                        addAttributes(prepared.attributes()).
+                                        addAttribute(new Uid(prepared.connObjectLink())).
+                                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.
+                                                connObjectLink())).
+                                        build();
 
-                connObjectTO = ConnObjectUtils.getConnObjectTO(
-                        outboundMatcher.getFIQL(connectorObject, resource, provision),
-                        connectorObject.getAttributes());
-            }
+                                connObjectTO = ConnObjectUtils.getConnObjectTO(
+                                        outboundMatcher.getFIQL(connectorObject, resource, provision),
+                                        connectorObject.getAttributes());
+                            }
 
-            onResources.put(resource.getKey(), connObjectTO);
-        })));
+                            onResources.put(resource.getKey(), connObjectTO);
+                        })));
 
         return onResources;
     }
@@ -302,14 +308,14 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         resources.stream().filter(ExternalResource::isEnforceMandatoryCondition).
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
-                ifPresent(provision -> {
-                    List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision, any);
-                    if (!missingAttrNames.isEmpty()) {
-                        LOG.error("Mandatory schemas {} not provided with values", missingAttrNames);
+                        ifPresent(provision -> {
+                            List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision, any);
+                            if (!missingAttrNames.isEmpty()) {
+                                LOG.error("Mandatory schemas {} not provided with values", missingAttrNames);
 
-                        reqValMissing.getElements().addAll(missingAttrNames);
-                    }
-                }));
+                                reqValMissing.getElements().addAll(missingAttrNames);
+                            }
+                        }));
 
         return reqValMissing;
     }
@@ -420,6 +426,9 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         // 0. manager
         PropagationByResource<String> managerPropByRes = new PropagationByResource<>();
         if (anyUR.getuManager() != null) {
+            Optional.ofNullable(any.getuManager()).
+                    ifPresent(uManager -> accessTokenManager.evict(uManager.getUsername()));
+
             if (anyUR.getuManager().getValue() == null) {
                 if (any.getuManager() != null) {
                     any.setuManager(null);
@@ -434,10 +443,15 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 } else {
                     any.setuManager(manager);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+
+                    accessTokenManager.evict(manager.getUsername());
                 }
             }
         }
         if (anyUR.getgManager() != null) {
+            Optional.ofNullable(any.getgManager()).
+                    ifPresent(gManager -> accessTokenManager.evictForMembers(gManager.getKey()));
+
             if (anyUR.getgManager().getValue() == null) {
                 if (any.getgManager() != null) {
                     any.setgManager(null);
@@ -452,6 +466,8 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 } else {
                     any.setgManager(manager);
                     managerPropByRes.addAll(ResourceOperation.UPDATE, anyUtils.dao().findAllResourceKeys(any.getKey()));
+
+                    accessTokenManager.evictForMembers(manager.getKey());
                 }
             }
         }
@@ -541,23 +557,23 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         // 3. attributes
         anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).
                 forEach(patch -> getPlainSchema(patch.getAttr().getSchema()).ifPresentOrElse(
-                schema -> {
-                    PlainAttr attr = any.getPlainAttr(schema.getKey()).orElse(null);
-                    if (attr == null) {
-                        LOG.debug("No plain attribute found for schema {}", schema);
+                        schema -> {
+                            PlainAttr attr = any.getPlainAttr(schema.getKey()).orElse(null);
+                            if (attr == null) {
+                                LOG.debug("No plain attribute found for schema {}", schema);
 
-                        if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            attr = new PlainAttr();
-                            attr.setPlainSchema(schema);
-                            any.add(attr);
-                        }
-                    }
-                    if (attr != null) {
-                        processAttrPatch(anyTO, any, patch, schema, attr, invalidValues);
-                    }
-                },
-                () -> LOG.debug("Invalid {} {}, ignoring...",
-                        PlainSchema.class.getSimpleName(), patch.getAttr().getSchema())));
+                                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                                    attr = new PlainAttr();
+                                    attr.setPlainSchema(schema);
+                                    any.add(attr);
+                                }
+                            }
+                            if (attr != null) {
+                                processAttrPatch(anyTO, any, patch, schema, attr, invalidValues);
+                            }
+                        },
+                        () -> LOG.debug("Invalid {} {}, ignoring...",
+                                PlainSchema.class.getSimpleName(), patch.getAttr().getSchema())));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
@@ -643,11 +659,21 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         // 0. manager
         // owner
         if (anyCR.getuManager() != null) {
-            userDAO.findById(anyCR.getuManager()).ifPresentOrElse(any::setuManager,
+            userDAO.findById(anyCR.getuManager()).ifPresentOrElse(
+                    manager -> {
+                        any.setuManager(manager);
+
+                        accessTokenManager.evict(manager.getUsername());
+                    },
                     () -> LOG.warn("Ignoring invalid user specified as manager: {}", anyCR.getuManager()));
         }
         if (anyCR.getgManager() != null) {
-            groupDAO.findById(anyCR.getgManager()).ifPresentOrElse(any::setgManager,
+            groupDAO.findById(anyCR.getgManager()).ifPresentOrElse(
+                    manager -> {
+                        any.setgManager(manager);
+
+                        accessTokenManager.evictForMembers(manager.getKey());
+                    },
                     () -> LOG.warn("Ignoring invalid group specified as manager: {}", anyCR.getgManager()));
         }
 
@@ -704,17 +730,17 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-            PlainAttr attr = any.getPlainAttr(schema.getKey()).orElseGet(() -> {
-                PlainAttr newAttr = new PlainAttr();
-                newAttr.setPlainSchema(schema);
-                return newAttr;
-            });
-            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                    PlainAttr attr = any.getPlainAttr(schema.getKey()).orElseGet(() -> {
+                        PlainAttr newAttr = new PlainAttr();
+                        newAttr.setPlainSchema(schema);
+                        return newAttr;
+                    });
+                    fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
-            if (!attr.getValuesAsStrings().isEmpty()) {
-                any.add(attr);
-            }
-        }));
+                    if (!attr.getValuesAsStrings().isEmpty()) {
+                        any.add(attr);
+                    }
+                }));
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -782,18 +808,18 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-            PlainAttr attr = any.getPlainAttr(schema.getKey(), relationship).orElseGet(() -> {
-                PlainAttr gpa = new PlainAttr();
-                gpa.setRelationship(relationship.getKey());
-                gpa.setPlainSchema(schema);
-                return gpa;
-            });
-            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                    PlainAttr attr = any.getPlainAttr(schema.getKey(), relationship).orElseGet(() -> {
+                        PlainAttr gpa = new PlainAttr();
+                        gpa.setRelationship(relationship.getKey());
+                        gpa.setPlainSchema(schema);
+                        return gpa;
+                    });
+                    fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
-            if (!attr.getValuesAsStrings().isEmpty()) {
-                any.add(attr);
-            }
-        }));
+                    if (!attr.getValuesAsStrings().isEmpty()) {
+                        any.add(attr);
+                    }
+                }));
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -813,18 +839,18 @@ abstract class AnyDataBinder extends AttributableDataBinder {
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-            PlainAttr attr = any.getPlainAttr(schema.getKey(), membership).orElseGet(() -> {
-                PlainAttr gpa = new PlainAttr();
-                gpa.setMembership(membership.getKey());
-                gpa.setPlainSchema(schema);
-                return gpa;
-            });
-            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                    PlainAttr attr = any.getPlainAttr(schema.getKey(), membership).orElseGet(() -> {
+                        PlainAttr gpa = new PlainAttr();
+                        gpa.setMembership(membership.getKey());
+                        gpa.setPlainSchema(schema);
+                        return gpa;
+                    });
+                    fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
-            if (!attr.getValuesAsStrings().isEmpty()) {
-                any.add(attr);
-            }
-        }));
+                    if (!attr.getValuesAsStrings().isEmpty()) {
+                        any.add(attr);
+                    }
+                }));
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);

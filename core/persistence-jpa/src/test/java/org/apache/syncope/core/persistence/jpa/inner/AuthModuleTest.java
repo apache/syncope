@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -234,7 +235,7 @@ public class AuthModuleTest extends AbstractTest {
     @Test
     public void saveWithSyncopeModule() {
         SyncopeAuthModuleConf conf = new SyncopeAuthModuleConf();
-        conf.setDomain("Master");
+        conf.setDomain(SyncopeConstants.MASTER_DOMAIN);
 
         saveAuthModule("SyncopeAuthModuleTest", conf);
     }

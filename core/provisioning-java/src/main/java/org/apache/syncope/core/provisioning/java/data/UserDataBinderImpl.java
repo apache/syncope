@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.StandardConfParams;
@@ -85,6 +86,7 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult.PropagationIn
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,7 +129,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
             final SecurityProperties securityProperties,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -145,7 +148,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 intAttrNameParser,
                 outboundMatcher,
                 validator,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
 
         this.roleDAO = roleDAO;
         this.securityQuestionDAO = securityQuestionDAO;
@@ -260,17 +264,17 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-            PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
-                PlainAttr newAttr = new PlainAttr();
-                newAttr.setPlainSchema(schema);
-                return newAttr;
-            });
-            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                    PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
+                        PlainAttr newAttr = new PlainAttr();
+                        newAttr.setPlainSchema(schema);
+                        return newAttr;
+                    });
+                    fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
-            if (!attr.getValuesAsStrings().isEmpty()) {
-                account.add(attr);
-            }
-        }));
+                    if (!attr.getValuesAsStrings().isEmpty()) {
+                        account.add(attr);
+                    }
+                }));
     }
 
     @Override
@@ -359,16 +363,19 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
 
         // password
         String password = null;
+        MutableBoolean passwordChanged = new MutableBoolean(false);
         Set<String> changePwdRes = new HashSet<>();
         if (userUR.getPassword() != null) {
             if (userUR.getPassword().getOperation() == PatchOperation.DELETE) {
                 user.setEncodedPassword(null, null);
+                passwordChanged.setTrue();
 
                 changePwdRes.addAll(userUR.getPassword().getResources());
             } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
                 if (userUR.getPassword().isOnSyncope()) {
                     setPassword(user, userUR.getPassword().getValue(), scce);
                     user.setChangePwdDate(OffsetDateTime.now());
+                    passwordChanged.setTrue();
                 }
 
                 password = userUR.getPassword().getValue();
@@ -378,6 +385,9 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             if (!changePwdRes.isEmpty()) {
                 propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
             }
+        }
+        if (passwordChanged.isTrue()) {
+            accessTokenManager.invalidate(user.getUsername());
         }
 
         // Save projection on Resources (before update)
@@ -417,20 +427,26 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         }
 
         // roles
+        MutableBoolean rolesChanged = new MutableBoolean(false);
         for (StringPatchItem patch : userUR.getRoles()) {
             roleDAO.findById(patch.getValue()).ifPresentOrElse(
                     role -> {
                         switch (patch.getOperation()) {
                             case ADD_REPLACE:
                                 user.add(role);
+                                rolesChanged.setTrue();
                                 break;
 
                             case DELETE:
                             default:
                                 user.getRoles().remove(role);
+                                rolesChanged.setTrue();
                         }
                     },
                     () -> LOG.warn("Ignoring unknown role with key {}", patch.getValue()));
+        }
+        if (rolesChanged.isTrue()) {
+            accessTokenManager.invalidate(user.getUsername());
         }
 
         // attributes, resources and relationships
@@ -508,9 +524,9 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                     ResourceOperation.UPDATE,
                     anyUtils.getAllResources(saved).stream().
                             map(resource -> resource.getProvisionByAnyType(saved.getType().getKey()).
-                            filter(mappingManager::hasMustChangePassword).
-                            map(provision -> resource.getKey()).
-                            orElse(null)).
+                                    filter(mappingManager::hasMustChangePassword).
+                                    map(provision -> resource.getKey()).
+                                    orElse(null)).
                             filter(Objects::nonNull).
                             toList());
         }
@@ -578,16 +594,16 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
                     map(relationship -> getRelationshipTO(user.getPlainAttrs(relationship),
-                    derAttrHandler.getValues(user, relationship),
-                    relationship.getType().getKey(),
-                    RelationshipTO.End.LEFT,
-                    relationship.getRightEnd())).toList());
+                            derAttrHandler.getValues(user, relationship),
+                            relationship.getType().getKey(),
+                            RelationshipTO.End.LEFT,
+                            relationship.getRightEnd())).toList());
 
             // memberships
             userTO.getMemberships().addAll(user.getMemberships().stream().
                     map(membership -> getMembershipTO(user.getPlainAttrs(membership),
-                    derAttrHandler.getValues((Groupable<?, ?, ?>) user, membership),
-                    membership)).toList());
+                            derAttrHandler.getValues((Groupable<?, ?, ?>) user, membership),
+                            membership)).toList());
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(

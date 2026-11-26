@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlTools;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.apache.syncope.core.spring.security.AccessTokenManager;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
@@ -78,7 +79,8 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final JexlTools jexlTools) {
+            final JexlTools jexlTools,
+            final AccessTokenManager accessTokenManager) {
 
         super(anyTypeDAO,
                 realmSearchDAO,
@@ -96,7 +98,8 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                 intAttrNameParser,
                 outboundMatcher,
                 validator,
-                jexlTools);
+                jexlTools,
+                accessTokenManager);
     }
 
     @Transactional(readOnly = true)
@@ -129,22 +132,22 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
             anyObjectTO.getRelationships().addAll(
                     anyObjectDAO.findAllRelationships(anyObject).stream().
                             map(relationship -> getRelationshipTO(anyObject.getPlainAttrs(relationship),
-                            derAttrHandler.getValues(anyObject, relationship),
-                            relationship.getType().getKey(),
-                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
-                            ? RelationshipTO.End.LEFT
-                            : RelationshipTO.End.RIGHT,
-                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
-                            ? relationship.getRightEnd()
-                            : relationship.getLeftEnd())).
+                                    derAttrHandler.getValues(anyObject, relationship),
+                                    relationship.getType().getKey(),
+                                    relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                                    ? RelationshipTO.End.LEFT
+                                    : RelationshipTO.End.RIGHT,
+                                    relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                                    ? relationship.getRightEnd()
+                                    : relationship.getLeftEnd())).
                             toList());
 
             // memberships
             anyObjectTO.getMemberships().addAll(
                     anyObject.getMemberships().stream().map(membership -> getMembershipTO(
-                    anyObject.getPlainAttrs(membership),
-                    derAttrHandler.getValues((Groupable<?, ?, ?>) anyObject, membership),
-                    membership)).toList());
+                            anyObject.getPlainAttrs(membership),
+                            derAttrHandler.getValues((Groupable<?, ?, ?>) anyObject, membership),
+                            membership)).toList());
         }
 
         return anyObjectTO;

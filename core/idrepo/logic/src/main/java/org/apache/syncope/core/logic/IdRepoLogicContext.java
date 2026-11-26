@@ -503,8 +503,7 @@ public class IdRepoLogicContext {
             final EncryptorManager encryptorManager,
             final ConfParamOps confParamOps,
             final GroupDAO groupDAO,
-            final AnySearchDAO searchDAO,
-            final AccessTokenManager accessTokenManager) {
+            final AnySearchDAO searchDAO) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -515,8 +514,7 @@ public class IdRepoLogicContext {
                 encryptorManager,
                 confParamOps,
                 groupDAO,
-                searchDAO,
-                accessTokenManager);
+                searchDAO);
     }
 
     @ConditionalOnMissingBean
