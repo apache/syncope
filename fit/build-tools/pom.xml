@@ -342,7 +342,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
+                  <cargo.jvmargs>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

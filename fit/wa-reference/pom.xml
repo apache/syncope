@@ -233,7 +233,7 @@ under the License.
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
                 -Dopenfga.api-url=http://${docker.container.openfga.ip}:8080
-                -Xmx1024m -Xms512m</cargo.jvmargs>
+                -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
@@ -406,7 +406,7 @@ under the License.
                     -Dopenfga.api-url=http://${docker.container.openfga.ip}:8080
                     -Dwicket.core.settings.general.configuration-type=development
                     -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
