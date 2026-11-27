@@ -29,7 +29,8 @@ import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -60,11 +61,11 @@ public class SpringTestConfiguration {
     }
 
     @Bean
-    public Blacklist groovyBlackList() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/META-INF/groovy.blacklist");
+    public Whitelist groovyWhitelist() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/META-INF/groovy.whitelist");
                 Reader reader = new InputStreamReader(is);) {
 
-            return new Blacklist(reader);
+            return new StaticWhitelist(reader);
         }
     }
 }

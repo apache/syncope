@@ -63,7 +63,7 @@ import org.flowable.common.engine.impl.scripting.ScriptingEngines;
 import org.flowable.idm.spring.SpringIdmEngineConfiguration;
 import org.flowable.idm.spring.configurator.SpringIdmEngineConfigurator;
 import org.flowable.spring.SpringProcessEngineConfiguration;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -151,7 +151,7 @@ public class FlowableWorkflowContext {
             final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
             final SyncopeFormHandlerHelper syncopeFormHandlerHelper,
             final IdGenerator idGenerator,
-            final Blacklist groovyBlackList) {
+            final Whitelist groovyWhitelist) {
 
         SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
@@ -166,7 +166,7 @@ public class FlowableWorkflowContext {
                 new ShellServiceTaskDisablingBpmnParseHandler(),
                 new ClassInstantiationDisablingBpmnParseHandler()));
 
-        ScriptEngine groovyScriptEngine = new GroovySandboxScriptEngineImpl(groovyBlackList);
+        ScriptEngine groovyScriptEngine = new GroovySandboxScriptEngineImpl(groovyWhitelist);
         groovyScriptEngine.getContext().
                 setAttribute("#jsr223.groovy.engine.keep.globals", "weak", ScriptContext.ENGINE_SCOPE);
         conf.setScriptEngine(new JSR223FlowableScriptEngine() {

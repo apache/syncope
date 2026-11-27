@@ -26,7 +26,7 @@ import javax.script.ScriptContext;
 import javax.script.ScriptException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
@@ -45,17 +45,17 @@ public class GroovySandboxScriptEngineImpl extends GroovyScriptEngineImpl {
         GROOVY_CLASSLOADER = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), cc);
     }
 
-    protected final Blacklist blackList;
+    protected final Whitelist whitelist;
 
-    public GroovySandboxScriptEngineImpl(final Blacklist blackList) {
+    public GroovySandboxScriptEngineImpl(final Whitelist whitelist) {
         super(GROOVY_CLASSLOADER);
-        this.blackList = blackList;
+        this.whitelist = whitelist;
     }
 
     protected Object sandboxEval(final ThrowingSupplier<Object> eval) {
         GroovyInterceptor interceptor = null;
         try {
-            interceptor = new SandboxInterceptor(blackList);
+            interceptor = new SandboxInterceptor(new SelfAllowingWhitelist(whitelist, GROOVY_CLASSLOADER));
             interceptor.register();
         } catch (NoClassDefFoundError noClassDefFound) {
             // ignore

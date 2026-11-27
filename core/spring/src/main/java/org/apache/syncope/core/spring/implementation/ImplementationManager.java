@@ -51,7 +51,7 @@ import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
@@ -286,8 +286,8 @@ public final class ImplementationManager {
             return clazz.getDeclaredConstructor().newInstance();
         }
 
-        GroovyInterceptor interceptor = new SandboxInterceptor(
-                ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class));
+        GroovyInterceptor interceptor = new SandboxInterceptor(new SelfAllowingWhitelist(
+                ApplicationContextProvider.getApplicationContext().getBean(Whitelist.class), GROOVY_CLASSLOADER));
         try {
             interceptor.register();
 
@@ -302,8 +302,8 @@ public final class ImplementationManager {
             return ApplicationContextProvider.getBeanFactory().createBean(clazz);
         }
 
-        GroovyInterceptor interceptor = new SandboxInterceptor(
-                ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class));
+        GroovyInterceptor interceptor = new SandboxInterceptor(new SelfAllowingWhitelist(
+                ApplicationContextProvider.getApplicationContext().getBean(Whitelist.class), GROOVY_CLASSLOADER));
         try {
             interceptor.register();
 
