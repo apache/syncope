@@ -172,7 +172,7 @@ public class SecurityProperties {
 
     private String aesSecretKey;
 
-    private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
+    private String groovyWhitelist = "classpath:META-INF/groovy.whitelist";
 
     private final ThrottleProperties authenticationThrottle = new ThrottleProperties();
 
@@ -272,12 +272,12 @@ public class SecurityProperties {
         this.aesSecretKey = secretKey;
     }
 
-    public String getGroovyBlacklist() {
-        return groovyBlacklist;
+    public String getGroovyWhitelist() {
+        return groovyWhitelist;
     }
 
-    public void setGroovyBlacklist(final String groovyBlacklist) {
-        this.groovyBlacklist = groovyBlacklist;
+    public void setGroovyWhitelist(final String groovyWhitelist) {
+        this.groovyWhitelist = groovyWhitelist;
     }
 
     public SecurityProperties.ThrottleProperties getAuthenticationThrottle() {
