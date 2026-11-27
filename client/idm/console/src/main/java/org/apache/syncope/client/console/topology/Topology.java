@@ -21,9 +21,11 @@ package org.apache.syncope.client.console.topology;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,8 +75,9 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
-    public static String sanitizeMarkupId(final String input) {
-        return input.replaceAll("[^a-zA-Z0-9._-]", "_");
+    public static String toMarkupId(final TopologyNode.Kind kind, final String key) {
+        return "%s-%s".formatted(kind.name().toLowerCase(Locale.ROOT),
+                Base64.getUrlEncoder().withoutPadding().encodeToString(key.getBytes(StandardCharsets.UTF_8)));
     }
 
     @SpringBean
@@ -240,7 +243,7 @@ public class Topology extends BasePage {
 
         Map<String, Map<String, TopologyNode>> connections = new HashMap<>();
         Map<String, TopologyNode> syncopeConnections = new HashMap<>();
-        connections.put(sanitizeMarkupId(syncopeTopologyNode.getKey()), syncopeConnections);
+        connections.put(toMarkupId(syncopeTopologyNode.getKind(), syncopeTopologyNode.getKey()), syncopeConnections);
 
         // required to retrieve parent positions
         Map<String, TopologyNode> servers = new HashMap<>();
@@ -277,8 +280,8 @@ public class Topology extends BasePage {
 
                 item.add(topologyNodePanel("cs", topologynode, false));
 
-                syncopeConnections.put(sanitizeMarkupId(url), topologynode);
-                connections.put(sanitizeMarkupId(url), new HashMap<>());
+                syncopeConnections.put(toMarkupId(topologynode.getKind(), url), topologynode);
+                connections.put(toMarkupId(topologynode.getKind(), url), new HashMap<>());
             }
         };
 
@@ -316,8 +319,8 @@ public class Topology extends BasePage {
 
                 item.add(topologyNodePanel("fp", topologynode, false));
 
-                syncopeConnections.put(sanitizeMarkupId(url), topologynode);
-                connections.put(sanitizeMarkupId(url), new HashMap<>());
+                syncopeConnections.put(toMarkupId(topologynode.getKind(), url), topologynode);
+                connections.put(toMarkupId(topologynode.getKind(), url), new HashMap<>());
             }
         };
 
@@ -373,12 +376,17 @@ public class Topology extends BasePage {
                         item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
 
                         // Update connections
+                        String parentId = toMarkupId(
+                                conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)
+                                        ? TopologyNode.Kind.CONNECTOR_SERVER
+                                        : TopologyNode.Kind.FS_PATH,
+                                conn.getLocation());
                         Map<String, TopologyNode> remoteConnections;
-                        if (connections.containsKey(conn.getLocation())) {
-                            remoteConnections = connections.get(conn.getLocation());
+                        if (connections.containsKey(parentId)) {
+                            remoteConnections = connections.get(parentId);
                         } else {
                             remoteConnections = new HashMap<>();
-                            connections.put(conn.getLocation(), remoteConnections);
+                            connections.put(parentId, remoteConnections);
                         }
                         remoteConnections.put(conn.getKey(), topologynode);
                     }
@@ -408,12 +416,13 @@ public class Topology extends BasePage {
                     TopologyNode topologynode = new TopologyNode(
                             resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
 
+                    String parentId = toMarkupId(TopologyNode.Kind.CONNECTOR, resourceTO.getConnector());
                     Map<String, TopologyNode> remoteConnections;
-                    if (connections.containsKey(resourceTO.getConnector())) {
-                        remoteConnections = connections.get(resourceTO.getConnector());
+                    if (connections.containsKey(parentId)) {
+                        remoteConnections = connections.get(parentId);
                     } else {
                         remoteConnections = new HashMap<>();
-                        connections.put(resourceTO.getConnector(), remoteConnections);
+                        connections.put(parentId, remoteConnections);
                     }
                     remoteConnections.put(topologynode.getKey(), topologynode);
 
@@ -433,7 +442,8 @@ public class Topology extends BasePage {
                 String connectorKey = item.getModelObject();
 
                 ListView<TopologyNode> innerListView = new ListView<>("resources",
-                        new ArrayList<>(connections.get(connectorKey).values())) {
+                        new ArrayList<>(connections.get(
+                                toMarkupId(TopologyNode.Kind.CONNECTOR, connectorKey)).values())) {
 
                     private static final long serialVersionUID = -3447760771863754342L;
 
@@ -487,7 +497,8 @@ public class Topology extends BasePage {
                 StringBuilder jsPlumbConf = new StringBuilder(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
                 connections.forEach((key, value) -> value.forEach((label, node) -> jsPlumbConf.append(
-                        "connect('%s','%s','%s');".formatted(sanitizeMarkupId(key), label, node.getKind()))));
+                        "connect('%s','%s','%s');"
+                                .formatted(key, toMarkupId(node.getKind(), node.getKey()), node.getKind()))));
 
                 jsPlumbConf.append("restoreTopologyLayout();");
 
@@ -545,7 +556,7 @@ public class Topology extends BasePage {
 
     private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node, final boolean errored) {
         TopologyNodePanel panel = new TopologyNodePanel(id, node, errored);
-        panel.setMarkupId(sanitizeMarkupId(node.getKey()));
+        panel.setMarkupId(toMarkupId(node.getKind(), node.getKey()));
         panel.setOutputMarkupId(true);
 
         List<Behavior> behaviors = new ArrayList<>();
@@ -557,7 +568,7 @@ public class Topology extends BasePage {
             @Override
             public void renderHead(final Component component, final IHeaderResponse response) {
                 response.render(OnDomReadyHeaderItem.forScript("setPosition('%s', %d, %d)".
-                        formatted(sanitizeMarkupId(node.getKey()), node.getX(), node.getY())));
+                        formatted(toMarkupId(node.getKind(), node.getKey()), node.getX(), node.getY())));
             }
         });
 
@@ -576,7 +587,8 @@ public class Topology extends BasePage {
                 target.appendJavaScript(
                         "$('.window').removeClass(\"active-window\").addClass(\"inactive-window\"); "
                         + "$(document.getElementById('%s'))."
-                        + "removeClass(\"inactive-window\").addClass(\"active-window\");".formatted(node.getKey()));
+                        + "removeClass(\"inactive-window\").addClass(\"active-window\");"
+                                .formatted(toMarkupId(node.getKind(), node.getKey())));
             }
         });
 
@@ -602,8 +614,12 @@ public class Topology extends BasePage {
                     "window.Wicket.WebSocket.send('"
                     + "{\"kind\":\"%s\",\"target\":\"%s\",\"source\":\"%s\",\"scope\":\"%s\"}');".formatted(
                             SupportedOperation.ADD_ENDPOINT,
-                            payload.getKey(),
-                            payload.getParent(),
+                            toMarkupId(node.getKind(), node.getKey()),
+                            toMarkupId(payload.getKind() == TopologyNode.Kind.RESOURCE
+                                    ? TopologyNode.Kind.CONNECTOR
+                                    : payload.getParent().toString().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)
+                                            ? TopologyNode.Kind.CONNECTOR_SERVER : TopologyNode.Kind.FS_PATH,
+                                    payload.getParent().toString()),
                             payload.getKind()));
         }
     }
