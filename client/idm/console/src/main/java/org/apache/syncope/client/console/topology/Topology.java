@@ -585,9 +585,9 @@ public class Topology extends BasePage {
             protected void onEvent(final AjaxRequestTarget target) {
                 togglePanel.toggleWithContent(target, node);
                 target.appendJavaScript(
-                        "$('.window').removeClass(\"active-window\").addClass(\"inactive-window\"); "
+                        ("$('.window').removeClass(\"active-window\").addClass(\"inactive-window\"); "
                         + "$(document.getElementById('%s'))."
-                        + "removeClass(\"inactive-window\").addClass(\"active-window\");"
+                        + "removeClass(\"inactive-window\").addClass(\"active-window\");")
                                 .formatted(toMarkupId(node.getKind(), node.getKey())));
             }
         });
