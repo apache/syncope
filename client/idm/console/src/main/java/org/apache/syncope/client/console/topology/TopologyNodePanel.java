@@ -94,7 +94,8 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             add(AttributeModifier.append("data-original-title", title));
         }
 
-        setMarkupId(Topology.sanitizeMarkupId(node.getDisplayName()));
+        add(AttributeModifier.replace("data-key", node.getKey()));
+        setMarkupId(Topology.toMarkupId(node.getKind(), node.getKey()));
     }
 
     @Override

@@ -25,13 +25,23 @@ import org.junit.jupiter.api.Test;
 class TopologyTest {
 
     @Test
-    void sanitizeMarkupId() {
-        assertEquals("hello_world", Topology.sanitizeMarkupId("hello world"));
-        assertEquals("hello-world", Topology.sanitizeMarkupId("hello-world"));
-        assertEquals("hello.world", Topology.sanitizeMarkupId("hello.world"));
-        assertEquals("clean_id", Topology.sanitizeMarkupId("clean_id"));
-        assertEquals("", Topology.sanitizeMarkupId(""));
-        assertEquals("a_b_c", Topology.sanitizeMarkupId("a@b#c"));
-        assertEquals("connid___example", Topology.sanitizeMarkupId("connid://example"));
+    void toMarkupId() {
+        assertEquals("resource-aGVsbG8gd29ybGQ",
+                Topology.toMarkupId(TopologyNode.Kind.RESOURCE, "hello world"));
+        assertEquals("connector-aGVsbG8td29ybGQ",
+                Topology.toMarkupId(TopologyNode.Kind.CONNECTOR, "hello-world"));
+        assertEquals("fs_path-aGVsbG8ud29ybGQ",
+                Topology.toMarkupId(TopologyNode.Kind.FS_PATH, "hello.world"));
+        assertEquals("resource-Y2xlYW5faWQ",
+                Topology.toMarkupId(TopologyNode.Kind.RESOURCE, "clean_id"));
+        assertEquals("syncope-",
+                Topology.toMarkupId(TopologyNode.Kind.SYNCOPE, ""));
+        assertEquals("resource-YUBiI2M",
+                Topology.toMarkupId(TopologyNode.Kind.RESOURCE, "a@b#c"));
+        assertEquals("connector_server-Y29ubmlkOi8vZXhhbXBsZQ",
+                Topology.toMarkupId(TopologyNode.Kind.CONNECTOR_SERVER, "connid://example"));
+        // base64url alphabet, without padding
+        assertEquals("resource-YS9iK2M_ZD0",
+                Topology.toMarkupId(TopologyNode.Kind.RESOURCE, "a/b+c?d="));
     }
 }
