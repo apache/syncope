@@ -150,13 +150,13 @@
             const items = [];
 
             jsPlumb.select({scope: "CONNECTOR"}).each(function (connection) {
-                const id = connection && connection.target ? connection.target.id : null;
+                const id = connection && connection.target ? connection.target.getAttribute("data-key") : null;
                 if (id) {
                     items.push({kind: "CHECK_CONNECTOR", id: id});
                 }
             });
             jsPlumb.select({scope: "RESOURCE"}).each(function (connection) {
-                const id = connection && connection.target ? connection.target.id : null;
+                const id = connection && connection.target ? connection.target.getAttribute("data-key") : null;
                 if (id) {
                     items.push({kind: "CHECK_RESOURCE", id: id});
                 }
