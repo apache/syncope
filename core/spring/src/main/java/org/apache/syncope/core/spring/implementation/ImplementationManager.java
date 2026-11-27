@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.implementation;
 
-import groovy.grape.GrabAnnotationTransformation;
 import groovy.lang.GroovyClassLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -28,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,12 +48,9 @@ import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.codehaus.groovy.control.CompilerConfiguration;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
-import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 public final class ImplementationManager {
@@ -65,11 +60,8 @@ public final class ImplementationManager {
     private static final Map<Pair<String, String>, Class<?>> CLASS_CACHE = Collections.synchronizedMap(new HashMap<>());
 
     static {
-        CompilerConfiguration cc = new CompilerConfiguration();
-        cc.addCompilationCustomizers(new RejectASTTransformsCustomizer(), new SandboxTransformer());
-        cc.setDisabledGlobalASTTransformations(Set.of(GrabAnnotationTransformation.class.getName()));
-
-        GROOVY_CLASSLOADER = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), cc);
+        GROOVY_CLASSLOADER = new GroovyClassLoader(
+                Thread.currentThread().getContextClassLoader(), GroovySandboxMethods.newCompilerConfiguration());
     }
 
     @SuppressWarnings("unchecked")

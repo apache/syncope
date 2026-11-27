@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,10 +35,12 @@ import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.codehaus.groovy.runtime.ProcessGroovyMethods;
@@ -374,6 +377,17 @@ class GroovySandboxTest {
                 "processGroovyMethods", "/ProcessGroovyMethodsSchedTaskJobDelegate.groovy");
 
         assertDenied(() -> delegate.execute(TaskType.SCHEDULED, null, null));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void hashCodeAfterSandbox() throws Exception {
+        Command<CommandArgs> command = build("postSandboxHashCode", "/PostSandboxHashCodeCommand.groovy");
+
+        Command.Result result = command.run(new CommandArgs());
+
+        Map<String, Serializable> values = result.values();
+        assertDenied(() -> new HashMap<String, Serializable>().putAll(values));
     }
 
     @EnabledOnOs(OS.LINUX)
