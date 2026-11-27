@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -395,24 +396,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             connector.delete(objectClass, uid, null, propagationAttempted);
             result = uid;
-            taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
-                    filter(provision -> provision.getUidOnCreate() != null).
-                    ifPresent(provision -> {
-                        LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete",
-                                provision.getUidOnCreate(), taskInfo.getEntityKey());
-                        AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
-                        anyUtils.removeAttr(taskInfo.getEntityKey(),
-                                plainSchemaDAO.findById(provision.getUidOnCreate())
-                                        .orElseThrow(() -> new NotFoundException(
-                                        "PlainSchema " + (provision.getUidOnCreate()))));
-                        publisher.publishEvent(new EntityLifecycleEvent<>(
-                                this,
-                                SyncDeltaType.UPDATE,
-                                anyUtils.dao().findById(taskInfo.getEntityKey()).
-                                        orElseThrow(() -> new NotFoundException(
-                                        anyUtils.anyTypeKind() + "" + taskInfo.getEntityKey())),
-                                AuthContextUtils.getDomain()));
-                    });
         }
 
         return result;
@@ -684,6 +667,22 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         for (PropagationActions action : actions) {
             action.after(taskInfo, exec, afterObj);
+        }
+        // clean up uidOnCreate on delete if needed
+        if (provision != null && StringUtils.isNotBlank(provision.getUidOnCreate())
+                && ResourceOperation.DELETE == taskInfo.getOperation()) {
+            String uidOnCreate = provision.getUidOnCreate();
+            LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete", uidOnCreate, taskInfo.getEntityKey());
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
+            // perform a preliminary search to check user existence
+            anyUtils.dao().findById(taskInfo.getEntityKey()).ifPresentOrElse(any -> {
+                anyUtils.removeAttr(taskInfo.getEntityKey(), plainSchemaDAO.findById(uidOnCreate)
+                        .orElseThrow(() -> new NotFoundException("PlainSchema " + uidOnCreate)));
+                publisher.publishEvent(
+                        new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
+            }, () -> LOG.warn(
+                    "Any not found, it is not necessary to remove uidOnCreate [{}] attribute from " + "[{}] on delete",
+                    uidOnCreate, taskInfo.getEntityKey()));
         }
         // SYNCOPE-1136
         String anyTypeKind = Optional.ofNullable(taskInfo.getAnyTypeKind()).map(Enum::name).orElse("realm");
