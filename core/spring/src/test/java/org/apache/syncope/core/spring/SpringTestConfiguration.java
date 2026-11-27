@@ -62,7 +62,7 @@ public class SpringTestConfiguration {
 
     @Bean
     public Whitelist groovyWhitelist() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("/META-INF/groovy.whitelist");
+        try (InputStream is = SpringTestConfiguration.class.getResourceAsStream("/META-INF/groovy.whitelist");
                 Reader reader = new InputStreamReader(is);) {
 
             return new StaticWhitelist(reader);
