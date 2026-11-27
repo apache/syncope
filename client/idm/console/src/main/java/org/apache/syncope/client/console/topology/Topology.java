@@ -556,7 +556,6 @@ public class Topology extends BasePage {
 
     private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node, final boolean errored) {
         TopologyNodePanel panel = new TopologyNodePanel(id, node, errored);
-        panel.setMarkupId(toMarkupId(node.getKind(), node.getKey()));
         panel.setOutputMarkupId(true);
 
         List<Behavior> behaviors = new ArrayList<>();
