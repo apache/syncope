@@ -552,7 +552,8 @@ under the License.
     Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacoco-maven-plugin
     https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html
     -->
-    <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
+    <jdk28.jvm.args />
+    <argLine>-Xms512m -Xmx1024m -Xss256k ${jdk28.jvm.args}</argLine>
 
     <ianal.phase>verify</ianal.phase>
     <sass.skip>false</sass.skip>
@@ -2444,6 +2445,23 @@ under the License.
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>jdk28</id>
+
+      <activation>
+        <jdk>[28,)</jdk>
+      </activation>
+
+      <properties>
+        <!--
+        Spring Framework 7 still relies on the two-argument
+        sun.reflect.ReflectionFactory#newConstructorForSerialization for Objenesis,
+        which JDK 28 disables by default; see https://jdk.java.net/28/release-notes
+        -->
+        <jdk28.jvm.args>-Djdk.reflect.allowNonSerializableConstruction=true</jdk28.jvm.args>
+      </properties>
     </profile>
   </profiles>
 
