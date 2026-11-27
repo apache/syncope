@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.Serializable;
+import groovy.lang.Closure;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -387,8 +387,41 @@ class GroovySandboxTest {
 
         Command.Result result = command.run(new CommandArgs());
 
-        Map<String, Serializable> values = result.values();
-        assertDenied(() -> new HashMap<String, Serializable>().putAll(values));
+        Object key = result.values().keySet().iterator().next();
+        assertDenied(key::hashCode);
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void staticInitializerAfterSandbox() throws Exception {
+        Command<CommandArgs> command = build("postSandboxConstructor", "/PostSandboxConstructorCommand.groovy");
+
+        Command.Result result = command.run(new CommandArgs());
+
+        Class<?> type = (Class<?>) result.values().get("staticType");
+        assertDenied(() -> Class.forName(type.getName(), true, type.getClassLoader()));
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void constructorAfterSandbox() throws Exception {
+        Command<CommandArgs> command = build("postSandboxConstructor", "/PostSandboxConstructorCommand.groovy");
+
+        Command.Result result = command.run(new CommandArgs());
+
+        Class<?> type = (Class<?>) result.values().get("type");
+        assertDenied(() -> type.getDeclaredConstructor().newInstance());
+    }
+
+    @EnabledOnOs(OS.LINUX)
+    @Test
+    void closureAfterSandbox() throws Exception {
+        Command<CommandArgs> command = build("postSandboxClosure", "/PostSandboxClosureCommand.groovy");
+
+        Command.Result result = command.run(new CommandArgs());
+
+        Closure<?> closure = (Closure<?>) result.values().get("closure");
+        assertDenied(closure::call);
     }
 
     @EnabledOnOs(OS.LINUX)
