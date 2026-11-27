@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -676,7 +677,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             action.after(taskInfo, exec, afterObj);
         }
         // clean up uidOnCreate on delete if needed
-        if (ResourceOperation.DELETE == taskInfo.getOperation() && provision.getUidOnCreate() != null) {
+        if (provision != null && StringUtils.isNoneBlank(provision.getUidOnCreate())
+                && ResourceOperation.DELETE == taskInfo.getOperation()) {
             String uidOnCreate = provision.getUidOnCreate();
             LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete", uidOnCreate, taskInfo.getEntityKey());
             AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
