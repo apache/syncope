@@ -73,7 +73,6 @@ under the License.
   <!-- See http://checkstyle.sf.net/config_sizes.html -->
   <module name="FileLength">
     <property name="id" value="standardFileLength"/>
-    <property name="max" value="2000"/>
   </module>
 
   <module name="SuppressionSingleFilter">

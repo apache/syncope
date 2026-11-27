@@ -698,6 +698,9 @@ under the License.
   <SyncopeGroup_ExternalResource group_id="0626100b-a4ba-4e00-9971-86fad52a6216" resource_id="resource-csv"/>
   <SyncopeGroup_ExternalResource group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" resource_id="resource-csv"/>
 
+  <Implementation id="RemoveUidOnCreatePropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.propagation.RemoveUidOnCreatePropagationActions"/>
+  
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
   <Implementation id="LiveSyncJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"

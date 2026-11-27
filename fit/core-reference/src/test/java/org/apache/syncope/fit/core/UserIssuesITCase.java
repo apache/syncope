@@ -113,6 +113,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
+import org.apache.syncope.core.provisioning.java.propagation.RemoveUidOnCreatePropagationActions;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -1583,6 +1584,7 @@ public class UserIssuesITCase extends AbstractITCase {
             minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
             ANY_TYPE_CLASS_SERVICE.update(minimalUser);
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.getPropagationActions().add(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.getProvision(AnyTypeKind.USER.name())
                     .ifPresent(p -> p.setUidOnCreate(externalKeySchemaTO.getKey()));
             RESOURCE_SERVICE.update(restResourceTO);
@@ -1635,6 +1637,12 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             // remove additional externalKey schema
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());
+            // restore resource priority and uidOnCreate
+            ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.getPropagationActions().remove(RemoveUidOnCreatePropagationActions.class.getSimpleName());
+            Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+            provision.setUidOnCreate(null);
+            RESOURCE_SERVICE.update(restResourceTO);
         }
     }
 
@@ -1651,6 +1659,7 @@ public class UserIssuesITCase extends AbstractITCase {
             minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
             ANY_TYPE_CLASS_SERVICE.update(minimalUser);
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.getPropagationActions().add(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.setPropagationPriority(null);
             Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
             provision.setUidOnCreate(externalKeySchemaTO.getKey());
@@ -1672,15 +1681,11 @@ public class UserIssuesITCase extends AbstractITCase {
                     result.getEntity().getPlainAttr("externalKey").orElseThrow().getValues().getFirst());
             // 3. delete user from the resource with null-priority-async header set to true
             // externalKey is going to be removed with the user itself
-            result = SyncopeClient.nullPriorityAsync(
+            SyncopeClient.nullPriorityAsync(
                             CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD).getService(UserService.class), true)
                     .delete(entityKey)
                     .readEntity(new GenericType<>() {
                     });
-
-            // user has been remotely deleted
-            assertThrows(SyncopeClientException.class,
-                    () -> RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_REST, AnyTypeKind.USER.name(), entityKey));
 
             // the DELETE propagation task has successfully been executed
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
@@ -1694,13 +1699,29 @@ public class UserIssuesITCase extends AbstractITCase {
                         .map(PropagationTaskTO.class::cast)
                         .filter(task -> ResourceOperation.DELETE == task.getOperation())
                         .toList();
-
-                return !deleteTasks.isEmpty() && ExecStatus.SUCCESS.name()
-                        .equals(deleteTasks.get(0).getLatestExecStatus());
+                return !deleteTasks.isEmpty();
             });
+            
+            List<PropagationTaskTO> deleteTasks = TASK_SERVICE.search(
+                            new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
+                                    .anyTypeKind(AnyTypeKind.USER)
+                                    .entityKey(entityKey)
+                                    .build())
+                    .getResult()
+                    .stream()
+                    .map(PropagationTaskTO.class::cast)
+                    .filter(task -> ResourceOperation.DELETE == task.getOperation())
+                    .toList();
+            
+            assertTrue(ExecStatus.SUCCESS.name().equals(deleteTasks.get(0).getLatestExecStatus()));
+
+            // user has been remotely deleted
+            assertThrows(SyncopeClientException.class,
+                    () -> RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_REST, AnyTypeKind.USER.name(), entityKey));
         } finally {
             // restore resource priority and uidOnCreate
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.getPropagationActions().remove(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.setPropagationPriority(0);
             Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
             provision.setUidOnCreate(null);
