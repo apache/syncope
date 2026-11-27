@@ -677,7 +677,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             action.after(taskInfo, exec, afterObj);
         }
         // clean up uidOnCreate on delete if needed
-        if (provision != null && StringUtils.isNoneBlank(provision.getUidOnCreate())
+        if (provision != null && StringUtils.isNotBlank(provision.getUidOnCreate())
                 && ResourceOperation.DELETE == taskInfo.getOperation()) {
             String uidOnCreate = provision.getUidOnCreate();
             LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete", uidOnCreate, taskInfo.getEntityKey());
