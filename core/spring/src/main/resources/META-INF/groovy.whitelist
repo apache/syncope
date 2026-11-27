@@ -1,0 +1,1573 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Groovy sandbox allow-list.
+#
+# Every signature below must correspond to a member actually used by, or safely
+# derivable from, the legitimate Groovy implementations shipped with Syncope.
+# Reflection, script compilation/evaluation, process execution, filesystem and
+# network access are deliberately absent; deployers can still override this file
+# with deployment-specific needs via security.groovyWhitelist.
+
+# Core Java types
+
+method java.lang.Boolean booleanValue
+method java.lang.Boolean compareTo java.lang.Boolean
+method java.lang.Boolean describeConstable
+method java.lang.Boolean equals java.lang.Object
+method java.lang.Boolean hashCode
+method java.lang.Boolean toString
+method java.lang.Enum compareTo java.lang.Enum
+method java.lang.Enum describeConstable
+method java.lang.Enum equals java.lang.Object
+method java.lang.Enum hashCode
+method java.lang.Enum name
+method java.lang.Enum ordinal
+method java.lang.Enum toString
+method java.lang.Integer byteValue
+method java.lang.Integer compareTo java.lang.Integer
+method java.lang.Integer describeConstable
+method java.lang.Integer doubleValue
+method java.lang.Integer equals java.lang.Object
+method java.lang.Integer floatValue
+method java.lang.Integer hashCode
+method java.lang.Integer intValue
+method java.lang.Integer longValue
+method java.lang.Integer shortValue
+method java.lang.Integer toString
+method java.lang.Iterable forEach java.util.function.Consumer
+method java.lang.Long byteValue
+method java.lang.Long compareTo java.lang.Long
+method java.lang.Long describeConstable
+method java.lang.Long doubleValue
+method java.lang.Long equals java.lang.Object
+method java.lang.Long floatValue
+method java.lang.Long hashCode
+method java.lang.Long intValue
+method java.lang.Long longValue
+method java.lang.Long shortValue
+method java.lang.Long toString
+method java.lang.Comparable compareTo java.lang.Object
+method java.lang.Object equals java.lang.Object
+method java.lang.Object hashCode
+method java.lang.Object toString
+method java.lang.String charAt int
+method java.lang.String chars
+method java.lang.String codePointAt int
+method java.lang.String codePointBefore int
+method java.lang.String codePointCount int int
+method java.lang.String codePoints
+method java.lang.String compareTo java.lang.String
+method java.lang.String compareToIgnoreCase java.lang.String
+method java.lang.String concat java.lang.String
+method java.lang.String contains java.lang.CharSequence
+method java.lang.String contentEquals java.lang.CharSequence
+method java.lang.String contentEquals java.lang.StringBuffer
+method java.lang.String describeConstable
+method java.lang.String endsWith java.lang.String
+method java.lang.String equals java.lang.Object
+method java.lang.String equalsIgnoreCase java.lang.String
+method java.lang.String formatted java.lang.Object[]
+method java.lang.String getBytes
+method java.lang.String getBytes int int byte[] int
+method java.lang.String getBytes java.lang.String
+method java.lang.String getBytes java.nio.charset.Charset
+method java.lang.String getChars int int char[] int
+method java.lang.String hashCode
+method java.lang.String indent int
+method java.lang.String indexOf int
+method java.lang.String indexOf int int
+method java.lang.String indexOf int int int
+method java.lang.String indexOf java.lang.String
+method java.lang.String indexOf java.lang.String int
+method java.lang.String indexOf java.lang.String int int
+method java.lang.String intern
+method java.lang.String isBlank
+method java.lang.String isEmpty
+method java.lang.String lastIndexOf int
+method java.lang.String lastIndexOf int int
+method java.lang.String lastIndexOf java.lang.String
+method java.lang.String lastIndexOf java.lang.String int
+method java.lang.String length
+method java.lang.String lines
+method java.lang.String matches java.lang.String
+method java.lang.String offsetByCodePoints int int
+method java.lang.String regionMatches boolean int java.lang.String int int
+method java.lang.String regionMatches int java.lang.String int int
+method java.lang.String repeat int
+method java.lang.String replace char char
+method java.lang.String replace java.lang.CharSequence java.lang.CharSequence
+method java.lang.String replaceAll java.lang.String java.lang.String
+method java.lang.String replaceFirst java.lang.String java.lang.String
+method java.lang.String split java.lang.String
+method java.lang.String split java.lang.String int
+method java.lang.String splitWithDelimiters java.lang.String int
+method java.lang.String startsWith java.lang.String
+method java.lang.String startsWith java.lang.String int
+method java.lang.String strip
+method java.lang.String stripIndent
+method java.lang.String stripLeading
+method java.lang.String stripTrailing
+method java.lang.String subSequence int int
+method java.lang.String substring int
+method java.lang.String substring int int
+method java.lang.String toCharArray
+method java.lang.String toLowerCase
+method java.lang.String toLowerCase java.util.Locale
+method java.lang.String toString
+method java.lang.String toUpperCase
+method java.lang.String toUpperCase java.util.Locale
+method java.lang.String transform java.util.function.Function
+method java.lang.String translateEscapes
+method java.lang.String trim
+method java.time.OffsetDateTime adjustInto java.time.temporal.Temporal
+method java.time.OffsetDateTime atZoneSameInstant java.time.ZoneId
+method java.time.OffsetDateTime atZoneSimilarLocal java.time.ZoneId
+method java.time.OffsetDateTime compareTo java.time.OffsetDateTime
+method java.time.OffsetDateTime equals java.lang.Object
+method java.time.OffsetDateTime format java.time.format.DateTimeFormatter
+method java.time.OffsetDateTime get java.time.temporal.TemporalField
+method java.time.OffsetDateTime getDayOfMonth
+method java.time.OffsetDateTime getDayOfWeek
+method java.time.OffsetDateTime getDayOfYear
+method java.time.OffsetDateTime getHour
+method java.time.OffsetDateTime getMinute
+method java.time.OffsetDateTime getMonth
+method java.time.OffsetDateTime getMonthValue
+method java.time.OffsetDateTime getNano
+method java.time.OffsetDateTime getOffset
+method java.time.OffsetDateTime getSecond
+method java.time.OffsetDateTime getYear
+method java.time.OffsetDateTime hashCode
+method java.time.OffsetDateTime isAfter java.time.OffsetDateTime
+method java.time.OffsetDateTime isBefore java.time.OffsetDateTime
+method java.time.OffsetDateTime isEqual java.time.OffsetDateTime
+method java.time.OffsetDateTime isSupported java.time.temporal.TemporalField
+method java.time.OffsetDateTime isSupported java.time.temporal.TemporalUnit
+method java.time.OffsetDateTime minus java.time.temporal.TemporalAmount
+method java.time.OffsetDateTime minus long java.time.temporal.TemporalUnit
+method java.time.OffsetDateTime minusDays long
+method java.time.OffsetDateTime minusHours long
+method java.time.OffsetDateTime minusMinutes long
+method java.time.OffsetDateTime minusMonths long
+method java.time.OffsetDateTime minusNanos long
+method java.time.OffsetDateTime minusSeconds long
+method java.time.OffsetDateTime minusWeeks long
+method java.time.OffsetDateTime minusYears long
+method java.time.OffsetDateTime plus java.time.temporal.TemporalAmount
+method java.time.OffsetDateTime plus long java.time.temporal.TemporalUnit
+method java.time.OffsetDateTime plusDays long
+method java.time.OffsetDateTime plusHours long
+method java.time.OffsetDateTime plusMinutes long
+method java.time.OffsetDateTime plusMonths long
+method java.time.OffsetDateTime plusNanos long
+method java.time.OffsetDateTime plusSeconds long
+method java.time.OffsetDateTime plusWeeks long
+method java.time.OffsetDateTime plusYears long
+method java.time.OffsetDateTime query java.time.temporal.TemporalQuery
+method java.time.OffsetDateTime range java.time.temporal.TemporalField
+method java.time.OffsetDateTime toEpochSecond
+method java.time.OffsetDateTime toInstant
+method java.time.OffsetDateTime toLocalDate
+method java.time.OffsetDateTime toLocalDateTime
+method java.time.OffsetDateTime toLocalTime
+method java.time.OffsetDateTime toOffsetTime
+method java.time.OffsetDateTime toString
+method java.time.OffsetDateTime toZonedDateTime
+method java.time.OffsetDateTime truncatedTo java.time.temporal.TemporalUnit
+method java.time.OffsetDateTime until java.time.temporal.Temporal java.time.temporal.TemporalUnit
+method java.time.OffsetDateTime with java.time.temporal.TemporalAdjuster
+method java.time.OffsetDateTime with java.time.temporal.TemporalField long
+method java.time.OffsetDateTime withDayOfMonth int
+method java.time.OffsetDateTime withDayOfYear int
+method java.time.OffsetDateTime withHour int
+method java.time.OffsetDateTime withMinute int
+method java.time.OffsetDateTime withMonth int
+method java.time.OffsetDateTime withNano int
+method java.time.OffsetDateTime withOffsetSameInstant java.time.ZoneOffset
+method java.time.OffsetDateTime withOffsetSameLocal java.time.ZoneOffset
+method java.time.OffsetDateTime withSecond int
+method java.time.OffsetDateTime withYear int
+method java.util.AbstractCollection addAll java.util.Collection
+method java.util.AbstractCollection containsAll java.util.Collection
+method java.util.AbstractCollection retainAll java.util.Collection
+method java.util.AbstractCollection toString
+method java.util.AbstractMap equals java.lang.Object
+method java.util.AbstractMap hashCode
+method java.util.AbstractMap toString
+method java.util.AbstractSet equals java.lang.Object
+method java.util.AbstractSet hashCode
+method java.util.AbstractSet removeAll java.util.Collection
+method java.util.ArrayList add int java.lang.Object
+method java.util.ArrayList add java.lang.Object
+method java.util.ArrayList addAll int java.util.Collection
+method java.util.ArrayList addAll java.util.Collection
+method java.util.ArrayList addFirst java.lang.Object
+method java.util.ArrayList addLast java.lang.Object
+method java.util.ArrayList clear
+method java.util.ArrayList contains java.lang.Object
+method java.util.ArrayList ensureCapacity int
+method java.util.ArrayList equals java.lang.Object
+method java.util.ArrayList forEach java.util.function.Consumer
+method java.util.ArrayList get int
+method java.util.ArrayList getFirst
+method java.util.ArrayList getLast
+method java.util.ArrayList hashCode
+method java.util.ArrayList indexOf java.lang.Object
+method java.util.ArrayList isEmpty
+method java.util.ArrayList iterator
+method java.util.ArrayList lastIndexOf java.lang.Object
+method java.util.ArrayList listIterator
+method java.util.ArrayList listIterator int
+method java.util.ArrayList remove int
+method java.util.ArrayList remove java.lang.Object
+method java.util.ArrayList removeAll java.util.Collection
+method java.util.ArrayList removeFirst
+method java.util.ArrayList removeIf java.util.function.Predicate
+method java.util.ArrayList removeLast
+method java.util.ArrayList replaceAll java.util.function.UnaryOperator
+method java.util.ArrayList retainAll java.util.Collection
+method java.util.ArrayList set int java.lang.Object
+method java.util.ArrayList size
+method java.util.ArrayList sort java.util.Comparator
+method java.util.ArrayList spliterator
+method java.util.ArrayList subList int int
+method java.util.ArrayList toArray
+method java.util.ArrayList toArray java.lang.Object[]
+method java.util.ArrayList trimToSize
+method java.util.Collection add java.lang.Object
+method java.util.Collection addAll java.util.Collection
+method java.util.Collection clear
+method java.util.Collection contains java.lang.Object
+method java.util.Collection containsAll java.util.Collection
+method java.util.Collection equals java.lang.Object
+method java.util.Collection hashCode
+method java.util.Collection isEmpty
+method java.util.Collection iterator
+method java.util.Collection parallelStream
+method java.util.Collection remove java.lang.Object
+method java.util.Collection removeAll java.util.Collection
+method java.util.Collection removeIf java.util.function.Predicate
+method java.util.Collection retainAll java.util.Collection
+method java.util.Collection size
+method java.util.Collection spliterator
+method java.util.Collection stream
+method java.util.Collection toArray
+method java.util.Collection toArray java.lang.Object[]
+method java.util.Collection toArray java.util.function.IntFunction
+method java.util.Date after java.util.Date
+method java.util.Date before java.util.Date
+method java.util.Date compareTo java.util.Date
+method java.util.Date equals java.lang.Object
+method java.util.Date getDate
+method java.util.Date getDay
+method java.util.Date getHours
+method java.util.Date getMinutes
+method java.util.Date getMonth
+method java.util.Date getSeconds
+method java.util.Date getTime
+method java.util.Date getTimezoneOffset
+method java.util.Date getYear
+method java.util.Date hashCode
+method java.util.Date setDate int
+method java.util.Date setHours int
+method java.util.Date setMinutes int
+method java.util.Date setMonth int
+method java.util.Date setSeconds int
+method java.util.Date setTime long
+method java.util.Date setYear int
+method java.util.Date toGMTString
+method java.util.Date toInstant
+method java.util.Date toLocaleString
+method java.util.Date toString
+method java.util.HashMap clear
+method java.util.HashMap compute java.lang.Object java.util.function.BiFunction
+method java.util.HashMap computeIfAbsent java.lang.Object java.util.function.Function
+method java.util.HashMap computeIfPresent java.lang.Object java.util.function.BiFunction
+method java.util.HashMap containsKey java.lang.Object
+method java.util.HashMap containsValue java.lang.Object
+method java.util.HashMap entrySet
+method java.util.HashMap forEach java.util.function.BiConsumer
+method java.util.HashMap get java.lang.Object
+method java.util.HashMap getOrDefault java.lang.Object java.lang.Object
+method java.util.HashMap isEmpty
+method java.util.HashMap keySet
+method java.util.HashMap merge java.lang.Object java.lang.Object java.util.function.BiFunction
+method java.util.HashMap put java.lang.Object java.lang.Object
+method java.util.HashMap putAll java.util.Map
+method java.util.HashMap putIfAbsent java.lang.Object java.lang.Object
+method java.util.HashMap remove java.lang.Object
+method java.util.HashMap remove java.lang.Object java.lang.Object
+method java.util.HashMap replace java.lang.Object java.lang.Object
+method java.util.HashMap replace java.lang.Object java.lang.Object java.lang.Object
+method java.util.HashMap replaceAll java.util.function.BiFunction
+method java.util.HashMap size
+method java.util.HashMap values
+method java.util.HashSet add java.lang.Object
+method java.util.HashSet clear
+method java.util.HashSet contains java.lang.Object
+method java.util.HashSet isEmpty
+method java.util.HashSet iterator
+method java.util.HashSet remove java.lang.Object
+method java.util.HashSet size
+method java.util.HashSet spliterator
+method java.util.HashSet toArray
+method java.util.HashSet toArray java.lang.Object[]
+method java.util.List add int java.lang.Object
+method java.util.List add java.lang.Object
+method java.util.List addAll int java.util.Collection
+method java.util.List addAll java.util.Collection
+method java.util.List addFirst java.lang.Object
+method java.util.List addLast java.lang.Object
+method java.util.List clear
+method java.util.List contains java.lang.Object
+method java.util.List containsAll java.util.Collection
+method java.util.List equals java.lang.Object
+method java.util.List get int
+method java.util.List getFirst
+method java.util.List getLast
+method java.util.List hashCode
+method java.util.List indexOf java.lang.Object
+method java.util.List isEmpty
+method java.util.List iterator
+method java.util.List lastIndexOf java.lang.Object
+method java.util.List listIterator
+method java.util.List listIterator int
+method java.util.List remove int
+method java.util.List remove java.lang.Object
+method java.util.List removeAll java.util.Collection
+method java.util.List removeFirst
+method java.util.List removeLast
+method java.util.List replaceAll java.util.function.UnaryOperator
+method java.util.List retainAll java.util.Collection
+method java.util.List reversed
+method java.util.List set int java.lang.Object
+method java.util.List size
+method java.util.List sort java.util.Comparator
+method java.util.List spliterator
+method java.util.List subList int int
+method java.util.List toArray
+method java.util.List toArray java.lang.Object[]
+method java.util.Map clear
+method java.util.Map compute java.lang.Object java.util.function.BiFunction
+method java.util.Map computeIfAbsent java.lang.Object java.util.function.Function
+method java.util.Map computeIfPresent java.lang.Object java.util.function.BiFunction
+method java.util.Map containsKey java.lang.Object
+method java.util.Map containsValue java.lang.Object
+method java.util.Map entrySet
+method java.util.Map equals java.lang.Object
+method java.util.Map forEach java.util.function.BiConsumer
+method java.util.Map get java.lang.Object
+method java.util.Map getOrDefault java.lang.Object java.lang.Object
+method java.util.Map hashCode
+method java.util.Map isEmpty
+method java.util.Map keySet
+method java.util.Map merge java.lang.Object java.lang.Object java.util.function.BiFunction
+method java.util.Map put java.lang.Object java.lang.Object
+method java.util.Map putAll java.util.Map
+method java.util.Map putIfAbsent java.lang.Object java.lang.Object
+method java.util.Map remove java.lang.Object
+method java.util.Map remove java.lang.Object java.lang.Object
+method java.util.Map replace java.lang.Object java.lang.Object
+method java.util.Map replace java.lang.Object java.lang.Object java.lang.Object
+method java.util.Map replaceAll java.util.function.BiFunction
+method java.util.Map size
+method java.util.Map values
+method java.util.Optional equals java.lang.Object
+method java.util.Optional filter java.util.function.Predicate
+method java.util.Optional flatMap java.util.function.Function
+method java.util.Optional get
+method java.util.Optional hashCode
+method java.util.Optional ifPresent java.util.function.Consumer
+method java.util.Optional ifPresentOrElse java.util.function.Consumer java.lang.Runnable
+method java.util.Optional isEmpty
+method java.util.Optional isPresent
+method java.util.Optional map java.util.function.Function
+method java.util.Optional or java.util.function.Supplier
+method java.util.Optional orElse java.lang.Object
+method java.util.Optional orElseGet java.util.function.Supplier
+method java.util.Optional orElseThrow
+method java.util.Optional orElseThrow java.util.function.Supplier
+method java.util.Optional stream
+method java.util.Optional toString
+method java.util.Set add java.lang.Object
+method java.util.Set addAll java.util.Collection
+method java.util.Set clear
+method java.util.Set contains java.lang.Object
+method java.util.Set containsAll java.util.Collection
+method java.util.Set equals java.lang.Object
+method java.util.Set hashCode
+method java.util.Set isEmpty
+method java.util.Set iterator
+method java.util.Set remove java.lang.Object
+method java.util.Set removeAll java.util.Collection
+method java.util.Set retainAll java.util.Collection
+method java.util.Set size
+method java.util.Set spliterator
+method java.util.Set toArray
+method java.util.Set toArray java.lang.Object[]
+new java.lang.Boolean boolean
+new java.lang.Boolean java.lang.String
+new java.lang.Integer int
+new java.lang.Integer java.lang.String
+new java.lang.Long java.lang.String
+new java.lang.Long long
+new java.lang.String
+new java.lang.String byte[]
+new java.lang.String byte[] int
+new java.lang.String byte[] int int
+new java.lang.String byte[] int int int
+new java.lang.String byte[] int int java.lang.String
+new java.lang.String byte[] int int java.nio.charset.Charset
+new java.lang.String byte[] java.lang.String
+new java.lang.String byte[] java.nio.charset.Charset
+new java.lang.String char[]
+new java.lang.String char[] int int
+new java.lang.String int[] int int
+new java.lang.String java.lang.String
+new java.lang.String java.lang.StringBuffer
+new java.lang.String java.lang.StringBuilder
+new java.util.ArrayList
+new java.util.ArrayList int
+new java.util.ArrayList java.util.Collection
+new java.util.Date
+new java.util.Date int int int
+new java.util.Date int int int int int
+new java.util.Date int int int int int int
+new java.util.Date java.lang.String
+new java.util.Date long
+new java.util.HashMap
+new java.util.HashMap int
+new java.util.HashMap int float
+new java.util.HashMap java.util.Map
+new java.util.HashSet
+new java.util.HashSet int
+new java.util.HashSet int float
+new java.util.HashSet java.util.Collection
+staticField java.lang.Boolean FALSE
+staticField java.lang.Boolean TRUE
+staticField java.lang.Boolean TYPE
+staticField java.lang.Integer BYTES
+staticField java.lang.Integer MAX_VALUE
+staticField java.lang.Integer MIN_VALUE
+staticField java.lang.Integer SIZE
+staticField java.lang.Integer TYPE
+staticField java.lang.Long BYTES
+staticField java.lang.Long MAX_VALUE
+staticField java.lang.Long MIN_VALUE
+staticField java.lang.Long SIZE
+staticField java.lang.Long TYPE
+staticField java.lang.String CASE_INSENSITIVE_ORDER
+staticField java.time.OffsetDateTime MAX
+staticField java.time.OffsetDateTime MIN
+staticField java.util.Collections EMPTY_LIST
+staticField java.util.Collections EMPTY_MAP
+staticField java.util.Collections EMPTY_SET
+staticMethod java.lang.Boolean compare boolean boolean
+staticMethod java.lang.Boolean getBoolean java.lang.String
+staticMethod java.lang.Boolean hashCode boolean
+staticMethod java.lang.Boolean logicalAnd boolean boolean
+staticMethod java.lang.Boolean logicalOr boolean boolean
+staticMethod java.lang.Boolean logicalXor boolean boolean
+staticMethod java.lang.Boolean parseBoolean java.lang.String
+staticMethod java.lang.Boolean toString boolean
+staticMethod java.lang.Boolean valueOf boolean
+staticMethod java.lang.Boolean valueOf java.lang.String
+staticMethod java.lang.Integer bitCount int
+staticMethod java.lang.Integer compare int int
+staticMethod java.lang.Integer compareUnsigned int int
+staticMethod java.lang.Integer compress int int
+staticMethod java.lang.Integer decode java.lang.String
+staticMethod java.lang.Integer divideUnsigned int int
+staticMethod java.lang.Integer expand int int
+staticMethod java.lang.Integer hashCode int
+staticMethod java.lang.Integer highestOneBit int
+staticMethod java.lang.Integer lowestOneBit int
+staticMethod java.lang.Integer max int int
+staticMethod java.lang.Integer min int int
+staticMethod java.lang.Integer numberOfLeadingZeros int
+staticMethod java.lang.Integer numberOfTrailingZeros int
+staticMethod java.lang.Integer parseInt java.lang.CharSequence int int int
+staticMethod java.lang.Integer parseInt java.lang.String
+staticMethod java.lang.Integer parseInt java.lang.String int
+staticMethod java.lang.Integer parseUnsignedInt java.lang.CharSequence int int int
+staticMethod java.lang.Integer parseUnsignedInt java.lang.String
+staticMethod java.lang.Integer parseUnsignedInt java.lang.String int
+staticMethod java.lang.Integer remainderUnsigned int int
+staticMethod java.lang.Integer reverse int
+staticMethod java.lang.Integer reverseBytes int
+staticMethod java.lang.Integer rotateLeft int int
+staticMethod java.lang.Integer rotateRight int int
+staticMethod java.lang.Integer signum int
+staticMethod java.lang.Integer sum int int
+staticMethod java.lang.Integer toBinaryString int
+staticMethod java.lang.Integer toHexString int
+staticMethod java.lang.Integer toOctalString int
+staticMethod java.lang.Integer toString int
+staticMethod java.lang.Integer toString int int
+staticMethod java.lang.Integer toUnsignedLong int
+staticMethod java.lang.Integer toUnsignedString int
+staticMethod java.lang.Integer toUnsignedString int int
+staticMethod java.lang.Integer valueOf int
+staticMethod java.lang.Integer valueOf java.lang.String
+staticMethod java.lang.Integer valueOf java.lang.String int
+staticMethod java.lang.Long bitCount long
+staticMethod java.lang.Long compare long long
+staticMethod java.lang.Long compareUnsigned long long
+staticMethod java.lang.Long compress long long
+staticMethod java.lang.Long decode java.lang.String
+staticMethod java.lang.Long divideUnsigned long long
+staticMethod java.lang.Long expand long long
+staticMethod java.lang.Long hashCode long
+staticMethod java.lang.Long highestOneBit long
+staticMethod java.lang.Long lowestOneBit long
+staticMethod java.lang.Long max long long
+staticMethod java.lang.Long min long long
+staticMethod java.lang.Long numberOfLeadingZeros long
+staticMethod java.lang.Long numberOfTrailingZeros long
+staticMethod java.lang.Long parseLong java.lang.CharSequence int int int
+staticMethod java.lang.Long parseLong java.lang.String
+staticMethod java.lang.Long parseLong java.lang.String int
+staticMethod java.lang.Long parseUnsignedLong java.lang.CharSequence int int int
+staticMethod java.lang.Long parseUnsignedLong java.lang.String
+staticMethod java.lang.Long parseUnsignedLong java.lang.String int
+staticMethod java.lang.Long remainderUnsigned long long
+staticMethod java.lang.Long reverse long
+staticMethod java.lang.Long reverseBytes long
+staticMethod java.lang.Long rotateLeft long int
+staticMethod java.lang.Long rotateRight long int
+staticMethod java.lang.Long signum long
+staticMethod java.lang.Long sum long long
+staticMethod java.lang.Long toBinaryString long
+staticMethod java.lang.Long toHexString long
+staticMethod java.lang.Long toOctalString long
+staticMethod java.lang.Long toString long
+staticMethod java.lang.Long toString long int
+staticMethod java.lang.Long toUnsignedString long
+staticMethod java.lang.Long toUnsignedString long int
+staticMethod java.lang.Long valueOf java.lang.String
+staticMethod java.lang.Long valueOf java.lang.String int
+staticMethod java.lang.Long valueOf long
+staticMethod java.lang.String copyValueOf char[]
+staticMethod java.lang.String copyValueOf char[] int int
+staticMethod java.lang.String format java.lang.String java.lang.Object[]
+staticMethod java.lang.String format java.util.Locale java.lang.String java.lang.Object[]
+staticMethod java.lang.String join java.lang.CharSequence java.lang.CharSequence[]
+staticMethod java.lang.String join java.lang.CharSequence java.lang.Iterable
+staticMethod java.lang.String valueOf boolean
+staticMethod java.lang.String valueOf char
+staticMethod java.lang.String valueOf char[]
+staticMethod java.lang.String valueOf char[] int int
+staticMethod java.lang.String valueOf double
+staticMethod java.lang.String valueOf float
+staticMethod java.lang.String valueOf int
+staticMethod java.lang.String valueOf java.lang.Object
+staticMethod java.lang.String valueOf long
+staticMethod java.time.OffsetDateTime from java.time.temporal.TemporalAccessor
+staticMethod java.time.OffsetDateTime now
+staticMethod java.time.OffsetDateTime now java.time.Clock
+staticMethod java.time.OffsetDateTime now java.time.ZoneId
+staticMethod java.time.OffsetDateTime of int int int int int int int java.time.ZoneOffset
+staticMethod java.time.OffsetDateTime of java.time.LocalDate java.time.LocalTime java.time.ZoneOffset
+staticMethod java.time.OffsetDateTime of java.time.LocalDateTime java.time.ZoneOffset
+staticMethod java.time.OffsetDateTime ofInstant java.time.Instant java.time.ZoneId
+staticMethod java.time.OffsetDateTime parse java.lang.CharSequence
+staticMethod java.time.OffsetDateTime parse java.lang.CharSequence java.time.format.DateTimeFormatter
+staticMethod java.time.OffsetDateTime timeLineOrder
+staticMethod java.util.Collections addAll java.util.Collection java.lang.Object[]
+staticMethod java.util.Collections asLifoQueue java.util.Deque
+staticMethod java.util.Collections binarySearch java.util.List java.lang.Object
+staticMethod java.util.Collections binarySearch java.util.List java.lang.Object java.util.Comparator
+staticMethod java.util.Collections copy java.util.List java.util.List
+staticMethod java.util.Collections disjoint java.util.Collection java.util.Collection
+staticMethod java.util.Collections emptyEnumeration
+staticMethod java.util.Collections emptyIterator
+staticMethod java.util.Collections emptyList
+staticMethod java.util.Collections emptyListIterator
+staticMethod java.util.Collections emptyMap
+staticMethod java.util.Collections emptyNavigableMap
+staticMethod java.util.Collections emptyNavigableSet
+staticMethod java.util.Collections emptySet
+staticMethod java.util.Collections emptySortedMap
+staticMethod java.util.Collections emptySortedSet
+staticMethod java.util.Collections enumeration java.util.Collection
+staticMethod java.util.Collections fill java.util.List java.lang.Object
+staticMethod java.util.Collections frequency java.util.Collection java.lang.Object
+staticMethod java.util.Collections indexOfSubList java.util.List java.util.List
+staticMethod java.util.Collections lastIndexOfSubList java.util.List java.util.List
+staticMethod java.util.Collections list java.util.Enumeration
+staticMethod java.util.Collections max java.util.Collection
+staticMethod java.util.Collections max java.util.Collection java.util.Comparator
+staticMethod java.util.Collections min java.util.Collection
+staticMethod java.util.Collections min java.util.Collection java.util.Comparator
+staticMethod java.util.Collections nCopies int java.lang.Object
+staticMethod java.util.Collections newSequencedSetFromMap java.util.SequencedMap
+staticMethod java.util.Collections newSetFromMap java.util.Map
+staticMethod java.util.Collections replaceAll java.util.List java.lang.Object java.lang.Object
+staticMethod java.util.Collections reverse java.util.List
+staticMethod java.util.Collections reverseOrder
+staticMethod java.util.Collections reverseOrder java.util.Comparator
+staticMethod java.util.Collections rotate java.util.List int
+staticMethod java.util.Collections shuffle java.util.List
+staticMethod java.util.Collections shuffle java.util.List java.util.Random
+staticMethod java.util.Collections shuffle java.util.List java.util.random.RandomGenerator
+staticMethod java.util.Collections singleton java.lang.Object
+staticMethod java.util.Collections singletonList java.lang.Object
+staticMethod java.util.Collections singletonMap java.lang.Object java.lang.Object
+staticMethod java.util.Collections sort java.util.List
+staticMethod java.util.Collections sort java.util.List java.util.Comparator
+staticMethod java.util.Collections swap java.util.List int int
+staticMethod java.util.Collections synchronizedCollection java.util.Collection
+staticMethod java.util.Collections synchronizedList java.util.List
+staticMethod java.util.Collections synchronizedMap java.util.Map
+staticMethod java.util.Collections synchronizedNavigableMap java.util.NavigableMap
+staticMethod java.util.Collections synchronizedNavigableSet java.util.NavigableSet
+staticMethod java.util.Collections synchronizedSet java.util.Set
+staticMethod java.util.Collections synchronizedSortedMap java.util.SortedMap
+staticMethod java.util.Collections synchronizedSortedSet java.util.SortedSet
+staticMethod java.util.Collections unmodifiableCollection java.util.Collection
+staticMethod java.util.Collections unmodifiableList java.util.List
+staticMethod java.util.Collections unmodifiableMap java.util.Map
+staticMethod java.util.Collections unmodifiableNavigableMap java.util.NavigableMap
+staticMethod java.util.Collections unmodifiableNavigableSet java.util.NavigableSet
+staticMethod java.util.Collections unmodifiableSequencedCollection java.util.SequencedCollection
+staticMethod java.util.Collections unmodifiableSequencedMap java.util.SequencedMap
+staticMethod java.util.Collections unmodifiableSequencedSet java.util.SequencedSet
+staticMethod java.util.Collections unmodifiableSet java.util.Set
+staticMethod java.util.Collections unmodifiableSortedMap java.util.SortedMap
+staticMethod java.util.Collections unmodifiableSortedSet java.util.SortedSet
+staticMethod java.util.Date UTC int int int int int int
+staticMethod java.util.Date from java.time.Instant
+staticMethod java.util.Date parse java.lang.String
+staticMethod java.util.HashMap newHashMap int
+staticMethod java.util.HashSet newHashSet int
+staticMethod java.util.List copyOf java.util.Collection
+staticMethod java.util.List of
+staticMethod java.util.List of java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.List of java.lang.Object[]
+staticMethod java.util.Map copyOf java.util.Map
+staticMethod java.util.Map entry java.lang.Object java.lang.Object
+staticMethod java.util.Map of
+staticMethod java.util.Map of java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Map ofEntries java.util.Map$Entry[]
+staticMethod java.util.Optional empty
+staticMethod java.util.Optional of java.lang.Object
+staticMethod java.util.Optional ofNullable java.lang.Object
+staticMethod java.util.Set copyOf java.util.Collection
+staticMethod java.util.Set of
+staticMethod java.util.Set of java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object java.lang.Object
+staticMethod java.util.Set of java.lang.Object[]
+
+# Groovy runtime helpers
+
+method groovy.lang.Binding getVariable java.lang.String
+method groovy.lang.Binding getVariables
+method groovy.lang.Binding hasVariable java.lang.String
+method groovy.lang.Binding removeVariable java.lang.String
+method groovy.lang.Binding setVariable java.lang.String java.lang.Object
+new groovy.lang.Binding
+new groovy.lang.Binding java.lang.String[]
+new groovy.lang.Binding java.util.Map
+new org.codehaus.groovy.runtime.StringGroovyMethods
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport closeQuietly java.io.Closeable
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethodsSupport closeWithWarning java.io.Closeable
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods append java.lang.StringBuilder org.codehaus.groovy.runtime.GStringImpl
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods asBoolean java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods asBoolean java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods bitwiseNegate java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods capitalize java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods center java.lang.CharSequence java.lang.Number
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods center java.lang.CharSequence java.lang.Number java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods collectReplacements java.lang.String groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods collectReplacements java.lang.String java.util.List
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods contains java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods containsIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods count java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods denormalize java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods drop groovy.lang.GString int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods drop java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods drop java.lang.String int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods dropRight groovy.lang.GString int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods dropRight java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods dropRight java.lang.String int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods dropWhile groovy.lang.GString groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods dropWhile java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods eachMatch java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods eachMatch java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods eachMatch java.lang.String java.lang.String groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods eachMatch java.lang.String java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods endsWithAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods endsWithIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods expand java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods expand java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods expandLine java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods find java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods find java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods find java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods find java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAll java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAll java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAll java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAll java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAllGroups java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findAllGroups java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findBalancedGroups java.lang.CharSequence java.lang.String java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findBalancedGroups java.lang.CharSequence java.lang.String java.lang.String groovy.util.regex.BalancedGroup$MatchOptions
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findGroups java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods findGroups java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt groovy.lang.GString groovy.lang.IntRange
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt groovy.lang.GString groovy.lang.Range
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt groovy.lang.GString int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.CharSequence groovy.lang.EmptyRange
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.CharSequence groovy.lang.IntRange
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.CharSequence groovy.lang.Range
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.CharSequence java.util.Collection
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.String groovy.lang.IntRange
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.String groovy.lang.Range
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.lang.String int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.util.regex.Matcher int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getAt java.util.regex.Matcher java.util.Collection
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getChars java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getCodePoints java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getCount java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getLength java.lang.StringBuffer
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods getLength java.lang.StringBuilder
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods hasGroup java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isAllWhitespace java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isAtLeast java.lang.String java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isBigDecimal java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isBigInteger java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isBlank java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isCase java.lang.CharSequence java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isCase java.util.regex.Pattern java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isDouble java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isFloat java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isInteger java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isLong java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isNotCase java.lang.CharSequence java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isNotCase java.util.regex.Pattern java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods isNumber java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods iterator java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods leftShift java.lang.CharSequence java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods leftShift java.lang.String java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods leftShift java.lang.StringBuffer java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods leftShift java.lang.StringBuilder java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods matches java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods matchesPartially java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods minus java.lang.CharSequence java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods minus java.lang.CharSequence java.util.regex.Pattern
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods multiply java.lang.CharSequence java.lang.Number
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods next java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods next java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods normalize java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods padLeft java.lang.CharSequence java.lang.Number
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods padLeft java.lang.CharSequence java.lang.Number java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods padRight java.lang.CharSequence java.lang.Number
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods padRight java.lang.CharSequence java.lang.Number java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods plus java.lang.CharSequence java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods plus java.lang.Number java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods plus java.lang.String java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods plus java.lang.StringBuffer java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods previous java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods previous java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods putAt java.lang.StringBuffer groovy.lang.EmptyRange java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods putAt java.lang.StringBuffer groovy.lang.IntRange java.lang.Object
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replace java.lang.CharSequence int java.util.Map
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replace java.lang.CharSequence java.util.Map
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceAll java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceAll java.lang.CharSequence java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceAll java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceAll java.lang.CharSequence java.util.regex.Pattern java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceFirst java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceFirst java.lang.CharSequence java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceFirst java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods replaceFirst java.lang.CharSequence java.util.regex.Pattern java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods reverse java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods setIndex java.util.regex.Matcher int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods size java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods size java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods size java.lang.StringBuffer
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods size java.util.regex.Matcher
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods split java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods splitEachLine java.lang.CharSequence java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods splitEachLine java.lang.CharSequence java.util.regex.Pattern groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods startsWithAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods startsWithIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripIndent java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripIndent java.lang.CharSequence boolean
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripIndent java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripMargin java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripMargin java.lang.CharSequence char
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods stripMargin java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods take groovy.lang.GString int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods take java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods take java.lang.String int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeAfter groovy.lang.GString java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeAfter java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeAfter java.lang.String java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBefore groovy.lang.GString java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBefore java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBefore java.lang.String java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween groovy.lang.GString java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween groovy.lang.GString java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween groovy.lang.GString java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween groovy.lang.GString java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.CharSequence java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.CharSequence java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.String java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.String java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.String java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeBetween java.lang.String java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeRight groovy.lang.GString int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeRight java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeRight java.lang.String int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeWhile groovy.lang.GString groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods takeWhile java.lang.CharSequence groovy.lang.Closure
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toBigDecimal java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toBigInteger java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toBoolean java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toCharacter java.lang.String
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toCurrencyNumber java.lang.CharSequence java.util.Locale
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toDouble java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toFloat java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toInteger java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toList java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toLong java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toNumber java.lang.CharSequence java.util.Locale
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toPercentNumber java.lang.CharSequence java.util.Locale
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toSet java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods toShort java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods tokenize java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods tokenize java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods tokenize java.lang.CharSequence java.lang.Character
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods tr java.lang.CharSequence java.lang.CharSequence java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods uncapitalize java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods unexpand java.lang.CharSequence
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods unexpand java.lang.CharSequence int
+staticMethod org.codehaus.groovy.runtime.StringGroovyMethods unexpandLine java.lang.CharSequence int
+
+# Commons Lang helpers
+
+new org.apache.commons.lang3.StringUtils
+staticField org.apache.commons.lang3.StringUtils CR
+staticField org.apache.commons.lang3.StringUtils EMPTY
+staticField org.apache.commons.lang3.StringUtils INDEX_NOT_FOUND
+staticField org.apache.commons.lang3.StringUtils LF
+staticField org.apache.commons.lang3.StringUtils SPACE
+staticMethod org.apache.commons.lang3.StringUtils abbreviate java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils abbreviate java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils abbreviate java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils abbreviate java.lang.String java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils abbreviateMiddle java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils appendIfMissing java.lang.String java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils appendIfMissingIgnoreCase java.lang.String java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils capitalize java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils center java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils center java.lang.String int char
+staticMethod org.apache.commons.lang3.StringUtils center java.lang.String int java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils chomp java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils chomp java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils chop java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils compare java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils compare java.lang.String java.lang.String boolean
+staticMethod org.apache.commons.lang3.StringUtils compareIgnoreCase java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils compareIgnoreCase java.lang.String java.lang.String boolean
+staticMethod org.apache.commons.lang3.StringUtils contains java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils contains java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils containsAny java.lang.CharSequence char[]
+staticMethod org.apache.commons.lang3.StringUtils containsAny java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils containsAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils containsAnyIgnoreCase java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils containsIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils containsNone java.lang.CharSequence char[]
+staticMethod org.apache.commons.lang3.StringUtils containsNone java.lang.CharSequence java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils containsOnly java.lang.CharSequence char[]
+staticMethod org.apache.commons.lang3.StringUtils containsOnly java.lang.CharSequence java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils containsWhitespace java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils countMatches java.lang.CharSequence char
+staticMethod org.apache.commons.lang3.StringUtils countMatches java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils defaultIfBlank java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils defaultIfEmpty java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils defaultString java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils defaultString java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils deleteWhitespace java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils difference java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils endsWith java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils endsWithAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils endsWithIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils equals java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils equalsAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils equalsAnyIgnoreCase java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils equalsIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils firstNonBlank java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils firstNonEmpty java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils getBytes java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils getBytes java.lang.String java.nio.charset.Charset
+staticMethod org.apache.commons.lang3.StringUtils getCommonPrefix java.lang.String[]
+staticMethod org.apache.commons.lang3.StringUtils getDigits java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils getFuzzyDistance java.lang.CharSequence java.lang.CharSequence java.util.Locale
+staticMethod org.apache.commons.lang3.StringUtils getIfBlank java.lang.CharSequence java.util.function.Supplier
+staticMethod org.apache.commons.lang3.StringUtils getIfEmpty java.lang.CharSequence java.util.function.Supplier
+staticMethod org.apache.commons.lang3.StringUtils getJaroWinklerDistance java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils getLevenshteinDistance java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils getLevenshteinDistance java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils indexOf java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils indexOf java.lang.CharSequence int int
+staticMethod org.apache.commons.lang3.StringUtils indexOf java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils indexOf java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils indexOfAny java.lang.CharSequence char[]
+staticMethod org.apache.commons.lang3.StringUtils indexOfAny java.lang.CharSequence int char[]
+staticMethod org.apache.commons.lang3.StringUtils indexOfAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils indexOfAny java.lang.CharSequence java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils indexOfAnyBut java.lang.CharSequence char[]
+staticMethod org.apache.commons.lang3.StringUtils indexOfAnyBut java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils indexOfDifference java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils indexOfDifference java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils indexOfIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils indexOfIgnoreCase java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils isAllBlank java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isAllEmpty java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isAllLowerCase java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAllUpperCase java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAlpha java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAlphaSpace java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAlphanumeric java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAlphanumericSpace java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isAnyBlank java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isAnyEmpty java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isAsciiPrintable java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isBlank java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isEmpty java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isMixedCase java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isNoneBlank java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isNoneEmpty java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils isNotBlank java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isNotEmpty java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isNumeric java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isNumericSpace java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils isWhitespace java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils join boolean[] char
+staticMethod org.apache.commons.lang3.StringUtils join boolean[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join byte[] char
+staticMethod org.apache.commons.lang3.StringUtils join byte[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join char[] char
+staticMethod org.apache.commons.lang3.StringUtils join char[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join double[] char
+staticMethod org.apache.commons.lang3.StringUtils join double[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join float[] char
+staticMethod org.apache.commons.lang3.StringUtils join float[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join int[] char
+staticMethod org.apache.commons.lang3.StringUtils join int[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Iterable char
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Iterable java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Object[]
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Object[] char
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Object[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Object[] java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils join java.lang.Object[] java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils join java.util.Iterator char
+staticMethod org.apache.commons.lang3.StringUtils join java.util.Iterator java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils join java.util.List char int int
+staticMethod org.apache.commons.lang3.StringUtils join java.util.List java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils join long[] char
+staticMethod org.apache.commons.lang3.StringUtils join long[] char int int
+staticMethod org.apache.commons.lang3.StringUtils join short[] char
+staticMethod org.apache.commons.lang3.StringUtils join short[] char int int
+staticMethod org.apache.commons.lang3.StringUtils joinWith java.lang.String java.lang.Object[]
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOf java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOf java.lang.CharSequence int int
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOf java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOf java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOfAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOfIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils lastIndexOfIgnoreCase java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils lastOrdinalIndexOf java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils left java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils leftPad java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils leftPad java.lang.String int char
+staticMethod org.apache.commons.lang3.StringUtils leftPad java.lang.String int java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils length java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils lowerCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils lowerCase java.lang.String java.util.Locale
+staticMethod org.apache.commons.lang3.StringUtils mid java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils normalizeSpace java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils ordinalIndexOf java.lang.CharSequence java.lang.CharSequence int
+staticMethod org.apache.commons.lang3.StringUtils overlay java.lang.String java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils prependIfMissing java.lang.String java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils prependIfMissingIgnoreCase java.lang.String java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils remove java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils remove java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeAll java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeEnd java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeEndIgnoreCase java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeFirst java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeIgnoreCase java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removePattern java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeStart java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils removeStart java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils removeStartIgnoreCase java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils repeat char int
+staticMethod org.apache.commons.lang3.StringUtils repeat java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils repeat java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils replace java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replace java.lang.String java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils replaceAll java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replaceChars java.lang.String char char
+staticMethod org.apache.commons.lang3.StringUtils replaceChars java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replaceEach java.lang.String java.lang.String[] java.lang.String[]
+staticMethod org.apache.commons.lang3.StringUtils replaceEachRepeatedly java.lang.String java.lang.String[] java.lang.String[]
+staticMethod org.apache.commons.lang3.StringUtils replaceFirst java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replaceIgnoreCase java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replaceIgnoreCase java.lang.String java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils replaceOnce java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replaceOnceIgnoreCase java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils replacePattern java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils reverse java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils reverseDelimited java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils right java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils rightPad java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils rightPad java.lang.String int char
+staticMethod org.apache.commons.lang3.StringUtils rightPad java.lang.String int java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils rotate java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils split java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils split java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils split java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils split java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils splitByCharacterType java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitByCharacterTypeCamelCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitByWholeSeparator java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitByWholeSeparator java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils splitByWholeSeparatorPreserveAllTokens java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitByWholeSeparatorPreserveAllTokens java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils splitPreserveAllTokens java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitPreserveAllTokens java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils splitPreserveAllTokens java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils splitPreserveAllTokens java.lang.String java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils startsWith java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils startsWithAny java.lang.CharSequence java.lang.CharSequence[]
+staticMethod org.apache.commons.lang3.StringUtils startsWithIgnoreCase java.lang.CharSequence java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils strip java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils strip java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripAccents java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripAll java.lang.String[]
+staticMethod org.apache.commons.lang3.StringUtils stripAll java.lang.String[] java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripEnd java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripStart java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripToEmpty java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils stripToNull java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substring java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils substring java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils substringAfter java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils substringAfter java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringAfterLast java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils substringAfterLast java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringBefore java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils substringBefore java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringBeforeLast java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringBetween java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringBetween java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils substringsBetween java.lang.String java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils swapCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils toCodePoints java.lang.CharSequence
+staticMethod org.apache.commons.lang3.StringUtils toEncodedString byte[] java.nio.charset.Charset
+staticMethod org.apache.commons.lang3.StringUtils toRootLowerCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils toRootUpperCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils toString byte[] java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils trim java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils trimAsciiControl java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils trimToEmpty java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils trimToNull java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils truncate java.lang.String int
+staticMethod org.apache.commons.lang3.StringUtils truncate java.lang.String int int
+staticMethod org.apache.commons.lang3.StringUtils uncapitalize java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils unwrap java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils unwrap java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils upperCase java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils upperCase java.lang.String java.util.Locale
+staticMethod org.apache.commons.lang3.StringUtils valueOf char[]
+staticMethod org.apache.commons.lang3.StringUtils wrap java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils wrap java.lang.String java.lang.String
+staticMethod org.apache.commons.lang3.StringUtils wrapIfMissing java.lang.String char
+staticMethod org.apache.commons.lang3.StringUtils wrapIfMissing java.lang.String java.lang.String
+
+# Syncope common types
+
+method org.apache.syncope.common.keymaster.client.api.ConfParamOps get java.lang.String java.lang.String java.lang.Object java.lang.Class
+method org.apache.syncope.common.lib.Attr compareTo org.apache.syncope.common.lib.Attr
+method org.apache.syncope.common.lib.Attr equals java.lang.Object
+method org.apache.syncope.common.lib.Attr getSchema
+method org.apache.syncope.common.lib.Attr getValues
+method org.apache.syncope.common.lib.Attr hashCode
+method org.apache.syncope.common.lib.Attr setSchema java.lang.String
+method org.apache.syncope.common.lib.request.AbstractPatch equals java.lang.Object
+method org.apache.syncope.common.lib.request.AbstractPatch getOperation
+method org.apache.syncope.common.lib.request.AbstractPatch hashCode
+method org.apache.syncope.common.lib.request.AbstractPatch setOperation org.apache.syncope.common.lib.types.PatchOperation
+method org.apache.syncope.common.lib.request.AbstractPatchItem equals java.lang.Object
+method org.apache.syncope.common.lib.request.AbstractPatchItem getValue
+method org.apache.syncope.common.lib.request.AbstractPatchItem hashCode
+method org.apache.syncope.common.lib.request.AbstractPatchItem setValue java.lang.Object
+method org.apache.syncope.common.lib.request.AbstractReplacePatchItem setOperation org.apache.syncope.common.lib.types.PatchOperation
+method org.apache.syncope.common.lib.request.AnyCR equals java.lang.Object
+method org.apache.syncope.common.lib.request.AnyCR getAuxClasses
+method org.apache.syncope.common.lib.request.AnyCR getDerAttr java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR getDerAttrs
+method org.apache.syncope.common.lib.request.AnyCR getDiscriminator
+method org.apache.syncope.common.lib.request.AnyCR getPlainAttr java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR getPlainAttrs
+method org.apache.syncope.common.lib.request.AnyCR getRealm
+method org.apache.syncope.common.lib.request.AnyCR getRelationship java.lang.String java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR getRelationships
+method org.apache.syncope.common.lib.request.AnyCR getResources
+method org.apache.syncope.common.lib.request.AnyCR getgManager
+method org.apache.syncope.common.lib.request.AnyCR getuManager
+method org.apache.syncope.common.lib.request.AnyCR hashCode
+method org.apache.syncope.common.lib.request.AnyCR setDiscriminator java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR setRealm java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR setgManager java.lang.String
+method org.apache.syncope.common.lib.request.AnyCR setuManager java.lang.String
+method org.apache.syncope.common.lib.request.AnyUR equals java.lang.Object
+method org.apache.syncope.common.lib.request.AnyUR getAuxClasses
+method org.apache.syncope.common.lib.request.AnyUR getDiscriminator
+method org.apache.syncope.common.lib.request.AnyUR getKey
+method org.apache.syncope.common.lib.request.AnyUR getPlainAttrs
+method org.apache.syncope.common.lib.request.AnyUR getRealm
+method org.apache.syncope.common.lib.request.AnyUR getRelationships
+method org.apache.syncope.common.lib.request.AnyUR getResources
+method org.apache.syncope.common.lib.request.AnyUR getgManager
+method org.apache.syncope.common.lib.request.AnyUR getuManager
+method org.apache.syncope.common.lib.request.AnyUR hashCode
+method org.apache.syncope.common.lib.request.AnyUR isEmpty
+method org.apache.syncope.common.lib.request.AnyUR setDiscriminator java.lang.String
+method org.apache.syncope.common.lib.request.AnyUR setKey java.lang.String
+method org.apache.syncope.common.lib.request.AnyUR setRealm org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.request.AnyUR setgManager org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.request.AnyUR setuManager org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.request.AttrPatch equals java.lang.Object
+method org.apache.syncope.common.lib.request.AttrPatch getAttr
+method org.apache.syncope.common.lib.request.AttrPatch hashCode
+method org.apache.syncope.common.lib.request.AttrPatch isEmpty
+method org.apache.syncope.common.lib.request.AttrPatch setAttr org.apache.syncope.common.lib.Attr
+method org.apache.syncope.common.lib.request.PasswordPatch equals java.lang.Object
+method org.apache.syncope.common.lib.request.PasswordPatch getResources
+method org.apache.syncope.common.lib.request.PasswordPatch hashCode
+method org.apache.syncope.common.lib.request.PasswordPatch isOnSyncope
+method org.apache.syncope.common.lib.request.PasswordPatch setOnSyncope boolean
+method org.apache.syncope.common.lib.request.UserUR equals java.lang.Object
+method org.apache.syncope.common.lib.request.UserUR getDiscriminator
+method org.apache.syncope.common.lib.request.UserUR getLinkedAccounts
+method org.apache.syncope.common.lib.request.UserUR getMemberships
+method org.apache.syncope.common.lib.request.UserUR getMustChangePassword
+method org.apache.syncope.common.lib.request.UserUR getPassword
+method org.apache.syncope.common.lib.request.UserUR getRoles
+method org.apache.syncope.common.lib.request.UserUR getSecurityAnswer
+method org.apache.syncope.common.lib.request.UserUR getSecurityQuestion
+method org.apache.syncope.common.lib.request.UserUR getUsername
+method org.apache.syncope.common.lib.request.UserUR hashCode
+method org.apache.syncope.common.lib.request.UserUR isEmpty
+method org.apache.syncope.common.lib.request.UserUR isEmptyButPassword
+method org.apache.syncope.common.lib.request.UserUR requiresApproval
+method org.apache.syncope.common.lib.request.UserUR setMustChangePassword org.apache.syncope.common.lib.request.BooleanReplacePatchItem
+method org.apache.syncope.common.lib.request.UserUR setPassword org.apache.syncope.common.lib.request.PasswordPatch
+method org.apache.syncope.common.lib.request.UserUR setSecurityAnswer org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.request.UserUR setSecurityQuestion org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.request.UserUR setUsername org.apache.syncope.common.lib.request.StringReplacePatchItem
+method org.apache.syncope.common.lib.to.AttributableTO getDerAttr java.lang.String
+method org.apache.syncope.common.lib.to.AttributableTO getDerAttrs
+method org.apache.syncope.common.lib.to.AttributableTO getPlainAttr java.lang.String
+method org.apache.syncope.common.lib.to.AttributableTO getPlainAttrs
+new org.apache.syncope.common.lib.Attr
+new org.apache.syncope.common.lib.request.AbstractPatch
+new org.apache.syncope.common.lib.request.AbstractPatchItem
+new org.apache.syncope.common.lib.request.AbstractReplacePatchItem
+new org.apache.syncope.common.lib.request.AnyCR
+new org.apache.syncope.common.lib.request.AnyUR
+new org.apache.syncope.common.lib.request.AttrPatch
+new org.apache.syncope.common.lib.request.PasswordPatch
+new org.apache.syncope.common.lib.request.StringPatchItem
+new org.apache.syncope.common.lib.request.UserUR
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams AUTHENTICATION_ATTRIBUTES
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams AUTHENTICATION_STATUSES
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams JWT_LIFETIME_MINUTES
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams LOG_LAST_LOGIN_DATE
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams MFA_ENABLED
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams NOTIFICATION_JOB_CRON_EXPRESSION
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams NOTIFICATION_MAX_RETRIES
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams PASSWORD_CIPHER_ALGORITHM
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams PASSWORD_RESET_ALLOWED
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams PASSWORD_RESET_SECURITY_QUESTION
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams SELF_REGISTRATION_ALLOWED
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams TOKEN_EXPIRE_TIME
+staticField org.apache.syncope.common.keymaster.client.api.StandardConfParams TOKEN_LENGTH
+staticField org.apache.syncope.common.lib.SyncopeConstants DATE_PATTERNS
+staticField org.apache.syncope.common.lib.SyncopeConstants ENCRYPTED_DECODE_CONVERSION_PATTERN
+staticField org.apache.syncope.common.lib.SyncopeConstants FULL_ADMIN_REALMS
+staticField org.apache.syncope.common.lib.SyncopeConstants MASTER_DOMAIN
+staticField org.apache.syncope.common.lib.SyncopeConstants REALM_ANYTYPE
+staticField org.apache.syncope.common.lib.SyncopeConstants ROOT_REALM
+staticField org.apache.syncope.common.lib.SyncopeConstants UUID_PATTERN
+staticField org.apache.syncope.common.lib.SyncopeConstants UUID_REGEX
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType CUSTOM
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType LOGIC
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType PROPAGATION
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType PULL
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType PUSH
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType REPORT
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType TASK
+staticField org.apache.syncope.common.lib.types.OpEvent$CategoryType WA
+staticField org.apache.syncope.common.lib.types.OpEvent$Outcome FAILURE
+staticField org.apache.syncope.common.lib.types.OpEvent$Outcome SUCCESS
+staticField org.apache.syncope.common.lib.types.PatchOperation ADD_REPLACE
+staticField org.apache.syncope.common.lib.types.PatchOperation DELETE
+staticMethod org.apache.syncope.common.lib.types.OpEvent$CategoryType valueOf java.lang.String
+staticMethod org.apache.syncope.common.lib.types.OpEvent$CategoryType values
+staticMethod org.apache.syncope.common.lib.types.OpEvent$Outcome valueOf java.lang.String
+staticMethod org.apache.syncope.common.lib.types.OpEvent$Outcome values
+staticMethod org.apache.syncope.common.lib.types.PatchOperation valueOf java.lang.String
+staticMethod org.apache.syncope.common.lib.types.PatchOperation values
+
+# Syncope persistence, provisioning and security types
+
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond equals java.lang.Object
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond getExpression
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond getSchema
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond getType
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond hashCode
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond isValid
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond setExpression java.lang.String
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond setSchema java.lang.String
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond setType org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type
+method org.apache.syncope.core.persistence.api.dao.search.AttrCond toString
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond equals java.lang.Object
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond getAnyTypeCond
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond getLeft
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond getRight
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond getType
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond hasAnyTypeCond
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond hashCode
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond isValid
+method org.apache.syncope.core.persistence.api.dao.search.SearchCond toString
+method org.apache.syncope.core.persistence.api.entity.Any add org.apache.syncope.core.persistence.api.entity.AnyTypeClass
+method org.apache.syncope.core.persistence.api.entity.Any add org.apache.syncope.core.persistence.api.entity.ExternalResource
+method org.apache.syncope.core.persistence.api.entity.Any getAuxClasses
+method org.apache.syncope.core.persistence.api.entity.Any getCreationContext
+method org.apache.syncope.core.persistence.api.entity.Any getCreationDate
+method org.apache.syncope.core.persistence.api.entity.Any getCreator
+method org.apache.syncope.core.persistence.api.entity.Any getLastChangeContext
+method org.apache.syncope.core.persistence.api.entity.Any getLastChangeDate
+method org.apache.syncope.core.persistence.api.entity.Any getLastModifier
+method org.apache.syncope.core.persistence.api.entity.Any getRealm
+method org.apache.syncope.core.persistence.api.entity.Any getResources
+method org.apache.syncope.core.persistence.api.entity.Any getStatus
+method org.apache.syncope.core.persistence.api.entity.Any getType
+method org.apache.syncope.core.persistence.api.entity.Any getgManager
+method org.apache.syncope.core.persistence.api.entity.Any getuManager
+method org.apache.syncope.core.persistence.api.entity.Any setCreationContext java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Any setCreationDate java.time.OffsetDateTime
+method org.apache.syncope.core.persistence.api.entity.Any setCreator java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Any setLastChangeContext java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Any setLastChangeDate java.time.OffsetDateTime
+method org.apache.syncope.core.persistence.api.entity.Any setLastModifier java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Any setRealm org.apache.syncope.core.persistence.api.entity.Realm
+method org.apache.syncope.core.persistence.api.entity.Any setStatus java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Any setType org.apache.syncope.core.persistence.api.entity.AnyType
+method org.apache.syncope.core.persistence.api.entity.Any setgManager org.apache.syncope.core.persistence.api.entity.group.Group
+method org.apache.syncope.core.persistence.api.entity.Any setuManager org.apache.syncope.core.persistence.api.entity.user.User
+method org.apache.syncope.core.persistence.api.entity.Attributable add org.apache.syncope.core.persistence.api.entity.PlainAttr
+method org.apache.syncope.core.persistence.api.entity.Attributable getPlainAttr java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Attributable getPlainAttrs
+method org.apache.syncope.core.persistence.api.entity.Attributable remove org.apache.syncope.core.persistence.api.entity.PlainAttr
+method org.apache.syncope.core.persistence.api.entity.Entity getKey
+method org.apache.syncope.core.persistence.api.entity.Groupable add org.apache.syncope.core.persistence.api.entity.Membership
+method org.apache.syncope.core.persistence.api.entity.Groupable getMembership java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Groupable getMemberships
+method org.apache.syncope.core.persistence.api.entity.Groupable getPlainAttr java.lang.String org.apache.syncope.core.persistence.api.entity.Membership
+method org.apache.syncope.core.persistence.api.entity.Groupable getPlainAttrs org.apache.syncope.core.persistence.api.entity.Membership
+method org.apache.syncope.core.persistence.api.entity.Groupable remove org.apache.syncope.core.persistence.api.entity.Membership
+method org.apache.syncope.core.persistence.api.entity.PlainAttr add org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttr add org.apache.syncope.core.persistence.api.entity.PlainAttrValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttr equals java.lang.Object
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getMembership
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getRelationship
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getSchema
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getUniqueValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getValues
+method org.apache.syncope.core.persistence.api.entity.PlainAttr getValuesAsStrings
+method org.apache.syncope.core.persistence.api.entity.PlainAttr hashCode
+method org.apache.syncope.core.persistence.api.entity.PlainAttr isValid
+method org.apache.syncope.core.persistence.api.entity.PlainAttr setMembership java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttr setPlainSchema org.apache.syncope.core.persistence.api.entity.PlainSchema
+method org.apache.syncope.core.persistence.api.entity.PlainAttr setRelationship java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttr setSchema java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttr setUniqueValue org.apache.syncope.core.persistence.api.entity.PlainAttrValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttr toString
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getAttr
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getBinaryValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getBooleanValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getDateValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getDoubleValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getLongValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getStringValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getValue
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getValueAsString
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getValueAsString org.apache.syncope.common.lib.types.AttrSchemaType
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue getValueAsString org.apache.syncope.core.persistence.api.entity.PlainSchema
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue parseValue org.apache.syncope.core.persistence.api.entity.PlainSchema java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setAttr org.apache.syncope.core.persistence.api.entity.PlainAttr
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setBinaryValue byte[]
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setBooleanValue java.lang.Boolean
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setDateValue java.time.OffsetDateTime
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setDoubleValue java.lang.Double
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setLongValue java.lang.Long
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue setStringValue java.lang.String
+method org.apache.syncope.core.persistence.api.entity.PlainAttrValue toString
+method org.apache.syncope.core.persistence.api.entity.Relatable add org.apache.syncope.core.persistence.api.entity.Relationship
+method org.apache.syncope.core.persistence.api.entity.Relatable getPlainAttr java.lang.String org.apache.syncope.core.persistence.api.entity.Relationship
+method org.apache.syncope.core.persistence.api.entity.Relatable getPlainAttrs org.apache.syncope.core.persistence.api.entity.Relationship
+method org.apache.syncope.core.persistence.api.entity.Relatable getRelationship org.apache.syncope.core.persistence.api.entity.RelationshipType java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Relatable getRelationships
+method org.apache.syncope.core.persistence.api.entity.Relatable getRelationships java.lang.String
+method org.apache.syncope.core.persistence.api.entity.Relatable getRelationships org.apache.syncope.core.persistence.api.entity.RelationshipType
+method org.apache.syncope.core.persistence.api.entity.Relatable remove org.apache.syncope.core.persistence.api.entity.Relationship
+method org.apache.syncope.core.persistence.api.entity.user.Account getUsername
+method org.apache.syncope.core.persistence.api.entity.user.Account setUsername java.lang.String
+method org.apache.syncope.core.persistence.api.entity.user.User add org.apache.syncope.core.persistence.api.entity.Role
+method org.apache.syncope.core.persistence.api.entity.user.User add org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
+method org.apache.syncope.core.persistence.api.entity.user.User getLinkedAccount java.lang.String java.lang.String
+method org.apache.syncope.core.persistence.api.entity.user.User getLinkedAccounts
+method org.apache.syncope.core.persistence.api.entity.user.User getLinkedAccounts java.lang.String
+method org.apache.syncope.core.persistence.api.entity.user.User getRoles
+method org.apache.syncope.core.persistence.api.entity.user.User removeToken
+method org.apache.syncope.core.provisioning.api.AuditManager audit java.lang.String java.lang.String org.apache.syncope.common.lib.types.OpEvent$CategoryType java.lang.String java.lang.String java.lang.String org.apache.syncope.common.lib.types.OpEvent$Outcome java.lang.Object java.lang.Object java.lang.Object[]
+method org.apache.syncope.core.provisioning.api.AuditManager audit org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent
+method org.apache.syncope.core.provisioning.api.AuditManager auditRequested java.lang.String java.lang.String org.apache.syncope.common.lib.types.OpEvent$CategoryType java.lang.String java.lang.String java.lang.String
+method org.apache.syncope.core.provisioning.api.MappingManager$IntValues attrSchemaType
+method org.apache.syncope.core.provisioning.api.MappingManager$IntValues equals java.lang.Object
+method org.apache.syncope.core.provisioning.api.MappingManager$IntValues hashCode
+method org.apache.syncope.core.provisioning.api.MappingManager$IntValues toString
+method org.apache.syncope.core.provisioning.api.MappingManager$IntValues values
+method org.apache.syncope.core.provisioning.api.macro.Command$Result equals java.lang.Object
+method org.apache.syncope.core.provisioning.api.macro.Command$Result hashCode
+method org.apache.syncope.core.provisioning.api.macro.Command$Result message
+method org.apache.syncope.core.provisioning.api.macro.Command$Result toString
+method org.apache.syncope.core.provisioning.api.macro.Command$Result values
+new org.apache.syncope.core.persistence.api.dao.search.AttrCond
+new org.apache.syncope.core.persistence.api.dao.search.AttrCond org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type
+new org.apache.syncope.core.persistence.api.dao.search.SearchCond
+new org.apache.syncope.core.persistence.api.entity.PlainAttr
+new org.apache.syncope.core.persistence.api.entity.PlainAttrValue
+new org.apache.syncope.core.provisioning.api.MappingManager$IntValues org.apache.syncope.common.lib.types.AttrSchemaType java.util.List
+new org.apache.syncope.core.provisioning.api.macro.Command$Result java.lang.String java.util.Map
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type EQ
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type GE
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type GT
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type IEQ
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type ILIKE
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type ISNOTNULL
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type ISNULL
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type LE
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type LIKE
+staticField org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type LT
+staticField org.apache.syncope.core.persistence.api.entity.Entity EMAIL_PATTERN
+staticField org.apache.syncope.core.persistence.api.entity.Entity ID_PATTERN
+staticField org.apache.syncope.core.persistence.api.entity.Entity ID_REGEX
+staticField org.apache.syncope.core.persistence.api.entity.PlainAttrValue SPRING_ENV_PROPERTY
+staticMethod org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type valueOf java.lang.String
+staticMethod org.apache.syncope.core.persistence.api.dao.search.AttrCond$Type values
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond and java.util.List
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond and org.apache.syncope.core.persistence.api.dao.search.SearchCond[]
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond negate org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond of org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond or java.util.List
+staticMethod org.apache.syncope.core.persistence.api.dao.search.SearchCond or org.apache.syncope.core.persistence.api.dao.search.SearchCond[]
+staticMethod org.apache.syncope.core.spring.security.AuthContextUtils getDelegatedBy
+staticMethod org.apache.syncope.core.spring.security.AuthContextUtils getDomain
+staticMethod org.apache.syncope.core.spring.security.AuthContextUtils getUsername
+staticMethod org.apache.syncope.core.spring.security.AuthContextUtils getWho
+
+# Flowable workflow scripts
+
+staticMethod org.flowable.common.engine.api.variable.VariableContainer empty
+method org.flowable.common.engine.api.variable.VariableContainer getTenantId
+method org.flowable.common.engine.api.variable.VariableContainer getVariable java.lang.String
+method org.flowable.common.engine.api.variable.VariableContainer getVariableNames
+method org.flowable.common.engine.api.variable.VariableContainer hasVariable java.lang.String
+method org.flowable.common.engine.api.variable.VariableContainer setTransientVariable java.lang.String java.lang.Object
+method org.flowable.common.engine.api.variable.VariableContainer setVariable java.lang.String java.lang.Object
+method org.flowable.variable.api.delegate.VariableScope getTransientVariable java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getTransientVariableLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getTransientVariables
+method org.flowable.variable.api.delegate.VariableScope getTransientVariablesLocal
+method org.flowable.variable.api.delegate.VariableScope getVariable java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getVariable java.lang.String boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableInstance java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getVariableInstance java.lang.String boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableInstanceLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getVariableInstanceLocal java.lang.String boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableInstances
+method org.flowable.variable.api.delegate.VariableScope getVariableInstances java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope getVariableInstances java.util.Collection boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableInstancesLocal
+method org.flowable.variable.api.delegate.VariableScope getVariableInstancesLocal java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope getVariableInstancesLocal java.util.Collection boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope getVariableLocal java.lang.String boolean
+method org.flowable.variable.api.delegate.VariableScope getVariableNames
+method org.flowable.variable.api.delegate.VariableScope getVariableNamesLocal
+method org.flowable.variable.api.delegate.VariableScope getVariables
+method org.flowable.variable.api.delegate.VariableScope getVariables java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope getVariables java.util.Collection boolean
+method org.flowable.variable.api.delegate.VariableScope getVariablesLocal
+method org.flowable.variable.api.delegate.VariableScope getVariablesLocal java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope getVariablesLocal java.util.Collection boolean
+method org.flowable.variable.api.delegate.VariableScope hasVariable java.lang.String
+method org.flowable.variable.api.delegate.VariableScope hasVariableLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope hasVariables
+method org.flowable.variable.api.delegate.VariableScope hasVariablesLocal
+method org.flowable.variable.api.delegate.VariableScope removeTransientVariable java.lang.String
+method org.flowable.variable.api.delegate.VariableScope removeTransientVariableLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope removeTransientVariables
+method org.flowable.variable.api.delegate.VariableScope removeTransientVariablesLocal
+method org.flowable.variable.api.delegate.VariableScope removeVariable java.lang.String
+method org.flowable.variable.api.delegate.VariableScope removeVariableLocal java.lang.String
+method org.flowable.variable.api.delegate.VariableScope removeVariables
+method org.flowable.variable.api.delegate.VariableScope removeVariables java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope removeVariablesLocal
+method org.flowable.variable.api.delegate.VariableScope removeVariablesLocal java.util.Collection
+method org.flowable.variable.api.delegate.VariableScope setTransientVariable java.lang.String java.lang.Object
+method org.flowable.variable.api.delegate.VariableScope setTransientVariableLocal java.lang.String java.lang.Object
+method org.flowable.variable.api.delegate.VariableScope setTransientVariables java.util.Map
+method org.flowable.variable.api.delegate.VariableScope setTransientVariablesLocal java.util.Map
+method org.flowable.variable.api.delegate.VariableScope setVariable java.lang.String java.lang.Object
+method org.flowable.variable.api.delegate.VariableScope setVariable java.lang.String java.lang.Object boolean
+method org.flowable.variable.api.delegate.VariableScope setVariableLocal java.lang.String java.lang.Object
+method org.flowable.variable.api.delegate.VariableScope setVariableLocal java.lang.String java.lang.Object boolean
+method org.flowable.variable.api.delegate.VariableScope setVariables java.util.Map
+method org.flowable.variable.api.delegate.VariableScope setVariablesLocal java.util.Map
+staticMethod org.flowable.variable.api.delegate.VariableScope empty
+
+# ConnId objects used by correlation rules and reconciliation filters
+
+method org.identityconnectors.framework.common.objects.Attribute attributeEquals java.lang.Object
+method org.identityconnectors.framework.common.objects.Attribute equals java.lang.Object
+method org.identityconnectors.framework.common.objects.Attribute getAttributeValueCompleteness
+method org.identityconnectors.framework.common.objects.Attribute getName
+method org.identityconnectors.framework.common.objects.Attribute getValue
+method org.identityconnectors.framework.common.objects.Attribute hashCode
+method org.identityconnectors.framework.common.objects.Attribute is java.lang.String
+method org.identityconnectors.framework.common.objects.Attribute toString
+method org.identityconnectors.framework.common.objects.AttributeBuilder addValue java.lang.Object[]
+method org.identityconnectors.framework.common.objects.AttributeBuilder addValue java.util.Collection
+method org.identityconnectors.framework.common.objects.AttributeBuilder build
+method org.identityconnectors.framework.common.objects.AttributeBuilder getAttributeValueCompleteness
+method org.identityconnectors.framework.common.objects.AttributeBuilder getName
+method org.identityconnectors.framework.common.objects.AttributeBuilder getValue
+method org.identityconnectors.framework.common.objects.AttributeBuilder setAttributeValueCompleteness org.identityconnectors.framework.common.objects.AttributeValueCompleteness
+method org.identityconnectors.framework.common.objects.AttributeBuilder setName java.lang.String
+method org.identityconnectors.framework.common.objects.BaseObject equals java.lang.Object
+method org.identityconnectors.framework.common.objects.BaseObject getAttributeByName java.lang.String
+method org.identityconnectors.framework.common.objects.BaseObject getAttributes
+method org.identityconnectors.framework.common.objects.BaseObject getObjectClass
+method org.identityconnectors.framework.common.objects.BaseObject hashCode
+method org.identityconnectors.framework.common.objects.ConnectorObject getIdentification
+method org.identityconnectors.framework.common.objects.ConnectorObject getName
+method org.identityconnectors.framework.common.objects.ConnectorObject getUid
+method org.identityconnectors.framework.common.objects.ConnectorObject toString
+method org.identityconnectors.framework.common.objects.LiveSyncDelta equals java.lang.Object
+method org.identityconnectors.framework.common.objects.LiveSyncDelta getObject
+method org.identityconnectors.framework.common.objects.LiveSyncDelta getObjectClass
+method org.identityconnectors.framework.common.objects.LiveSyncDelta getUid
+method org.identityconnectors.framework.common.objects.LiveSyncDelta hashCode
+method org.identityconnectors.framework.common.objects.LiveSyncDelta toString
+method org.identityconnectors.framework.common.objects.Name getNameValue
+method org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler$PassThroughFilter accept org.identityconnectors.framework.common.objects.BaseObject
+method org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler$PassThroughFilter accept org.identityconnectors.framework.common.objects.ConnectorObject
+method org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler$PassThroughFilter accept org.identityconnectors.framework.common.objects.filter.FilterVisitor java.lang.Object
+new org.identityconnectors.framework.common.objects.AttributeBuilder
+new org.identityconnectors.framework.common.objects.ConnectorObject org.identityconnectors.framework.common.objects.ObjectClass java.util.Set
+new org.identityconnectors.framework.common.objects.Name java.lang.String
+new org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler$PassThroughFilter
+staticField org.identityconnectors.framework.common.objects.Name INFO
+staticField org.identityconnectors.framework.common.objects.Name NAME
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder build java.lang.String
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder build java.lang.String java.lang.Object[]
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder build java.lang.String java.util.Collection
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildCurrentPassword char[]
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildCurrentPassword org.identityconnectors.common.security.GuardedString
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildDisableDate java.util.Date
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildDisableDate long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildEnableDate java.util.Date
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildEnableDate long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildEnabled boolean
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildLastLoginDate java.util.Date
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildLastLoginDate long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildLastPasswordChangeDate java.util.Date
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildLastPasswordChangeDate long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildLockOut boolean
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPassword char[]
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPassword org.identityconnectors.common.security.GuardedString
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPasswordChangeInterval long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPasswordExpirationDate java.util.Date
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPasswordExpirationDate long
+staticMethod org.identityconnectors.framework.common.objects.AttributeBuilder buildPasswordExpired boolean
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder and java.util.Collection
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder and org.identityconnectors.framework.common.objects.filter.Filter org.identityconnectors.framework.common.objects.filter.Filter
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder and org.identityconnectors.framework.common.objects.filter.Filter[]
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder contains org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder containsAllValues org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder endsWith org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder equalTo org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder equalsIgnoreCase org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder greaterThan org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder greaterThanOrEqualTo org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder lessThan org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder lessThanOrEqualTo org.identityconnectors.framework.common.objects.Attribute
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder not org.identityconnectors.framework.common.objects.filter.Filter
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder or java.util.Collection
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder or org.identityconnectors.framework.common.objects.filter.Filter org.identityconnectors.framework.common.objects.filter.Filter
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder or org.identityconnectors.framework.common.objects.filter.Filter[]
+staticMethod org.identityconnectors.framework.common.objects.filter.FilterBuilder startsWith org.identityconnectors.framework.common.objects.Attribute

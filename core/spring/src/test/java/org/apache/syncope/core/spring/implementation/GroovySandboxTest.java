@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.implementation;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -36,23 +37,28 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
+import org.codehaus.groovy.runtime.ProcessGroovyMethods;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.script.ScriptExecutor;
 import org.identityconnectors.common.script.ScriptExecutorFactory;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 class GroovySandboxTest {
+
+    @Autowired
+    private Whitelist whitelist;
 
     private static <T> T build(final String key, final String resource) throws Exception {
         Implementation impl = mock(Implementation.class);
@@ -65,8 +71,27 @@ class GroovySandboxTest {
         return ImplementationManager.build(SyncopeConstants.MASTER_DOMAIN, impl);
     }
 
+    private static void assertDenied(final Executable executable) {
+        Throwable thrown = assertThrows(Throwable.class, executable);
+        Throwable root = ExceptionUtils.getRootCause(thrown);
+        assertTrue(root instanceof SecurityException, "Expected a sandbox rejection, got: " + root);
+        assertTrue(root.getMessage().startsWith("Insecure call to"), "Unexpected rejection: " + root.getMessage());
+    }
+
     @TempDir
     private Path tempDir;
+
+    @Test
+    void processGroovyMethodsAreNotWhitelisted() throws Exception {
+        assertFalse(whitelist.permitsStaticMethod(
+                ProcessGroovyMethods.class.getMethod("execute", String.class), new Object[] { "id" }));
+    }
+
+    @Test
+    void threadCreationIsNotWhitelisted() throws Exception {
+        assertFalse(whitelist.permitsConstructor(
+                Thread.class.getConstructor(Runnable.class), new Object[] { (Runnable) () -> { } }));
+    }
 
     @Test
     void script() {
@@ -89,9 +114,7 @@ class GroovySandboxTest {
     void processBuilder() throws Exception {
         MacroActions actions = build("processBuilder", "/ProcessBuilderMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -99,18 +122,12 @@ class GroovySandboxTest {
     void bash() throws Exception {
         MacroActions actions = build("bash", "/BashMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new java.io.File java.lang.String'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
-    void staticMacroActions() throws Exception {
-        BeanCreationException e = assertThrows(
-                BeanCreationException.class,
-                () -> build("staticMacroActions", "/StaticMacroActions.groovy"));
-        SecurityException sec = (SecurityException) ExceptionUtils.getRootCause(e);
-        assertTrue(sec.getMessage().startsWith("Insecure call to 'new java.lang.ProcessBuilder java.util.List'"));
+    void staticMacroActions() {
+        assertDenied(() -> build("staticMacroActions", "/StaticMacroActions.groovy"));
     }
 
     @Test
@@ -120,11 +137,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("pathOfFilesReadString", "/PathOfFilesReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Path of java.lang.String java.lang.String[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
     }
 
     @Test
@@ -133,11 +146,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("pathOfFilesWriteString", "/PathOfFilesWriteStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Path of java.lang.String java.lang.String[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
     }
 
     @Test
@@ -147,11 +156,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("pathOfUriFilesReadString", "/PathOfUriFilesReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Path of java.net.URI'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
     }
 
     @Test
@@ -161,11 +166,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("pathsGetFilesReadString", "/PathsGetFilesReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Paths get java.lang.String java.lang.String[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
     }
 
     @Test
@@ -175,11 +176,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("pathsGetUriFilesReadString", "/PathsGetUriFilesReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Paths get java.net.URI'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
     }
 
     @Test
@@ -189,11 +186,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("fileSystemsReadString", "/FileSystemsReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.FileSystems getDefault'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toAbsolutePath().toString())));
     }
 
     @Test
@@ -204,35 +197,21 @@ class GroovySandboxTest {
         MacroActions actions =
                 build("fileSystemProviderReadString", "/FileSystemProviderReadStringMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.spi.FileSystemProvider installedProviders'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder(testFile.toUri().toString())));
     }
 
     @Test
     void filesCreateTempFile() throws Exception {
         MacroActions actions = build("filesCreateTempFile", "/FilesCreateTempFileMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Files createTempFile "
-                + "java.lang.String java.lang.String java.nio.file.attribute.FileAttribute[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
     void filesCreateTempDirectory() throws Exception {
         MacroActions actions = build("filesCreateTempDirectory", "/FilesCreateTempDirectoryMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.Files createTempDirectory "
-                + "java.lang.String java.nio.file.attribute.FileAttribute[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -245,11 +224,7 @@ class GroovySandboxTest {
                 "builders",
                 List.of(new ProcessBuilder("/bin/sh", "-c", "printf sandbox-start-pipeline-ok")));
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.lang.ProcessBuilder startPipeline java.util.List'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -261,11 +236,7 @@ class GroovySandboxTest {
         Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("runtime", Runtime.getRuntime());
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'method java.lang.Runtime exec java.lang.String[]'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -273,22 +244,14 @@ class GroovySandboxTest {
     void beansExpressionRuntimeExec() throws Exception {
         MacroActions actions = build("beansExpressionRuntimeExec", "/BeansExpressionRuntimeExecMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'new java.beans.Expression java.lang.Object java.lang.String java.lang.Object[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
     void beansStatementSystemExit() throws Exception {
         MacroActions actions = build("beansStatementSystemExit", "/BeansStatementSystemExitMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'new java.beans.Statement java.lang.Object java.lang.String java.lang.Object[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -296,10 +259,7 @@ class GroovySandboxTest {
     void groovyShellRuntimeExec() throws Exception {
         MacroActions actions = build("groovyShellRuntimeExec", "/GroovyShellRuntimeExecMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyShell'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -307,11 +267,7 @@ class GroovySandboxTest {
     void evalRuntimeExec() throws Exception {
         MacroActions actions = build("evalRuntimeExec", "/EvalRuntimeExecMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod groovy.util.Eval me java.lang.String'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -319,11 +275,7 @@ class GroovySandboxTest {
     void methodHandlesRuntimeExec() throws Exception {
         MacroActions actions = build("methodHandlesRuntimeExec", "/MethodHandlesRuntimeExecMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.lang.invoke.MethodHandles publicLookup'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -335,22 +287,14 @@ class GroovySandboxTest {
         Map<String, java.io.Serializable> ctx =
                 (Map<String, java.io.Serializable>) (Map<?, ?>) Map.of("runtime", Runtime.getRuntime());
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'method java.lang.Runtime exec java.lang.String'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @Test
     void evalOverloads() throws Exception {
         MacroActions actions = build("evalOverloads", "/EvalOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod groovy.util.Eval me java.lang.String'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
@@ -363,10 +307,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("groovyShellOverloads", "/GroovyShellOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyShell'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @Test
@@ -374,20 +315,14 @@ class GroovySandboxTest {
         MacroActions actions = build(
                 "groovyClassLoaderOverloads", "/GroovyClassLoaderOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new groovy.lang.GroovyClassLoader'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
     void scriptEngineOverloads() throws Exception {
         MacroActions actions = build("scriptEngineOverloads", "/ScriptEngineOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains("Insecure call to 'new javax.script.ScriptEngineManager'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
@@ -400,11 +335,7 @@ class GroovySandboxTest {
 
         MacroActions actions = build("fileSystemsOverloads", "/FileSystemsOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.nio.file.FileSystems getFileSystem java.net.URI'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @Test
@@ -419,33 +350,21 @@ class GroovySandboxTest {
 
         MacroActions actions = build("fileSystemProviderOverloads", "/FileSystemProviderOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(ctx, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'method java.nio.file.spi.FileSystemProvider getFileSystem java.net.URI'"));
+        assertDenied(() -> actions.afterAll(ctx, new StringBuilder()));
     }
 
     @Test
     void methodHandlesOverloads() throws Exception {
         MacroActions actions = build("methodHandlesOverloads", "/MethodHandlesOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod java.lang.invoke.MethodHandles lookup'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @Test
     void beansOverloads() throws Exception {
         MacroActions actions = build("beansOverloads", "/BeansOverloadsMacroActions.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> actions.afterAll(null, new StringBuilder()));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'new java.beans.Expression java.lang.Object java.lang.String java.lang.Object[]'"));
+        assertDenied(() -> actions.afterAll(null, new StringBuilder()));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -454,12 +373,7 @@ class GroovySandboxTest {
         SchedTaskJobDelegate delegate = build(
                 "processGroovyMethods", "/ProcessGroovyMethodsSchedTaskJobDelegate.groovy");
 
-        SecurityException e = assertThrows(
-                SecurityException.class,
-                () -> delegate.execute(TaskType.SCHEDULED, null, null));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods "
-                + "execute java.lang.String'"));
+        assertDenied(() -> delegate.execute(TaskType.SCHEDULED, null, null));
     }
 
     @EnabledOnOs(OS.LINUX)
@@ -467,11 +381,6 @@ class GroovySandboxTest {
     void threadLocalBypass() throws Exception {
         SchedTaskJobDelegate delegate = build("threadLocalBypass", "/ThreadLocalBypassSchedTaskJobDelegate.groovy");
 
-        JobExecutionException e = assertThrows(
-                JobExecutionException.class,
-                () -> delegate.execute(TaskType.SCHEDULED, null, null));
-        assertTrue(e.getMessage().contains(
-                "Insecure call to 'staticMethod org.codehaus.groovy.runtime.ProcessGroovyMethods "
-                + "execute java.lang.String'"));
+        assertDenied(() -> delegate.execute(TaskType.SCHEDULED, null, null));
     }
 }
