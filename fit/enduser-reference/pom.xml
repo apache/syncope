@@ -144,7 +144,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded,all
-                -Xmx1024m -Xms512m</cargo.jvmargs>
+                -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -235,7 +235,7 @@ under the License.
                     -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
                     -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -288,7 +288,7 @@ under the License.
                     -Dwicket.core.settings.general.configuration-type=development
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

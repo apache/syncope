@@ -224,7 +224,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
-                -Xmx1024m -Xms512m</cargo.jvmargs>
+                -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>

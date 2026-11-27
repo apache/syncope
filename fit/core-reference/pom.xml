@@ -334,7 +334,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
-                -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                -XX:+UseG1GC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
             </properties>
           </configuration>
           <deployables>
@@ -1510,7 +1510,7 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=${spring.profiles.active}
                     -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -1542,7 +1542,7 @@ under the License.
                     -Dspring.profiles.active=${spring.profiles.active}
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

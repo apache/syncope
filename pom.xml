@@ -549,7 +549,8 @@ under the License.
     <jwsKey>ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f</jwsKey>
 
     <!--
-    Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacoco-maven-plugin
+    JVM arguments appended to build JVMs: Surefire's argLine is a property to avoid JVM errors at startup
+    with no jacoco-maven-plugin; Cargo uses the same property for forked containers.
     https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html
     -->
     <jdk28.jvm.args />
@@ -1747,7 +1748,7 @@ under the License.
                 <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
                 <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-                <cargo.jvmargs>-Xmx1024m -Xms512m</cargo.jvmargs>
+                <cargo.jvmargs>-Xmx1024m -Xms512m ${jdk28.jvm.args}</cargo.jvmargs>
               </properties>
             </configuration>
           </configuration>
