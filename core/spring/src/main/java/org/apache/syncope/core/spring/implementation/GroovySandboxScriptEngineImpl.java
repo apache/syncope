@@ -18,19 +18,14 @@
  */
 package org.apache.syncope.core.spring.implementation;
 
-import groovy.grape.GrabAnnotationTransformation;
 import groovy.lang.GroovyClassLoader;
 import java.io.Reader;
-import java.util.Set;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
-import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SandboxInterceptor;
 import org.kohsuke.groovy.sandbox.GroovyInterceptor;
-import org.kohsuke.groovy.sandbox.SandboxTransformer;
 import org.springframework.util.function.ThrowingSupplier;
 
 public class GroovySandboxScriptEngineImpl extends GroovyScriptEngineImpl {
@@ -38,11 +33,8 @@ public class GroovySandboxScriptEngineImpl extends GroovyScriptEngineImpl {
     private static final GroovyClassLoader GROOVY_CLASSLOADER;
 
     static {
-        CompilerConfiguration cc = new CompilerConfiguration();
-        cc.addCompilationCustomizers(new RejectASTTransformsCustomizer(), new SandboxTransformer());
-        cc.setDisabledGlobalASTTransformations(Set.of(GrabAnnotationTransformation.class.getName()));
-
-        GROOVY_CLASSLOADER = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), cc);
+        GROOVY_CLASSLOADER = new GroovyClassLoader(
+                Thread.currentThread().getContextClassLoader(), GroovySandboxMethods.newCompilerConfiguration());
     }
 
     protected final Whitelist whitelist;
