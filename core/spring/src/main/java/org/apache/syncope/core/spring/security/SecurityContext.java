@@ -52,7 +52,8 @@ import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.policy.DefaultRuleProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -227,13 +228,13 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public Blacklist groovyBlackList(final ResourceLoader resourceLoader, final SecurityProperties props)
+    public Whitelist groovyWhitelist(final ResourceLoader resourceLoader, final SecurityProperties props)
             throws IOException {
 
-        try (InputStream in = resourceLoader.getResource(props.getGroovyBlacklist()).getInputStream();
+        try (InputStream in = resourceLoader.getResource(props.getGroovyWhitelist()).getInputStream();
                 Reader reader = new InputStreamReader(in)) {
 
-            return new Blacklist(reader);
+            return new StaticWhitelist(reader);
         }
     }
 
