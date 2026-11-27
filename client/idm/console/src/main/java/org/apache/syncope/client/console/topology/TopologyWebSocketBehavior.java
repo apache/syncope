@@ -148,7 +148,7 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
 
         StatusMessage response = responses.get(checker.key);
         handler.push(MAPPER.valueToTree(response == null
-                ? new StatusMessage(TopologyNode.Status.UNKNOWN, checker.key)
+                ? new StatusMessage(TopologyNode.Status.UNKNOWN, Topology.toMarkupId(checker.kind, checker.key))
                 : response).toString());
 
         if (response == null && running.add(checker.key)) {
@@ -181,16 +181,16 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
             }
             return new StatusMessage(reachable
                     ? TopologyNode.Status.REACHABLE
-                    : TopologyNode.Status.UNREACHABLE, checker.key);
+                    : TopologyNode.Status.UNREACHABLE, Topology.toMarkupId(checker.kind, checker.key));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return new StatusMessage(TopologyNode.Status.UNREACHABLE, checker.key);
+            return new StatusMessage(TopologyNode.Status.UNREACHABLE, Topology.toMarkupId(checker.kind, checker.key));
         } catch (TimeoutException e) {
             LOG.warn("Connection with {} timed out", checker.key);
-            return new StatusMessage(TopologyNode.Status.UNREACHABLE, checker.key);
+            return new StatusMessage(TopologyNode.Status.UNREACHABLE, Topology.toMarkupId(checker.kind, checker.key));
         } catch (Exception e) {
             LOG.warn("Error checking connection for {}", checker.key, e);
-            return new StatusMessage(TopologyNode.Status.FAILURE, checker.key);
+            return new StatusMessage(TopologyNode.Status.FAILURE, Topology.toMarkupId(checker.kind, checker.key));
         } finally {
             if (task != null && !task.isDone()) {
                 task.cancel(true);
@@ -206,15 +206,18 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
 
         protected final String key;
 
-        Checker(final String key) {
+        protected final TopologyNode.Kind kind;
+
+        Checker(final String key, final TopologyNode.Kind kind) {
             this.key = key;
+            this.kind = kind;
         }
     }
 
     protected class ConnectorChecker extends Checker {
 
         ConnectorChecker(final String key) {
-            super(key);
+            super(key, TopologyNode.Kind.CONNECTOR);
         }
 
         @Override
@@ -226,7 +229,7 @@ public class TopologyWebSocketBehavior extends BasePageWebSocketBehavior.OnMessa
     protected class ResourceChecker extends Checker {
 
         ResourceChecker(final String key) {
-            super(key);
+            super(key, TopologyNode.Kind.RESOURCE);
         }
 
         @Override
