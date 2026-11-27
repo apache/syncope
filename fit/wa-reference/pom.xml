@@ -319,7 +319,7 @@ under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password ${jdk28.jvm.args}</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -327,7 +327,7 @@ under the License.
         <artifactId>maven-failsafe-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password ${jdk28.jvm.args}</argLine>
         </configuration>
         <executions>
           <execution>
