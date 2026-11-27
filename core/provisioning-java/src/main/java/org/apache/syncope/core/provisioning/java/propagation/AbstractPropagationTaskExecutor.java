@@ -675,6 +675,21 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         for (PropagationActions action : actions) {
             action.after(taskInfo, exec, afterObj);
         }
+        // clean up uidOnCreate on delete if needed
+        if (ResourceOperation.DELETE == taskInfo.getOperation() && provision.getUidOnCreate() != null) {
+            String uidOnCreate = provision.getUidOnCreate();
+            LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete", uidOnCreate, taskInfo.getEntityKey());
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
+            // perform a preliminary search to check user existence
+            anyUtils.dao().findById(taskInfo.getEntityKey()).ifPresentOrElse(any -> {
+                anyUtils.removeAttr(taskInfo.getEntityKey(), plainSchemaDAO.findById(uidOnCreate)
+                        .orElseThrow(() -> new NotFoundException("PlainSchema " + uidOnCreate)));
+                publisher.publishEvent(
+                        new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
+            }, () -> LOG.warn(
+                    "Any not found, it is not necessary to remove uidOnCreate [{}] attribute from " + "[{}] on delete",
+                    uidOnCreate, taskInfo.getEntityKey()));
+        }
         // SYNCOPE-1136
         String anyTypeKind = Optional.ofNullable(taskInfo.getAnyTypeKind()).map(Enum::name).orElse("realm");
         String operation = taskInfo.getOperation().name().toLowerCase();

@@ -113,7 +113,6 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
-import org.apache.syncope.core.provisioning.java.propagation.RemoveUidOnCreatePropagationActions;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -1584,7 +1583,6 @@ public class UserIssuesITCase extends AbstractITCase {
             minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
             ANY_TYPE_CLASS_SERVICE.update(minimalUser);
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-            restResourceTO.getPropagationActions().add(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.getProvision(AnyTypeKind.USER.name())
                     .ifPresent(p -> p.setUidOnCreate(externalKeySchemaTO.getKey()));
             RESOURCE_SERVICE.update(restResourceTO);
@@ -1639,7 +1637,6 @@ public class UserIssuesITCase extends AbstractITCase {
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());
             // restore resource priority and uidOnCreate
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-            restResourceTO.getPropagationActions().remove(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
             provision.setUidOnCreate(null);
             RESOURCE_SERVICE.update(restResourceTO);
@@ -1659,7 +1656,6 @@ public class UserIssuesITCase extends AbstractITCase {
             minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
             ANY_TYPE_CLASS_SERVICE.update(minimalUser);
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-            restResourceTO.getPropagationActions().add(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.setPropagationPriority(null);
             Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
             provision.setUidOnCreate(externalKeySchemaTO.getKey());
@@ -1721,7 +1717,6 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             // restore resource priority and uidOnCreate
             ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-            restResourceTO.getPropagationActions().remove(RemoveUidOnCreatePropagationActions.class.getSimpleName());
             restResourceTO.setPropagationPriority(0);
             Provision provision = restResourceTO.getProvision(AnyTypeKind.USER.name()).orElseThrow();
             provision.setUidOnCreate(null);
