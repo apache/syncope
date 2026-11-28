@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.implementation;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import groovy.lang.Closure;
+import groovy.lang.GroovyClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -410,6 +412,27 @@ class GroovySandboxTest {
 
         Class<?> type = (Class<?>) result.values().get("type");
         assertDenied(() -> type.getDeclaredConstructor().newInstance());
+    }
+
+    @Test
+    void closureCall() throws Exception {
+        Command<CommandArgs> command = build("closure", "/ClosureCommand.groovy");
+
+        Command.Result result = command.run(new CommandArgs());
+
+        assertEquals("no-arg", result.values().get("noArg"));
+        assertEquals("one", result.values().get("oneArg"));
+        assertEquals("two-args", result.values().get("twoArgs"));
+    }
+
+    @Test
+    void externalClosureCallIsNotWhitelisted() throws Exception {
+        Whitelist sandboxWhitelist = new SelfAllowingWhitelist(whitelist, new GroovyClassLoader());
+        Closure<?> closure = new Closure<>(this) {
+        };
+
+        assertFalse(sandboxWhitelist.permitsMethod(
+                Closure.class.getMethod("call", Object.class), closure, new Object[] { "test" }));
     }
 
     @EnabledOnOs(OS.LINUX)
