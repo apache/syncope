@@ -21,7 +21,10 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.OIDCStandardScope;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
@@ -296,6 +299,29 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     protected void doUpdate(final OIDCRPClientApp clientApp, final OIDCRPClientAppTO clientAppTO) {
+        if (clientAppTO.getTokenExchangeAllowedActorTokenTypes().stream().anyMatch(StringUtils::isBlank)) {
+            SyncopeClientException invalid = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            invalid.getElements().add("Token exchange actor token types cannot contain blank values");
+            throw invalid;
+        }
+
+        clientAppTO.getTokenExchangeRequiredActorTokenAttributes().forEach((name, expressions) -> {
+            if (StringUtils.isBlank(name) || expressions == null || expressions.isEmpty()
+                    || expressions.stream().anyMatch(StringUtils::isBlank)) {
+                SyncopeClientException invalid = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                invalid.getElements().add("Invalid token exchange actor token attributes");
+                throw invalid;
+            }
+            try {
+                expressions.forEach(Pattern::compile);
+            } catch (PatternSyntaxException e) {
+                SyncopeClientException invalid = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                invalid.getElements().add("Invalid token exchange actor token attribute expression");
+                invalid.initCause(e);
+                throw invalid;
+            }
+        });
+
         copyToEntity(clientApp, clientAppTO);
 
         clientApp.setClientId(clientAppTO.getClientId());
@@ -337,6 +363,17 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setAuthorizationCodeTimeToLive(clientAppTO.getAuthorizationCodeTimeToLive());
         clientApp.getAudience().clear();
         clientApp.getAudience().addAll(clientAppTO.getAudience());
+        clientApp.getTokenExchangeAllowedResources().clear();
+        clientApp.getTokenExchangeAllowedResources().addAll(clientAppTO.getTokenExchangeAllowedResources());
+        clientApp.getTokenExchangeAllowedAudience().clear();
+        clientApp.getTokenExchangeAllowedAudience().addAll(clientAppTO.getTokenExchangeAllowedAudience());
+        clientApp.getTokenExchangeAllowedTokenTypes().clear();
+        clientApp.getTokenExchangeAllowedTokenTypes().addAll(clientAppTO.getTokenExchangeAllowedTokenTypes());
+        clientApp.getTokenExchangeAllowedActorTokenTypes().clear();
+        clientApp.getTokenExchangeAllowedActorTokenTypes().addAll(clientAppTO.getTokenExchangeAllowedActorTokenTypes());
+        clientApp.getTokenExchangeRequiredActorTokenAttributes().clear();
+        clientApp.getTokenExchangeRequiredActorTokenAttributes().putAll(
+                clientAppTO.getTokenExchangeRequiredActorTokenAttributes());
 
         Set<String> allowedScopes = new HashSet<>();
         Stream.of(OIDCStandardScope.values()).map(OIDCStandardScope::name).forEach(allowedScopes::add);
@@ -394,6 +431,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setIdTokenTimeToKill(clientApp.getIdTokenTimeToKill());
         clientAppTO.setAuthorizationCodeTimeToLive(clientApp.getAuthorizationCodeTimeToLive());
         clientAppTO.getAudience().addAll(clientApp.getAudience());
+        clientAppTO.getTokenExchangeAllowedResources().addAll(clientApp.getTokenExchangeAllowedResources());
+        clientAppTO.getTokenExchangeAllowedAudience().addAll(clientApp.getTokenExchangeAllowedAudience());
+        clientAppTO.getTokenExchangeAllowedTokenTypes().addAll(clientApp.getTokenExchangeAllowedTokenTypes());
+        clientAppTO.getTokenExchangeAllowedActorTokenTypes().addAll(clientApp.getTokenExchangeAllowedActorTokenTypes());
+        clientAppTO.getTokenExchangeRequiredActorTokenAttributes().putAll(
+                clientApp.getTokenExchangeRequiredActorTokenAttributes());
         return clientAppTO;
     }
 

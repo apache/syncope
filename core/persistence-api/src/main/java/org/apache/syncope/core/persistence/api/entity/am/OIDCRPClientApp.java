@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.am;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
@@ -163,4 +165,14 @@ public interface OIDCRPClientApp extends ClientApp {
     void setAuthorizationCodeTimeToLive(String authorizationCodeTimeToLive);
 
     Set<String> getAudience();
+
+    Set<String> getTokenExchangeAllowedResources();
+
+    Set<String> getTokenExchangeAllowedAudience();
+
+    Set<String> getTokenExchangeAllowedTokenTypes();
+
+    Set<String> getTokenExchangeAllowedActorTokenTypes();
+
+    Map<String, List<String>> getTokenExchangeRequiredActorTokenAttributes();
 }

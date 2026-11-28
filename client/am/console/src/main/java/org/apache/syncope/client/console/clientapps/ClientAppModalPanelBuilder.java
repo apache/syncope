@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.client.console.clientapps;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.MediaType;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -29,6 +35,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -114,6 +121,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             }
         }
     }
+
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+            .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
+            .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+            .build();
 
     protected final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
 
@@ -538,6 +550,117 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     AjaxTextFieldPanel audience = new AjaxTextFieldPanel("panel", "audience", Model.of());
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "audience")).build("field", "audience", audience));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedResources =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedResources", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedResources")).build(
+                            "field", "tokenExchangeAllowedResources", tokenExchangeAllowedResources));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedAudience =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedAudience", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedAudience")).build(
+                            "field", "tokenExchangeAllowedAudience", tokenExchangeAllowedAudience));
+
+                    AjaxTextFieldPanel tokenExchangeAllowedTokenTypes =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedTokenTypes", Model.of());
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedTokenTypes")).build(
+                            "field", "tokenExchangeAllowedTokenTypes", tokenExchangeAllowedTokenTypes));
+
+                    AjaxTextFieldPanel actorTokenTypes =
+                            new AjaxTextFieldPanel("panel", "tokenExchangeAllowedActorTokenTypes", Model.of());
+                    actorTokenTypes.setRequired(true);
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "tokenExchangeAllowedActorTokenTypes")).build(
+                            "field", "tokenExchangeAllowedActorTokenTypes", actorTokenTypes));
+
+                    Map<String, List<String>> attributes =
+                            ((OIDCRPClientAppTO) clientAppTO).getTokenExchangeRequiredActorTokenAttributes();
+
+                    AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
+                            "field",
+                            "tokenExchangeRequiredActorTokenAttributes",
+                            new IModel<>() {
+
+                                private static final long serialVersionUID = -1376050016307102685L;
+
+                                @Override
+                                public String getObject() {
+                                    return MAPPER.valueToTree(attributes).toString();
+                                }
+
+                                @Override
+                                public void setObject(final String value) {
+                                    try {
+                                        Map<String, List<String>> parsed = StringUtils.isBlank(value)
+                                                ? new LinkedHashMap<>()
+                                                : MAPPER.readValue(
+                                                value,
+                                                new TypeReference<>() {
+                                                });
+
+                                        if (parsed == null) {
+                                            throw new IllegalArgumentException("Expected a JSON object");
+                                        }
+
+                                        attributes.clear();
+                                        attributes.putAll(parsed);
+
+                                    } catch (JsonProcessingException e) {
+                                        throw new IllegalArgumentException("Invalid JSON", e);
+                                    }
+                                }
+                            },
+                            false) {
+
+                        private static final long serialVersionUID = -8003469650307050340L;
+
+                        @Override
+                        protected AjaxTextFieldPanel setHTMLInputNotAllowed() {
+                            return this;
+                        }
+                    };
+
+                    panel.addValidator(validatable -> {
+                        try {
+                            String json = validatable.getValue();
+
+                            if (StringUtils.isBlank(json)) {
+                                return;
+                            }
+
+                            JsonNode root = MAPPER.readTree(json);
+
+                            if (root == null || !root.isObject()) {
+                                throw new IllegalArgumentException("Expected JSON object");
+                            }
+
+                            root.properties().forEach(entry -> {
+                                if (StringUtils.isBlank(entry.getKey())
+                                        || !entry.getValue().isArray()
+                                        || entry.getValue().isEmpty()) {
+                                    throw new IllegalArgumentException("Invalid attribute");
+                                }
+
+                                entry.getValue().forEach(expression -> {
+                                    if (!expression.isTextual()
+                                            || StringUtils.isBlank(expression.textValue())) {
+                                        throw new IllegalArgumentException("Invalid expression");
+                                    }
+
+                                    Pattern.compile(expression.textValue());
+                                });
+                            });
+
+                        } catch (JsonProcessingException | IllegalArgumentException e) {
+                            validatable.error(new ValidationError()
+                                    .addKey("tokenExchangeRequiredActorTokenAttributes.invalid"));
+                        }
+                    });
+
+                    fields.add(panel);
                     break;
 
                 case SAML2SP:
