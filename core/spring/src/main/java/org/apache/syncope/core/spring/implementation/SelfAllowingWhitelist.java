@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.spring.implementation;
 
+import groovy.lang.Closure;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 import org.jenkinsci.plugins.scriptsecurity.sandbox.Whitelist;
 
 /**
@@ -53,7 +55,16 @@ public class SelfAllowingWhitelist extends Whitelist {
     @Override
     public boolean permitsMethod(final Method method, final Object receiver, final Object[] args) {
         return isSandboxClass(method.getDeclaringClass())
+                || isSandboxClosureCall(method, receiver)
                 || delegate.permitsMethod(method, receiver, args);
+    }
+
+    private boolean isSandboxClosureCall(final Method method, final Object receiver) {
+        return receiver instanceof Closure<?>
+                && isSandboxClass(receiver.getClass())
+                && "call".equals(method.getName())
+                && (method.getDeclaringClass() == Closure.class
+                    || method.getDeclaringClass() == Callable.class);
     }
 
     @Override
