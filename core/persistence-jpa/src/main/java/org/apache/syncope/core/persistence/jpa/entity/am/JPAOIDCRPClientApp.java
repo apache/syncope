@@ -25,7 +25,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -39,6 +42,7 @@ import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.jpa.converters.OIDCGrantTypeSetConverter;
 import org.apache.syncope.core.persistence.jpa.converters.OIDCResponseTypeSetConverter;
+import org.apache.syncope.core.persistence.jpa.converters.String2ListOfStringMapConverter;
 import org.apache.syncope.core.persistence.jpa.converters.StringSetConverter;
 
 @Entity
@@ -142,6 +146,26 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Convert(converter = StringSetConverter.class)
     @Lob
     private Set<String> audience = new HashSet<>();
+
+    @Convert(converter = StringSetConverter.class)
+    @Lob
+    private Set<String> tokenExchangeAllowedResources = new HashSet<>();
+    
+    @Convert(converter = StringSetConverter.class)
+    @Lob
+    private Set<String> tokenExchangeAllowedAudience = new HashSet<>();
+
+    @Convert(converter = StringSetConverter.class)
+    @Lob
+    private Set<String> tokenExchangeAllowedTokenTypes = new HashSet<>();
+
+    @Convert(converter = StringSetConverter.class)
+    @Lob
+    private Set<String> tokenExchangeAllowedActorTokenTypes = new HashSet<>();
+
+    @Convert(converter = String2ListOfStringMapConverter.class)
+    @Lob
+    private Map<String, List<String>> tokenExchangeRequiredActorTokenAttributes = new HashMap<>();
 
     @Override
     public Set<String> getRedirectUris() {
@@ -478,5 +502,30 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public Set<String> getAudience() {
         return audience;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedResources() {
+        return tokenExchangeAllowedResources;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedAudience() {
+        return tokenExchangeAllowedAudience;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedTokenTypes() {
+        return tokenExchangeAllowedTokenTypes;
+    }
+
+    @Override
+    public Set<String> getTokenExchangeAllowedActorTokenTypes() {
+        return tokenExchangeAllowedActorTokenTypes;
+    }
+
+    @Override
+    public Map<String, List<String>> getTokenExchangeRequiredActorTokenAttributes() {
+        return tokenExchangeRequiredActorTokenAttributes;
     }
 }

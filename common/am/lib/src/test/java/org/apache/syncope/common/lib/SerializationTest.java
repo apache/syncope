@@ -21,13 +21,16 @@ package org.apache.syncope.common.lib;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.List;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -77,5 +80,22 @@ class SerializationTest {
 
         assertTrue(((DefaultAttrReleasePolicyConf) actual.getConf()).
                 getPrincipalAttrRepoConf().getAttrRepos().contains("attrRepo1"));
+    }
+
+    public void oidcTokenExchangePolicy() throws IOException {
+        OIDCRPClientAppTO client = new OIDCRPClientAppTO();
+        client.getTokenExchangeAllowedResources().add("https://api\\.example/.*");
+        client.getTokenExchangeAllowedAudience().add("service-[0-9]+");
+        client.getTokenExchangeAllowedTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        client.getTokenExchangeAllowedActorTokenTypes().add("urn:ietf:params:oauth:token-type:access_token");
+        client.getTokenExchangeRequiredActorTokenAttributes().put("service", List.of("api-.*", " backend "));
+
+        OIDCRPClientAppTO actual = MAPPER.readValue(MAPPER.writeValueAsString(client), OIDCRPClientAppTO.class);
+        assertEquals(client.getTokenExchangeAllowedResources(), actual.getTokenExchangeAllowedResources());
+        assertEquals(client.getTokenExchangeAllowedAudience(), actual.getTokenExchangeAllowedAudience());
+        assertEquals(client.getTokenExchangeAllowedTokenTypes(), actual.getTokenExchangeAllowedTokenTypes());
+        assertEquals(client.getTokenExchangeAllowedActorTokenTypes(), actual.getTokenExchangeAllowedActorTokenTypes());
+        assertEquals(client.getTokenExchangeRequiredActorTokenAttributes(),
+                actual.getTokenExchangeRequiredActorTokenAttributes());
     }
 }
